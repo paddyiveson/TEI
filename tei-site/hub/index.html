@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Hub -- The Everyday Investor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+:root {
+  --navy: #1D3557; --navy-dk: #0f1e3a; --navy-md: #2B4C7E; --navy-tint: #EDF2F8;
+  --cream: #F7F4ED; --cream-dk: #EDE8DA;
+  --gold: #C9A84C; --gold-dk: #b8922d; --gold-lt: #FBF4E0;
+  --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
+  --shadow: 0 4px 28px rgba(29,53,87,.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+nav {
+  background: var(--navy); width: 100%; height: 68px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 48px; position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
+.nav-logo-text { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; line-height: 1.35; }
+.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+.nav-links a { color: rgba(247,244,237,.65); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .03em; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
+.nav-mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: var(--navy); flex-direction: column; padding: 8px 0; border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+.nav-mobile-menu a { color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px; font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06); display: block; transition: color .2s; }
+.nav-mobile-menu a:hover { color: var(--gold); }
+.nav-mobile-menu.open { display: flex; }
+
+/* ---------- Hero ---------- */
+.hub-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 60px 40px 40px; text-align: center; }
+.hub-hero p.eyebrow { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 16px; }
+.hub-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: clamp(26px, 3.4vw, 36px); color: var(--cream); margin-bottom: 14px; max-width: 620px; margin-left: auto; margin-right: auto; }
+.hub-hero p.sub { font-size: 14px; color: rgba(247,244,237,.55); max-width: 480px; margin: 0 auto; }
+.hub-mark { color: var(--gold); font-size: 13px; margin-top: 26px; letter-spacing: .3em; opacity: .55; }
+
+/* ---------- Featured suites (masthead band) ---------- */
+.hub-featured { background: var(--navy-dk); }
+.hub-featured-grid { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; }
+.hub-featured-item {
+  padding: 52px 48px; position: relative; text-decoration: none; display: block;
+  transition: background .2s;
+}
+.hub-featured-item:hover { background: rgba(255,255,255,.03); }
+.hub-featured-item + .hub-featured-item { border-left: 1px solid rgba(201,168,76,.18); }
+.hub-featured-eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 14px; }
+.hub-featured-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 24px; color: var(--white); margin-bottom: 10px; }
+.hub-featured-desc { font-size: 13px; color: rgba(247,244,237,.5); max-width: 280px; margin-bottom: 22px; }
+.hub-featured-link { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; letter-spacing: .03em; color: var(--gold); }
+.hub-featured-link .arrow { transition: transform .2s; display: inline-block; }
+.hub-featured-item:hover .hub-featured-link .arrow { transform: translateX(4px); }
+
+/* ---------- Body / card grid ---------- */
+.hub-body { max-width: 1040px; margin: 0 auto; padding: 60px 40px 76px; }
+
+.hub-asterism { text-align: center; color: var(--gold); font-size: 12px; letter-spacing: .5em; opacity: .5; margin-bottom: 28px; }
+.hub-body-head { text-align: center; margin-bottom: 40px; }
+.hub-body-eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
+.hub-body-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px; color: var(--navy); }
+
+.hub-quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 20px; }
+.hub-quick-card {
+  display: flex; align-items: center; gap: 14px; background: var(--white); border: 1px solid var(--cream-dk);
+  border-radius: 10px; padding: 18px 20px; text-decoration: none;
+  transition: border-color .18s ease, transform .18s ease;
+}
+.hub-quick-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.hub-quick-icon {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+  color: var(--gold-dk); flex-shrink: 0;
+}
+.hub-quick-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 13.5px; color: var(--navy); flex: 1; line-height: 1.35; }
+.hub-quick-arrow { color: var(--gold-dk); font-size: 14px; flex-shrink: 0; transition: transform .18s ease; }
+.hub-quick-card:hover .hub-quick-arrow { transform: translateX(3px); }
+
+.hub-library-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  background: var(--navy-tint); border: 1px solid var(--cream-dk); border-radius: 14px;
+  padding: 34px 38px; text-decoration: none; transition: border-color .18s ease, transform .18s ease;
+}
+.hub-library-banner:hover { border-color: var(--gold); transform: translateY(-2px); }
+.hub-library-text { max-width: 460px; }
+.hub-library-eyebrow { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
+.hub-library-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; color: var(--navy); margin-bottom: 6px; }
+.hub-library-desc { font-size: 13px; color: var(--mid); }
+.hub-library-cta {
+  display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: var(--cream);
+  font-size: 12.5px; font-weight: 600; padding: 13px 24px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
+  transition: background .18s ease, color .18s ease;
+}
+.hub-library-banner:hover .hub-library-cta { background: var(--gold); color: var(--navy); }
+
+@media(max-width: 700px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .nav-mobile-toggle { display: flex; }
+  .hub-featured-grid { grid-template-columns: 1fr; }
+  .hub-featured-item + .hub-featured-item { border-left: none; border-top: 1px solid rgba(201,168,76,.18); }
+  .hub-featured-item { padding: 40px 28px; }
+  .hub-body { padding: 44px 20px 56px; }
+  .hub-quick-grid { grid-template-columns: 1fr; gap: 12px; }
+  .hub-library-banner { flex-direction: column; align-items: flex-start; padding: 28px 26px; }
+}
+</style>
+</head>
+<body>
+
+<div id="hubGate" style="position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1D3557 0%,#0f1e3a 100%);display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:380px;width:100%;text-align:center;">
+    <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid #C9A84C;display:flex;align-items:center;justify-content:center;font-size:20px;color:#C9A84C;margin:0 auto 24px;">&#10022;</div>
+    <p style="font-family:'Playfair Display',serif;font-size:24px;color:#F7F4ED;margin-bottom:10px;">Client Hub</p>
+    <p style="font-size:13px;color:rgba(247,244,237,.55);margin-bottom:28px;line-height:1.7;">This area is for TEI clients. Enter the password you were given to continue.</p>
+    <input type="password" id="hubGatePw" placeholder="Password" style="width:100%;padding:13px 16px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#F7F4ED;font-size:14px;font-family:'Inter',sans-serif;text-align:center;margin-bottom:14px;outline:none;">
+    <button onclick="hubGateCheck()" style="width:100%;padding:13px;border-radius:8px;border:none;background:#C9A84C;color:#1D3557;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Enter</button>
+    <p id="hubGateError" style="font-size:12px;color:#e07a6f;margin-top:14px;display:none;">That password isn't right. Try again.</p>
+  </div>
+</div>
+
+<nav>
+  <a class="nav-logo" href="/hub/index.html">
+    <div class="nav-logo-mark">&#10022;</div>
+    <span class="nav-logo-text">The Everyday<br>Investor</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/hub/index.html" class="active">Dashboard</a></li>
+    <li><a href="/hub/suite.html">Investment Suite</a></li>
+    <li><a href="/hub/education/index.html">Education Platform</a></li>
+    <li><a href="/hub/guides.html">Guides &amp; Tools</a></li>
+  </ul>
+  <button class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile-menu" id="navMobileMenu">
+  <a href="/hub/index.html" onclick="closeNav()" class="active">Dashboard</a>
+  <a href="/hub/suite.html" onclick="closeNav()">Investment Suite</a>
+  <a href="/hub/education/index.html" onclick="closeNav()">Education Platform</a>
+  <a href="/hub/guides.html" onclick="closeNav()">Guides &amp; Tools</a>
+</div>
+
+<div class="hub-hero">
+  <p class="eyebrow">Welcome back</p>
+  <h1>Everything we've built together, in one place.</h1>
+  <p class="sub">Your research, guides, and tools -- worth coming back to whenever it's useful, not just once.</p>
+</div>
+
+<div class="hub-featured">
+  <div class="hub-featured-grid">
+    <a class="hub-featured-item" href="/hub/suite.html">
+      <div class="hub-featured-eyebrow">Research &amp; Analysis</div>
+      <div class="hub-featured-title">Investment Suite</div>
+      <div class="hub-featured-desc">14 research notes across Growth, Foundation, Top Ideas &amp; Watchlist</div>
+      <span class="hub-featured-link">Enter the suite <span class="arrow">&#8594;</span></span>
+    </a>
+    <a class="hub-featured-item" href="/hub/education/index.html">
+      <div class="hub-featured-eyebrow">Learning Path</div>
+      <div class="hub-featured-title">Education Platform</div>
+      <div class="hub-featured-desc">30 lessons across Financial Foundations and Investor Understanding, at your own pace</div>
+      <span class="hub-featured-link">Start learning <span class="arrow">&#8594;</span></span>
+    </a>
+  </div>
+</div>
+
+<div class="hub-body">
+
+  <p class="hub-asterism">&#10022;</p>
+  <div class="hub-body-head">
+    <p class="hub-body-eyebrow">Quick Access</p>
+    <p class="hub-body-title">A few of the most useful, close at hand</p>
+  </div>
+
+  <div class="hub-quick-grid">
+    <a class="hub-quick-card" href="/hub/guides.html">
+      <span class="hub-quick-icon">&#9889;</span>
+      <span class="hub-quick-title">Cost of Waiting Calculator</span>
+      <span class="hub-quick-arrow">&#8594;</span>
+    </a>
+    <a class="hub-quick-card" href="/hub/guides/wealthforecast.html">
+      <span class="hub-quick-icon">&#128200;</span>
+      <span class="hub-quick-title">Wealth Forecast</span>
+      <span class="hub-quick-arrow">&#8594;</span>
+    </a>
+    <a class="hub-quick-card" href="/hub/guides/tax.html">
+      <span class="hub-quick-icon">&#127974;</span>
+      <span class="hub-quick-title">The Tax Wrapper Guide</span>
+      <span class="hub-quick-arrow">&#8594;</span>
+    </a>
+  </div>
+
+  <a class="hub-library-banner" href="/hub/guides.html">
+    <div class="hub-library-text">
+      <p class="hub-library-eyebrow">The Full Library</p>
+      <p class="hub-library-title">Every guide, framework &amp; calculator we've built</p>
+      <p class="hub-library-desc">The TEI Method, the Five Stages framework, tax wrappers, portfolio strategy, and every tool in between -- all in one place.</p>
+    </div>
+    <span class="hub-library-cta">Browse Guides &amp; Tools <span class="arrow">&#8594;</span></span>
+  </a>
+
+</div>
+
+<script>
+function toggleNav() {
+  document.getElementById('navMobileMenu').classList.toggle('open');
+}
+function closeNav() {
+  document.getElementById('navMobileMenu').classList.remove('open');
+}
+(function() {
+  var HUB_PASSWORD = "TEI";
+  if (sessionStorage.getItem("hubUnlocked") === "yes") {
+    var gate = document.getElementById("hubGate");
+    if (gate) gate.style.display = "none";
+  }
+})();
+function hubGateCheck() {
+  var input = document.getElementById("hubGatePw");
+  var error = document.getElementById("hubGateError");
+  if (input.value === "TEI") {
+    sessionStorage.setItem("hubUnlocked", "yes");
+    document.getElementById("hubGate").style.display = "none";
+  } else {
+    error.style.display = "block";
+    input.value = "";
+    input.focus();
+  }
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var input = document.getElementById("hubGatePw");
+  if (input) {
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") hubGateCheck();
+    });
+  }
+});
+</script>
+</body>
+</html>

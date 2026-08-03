@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The TEI Method -- The Everyday Investor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --navy:    #1D3557;
+  --navy-dk: #0f1e3a;
+  --navy-md: #2B4C7E;
+  --cream:   #F7F4ED;
+  --cream-dk:#EDE8DA;
+  --gold:    #C9A84C;
+  --gold-dk: #b8922d;
+  --gold-lt: #FBF4E0;
+  --text:    #1a1a2e;
+  --mid:     #4a5568;
+  --lt:      #718096;
+  --white:   #ffffff;
+  --green:   #2D7D52;
+  --red:     #C0392B;
+  --radius:  10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; overflow-x: hidden; }
+
+/* HERO */
+.hero {
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%);
+  padding: 80px 40px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 5vw, 60px);
+  color: var(--cream); line-height: 1.1; margin-bottom: 16px;
+}
+.hero h1 em { color: var(--gold); font-style: italic; font-weight: 400; }
+.hero-sub {
+  font-size: 16px; color: rgba(247,244,237,.55);
+  max-width: 520px; margin: 0 auto 40px; line-height: 1.8;
+}
+.nav-dots {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+}
+.nav-dot {
+  padding: 6px 16px; border-radius: 20px;
+  border: 1px solid rgba(201,168,76,.3);
+  color: rgba(247,244,237,.5); font-size: 11px; font-weight: 600;
+  text-decoration: none; letter-spacing: .04em;
+  transition: all .2s; cursor: pointer;
+}
+.nav-dot:hover { border-color: var(--gold); color: var(--gold); }
+
+/* SECTION WRAPPERS */
+.section { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.section-navy { background: var(--navy); }
+.section-white { background: var(--white); }
+.section-cream { background: var(--cream); }
+
+.section-eyebrow {
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; margin-bottom: 10px; display: block;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px, 3.5vw, 40px);
+  color: var(--navy); line-height: 1.15; margin-bottom: 14px;
+}
+.section-title-light { color: var(--cream); }
+.section-sub {
+  font-size: 15px; color: var(--mid); line-height: 1.85;
+  max-width: 640px; margin-bottom: 48px;
+}
+.section-sub-light { color: rgba(247,244,237,.55); }
+
+/* INFLATION SECTION */
+.inflation-bg { background: var(--navy); }
+.inflation-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+
+.inflation-counter-wrap {
+  display: flex; align-items: center; justify-content: center;
+  gap: 40px; margin-bottom: 48px; flex-wrap: wrap;
+}
+.inflation-start {
+  text-align: center;
+}
+.inflation-start-label {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(247,244,237,.4); margin-bottom: 6px;
+}
+.inflation-start-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px; font-weight: 700; color: var(--cream); line-height: 1;
+}
+.inflation-arrow {
+  font-size: 28px; color: var(--gold); opacity: .6; flex-shrink: 0;
+}
+.inflation-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  flex: 1; min-width: 280px;
+}
+.inflation-card {
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius); padding: 20px 16px; text-align: center;
+}
+.inflation-card-years {
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; margin-bottom: 8px;
+}
+.inflation-card-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 700; color: var(--red); margin-bottom: 4px;
+}
+.inflation-card-loss {
+  font-size: 11px; color: rgba(247,244,237,.4);
+}
+
+.two-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+.path-card {
+  border-radius: var(--radius); padding: 24px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.path-card-title {
+  font-size: 13px; font-weight: 700; color: var(--cream);
+  margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+}
+.path-card-icon { font-size: 18px; }
+.path-card-text { font-size: 13px; color: rgba(247,244,237,.5); line-height: 1.7; }
+.path-card-verdict {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--red); margin-top: 12px;
+}
+
+.manifesto-line {
+  border-left: 3px solid var(--gold);
+  padding: 6px 0 6px 20px;
+  margin: 20px 0;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(17px, 2vw, 21px);
+  color: var(--cream); font-style: italic; line-height: 1.55;
+}
+
+/* PHILOSOPHY */
+.philosophy-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.philosophy-grid { display: flex; flex-direction: column; gap: 32px; }
+.philosophy-text p {
+  font-size: 15px; color: var(--mid); line-height: 1.85; margin-bottom: 16px;
+}
+.philosophy-text strong { color: var(--navy); }
+.philosophy-card {
+  background: var(--navy); border-radius: var(--radius); padding: 32px;
+  position: relative; overflow: hidden;
+}
+.philosophy-card::before {
+  content: '"';
+  font-family: 'Playfair Display', serif;
+  font-size: 140px; color: rgba(201,168,76,.1);
+  position: absolute; top: -20px; left: 10px; line-height: 1;
+  pointer-events: none;
+}
+.philosophy-card-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; color: var(--cream); font-style: italic;
+  line-height: 1.6; position: relative; margin-bottom: 16px;
+}
+.philosophy-card-attr {
+  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; position: relative;
+}
+
+/* THREE STEPS */
+.steps-bg { background: var(--navy); }
+.steps-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.steps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; position: relative; }
+.steps-connector {
+  position: absolute; top: 40px; left: calc(16.67% + 8px); right: calc(16.67% + 8px);
+  height: 2px; background: linear-gradient(to right, var(--gold), rgba(201,168,76,.2));
+  pointer-events: none; z-index: 0;
+}
+.step-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius); padding: 28px 24px;
+  cursor: pointer; transition: all .25s; position: relative; z-index: 1;
+  text-align: center;
+}
+.step-card:hover, .step-card.open {
+  background: rgba(255,255,255,.1);
+  border-color: var(--gold);
+}
+.step-num {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--navy-dk); border: 2px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700; color: var(--gold);
+}
+.step-title {
+  font-size: 14px; font-weight: 700; color: var(--cream);
+  margin-bottom: 8px; letter-spacing: .02em;
+}
+.step-preview {
+  font-size: 12px; color: rgba(247,244,237,.4); line-height: 1.6;
+}
+.step-detail {
+  font-size: 13px; color: rgba(247,244,237,.7); line-height: 1.7;
+  margin-top: 14px; display: none; text-align: left;
+  border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px;
+}
+.step-card.open .step-detail { display: block; }
+.step-toggle {
+  font-size: 18px; color: var(--gold); margin-top: 10px; display: block;
+  transition: transform .2s;
+}
+.step-card.open .step-toggle { transform: rotate(45deg); }
+
+/* CONVICTION MATRIX */
+.matrix-bg { background: var(--cream); }
+.matrix-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.matrix-grid {
+  display: grid; grid-template-columns: 80px 1fr 1fr;
+  grid-template-rows: 40px 1fr 1fr;
+  gap: 3px; margin-bottom: 32px;
+}
+.matrix-label {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--lt); text-align: center;
+  padding: 4px;
+}
+.matrix-label.vertical {
+  writing-mode: vertical-rl; transform: rotate(180deg);
+  grid-row: 2 / 4; grid-column: 1;
+}
+.matrix-cell {
+  border-radius: 8px; padding: 20px 18px; cursor: pointer;
+  transition: all .2s; min-height: 160px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.matrix-cell.tl { background: rgba(201,168,76,.12); border: 2px solid rgba(201,168,76,.3); }
+.matrix-cell.tr { background: var(--navy); border: 2px solid var(--gold); border-top: 4px solid var(--gold); }
+.matrix-cell.bl { background: rgba(113,128,150,.08); border: 2px solid rgba(113,128,150,.2); }
+.matrix-cell.br { background: rgba(192,57,43,.08); border: 2px solid rgba(192,57,43,.2); }
+.matrix-cell:hover { transform: scale(1.02); }
+.matrix-cell.active.tl { background: rgba(201,168,76,.2); border-color: var(--gold); }
+.matrix-cell.active.tr { background: rgba(29,53,87,.15); border-color: var(--navy); }
+.matrix-cell.active.bl { background: rgba(113,128,150,.15); border-color: var(--lt); }
+.matrix-cell.active.br { background: rgba(192,57,43,.15); border-color: var(--red); }
+.matrix-cell-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.matrix-cell-title { font-size: 13px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+.matrix-cell.tl .matrix-cell-title { color: #8B6914; }
+.matrix-cell.tr .matrix-cell-title { color: var(--cream); }
+.matrix-cell.bl .matrix-cell-title { color: var(--lt); }
+.matrix-cell.br .matrix-cell-title { color: var(--red); }
+.matrix-cell-action {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; margin-top: 6px;
+}
+.matrix-cell.tl .matrix-cell-action { color: var(--gold); }
+.matrix-cell.tr .matrix-cell-action { color: var(--gold); }
+.matrix-cell.bl .matrix-cell-action { color: var(--lt); }
+.matrix-cell.br .matrix-cell-action { color: var(--red); }
+.matrix-cell-detail {
+  font-size: 12px; color: var(--mid); line-height: 1.65;
+  display: none; margin-top: 10px; border-top: 1px solid rgba(0,0,0,.08);
+  padding-top: 10px;
+}
+.matrix-cell.active .matrix-cell-detail { display: block; }
+  .matrix-cell.tr .matrix-cell-detail { color: rgba(247,244,237,.7); border-top-color: rgba(255,255,255,.15); }
+  .matrix-cell.tr:hover { background: #253f6a; }
+  .matrix-cell.active.tr { background: #253f6a; border-color: var(--gold); border-top-width: 4px; }
+.matrix-rotation {
+  background: var(--navy); border-radius: var(--radius);
+  padding: 28px 32px; margin-bottom: 0;
+}
+.matrix-rotation-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; color: var(--cream); margin-bottom: 16px;
+}
+.rotation-examples { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.rotation-example {
+  background: rgba(255,255,255,.06); border-radius: 8px; padding: 16px;
+  border-left: 3px solid var(--gold);
+}
+.rotation-example-ticker {
+  font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 6px;
+}
+.rotation-example-text {
+  font-size: 12px; color: rgba(247,244,237,.6); line-height: 1.65;
+}
+
+/* PORTFOLIO STRUCTURE */
+.structure-bg { background: var(--white); }
+.structure-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.structure-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+.sleeve-wrap {
+  border-radius: var(--radius); overflow: hidden;
+  border: 1.5px solid var(--cream-dk);
+}
+.sleeve-header {
+  padding: 18px 22px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sleeve-header.growth { background: var(--navy); }
+.sleeve-header.foundation { background: var(--navy-md); }
+.sleeve-header-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; color: var(--cream);
+}
+.sleeve-header-pct {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 700; color: var(--gold);
+}
+.sleeve-sub {
+  font-size: 11px; color: rgba(247,244,237,.5); margin-top: 2px;
+}
+.tier {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 22px; border-bottom: 1px solid var(--cream-dk);
+  cursor: pointer; transition: background .15s; background: var(--white);
+}
+.tier:last-child { border-bottom: none; }
+.tier:hover { background: var(--cream); }
+.tier.active { background: var(--gold-lt); }
+.tier-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.tier-name { font-size: 13px; font-weight: 600; color: var(--navy); flex: 1; }
+.tier-pct { font-size: 12px; color: var(--lt); }
+.tier-detail {
+  font-size: 12px; color: var(--mid); line-height: 1.65;
+  padding: 12px 22px; background: var(--gold-lt);
+  border-bottom: 1px solid rgba(201,168,76,.2); display: none;
+}
+.tier.active + .tier-detail { display: block; }
+.sizing-block {
+  background: var(--navy); border-radius: var(--radius);
+  padding: 28px 32px; margin-top: 32px;
+}
+.sizing-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; color: var(--cream); margin-bottom: 14px;
+}
+.sizing-text { font-size: 14px; color: rgba(247,244,237,.6); line-height: 1.8; }
+.sizing-text strong { color: var(--gold); }
+
+/* DIP BUYING */
+.dip-bg { background: var(--cream); }
+.dip-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.dip-grid { display: flex; flex-direction: column; gap: 32px; }
+.dip-text p { font-size: 15px; color: var(--mid); line-height: 1.85; margin-bottom: 16px; }
+.dip-text strong { color: var(--navy); }
+.cash-meter-wrap { margin-bottom: 24px; }
+.cash-meter-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--lt); margin-bottom: 8px;
+}
+.cash-meter-bar {
+  height: 8px; background: var(--cream-dk); border-radius: 4px;
+  overflow: hidden; margin-bottom: 6px;
+}
+.cash-meter-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(to right, var(--gold), var(--gold-dk));
+  transition: width .6s ease;
+}
+.cash-meter-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: var(--lt);
+}
+.scenario-tabs {
+  display: flex; gap: 4px; margin-bottom: 0;
+  background: var(--cream-dk); border-radius: 8px; padding: 4px;
+}
+.scenario-tab {
+  flex: 1; padding: 8px 6px; border: none;
+  background: transparent; border-radius: 6px;
+  font-size: 11px; font-weight: 600; color: var(--lt);
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  transition: all .2s; text-align: center;
+}
+.scenario-tab.active { background: var(--navy); color: var(--cream); }
+.scenario-panels { background: var(--white); border-radius: 0 0 var(--radius) var(--radius); border: 1px solid var(--cream-dk); border-top: none; }
+.scenario-panel { padding: 20px; display: none; }
+.scenario-panel.active { display: block; }
+.scenario-panel-title {
+  font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.scenario-panel-badge {
+  font-size: 10px; padding: 2px 8px; border-radius: 10px;
+  font-weight: 700; letter-spacing: .08em;
+}
+.badge-red { background: rgba(192,57,43,.1); color: var(--red); }
+.badge-orange { background: rgba(230,126,34,.1); color: #e67e22; }
+.badge-gold { background: rgba(201,168,76,.15); color: #8B6914; }
+.scenario-panel-text { font-size: 13px; color: var(--mid); line-height: 1.7; }
+.vs-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; max-width: 600px; }
+.vs-card { border-radius: 8px; padding: 14px; }
+.vs-card.volatility { background: rgba(45,125,82,.08); border: 1px solid rgba(45,125,82,.2); }
+.vs-card.thesis { background: rgba(192,57,43,.08); border: 1px solid rgba(192,57,43,.2); }
+.vs-card-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 6px; }
+.vs-card.volatility .vs-card-label { color: var(--green); }
+.vs-card.thesis .vs-card-label { color: var(--red); }
+.vs-card-text { font-size: 12px; color: var(--mid); line-height: 1.6; }
+
+/* MACHINE TIMELINE */
+.machine-bg { background: var(--navy); }
+.machine-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
+  width: 2px; background: linear-gradient(to bottom, var(--gold), rgba(201,168,76,.1));
+}
+.timeline-item { position: relative; margin-bottom: 32px; }
+.timeline-dot {
+  position: absolute; left: -28px; top: 4px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--navy-dk); border: 2px solid var(--gold);
+  cursor: pointer; transition: all .2s;
+}
+.timeline-item.active .timeline-dot { background: var(--gold); }
+.timeline-period {
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold); font-weight: 700; margin-bottom: 4px; cursor: pointer;
+}
+.timeline-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; color: var(--cream); margin-bottom: 6px; cursor: pointer;
+}
+.timeline-text {
+  font-size: 13px; color: rgba(247,244,237,.6); line-height: 1.75;
+  display: none; margin-top: 8px; max-width: 580px;
+}
+.timeline-item.active .timeline-text { display: block; }
+.closing-block {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  border-radius: var(--radius); padding: 32px; margin-top: 48px; text-align: center;
+}
+.closing-block p {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(16px, 2vw, 20px); color: var(--cream);
+  font-style: italic; line-height: 1.6; margin-bottom: 8px;
+}
+.closing-block strong { color: var(--gold); font-style: normal; }
+
+/* SOFT GATE */
+.gate-bg { background: var(--cream); }
+.gate-inner { max-width: 1000px; margin: 0 auto; padding: 72px 32px; }
+.gate-teaser {
+  position: relative; border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 32px;
+}
+.gate-blur {
+  filter: blur(6px); opacity: .4; pointer-events: none; user-select: none;
+  background: var(--white); border-radius: var(--radius); padding: 28px;
+}
+.gate-blur-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.gate-blur-sleeve {
+  border-radius: 8px; padding: 20px;
+  background: var(--navy); min-height: 120px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.gate-blur-sleeve-title { font-size: 16px; color: var(--cream); font-weight: 700; }
+.gate-blur-sleeve-pct { font-size: 36px; color: var(--gold); font-weight: 700; }
+.gate-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(247,244,237,.85); text-align: center; padding: 24px;
+}
+.gate-overlay-icon { font-size: 32px; margin-bottom: 12px; }
+.gate-overlay-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; color: var(--navy); margin-bottom: 8px;
+}
+.gate-overlay-text { font-size: 14px; color: var(--mid); max-width: 360px; line-height: 1.7; }
+
+/* QUIZ */
+.quiz-wrap {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--cream-dk); overflow: hidden;
+}
+.quiz-header {
+  background: var(--navy); padding: 24px 28px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.quiz-header-title { font-size: 15px; font-weight: 600; color: var(--cream); }
+.quiz-progress-wrap { display: flex; align-items: center; gap: 10px; }
+.quiz-progress-bar {
+  width: 100px; height: 4px; background: rgba(255,255,255,.2);
+  border-radius: 2px; overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%; background: var(--gold); border-radius: 2px;
+  transition: width .3s ease;
+}
+.quiz-progress-text { font-size: 11px; color: rgba(247,244,237,.5); }
+.quiz-body { padding: 28px; }
+.quiz-q {
+  font-size: 15px; font-weight: 600; color: var(--navy);
+  margin-bottom: 16px; line-height: 1.5;
+}
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px; border-radius: 8px;
+  border: 1.5px solid var(--cream-dk); cursor: pointer;
+  transition: all .15s; background: var(--white);
+}
+.quiz-opt:hover { border-color: var(--navy); background: var(--cream); }
+.quiz-opt.selected { border-color: var(--navy); background: rgba(29,53,87,.06); }
+.quiz-opt-bullet {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid var(--cream-dk); flex-shrink: 0; margin-top: 1px;
+  transition: all .15s; display: flex; align-items: center; justify-content: center;
+}
+.quiz-opt.selected .quiz-opt-bullet {
+  background: var(--navy); border-color: var(--navy);
+}
+.quiz-opt.selected .quiz-opt-bullet::after {
+  content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--cream);
+}
+.quiz-opt-text { font-size: 13px; color: var(--mid); line-height: 1.55; }
+.quiz-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px 28px; gap: 12px;
+}
+.quiz-btn {
+  padding: 12px 24px; border-radius: 8px; font-size: 13px; font-weight: 700;
+  font-family: 'Inter', sans-serif; cursor: pointer; transition: all .2s;
+  border: none;
+}
+.quiz-btn-back { background: var(--cream-dk); color: var(--mid); }
+.quiz-btn-next { background: var(--navy); color: var(--cream); }
+.quiz-btn-next:hover { background: var(--navy-dk); }
+.quiz-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* CONTACT GATE */
+.contact-gate {
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--cream-dk); padding: 32px; display: none;
+}
+.contact-gate.show { display: block; }
+.contact-gate-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; color: var(--navy); margin-bottom: 8px;
+}
+.contact-gate-sub { font-size: 14px; color: var(--mid); line-height: 1.7; margin-bottom: 24px; }
+.contact-type-row { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.contact-type-btn {
+  padding: 7px 16px; border-radius: 20px;
+  border: 1.5px solid var(--cream-dk);
+  background: transparent; color: var(--lt);
+  font-size: 12px; font-weight: 600;
+  font-family: 'Inter', sans-serif; cursor: pointer; transition: all .2s;
+}
+.contact-type-btn.active { background: var(--navy); border-color: var(--navy); color: var(--cream); }
+.contact-input {
+  width: 100%; padding: 13px 16px;
+  border: 1.5px solid var(--cream-dk); border-radius: 8px;
+  font-size: 14px; color: var(--navy);
+  font-family: 'Inter', sans-serif; margin-bottom: 12px;
+  transition: border-color .2s;
+}
+.contact-input:focus { outline: none; border-color: var(--gold); }
+.contact-submit {
+  width: 100%; padding: 15px; background: var(--navy);
+  color: var(--cream); border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif;
+  cursor: pointer; transition: background .2s;
+}
+.contact-submit:hover { background: var(--navy-dk); }
+.contact-disc {
+  font-size: 10px; color: var(--lt); text-align: center;
+  margin-top: 10px; line-height: 1.6;
+}
+
+/* RESULT */
+.result-wrap { display: none; }
+.result-wrap.show { display: block; }
+.result-profile {
+  background: var(--navy); border-radius: var(--radius);
+  padding: 28px 32px; margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap;
+}
+.result-profile-label { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(247,244,237,.4); margin-bottom: 4px; }
+.result-profile-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; color: var(--gold); font-weight: 700;
+}
+.result-profile-split { text-align: right; }
+.result-split-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; color: var(--cream);
+}
+.result-warning {
+  background: rgba(192,57,43,.1); border: 1px solid rgba(192,57,43,.25);
+  border-radius: 8px; padding: 14px 18px; margin-bottom: 20px;
+  font-size: 13px; color: var(--red); line-height: 1.65; display: none;
+}
+.result-warning.show { display: block; }
+.result-sleeves { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.result-sleeve {
+  border-radius: var(--radius); overflow: hidden;
+  border: 1.5px solid var(--cream-dk);
+}
+.result-sleeve-header {
+  padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;
+}
+.result-sleeve-header.growth { background: var(--navy); }
+.result-sleeve-header.foundation { background: var(--navy-md); }
+.result-sleeve-header-name { font-size: 13px; font-weight: 600; color: var(--cream); }
+.result-sleeve-header-pct { font-size: 20px; font-weight: 700; color: var(--gold); font-family: 'Playfair Display', serif; }
+.result-tier {
+  padding: 11px 18px; border-bottom: 1px solid var(--cream-dk);
+  background: var(--white); display: flex; align-items: center; gap: 10px;
+}
+.result-tier:last-child { border-bottom: none; }
+.result-tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.result-tier-name { font-size: 12px; font-weight: 600; color: var(--navy); flex: 1; }
+.result-tier-pct { font-size: 11px; color: var(--lt); }
+.result-allocation {
+  background: var(--gold-lt); border: 1px solid rgba(201,168,76,.3);
+  border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px;
+}
+.result-allocation-title {
+  font-size: 12px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--mid); margin-bottom: 16px;
+}
+.alloc-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid rgba(201,168,76,.15);
+}
+.alloc-row:last-child { border-bottom: none; }
+.alloc-label { font-size: 13px; color: var(--navy); font-weight: 500; }
+.alloc-val { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--navy); font-weight: 700; }
+.alloc-positions { font-size: 11px; color: var(--mid); }
+.phase-note {
+  background: var(--navy); border-radius: 8px; padding: 16px 20px;
+  font-size: 13px; color: rgba(247,244,237,.7); line-height: 1.7;
+}
+.phase-note strong { color: var(--gold); }
+.result-cta {
+  text-align: center; padding: 32px;
+  background: var(--white); border-radius: var(--radius);
+  border: 1px solid var(--cream-dk); margin-top: 16px;
+}
+.result-cta h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; color: var(--navy); margin-bottom: 8px;
+}
+.result-cta p { font-size: 14px; color: var(--mid); margin-bottom: 20px; line-height: 1.7; }
+.result-cta-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--gold); color: var(--navy);
+  font-size: 14px; font-weight: 700; padding: 14px 28px;
+  border-radius: 8px; text-decoration: none; transition: background .2s;
+}
+.result-cta-btn:hover { background: var(--gold-dk); }
+
+/* RESPONSIVE */
+@media(max-width:768px) {
+  .hero { padding: 60px 24px 40px; }
+  .inflation-cards { grid-template-columns: repeat(3,1fr); }
+  .two-paths { grid-template-columns: 1fr; }
+  .philosophy-grid { grid-template-columns: 1fr; }
+  .steps-row { grid-template-columns: 1fr; }
+  .steps-connector { display: none; }
+  .matrix-grid { grid-template-columns: 50px 1fr 1fr; }
+  .rotation-examples { grid-template-columns: 1fr; }
+  .structure-grid { grid-template-columns: 1fr; }
+  .dip-grid { grid-template-columns: 1fr; }
+  .gate-blur-inner { grid-template-columns: 1fr; }
+  .result-sleeves { grid-template-columns: 1fr; }
+  .vs-cards { grid-template-columns: 1fr; }
+  .section { padding: 52px 20px; }
+  .inflation-inner, .philosophy-inner, .steps-inner, .matrix-inner,
+  .structure-inner, .dip-inner, .machine-inner, .gate-inner { padding: 52px 20px; }
+}
+</style>
+</head>
+<body>
+<a href="/guides.html" style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;background:#1D3557;color:#F7F4ED;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px 16px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.2);">&#8592; Back to Guides &amp; Tools</a>
+
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <p class="hero-eyebrow">The Everyday Investor</p>
+  <h1>The TEI Method<br><em>How we think, choose and build.</em></h1>
+  <p class="hero-sub">The philosophy behind every TEI portfolio. From first principles to portfolio construction.</p>
+  <div class="nav-dots">
+    <a class="nav-dot" onclick="scrollTo('problem')">The Problem</a>
+    <a class="nav-dot" onclick="scrollTo('philosophy')">Philosophy</a>
+    <a class="nav-dot" onclick="scrollTo('framework')">Framework</a>
+    <a class="nav-dot" onclick="scrollTo('matrix')">Conviction Matrix</a>
+    <a class="nav-dot" onclick="scrollTo('structure')">Structure</a>
+    <a class="nav-dot" onclick="scrollTo('dip')">Dip Buying</a>
+    <a class="nav-dot" onclick="scrollTo('machine')">Building the Machine</a>
+    <a class="nav-dot" onclick="scrollTo('builder')">Build Yours</a>
+  </div>
+</div>
+
+<!-- 1. THE PROBLEM -->
+<div class="inflation-bg" id="problem">
+  <div class="inflation-inner">
+    <span class="section-eyebrow">The problem</span>
+    <h2 class="section-title section-title-light" style="margin-bottom:10px;">Your money is not standing still.</h2>
+    <p class="section-sub section-sub-light" style="margin-bottom:36px;">While it sits in a savings account, inflation is quietly doing its work. At 3% per year, the real value of your money shrinks every single month.</p>
+
+    <div class="inflation-counter-wrap">
+      <div class="inflation-start">
+        <div class="inflation-start-label">Starting value</div>
+        <div class="inflation-start-val" id="inflationStart">£10,000</div>
+      </div>
+      <div class="inflation-arrow">→</div>
+      <div class="inflation-cards">
+        <div class="inflation-card">
+          <div class="inflation-card-years">5 years</div>
+          <div class="inflation-card-val">£8,587</div>
+          <div class="inflation-card-loss">Lost £1,413</div>
+        </div>
+        <div class="inflation-card">
+          <div class="inflation-card-years">10 years</div>
+          <div class="inflation-card-val">£7,374</div>
+          <div class="inflation-card-loss">Lost £2,626</div>
+        </div>
+        <div class="inflation-card">
+          <div class="inflation-card-years">20 years</div>
+          <div class="inflation-card-val">£5,438</div>
+          <div class="inflation-card-loss">Lost £4,562</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="manifesto-line">The number in your account has not changed. What it can buy has shrunk by nearly half.</div>
+
+    <p style="font-size:14px;color:rgba(247,244,237,.55);margin-bottom:28px;line-height:1.8;">Most people respond to this in one of two ways. Neither works.</p>
+
+    <div class="two-paths">
+      <div class="path-card">
+        <div class="path-card-title"><span class="path-card-icon">📊</span>The passive default</div>
+        <div class="path-card-text">Everything into a broad index tracker and hope for the best. Not a bad instinct, but rarely a deliberate one. Most people land there because no one showed them a better-considered alternative, not because they weighed it against one. You get the market return. Nothing more.</div>
+        <div class="path-card-verdict">Not a strategy</div>
+      </div>
+      <div class="path-card">
+        <div class="path-card-title"><span class="path-card-icon">📱</span>Chasing the noise</div>
+        <div class="path-card-text">Whatever name is trending this month. A tip from a podcast, a thread online, a headline about whatever the market has decided to be excited about this week. These stories tend to peak before most people hear about them. By the time something is obvious, it is usually priced in.</div>
+        <div class="path-card-verdict">Not a strategy either</div>
+      </div>
+    </div>
+
+    <div class="manifesto-line">The method behind TEI sits between the two -- concentrated enough to matter, disciplined enough to survive contact with a real market cycle.</div>
+  </div>
+</div>
+
+<!-- 2. PHILOSOPHY -->
+<div id="philosophy" style="background:var(--white);">
+  <div class="philosophy-inner">
+    <span class="section-eyebrow">The philosophy</span>
+    <h2 class="section-title">Invest in tomorrow.<br>Not today.</h2>
+    <div class="philosophy-grid">
+      <div class="philosophy-text">
+        <p>This method was not built in a classroom. It was refined over years of expensive mistakes -- over-investing when the timing was wrong, sitting on the sidelines when conviction should have meant buying, chasing stories that had already peaked.</p>
+        <p><strong>TEI exists so you do not have to learn those lessons the expensive way.</strong></p>
+        <p>The real mispricing in markets does not live in the names everyone already knows and already owns. It lives in the structural shifts -- the technologies, the business models, the infrastructure plays -- that the market has not yet fully priced because the payoff is five to ten years away, not five to ten months.</p>
+        <p>That is where the edge is. That is where patient, disciplined capital compounds into something that justifies the process.</p>
+        <p>What earns a name a place in the portfolio: a strong underlying story with structural tailwinds, improving numbers that confirm the thesis is playing out, and leadership worth backing.</p>
+        <p>What does not: excitement, momentum, social consensus, or the feeling that everyone else is already in.</p>
+      </div>
+      <div>
+        <div class="philosophy-card">
+          <div style="font-family:'Playfair Display',serif;font-size:80px;color:rgba(201,168,76,.15);line-height:.7;flex-shrink:0;margin-top:4px;">"</div>
+          <div class="philosophy-card-content">
+            <p class="philosophy-card-text">The largest positions in the portfolio are not simply the highest-conviction ideas. They are the ideas where high conviction and current market favour overlap. When favour cools on one name and warms on another, capital rotates. Conviction has not changed. Its place in the market's attention has.</p>
+            <p class="philosophy-card-attr">The TEI Method</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. THREE STEPS -->
+<div class="steps-bg" id="framework">
+  <div class="steps-inner">
+    <span class="section-eyebrow">The framework</span>
+    <h2 class="section-title section-title-light" style="margin-bottom:10px;">Three steps. Every decision.</h2>
+    <p class="section-sub section-sub-light" style="margin-bottom:40px;">Every position in a TEI portfolio is chosen and managed through the same process. No exceptions. Tap each step to explore.</p>
+
+    <div class="steps-row">
+      <div class="steps-connector"></div>
+      <div class="step-card" id="step1" onclick="toggleStep('step1')">
+        <div class="step-num">1</div>
+        <div class="step-title">Thematic Conviction</div>
+        <div class="step-preview">Identify a genuine structural shift big enough to matter over years, not weeks.</div>
+        <div class="step-detail">What will the world need, use, or rely on in five to ten years that it does not fully price in today? The starting point is always the theme -- autonomous systems, AI infrastructure, space connectivity, the electrification of industry. The theme has to be real, not just a narrative. If the world genuinely moves in this direction, which companies sit at the centre of it?</div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-card" id="step2" onclick="toggleStep('step2')">
+        <div class="step-num">2</div>
+        <div class="step-title">Sized by Risk</div>
+        <div class="step-preview">Conviction alone does not earn a position its size. Risk determines weight.</div>
+        <div class="step-detail">A pre-revenue company with a transformational product gets a small position -- the story may be right but the execution risk is high. An established business with a proven model, strong balance sheet, and accelerating numbers gets a larger one. Size is determined by how established the story is, not how exciting it feels.</div>
+        <span class="step-toggle">+</span>
+      </div>
+      <div class="step-card" id="step3" onclick="toggleStep('step3')">
+        <div class="step-num">3</div>
+        <div class="step-title">Timed by Catalysts</div>
+        <div class="step-preview">Entries and additions are sequenced around real, verifiable events.</div>
+        <div class="step-detail">Earnings releases, contract wins, product milestones, regulatory approvals -- rather than a fixed calendar or a reaction to headline noise. Buying ahead of a catalyst that confirms the thesis is how the timing edge is generated. Patience in entry is as important as conviction in the idea.</div>
+        <span class="step-toggle">+</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. CONVICTION MATRIX -->
+<div class="matrix-bg" id="matrix">
+  <div class="matrix-inner">
+    <span class="section-eyebrow">The core mental model</span>
+    <h2 class="section-title">Conviction vs Market Favour</h2>
+    <p class="section-sub" style="margin-bottom:36px;">Conviction and market favour are two separate things. They do not move together. Understanding the difference between them is what separates a disciplined investor from one who reacts to noise. Tap each quadrant to explore.</p>
+
+    <div class="matrix-grid">
+      <div style="grid-row:1;grid-column:1;"></div>
+      <div class="matrix-label" style="grid-row:1;grid-column:2;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);">Low market favour</div>
+      <div class="matrix-label" style="grid-row:1;grid-column:3;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);">High market favour</div>
+      <div class="matrix-label vertical" style="grid-row:2;grid-column:1;">High conviction</div>
+      <div class="matrix-cell tl" style="grid-row:2;grid-column:2;" onclick="toggleMatrix('tl')">
+        <div>
+          <div class="matrix-cell-header">
+            <div class="matrix-cell-title">Quietly accumulate</div>
+            <span style="font-size:18px;">🎯</span>
+          </div>
+          <div class="matrix-cell-action">Build the position</div>
+          <div class="matrix-cell-detail">Strong story, improving numbers, out of favour with the market. Ideal for building a position at a discount. The return may sit some way in the future -- but this is where the real money is made. This is the top-left quadrant, and patience here is the competitive advantage most investors do not have.</div>
+        </div>
+      </div>
+      <div class="matrix-cell tr" style="grid-row:2;grid-column:3;" onclick="toggleMatrix('tr')">
+        <div>
+          <div class="matrix-cell-header">
+            <div>
+              <span style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:6px;">Target</span>
+              <div class="matrix-cell-title">Largest positions</div>
+            </div>
+            <span style="font-size:18px;">&#11088;</span>
+          </div>
+          <div class="matrix-cell-action">Maximum weight</div>
+          <div class="matrix-cell-detail">High conviction and current market favour overlap. These earn the largest weight in the portfolio. When favour cools, capital rotates -- conviction in the original idea has not necessarily changed. This is where the positions built in the top-left deliver their return.</div>
+        </div>
+      </div>
+      <div class="matrix-label vertical" style="grid-row:3;writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);">Low conviction</div>
+      <div class="matrix-cell bl" style="grid-row:3;grid-column:2;" onclick="toggleMatrix('bl')">
+        <div>
+          <div class="matrix-cell-header">
+            <div class="matrix-cell-title">Avoid or exit</div>
+            <span style="font-size:18px;">🚫</span>
+          </div>
+          <div class="matrix-cell-action">Pass</div>
+          <div class="matrix-cell-detail">No compelling story and no market support. Nothing to hold here. This is the easiest quadrant -- if conviction is not there and the market agrees, there is no case for a position. Capital is better deployed elsewhere or held as cash.</div>
+        </div>
+      </div>
+      <div class="matrix-cell br" style="grid-row:3;grid-column:3;" onclick="toggleMatrix('br')">
+        <div>
+          <div class="matrix-cell-header">
+            <div class="matrix-cell-title">Trade, do not invest</div>
+            <span style="font-size:18px;">⚠️</span>
+          </div>
+          <div class="matrix-cell-action">Caution</div>
+          <div class="matrix-cell-detail">Market is excited but the underlying story does not hold up to scrutiny. Risk of chasing a narrative that has already peaked. These names can produce short-term returns but carry significant downside when sentiment shifts. Without conviction, there is no framework for knowing when to exit.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="matrix-rotation" style="margin-left:84px;">
+      <p class="matrix-rotation-title">The rotation principle -- where returns compound</p>
+      <p style="font-size:14px;color:rgba(247,244,237,.6);line-height:1.8;margin-bottom:16px;">The largest gains do not come from finding a name and holding it forever. They come from identifying a high-conviction idea while it is still in the top-left quadrant and having the patience to hold through to the top-right. Conviction stays constant. Market favour is what moves -- and that move is where the return lives.</p>
+      <div class="rotation-examples">
+        <div class="rotation-example">
+          <div class="rotation-example-ticker">Palantir (PLTR)</div>
+          <div class="rotation-example-text">For years it sat unloved -- government contracts, unconventional structure, a market that did not yet understand the Ontology thesis. High conviction, low market favour. The investors who built positions quietly during that period and held through the noise captured the full rerating when the market finally caught up.</div>
+        </div>
+        <div class="rotation-example">
+          <div class="rotation-example-ticker">Alphabet / Google (GOOGL)</div>
+          <div class="rotation-example-text">Earlier this year the market decided AI would kill search. Sentiment collapsed and the narrative around lost market share dominated. But the numbers never broke. Revenue stayed strong, search remained dominant, and the AI threat proved vastly overstated. Anyone who held conviction through that low-favour period captured one of the fastest recoveries of the year.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5. PORTFOLIO STRUCTURE -->
+<div class="structure-bg" id="structure">
+  <div class="structure-inner">
+    <span class="section-eyebrow">Portfolio structure</span>
+    <h2 class="section-title">Two sleeves. Two jobs.</h2>
+    <p class="section-sub" style="margin-bottom:40px;">Every TEI portfolio is built from a Growth sleeve and a Foundation sleeve working together. The exact weightings are tailored to individual circumstances -- what matters here is the structure and the thinking behind it.</p>
+
+    <div class="structure-grid">
+      <div>
+        <div class="sleeve-wrap">
+          <div class="sleeve-header growth">
+            <div>
+              <div class="sleeve-header-title">Growth Sleeve</div>
+              <div class="sleeve-sub">The engine</div>
+            </div>
+            <div class="sleeve-header-pct">70%</div>
+          </div>
+          <div class="tier" id="tier-anchor" onclick="toggleTier('anchor')">
+            <div class="tier-dot" style="background:#C9A84C;"></div>
+            <div class="tier-name">Anchor</div>
+            <div class="tier-pct">~50% of Growth</div>
+          </div>
+          <div class="tier-detail" id="tier-detail-anchor">Highest conviction, largest positions. Names where the thesis is well established, numbers are improving, and market favour is high or building. Sized to actually move the needle.</div>
+          <div class="tier" id="tier-core" onclick="toggleTier('core')">
+            <div class="tier-dot" style="background:#2B4C7E;"></div>
+            <div class="tier-name">Core</div>
+            <div class="tier-pct">~30% of Growth</div>
+          </div>
+          <div class="tier-detail" id="tier-detail-core">Strong conviction, medium positions. Established stories with clear catalysts ahead. Sized to grow into Anchor positions as the thesis matures and market favour builds.</div>
+          <div class="tier" id="tier-tail" onclick="toggleTier('tail')">
+            <div class="tier-dot" style="background:#718096;"></div>
+            <div class="tier-name">Tail</div>
+            <div class="tier-pct">~20% of Growth</div>
+          </div>
+          <div class="tier-detail" id="tier-detail-tail">Earlier stage, smaller positions. Higher execution risk but asymmetric upside if the thesis plays out. Sized small enough that a full loss does not damage the portfolio, but large enough to matter if they deliver. Only introduced at full portfolio size.</div>
+        </div>
+      </div>
+      <div>
+        <div class="sleeve-wrap">
+          <div class="sleeve-header foundation">
+            <div>
+              <div class="sleeve-header-title">Foundation Sleeve</div>
+              <div class="sleeve-sub">The cushion</div>
+            </div>
+            <div class="sleeve-header-pct">30%</div>
+          </div>
+          <div class="tier" id="tier-dev" onclick="toggleTier('dev')">
+            <div class="tier-dot" style="background:#2D7D52;"></div>
+            <div class="tier-name">Developed Indices</div>
+            <div class="tier-pct">~50% of Foundation</div>
+          </div>
+          <div class="tier-detail" id="tier-detail-dev">Broad exposure to established developed markets. Provides steady compounding and geographic diversification. The bedrock of the Foundation sleeve.</div>
+          <div class="tier" id="tier-em" onclick="toggleTier('em')">
+            <div class="tier-dot" style="background:#1D6B8E;"></div>
+            <div class="tier-name">Emerging Markets</div>
+            <div class="tier-pct">~25% of Foundation</div>
+          </div>
+          <div class="tier-detail" id="tier-detail-em">Exposure to high-growth economies with a longer time horizon. Higher volatility than developed indices but provides diversification beyond Western markets.</div>
+          <div class="tier" id="tier-se" onclick="toggleTier('se')">
+            <div class="tier-dot" style="background:#7B4EA0;"></div>
+            <div class="tier-name">Strategic Equity</div>
+            <div class="tier-pct">~25% of Foundation</div>
+          </div>
+          <div class="tier-detail" id="tier-detail-se">Established, more predictable equity holdings selected for resilience. Not exciting -- deliberately so. Its job is to hold steady when the Growth sleeve is under pressure.</div>
+        </div>
+
+      </div>
+    </div>
+    <div class="sizing-block" style="margin-top:20px;">
+      <p class="sizing-title">On position sizing</p>
+      <p class="sizing-text">Spreading money across too many names too early is <strong>the mistake almost everyone makes</strong>. Individual ideas can deliver strong percentage returns and the portfolio barely moves -- because each position was too small to matter. A portfolio with eight well-sized positions will almost always outperform one with twenty-five under-sized ones.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 6. DIP BUYING -->
+<div class="dip-bg" id="dip">
+  <div class="dip-inner">
+    <span class="section-eyebrow">Cash and dip buying</span>
+    <h2 class="section-title">Cash is not dead weight.<br>It is optionality.</h2>
+    <div class="dip-grid">
+
+      <!-- Text block full width -->
+      <div>
+        <p class="dip-text" style="font-size:15px;color:var(--mid);line-height:1.85;margin-bottom:16px;">Most investors treat cash as something to be deployed as quickly as possible -- almost an embarrassment, money sitting idle when it could be working. The TEI approach is different.</p>
+        <p class="dip-text" style="font-size:15px;color:var(--mid);line-height:1.85;margin-bottom:24px;">A cash allocation of <strong style="color:var(--navy);">5-10%</strong> (adjusted for market conditions and individual circumstances) exists for one specific purpose: to act decisively when conviction names pull back hard.</p>
+
+        <div class="cash-meter-wrap">
+          <div class="cash-meter-label">Cash allocation range</div>
+          <div class="cash-meter-bar">
+            <div class="cash-meter-fill" style="width:7.5%;"></div>
+          </div>
+          <div class="cash-meter-labels"><span>0%</span><span>5-10% target</span><span>100%</span></div>
+        </div>
+
+        <p style="font-size:15px;color:var(--mid);line-height:1.85;margin-bottom:16px;margin-top:8px;">The key distinction is between <strong style="color:var(--navy);">volatility</strong> and <strong style="color:var(--navy);">thesis failure</strong>. They look similar in the moment. They require completely different responses.</p>
+
+        <div class="vs-cards" style="margin-bottom:0;">
+          <div class="vs-card volatility">
+            <div class="vs-card-label">Volatility</div>
+            <div class="vs-card-text">Market sold off, sector rotated, short-term miss. Thesis unchanged. Price has changed. This is the opportunity.</div>
+          </div>
+          <div class="vs-card thesis">
+            <div class="vs-card-label">Thesis failure</div>
+            <div class="vs-card-text">Contract lost, competitor emerged, management pivoted. The investment case has changed. This is an exit, not a dip.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario panel full width -->
+      <div>
+        <div style="background:var(--white);border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--cream-dk);border-bottom:none;overflow:hidden;">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--cream-dk);">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--lt);margin-bottom:2px;">Response framework</div>
+            <div style="font-size:12px;color:var(--mid);">Select a market scenario</div>
+          </div>
+          <div class="scenario-tabs" style="margin:12px 16px 0;border-radius:6px;">
+            <button class="scenario-tab active" onclick="setScenario('red',this)">Red day</button>
+            <button class="scenario-tab" onclick="setScenario('heavy',this)">Heavy red</button>
+            <button class="scenario-tab" onclick="setScenario('macro',this)">Macro fall</button>
+          </div>
+          <div class="scenario-panels" style="border-radius:0;border:none;border-top:1px solid var(--cream-dk);margin-top:8px;">
+            <div class="scenario-panel active" id="panel-red">
+              <div class="scenario-panel-title">Red day <span class="scenario-panel-badge badge-red">Down 5-10%</span></div>
+              <div class="scenario-panel-text">Nibble -- add a small number of shares in names you already hold conviction in, if there is cash available to deploy. Do not force it if no attractive entry exists. This is a gentle response to a modest move.</div>
+            </div>
+            <div class="scenario-panel" id="panel-heavy">
+              <div class="scenario-panel-title">Heavy red day <span class="scenario-panel-badge badge-orange">Down 10-20%</span></div>
+              <div class="scenario-panel-text">Add more meaningfully -- a larger deployment into your highest-conviction names, provided the story has not changed. Most heavy red days are followed by a relief bounce. Prices tend to be higher sooner than it feels possible in the moment.</div>
+            </div>
+            <div class="scenario-panel" id="panel-macro">
+              <div class="scenario-panel-title">Macro-driven fall <span class="scenario-panel-badge badge-gold">Sustained pressure</span></div>
+              <div class="scenario-panel-text">Scale up further in proportion to the size of the move. Recent tariff and geopolitical scares are good examples -- markets fell sharply, bottomed, bounced, and within 10-20 trading days had pushed on to new highs. The discipline is staying invested and deploying into the fear.</div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--navy);border-radius:0 0 var(--radius) var(--radius);padding:16px 20px;">
+          <p style="font-size:12px;color:rgba(247,244,237,.5);line-height:1.65;font-style:italic;">Before adding on any fall: confirm the thesis still holds. A lower price is not automatically an opportunity. The question is always whether the story has changed -- not just whether the number has.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 7. BUILDING THE MACHINE -->
+<div class="machine-bg" id="machine">
+  <div class="machine-inner">
+    <span class="section-eyebrow">Building the machine</span>
+    <h2 class="section-title section-title-light">The first 18 months.</h2>
+    <p class="section-sub section-sub-light" style="margin-bottom:48px;">It takes roughly 12 to 18 months to build a portfolio to the point where it becomes a well-oiled machine. Before that point, the job is not to chase returns -- it is to build the foundations. Tap each stage to explore.</p>
+
+    <div class="timeline">
+      <div class="timeline-item active" onclick="toggleTimeline(this)">
+        <div class="timeline-dot"></div>
+        <div class="timeline-period">Months 0-6</div>
+        <div class="timeline-title">Build the foundations</div>
+        <div class="timeline-text">The job is not to generate returns -- it is to build each position up to a size where it can actually move the needle. Get the right tax wrappers in place. Make the first contributions into your highest-conviction Anchor names. Resist the urge to spread across too many names too early.</div>
+      </div>
+      <div class="timeline-item" onclick="toggleTimeline(this)">
+        <div class="timeline-dot"></div>
+        <div class="timeline-period">Months 6-12</div>
+        <div class="timeline-title">Build the habit</div>
+        <div class="timeline-text">Regular contributions into the highest-conviction names. Positions built deliberately to a meaningful size. Catalysts tracked, not guessed at. The portfolio will likely run red at points -- that is not a sign something has gone wrong. It is the normal texture of building properly rather than chasing a quick win.</div>
+      </div>
+      <div class="timeline-item" onclick="toggleTimeline(this)">
+        <div class="timeline-dot"></div>
+        <div class="timeline-period">Months 12-18</div>
+        <div class="timeline-title">The machine takes shape</div>
+        <div class="timeline-text">Positions start reaching meaningful sizes. The two-sleeve structure begins to function as designed -- Growth providing the upside, Foundation providing the cushion. Volatility starts to feel like information rather than a threat. The compounding clock is running.</div>
+      </div>
+      <div class="timeline-item" onclick="toggleTimeline(this)">
+        <div class="timeline-dot"></div>
+        <div class="timeline-period">18 months and beyond</div>
+        <div class="timeline-title">Patience becomes the edge</div>
+        <div class="timeline-text">Most retail investors either overtrade -- reacting to every piece of news -- or freeze, waiting for certainty that never arrives. The investors who built real wealth in this framework did neither. They stayed systematic, treated discomfort as signal noise, and let compounding do its work. That patience is a competitive advantage almost no one has the discipline to sustain.</div>
+      </div>
+    </div>
+
+    <div class="closing-block">
+      <p>Give the process time. Stay invested with money you can afford to leave alone for at least three years.</p>
+      <p style="margin-top:12px;">Learn to sit with discomfort -- because <strong>the best returns come to the investors who could tolerate the drawdowns that scared everyone else out.</strong></p>
+      <p style="margin-top:12px;font-family:'Inter',sans-serif;font-style:normal;font-size:13px;color:rgba(247,244,237,.45);">That is the method. It is the same one used to build and manage every TEI portfolio.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 8. PORTFOLIO BUILDER GATE -->
+<div class="gate-bg" id="builder">
+  <div class="gate-inner">
+    <span class="section-eyebrow">See it with your numbers</span>
+    <h2 class="section-title">Build your portfolio.</h2>
+    <p class="section-sub" style="margin-bottom:36px;">A quick risk profile check, then see exactly how this method would apply to your starting amount -- including which phase you would start in and how the allocation breaks down.</p>
+
+    <!-- Blurred teaser -->
+    <div class="gate-teaser" id="gateTeaser">
+      <div class="gate-blur">
+        <div class="gate-blur-inner">
+          <div class="gate-blur-sleeve">
+            <div class="gate-blur-sleeve-title">Growth Sleeve</div>
+            <div class="gate-blur-sleeve-pct">70%</div>
+          </div>
+          <div class="gate-blur-sleeve" style="background:var(--navy-md);">
+            <div class="gate-blur-sleeve-title">Foundation Sleeve</div>
+            <div class="gate-blur-sleeve-pct">30%</div>
+          </div>
+        </div>
+      </div>
+      <div class="gate-overlay">
+        <div class="gate-overlay-icon">🧭</div>
+        <div class="gate-overlay-title">See how the method applies to you</div>
+        <p class="gate-overlay-text">Complete a 7-question risk profile, then unlock your personalised portfolio structure and allocation breakdown.</p>
+      </div>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-wrap" id="quizWrap" style="display:none;">
+      <div class="quiz-header">
+        <div class="quiz-header-title" id="quizTitle">Your risk profile</div>
+        <div class="quiz-progress-wrap">
+          <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="quizProgressFill" style="width:0%;"></div>
+          </div>
+          <div class="quiz-progress-text" id="quizProgressText">0 / 7</div>
+        </div>
+      </div>
+      <div class="quiz-body" id="quizBody"></div>
+      <div class="quiz-nav">
+        <button class="quiz-btn quiz-btn-back" id="quizBack" onclick="quizBack()" disabled>Back</button>
+        <button class="quiz-btn quiz-btn-next" id="quizNext" onclick="quizNext()" disabled>Next</button>
+      </div>
+    </div>
+
+    <!-- CONTACT GATE -->
+    <div class="contact-gate" id="contactGate">
+      <h3 class="contact-gate-title">Almost there.</h3>
+      <p class="contact-gate-sub">Your risk profile is ready. Enter your details below to unlock your personalised portfolio structure and allocation breakdown.</p>
+      <div class="contact-type-row">
+        <button class="contact-type-btn active" id="ctype-email" onclick="setCtype('email')">Email</button>
+        <button class="contact-type-btn" id="ctype-phone" onclick="setCtype('phone')">Phone</button>
+        <button class="contact-type-btn" id="ctype-instagram" onclick="setCtype('instagram')">Instagram</button>
+      </div>
+      <input class="contact-input" type="email" id="contactInput" placeholder="Enter your email address">
+      <button class="contact-submit" onclick="submitContact()">Unlock my portfolio breakdown</button>
+      <p class="contact-disc">No spam. No cold calls. We will send your results and one follow-up. Unsubscribe any time.</p>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-wrap" id="resultWrap">
+      <div class="result-profile">
+        <div>
+          <div class="result-profile-label">Your risk profile</div>
+          <div class="result-profile-name" id="resultProfileName">Balanced</div>
+        </div>
+        <div class="result-profile-split">
+          <div class="result-profile-label">Allocation split</div>
+          <div class="result-split-num" id="resultSplit">55% Growth / 45% Foundation</div>
+        </div>
+      </div>
+
+      <div class="result-warning" id="resultWarning">
+        At this profile, the majority of your allocation sits in Foundation holdings. This limits volatility but also limits upside. As your confidence and understanding grows, the profile can be reviewed and adjusted over time.
+      </div>
+
+      <div class="result-sleeves" id="resultSleeves"></div>
+
+      <div class="result-allocation" id="resultAllocation">
+        <div class="result-allocation-title">Your allocation breakdown</div>
+        <div id="allocAmountInput" style="margin-bottom:16px;">
+          <label style="font-size:12px;font-weight:600;color:var(--mid);display:block;margin-bottom:6px;">Enter your starting amount</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="number" id="allocAmount" placeholder="e.g. 5000" min="100"
+              style="flex:1;min-width:140px;padding:10px 14px;border:1.5px solid var(--cream-dk);border-radius:8px;font-size:15px;font-weight:600;color:var(--navy);font-family:'Inter',sans-serif;background:var(--cream);"
+              oninput="updateAllocation()">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button onclick="setAmount(1000)" style="padding:10px 14px;border:1.5px solid var(--cream-dk);background:var(--white);border-radius:8px;font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;font-family:'Inter',sans-serif;">£1k</button>
+              <button onclick="setAmount(3500)" style="padding:10px 14px;border:1.5px solid var(--cream-dk);background:var(--white);border-radius:8px;font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;font-family:'Inter',sans-serif;">£3.5k</button>
+              <button onclick="setAmount(7500)" style="padding:10px 14px;border:1.5px solid var(--cream-dk);background:var(--white);border-radius:8px;font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;font-family:'Inter',sans-serif;">£7.5k</button>
+              <button onclick="setAmount(15000)" style="padding:10px 14px;border:1.5px solid var(--cream-dk);background:var(--white);border-radius:8px;font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;font-family:'Inter',sans-serif;">£15k</button>
+            </div>
+          </div>
+        </div>
+        <div id="allocRows"></div>
+      </div>
+
+      <div class="phase-note" id="phaseNote"></div>
+
+      <div class="result-cta">
+        <h3>Ready to build with a method behind it?</h3>
+        <p>Book a free 30-minute discovery call. We will walk through your profile, your goal, and exactly how the method would apply to your situation.</p>
+        <a class="result-cta-btn" href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank">Book a discovery call</a>
+      </div>
+    </div>
+
+    <!-- Start Quiz Button -->
+    <div style="text-align:center;margin-top:24px;" id="startQuizBtn">
+      <button onclick="startQuiz()" style="background:var(--navy);color:var(--cream);border:none;border-radius:8px;padding:16px 36px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;">Start the risk profile</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// SCROLL
+function scrollTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// STEP CARDS
+function toggleStep(id) {
+  var card = document.getElementById(id);
+  if (!card) return;
+  var isOpen = card.classList.contains("open");
+  ["step1","step2","step3"].forEach(function(s) {
+    var el = document.getElementById(s);
+    if (el) el.classList.remove("open");
+  });
+  if (!isOpen) card.classList.add("open");
+}
+
+// MATRIX
+function toggleMatrix(q) {
+  var cells = document.querySelectorAll(".matrix-cell");
+  var cell = null;
+  cells.forEach(function(c) {
+    if (c.classList.contains(q)) cell = c;
+  });
+  if (!cell) return;
+  var isActive = cell.classList.contains("active");
+  cells.forEach(function(c) { c.classList.remove("active"); });
+  if (!isActive) cell.classList.add("active");
+}
+
+// TIERS
+function toggleTier(name) {
+  var tierEl = document.getElementById("tier-" + name);
+  var detailEl = document.getElementById("tier-detail-" + name);
+  if (!tierEl || !detailEl) return;
+  var tiers = ["anchor","core","tail","dev","em","se"];
+  tiers.forEach(function(t) {
+    var te = document.getElementById("tier-" + t);
+    var de = document.getElementById("tier-detail-" + t);
+    if (te) te.classList.remove("active");
+    if (de) de.style.display = "none";
+  });
+  if (!tierEl.classList.contains("active")) {
+    tierEl.classList.add("active");
+    detailEl.style.display = "block";
+  }
+}
+
+// FIX: re-implement tier detail toggle without relying on CSS + sibling
+document.addEventListener("DOMContentLoaded", function() {
+  ["anchor","core","tail","dev","em","se"].forEach(function(name) {
+    var detail = document.getElementById("tier-detail-" + name);
+    if (detail) detail.style.display = "none";
+  });
+});
+
+// SCENARIOS
+function setScenario(id, btn) {
+  ["red","heavy","macro"].forEach(function(s) {
+    var p = document.getElementById("panel-" + s);
+    if (p) p.classList.remove("active");
+  });
+  var panel = document.getElementById("panel-" + id);
+  if (panel) panel.classList.add("active");
+  var btns = document.querySelectorAll(".scenario-tab");
+  btns.forEach(function(b) { b.classList.remove("active"); });
+  if (btn) btn.classList.add("active");
+}
+
+// TIMELINE
+function toggleTimeline(item) {
+  var items = document.querySelectorAll(".timeline-item");
+  var isActive = item.classList.contains("active");
+  items.forEach(function(i) { i.classList.remove("active"); });
+  if (!isActive) item.classList.add("active");
+}
+
+// QUIZ DATA
+var quizQuestions = [
+  {
+    q: "How long can you leave this money invested?",
+    opts: ["Less than 2 years","2 to 4 years","4 to 7 years","7 years or more"]
+  },
+  {
+    q: "If your portfolio fell 20% in a month, you would:",
+    opts: [
+      "Sell everything and preserve what is left",
+      "Reduce exposure and wait for clarity",
+      "Hold and review but not act",
+      "Add more -- lower price, same conviction"
+    ]
+  },
+  {
+    q: "How much do you rely on this money in the next 3 years?",
+    opts: [
+      "It is money I may need",
+      "I might need some of it",
+      "Unlikely to need it",
+      "I will not need it at all"
+    ]
+  },
+  {
+    q: "Which best describes your relationship with investment risk?",
+    opts: [
+      "I want stability above all else",
+      "I can accept some volatility for better returns",
+      "I am comfortable with meaningful swings for higher potential",
+      "I actively seek high-growth opportunities and accept the risk"
+    ]
+  },
+  {
+    q: "How would you describe your investing experience?",
+    opts: [
+      "Never invested before",
+      "Some experience, mostly funds or ISAs",
+      "Comfortable with individual stocks and market cycles",
+      "Experienced -- I understand drawdowns, catalysts and portfolio construction"
+    ]
+  },
+  {
+    q: "What share of your total savings will this portfolio represent initially?",
+    opts: [
+      "More than 75% -- this is most of what I have",
+      "50 to 75%",
+      "25 to 50%",
+      "Less than 25% -- this is a portion of a larger picture"
+    ]
+  },
+  {
+    q: "What is the main goal for this money?",
+    opts: [
+      "Capital preservation -- I want to protect what I have",
+      "Steady long-term growth alongside other savings",
+      "Meaningful wealth building over 5 to 10 years",
+      "Maximum long-term growth -- I am here for the full journey"
+    ]
+  }
+];
+
+var quizAnswers = [];
+var quizCurrent = 0;
+var selectedContact = "email";
+
+var profiles = {
+  cautious:   { growth: 35, foundation: 65, name: "Cautious" },
+  balanced:   { growth: 55, foundation: 45, name: "Balanced" },
+  growth:     { growth: 70, foundation: 30, name: "Growth" },
+  aggressive: { growth: 80, foundation: 20, name: "Aggressive" }
+};
+
+function startQuiz() {
+  document.getElementById("startQuizBtn").style.display = "none";
+  document.getElementById("gateTeaser").style.display = "none";
+  document.getElementById("quizWrap").style.display = "block";
+  quizCurrent = 0;
+  quizAnswers = [];
+  renderQuestion();
+}
+
+function renderQuestion() {
+  var q = quizQuestions[quizCurrent];
+  var fill = ((quizCurrent) / quizQuestions.length) * 100;
+  document.getElementById("quizProgressFill").style.width = fill + "%";
+  document.getElementById("quizProgressText").textContent = quizCurrent + " / " + quizQuestions.length;
+  document.getElementById("quizTitle").textContent = "Question " + (quizCurrent + 1) + " of " + quizQuestions.length;
+
+  var body = document.getElementById("quizBody");
+  var selected = quizAnswers[quizCurrent] !== undefined ? quizAnswers[quizCurrent] : -1;
+
+  var html = "<div class=\"quiz-q\">" + q.q + "</div><div class=\"quiz-options\">";
+  q.opts.forEach(function(opt, i) {
+    var sel = selected === i ? " selected" : "";
+    html += "<div class=\"quiz-opt" + sel + "\" onclick=\"selectOpt(" + i + ")\">";
+    html += "<div class=\"quiz-opt-bullet\"></div>";
+    html += "<div class=\"quiz-opt-text\">" + opt + "</div>";
+    html += "</div>";
+  });
+  html += "</div>";
+  body.innerHTML = html;
+
+  document.getElementById("quizBack").disabled = quizCurrent === 0;
+  document.getElementById("quizNext").disabled = selected === -1;
+  document.getElementById("quizNext").textContent = quizCurrent === quizQuestions.length - 1 ? "See my profile" : "Next";
+}
+
+function selectOpt(i) {
+  quizAnswers[quizCurrent] = i;
+  renderQuestion();
+}
+
+function quizNext() {
+  if (quizAnswers[quizCurrent] === undefined) return;
+  if (quizCurrent < quizQuestions.length - 1) {
+    quizCurrent++;
+    renderQuestion();
+  } else {
+    showContactGate();
+  }
+}
+
+function quizBack() {
+  if (quizCurrent > 0) {
+    quizCurrent--;
+    renderQuestion();
+  }
+}
+
+function showContactGate() {
+  document.getElementById("quizWrap").style.display = "none";
+  document.getElementById("contactGate").classList.add("show");
+}
+
+function setCtype(type) {
+  selectedContact = type;
+  ["email","phone","instagram"].forEach(function(t) {
+    var el = document.getElementById("ctype-" + t);
+    if (el) el.classList.toggle("active", t === type);
+  });
+  var input = document.getElementById("contactInput");
+  if (!input) return;
+  if (type === "email") {
+    input.type = "email";
+    input.placeholder = "Enter your email address";
+  } else if (type === "phone") {
+    input.type = "tel";
+    input.placeholder = "Enter your phone number";
+  } else {
+    input.type = "text";
+    input.placeholder = "@yourinstagram";
+  }
+}
+
+function submitContact() {
+  var val = document.getElementById("contactInput").value.trim();
+  if (!val) {
+    document.getElementById("contactInput").style.borderColor = "#C0392B";
+    setTimeout(function() { document.getElementById("contactInput").style.borderColor = ""; }, 1500);
+    return;
+  }
+  console.log("Lead captured:", selectedContact, val);
+  document.getElementById("contactGate").classList.remove("show");
+  showResult();
+}
+
+function calcProfile() {
+  var core = 0;
+  for (var i = 0; i < 5; i++) {
+    core += (quizAnswers[i] !== undefined ? quizAnswers[i] + 1 : 1);
+  }
+  var profileKey;
+  if (core <= 8) profileKey = "cautious";
+  else if (core <= 12) profileKey = "balanced";
+  else if (core <= 16) profileKey = "growth";
+  else profileKey = "aggressive";
+
+  var q6 = quizAnswers[5] !== undefined ? quizAnswers[5] + 1 : 2;
+  var q7 = quizAnswers[6] !== undefined ? quizAnswers[6] + 1 : 2;
+
+  var order = ["cautious","balanced","growth","aggressive"];
+  var idx = order.indexOf(profileKey);
+
+  if (q6 === 1 && idx > 0) idx--;
+  if (q6 === 4 && q7 === 4 && idx < 3) idx++;
+
+  return order[idx];
+}
+
+function showResult() {
+  var profileKey = calcProfile();
+  var p = profiles[profileKey];
+  var isGrowthPlus = profileKey === "growth" || profileKey === "aggressive";
+
+  document.getElementById("resultProfileName").textContent = p.name;
+  document.getElementById("resultSplit").textContent = p.growth + "% Growth / " + p.foundation + "% Foundation";
+
+  var warning = document.getElementById("resultWarning");
+  if (profileKey === "cautious") warning.classList.add("show");
+
+  var sleevesHtml = "";
+
+  var growthTiers = [
+    { name: "Anchor", pct: 50, color: "#C9A84C" },
+    { name: "Core", pct: 30, color: "#2B4C7E" }
+  ];
+  if (isGrowthPlus) {
+    growthTiers.push({ name: "Tail", pct: 20, color: "#718096" });
+  } else {
+    growthTiers[0].pct = 60;
+    growthTiers[1].pct = 40;
+  }
+
+  sleevesHtml += "<div class=\"result-sleeve\"><div class=\"result-sleeve-header growth\"><span class=\"result-sleeve-header-name\">Growth Sleeve</span><span class=\"result-sleeve-header-pct\">" + p.growth + "%</span></div>";
+  growthTiers.forEach(function(t) {
+    sleevesHtml += "<div class=\"result-tier\"><div class=\"result-tier-dot\" style=\"background:" + t.color + ";\"></div><div class=\"result-tier-name\">" + t.name + "</div><div class=\"result-tier-pct\">" + t.pct + "% of Growth</div></div>";
+  });
+  sleevesHtml += "</div>";
+
+  var foundTiers = [
+    { name: "Developed Indices", pct: 50, color: "#2D7D52" },
+    { name: "Emerging Markets", pct: 25, color: "#1D6B8E" },
+    { name: "Strategic Equity", pct: 25, color: "#7B4EA0" }
+  ];
+  sleevesHtml += "<div class=\"result-sleeve\"><div class=\"result-sleeve-header foundation\"><span class=\"result-sleeve-header-name\">Foundation Sleeve</span><span class=\"result-sleeve-header-pct\">" + p.foundation + "%</span></div>";
+  foundTiers.forEach(function(t) {
+    sleevesHtml += "<div class=\"result-tier\"><div class=\"result-tier-dot\" style=\"background:" + t.color + ";\"></div><div class=\"result-tier-name\">" + t.name + "</div><div class=\"result-tier-pct\">" + t.pct + "% of Foundation</div></div>";
+  });
+  sleevesHtml += "</div>";
+
+  document.getElementById("resultSleeves").innerHTML = sleevesHtml;
+  document.getElementById("resultWrap").classList.add("show");
+  document.getElementById("resultWrap").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  window._currentProfile = profileKey;
+  updateAllocation();
+}
+
+function setAmount(val) {
+  document.getElementById("allocAmount").value = val;
+  updateAllocation();
+}
+
+function fmtMoney(n) {
+  return "£" + Math.round(n).toLocaleString();
+}
+
+function updateAllocation() {
+  var raw = parseFloat(document.getElementById("allocAmount").value);
+  if (!raw || raw < 100) {
+    document.getElementById("allocRows").innerHTML = "<p style=\"font-size:13px;color:var(--mid);\">Enter an amount above to see your breakdown.</p>";
+    document.getElementById("phaseNote").innerHTML = "";
+    return;
+  }
+
+  var profileKey = window._currentProfile || "balanced";
+  var p = profiles[profileKey];
+  var isGrowthPlus = profileKey === "growth" || profileKey === "aggressive";
+  var growthAmt = raw * (p.growth / 100);
+  var foundAmt  = raw * (p.foundation / 100);
+
+  var phase, growthPositions, foundPositions, phaseText;
+
+  if (raw < 2000) {
+    phase = "Phase 1 (Under £2,000)";
+    growthPositions = 2;
+    foundPositions = 1;
+    phaseText = "At this stage, concentrate. 2 Anchor positions in Growth and 1 Developed Index in Foundation. Spreading further with this amount means no position is large enough to matter.";
+  } else if (raw < 5000) {
+    phase = "Phase 2 (£2,000 to £5,000)";
+    growthPositions = 4;
+    foundPositions = 2;
+    phaseText = "Start broadening. 3 Anchor positions and 1 Core position in Growth, plus 2 Foundation components. Each addition should come with a clear reason -- not just because cash has arrived.";
+  } else if (raw < 10000) {
+    phase = "Phase 3 (£5,000 to £10,000)";
+    growthPositions = 6;
+    foundPositions = 3;
+    phaseText = "The structure is taking shape. 4 Anchor and 2 Core positions in Growth, all 3 Foundation components active. Tail positions are still excluded -- the portfolio needs more behind it first.";
+  } else {
+    phase = "Phase 4 (£10,000+)";
+    growthPositions = isGrowthPlus ? 9 : 7;
+    foundPositions = 3;
+    if (isGrowthPlus) {
+      phaseText = "Full structure active. Anchor, Core and Tail positions across Growth, all 3 Foundation components. This is where the method runs as designed.";
+    } else {
+      phaseText = "Full structure active for your risk profile. Anchor and Core positions across Growth, all 3 Foundation components. Tail positions are not recommended at this risk level.";
+    }
+  }
+
+  var perGrowthPos = growthAmt / growthPositions;
+  var perFoundPos  = foundAmt / foundPositions;
+
+  var rows = "<div class=\"alloc-row\"><span class=\"alloc-label\">Total amount</span><span class=\"alloc-val\">" + fmtMoney(raw) + "</span></div>";
+  rows += "<div class=\"alloc-row\"><span class=\"alloc-label\">Growth sleeve (" + p.growth + "%)</span><span><span class=\"alloc-val\">" + fmtMoney(growthAmt) + "</span><span class=\"alloc-positions\"> &nbsp;" + growthPositions + " positions, ~" + fmtMoney(perGrowthPos) + " each</span></span></div>";
+  rows += "<div class=\"alloc-row\"><span class=\"alloc-label\">Foundation sleeve (" + p.foundation + "%)</span><span><span class=\"alloc-val\">" + fmtMoney(foundAmt) + "</span><span class=\"alloc-positions\"> &nbsp;" + foundPositions + " components, ~" + fmtMoney(perFoundPos) + " each</span></span></div>";
+  rows += "<div class=\"alloc-row\" style=\"border-top:2px solid rgba(201,168,76,.3);margin-top:4px;padding-top:12px;\"><span class=\"alloc-label\" style=\"font-size:11px;color:var(--lt);letter-spacing:.1em;text-transform:uppercase;\">" + phase + "</span></div>";
+
+  document.getElementById("allocRows").innerHTML = rows;
+  document.getElementById("phaseNote").innerHTML = "<strong>" + phase + ":</strong> " + phaseText;
+}
+</script>
+</body>
+</html>

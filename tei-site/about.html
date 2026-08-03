@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About -- The Everyday Investor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --navy:    #1D3557;
+  --navy-dk: #0f1e3a;
+  --navy-md: #2B4C7E;
+  --cream:   #F7F4ED;
+  --cream-dk:#EDE8DA;
+  --gold:    #C9A84C;
+  --gold-dk: #b8922d;
+  --gold-lt: #FBF4E0;
+  --text:    #1a1a2e;
+  --mid:     #4a5568;
+  --lt:      #718096;
+  --white:   #ffffff;
+  --green:   #2D7D52;
+  --radius:  10px;
+  --shadow:  0 4px 28px rgba(29,53,87,.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; overflow-x: hidden; }
+
+/* NAV */
+nav {
+  background: var(--navy);
+  width: 100%;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
+.nav-logo-text {
+  font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--gold); font-weight: 600; line-height: 1.35;
+}
+.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+.nav-links a {
+  color: rgba(247,244,237,.65); text-decoration: none;
+  font-size: 13px; font-weight: 500; letter-spacing: .03em;
+  transition: color .2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.nav-cta {
+  position: relative;
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.nav-cta-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  animation: pulse-ring 2.5s ease-in-out infinite;
+}
+.nav-cta-ring-2 {
+  position: absolute; inset: -6px; border-radius: 50%;
+  border: 1px solid rgba(201,168,76,.25);
+  animation: pulse-ring 2.5s ease-in-out infinite .6s;
+}
+@keyframes pulse-ring { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: .6; } }
+.nav-cta-tooltip {
+  position: absolute; bottom: -36px; right: 0;
+  background: var(--navy-dk); color: var(--cream);
+  font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 4px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s;
+  border: 1px solid rgba(201,168,76,.3);
+}
+.nav-cta:hover .nav-cta-tooltip { opacity: 1; }
+.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
+.nav-mobile-menu {
+  display: none; position: fixed; top: 68px; left: 0; right: 0;
+  background: var(--navy); flex-direction: column; padding: 8px 0;
+  border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.nav-mobile-menu a {
+  color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px;
+  font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06);
+  display: block; transition: color .2s;
+}
+.nav-mobile-menu a:hover { color: var(--gold); }
+.nav-mobile-menu.open { display: flex; }
+
+/* HERO */
+.about-hero {
+  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%);
+  padding: 72px 40px 64px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.about-hero::before {
+  content: ''; position: absolute; top: -100px; right: -100px;
+  width: 500px; height: 500px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.about-eyebrow { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 16px; position: relative; }
+.about-hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(32px, 4.5vw, 52px); color: var(--cream); line-height: 1.15; position: relative; }
+
+/* STORY */
+.story-wrap { max-width: 720px; margin: 0 auto; padding: 72px 32px; }
+.story-wrap p { font-size: 16px; color: var(--mid); line-height: 1.95; margin-bottom: 26px; }
+.story-wrap p:first-of-type { font-size: 18px; color: var(--navy); font-weight: 500; }
+.story-wrap p:last-of-type { margin-bottom: 0; }
+
+.pull-quote {
+  border-left: 3px solid var(--gold);
+  padding: 4px 0 4px 28px;
+  margin: 44px 0;
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 21px;
+  color: var(--navy);
+  line-height: 1.6;
+}
+
+/* FOOTER */
+footer {
+  background: var(--navy); width: 100%; padding: 36px 48px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+}
+.footer-logo { display: flex; align-items: center; gap: 10px; }
+.footer-logo-mark { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(201,168,76,.5); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--gold); flex-shrink: 0; }
+.footer-logo-text { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,244,237,.3); line-height: 1.4; }
+.footer-disc { font-size: 10px; color: rgba(247,244,237,.22); text-align: right; max-width: 420px; line-height: 1.7; }
+
+@media(max-width: 860px) {
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .nav-mobile-toggle { display: flex; }
+  footer { flex-direction: column; text-align: center; padding: 28px 24px; }
+  .footer-disc { text-align: center; max-width: 100%; }
+  .story-wrap { padding: 48px 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="/index.html">
+    <div class="nav-logo-mark">&#10022;</div>
+    <span class="nav-logo-text">The Everyday<br>Investor</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/index.html">Home</a></li>
+    <li><a href="/about.html" class="active">About</a></li>
+    <li><a href="/guides.html#guides">Guides</a></li>
+    <li><a href="/guides.html#tools">Tools</a></li>
+    <li><a href="/articles.html">Articles</a></li>
+    <li><a href="/hub/index.html" style="color:var(--gold);">Client Hub</a></li>
+  </ul>
+  <a href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank" class="nav-cta" title="Book a discovery call">
+    <div class="nav-cta-ring"></div>
+    <div class="nav-cta-ring-2"></div>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="position:relative;z-index:1;">
+      <circle cx="12" cy="12" r="10" stroke="#C9A84C" stroke-width="1.5"/>
+      <circle cx="12" cy="12" r="1.5" fill="#C9A84C"/>
+      <polygon points="12,3 13.5,11 12,9 10.5,11" fill="#C9A84C"/>
+      <polygon points="12,21 10.5,13 12,15 13.5,13" fill="rgba(201,168,76,0.4)"/>
+      <polygon points="21,12 13,10.5 15,12 13,13.5" fill="rgba(201,168,76,0.4)"/>
+      <polygon points="3,12 11,13.5 9,12 11,10.5" fill="rgba(201,168,76,0.4)"/>
+      <line x1="12" y1="2" x2="12" y2="4" stroke="#C9A84C" stroke-width="1"/>
+      <line x1="12" y1="20" x2="12" y2="22" stroke="#C9A84C" stroke-width="1"/>
+      <line x1="2" y1="12" x2="4" y2="12" stroke="#C9A84C" stroke-width="1"/>
+      <line x1="20" y1="12" x2="22" y2="12" stroke="#C9A84C" stroke-width="1"/>
+    </svg>
+    <span class="nav-cta-tooltip">Book a discovery call</span>
+  </a>
+  <button class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile-menu" id="navMobileMenu">
+  <a href="/index.html" onclick="closeNav()">Home</a>
+  <a href="/about.html" onclick="closeNav()" class="active">About</a>
+  <a href="/guides.html#guides" onclick="closeNav()">Guides</a>
+  <a href="/guides.html#tools" onclick="closeNav()">Tools</a>
+  <a href="/articles.html" onclick="closeNav()">Articles</a>
+  <a href="/hub/index.html" onclick="closeNav()" style="color:var(--gold);">Client Hub</a>
+</div>
+
+<!-- ── HERO ── -->
+<div class="about-hero">
+  <p class="about-eyebrow">About The Everyday Investor</p>
+  <h1>Why I started this.</h1>
+</div>
+
+<!-- ── STORY ── -->
+<div class="story-wrap">
+  <p>I've been interested in investing for as long as I can remember. Not in a spreadsheet-and-suit way. I just always wanted to understand how money actually worked, and why it seemed to work so much harder for some people than others.</p>
+
+  <p>That curiosity took me into financial services. And once I was actually inside the industry, something started to bother me. I would go home, talk to friends, family, people I had grown up with, and realise how little any of them actually knew. Not because they were not capable. Because nobody had ever bothered to sit down and explain it to them properly.</p>
+
+  <p>The same patterns kept showing up. Savings sitting in an account, quietly losing value, because it felt safer than the alternative. Workplace pensions nobody had looked at since the day they were auto-enrolled. People who assumed investing was for someone else, someone with more money, more time, more confidence than they had. None of it was stupidity. It was just silence. Nobody had ever offered to close the gap.</p>
+
+  <p>I still work inside financial services day to day, and that is exactly where I keep noticing it. The Everyday Investor is built around what that work has taught me, but it stands apart from it entirely. This is coaching and education, not regulated financial advice, and never a replacement for it.</p>
+
+  <p class="pull-quote">Honestly, it started to frustrate me. I would sit there knowing exactly what someone should do with their money, and know that if I did not say something, they would probably never hear it from anyone else either.</p>
+
+  <p>That is an uncomfortable thing to sit with once you have noticed it.</p>
+
+  <p>I did not build this because I had some grand plan. I built it because I got tired of watching people I cared about miss out on things that were not actually complicated, they just needed someone to explain them. That is still the whole point. Not a product. Not a pitch. Just someone willing to do that properly, and stay around while you put it into practice.</p>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-mark">&#10022;</div>
+    <span class="footer-logo-text">The Everyday<br>Investor</span>
+  </div>
+  <div class="footer-disc">For educational purposes only. Nothing here constitutes financial advice or a personal recommendation. The Everyday Investor is a financial coaching and education service, not a regulated financial adviser. &copy; 2026 The Everyday Investor.</div>
+</footer>
+
+<script>
+function toggleNav() {
+  document.getElementById('navMobileMenu').classList.toggle('open');
+}
+function closeNav() {
+  document.getElementById('navMobileMenu').classList.remove('open');
+}
+</script>
+</body>
+</html>

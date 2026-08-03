@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Articles -- The Everyday Investor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+:root {
+  --navy: #1D3557; --navy-dk: #0f1e3a; --cream: #F7F4ED; --cream-dk: #EDE8DA;
+  --gold: #C9A84C; --gold-dk: #b8922d; --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; }
+
+nav {
+  background: var(--navy); width: 100%; height: 68px; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 48px; position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
+.nav-logo-text { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; line-height: 1.35; }
+.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+.nav-links a { color: rgba(247,244,237,.65); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .03em; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
+.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
+.nav-mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: var(--navy); flex-direction: column; padding: 8px 0; border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+.nav-mobile-menu a { color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px; font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06); display: block; transition: color .2s; }
+.nav-mobile-menu a:hover { color: var(--gold); }
+.nav-mobile-menu.open { display: flex; }
+
+.coming-soon { min-height: 78vh; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+.coming-soon-inner { max-width: 460px; }
+.cs-mark { width: 48px; height: 48px; border-radius: 50%; border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--gold); margin: 0 auto 28px; }
+.cs-eyebrow { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 16px; }
+.cs-title { font-family: 'Playfair Display', serif; font-size: clamp(26px, 4vw, 36px); color: var(--navy); margin-bottom: 16px; line-height: 1.2; }
+.cs-body { font-size: 14.5px; color: var(--mid); line-height: 1.8; margin-bottom: 32px; }
+.cs-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: var(--cream); font-size: 13px; font-weight: 700; padding: 13px 28px; border-radius: 8px; text-decoration: none; }
+
+footer { background: var(--navy); width: 100%; padding: 36px 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.footer-logo { display: flex; align-items: center; gap: 10px; }
+.footer-logo-mark { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(201,168,76,.5); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--gold); flex-shrink: 0; }
+.footer-logo-text { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,244,237,.3); line-height: 1.4; }
+.footer-disc { font-size: 10px; color: rgba(247,244,237,.22); text-align: right; max-width: 420px; line-height: 1.7; }
+
+@media(max-width: 700px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .nav-mobile-toggle { display: flex; }
+  footer { flex-direction: column; text-align: center; padding: 28px 24px; }
+  .footer-disc { text-align: center; max-width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="/index.html">
+    <div class="nav-logo-mark">&#10022;</div>
+    <span class="nav-logo-text">The Everyday<br>Investor</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/index.html">Home</a></li>
+    <li><a href="/about.html">About</a></li>
+    <li><a href="/guides.html#guides">Guides</a></li>
+    <li><a href="/guides.html#tools">Tools</a></li>
+    <li><a href="/articles.html" class="active">Articles</a></li>
+    <li><a href="/hub/index.html" style="color:var(--gold);">Client Hub</a></li>
+  </ul>
+  <button class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-mobile-menu" id="navMobileMenu">
+  <a href="/index.html" onclick="closeNav()">Home</a>
+  <a href="/about.html" onclick="closeNav()">About</a>
+  <a href="/guides.html#guides" onclick="closeNav()">Guides</a>
+  <a href="/guides.html#tools" onclick="closeNav()">Tools</a>
+  <a href="/articles.html" onclick="closeNav()" class="active">Articles</a>
+  <a href="/hub/index.html" onclick="closeNav()" style="color:var(--gold);">Client Hub</a>
+</div>
+
+<!-- ── COMING SOON ── -->
+<div class="coming-soon">
+  <div class="coming-soon-inner">
+    <div class="cs-mark">&#9998;</div>
+    <p class="cs-eyebrow">Articles</p>
+    <h1 class="cs-title">Being written.</h1>
+    <p class="cs-body">Real analysis, market commentary, and the thinking behind TEI's approach -- coming soon. In the meantime, the Guides &amp; Tools hold everything currently built.</p>
+    <a class="cs-btn" href="/guides.html">Explore Guides &amp; Tools &#8594;</a>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-mark">&#10022;</div>
+    <span class="footer-logo-text">The Everyday<br>Investor</span>
+  </div>
+  <div class="footer-disc">For educational purposes only. Nothing here constitutes financial advice or a personal recommendation. The Everyday Investor is a financial coaching and education service, not a regulated financial adviser. &copy; 2026 The Everyday Investor.</div>
+</footer>
+
+<script>
+function toggleNav() {
+  document.getElementById('navMobileMenu').classList.toggle('open');
+}
+function closeNav() {
+  document.getElementById('navMobileMenu').classList.remove('open');
+}
+</script>
+</body>
+</html>

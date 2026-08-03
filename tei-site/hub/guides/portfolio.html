@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How We Build Your Portfolio | The Everyday Investor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  :root{
+    --navy:#1D3557;
+    --navy-light:#2F5488;
+    --cream:#F7F4ED;
+    --gold:#C9A84C;
+    --gold-dk:#b8922d;
+    --gold-light:#DCC077;
+    --gold-lt:#FBF4E0;
+    --sage:#5C8374;
+    --sage-light:#89B0A4;
+    --dark:#2A2A2A;
+    --grey:#6B6B6B;
+    --line:#E3DDCF;
+    --white:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Calibri','Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--white);
+    color:var(--dark);
+    -webkit-font-smoothing:antialiased;
+  }
+  header{
+    background:var(--navy);
+    padding:18px 32px;
+    display:flex;
+    align-items:center;
+  }
+  header .brand{ color:var(--white); font-weight:800; font-size:1.05rem; letter-spacing:.02em; }
+
+  main{ max-width:920px; margin:0 auto; padding:0 24px; }
+
+  .hero{ padding:56px 0 40px; text-align:center; }
+  .hero h1{ font-size:2.1rem; color:var(--navy); margin:0 0 10px; font-weight:800; letter-spacing:-0.01em; }
+  .hero p{ font-size:1.05rem; color:var(--grey); max-width:560px; margin:0 auto; line-height:1.55; }
+
+  .progress{ display:flex; justify-content:center; gap:8px; margin:28px 0 8px; }
+  .progress .dot{ width:26px; height:4px; border-radius:2px; background:var(--line); transition:background .3s; }
+  .progress .dot.active{ background:var(--gold); }
+  .progress .dot.done{ background:var(--navy); }
+
+  .step{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:36px;
+    margin-bottom:28px;
+    box-shadow:0 2px 18px rgba(29,53,87,0.05);
+  }
+  .step.hidden{ display:none; }
+
+  .step-eyebrow{ font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:6px; }
+  .step h2{ color:var(--navy); font-size:1.4rem; margin:0 0 6px; }
+  .step > p.step-sub{ color:var(--grey); margin:0 0 28px; font-size:0.96rem; line-height:1.5; }
+
+  .question{ margin-bottom:26px; }
+  .question:last-child{ margin-bottom:0; }
+  .question .q-text{ font-weight:700; color:var(--dark); margin-bottom:12px; font-size:0.98rem; }
+  .options{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+  @media(max-width:560px){ .options{ grid-template-columns:1fr; } }
+
+  .option{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    cursor:pointer;
+    font-size:0.9rem;
+    color:var(--dark);
+    transition:all .15s;
+    user-select:none;
+  }
+  .option:hover{ border-color:var(--gold-light); background:#FBF9F4; }
+  .option.selected{ border-color:var(--navy); background:var(--navy); color:var(--white); font-weight:700; }
+
+  .btn{
+    display:inline-block;
+    background:var(--navy);
+    color:var(--white);
+    border:none;
+    padding:13px 28px;
+    border-radius:8px;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:background .15s, transform .1s;
+    font-family:inherit;
+  }
+  .btn:hover{ background:var(--navy-light); }
+  .btn:active{ transform:scale(0.98); }
+  .btn:disabled{ background:#B7BFC9; cursor:not-allowed; }
+  .btn-row{ margin-top:30px; text-align:right; display:flex; justify-content:flex-end; gap:10px; }
+  .btn-row.split{ justify-content:space-between; }
+  .btn.secondary{ background:transparent; color:var(--navy); border:1.5px solid var(--navy); }
+  .btn.secondary:hover{ background:var(--cream); }
+
+  .result-panel{ background:var(--cream); border-left:4px solid var(--gold); border-radius:10px; padding:22px 24px; margin-top:24px; }
+  .result-panel .r-label{ font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:4px; }
+  .result-panel h3{ color:var(--navy); margin:0 0 10px; font-size:1.25rem; }
+  .result-panel p{ margin:0; color:var(--dark); line-height:1.55; font-size:0.94rem; }
+  .result-split{ display:inline-block; margin-top:14px; background:var(--navy); color:var(--white); padding:8px 16px; border-radius:20px; font-weight:700; font-size:0.85rem; }
+
+  /* Amount input */
+  .amount-input-row{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:8px; }
+  .amount-input-wrap{ position:relative; flex:1; min-width:200px; }
+  .amount-input-wrap span{ position:absolute; left:16px; top:50%; transform:translateY(-50%); color:var(--navy); font-weight:700; font-size:1.1rem; }
+  #amountInput{ width:100%; padding:14px 16px 14px 32px; font-size:1.3rem; font-weight:700; color:var(--navy); border:1.5px solid var(--line); border-radius:10px; font-family:inherit; }
+  #amountInput:focus{ outline:none; border-color:var(--gold); }
+  .quick-amounts{ display:flex; gap:8px; flex-wrap:wrap; }
+  .quick-amounts button{ background:var(--cream); border:1px solid var(--line); color:var(--navy); padding:8px 14px; border-radius:20px; font-size:0.82rem; font-weight:700; cursor:pointer; font-family:inherit; }
+  .quick-amounts button:hover{ background:var(--gold-light); color:var(--white); border-color:var(--gold-light); }
+
+  .phase-banner{ background:var(--navy); border-radius:10px; padding:18px 22px; margin:22px 0 4px; color:var(--white); }
+  .phase-banner .pb-label{ font-size:0.7rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold-light); font-weight:700; margin-bottom:4px; }
+  .phase-banner h4{ margin:0 0 6px; font-size:1.15rem; color:var(--white); }
+  .phase-banner p{ margin:0; font-size:0.87rem; color:#D9E0E8; line-height:1.5; }
+
+  /* Self-select */
+  .pick-tier{ margin-bottom:30px; }
+  .pick-tier:last-child{ margin-bottom:0; }
+  .pick-tier-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+  .pick-tier-head h3{ color:var(--navy); font-size:1.05rem; margin:0; }
+  .pick-tier-count{ font-size:0.82rem; color:var(--grey); font-weight:700; }
+  .pick-tier-count.full{ color:var(--sage); }
+  .pick-tier-desc{ color:var(--grey); font-size:0.85rem; margin:0 0 14px; line-height:1.5; }
+  .pick-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  .pick-card{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:12px 14px;
+    cursor:pointer;
+    transition:all .15s;
+    user-select:none;
+  }
+  .pick-card:hover{ border-color:var(--gold-light); background:#FBF9F4; }
+  .pick-card.selected{ border-color:var(--navy); background:var(--navy); color:var(--white); }
+  .pick-card.disabled{ opacity:.4; cursor:not-allowed; }
+  .pick-card .pc-name{ font-weight:800; font-size:0.98rem; margin-bottom:3px; }
+  .pick-card .pc-theme{ font-size:0.76rem; opacity:.8; line-height:1.3; }
+  .pick-sector-label{ font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold); font-weight:700; margin:14px 0 8px; }
+  .pick-sector-label:first-child{ margin-top:0; }
+  .foundation-note{ background:var(--cream); border-radius:10px; padding:14px 16px; font-size:0.84rem; color:var(--grey); line-height:1.5; margin-top:10px; }
+  .foundation-note strong{ color:var(--navy); }
+
+  /* Chart section */
+  .chart-wrap{ display:flex; gap:36px; align-items:center; flex-wrap:wrap; }
+  .chart-canvas-holder{ position:relative; width:280px; height:280px; flex-shrink:0; margin:0 auto; }
+  .chart-center-label{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+  .chart-center-label .cl-big{ font-size:1.4rem; font-weight:800; color:var(--navy); display:block; }
+  .chart-center-label .cl-small{ font-size:0.66rem; color:var(--grey); text-transform:uppercase; letter-spacing:0.08em; }
+
+  .legend-block{ flex:1; min-width:240px; }
+  .legend-group{ margin-bottom:16px; }
+  .legend-group-title{ font-size:0.78rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--navy); margin-bottom:8px; display:flex; align-items:center; gap:8px; }
+  .legend-group-title .swatch{ width:12px;height:12px;border-radius:3px;display:inline-block; }
+  .legend-item{ display:flex; justify-content:space-between; font-size:0.86rem; padding:4px 0 4px 20px; color:var(--dark); border-bottom:1px dashed var(--line); }
+  .legend-item:last-child{ border-bottom:none; }
+  .legend-item .li-name{ display:flex; align-items:center; gap:8px; }
+  .legend-item .li-dot{ width:9px;height:9px;border-radius:50%;flex-shrink:0; }
+  .legend-item .li-pct{ color:var(--grey); font-weight:600; }
+
+  table.alloc-table{ width:100%; border-collapse:collapse; margin-top:24px; font-size:0.88rem; }
+  table.alloc-table th{ text-align:left; color:var(--white); background:var(--navy); padding:10px 12px; font-size:0.76rem; text-transform:uppercase; letter-spacing:0.05em; }
+  table.alloc-table th.num, table.alloc-table td.num{ text-align:right; }
+  table.alloc-table td{ padding:9px 12px; border-bottom:1px solid var(--line); }
+  table.alloc-table tr.tier-row td{ background:var(--cream); font-weight:700; color:var(--navy); padding-top:14px; }
+  table.alloc-table td.name-cell{ display:flex; align-items:center; gap:8px; }
+  table.alloc-table .dot{ width:9px;height:9px;border-radius:50%;flex-shrink:0; }
+  table.alloc-table tr.total-row td{ font-weight:800; color:var(--navy); border-top:2px solid var(--navy); border-bottom:none; padding-top:14px; }
+
+  .note-box{ margin-top:24px; background:var(--cream); border-radius:10px; padding:16px 18px; font-size:0.84rem; color:var(--grey); line-height:1.5; }
+  .note-box strong{ color:var(--navy); }
+
+  footer{ text-align:center; padding:32px 24px 48px; color:var(--grey); font-size:0.78rem; border-top:1px solid var(--line); margin-top:12px; }
+  footer .f-brand{ color:var(--navy); font-weight:700; margin-bottom:4px; }
+
+  /* Print / PDF summary -- built by JS, hidden on screen */
+  .print-only{ display:none; }
+  .ps-header{ background:linear-gradient(135deg,var(--navy),#0f1e3a); padding:22px 28px; text-align:center; border-radius:10px 10px 0 0; }
+  .ps-header .ps-eyebrow{ color:var(--gold); font-weight:800; font-size:10px; letter-spacing:.14em; text-transform:uppercase; margin-bottom:4px; }
+  .ps-header h2{ color:var(--white); font-weight:800; font-size:19px; margin:0; }
+  .ps-header .ps-date{ color:#B7C4D6; font-size:11px; margin-top:4px; }
+  .ps-body{ border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px; padding:24px 28px 28px; max-width:560px; margin:0 auto; }
+  .ps-profile{ background:linear-gradient(135deg,var(--gold),#e0c274); border-radius:8px; padding:14px 16px; margin-bottom:16px; }
+  .ps-profile .ps-label{ font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#5c4a1a; font-weight:800; }
+  .ps-profile .ps-name{ color:var(--navy); font-weight:800; font-size:18px; margin:2px 0 6px; }
+  .ps-profile .ps-split{ display:inline-block; background:var(--navy); color:var(--white); font-size:11px; font-weight:700; padding:4px 12px; border-radius:12px; }
+  .ps-explainer{ background:#EAF1EC; border-left:4px solid var(--sage); border-radius:0 6px 6px 0; padding:12px 14px; margin-bottom:16px; }
+  .ps-explainer .ps-label{ font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:#2D5A47; font-weight:800; margin-bottom:4px; }
+  .ps-explainer p{ font-size:11.5px; color:var(--dark); line-height:1.6; margin:0; }
+  .ps-explainer b{ color:var(--navy); }
+  .ps-stats{ display:flex; gap:12px; margin-bottom:16px; font-size:11.5px; }
+  .ps-stat{ flex:1; border-radius:8px; padding:12px 14px; }
+  .ps-stat.navy{ background:var(--navy); }
+  .ps-stat.navy .ps-stat-label{ color:#9FB3CC; }
+  .ps-stat.navy .ps-stat-val{ color:var(--white); }
+  .ps-stat.gold{ background:var(--gold); }
+  .ps-stat.gold .ps-stat-label{ color:#5c4a1a; font-weight:700; }
+  .ps-stat.gold .ps-stat-val{ color:var(--navy); }
+  .ps-stat-label{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; }
+  .ps-stat-val{ font-weight:800; font-size:17px; }
+  .ps-picks-label{ font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--navy); font-weight:800; margin-bottom:8px; }
+  .ps-pick-row{ display:flex; align-items:center; gap:8px; font-size:11.5px; margin-bottom:6px; }
+  .ps-pick-badge{ color:var(--white); font-size:9.5px; font-weight:700; padding:3px 9px; border-radius:10px; min-width:52px; text-align:center; }
+  .ps-chart-wrap{ display:flex; align-items:center; justify-content:center; gap:16px; background:var(--navy); border-radius:8px; padding:18px; margin-bottom:16px; }
+  .ps-chart-wrap img{ max-width:160px; max-height:160px; }
+  .ps-footer{ border-top:1px solid var(--line); padding-top:10px; font-size:9.5px; color:var(--grey); line-height:1.5; text-align:center; margin-top:16px; }
+
+  @media print{
+    header, .hero, .progress, main > div:nth-of-type(1), footer, .btn-row, button{ display:none !important; }
+    body > button, main{ display:none !important; }
+    .print-only{ display:block !important; }
+    body{ background:var(--white); }
+  }
+</style>
+</head>
+<body>
+<a href="/hub/guides.html" style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;background:#1D3557;color:#F7F4ED;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px 16px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.2);">&#8592; Back to Guides &amp; Tools</a>
+
+
+<header>
+  <div class="brand">The Everyday Investor</div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>How We Build Your Portfolio</h1>
+    <p>Your risk profile and your amount together decide how your portfolio is built -- then you choose which names fill it.</p>
+  </div>
+
+  <div class="progress">
+    <div class="dot active" id="dot1"></div>
+    <div class="dot" id="dot2"></div>
+    <div class="dot" id="dot3"></div>
+    <div class="dot" id="dot4"></div>
+  </div>
+  <div style="text-align:center;margin-top:10px;"><button onclick="resetPortfolioTool()" style="background:none;border:none;color:inherit;opacity:.5;font-size:12px;text-decoration:underline;cursor:pointer;">Start over</button></div>
+
+  <!-- STEP 1: RISK PROFILER -->
+  <section class="step" id="step1">
+    <div class="step-eyebrow">Step 1 of 4</div>
+    <h2>Your Risk Profile</h2>
+    <p class="step-sub">Seven quick questions. This decides your Growth / Foundation split and which tiers of the portfolio are available to you.</p>
+
+    <div id="questions"></div>
+
+    <div class="btn-row">
+      <button class="btn" id="toResultBtn" disabled>See Your Result</button>
+    </div>
+
+    <div class="result-panel hidden" id="resultPanel">
+      <div class="r-label">Your Profile</div>
+      <h3 id="resultTitle"></h3>
+      <p id="resultText"></p>
+      <div class="result-split" id="resultSplit"></div>
+      <div class="btn-row">
+        <button class="btn" id="continueBtn">Continue to Amount</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2: AMOUNT -->
+  <section class="step hidden" id="step2">
+    <div class="step-eyebrow">Step 2 of 4</div>
+    <h2>How Much Are You Investing?</h2>
+    <p class="step-sub">The amount determines how much of the model portfolio is active. Smaller amounts concentrate on fewer, higher-conviction positions.</p>
+
+    <div class="amount-input-row">
+      <div class="amount-input-wrap">
+        <span>£</span>
+        <input type="number" id="amountInput" value="1500" min="0" step="100">
+      </div>
+      <div class="quick-amounts">
+        <button data-amt="1500">£1,500</button>
+        <button data-amt="3500">£3,500</button>
+        <button data-amt="7500">£7,500</button>
+        <button data-amt="15000">£15,000</button>
+      </div>
+    </div>
+
+    <div class="phase-banner" id="phaseBanner"></div>
+
+    <div class="btn-row split">
+      <button class="btn secondary" id="backTo1Btn">Back</button>
+      <button class="btn" id="toStep3Btn">Build Your Portfolio</button>
+    </div>
+  </section>
+
+  <!-- STEP 3: SELF-SELECT -->
+  <section class="step hidden" id="step3">
+    <div class="step-eyebrow">Step 3 of 4</div>
+    <h2>Build Your Portfolio</h2>
+    <p class="step-sub" id="pickIntro"></p>
+
+    <div id="pickTiers"></div>
+
+    <div class="foundation-note" id="foundationNote"></div>
+
+    <div class="btn-row split">
+      <button class="btn secondary" id="backTo2Btn">Back</button>
+      <button class="btn" id="toStep4Btn" disabled>See My Allocation</button>
+    </div>
+  </section>
+
+  <!-- STEP 4: ALLOCATION -->
+  <section class="step hidden" id="step4">
+    <div class="step-eyebrow">Step 4 of 4</div>
+    <h2>Your Allocation</h2>
+    <p class="step-sub">Exactly how your amount splits across the positions you chose, at today's model weights.</p>
+
+    <div class="chart-wrap">
+      <div class="chart-canvas-holder">
+        <canvas id="portfolioChart"></canvas>
+        <div class="chart-center-label">
+          <span class="cl-big" id="chartCenterSplit"></span>
+          <span class="cl-small">Growth / Foundation</span>
+        </div>
+      </div>
+      <div class="legend-block" id="legendBlock"></div>
+    </div>
+
+    <table class="alloc-table" id="allocTable"></table>
+
+    <div class="note-box" id="phaseNoteBox"></div>
+
+    <div class="btn-row split">
+      <button class="btn secondary" id="backTo3Btn">Back</button>
+      <div style="display:flex;gap:10px;">
+        <button class="btn secondary" id="downloadImgBtn">Download Image</button>
+        <button class="btn" id="printBtn">Print / Save PDF</button>
+      </div>
+    </div>
+    <p style="text-align:right;font-size:0.76rem;color:var(--grey);margin:8px 0 0;">On a phone? Use <strong>Download Image</strong> -- it saves straight to your photos/files without a print dialog.</p>
+  </section>
+</main>
+
+<div id="printSummary" class="print-only"></div>
+
+<footer>
+  <div class="f-brand">The Everyday Investor</div>
+  <div>Financial Coaching &amp; Education. This tool is for illustration only and does not constitute personalised financial advice. Holdings and weightings shown reflect the current model portfolio and are subject to change.</div>
+</footer>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const QUESTIONS = [
+  { q: "How long can you leave this money invested?",
+    opts: ["Less than 2 years","2 to 4 years","4 to 7 years","7 years or more"] },
+  { q: "If your portfolio fell 20% in a month, you would:",
+    opts: ["Sell everything and preserve what is left","Reduce exposure and wait for clarity","Hold and review but not act","Add more -- lower price, same conviction"] },
+  { q: "How much do you rely on this money in the next 3 years?",
+    opts: ["It is money I may need","I might need some of it","Unlikely to need it","I will not need it at all"] },
+  { q: "Which best describes your relationship with investment risk?",
+    opts: ["I want stability above all else","I can accept some volatility for better returns","I am comfortable with meaningful swings for higher potential","I actively seek high-growth opportunities and accept the risk"] },
+  { q: "How would you describe your investing experience?",
+    opts: ["Never invested before","Some experience, mostly funds or ISAs","Comfortable with individual stocks and market cycles","Experienced -- I understand drawdowns, catalysts and portfolio construction"] },
+  { q: "What share of your total savings will this portfolio represent initially?",
+    opts: ["More than 75% -- this is most of what I have","50 to 75%","25 to 50%","Less than 25% -- this is a portion of a larger picture"] },
+  { q: "What is the main goal for this money?",
+    opts: ["Capital preservation -- I want to protect what I have","Steady long-term growth alongside other savings","Meaningful wealth building over 5 to 10 years","Maximum long-term growth -- I am here for the full journey"] }
+];
+
+// Risk profiles: split, growth-tier weighting, and self-select target counts (Phase 4 / unconstrained)
+const PROFILES = {
+  cautious:   { key:"cautious",   name:"Cautious",   growth:35, foundation:65, tierPct:{anchor:60, core:40, tail:0},  target:{anchor:3, core:3, tail:0}, mechanic:"tierlist",
+    text:"You lean toward capital preservation and shorter time horizons. Your portfolio concentrates on Anchor and Core positions only -- Tail is not part of this profile." },
+  balanced:   { key:"balanced",   name:"Balanced",   growth:55, foundation:45, tierPct:{anchor:60, core:40, tail:0},  target:{anchor:4, core:3, tail:0}, mechanic:"tierlist",
+    text:"You're comfortable with some volatility in exchange for stronger long-term growth. Your portfolio spans Anchor and Core positions, with a larger Growth sleeve than a Cautious profile." },
+  growth:     { key:"growth",     name:"Growth",     growth:70, foundation:30, tierPct:{anchor:50, core:30, tail:20}, target:{anchor:4, core:4, tail:2}, mechanic:"freestyle",
+    text:"You're comfortable with meaningful short-term swings in pursuit of stronger long-term returns. This is the full three-tier structure -- Anchor, Core and Tail." },
+  aggressive: { key:"aggressive", name:"Aggressive",  growth:80, foundation:20, tierPct:{anchor:50, core:30, tail:20}, target:{anchor:4, core:4, tail:2}, mechanic:"freestyle",
+    text:"You actively seek high-growth opportunities and accept the risk that comes with them. Full three-tier structure with the largest Growth sleeve of any profile." }
+};
+const PROFILE_ORDER = ["cautious","balanced","growth","aggressive"];
+
+// Portfolio-value phases: amount gates how many positions are available, independent of risk profile
+const PHASES = [
+  { key:"phase1", label:"Phase 1 -- Concentration", range:"Under £2,000", max:2000,
+    cap:{anchor:2, core:0, tail:0}, foundationNames:["JEPQ"],
+    desc:"At this stage, concentrate. Only Anchor positions in Growth and a single Foundation holding. Spreading further with this amount means no position is large enough to matter." },
+  { key:"phase2", label:"Phase 2 -- Expansion", range:"£2,000 to £4,999", max:5000,
+    cap:{anchor:3, core:1, tail:0}, foundationNames:["JEPQ","XSOP"],
+    desc:"Start broadening. A Core position joins the Anchor tier, and the Foundation sleeve gains a second component." },
+  { key:"phase3", label:"Phase 3 -- Broadening", range:"£5,000 to £9,999", max:10000,
+    cap:{anchor:4, core:2, tail:0}, foundationNames:["JEPQ","XSOP"],
+    desc:"The structure is taking shape. More Anchor and Core positions become available. Tail positions are still excluded -- the portfolio needs more behind it first." },
+  { key:"phase4", label:"Phase 4 -- Full Structure", range:"£10,000+", max:Infinity,
+    cap:null, foundationNames:["JEPQ","XSOP"],
+    desc:"Full structure active. Anchor, Core and -- for Growth and Aggressive profiles -- Tail positions, at your risk profile's target split." }
+];
+
+// Growth candidate pool, grouped by tier and sector
+const GROWTH_POOL = {
+  anchor: [
+    { name:"NBIS", theme:"AI Infrastructure",        sector:"AI Infrastructure",       color:"#1D3557" },
+    { name:"ONDS", theme:"Autonomous Defence",        sector:"Autonomous Defence",       color:"#254A78" },
+    { name:"SIVE", theme:"Compound Semiconductors",   sector:"Compound Semiconductors",  color:"#2D5590" },
+    { name:"TEM",  theme:"Healthcare AI",             sector:"Healthcare",               color:"#3563A8" },
+    { name:"ASTS", theme:"Space Connectivity",        sector:"Space Connectivity",       color:"#4472B8" }
+  ],
+  core: [
+    { name:"HOOD", theme:"Digital Finance",           sector:"Digital Finance",          color:"#5C7A99" },
+    { name:"ZETA", theme:"AI Marketing",              sector:"AI Marketing",             color:"#6885A2" },
+    { name:"RKLB", theme:"Space Technology",          sector:"Space Connectivity",       color:"#7490AC" },
+    { name:"IQE",  theme:"Compound Semiconductors",   sector:"Compound Semiconductors",  color:"#809BB5" },
+    { name:"HIMS", theme:"Healthcare",                sector:"Healthcare",               color:"#8CA5BE" }
+  ],
+  tail: [
+    { name:"KRKNF", theme:"Marine Robotics",          sector:"Robotics",                 color:"#B08D57" },
+    { name:"CCXI",  theme:"Robotics",                 sector:"Robotics",                 color:"#BC9C6E" },
+    { name:"SOFI",  theme:"Digital Finance",          sector:"Digital Finance",          color:"#C8AB85" },
+    { name:"OSCR",  theme:"Healthcare",                sector:"Healthcare",               color:"#D4B79C" }
+  ]
+};
+const TIER_ORDER = ["anchor","core","tail"];
+const TIER_LABELS = { anchor:"Anchor", core:"Core", tail:"Tail" };
+const TIER_DESCRIPTIONS = {
+  anchor: "Highest conviction, largest positions.",
+  core: "Strong conviction, medium positions.",
+  tail: "Earlier stage, smaller positions, asymmetric upside."
+};
+
+// Foundation -- compulsory, no self-select. Weighted within whichever components are active for the phase.
+const FOUNDATION_ALL = {
+  JEPQ: { name:"JEPQ", theme:"Developed Indices", weight:2, color:"#5C8374" },
+  XSOP: { name:"XSOP", theme:"Emerging Markets",  weight:1, color:"#7AA194" }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const answers = new Array(QUESTIONS.length).fill(null);
+let currentProfile = null;
+let currentPhase = null;
+let picks = { anchor:[], core:[], tail:[] };
+let chartInstance = null;
+
+// ============================================================
+// STEP 1: RISK PROFILER
+// ============================================================
+function renderQuestions(){
+  const container = document.getElementById('questions');
+  container.innerHTML = '';
+  QUESTIONS.forEach((item, qi) => {
+    const qDiv = document.createElement('div');
+    qDiv.className = 'question';
+    const qText = document.createElement('div');
+    qText.className = 'q-text';
+    qText.textContent = (qi+1) + ". " + item.q;
+    qDiv.appendChild(qText);
+    const optsDiv = document.createElement('div');
+    optsDiv.className = 'options';
+    item.opts.forEach((opt, oi) => {
+      const optDiv = document.createElement('div');
+      optDiv.className = 'option';
+      optDiv.textContent = opt;
+      optDiv.addEventListener('click', () => {
+        answers[qi] = oi;
+        [...optsDiv.children].forEach(c => c.classList.remove('selected'));
+        optDiv.classList.add('selected');
+        checkComplete();
+      });
+      optsDiv.appendChild(optDiv);
+    });
+    qDiv.appendChild(optsDiv);
+    container.appendChild(qDiv);
+  });
+}
+renderQuestions();
+
+function checkComplete(){
+  const done = answers.every(a => a !== null);
+  document.getElementById('toResultBtn').disabled = !done;
+}
+
+function calcProfileKey(){
+  let core = 0;
+  for (let i = 0; i < 5; i++){
+    core += (answers[i] !== null ? answers[i] + 1 : 1);
+  }
+  let key;
+  if (core <= 8) key = "cautious";
+  else if (core <= 12) key = "balanced";
+  else if (core <= 16) key = "growth";
+  else key = "aggressive";
+
+  const q6 = answers[5] !== null ? answers[5] + 1 : 2;
+  const q7 = answers[6] !== null ? answers[6] + 1 : 2;
+  let idx = PROFILE_ORDER.indexOf(key);
+  if (q6 === 1 && idx > 0) idx--;
+  if (q6 === 4 && q7 === 4 && idx < 3) idx++;
+  return PROFILE_ORDER[idx];
+}
+
+document.getElementById('toResultBtn').addEventListener('click', () => {
+  const key = calcProfileKey();
+  currentProfile = PROFILES[key];
+  document.getElementById('resultTitle').textContent = currentProfile.name;
+  document.getElementById('resultText').textContent = currentProfile.text;
+  document.getElementById('resultSplit').textContent = currentProfile.growth + "% Growth / " + currentProfile.foundation + "% Foundation";
+  document.getElementById('resultPanel').classList.remove('hidden');
+  document.getElementById('toResultBtn').style.display = 'none';
+});
+
+document.getElementById('continueBtn').addEventListener('click', () => goToStep(2));
+document.getElementById('backTo1Btn').addEventListener('click', () => goToStep(1));
+document.getElementById('backTo2Btn').addEventListener('click', () => goToStep(2));
+document.getElementById('backTo3Btn').addEventListener('click', () => goToStep(3));
+
+function goToStep(n){
+  [1,2,3,4].forEach(i => {
+    document.getElementById('step'+i).classList.toggle('hidden', i !== n);
+    const dot = document.getElementById('dot'+i);
+    dot.classList.remove('active','done');
+    if (i < n) dot.classList.add('done');
+    if (i === n) dot.classList.add('active');
+  });
+  if (n === 2) renderPhaseBanner();
+  if (n === 3) renderPickTiers();
+  if (n === 4) renderAllocation();
+  window.scrollTo({top: document.getElementById('step'+n).offsetTop - 20, behavior:'smooth'});
+}
+
+// ============================================================
+// STEP 2: AMOUNT / PHASE
+// ============================================================
+function getPhaseForAmount(amount){
+  return PHASES.find(p => amount < p.max) || PHASES[PHASES.length - 1];
+}
+
+function renderPhaseBanner(){
+  const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+  currentPhase = getPhaseForAmount(amount);
+  const banner = document.getElementById('phaseBanner');
+  banner.innerHTML =
+    '<div class="pb-label">' + currentPhase.range + '</div>' +
+    '<h4>' + currentPhase.label + '</h4>' +
+    '<p>' + currentPhase.desc + '</p>';
+}
+
+document.getElementById('amountInput').addEventListener('input', renderPhaseBanner);
+document.querySelectorAll('.quick-amounts button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('amountInput').value = btn.dataset.amt;
+    renderPhaseBanner();
+  });
+});
+
+document.getElementById('toStep3Btn').addEventListener('click', () => goToStep(3));
+
+// ============================================================
+// STEP 3: SELF-SELECT
+// ============================================================
+function getEffectiveSlots(){
+  const target = currentProfile.target;
+  if (!currentPhase.cap){
+    return { anchor: target.anchor, core: target.core, tail: target.tail };
+  }
+  return {
+    anchor: Math.min(currentPhase.cap.anchor, target.anchor),
+    core: Math.min(currentPhase.cap.core, target.core),
+    tail: Math.min(currentPhase.cap.tail, target.tail)
+  };
+}
+
+function renderPickTiers(){
+  picks = { anchor:[], core:[], tail:[] };
+  const slots = getEffectiveSlots();
+  const mechanicText = currentProfile.mechanic === 'freestyle'
+    ? "Pick your favourites within each tier, grouped by sector below."
+    : "Choose the names you want in each tier from the list below.";
+  document.getElementById('pickIntro').textContent =
+    currentProfile.name + " profile, " + currentPhase.label + ": " + mechanicText;
+
+  const container = document.getElementById('pickTiers');
+  container.innerHTML = '';
+
+  TIER_ORDER.forEach(tier => {
+    const slotCount = slots[tier];
+    if (slotCount <= 0) return;
+
+    const pool = GROWTH_POOL[tier];
+    const tierDiv = document.createElement('div');
+    tierDiv.className = 'pick-tier';
+    tierDiv.dataset.tier = tier;
+
+    const head = document.createElement('div');
+    head.className = 'pick-tier-head';
+    head.innerHTML =
+      '<h3>' + TIER_LABELS[tier] + '</h3>' +
+      '<span class="pick-tier-count" id="count-' + tier + '">0 / ' + slotCount + ' selected</span>';
+    tierDiv.appendChild(head);
+
+    const desc = document.createElement('p');
+    desc.className = 'pick-tier-desc';
+    desc.textContent = TIER_DESCRIPTIONS[tier] + " Choose " + slotCount + " of " + pool.length + ".";
+    tierDiv.appendChild(desc);
+
+    if (currentProfile.mechanic === 'freestyle'){
+      // Group by sector for freestyle picking
+      const sectors = [...new Set(pool.map(h => h.sector))];
+      sectors.forEach(sector => {
+        const label = document.createElement('div');
+        label.className = 'pick-sector-label';
+        label.textContent = sector;
+        tierDiv.appendChild(label);
+        const grid = document.createElement('div');
+        grid.className = 'pick-grid';
+        pool.filter(h => h.sector === sector).forEach(h => grid.appendChild(buildPickCard(h, tier, slotCount)));
+        tierDiv.appendChild(grid);
+      });
+    } else {
+      // Simple tier-list for cautious/balanced
+      const grid = document.createElement('div');
+      grid.className = 'pick-grid';
+      pool.forEach(h => grid.appendChild(buildPickCard(h, tier, slotCount)));
+      tierDiv.appendChild(grid);
+    }
+
+    container.appendChild(tierDiv);
+  });
+
+  // Foundation note
+  const fNames = currentPhase.foundationNames;
+  const fList = fNames.map(n => FOUNDATION_ALL[n].name + ' (' + FOUNDATION_ALL[n].theme + ')').join(' and ');
+  document.getElementById('foundationNote').innerHTML =
+    '<strong>Foundation Sleeve (compulsory):</strong> ' + fList + '. This part of the portfolio is not self-selected -- it is fixed to give every profile a defensive cushion.';
+
+  updateStep3Continue();
+}
+
+function buildPickCard(holding, tier, slotCount){
+  const card = document.createElement('div');
+  card.className = 'pick-card';
+  card.dataset.name = holding.name;
+  card.innerHTML =
+    '<div class="pc-name">' + holding.name + '</div>' +
+    '<div class="pc-theme">' + holding.theme + '</div>';
+  card.addEventListener('click', () => {
+    const idx = picks[tier].indexOf(holding.name);
+    if (idx > -1){
+      picks[tier].splice(idx, 1);
+      card.classList.remove('selected');
+    } else {
+      if (picks[tier].length >= slotCount) return;
+      picks[tier].push(holding.name);
+      card.classList.add('selected');
+    }
+    updateTierCount(tier, slotCount);
+    updateCardDisabledState(tier, slotCount);
+    updateStep3Continue();
+  });
+  return card;
+}
+
+function updateTierCount(tier, slotCount){
+  const el = document.getElementById('count-' + tier);
+  if (!el) return;
+  el.textContent = picks[tier].length + ' / ' + slotCount + ' selected';
+  el.classList.toggle('full', picks[tier].length === slotCount);
+}
+
+function updateCardDisabledState(tier, slotCount){
+  const full = picks[tier].length >= slotCount;
+  document.querySelectorAll('.pick-tier[data-tier="' + tier + '"] .pick-card').forEach(card => {
+    const isSelected = card.classList.contains('selected');
+    card.classList.toggle('disabled', full && !isSelected);
+  });
+}
+
+function updateStep3Continue(){
+  const slots = getEffectiveSlots();
+  const done = TIER_ORDER.every(tier => picks[tier].length === (slots[tier] || 0));
+  document.getElementById('toStep4Btn').disabled = !done;
+}
+
+document.getElementById('toStep4Btn').addEventListener('click', () => goToStep(4));
+
+// ============================================================
+// STEP 4: ALLOCATION
+// ============================================================
+function buildFinalHoldings(){
+  const holdings = [];
+  const growthPct = currentProfile.growth;
+  const foundationPct = currentProfile.foundation;
+
+  // Renormalize tier weights across only the tiers actually active (non-zero picks) for this phase,
+  // so the Growth sleeve always sums to 100% even when a phase caps a tier to 0.
+  const activeTiers = TIER_ORDER.filter(tier => picks[tier].length > 0);
+  const rawWeightSum = activeTiers.reduce((s, t) => s + currentProfile.tierPct[t], 0);
+
+  activeTiers.forEach(tier => {
+    const n = picks[tier].length;
+    const normalizedTierShare = currentProfile.tierPct[tier] / rawWeightSum; // fraction of Growth sleeve
+    const pctOfTotalPerHolding = (growthPct * normalizedTierShare) / n;
+    picks[tier].forEach(name => {
+      const meta = GROWTH_POOL[tier].find(h => h.name === name);
+      holdings.push({ name: meta.name, theme: meta.theme, sleeve:'Growth', tier: TIER_LABELS[tier], pct: pctOfTotalPerHolding, color: meta.color });
+    });
+  });
+
+  const fNames = currentPhase.foundationNames;
+  const totalWeight = fNames.reduce((s,n) => s + FOUNDATION_ALL[n].weight, 0);
+  fNames.forEach(n => {
+    const f = FOUNDATION_ALL[n];
+    const pctOfTotal = foundationPct * (f.weight / totalWeight);
+    holdings.push({ name: f.name, theme: f.theme, sleeve:'Foundation', tier:'Foundation', pct: pctOfTotal, color: f.color });
+  });
+
+  return holdings;
+}
+
+function renderAllocation(){
+  const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+  const holdings = buildFinalHoldings();
+
+  document.getElementById('chartCenterSplit').textContent = currentProfile.growth + '/' + currentProfile.foundation;
+
+  try {
+    if (chartInstance){ chartInstance.destroy(); }
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    const outerLabels = holdings.map(h => h.name);
+    const outerData = holdings.map(h => Math.round(h.pct * 10) / 10);
+    const outerColors = holdings.map(h => h.color);
+    const outerThemes = holdings.map(h => h.theme);
+    const innerLabels = ["Growth","Foundation"];
+    const innerData = [currentProfile.growth, currentProfile.foundation];
+    const innerColors = ["#1D3557","#5C8374"];
+
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: outerLabels,
+        datasets: [
+          { label:'Holdings', data: outerData, backgroundColor: outerColors, borderColor:'#fff', borderWidth:2, weight:1, customLabels: outerLabels, customThemes: outerThemes },
+          { label:'Sleeve', data: innerData, backgroundColor: innerColors, borderColor:'#fff', borderWidth:2, weight:1, customLabels: innerLabels, customThemes: ["Return engine","Defensive cushion"] }
+        ]
+      },
+      options: {
+        responsive:true,
+        maintainAspectRatio:true,
+        cutout:'40%',
+        plugins:{
+          legend:{ display:false },
+          tooltip:{ callbacks:{ label: function(context){
+            const ds = context.dataset;
+            const name = ds.customLabels[context.dataIndex];
+            const theme = ds.customThemes[context.dataIndex];
+            const val = context.parsed;
+            return name + " - " + theme + ": " + val + "%";
+          } } }
+        }
+      }
+    });
+  } catch(e) {
+    console.warn('Chart could not render, continuing with table/legend only:', e);
+  }
+
+  renderLegend(holdings);
+  renderTable(holdings, amount);
+
+  const noteEl = document.getElementById('phaseNoteBox');
+  noteEl.innerHTML = '<strong>' + currentPhase.label + ':</strong> ' + currentPhase.desc;
+}
+
+function renderLegend(holdings){
+  const block = document.getElementById('legendBlock');
+  block.innerHTML = '';
+  const tierGroups = ["Anchor","Core","Tail","Foundation"];
+  tierGroups.forEach(tierLabel => {
+    const items = holdings.filter(h => h.tier === tierLabel);
+    if (!items.length) return;
+    const group = document.createElement('div');
+    group.className = 'legend-group';
+    const title = document.createElement('div');
+    title.className = 'legend-group-title';
+    title.innerHTML = '<span class="swatch" style="background:' + items[0].color + '"></span>' + (tierLabel === 'Foundation' ? 'Foundation Sleeve' : tierLabel);
+    group.appendChild(title);
+    items.forEach(h => {
+      const row = document.createElement('div');
+      row.className = 'legend-item';
+      row.innerHTML = '<span class="li-name"><span class="li-dot" style="background:' + h.color + '"></span>' + h.name + ' <span style="color:var(--grey);font-weight:400;">- ' + h.theme + '</span></span><span class="li-pct">' + (Math.round(h.pct*10)/10) + '%</span>';
+      group.appendChild(row);
+    });
+    block.appendChild(group);
+  });
+}
+
+function renderTable(holdings, amount){
+  const table = document.getElementById('allocTable');
+  table.innerHTML = '';
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Position</th><th class="num">Weight</th><th class="num">Amount</th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  let runningTotal = 0;
+  const tierGroups = ["Anchor","Core","Tail","Foundation"];
+
+  tierGroups.forEach(tierLabel => {
+    const items = holdings.filter(h => h.tier === tierLabel);
+    if (!items.length) return;
+    const tierRow = document.createElement('tr');
+    tierRow.className = 'tier-row';
+    tierRow.innerHTML = '<td colspan="3">' + (tierLabel === 'Foundation' ? 'Foundation Sleeve' : tierLabel) + '</td>';
+    tbody.appendChild(tierRow);
+
+    items.forEach(h => {
+      const amt = amount * (h.pct / 100);
+      runningTotal += amt;
+      const row = document.createElement('tr');
+      row.innerHTML =
+        '<td class="name-cell"><span class="dot" style="background:' + h.color + '"></span>' + h.name + '</td>' +
+        '<td class="num">' + (Math.round(h.pct*10)/10) + '%</td>' +
+        '<td class="num">£' + amt.toLocaleString('en-GB',{maximumFractionDigits:0}) + '</td>';
+      tbody.appendChild(row);
+    });
+  });
+
+  const totalRow = document.createElement('tr');
+  totalRow.className = 'total-row';
+  totalRow.innerHTML = '<td>Total</td><td class="num">100%</td><td class="num">£' + runningTotal.toLocaleString('en-GB',{maximumFractionDigits:0}) + '</td>';
+  tbody.appendChild(totalRow);
+
+  table.appendChild(tbody);
+}
+
+// ============================================================
+// PRINT / SAVE AS PDF
+// ============================================================
+function tierPickList(){
+  const rows = [];
+  const badgeColors = { anchor: 'background:var(--navy);', core: 'background:#2B4C7E;', tail: 'background:var(--gold);color:#5c4a1a;' };
+  TIER_ORDER.forEach(tier => {
+    if (!picks[tier].length) return;
+    rows.push(
+      '<div class="ps-pick-row"><span class="ps-pick-badge" style="' + badgeColors[tier] + '">' + TIER_LABELS[tier].toUpperCase() + '</span><span>' + picks[tier].join(', ') + '</span></div>'
+    );
+  });
+  return rows.join('');
+}
+
+function buildExplainerText(){
+  const slots = getEffectiveSlots();
+  const parts = [];
+  if (slots.anchor) parts.push(slots.anchor + ' Anchor');
+  if (slots.core) parts.push(slots.core + ' Core');
+  if (slots.tail) parts.push(slots.tail + ' Tail');
+  const structure = parts.length > 1
+    ? parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1] + ' position' + (parts.length ? 's' : '')
+    : (parts[0] || '');
+  const fNames = currentPhase.foundationNames.map(n => FOUNDATION_ALL[n].name).join(' and ');
+  const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+  const amountStr = '£' + amount.toLocaleString('en-GB', {maximumFractionDigits:0});
+  return 'Because you scored as <b>' + currentProfile.name + '</b> and are investing <b>' + amountStr + '</b> (' + currentPhase.label + '), your portfolio draws on ' +
+    (currentProfile.mechanic === 'freestyle' ? 'the full three-tier structure' : 'the Anchor and Core tiers') +
+    ': ' + structure + ', plus ' + fNames + ' in Foundation.';
+}
+
+function buildAllocTableHTML(holdings, amount){
+  let html = '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:16px;">';
+  html += '<tr style="background:var(--navy);color:#fff;"><td style="padding:6px 8px;font-weight:700;">Position</td><td style="padding:6px 8px;text-align:right;font-weight:700;">Weight</td><td style="padding:6px 8px;text-align:right;font-weight:700;">Amount</td></tr>';
+  const tierGroups = ["Anchor","Core","Tail","Foundation"];
+  let runningTotal = 0;
+  tierGroups.forEach(tierLabel => {
+    const items = holdings.filter(h => h.tier === tierLabel);
+    if (!items.length) return;
+    html += '<tr style="background:var(--gold-lt);"><td colspan="3" style="padding:5px 8px;font-weight:800;color:#8B6914;">' + (tierLabel === 'Foundation' ? 'Foundation Sleeve' : tierLabel) + '</td></tr>';
+    items.forEach(h => {
+      const amt = amount * (h.pct / 100);
+      runningTotal += amt;
+      html += '<tr><td style="padding:4px 8px;border-bottom:1px solid var(--line);">' + h.name + '</td><td style="padding:4px 8px;text-align:right;border-bottom:1px solid var(--line);">' + (Math.round(h.pct*10)/10) + '%</td><td style="padding:4px 8px;text-align:right;border-bottom:1px solid var(--line);">£' + amt.toLocaleString('en-GB',{maximumFractionDigits:0}) + '</td></tr>';
+    });
+  });
+  html += '<tr style="border-top:2px solid var(--navy);"><td style="padding:6px 8px;font-weight:800;color:var(--navy);">Total</td><td style="padding:6px 8px;text-align:right;font-weight:800;color:var(--navy);">100%</td><td style="padding:6px 8px;text-align:right;font-weight:800;color:var(--navy);">£' + runningTotal.toLocaleString('en-GB',{maximumFractionDigits:0}) + '</td></tr>';
+  html += '</table>';
+  return html;
+}
+
+function buildPrintSummary(){
+  const amount = parseFloat(document.getElementById('amountInput').value) || 0;
+  const holdings = buildFinalHoldings();
+  const dateStr = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+
+  let chartImg = '';
+  if (chartInstance){
+    try { chartImg = '<img src="' + chartInstance.toBase64Image() + '" alt="Allocation chart">'; }
+    catch(e) { chartImg = ''; }
+  }
+
+  const container = document.getElementById('printSummary');
+  container.innerHTML =
+    '<div class="ps-header">' +
+      '<div class="ps-eyebrow">The Everyday Investor</div>' +
+      '<h2>Your Portfolio Summary</h2>' +
+      '<div class="ps-date">Generated ' + dateStr + '</div>' +
+    '</div>' +
+    '<div class="ps-body">' +
+      '<div class="ps-profile">' +
+        '<div class="ps-label">Your Profile</div>' +
+        '<div class="ps-name">' + currentProfile.name + '</div>' +
+        '<div class="ps-split">' + currentProfile.growth + '% Growth / ' + currentProfile.foundation + '% Foundation</div>' +
+      '</div>' +
+      '<div class="ps-explainer">' +
+        '<div class="ps-label">How this was built</div>' +
+        '<p>' + buildExplainerText() + '</p>' +
+      '</div>' +
+      '<div class="ps-stats">' +
+        '<div class="ps-stat navy"><div class="ps-stat-label">Amount</div><div class="ps-stat-val">£' + amount.toLocaleString('en-GB',{maximumFractionDigits:0}) + '</div></div>' +
+        '<div class="ps-stat gold"><div class="ps-stat-label">Phase</div><div class="ps-stat-val">' + currentPhase.label.replace('Phase ','').split(' -- ')[0] + '</div></div>' +
+      '</div>' +
+      '<div style="margin-bottom:16px;">' +
+        '<div class="ps-picks-label">Your Picks</div>' +
+        tierPickList() +
+      '</div>' +
+      (chartImg ? '<div class="ps-chart-wrap">' + chartImg + '</div>' : '') +
+      buildAllocTableHTML(holdings, amount) +
+      '<div class="ps-footer">Financial Coaching &amp; Education. This tool is for illustration only and does not constitute personalised financial advice. Holdings and weightings shown reflect the current model portfolio and are subject to change.</div>' +
+    '</div>';
+}
+
+document.getElementById('printBtn').addEventListener('click', () => {
+  buildPrintSummary();
+  window.print();
+});
+
+document.getElementById('downloadImgBtn').addEventListener('click', () => {
+  buildPrintSummary();
+  const el = document.getElementById('printSummary');
+  const prevDisplay = el.style.display;
+  const prevPosition = el.style.position;
+  const prevLeft = el.style.left;
+  // Temporarily reveal off-screen so html2canvas can render it (it's display:none for on-screen viewing normally)
+  el.style.display = 'block';
+  el.style.position = 'fixed';
+  el.style.left = '-9999px';
+  el.style.top = '0';
+  el.style.width = '600px';
+  el.style.background = '#F7F4ED';
+  el.style.padding = '16px';
+
+  const restore = () => {
+    el.style.display = prevDisplay;
+    el.style.position = prevPosition;
+    el.style.left = prevLeft;
+    el.style.top = '';
+    el.style.width = '';
+    el.style.background = '';
+    el.style.padding = '';
+  };
+
+  if (typeof html2canvas === 'undefined'){
+    restore();
+    alert('Image export is unavailable right now. Please try Print / Save PDF instead.');
+    return;
+  }
+
+  html2canvas(el, { backgroundColor: '#F7F4ED', scale: 2 }).then(canvas => {
+    restore();
+    const link = document.createElement('a');
+    link.download = 'portfolio-summary.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(() => {
+    restore();
+    alert('Image export failed. Please try Print / Save PDF instead.');
+  });
+});
+
+// ============================================================
+// RESET
+// ============================================================
+function resetPortfolioTool(){
+  answers.fill(null);
+  currentProfile = null;
+  currentPhase = null;
+  picks = { anchor:[], core:[], tail:[] };
+  renderQuestions();
+  checkComplete();
+  document.getElementById('resultPanel').classList.add('hidden');
+  document.getElementById('toResultBtn').style.display = 'inline-block';
+  document.getElementById('amountInput').value = '1500';
+  goToStep(1);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+
+</body>
+</html>

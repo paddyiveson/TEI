@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tax Wrapper Scenario Tool -- The Everyday Investor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap');
+:root {
+  --navy: #1D3557; --navy-dk: #0f1e3a; --cream: #F7F4ED; --cream-dk: #EDE8DA;
+  --gold: #C9A84C; --gold-dk: #b8922d; --gold-lt: #FBF4E0; --text: #1a1a2e; --mid: #4a5568; --lt: #718096;
+  --white: #fff; --green: #2D7D52; --green-dk: #1D5C3A; --red: #C0392B; --radius: 12px;
+  --shadow: 0 4px 24px rgba(29,53,87,.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; padding: 40px 20px; }
+.wrap { max-width: 760px; margin: 0 auto; }
+
+.hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); border-radius: 16px; padding: 40px 44px; margin-bottom: 28px; position: relative; overflow: hidden; }
+.hero::before { content: ''; position: absolute; top: -100px; right: -100px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,.10) 0%, transparent 70%); }
+.hero-mark { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--gold); margin-bottom: 18px; position: relative; }
+.hero .eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 12px; position: relative; }
+.hero h1 { font-family: 'Playfair Display', serif; font-size: 30px; color: var(--cream); margin-bottom: 12px; line-height: 1.25; position: relative; }
+.hero p { font-size: 14px; color: rgba(247,244,237,.65); max-width: 560px; position: relative; }
+
+.card { background: var(--white); border-radius: var(--radius); border: 1px solid rgba(29,53,87,.07); box-shadow: var(--shadow); padding: 26px 30px; margin-bottom: 20px; }
+.card-label { font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-dk); margin-bottom: 16px; display: block; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-size: 12.5px; font-weight: 600; color: var(--mid); display: block; margin-bottom: 7px; }
+.field input, .field select { width: 100%; padding: 12px 14px; border-radius: 9px; border: 1.5px solid rgba(29,53,87,.13); font-size: 14.5px; font-family: 'Inter', sans-serif; background: var(--white); color: var(--navy); font-weight: 600; transition: border-color .15s; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
+.toggle-row { display: flex; gap: 8px; }
+.toggle-btn { flex: 1; padding: 12px; border-radius: 9px; border: 1.5px solid rgba(29,53,87,.13); background: var(--white); color: var(--mid); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .15s; }
+.toggle-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+.btn-primary { background: var(--navy); color: #fff; border: none; padding: 15px 34px; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: background .15s; }
+.btn-primary:hover { background: var(--navy-dk); }
+.btn-secondary { background: transparent; color: var(--mid); border: 1.5px solid rgba(29,53,87,.15); padding: 15px 34px; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; margin-left: 10px; }
+
+.scenario-card { border-radius: var(--radius); padding: 24px 28px; margin-bottom: 16px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.scenario-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+.scenario-card.pos { background: var(--white); border: 1px solid rgba(45,125,82,.15); }
+.scenario-card.pos::before { background: var(--green); }
+.scenario-card.neutral { background: var(--white); border: 1px solid rgba(201,168,76,.2); }
+.scenario-card.neutral::before { background: var(--gold); }
+.scenario-card.warn { background: var(--white); border: 1px solid rgba(192,57,43,.15); }
+.scenario-card.warn::before { background: var(--red); }
+.scenario-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+.scenario-title { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--lt); margin-bottom: 10px; }
+.scenario-headline { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.15; }
+.scenario-headline.pos-text { color: var(--green-dk); }
+.scenario-headline.neutral-text { color: var(--navy); }
+.scenario-headline.warn-text { color: var(--red); }
+.scenario-body { font-size: 13.5px; color: var(--mid); line-height: 1.75; }
+.scenario-body strong { color: var(--navy); font-weight: 700; }
+
+.caveat { background: var(--navy); border-radius: var(--radius); padding: 18px 22px; font-size: 12px; color: rgba(247,244,237,.6); line-height: 1.7; margin-top: 24px; }
+.caveat strong { color: var(--gold); }
+</style>
+</head>
+<body>
+<a href="/hub/guides.html" style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;background:#1D3557;color:#F7F4ED;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px 16px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.2);">&#8592; Back to Guides &amp; Tools</a>
+
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-mark">&#10022;</div>
+    <div class="eyebrow">Tax Wrapper Scenario Tool</div>
+    <h1>Where's the easiest tax saving you're not taking?</h1>
+    <p>Put in a few real numbers, see which wrapper decisions are actually worth something for your situation right now.</p>
+  </div>
+
+  <div class="card">
+    <span class="card-label">Your situation</span>
+    <div class="field-row">
+      <div class="field">
+        <label>Annual income</label>
+        <input type="number" id="txIncome" value="40000" min="0" step="1000">
+      </div>
+      <div class="field">
+        <label>Age</label>
+        <input type="number" id="txAge" value="28" min="16" max="99">
+      </div>
+    </div>
+    <div class="field">
+      <label>Employment status</label>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="txEmployedBtn" onclick="setEmployment(true)">Employed</button>
+        <button class="toggle-btn" id="txSelfEmployedBtn" onclick="setEmployment(false)">Self-employed</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="card-label">What you're already using</span>
+    <div class="field-row">
+      <div class="field">
+        <label>ISA allowance used so far this year</label>
+        <input type="number" id="txIsaUsed" value="5000" min="0" max="20000" step="500">
+      </div>
+      <div class="field">
+        <label>Amount held outside ISA/pension (GIA)</label>
+        <input type="number" id="txGiaValue" value="0" min="0" step="500">
+      </div>
+    </div>
+    <div class="field" id="txGiaGainField" style="display:none;">
+      <label>Of which, unrealised gain</label>
+      <input type="number" id="txGiaGain" value="0" min="0" step="100">
+    </div>
+    <div class="field">
+      <label>A lump sum to model (for pension/LISA/salary sacrifice scenarios)</label>
+      <input type="number" id="txContribution" value="3000" min="0" step="100">
+      <p style="font-size:11px;color:var(--lt);margin-top:6px;">Treated as a one-off lump sum comparison, not an ongoing monthly pattern.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:8px;">
+    <button class="btn-primary" onclick="runTaxScenarios()">Show me the scenarios</button>
+    <button class="btn-secondary" onclick="resetTaxTool()">Reset</button>
+  </div>
+
+  <div id="txResults" style="margin-top:28px;display:none;"></div>
+
+  <div class="caveat"><strong>Illustrative only.</strong> Based on 2026/27 UK tax rates and allowances. This does not constitute personal tax advice -- everyone's situation is different, and specifics should always be confirmed with an accountant or qualified adviser before acting on anything shown here.</div>
+</div>
+
+<script>
+var PA = 12570, BASIC_LIMIT = 50270, HIGHER_LIMIT = 125140;
+var ISA_ALLOWANCE = 20000, LISA_ALLOWANCE = 4000, LISA_BONUS_RATE = 0.25;
+var CGT_ALLOWANCE = 3000, CGT_BASIC = 0.18, CGT_HIGHER = 0.24;
+var NI_RATE = 0.08;
+
+var txEmployed = true;
+
+function setEmployment(isEmployed) {
+  txEmployed = isEmployed;
+  document.getElementById("txEmployedBtn").classList.toggle("active", isEmployed);
+  document.getElementById("txSelfEmployedBtn").classList.toggle("active", !isEmployed);
+}
+
+function taxBand(income) {
+  if (income <= PA) return {band: "none", rate: 0};
+  if (income <= BASIC_LIMIT) return {band: "basic", rate: 0.20};
+  if (income <= HIGHER_LIMIT) return {band: "higher", rate: 0.40};
+  return {band: "additional", rate: 0.45};
+}
+
+function fmt(n) { return "\u00a3" + Math.round(n).toLocaleString(); }
+
+document.getElementById("txGiaValue").addEventListener("input", function() {
+  document.getElementById("txGiaGainField").style.display = parseFloat(this.value) > 0 ? "block" : "none";
+});
+
+function resetTaxTool() {
+  document.getElementById("txIncome").value = 40000;
+  document.getElementById("txAge").value = 28;
+  document.getElementById("txIsaUsed").value = 5000;
+  document.getElementById("txGiaValue").value = 0;
+  document.getElementById("txGiaGain").value = 0;
+  document.getElementById("txContribution").value = 3000;
+  document.getElementById("txGiaGainField").style.display = "none";
+  setEmployment(true);
+  document.getElementById("txResults").style.display = "none";
+  document.getElementById("txResults").innerHTML = "";
+}
+
+function runTaxScenarios() {
+  var income = parseFloat(document.getElementById("txIncome").value) || 0;
+  var age = parseFloat(document.getElementById("txAge").value) || 0;
+  var isaUsed = parseFloat(document.getElementById("txIsaUsed").value) || 0;
+  var giaValue = parseFloat(document.getElementById("txGiaValue").value) || 0;
+  var giaGain = parseFloat(document.getElementById("txGiaGain").value) || 0;
+  var contribution = parseFloat(document.getElementById("txContribution").value) || 0;
+
+  var t = taxBand(income);
+  var cards = [];
+
+  // Scenario 1: Unused ISA allowance
+  var isaRemaining = Math.max(0, ISA_ALLOWANCE - isaUsed);
+  if (isaRemaining > 0) {
+    cards.push({
+      tone: "neutral",
+      icon: "\ud83d\udcc8",
+      title: "Unused ISA allowance",
+      headline: fmt(isaRemaining) + " left this year",
+      body: "You've used " + fmt(isaUsed) + " of your " + fmt(ISA_ALLOWANCE) + " ISA allowance. Whatever sits in the remaining " + fmt(isaRemaining) + " is a genuine use-it-or-lose-it opportunity -- it doesn't carry forward. Anything held outside an ISA is exposed to future dividend and capital gains tax indefinitely; inside, it never is."
+    });
+  } else {
+    cards.push({
+      tone: "pos",
+      icon: "\ud83d\udcc8",
+      title: "Unused ISA allowance",
+      headline: "Fully used",
+      body: "The full " + fmt(ISA_ALLOWANCE) + " ISA allowance is used for this year. Nothing more to shelter here until the new tax year."
+    });
+  }
+
+  // Scenario 2: Pension vs LISA
+  if (contribution > 0) {
+    var pensionRelief = contribution * t.rate;
+    var pensionTotal = contribution + pensionRelief;
+    var lisaEligible = age >= 18 && age <= 39;
+    var lisaContribution = Math.min(contribution, LISA_ALLOWANCE);
+    var lisaBonus = lisaContribution * LISA_BONUS_RATE;
+    var lisaTotal = lisaContribution + lisaBonus;
+
+    var pvlBody = "On a " + fmt(contribution) + " lump sum, a pension adds " + fmt(pensionRelief) + " in tax relief at your " + t.band + "-rate band, making it worth " + fmt(pensionTotal) + ". ";
+    if (lisaEligible) {
+      pvlBody += "A LISA would add a flat " + fmt(lisaBonus) + " government bonus (on the first " + fmt(LISA_ALLOWANCE) + "), worth " + fmt(lisaTotal) + ". ";
+      if (t.rate >= 0.40) {
+        pvlBody += "At your tax band, the pension comes out ahead -- higher-rate relief beats the LISA's flat 25% bonus. The trade-off is access: pension money is locked away for longer than a LISA.";
+      } else if (t.rate > 0) {
+        pvlBody += "At your tax band, the LISA comes out ahead -- its flat 25% bonus beats basic-rate pension relief. Worth remembering this flips the other way if your income grows into higher-rate territory.";
+      } else {
+        pvlBody += "With no income tax currently due, the LISA's bonus is the more straightforward win here.";
+      }
+    } else {
+      pvlBody += "A LISA isn't an option to newly open past age 39 (existing LISAs can still be contributed to up to 50), so the pension is the wrapper actually available here.";
+    }
+
+    cards.push({
+      tone: "neutral",
+      icon: "\u2696\ufe0f",
+      title: "Pension vs LISA, on a " + fmt(contribution) + " lump sum",
+      headline: (lisaEligible && t.rate < 0.40 && t.rate > 0) ? "LISA ahead by " + fmt(lisaTotal - pensionTotal) : (lisaEligible ? "Pension ahead by " + fmt(Math.max(0,pensionTotal - lisaTotal)) : "Pension is the option here"),
+      body: pvlBody
+    });
+  }
+
+  // Scenario 3: Salary sacrifice (employed only)
+  if (txEmployed && contribution > 0) {
+    var incomeTaxSaved = contribution * t.rate;
+    var niSaved = contribution * NI_RATE;
+    var totalSaved = incomeTaxSaved + niSaved;
+    cards.push({
+      tone: "pos",
+      icon: "\ud83d\udcbc",
+      title: "Salary sacrifice, on a " + fmt(contribution) + " pension lump sum",
+      headline: fmt(totalSaved) + " saved vs a normal contribution",
+      body: "Contributing this lump sum normally gets you " + fmt(incomeTaxSaved) + " in income tax relief. Salary sacrifice gets you that same relief, plus " + fmt(niSaved) + " in National Insurance you'd otherwise pay on that slice of salary -- since the salary itself is reduced before tax and NI are calculated, not claimed back afterward. Worth checking whether your employer offers it and whether they pass back any of their own NI saving too."
+    });
+  } else if (!txEmployed && contribution > 0) {
+    cards.push({
+      tone: "neutral",
+      icon: "\ud83d\udcbc",
+      title: "Salary sacrifice",
+      headline: "Not available",
+      body: "Salary sacrifice works through an employer's payroll, so it isn't directly available if you're self-employed. Pension contributions still get income tax relief in the normal way, just without the additional NI saving employees can access."
+    });
+  }
+
+  // Scenario 4: Bed and ISA
+  if (giaValue > 0) {
+    var cgtRate = t.rate >= 0.40 ? CGT_HIGHER : CGT_BASIC;
+    var taxableGainNow = Math.max(0, giaGain - CGT_ALLOWANCE);
+    var cgtNow = taxableGainNow * cgtRate;
+    var bediBody = "";
+    if (giaGain <= CGT_ALLOWANCE) {
+      bediBody = "The unrealised gain of " + fmt(giaGain) + " sits within this year's " + fmt(CGT_ALLOWANCE) + " CGT-free allowance, so moving this into an ISA now (selling and rebuying inside the wrapper) would trigger no tax at all today, and shelters all future growth from CGT and dividend tax permanently. As a general rule, using the CGT allowance every year this way is worth doing, since it's use-it-or-lose-it.";
+    } else {
+      bediBody = "Moving this into an ISA now means realising the gain first. " + fmt(taxableGainNow) + " of the gain sits above this year's " + fmt(CGT_ALLOWANCE) + " allowance, so around " + fmt(cgtNow) + " in CGT would be payable at your " + (cgtRate === CGT_HIGHER ? "higher" : "basic") + " rate. As a general rule, it's usually still worth doing, since paying a smaller amount of CGT now tends to beat paying CGT on a much larger gain built up over years outside an ISA. That's not universal though -- it can depend on things like whether you're close to a lower tax band next year, whether you have losses elsewhere to offset against it, or how soon you might need the money. Worth a specific conversation if the amount involved is large.";
+    }
+    cards.push({
+      tone: "neutral",
+      icon: "\ud83d\udd04",
+      title: "Bed and ISA opportunity",
+      headline: taxableGainNow > 0 ? fmt(cgtNow) + " CGT to realise this now" : "No CGT due to move this now",
+      body: bediBody
+    });
+  }
+
+  var html = "";
+  cards.forEach(function(c) {
+    var headlineClass = c.tone === "pos" ? "pos-text" : (c.tone === "warn" ? "warn-text" : "neutral-text");
+    html += "<div class='scenario-card " + c.tone + "'>" +
+      "<span class='scenario-icon'>" + (c.icon || "") + "</span>" +
+      "<div class='scenario-title'>" + c.title + "</div>" +
+      "<div class='scenario-headline " + headlineClass + "'>" + c.headline + "</div>" +
+      "<div class='scenario-body'>" + c.body + "</div>" +
+      "</div>";
+  });
+
+  var resultsEl = document.getElementById("txResults");
+  resultsEl.innerHTML = html;
+  resultsEl.style.display = "block";
+}
+</script>
+</body>
+</html>
