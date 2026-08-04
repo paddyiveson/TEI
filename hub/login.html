@@ -108,7 +108,11 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
     }
     TeiAuth.resetPassword(email).then(function (result) {
       if (result.error) {
-        showError(result.error.message);
+        var msg = result.error.message || "Could not send reset email.";
+        if (/rate limit/i.test(msg)) {
+          msg += " Wait about an hour, or ask TEI to set your password directly.";
+        }
+        showError(msg);
         return;
       }
       showMsg("Check your email for a password reset link.");

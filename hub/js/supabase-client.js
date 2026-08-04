@@ -4,6 +4,26 @@
  */
 (function () {
   var readyPromise = null;
+  var RESET_PATH = "/hub/reset-password.html";
+
+  /** Recovery links must land on reset-password.html; Supabase falls back to Site URL if redirectTo is not allowlisted. */
+  function redirectRecoveryCallbackIfNeeded() {
+    if (window.location.pathname.endsWith(RESET_PATH)) return;
+
+    var search = window.location.search || "";
+    var hash = window.location.hash || "";
+    var params = new URLSearchParams(search);
+    var isRecovery =
+      params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
+    var hasAuthPayload =
+      params.has("code") || hash.indexOf("access_token=") !== -1;
+
+    if (hasAuthPayload || isRecovery) {
+      window.location.replace(RESET_PATH + search + hash);
+    }
+  }
+
+  redirectRecoveryCallbackIfNeeded();
 
   function getConfig() {
     var url = window.TEI_SUPABASE_URL;
@@ -53,8 +73,24 @@
 
     resetPassword: function (email) {
       return waitForReady().then(function (client) {
-        var redirectTo = window.location.origin + "/hub/reset-password.html";
+        var redirectTo = window.location.origin + RESET_PATH;
         return client.auth.resetPasswordForEmail(email, { redirectTo: redirectTo });
+      });
+    },
+
+    /** Exchange PKCE ?code= from email links before reading the session. */
+    finishAuthCallback: function () {
+      return waitForReady().then(function (client) {
+        var params = new URLSearchParams(window.location.search);
+        var code = params.get("code");
+        if (!code) return Promise.resolve({ data: null, error: null });
+        return client.auth.exchangeCodeForSession(code);
+      });
+    },
+
+    onAuthStateChange: function (callback) {
+      return waitForReady().then(function (client) {
+        return client.auth.onAuthStateChange(callback);
       });
     },
 

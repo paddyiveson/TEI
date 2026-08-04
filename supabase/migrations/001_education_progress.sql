@@ -27,7 +27,11 @@ create policy "Users update own progress"
 -- Authentication → Sign In / Providers → Allow new users to sign up: OFF (invite-only)
 -- Authentication → URL Configuration:
 --   Site URL: your production domain (e.g. https://www.theeverydayinvestor.co.uk)
---   Redirect URLs: production domain + https://*.vercel.app/**
+--   Redirect URLs (add each explicitly — wildcards alone are not enough for reset links):
+--     https://www.theeverydayinvestor.co.uk/hub/reset-password.html
+--     https://*.vercel.app/hub/reset-password.html
+--     http://localhost:3000/hub/reset-password.html
+--   Email rate limits: use scripts/create-user.mjs with a password, or --reset-link (no email).
 --
 -- Vercel → Project → Settings → Environment Variables:
 --   SUPABASE_URL
