@@ -8489,12 +8489,20 @@ window.TEI = window.TEI || {};
   }
 
   /* ---------- client switcher (adviser role only) ---------- */
-  function renderClientSwitcher(clients, currentId){
+  function renderClientSwitcher(clients, currentId, currentUserId){
     const bar = document.getElementById('wealthOsClientSwitcherBar');
     const sel = document.getElementById('wealthOsClientSelect');
     if(!bar || !sel) return;
     if(!clients.length){ bar.style.display = 'none'; return; }
     sel.innerHTML = clients.map(c=>{
+      // An adviser can also have their own dummy client row (same auth user,
+      // just wearing a "client" hat for testing) -- same name as the
+      // adviser's real identity, which reads as a duplicate in a plain
+      // dropdown. Flag that one row specifically as "Adviser" rather than
+      // repeating the name, so the two are never ambiguous.
+      if(currentUserId && c.user_id === currentUserId){
+        return `<option value="${c.id}" ${c.id===currentId?'selected':''}>Adviser</option>`;
+      }
       const name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim();
       const label = name || ('Client ' + String(c.id).slice(0,8));
       return `<option value="${c.id}" ${c.id===currentId?'selected':''}>${label}</option>`;
@@ -8539,14 +8547,14 @@ window.TEI = window.TEI || {};
       }
 
       if(profile.role === 'adviser'){
-        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name').order('first_name', {ascending:true});
+        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id').order('first_name', {ascending:true});
         if(clientsErr) throw clientsErr;
         if(!clients || !clients.length){
           showLoadError('No clients found yet.');
           return null;
         }
         const targetId = pickDefaultClientId(clients);
-        renderClientSwitcher(clients, targetId);
+        renderClientSwitcher(clients, targetId, user.id);
         try{ localStorage.setItem(LAST_CLIENT_KEY, targetId); }catch(e){}
         return await loadClientById(supabase, targetId);
       }
