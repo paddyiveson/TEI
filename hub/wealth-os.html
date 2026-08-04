@@ -8531,7 +8531,7 @@ window.TEI = window.TEI || {};
       const supabase = window.teiSupabase;
       const w = wo(supabase);
 
-      const { data: profile, error: profileErr } = await w.from('profiles').select('role').eq('id', user.id).maybeSingle();
+      const { data: profile, error: profileErr } = await w.from('profiles').select('role').eq('user_id', user.id).maybeSingle();
       if(profileErr) throw profileErr;
       if(!profile || !profile.role){
         showLoadError('No profile found for your account. Contact TEI to have your access set up.');
