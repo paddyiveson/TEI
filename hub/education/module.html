@@ -15,24 +15,29 @@
   </div>
 </div>
 
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/hub/js/hub-auth.js"></script>
 <script src="/hub/education/js/embedded-data.js"></script>
 <script src="/hub/education/js/content-store.js"></script>
 <script src="/hub/education/js/completion-store.js"></script>
 <script src="/hub/education/js/module-entry.js"></script>
 <script src="/hub/education/js/shell.js"></script>
 <script>
+(async function () {
+  await CompletionStore.init();
   const params = new URLSearchParams(window.location.search);
   const moduleId = params.get("module") || "1.1";
   const app = document.getElementById("app");
 
-  ContentStore.getModule(moduleId).then((mod) => {
-    renderHeader(document.getElementById("header"), mod ? [
-      { label: `Stage ${mod.stage}` },
-      { label: mod.name },
-    ] : []);
-  });
-  renderSidebar(document.getElementById("sidebar"), moduleId, null);
+  const mod = await ContentStore.getModule(moduleId);
+  renderHeader(document.getElementById("header"), mod ? [
+    { label: `Stage ${mod.stage}` },
+    { label: mod.name },
+  ] : []);
+  await renderSidebar(document.getElementById("sidebar"), moduleId, null);
   mountModuleEntry(app, moduleId);
+})();
 </script>
 </body>
 </html>

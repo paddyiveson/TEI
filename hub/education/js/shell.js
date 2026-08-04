@@ -21,7 +21,15 @@ function renderHeader(root, crumbs) {
   root.innerHTML = `
     <a class="brand" href="/hub/education/index.html"><span class="mark">T</span>TEI &nbsp;Education</a>
     <span class="crumb">${crumbHTML}</span>
+    <a href="#" class="edu-signout" data-tei-signout>Sign out</a>
   `;
+  const signOut = root.querySelector("[data-tei-signout]");
+  if (signOut && window.TeiHubAuth) {
+    signOut.addEventListener("click", function (e) {
+      e.preventDefault();
+      TeiHubAuth.signOut();
+    });
+  }
 }
 
 /**

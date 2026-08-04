@@ -1,133 +1,121 @@
 /**
  * TEI Education Platform -- Completion Store
  * -----------------------------------------------------------------
- * Placeholder data layer for progress and reflections (per the confirmed
- * build order: database is parked, build against placeholder/in-memory
- * data first). Backed by localStorage today so a client's progress
- * survives a page refresh during the pilot, keyed to whatever identifies
- * them right now.
+ * Per-user progress and reflections backed by Supabase (education_progress).
+ * Call CompletionStore.init() once per page before any other method.
  *
- * IMPORTANT -- this deliberately does NOT build client identity itself.
- * That is Build Step 1 (lightweight name-input), not this step. Until
- * that lands, getCurrentClientId() falls back to a single local slot,
- * which is sufficient for building and testing the session flow. Every
- * function here is already written against a clientId, so wiring in
- * real identity later is a one-line change inside getCurrentClientId(),
- * not a rebuild of this module or anything that calls it.
- *
- * Every function is async and returns plain data, matching the shape a
- * real per-client database/API would return, so Stage B/C can replace
- * the localStorage internals here with real network calls without
- * changing any call site in lesson-session.js or module-entry.js.
+ * Identity comes from Supabase Auth (see hub/js/supabase-client.js).
+ * Every function is async and returns plain data, matching the shape callers
+ * already expect from lesson-session.js and module-entry.js.
  */
 
-const STORAGE_KEY = "tei_edu_progress_v1";
-const CLIENT_ID_KEY = "tei_edu_client_id";
-
-// Safe storage wrapper. Browsers block localStorage entirely when a page
-// is opened via file:// (each local file is treated as a unique "opaque"
-// origin with no storage access) -- accessing it throws a SecurityError,
-// which was silently killing every render before this fix. Falls back to
-// an in-memory object so the platform still works file://; once this is
-// hosted for real (Netlify, same as the rest of the site) localStorage
-// works normally and progress persists across page loads as intended.
-const _memoryFallback = {};
-const _safeStorage = {
-  getItem(key) {
-    try {
-      return localStorage.getItem(key);
-    } catch {
-      return Object.prototype.hasOwnProperty.call(_memoryFallback, key) ? _memoryFallback[key] : null;
-    }
-  },
-  setItem(key, value) {
-    try {
-      localStorage.setItem(key, value);
-    } catch {
-      _memoryFallback[key] = value;
-    }
-  },
+let _userId = null;
+let _record = {
+  completedLessons: {},
+  reflections: {},
+  commitmentCompletedAt: null,
 };
 
-function _readAll() {
-  try {
-    const raw = _safeStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
+function _emptyRecord() {
+  return {
+    completedLessons: {},
+    reflections: {},
+    commitmentCompletedAt: null,
+  };
+}
+
+function _rowToRecord(row) {
+  if (!row) return _emptyRecord();
+  return {
+    completedLessons: row.completed_lessons || {},
+    reflections: row.reflections || {},
+    commitmentCompletedAt: row.commitment_completed_at || null,
+  };
+}
+
+function _assertClientId(clientId) {
+  if (!_userId) {
+    throw new Error("CompletionStore.init() must be called before use");
+  }
+  if (clientId && clientId !== _userId) {
+    throw new Error("clientId does not match authenticated user");
   }
 }
 
-function _writeAll(data) {
-  _safeStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function _clientRecord(data, clientId) {
-  if (!data[clientId]) {
-    data[clientId] = {
-      completedLessons: {}, // lessonId -> ISO timestamp
-      reflections: {}, // lessonId -> { text, savedAt, coachingOptIn }
-      commitmentCompletedAt: null,
-    };
-  }
-  return data[clientId];
+async function _persist() {
+  const { error } = await window.teiSupabase.from("education_progress").upsert(
+    {
+      user_id: _userId,
+      completed_lessons: _record.completedLessons,
+      reflections: _record.reflections,
+      commitment_completed_at: _record.commitmentCompletedAt,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "user_id" }
+  );
+  if (error) throw error;
 }
 
 window.CompletionStore = {
-  /**
-   * Placeholder client identity until Build Step 1 (name-input) lands.
-   * Reads a name from localStorage if step 1's UI has already set one;
-   * otherwise uses a fixed local slot so progress is still testable.
-   */
-  getCurrentClientId() {
-    return _safeStorage.getItem(CLIENT_ID_KEY) || "pilot-client";
+  /** Load authenticated user and their progress row from Supabase. */
+  async init() {
+    await TeiAuth.waitForReady();
+    const {
+      data: { user },
+      error: authError,
+    } = await window.teiSupabase.auth.getUser();
+    if (authError || !user) {
+      throw new Error("Not authenticated");
+    }
+    _userId = user.id;
+
+    const { data, error } = await window.teiSupabase
+      .from("education_progress")
+      .select("*")
+      .eq("user_id", _userId)
+      .maybeSingle();
+
+    if (error) throw error;
+    _record = _rowToRecord(data);
   },
 
-  /** Called by Build Step 1's name-input screen once it exists. */
-  async setCurrentClientId(name) {
-    _safeStorage.setItem(CLIENT_ID_KEY, name);
+  getCurrentClientId() {
+    _assertClientId(null);
+    return _userId;
   },
+
+  /** Legacy hook from placeholder identity step — auth user replaces this. */
+  async setCurrentClientId() {},
 
   async isCommitmentComplete(clientId) {
-    const data = _readAll();
-    return Boolean(_clientRecord(data, clientId).commitmentCompletedAt);
+    _assertClientId(clientId);
+    return Boolean(_record.commitmentCompletedAt);
   },
 
   async markCommitmentComplete(clientId) {
-    const data = _readAll();
-    _clientRecord(data, clientId).commitmentCompletedAt = new Date().toISOString();
-    _writeAll(data);
+    _assertClientId(clientId);
+    _record.commitmentCompletedAt = new Date().toISOString();
+    await _persist();
   },
 
   async isLessonComplete(clientId, lessonId) {
-    const data = _readAll();
-    return Boolean(_clientRecord(data, clientId).completedLessons[lessonId]);
+    _assertClientId(clientId);
+    return Boolean(_record.completedLessons[lessonId]);
   },
 
   async getCompletedLessonIds(clientId) {
-    const data = _readAll();
-    return Object.keys(_clientRecord(data, clientId).completedLessons);
+    _assertClientId(clientId);
+    return Object.keys(_record.completedLessons);
   },
 
   async markLessonComplete(clientId, lessonId) {
-    const data = _readAll();
-    _clientRecord(data, clientId).completedLessons[lessonId] = new Date().toISOString();
-    _writeAll(data);
+    _assertClientId(clientId);
+    _record.completedLessons[lessonId] = new Date().toISOString();
+    await _persist();
   },
 
-  /**
-   * Module unlock check (Prerequisite entity, lightweight form).
-   * A module is unlocked once every lesson in each prerequisite module's
-   * Lesson Sequence has been completed. Formal CompletionEvidence
-   * (Build Step 3) will refine "complete" beyond "every lesson opened
-   * and reflected on" -- this is the placeholder version that lets
-   * Module Entry screens show correct locked/unlocked state today.
-   */
-  // REVIEW_MODE: this delivered build is for internal review, not live
-  // clients -- prerequisite locking is bypassed so every built module can
-  // be browsed freely regardless of completion state. Set to false (or
-  // delete this block) before any real client-facing deployment; the
-  // actual prerequisite logic below is left fully intact underneath it.
+  // REVIEW_MODE: bypass prerequisite locking for internal review builds.
+  // Set to false before strict client-facing deployment.
   REVIEW_MODE: true,
 
   async isModuleUnlocked(clientId, moduleId, contentStore) {
@@ -143,33 +131,29 @@ window.CompletionStore = {
   },
 
   async isModuleComplete(clientId, moduleId, contentStore) {
+    _assertClientId(clientId);
     const lessons = await contentStore.listLessonsForModule(moduleId);
     if (lessons.length === 0) return false;
-    const data = _readAll();
-    const completed = _clientRecord(data, clientId).completedLessons;
-    return lessons.every((l) => Boolean(completed[l.id]));
+    return lessons.every((l) => Boolean(_record.completedLessons[l.id]));
   },
 
   async saveReflection(clientId, lessonId, text, coachingOptIn = false) {
-    const data = _readAll();
-    _clientRecord(data, clientId).reflections[lessonId] = {
+    _assertClientId(clientId);
+    _record.reflections[lessonId] = {
       text,
       savedAt: new Date().toISOString(),
       coachingOptIn,
     };
-    _writeAll(data);
+    await _persist();
   },
 
   async getReflection(clientId, lessonId) {
-    const data = _readAll();
-    return _clientRecord(data, clientId).reflections[lessonId] || null;
+    _assertClientId(clientId);
+    return _record.reflections[lessonId] || null;
   },
 
-  /** Every reflection a client has written, for the future Learning
-   *  Journal view (Build Step 4) -- exposed now so that step doesn't
-   *  need a new storage shape when it's built. */
   async listReflections(clientId) {
-    const data = _readAll();
-    return _clientRecord(data, clientId).reflections;
+    _assertClientId(clientId);
+    return _record.reflections;
   },
 };

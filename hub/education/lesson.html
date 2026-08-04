@@ -15,26 +15,33 @@
   </div>
 </div>
 
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/hub/js/hub-auth.js"></script>
 <script src="/hub/education/js/embedded-data.js"></script>
 <script src="/hub/education/js/content-store.js"></script>
 <script src="/hub/education/js/completion-store.js"></script>
 <script src="/hub/education/js/lesson-session.js"></script>
 <script src="/hub/education/js/shell.js"></script>
 <script>
+(async function () {
+  await CompletionStore.init();
   const params = new URLSearchParams(window.location.search);
   const lessonId = params.get("lesson") || "2.1.1";
   const app = document.getElementById("app");
 
-  Promise.all([ContentStore.getModuleForLesson(lessonId), ContentStore.getLesson(lessonId)]).then(([mod, lesson]) => {
-    renderHeader(document.getElementById("header"), mod ? [
-      { label: `Stage ${mod.stage}` },
-      { label: mod.name, href: `/hub/education/module.html?module=${mod.id}` },
-      { label: lesson ? lesson.title : lessonId },
-    ] : []);
-    renderSidebar(document.getElementById("sidebar"), mod ? mod.id : null, lessonId);
-  });
-
+  const [mod, lesson] = await Promise.all([
+    ContentStore.getModuleForLesson(lessonId),
+    ContentStore.getLesson(lessonId),
+  ]);
+  renderHeader(document.getElementById("header"), mod ? [
+    { label: `Stage ${mod.stage}` },
+    { label: mod.name, href: `/hub/education/module.html?module=${mod.id}` },
+    { label: lesson ? lesson.title : lessonId },
+  ] : []);
+  await renderSidebar(document.getElementById("sidebar"), mod ? mod.id : null, lessonId);
   mountLessonSession(app, lessonId);
+})();
 </script>
 </body>
 </html>

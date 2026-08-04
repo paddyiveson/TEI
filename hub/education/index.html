@@ -40,54 +40,59 @@
   <p class="home-footnote">More stages are on the way. Your progress is saved automatically as you go.</p>
 </div>
 
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/hub/js/hub-auth.js"></script>
 <script src="/hub/education/js/embedded-data.js"></script>
 <script src="/hub/education/js/content-store.js"></script>
 <script src="/hub/education/js/completion-store.js"></script>
 <script src="/hub/education/js/shell.js"></script>
 <script>
+(async function () {
+  await CompletionStore.init();
   renderHeader(document.getElementById("header"), []);
 
-  ContentStore.listModules().then(async (mods) => {
-    const built = mods.filter((m) => m.lessonSequence.length);
-    const clientId = CompletionStore.getCurrentClientId();
-    const byStage = {};
-    for (const m of built) {
-      (byStage[m.stage] = byStage[m.stage] || []).push(m);
-    }
+  const mods = await ContentStore.listModules();
+  const built = mods.filter((m) => m.lessonSequence.length);
+  const clientId = CompletionStore.getCurrentClientId();
+  const byStage = {};
+  for (const m of built) {
+    (byStage[m.stage] = byStage[m.stage] || []).push(m);
+  }
 
-    const stageBlocks = await Promise.all(
-      Object.keys(byStage).sort((a, b) => a - b).map(async (stageNum) => {
-        const modsInStage = byStage[stageNum];
-        const cards = await Promise.all(
-          modsInStage.map(async (m) => {
-            const complete = await CompletionStore.isModuleComplete(clientId, m.id, ContentStore);
-            return `
-              <a class="mod-card" href="/hub/education/module.html?module=${m.id}">
-                <div class="mod-num">${m.id}</div>
-                <h3>${m.name}</h3>
-                <p class="mod-purpose">${m.purpose || ""}</p>
-                <div class="mod-meta">
-                  <span>${m.lessonSequence.length} lessons</span>
-                  <span class="go">${complete ? "Completed" : "Start"} &#8594;</span>
-                </div>
-              </a>
-            `;
-          })
-        );
-        return `
-          <div class="stage-block">
-            <div class="stage-head">
-              <span class="stage-num">Stage ${stageNum}</span>
-              <span class="stage-name">${modsInStage[0].stageName || ""}</span>
-            </div>
-            <div class="mod-grid">${cards.join("")}</div>
+  const stageBlocks = await Promise.all(
+    Object.keys(byStage).sort((a, b) => a - b).map(async (stageNum) => {
+      const modsInStage = byStage[stageNum];
+      const cards = await Promise.all(
+        modsInStage.map(async (m) => {
+          const complete = await CompletionStore.isModuleComplete(clientId, m.id, ContentStore);
+          return `
+            <a class="mod-card" href="/hub/education/module.html?module=${m.id}">
+              <div class="mod-num">${m.id}</div>
+              <h3>${m.name}</h3>
+              <p class="mod-purpose">${m.purpose || ""}</p>
+              <div class="mod-meta">
+                <span>${m.lessonSequence.length} lessons</span>
+                <span class="go">${complete ? "Completed" : "Start"} &#8594;</span>
+              </div>
+            </a>
+          `;
+        })
+      );
+      return `
+        <div class="stage-block">
+          <div class="stage-head">
+            <span class="stage-num">Stage ${stageNum}</span>
+            <span class="stage-name">${modsInStage[0].stageName || ""}</span>
           </div>
-        `;
-      })
-    );
+          <div class="mod-grid">${cards.join("")}</div>
+        </div>
+      `;
+    })
+  );
 
-    document.getElementById("stages").innerHTML = stageBlocks.join("");
-  });
+  document.getElementById("stages").innerHTML = stageBlocks.join("");
+})();
 </script>
 </body>
 </html>
