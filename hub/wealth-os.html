@@ -2390,7 +2390,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <label class="form-field on-light" id="obAcctContribField"><span>Add £/month, if any</span><input type="number" id="obNewAcctContrib" placeholder="0"></label>
           <label class="form-field on-light" id="obAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="obNewAcctContribPersonal" placeholder="0"></label>
           <label class="form-field on-light" id="obAcctContribEmployerField" style="display:none;"><span>Employer / salary sacrifice £/mo</span><input type="number" id="obNewAcctContribEmployer" placeholder="0"></label>
-          <label class="form-field on-light"><span>Nickname (optional)</span><input type="text" id="obNewAcctName" placeholder="e.g. My ISA"></label>
           <button type="button" class="btn-primary" id="obAddAcctBtn">Add</button>
         </div>
       </div>
@@ -2636,7 +2635,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="note" style="margin-top:0;">ISA, GIA, pension, LISA, cash or other. Current value seeds this month's balance automatically — adjust it below for later months.</div>
       <div id="accountsList"></div>
       <div class="mini-form">
-        <label class="form-field"><span>Name</span><input type="text" id="newAcctName" placeholder="e.g. Vanguard S&amp;S ISA"></label>
         <label class="form-field"><span>Type</span><select id="newAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="pension">Pension</option><option value="lisa">LISA</option><option value="cash">Cash</option><option value="other">Other</option></select></label>
         <label class="form-field"><span>Current value £</span><input type="number" id="newAcctBalance" placeholder="0"></label>
         <label class="form-field" id="advAcctContribField"><span>Contribution £/mo</span><input type="number" id="newAcctContrib" placeholder="0"></label>
@@ -3107,7 +3105,9 @@ window.TEI = window.TEI || {};
      name needs the same fallback (provider + type, or just type), otherwise
      accounts without a nickname show up blank or indistinguishable in some
      surfaces and correctly in others. */
-  function acctLabel(a){ return a.name || (a.provider ? a.provider+' '+a.type.toUpperCase() : a.type.toUpperCase()); }
+  /* Account display name is always derived, never manually entered — the
+     accounts table has no "name" column (see accountToRow's comment). */
+  function acctLabel(a){ return a.provider ? a.provider+' '+a.type.toUpperCase() : a.type.toUpperCase(); }
   function monthLabel(key){ const [y,m] = key.split('-').map(Number); return MONTH_ABBR[m-1] + " '" + String(y).slice(2); }
   function currentMonthKey(){ const n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
   function monthsBetweenInclusive(fromKey, toKey){
@@ -7214,7 +7214,6 @@ window.TEI = window.TEI || {};
       btn.addEventListener('click', function(){
         const acc = client.accounts.find(a=>a.id===this.dataset.editAcct); if(!acc) return;
         editing.account = acc.id;
-        document.getElementById('newAcctName').value = acc.name||'';
         document.getElementById('newAcctType').value = acc.type;
         document.getElementById('newAcctProvider').value = acc.provider||'';
         const balanceEl = document.getElementById('newAcctBalance');
@@ -7227,14 +7226,14 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctContribEmployer').value = acc.type==='pension' ? (acc.contributionSacrifice||'') : '';
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
-        document.getElementById('newAcctName').scrollIntoView({behavior:'smooth', block:'center'});
+        document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
   }
   function cancelAcctEdit(){
     editing.account = null;
     document.getElementById('addAcctBtn').textContent = 'Add account';
-    ['newAcctName','newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
+    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
@@ -7246,8 +7245,6 @@ window.TEI = window.TEI || {};
     document.getElementById('advAcctContribEmployerField').style.display = isPension ? 'flex' : 'none';
   }
   async function addAccount(){
-    const name = document.getElementById('newAcctName').value.trim();
-    if(!name){ showToast('Give the account a name first'); return; }
     const type = document.getElementById('newAcctType').value;
     const value = parseFloat(document.getElementById('newAcctBalance').value)||0;
     const contrib = parseFloat(document.getElementById('newAcctContrib').value)||0;
@@ -7260,7 +7257,7 @@ window.TEI = window.TEI || {};
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {name, type, provider, value: hasHoldings ? acc.value : value};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -7285,7 +7282,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), name, type, value, provider, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -7303,7 +7300,7 @@ window.TEI = window.TEI || {};
       // Seed this month's balance so the account shows up in net worth immediately,
       // rather than reading as £0 until someone visits "Log this month's balances".
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
-      ['newAcctName','newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
+      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -9376,7 +9373,6 @@ window.TEI = window.TEI || {};
     document.querySelectorAll('[data-edit-acct]').forEach(btn=> btn.addEventListener('click', function(){
       const item = client.accounts.find(a=>a.id===this.dataset.editAcct); if(!item) return;
       editing.account = item.id;
-      document.getElementById('obNewAcctName').value = item.name||'';
       document.getElementById('obNewAcctType').value = item.type;
       document.getElementById('obNewAcctProvider').value = item.provider||'';
       document.getElementById('obNewAcctBalance').value = item.value;
@@ -9401,7 +9397,6 @@ window.TEI = window.TEI || {};
     const type = document.getElementById('obNewAcctType').value;
     const provider = document.getElementById('obNewAcctProvider').value.trim();
     const value = parseFloat(document.getElementById('obNewAcctBalance').value)||0;
-    const name = document.getElementById('obNewAcctName').value.trim();
     const contrib = parseFloat(document.getElementById('obNewAcctContrib').value)||0;
     const contribPersonal = parseFloat(document.getElementById('obNewAcctContribPersonal').value)||0;
     const contribEmployer = parseFloat(document.getElementById('obNewAcctContribEmployer').value)||0;
@@ -9409,7 +9404,7 @@ window.TEI = window.TEI || {};
     btn.disabled = true;
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
-      const patch = {name, type, provider, value};
+      const patch = {type, provider, value};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -9429,7 +9424,7 @@ window.TEI = window.TEI || {};
       document.getElementById('obAddAcctBtn').textContent = 'Add';
       seedMonthBalance(acc.id, value);
     } else {
-      const acc = {id:uid(), name, type, provider, value, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, provider, value, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; } else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'client');
       try{
@@ -9447,7 +9442,7 @@ window.TEI = window.TEI || {};
       // a monthly balance is logged separately.
       seedMonthBalance(acc.id, value);
     }
-    clearFields(['obNewAcctName','obNewAcctProvider','obNewAcctBalance','obNewAcctContrib','obNewAcctContribPersonal','obNewAcctContribEmployer']);
+    clearFields(['obNewAcctProvider','obNewAcctBalance','obNewAcctContrib','obNewAcctContribPersonal','obNewAcctContribEmployer']);
     toggleAcctContribFields();
     renderObAccounts(); refreshHoldingAccountSelect(); refreshGoalLinkedAccountOptions();
   }
