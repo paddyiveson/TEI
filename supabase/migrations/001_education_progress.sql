@@ -32,6 +32,9 @@ create policy "Users update own progress"
 --     https://*.vercel.app/hub/reset-password.html
 --     http://localhost:3000/hub/reset-password.html
 --   Email rate limits: use scripts/create-user.mjs with a password, or --reset-link (no email).
+--   scripts/create-user.mjs also provisions the matching wealth_os.profiles row
+--   (and, with --client-id, links the wealth_os.clients row) — without this a
+--   client can sign in but the dashboard shows "No profile found for your account".
 --
 -- Vercel → Project → Settings → Environment Variables:
 --   SUPABASE_URL

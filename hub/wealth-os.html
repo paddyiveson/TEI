@@ -153,11 +153,19 @@ a{color:inherit;}
 .main{flex:1; min-width:0;}
 .main-inner{max-width:1180px; margin:0 auto;}
 
+/* Mobile-only sidebar drawer trigger/close (mirrors hub/suite.html's pattern) */
+.menu-btn{display:none; position:sticky; top:16px; left:16px; margin:12px 0 0 16px; background:var(--card-dark); color:var(--cream); border:1px solid rgba(247,244,237,0.14); border-radius:8px; width:38px; height:38px; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:60; -webkit-tap-highlight-color:transparent;}
+.sidebar-close{display:none; position:absolute; top:14px; right:12px; background:rgba(247,244,237,0.08); border:1px solid rgba(247,244,237,0.14); border-radius:6px; width:30px; height:30px; align-items:center; justify-content:center; font-size:18px; line-height:1; color:rgba(247,244,237,0.7); cursor:pointer;}
+.scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:90; opacity:0; transition:opacity .3s; pointer-events:none;}
+.scrim.visible{opacity:1; pointer-events:auto;}
+
 @media(max-width:900px){
-  .sidebar{width:64px; padding:16px 8px;}
-  .sidebar-brand .nb-sub, .sidebar-brand .nb-divider, .sidebar-nav a.navlink span:not(.ic), .sidebar-who{display:none;}
-  .sidebar-nav a.navlink{justify-content:center; padding:10px;}
-  .sidebar-foot{flex-direction:column; gap:10px;}
+  .sidebar{position:fixed; top:0; left:0; bottom:0; transform:translateX(-100%); transition:transform .3s ease; box-shadow:4px 0 24px rgba(0,0,0,.4); z-index:100;}
+  .sidebar.open{transform:translateX(0);}
+  .menu-btn{display:flex;}
+  .sidebar-close{display:flex;}
+  .scrim{display:block;}
+  .wrap{padding-left:18px; padding-right:18px;}
 }
 
 @media (max-width:640px){
@@ -1128,8 +1136,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <button type="button" class="btn-ghost" id="openAdviserWorkspaceBtn">Manage this client →</button>
 </div>
 
+<div class="scrim" id="sidebarScrim"></div>
 <div class="app-shell">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
+    <button type="button" class="sidebar-close" id="sidebarCloseBtn" aria-label="Close menu">&times;</button>
     <a href="#" class="sidebar-brand" id="navBrandLink">
       <span class="nb-mark">TEI</span><span class="nb-divider"></span><span class="nb-sub">Wealth OS</span>
     </a>
@@ -1176,6 +1186,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   </aside>
 
   <main class="main">
+    <button type="button" class="menu-btn" id="sidebarMenuBtn" aria-label="Open menu">&#9776;</button>
     <div class="main-inner">
 
 <div id="loadError" style="display:none; background:var(--oxblood-bg); color:#D68992; text-align:center; padding:16px 20px; font-size:13px;">
@@ -1576,7 +1587,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="dcard" style="height:100%;">
         <div class="k">Top holdings</div>
         <div class="line">Your 10 largest positions, across every account.</div>
-        <table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Value</th><th style="text-align:right;">%</th><th>Account</th></tr></thead><tbody id="topHoldingsBody"></tbody></table>
+        <div style="overflow-x:auto;"><table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Value</th><th style="text-align:right;">%</th><th>Account</th></tr></thead><tbody id="topHoldingsBody"></tbody></table></div>
       </div>
     </div>
     <div class="span-6">
@@ -1627,7 +1638,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div class="span-12">
       <div class="dcard">
         <div class="k">Dividend contributors</div>
-        <table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Annual dividend</th><th style="text-align:right;">% of income</th></tr></thead><tbody id="divContributorsBody"></tbody></table>
+        <div style="overflow-x:auto;"><table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Annual dividend</th><th style="text-align:right;">% of income</th></tr></thead><tbody id="divContributorsBody"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -9832,17 +9843,9 @@ window.TEI = window.TEI || {};
    TEI.data.mergeDefaults() / state.client already expect (see the data
    shape mapping in wealth_os_supabase_rewire_brief.md section 5.3).
 
-   Two assumptions made where the brief's shorthand was ambiguous —
-   flagged here rather than guessed silently, and worth a quick check
-   against the actual schema SQL (not present in this repo) before
-   relying on this in production:
-     1. wealth_os.profiles.id = auth.uid() (the standard Supabase
-        "profiles" pattern). The brief explicitly spells out
-        clients.user_id as a separate FK column, but never gives an
-        equivalent column name for profiles -- id-as-PK is the far
-        more common convention for a table literally named "profiles",
-        so that's what's used here.
-     2. wealth_os.clients uses snake_case columns throughout
+   One assumption made where the brief's shorthand was ambiguous —
+   flagged here rather than guessed silently:
+     1. wealth_os.clients uses snake_case columns throughout
         (first_name, last_name, employment_status, relationship_status,
         risk_profile) even though the brief's prose listed these bare,
         without explicit "camelKey: snake_column" annotation the way
@@ -10161,6 +10164,12 @@ window.TEI = window.TEI || {};
       const supabase = window.teiSupabase;
       const w = wo(supabase);
 
+      // wealth_os.profiles is keyed by user_id (confirmed against the live
+      // schema 2026-08-05, no separate id column) -- this query is correct.
+      // A null result here means no profiles row exists for this login, not
+      // a wrong column name: provisioning it is a manual step done via
+      // scripts/create-user.mjs (or a matching insert) when the account is
+      // created, and it's easy to skip for a client set up before that.
       const { data: profile, error: profileErr } = await w.from('profiles').select('role').eq('user_id', user.id).maybeSingle();
       if(profileErr) throw profileErr;
       if(!profile || !profile.role){
@@ -10548,12 +10557,32 @@ window.TEI = window.TEI || {};
 
   function rerenderCurrentPage(){ renderPage(state.currentPage); }
 
+  function openSidebar(){
+    const sidebar = document.getElementById('sidebar');
+    const scrim = document.getElementById('sidebarScrim');
+    if(sidebar) sidebar.classList.add('open');
+    if(scrim) scrim.classList.add('visible');
+  }
+  function closeSidebar(){
+    const sidebar = document.getElementById('sidebar');
+    const scrim = document.getElementById('sidebarScrim');
+    if(sidebar) sidebar.classList.remove('open');
+    if(scrim) scrim.classList.remove('visible');
+  }
+
   function wireNav(){
     document.querySelectorAll('.navlink').forEach(el=>{
-      el.addEventListener('click', (e)=>{ e.preventDefault(); showPage(el.dataset.page); closeAllDropdowns(); });
+      el.addEventListener('click', (e)=>{ e.preventDefault(); showPage(el.dataset.page); closeAllDropdowns(); closeSidebar(); });
     });
     const brand = document.getElementById('navBrandLink');
-    if(brand) brand.addEventListener('click', (e)=>{ e.preventDefault(); showPage('home'); closeAllDropdowns(); });
+    if(brand) brand.addEventListener('click', (e)=>{ e.preventDefault(); showPage('home'); closeAllDropdowns(); closeSidebar(); });
+
+    const menuBtn = document.getElementById('sidebarMenuBtn');
+    if(menuBtn) menuBtn.addEventListener('click', openSidebar);
+    const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+    if(sidebarCloseBtn) sidebarCloseBtn.addEventListener('click', closeSidebar);
+    const sidebarScrim = document.getElementById('sidebarScrim');
+    if(sidebarScrim) sidebarScrim.addEventListener('click', closeSidebar);
 
     document.querySelectorAll('[data-toggle-dropdown]').forEach(btn=>{
       btn.addEventListener('click', (e)=>{
