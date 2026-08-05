@@ -289,6 +289,14 @@ h2{font-size:24px; color:var(--ink); margin:4px 0 6px;}
 .coach-card .cc-eyebrow{font-size:11.5px; text-transform:uppercase; letter-spacing:0.07em; color:var(--gold); font-weight:700; margin-bottom:12px;}
 .coach-card .cc-message{font-size:15.5px; color:var(--cream); line-height:1.6; margin-bottom:18px; flex:1;}
 .coach-card .cc-action{align-self:flex-start; text-decoration:none;}
+/* Bug reported live via the feedback widget (2026-08-05): #ehCoachNote
+   reuses the .cc-message class but sits inside .empty-hero-card (the
+   not-yet-onboarded home screen), not .coach-card -- so the scoped rule
+   above never matched it, and it fell through to the inherited
+   theme-flipping --ink instead of the always-dark card's --cream. Reads
+   fine in dark theme (--ink turns near-white there) but is dark-on-dark
+   in light theme, the default new clients see. */
+.empty-hero-card .cc-message{color:var(--cream);}
 
 .focus-list{list-style:none; margin:0; padding:0;}
 .focus-item{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--cream-line); cursor:pointer;}
@@ -555,6 +563,16 @@ footer p{color:var(--ink-soft2); font-size:14px;}
 .fp-actions{margin-top:10px;}
 .fp-history{margin-top:14px; border-top:1px solid var(--line); padding-top:10px;}
 .fp-history-label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--ink-soft2); margin-bottom:4px;}
+/* Bug reported live via the widget itself (2026-08-05): the global
+   textarea{} rule (line ~729) hardcodes background:#fff while color stays
+   var(--ink), which flips to near-white in #clientApp[data-theme="dark"] --
+   white text on white. #clientApp .form-field input/select already get a
+   background:var(--card-light-bg) override for exactly this reason, but
+   that selector list never included textarea. Scoped fix here rather than
+   widening the shared selector, to avoid touching #mNotes (Adviser
+   Workspace's only other textarea, which lives outside #clientApp and
+   isn't affected). */
+.feedback-panel textarea{background:var(--card-light-bg);}
 @media (max-width:480px){ .feedback-fab{right:16px; bottom:16px;} .feedback-panel{right:16px; bottom:80px;} }
 
 @media (max-width:860px){
