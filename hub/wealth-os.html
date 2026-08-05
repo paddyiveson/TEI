@@ -8133,13 +8133,22 @@ window.TEI = window.TEI || {};
     btn.disabled = true;
     status.textContent = 'Fetching live prices…';
     try{
-      const { prices, errors } = await TEI.wealthOS.fetchLivePrices(priceable.map(h=>h.ticker));
+      const { prices, errors, usdGbpRate } = await TEI.wealthOS.fetchLivePrices(priceable.map(h=>h.ticker));
+      // Twelve Data prices come back in USD (it doesn't cover LSE-listed
+      // tickers at all, so every ticker priced here is assumed US-listed --
+      // see api/prices.js). Refuse to convert if the FX rate itself failed
+      // to come back, rather than silently storing a dollar figure as GBP.
+      if(usdGbpRate == null){
+        status.textContent = "Couldn't fetch the USD/GBP exchange rate — try again.";
+        showToast("Couldn't refresh prices");
+        return;
+      }
       const touchedAccounts = new Set();
       let updated = 0;
       for(const h of priceable){
         const price = prices[h.ticker.toUpperCase()];
         if(price == null) continue;
-        const value = price * h.units;
+        const value = price * usdGbpRate * h.units;
         const merged = Object.assign({}, h, {value});
         TEI.calc.stampEdit(merged, 'adviser');
         await TEI.wealthOS.saveHolding(h.accountId, h.id, merged);
@@ -8151,6 +8160,7 @@ window.TEI = window.TEI || {};
       touchedAccounts.forEach(accId=>TEI.calc.syncAccountValueFromHoldings(client, accId));
       const failed = Object.keys(errors||{});
       status.textContent = `Updated ${updated} of ${priceable.length} priced holding${priceable.length===1?'':'s'}` +
+        ` (1 USD = £${usdGbpRate.toFixed(4)})` +
         (failed.length ? ` — couldn't price ${failed.join(', ')}` : '') +
         ` · ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
       renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
@@ -10724,12 +10734,15 @@ window.TEI = window.TEI || {};
      can't live in this client-side app). Manual refresh only, never
      auto-fetched on page load: the free-tier quota is shared across every
      adviser/client session, and a silent background call per page view
-     would burn through it fast for no benefit. Returns {prices, errors} in
-     the same shape the endpoint gives back so callers can report partial
-     failures (e.g. one bad ticker) without losing the rest of the batch. */
+     would burn through it fast for no benefit. Returns {prices, errors,
+     usdGbpRate} in the same shape the endpoint gives back so callers can
+     report partial failures (e.g. one bad ticker) without losing the rest
+     of the batch. usdGbpRate is null if the FX lookup itself failed --
+     callers must not fall back to treating the raw price as GBP in that
+     case (see api/prices.js header comment re: the USD-only assumption). */
   async function fetchLivePrices(tickers){
     const symbols = [...new Set((tickers||[]).map(t=>String(t||'').trim().toUpperCase()).filter(Boolean))];
-    if(!symbols.length) return {prices:{}, errors:{}};
+    if(!symbols.length) return {prices:{}, errors:{}, usdGbpRate:null};
     const { data:{session} } = await window.teiSupabase.auth.getSession();
     const token = session ? session.access_token : null;
     if(!token) throw new Error('Not signed in');
@@ -10738,7 +10751,7 @@ window.TEI = window.TEI || {};
     });
     const body = await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(body.error || 'Price feed unavailable');
-    return { prices: body.prices||{}, errors: body.errors||{} };
+    return { prices: body.prices||{}, errors: body.errors||{}, usdGbpRate: body.usdGbpRate!=null ? body.usdGbpRate : null };
   }
 
   async function saveGoal(clientId, existingId, local){

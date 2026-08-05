@@ -12,7 +12,15 @@
 //
 // Response shape (always 200 once past auth -- per-symbol failures don't
 // fail the whole request):
-//   { prices: { AAPL: 123.45, ... }, errors: { BADSYM: "message from Twelve Data" } }
+//   { prices: { AAPL: 123.45, ... }, errors: { BADSYM: "message from Twelve Data" }, usdGbpRate: 0.79 }
+//
+// Currency: Twelve Data prices come back in whatever currency the ticker is
+// actually listed in. Wealth OS only ever stores GBP. Simplifying assumption
+// (deliberate, confirmed with the user 2026-08): Twelve Data doesn't cover
+// LSE-listed tickers at all, so in practice every ticker priced through this
+// feature is US-listed -- one USD/GBP rate, fetched once per request
+// alongside the price batch, covers every symbol. If a non-USD ticker is
+// ever added this will silently mis-convert it -- revisit if that happens.
 //
 // Required env vars (set in Vercel project settings):
 //   TWELVE_DATA_API_KEY - api key from twelvedata.com
@@ -102,7 +110,25 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    res.status(200).json({ prices, errors });
+    // Fetch once per request regardless of batch size -- covers every
+    // symbol in this call, no point paying for it per-ticker. Left null
+    // (rather than defaulting to 1) if the rate lookup itself fails, so the
+    // caller can refuse to convert with a wrong assumption rather than
+    // silently storing an unconverted USD figure as GBP.
+    let usdGbpRate = null;
+    if (Object.keys(prices).length) {
+      try {
+        const fxRes = await fetch(`https://api.twelvedata.com/exchange_rate?symbol=USD/GBP&apikey=${apiKey}`);
+        const fxData = await fxRes.json().catch(() => null);
+        const rate = fxData && parseFloat(fxData.rate);
+        if (fxRes.ok && fxData && !isNaN(rate)) usdGbpRate = rate;
+        else console.error("prices: exchange_rate lookup failed", fxRes.status, fxData);
+      } catch (err) {
+        console.error("prices: exchange_rate fetch error", err);
+      }
+    }
+
+    res.status(200).json({ prices, errors, usdGbpRate });
   } catch (err) {
     console.error("prices: unexpected error", err);
     res.status(500).json({ error: "Unexpected error" });
