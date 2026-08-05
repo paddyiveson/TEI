@@ -53,7 +53,13 @@ module.exports = async function handler(req, res) {
   const apiKey = process.env.TWELVE_DATA_API_KEY;
   if (!apiKey) {
     console.error("prices: missing TWELVE_DATA_API_KEY env var");
-    res.status(500).json({ error: "Price feed not configured" });
+    // TEMP DEBUG (remove once the env var issue is confirmed fixed): lists
+    // which TWELVE_DATA*-ish env var names Vercel actually handed this
+    // function, without ever printing a value. Helps tell "not set" apart
+    // from "set under a slightly different name" apart from "set but this
+    // deployment predates it".
+    const nearMatches = Object.keys(process.env).filter((k) => /TWELVE/i.test(k));
+    res.status(500).json({ error: "Price feed not configured", debugEnvKeysContainingTwelve: nearMatches, vercelEnv: process.env.VERCEL_ENV || null });
     return;
   }
 
