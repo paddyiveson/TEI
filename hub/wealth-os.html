@@ -2779,7 +2779,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Name</span><input type="text" id="newHoldingName" placeholder="e.g. VWRP"></label>
         <label class="form-field"><span>Ticker (optional)</span><input type="text" id="newHoldingTicker" placeholder="e.g. AAPL"></label>
         <label class="form-field"><span>Units (optional)</span><input type="number" id="newHoldingUnits" placeholder="0" step="any"></label>
-        <label class="form-field"><span>Value £</span><input type="number" id="newHoldingValue" placeholder="0"></label>
+        <label class="form-field"><span>Avg open price £ (optional)</span><input type="number" id="newHoldingAvgOpen" placeholder="0" step="any"></label>
+        <label class="form-field"><span>Value £ (optional if units + ticker or avg open given)</span><input type="number" id="newHoldingValue" placeholder="0"></label>
         <label class="form-field"><span>Cost basis £ (optional)</span><input type="number" id="newHoldingCostBasis" placeholder="0"></label>
         <label class="form-field"><span>Sector (optional)</span><select id="newHoldingSector">
           <option value="">–</option><option>Technology</option><option>Healthcare</option><option>Financials</option><option>Energy</option><option>Consumer</option><option>Industrials</option><option>Other</option>
@@ -8036,6 +8037,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newHoldingName').value = h.name;
         document.getElementById('newHoldingTicker').value = h.ticker||'';
         document.getElementById('newHoldingUnits').value = h.units!=null ? h.units : '';
+        document.getElementById('newHoldingAvgOpen').value = h.avgOpen!=null ? h.avgOpen : '';
         document.getElementById('newHoldingValue').value = h.value;
         document.getElementById('newHoldingCostBasis').value = h.costBasis||'';
         document.getElementById('newHoldingSector').value = h.sector||'';
@@ -8047,7 +8049,7 @@ window.TEI = window.TEI || {};
   function cancelHoldingEdit(){
     editing.holding = null;
     document.getElementById('addHoldingBtn').textContent = 'Add holding';
-    ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
+    ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newHoldingSector').value = '';
   }
   async function addHolding(){
@@ -8056,9 +8058,18 @@ window.TEI = window.TEI || {};
     const ticker = document.getElementById('newHoldingTicker').value.trim().toUpperCase() || null;
     const unitsInput = document.getElementById('newHoldingUnits').value;
     const units = unitsInput ? parseFloat(unitsInput) : null;
-    const value = parseFloat(document.getElementById('newHoldingValue').value);
+    const avgOpenInput = document.getElementById('newHoldingAvgOpen').value;
+    const avgOpen = avgOpenInput ? parseFloat(avgOpenInput) : null;
+    const valueInput = document.getElementById('newHoldingValue').value;
+    let value = valueInput ? parseFloat(valueInput) : null;
+    // Value can be typed directly, derived from units*avg-open (same
+    // fallback CSV import already uses), or -- for a ticker+units holding
+    // meant to be live-priced -- left at 0 until "Refresh live prices" fills
+    // it in. Only reject the save if none of those give us a number.
+    if(value==null && units!=null && avgOpen!=null) value = units*avgOpen;
+    if(value==null && ticker && units!=null) value = 0;
     if(!accountId){ showToast('Add an account first'); return; }
-    if(!name || isNaN(value)){ showToast('Give the holding a name and value'); return; }
+    if(!name || value==null || isNaN(value)){ showToast('Give the holding a name, and either a value, units + avg open, or a ticker + units to live-price'); return; }
     const costBasisInput = document.getElementById('newHoldingCostBasis').value;
     const costBasis = costBasisInput ? parseFloat(costBasisInput) : null;
     const sector = document.getElementById('newHoldingSector').value || null;
@@ -8068,7 +8079,7 @@ window.TEI = window.TEI || {};
       const h = client.holdings.find(x=>x.id===editing.holding);
       if(!h){ cancelHoldingEdit(); btn.disabled = false; return; }
       const oldAccountId = h.accountId;
-      const merged = Object.assign({}, h, {accountId, name, ticker, units, value, costBasis, sector});
+      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value, costBasis, sector});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveHolding(accountId, h.id, merged);
@@ -8086,7 +8097,7 @@ window.TEI = window.TEI || {};
       cancelHoldingEdit();
       showToast('Holding updated');
     } else {
-      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen:null, costBasis, sector, value}, 'adviser');
+      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, value}, 'adviser');
       try{
         h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
       } catch(err){
@@ -8099,9 +8110,9 @@ window.TEI = window.TEI || {};
       client.holdings.push(h);
       TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
-      ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
+      ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newHoldingSector').value = '';
-      showToast('Holding added');
+      showToast(ticker && units!=null && !valueInput ? 'Holding added — click Refresh live prices to price it' : 'Holding added');
     }
     renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
   }
