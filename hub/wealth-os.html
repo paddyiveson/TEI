@@ -1399,37 +1399,24 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 <div id="page-goals" class="page">
 <header class="hero wrap k-greeting"><h1>Goals</h1><div class="sub">Progress and priorities across everything you're building towards.</div></header>
 
-<section class="wrap" style="padding-top:var(--space-lg);">
+<section class="wrap" style="padding-top:var(--space-lg); padding-bottom:0;">
   <div class="dgrid">
     <div class="span-12">
-      <div class="dcard">
-        <div class="k">Add a goal</div>
-        <div class="sub2" style="margin-bottom:12px;">What are you building towards? Monetary goals need at least one linked account, since their progress is tracked from what's actually in it.</div>
-        <div class="form-grid">
-          <label class="form-field on-light"><span>Goal type</span><select id="clNewGoalType">
-            <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
-            <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
-            <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
-          </select></label>
-          <label class="form-field on-light"><span>Name</span><input type="text" id="clNewGoalName" placeholder="e.g. House deposit"></label>
-          <label class="form-field on-light"><span>Target date</span><input type="month" id="clNewGoalDate"></label>
-          <label class="form-field on-light"><span>Track progress by</span><select id="clNewGoalProgressType">
-            <option value="monetary">Amount saved (£)</option><option value="income">Income level</option><option value="completion">Done / not done</option>
-          </select></label>
-          <label class="form-field on-light" id="clGoalTargetAmountField"><span>Target £</span><input type="number" id="clNewGoalTargetAmount" placeholder="0"></label>
-          <label class="form-field on-light" id="clGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="clNewGoalTargetIncome" placeholder="0"></label>
-          <div class="form-field on-light" id="clGoalLinkedAccountsField"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
+      <a href="#" class="navlink dcard update-nudge" data-page="update" style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
+        <div>
+          <div class="k">Add, edit or remove a goal</div>
+          <div class="sub2" id="goalsUpdateSummary">–</div>
         </div>
-        <button type="button" class="btn-primary" id="clAddGoalBtn" style="margin-top:12px;">Add goal</button>
-      </div>
+        <span class="btn-primary" style="pointer-events:none;">Update →</span>
+      </a>
     </div>
   </div>
 </section>
 
-<section class="wrap" style="padding-top:0; display:none;" id="goalsEmptyState">
+<section class="wrap" style="display:none;" id="goalsEmptyState">
   <div class="empty-hero-card">
     <div class="eh-title">No goals set yet</div>
-    <div class="eh-sub">Add your first goal above and progress, priorities and milestones will appear here.</div>
+    <div class="eh-sub">Add your first goal on the Update page and progress, priorities and milestones will appear here.</div>
   </div>
 </section>
 
@@ -2060,7 +2047,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 </section>
-<section class="wrap" style="padding-bottom:var(--space-2xl);">
+<section class="wrap">
   <div class="k-section-label">Cashflow</div>
   <div class="dgrid">
     <div class="span-12">
@@ -2076,6 +2063,37 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </div>
         <button type="button" class="btn-primary" id="cashflowMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
         <div id="cashflowMonthlyHistory"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap" style="padding-bottom:var(--space-2xl);">
+  <div class="k-section-label">Goals</div>
+  <div class="dgrid">
+    <div class="span-12">
+      <div class="dcard">
+        <div class="k" id="clGoalFormTitle">Add a goal</div>
+        <div class="sub2" style="margin-bottom:12px;">What are you building towards? Monetary goals need at least one linked account, since their progress is tracked from what's actually in it.</div>
+        <div class="form-grid">
+          <label class="form-field on-light"><span>Goal type</span><select id="clNewGoalType">
+            <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
+            <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+            <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
+          </select></label>
+          <label class="form-field on-light"><span>Name</span><input type="text" id="clNewGoalName" placeholder="e.g. House deposit"></label>
+          <label class="form-field on-light"><span>Target date</span><input type="month" id="clNewGoalDate"></label>
+          <label class="form-field on-light"><span>Track progress by</span><select id="clNewGoalProgressType">
+            <option value="monetary">Amount saved (£)</option><option value="income">Income level</option><option value="completion">Done / not done</option>
+          </select></label>
+          <label class="form-field on-light" id="clGoalTargetAmountField"><span>Target £</span><input type="number" id="clNewGoalTargetAmount" placeholder="0"></label>
+          <label class="form-field on-light" id="clGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="clNewGoalTargetIncome" placeholder="0"></label>
+          <div class="form-field on-light" id="clGoalLinkedAccountsField"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
+        </div>
+        <div style="display:flex; gap:10px; margin-top:12px;">
+          <button type="button" class="btn-primary" id="clAddGoalBtn">Add goal</button>
+          <button type="button" class="btn-ghost on-light" id="clCancelGoalEditBtn" style="display:none;">Cancel</button>
+        </div>
+        <div id="clGoalsList" style="margin-top:16px;"></div>
       </div>
     </div>
   </div>
@@ -5170,82 +5188,17 @@ TEI.render = TEI.render || {};
     }
   }
 
-  /* ================= ADD A GOAL (both roles) =================
-     Client-facing add-only form -- editing/deleting an existing goal
-     stays adviser-only for now, but anyone can add a new one. Same
-     validation as Adviser Workspace's version: a monetary goal needs at
-     least one linked account, since TEI.calc.goalProgress only ever reads
-     progress from linked accounts. */
-  function toggleClGoalProgressFields(){
-    const pt = document.getElementById('clNewGoalProgressType').value;
-    document.getElementById('clGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
-    document.getElementById('clGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
-    document.getElementById('clGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
-  }
-
-  function refreshClGoalLinkedAccountOptions(client){
-    const wrap = document.getElementById('clNewGoalLinkedAccounts');
-    if(!wrap) return;
-    const selectedIds = Array.from(wrap.querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
-    if(!(client.accounts||[]).length){
-      wrap.innerHTML = '<span>Add an account first to link a goal to it.</span>';
-      wrap.classList.add('empty');
-    } else {
-      wrap.classList.remove('empty');
-      wrap.innerHTML = client.accounts.map(a=>`<label><input type="checkbox" value="${a.id}" ${selectedIds.includes(a.id)?'checked':''}> ${TEI.data.acctLabel(a)}</label>`).join('');
-    }
-  }
-
-  async function addClGoal(){
-    const client = TEI.app.state.client;
-    const type = document.getElementById('clNewGoalType').value;
-    const name = document.getElementById('clNewGoalName').value.trim();
-    if(!name){ TEI.app.showToast('Give the goal a name'); return; }
-    const targetDate = document.getElementById('clNewGoalDate').value || null;
-    const progressType = document.getElementById('clNewGoalProgressType').value;
-    const targetAmount = parseFloat(document.getElementById('clNewGoalTargetAmount').value) || null;
-    const targetIncome = parseFloat(document.getElementById('clNewGoalTargetIncome').value) || null;
-    const linkedAccountIds = Array.from(document.getElementById('clNewGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
-    if(progressType === 'monetary' && !linkedAccountIds.length){
-      TEI.app.showToast('Link at least one account so this goal has something to track progress from');
-      return;
-    }
-    const btn = document.getElementById('clAddGoalBtn');
-    btn.disabled = true;
-    const g = TEI.calc.stampEdit({id: TEI.data.uid(), type, name, targetDate, progressType, targetAmount, targetIncome,
-      completed:false, status:'active', linkedAccountIds, statusHistory:[]}, client.meta.role);
-    try{
-      g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
-    } catch(err){
-      console.error('Wealth OS: failed to save goal', err);
-      TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
-      btn.disabled = false;
-      return;
-    }
-    btn.disabled = false;
-    client.goals.push(g);
-    ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
-    TEI.app.showToast('Goal added');
-    TEI.app.rerenderCurrentPage();
-  }
-
-  function wireClAddGoalForm(){
-    const typeEl = document.getElementById('clNewGoalProgressType');
-    if(typeEl && !typeEl.dataset.wired){
-      typeEl.dataset.wired = '1';
-      typeEl.addEventListener('change', toggleClGoalProgressFields);
-    }
-    const btn = document.getElementById('clAddGoalBtn');
-    if(btn && !btn.dataset.wired){
-      btn.dataset.wired = '1';
-      btn.addEventListener('click', addClGoal);
-    }
+  /* Compact "manage your goals" nudge card -- add/edit/delete now lives on
+     the Update page (TEI.render.update), not inline here. */
+  function renderGoalsUpdateSummary(client){
+    const el = document.getElementById('goalsUpdateSummary');
+    if(!el) return;
+    const count = (client.goals||[]).length;
+    el.textContent = count ? `${count} goal${count===1?'':'s'} set` : 'None set yet';
   }
 
   TEI.render.goals = function(client){
-    wireClAddGoalForm();
-    toggleClGoalProgressFields();
-    refreshClGoalLinkedAccountOptions(client);
+    renderGoalsUpdateSummary(client);
 
     const allGoals = client.goals || [];
     const empty = document.getElementById('goalsEmptyState');
@@ -5828,15 +5781,37 @@ TEI.render = TEI.render || {};
      how much of your growth is new money vs performance. ---------- */
   let depositsMonthKey = null;
 
+  /* LISA and personal pension contributions attract basic-rate tax relief
+     added by HMRC/provider -- both work out to 25% of the client's own
+     (net) contribution: LISA's 25% government bonus, and pension
+     relief-at-source (pay in £80, HMRC adds £20 -- 25% of the net amount).
+     Deliberately simplified: basic rate only (higher/additional rate isn't
+     automatic, it's claimed separately via self-assessment), no LISA
+     £4k/year cap enforcement. */
+  const RELIEF_RATE = 0.25;
+  function isReliefEligible(acc){ return acc && (acc.type === 'lisa' || acc.type === 'pension'); }
+
   function renderDepositsTotalSummary(client){
     const el = document.getElementById('depositsTotalSummary');
     if(!el) return;
-    const totalDeposited = Object.values(client.contribLog||{})
-      .reduce((sum, monthEntry)=> sum + Object.values(monthEntry||{}).reduce((s,v)=> s + (Number(v)||0), 0), 0);
+    let totalDeposited = 0, totalRelief = 0;
+    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+      Object.values(monthEntry||{}).forEach(e=>{
+        totalDeposited += (Number(e && e.amount)||0) + (Number(e && e.sacrificeAmount)||0);
+        totalRelief += Number(e && e.reliefAmount)||0;
+      });
+    });
+    if(!totalDeposited && !totalRelief){ el.textContent = ''; return; }
     const currentValue = TEI.calc.latestNetWorth ? TEI.calc.latestNetWorth(client) : (client.accounts||[]).reduce((s,a)=>s+(Number(a.value)||0),0);
-    if(!totalDeposited){ el.textContent = ''; return; }
-    const growth = currentValue - totalDeposited;
-    el.innerHTML = `Total deposited: <b>${fmtGBP(totalDeposited)}</b> &middot; Current value: <b>${fmtGBP(currentValue)}</b> &middot; Growth: <b style="color:${growth>=0?'var(--k-up-ink, #2D7D52)':'var(--k-down-ink, #C0392B)'};">${growth>=0?'+':''}${fmtGBP(growth)}</b>`;
+    // Growth = performance only -- relief is real money in the account but
+    // not the client's own, and not investment growth either, so it's
+    // excluded from both "deposited" and "growth".
+    const growth = currentValue - totalDeposited - totalRelief;
+    const growthColor = growth>=0 ? 'var(--k-up-ink, #2D7D52)' : 'var(--k-down-ink, #C0392B)';
+    let html = `Total deposited: <b>${fmtGBP(totalDeposited)}</b>`;
+    if(totalRelief) html += ` &middot; Tax relief/bonus received: <b>${fmtGBP(totalRelief)}</b>`;
+    html += ` &middot; Current value: <b>${fmtGBP(currentValue)}</b> &middot; Growth: <b style="color:${growthColor};">${growth>=0?'+':''}${fmtGBP(growth)}</b>`;
+    el.innerHTML = html;
   }
 
   function renderDepositsMonthlyHistory(client){
@@ -5860,6 +5835,8 @@ TEI.render = TEI.render || {};
     });
   }
 
+  function reliefPreviewLabel(acc){ return acc.type === 'lisa' ? 'Government bonus added' : 'Tax relief added'; }
+
   function renderDepositsMonthlyWidget(client){
     if(!depositsMonthKey) depositsMonthKey = TEI.data.currentMonthKey();
     const picker = document.getElementById('depositsMonthPicker');
@@ -5873,9 +5850,32 @@ TEI.render = TEI.render || {};
       return;
     }
     const existing = (client.contribLog && client.contribLog[depositsMonthKey]) || {};
-    wrap.innerHTML = accounts.map(acc=>
-      `<label class="form-field on-light"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-deposits-month-field="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00"></label>`
-    ).join('');
+    wrap.innerHTML = accounts.map(acc=>{
+      const e = existing[acc.id] || {};
+      const personalVal = e.amount!=null ? e.amount : '';
+      const eligible = isReliefEligible(acc);
+      const reliefText = eligible
+        ? `<span class="note" data-deposits-relief-preview="${acc.id}" style="margin-top:2px;">${reliefPreviewLabel(acc)}: ${fmtGBP(e.reliefAmount!=null?e.reliefAmount:0)} (not counted in total deposited)</span>`
+        : '';
+      const personalLabel = acc.type === 'pension' ? `${TEI.data.acctLabel(acc)} — personal £` : TEI.data.acctLabel(acc);
+      let html = `<label class="form-field on-light"><span>${personalLabel}</span><input type="number" step="0.01" data-deposits-personal="${acc.id}" value="${personalVal}" placeholder="0.00">${reliefText}</label>`;
+      if(acc.type === 'pension'){
+        const sacrificeVal = e.sacrificeAmount!=null ? e.sacrificeAmount : '';
+        html += `<label class="form-field on-light"><span>${TEI.data.acctLabel(acc)} — employer / salary sacrifice £</span><input type="number" step="0.01" data-deposits-sacrifice="${acc.id}" value="${sacrificeVal}" placeholder="0.00"></label>`;
+      }
+      return html;
+    }).join('');
+    // Live relief preview as the client types the personal amount.
+    wrap.querySelectorAll('[data-deposits-personal]').forEach(inp=>{
+      const accId = inp.dataset.depositsPersonal;
+      const acc = accounts.find(a=>a.id===accId);
+      if(!isReliefEligible(acc)) return;
+      inp.addEventListener('input', ()=>{
+        const relief = (parseFloat(inp.value)||0) * RELIEF_RATE;
+        const previewEl = wrap.querySelector(`[data-deposits-relief-preview="${accId}"]`);
+        if(previewEl) previewEl.textContent = `${reliefPreviewLabel(acc)}: ${fmtGBP(relief)} (not counted in total deposited)`;
+      });
+    });
     renderDepositsMonthlyHistory(client);
     renderDepositsTotalSummary(client);
   }
@@ -5884,13 +5884,21 @@ TEI.render = TEI.render || {};
     const client = TEI.app.state.client;
     const key = depositsMonthKey;
     const btn = document.getElementById('depositsMonthlySaveBtn');
-    const toSave = Array.from(document.querySelectorAll('[data-deposits-month-field]'))
-      .map(el=>({id:el.dataset.depositsMonthField, v:parseFloat(el.value)}))
-      .filter(x=>!isNaN(x.v));
+    const toSave = [];
+    document.querySelectorAll('[data-deposits-personal]').forEach(inp=>{
+      const personal = parseFloat(inp.value);
+      if(isNaN(personal)) return;
+      const accId = inp.dataset.depositsPersonal;
+      const acc = client.accounts.find(a=>a.id===accId);
+      const sacrificeInp = document.querySelector(`[data-deposits-sacrifice="${accId}"]`);
+      const sacrifice = sacrificeInp && sacrificeInp.value !== '' ? (parseFloat(sacrificeInp.value)||0) : null;
+      const relief = isReliefEligible(acc) ? Math.round(personal * RELIEF_RATE * 100) / 100 : null;
+      toSave.push({ id: accId, amount: personal, sacrificeAmount: sacrifice, reliefAmount: relief });
+    });
     if(!toSave.length){ TEI.app.showToast('Nothing to save'); return; }
     btn.disabled = true;
     try{
-      for(const item of toSave){ await TEI.wealthOS.saveAccountDeposit(item.id, key, item.v, client.meta.role); }
+      for(const item of toSave){ await TEI.wealthOS.saveAccountDeposit(item.id, key, item.amount, item.sacrificeAmount, item.reliefAmount, client.meta.role); }
     } catch(err){
       console.error('Wealth OS: failed to save monthly deposit', err);
       TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
@@ -5900,7 +5908,7 @@ TEI.render = TEI.render || {};
     btn.disabled = false;
     client.contribLog = client.contribLog || {};
     const entry = client.contribLog[key] ? Object.assign({}, client.contribLog[key]) : {};
-    toSave.forEach(item=>{ entry[item.id] = item.v; });
+    toSave.forEach(item=>{ entry[item.id] = { amount: item.amount, sacrificeAmount: item.sacrificeAmount, reliefAmount: item.reliefAmount }; });
     client.contribLog[key] = entry;
     renderDepositsMonthlyWidget(client);
     TEI.app.showToast('Saved ' + key);
@@ -5980,6 +5988,175 @@ TEI.render = TEI.render || {};
     TEI.app.showToast('Saved ' + key);
   }
 
+  /* ================= GOALS: add / edit / delete (both roles) =================
+     Same validation as Adviser Workspace's version: a monetary goal needs
+     at least one linked account, since TEI.calc.goalProgress only ever
+     reads progress from linked accounts. Unlike the monthly log sections
+     above, this isn't month-keyed -- it's a plain list with Edit/Delete
+     per goal, reusing the one add/edit form (same pattern as Adviser
+     Workspace's Manual Entry goal form). */
+  let editingGoalId = null;
+
+  function toggleClGoalProgressFields(){
+    const pt = document.getElementById('clNewGoalProgressType').value;
+    document.getElementById('clGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
+    document.getElementById('clGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('clGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+  }
+
+  function refreshClGoalLinkedAccountOptions(client){
+    const wrap = document.getElementById('clNewGoalLinkedAccounts');
+    if(!wrap) return;
+    const selectedIds = Array.from(wrap.querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    if(!(client.accounts||[]).length){
+      wrap.innerHTML = '<span>Add an account first to link a goal to it.</span>';
+      wrap.classList.add('empty');
+    } else {
+      wrap.classList.remove('empty');
+      wrap.innerHTML = client.accounts.map(a=>`<label><input type="checkbox" value="${a.id}" ${selectedIds.includes(a.id)?'checked':''}> ${TEI.data.acctLabel(a)}</label>`).join('');
+    }
+  }
+
+  function cancelClGoalEdit(){
+    editingGoalId = null;
+    document.getElementById('clGoalFormTitle').textContent = 'Add a goal';
+    document.getElementById('clAddGoalBtn').textContent = 'Add goal';
+    document.getElementById('clCancelGoalEditBtn').style.display = 'none';
+    ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('clNewGoalProgressType').value = 'monetary';
+    toggleClGoalProgressFields();
+    refreshClGoalLinkedAccountOptions(TEI.app.state.client);
+  }
+
+  function startClGoalEdit(client, goalId){
+    const g = client.goals.find(x=>x.id===goalId);
+    if(!g) return;
+    editingGoalId = goalId;
+    document.getElementById('clGoalFormTitle').textContent = 'Edit goal';
+    document.getElementById('clNewGoalType').value = g.type;
+    document.getElementById('clNewGoalName').value = g.name;
+    document.getElementById('clNewGoalDate').value = g.targetDate||'';
+    document.getElementById('clNewGoalProgressType').value = g.progressType;
+    toggleClGoalProgressFields();
+    document.getElementById('clNewGoalTargetAmount').value = g.targetAmount||'';
+    document.getElementById('clNewGoalTargetIncome').value = g.targetIncome||'';
+    refreshClGoalLinkedAccountOptions(client);
+    const wrap = document.getElementById('clNewGoalLinkedAccounts');
+    wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked = (g.linkedAccountIds||[]).includes(cb.value); });
+    document.getElementById('clAddGoalBtn').textContent = 'Save changes';
+    document.getElementById('clCancelGoalEditBtn').style.display = 'inline-block';
+    document.getElementById('clGoalFormTitle').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+
+  function renderClGoalsList(client){
+    const wrap = document.getElementById('clGoalsList');
+    if(!wrap) return;
+    const goals = client.goals || [];
+    if(!goals.length){ wrap.innerHTML = ''; return; }
+    wrap.innerHTML = `<div class="sub2" style="margin-bottom:6px;">Your goals</div>` + goals.map(g=>{
+      const isSelected = g.id === editingGoalId;
+      return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
+        <div class="lr-main"><b>${g.name}</b><div class="lr-meta">${g.type}</div></div>
+        <div style="display:flex; gap:8px; flex-none:1;">
+          <button type="button" class="btn-ghost on-light" data-goal-edit="${g.id}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
+          <button type="button" class="btn-ghost on-light" data-goal-delete="${g.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
+        </div>
+      </div>`;
+    }).join('');
+    wrap.querySelectorAll('[data-goal-edit]').forEach(btn=>{
+      btn.addEventListener('click', ()=> startClGoalEdit(TEI.app.state.client, btn.dataset.goalEdit));
+    });
+    wrap.querySelectorAll('[data-goal-delete]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const client = TEI.app.state.client;
+        const id = btn.dataset.goalDelete;
+        btn.disabled = true;
+        try{
+          await TEI.wealthOS.deleteGoal(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete goal', err);
+          TEI.app.showToast("Couldn't remove — " + (err.message || 'try again'));
+          btn.disabled = false;
+          return;
+        }
+        client.goals = client.goals.filter(g=>g.id!==id);
+        if(editingGoalId === id) cancelClGoalEdit();
+        TEI.app.showToast('Goal removed');
+        TEI.app.rerenderCurrentPage();
+      });
+    });
+  }
+
+  async function addOrSaveClGoal(){
+    const client = TEI.app.state.client;
+    const type = document.getElementById('clNewGoalType').value;
+    const name = document.getElementById('clNewGoalName').value.trim();
+    if(!name){ TEI.app.showToast('Give the goal a name'); return; }
+    const targetDate = document.getElementById('clNewGoalDate').value || null;
+    const progressType = document.getElementById('clNewGoalProgressType').value;
+    const targetAmount = parseFloat(document.getElementById('clNewGoalTargetAmount').value) || null;
+    const targetIncome = parseFloat(document.getElementById('clNewGoalTargetIncome').value) || null;
+    const linkedAccountIds = Array.from(document.getElementById('clNewGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    if(progressType === 'monetary' && !linkedAccountIds.length){
+      TEI.app.showToast('Link at least one account so this goal has something to track progress from');
+      return;
+    }
+    const btn = document.getElementById('clAddGoalBtn');
+    btn.disabled = true;
+    if(editingGoalId){
+      const existing = client.goals.find(g=>g.id===editingGoalId);
+      if(!existing){ cancelClGoalEdit(); btn.disabled = false; return; }
+      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds});
+      TEI.calc.stampEdit(merged, client.meta.role);
+      try{
+        await TEI.wealthOS.saveGoal(client.meta.clientId, existing.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save goal', err);
+        TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      Object.assign(existing, merged);
+      btn.disabled = false;
+      cancelClGoalEdit();
+      TEI.app.showToast('Goal updated');
+    } else {
+      const g = TEI.calc.stampEdit({id: TEI.data.uid(), type, name, targetDate, progressType, targetAmount, targetIncome,
+        completed:false, status:'active', linkedAccountIds, statusHistory:[]}, client.meta.role);
+      try{
+        g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
+      } catch(err){
+        console.error('Wealth OS: failed to save goal', err);
+        TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.goals.push(g);
+      ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+      TEI.app.showToast('Goal added');
+    }
+    TEI.app.rerenderCurrentPage();
+  }
+
+  function wireClGoalForm(){
+    const typeEl = document.getElementById('clNewGoalProgressType');
+    if(typeEl && !typeEl.dataset.wired){
+      typeEl.dataset.wired = '1';
+      typeEl.addEventListener('change', toggleClGoalProgressFields);
+    }
+    const btn = document.getElementById('clAddGoalBtn');
+    if(btn && !btn.dataset.wired){
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', addOrSaveClGoal);
+    }
+    const cancelBtn = document.getElementById('clCancelGoalEditBtn');
+    if(cancelBtn && !cancelBtn.dataset.wired){
+      cancelBtn.dataset.wired = '1';
+      cancelBtn.addEventListener('click', cancelClGoalEdit);
+    }
+  }
+
   function wireUpdatePage(){
     const wire = (id, handler) => {
       const el = document.getElementById(id);
@@ -5997,6 +6174,7 @@ TEI.render = TEI.render || {};
     wireBtn('holdingsMonthlySaveBtn', saveHoldingsMonthly);
     wireBtn('depositsMonthlySaveBtn', saveDepositsMonthly);
     wireBtn('cashflowMonthlySaveBtn', saveCashflowMonthly);
+    wireClGoalForm();
   }
 
   TEI.render.update = function(client){
@@ -6004,6 +6182,9 @@ TEI.render = TEI.render || {};
     renderBalancesMonthlyWidget(client);
     renderHoldingsMonthlyWidget(client);
     renderDepositsMonthlyWidget(client);
+    if(!editingGoalId) toggleClGoalProgressFields();
+    refreshClGoalLinkedAccountOptions(client);
+    renderClGoalsList(client);
     renderCashflowMonthlyWidget(client);
   };
 })();
@@ -9802,7 +9983,16 @@ window.TEI = window.TEI || {};
     const months = groupMonths(bundle.accountMonths, 'account_id');
     const holdingsMonths = groupMonths(bundle.holdingMonths, 'holding_id');
     const goalsMonths = groupMonths(bundle.goalMonths, 'goal_id');
-    const contribLog = groupMonths(bundle.accountDeposits, 'account_id', 'amount');
+    // contribLog needs three figures per account per month (personal
+    // amount, sacrifice portion, relief), not the single value the other
+    // monthly tables use -- grouped separately rather than through
+    // groupMonths().
+    const contribLog = {};
+    (bundle.accountDeposits||[]).forEach(row=>{
+      (contribLog[row.month_key] = contribLog[row.month_key] || {})[row.account_id] = {
+        amount: row.amount, sacrificeAmount: row.sacrifice_amount, reliefAmount: row.relief_amount
+      };
+    });
     // cashflow_months is client-level (one row per month, not per record) --
     // { 'YYYY-MM': {actualIncome, actualExpenses} } rather than the
     // recordId-keyed shape the other monthly tables use.
@@ -10287,8 +10477,15 @@ window.TEI = window.TEI || {};
      new money vs growth. cashflow_months is one row per client per month
      (not per income-source/expense-line) -- a quick "how did this month
      actually go" log against the stated regular income/expense figures. */
-  async function saveAccountDeposit(accountId, monthKey, amount, source){
+  /* amount = personal deposit, sacrificeAmount = pension employer/salary
+     sacrifice portion (null for non-pensions), reliefAmount = auto-
+     calculated LISA/pension government top-up on the personal amount
+     (basic rate, no annual cap) -- see the schema comment in
+     wealth_os_phase4_client_logging.sql for the reasoning. */
+  async function saveAccountDeposit(accountId, monthKey, amount, sacrificeAmount, reliefAmount, source){
     const row = { account_id: accountId, month_key: monthKey, amount,
+      sacrifice_amount: sacrificeAmount!=null ? sacrificeAmount : null,
+      relief_amount: reliefAmount!=null ? reliefAmount : null,
       last_edited_by: source || 'adviser', last_edited_at: new Date().toISOString() };
     const { data, error } = await wo(window.teiSupabase).from('account_deposits')
       .upsert(row, { onConflict: 'account_id,month_key' }).select().single();

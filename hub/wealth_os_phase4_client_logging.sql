@@ -15,15 +15,31 @@
 -- distinct from account_months (the account's balance/value AT month-end).
 -- Lets "total deposited vs current value" be worked out later without
 -- guessing how much of a balance change was your own money vs growth.
+--
+-- amount = the client's own personal deposit (relief-eligible for LISA/
+-- pension). sacrifice_amount = employer/salary-sacrifice portion, pension
+-- accounts only -- already pre-tax, so never relief-eligible, but still
+-- real money in and counted in "total deposited". relief_amount = the
+-- auto-calculated LISA/pension government top-up on `amount` (basic rate
+-- only -- no LISA annual-cap enforcement, no higher/additional-rate relief,
+-- which isn't automatic and is claimed separately) -- tracked and shown,
+-- but deliberately excluded from "total deposited" since it's not the
+-- client's own money.
 create table if not exists wealth_os.account_deposits (
   id uuid primary key default gen_random_uuid(),
   account_id uuid not null references wealth_os.accounts(id) on delete cascade,
   month_key text not null,          -- 'YYYY-MM'
   amount numeric not null,
+  sacrifice_amount numeric,
+  relief_amount numeric,
   last_edited_by text,
   last_edited_at timestamptz,
   unique (account_id, month_key)
 );
+-- idempotent for anyone who already ran an earlier version of this file
+-- before these columns existed
+alter table wealth_os.account_deposits add column if not exists sacrifice_amount numeric;
+alter table wealth_os.account_deposits add column if not exists relief_amount numeric;
 
 -- cashflow_months: a client's ACTUAL income/expenses for a given month,
 -- distinct from the stated regular figures in cashflow_settings /
