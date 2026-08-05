@@ -7,6 +7,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<script>
+/* Safety net: a Supabase password-recovery link can land here instead of
+   /hub/reset-password.html if the project's Site URL falls back to the
+   site root. Forward the code/token on immediately so the reset form still
+   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
+(function () {
+  var search = window.location.search || "";
+  var hash = window.location.hash || "";
+  var params = new URLSearchParams(search);
+  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
+  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
+  if (hasAuthPayload || isRecovery) {
+    window.location.replace("/hub/reset-password.html" + search + hash);
+  }
+})();
+</script>
 
   <!-- Navigation -->
   <nav aria-label="Main navigation">

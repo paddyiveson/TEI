@@ -1095,23 +1095,38 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </head>
 <body>
 
-<div class="mode-bar">
-  <span>Preview:</span>
-  <button type="button" data-mode-btn="client" class="active">Client Dashboard</button>
-  <button type="button" data-mode-btn="onboarding">Onboarding</button>
-  <button type="button" data-mode-btn="adviser">Adviser Workspace</button>
-  <span style="width:1px; height:20px; background:rgba(247,244,237,0.2); margin:0 4px;"></span>
-  <label class="btn-ghost" style="cursor:pointer; margin:0;" for="loadClientFileInput">Load client file…</label>
-  <input type="file" id="loadClientFileInput" accept="application/json,.json" style="display:none;">
-  <span id="loadClientFileName" style="color:var(--cream-soft); font-size:11.5px;"></span>
-</div>
-
-<div class="mode-bar" id="wealthOsClientSwitcherBar" style="display:none;">
-  <span>Viewing client:</span>
-  <select id="wealthOsClientSelect" style="background:var(--card-dark2); color:var(--cream); border:1px solid rgba(247,244,237,.25); border-radius:8px; padding:7px 12px; font-size:13px; font-family:'Inter',sans-serif; min-width:220px;"></select>
+<!-- Adviser landing page: shown instead of any client's dashboard until an
+     adviser picks (or creates) a client. Clients never see this -- their
+     login goes straight into #clientApp. -->
+<div id="clientListApp" class="adv-shell" style="display:none;">
+  <div style="max-width:820px; margin:0 auto; padding:48px 24px 80px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:28px;">
+      <div>
+        <div style="font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:6px;">Wealth OS — Adviser</div>
+        <h1 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif; font-size:26px;">Your clients</h1>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button type="button" class="btn-ghost" id="clientListSignOutBtn">Sign out</button>
+        <button type="button" class="btn-primary" id="addNewClientBtn">+ Add new client</button>
+      </div>
+    </div>
+    <div id="clientListError" style="display:none; background:var(--oxblood-bg); color:#D68992; text-align:center; padding:16px 20px; font-size:13px; border-radius:8px; margin-bottom:16px;"></div>
+    <div class="card">
+      <div id="clientListRows"></div>
+    </div>
+  </div>
 </div>
 
 <div id="clientApp">
+
+<!-- Adviser-only bar: real navigation (not the old role-blind "Preview"
+     toggle) -- hidden entirely for client-role logins, so a client's
+     dashboard has no banner of any kind above it. -->
+<div class="mode-bar" id="advDashboardBar" style="display:none;">
+  <span>Adviser view —</span>
+  <button type="button" class="btn-ghost" id="backToClientListBtn">← All clients</button>
+  <button type="button" class="btn-ghost" id="openAdviserWorkspaceBtn">Manage this client →</button>
+</div>
 
 <div class="app-shell">
   <aside class="sidebar">
@@ -1161,10 +1176,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
   <main class="main">
     <div class="main-inner">
-
-<div class="banner" id="setupBanner" style="display:none;">
-  <div class="banner-inner"><span>Setup isn't complete for this client yet — some figures below may be incomplete.</span><a href="#" id="setupBannerLink" class="btn-ghost on-light" style="text-decoration:none; background:var(--card-dark); color:var(--cream); border:none;">Set up now →</a></div>
-</div>
 
 <div id="loadError" style="display:none; background:var(--oxblood-bg); color:#D68992; text-align:center; padding:16px 20px; font-size:13px;">
   Couldn't load this client's dashboard. <span id="loadErrorDetail" style="opacity:0.85;"></span>
@@ -2297,9 +2308,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div class="wizard-sub">Here's a quick summary. You can change any of this later — nothing is locked in.</div>
     <div class="card range-stats" id="obSummaryStats" style="margin-bottom:20px;"></div>
     <div class="card-light" style="margin-bottom:20px;">
-      This build is read-only against your TEI account -- what you enter here updates this session's dashboard immediately,
-      but saving it back permanently is coming in a later update. Finishing here downloads a file as a backup; if your
-      adviser needs it sooner, send them the download or let them know what changed.
+      Everything you entered here has been saved to your account. Finishing here also downloads a file as a local backup —
+      handy to keep, but not required.
     </div>
     <div class="form-actions">
       <button type="button" class="btn-primary" id="finishBtn">Finish &amp; download</button>
@@ -2326,7 +2336,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="wrap">
     <div>
       <h1 class="adv-title">Adviser Workspace — <span id="advClientName">New Client</span></h1>
-      <div class="adv-sub">Edits here update the shared preview instantly — switch to Client Dashboard above to see them.</div>
+      <div class="adv-sub">Edits here save straight to this client's real record — use "Preview dashboard" to see them as they will.</div>
     </div>
     <div style="display:flex; gap:10px;">
       <button type="button" class="btn-ghost" id="advOnboardingLink">Run onboarding →</button>
@@ -2460,23 +2470,25 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
     <div class="card" style="margin-bottom:16px;">
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px;">
-        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log this month's balances</h3>
-        <span class="month-badge">Logging for <b id="curMonthLabel">–</b></span>
+        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log a month's balances</h3>
+        <label class="month-badge" style="gap:8px;">Logging for <input type="month" id="curMonthPicker" style="background:var(--card-dark2); border:1px solid rgba(247,244,237,0.25); border-radius:4px; color:var(--cream); font-family:'Inter',sans-serif; font-size:12px; padding:2px 6px; color-scheme:dark;"></label>
       </div>
-      <div class="note" style="margin-top:0;">Building this up month by month is what powers Progress and the projections.</div>
+      <div class="note" style="margin-top:0;">Building this up month by month is what powers Progress and the projections. Pick any month — past or present — to add or correct it.</div>
       <div id="monthlyBalanceFields" class="form-grid"></div>
       <button type="button" class="btn-primary" id="saveMonthBtn">Save this month</button>
+      <div id="monthlyBalanceHistory"></div>
     </div>
     </div>
     <div class="subtab-panel" id="subtab-holdings">
     <div class="card" style="margin-bottom:16px;">
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px;">
-        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log this month's holdings</h3>
-        <span class="month-badge">Logging for <b id="curMonthLabelHoldings">–</b></span>
+        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log a month's holdings</h3>
+        <label class="month-badge" style="gap:8px;">Logging for <input type="month" id="curMonthPickerHoldings" style="background:var(--card-dark2); border:1px solid rgba(247,244,237,0.25); border-radius:4px; color:var(--cream); font-family:'Inter',sans-serif; font-size:12px; padding:2px 6px; color-scheme:dark;"></label>
       </div>
-      <div class="note" style="margin-top:0;">Same monthly pattern as account balances, extended to individual holdings.</div>
+      <div class="note" style="margin-top:0;">Same monthly pattern as account balances, extended to individual holdings. Pick any month — past or present — to add or correct it.</div>
       <div id="monthlyHoldingFields" class="form-grid"></div>
       <button type="button" class="btn-primary" id="saveHoldingMonthBtn">Save this month</button>
+      <div id="monthlyHoldingHistory"></div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -2574,12 +2586,13 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
     <div class="card">
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px;">
-        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log this month's goal progress</h3>
-        <span class="month-badge">Logging for <b id="curMonthLabelGoals">–</b></span>
+        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log a month's goal progress</h3>
+        <label class="month-badge" style="gap:8px;">Logging for <input type="month" id="curMonthPickerGoals" style="background:var(--card-dark2); border:1px solid rgba(247,244,237,0.25); border-radius:4px; color:var(--cream); font-family:'Inter',sans-serif; font-size:12px; padding:2px 6px; color-scheme:dark;"></label>
       </div>
-      <div class="note" style="margin-top:0;">Monetary and income goals only — completion goals use the Mark complete / Reopen button instead.</div>
+      <div class="note" style="margin-top:0;">Monetary and income goals only — completion goals use the Mark complete / Reopen button instead. Pick any month — past or present — to add or correct it.</div>
       <div id="monthlyGoalFields" class="form-grid"></div>
       <button type="button" class="btn-primary" id="saveGoalMonthBtn">Save this month</button>
+      <div id="monthlyGoalHistory"></div>
     </div>
     </div>
     <div class="subtab-panel" id="subtab-cashflow">
@@ -2702,8 +2715,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div class="card">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Review &amp; export</h3>
       <div class="note" style="margin-top:0;">
-        This build is read-only against your TEI account for now — there is nothing to save to permanently yet. Exporting
-        downloads a snapshot <code id="exportFilename">client.json</code> for your own records or to hand to a colleague.
+        Every save on this page already goes straight to this client's account. Exporting just downloads a snapshot
+        <code id="exportFilename">client.json</code> for your own records or to hand to a colleague.
       </div>
       <div class="range-stats" id="exportSummaryStats" style="margin-top:16px;"></div>
       <div class="form-actions" style="margin-top:16px;">
@@ -2881,8 +2894,7 @@ window.TEI = window.TEI || {};
      TEI.wealthOS.loadWealthOSClient() (see the wealthos script block below),
      which builds a "loaded"-shaped object and runs it through mergeDefaults
      the same way this function does. getEmbeddedClient/BLANK_TEMPLATE stay
-     here only as the fallback used before that fetch resolves and by the
-     "Load client file…" picker in the mode-bar. */
+     here only as the fallback used before that fetch resolves. */
   const BLANK_TEMPLATE = {
     meta:{ clientId:'preview-client', displayName:'New Client', createdAt:'2026-07-27', lastUpdated:null,
       completion:{ percent:0, missing:[] } },
@@ -2953,10 +2965,22 @@ window.TEI = window.TEI || {};
     if(acc) acc.value = total; // keep the account's own display value (used in list rows) in step too
   }
 
+  /* Entries are sparse -- a month only has a value for an account if someone
+     actually logged it that month. Carry each account's last known value
+     forward across later months so a gap (e.g. skipped a month, or another
+     account was updated but this one wasn't) reads as "unchanged since last
+     update" rather than silently dropping to zero. Months before an
+     account's first-ever entry correctly stay at 0 -- it didn't exist yet. */
   function buildMergedMonths(client){
+    const sortedKeys = Object.keys(client.months||{}).sort();
     const months = {};
-    Object.entries(client.months||{}).forEach(([key,entry])=>{ months[key] = Object.assign({}, entry); });
-    Object.keys(months).forEach(k=>{ months[k].total = accountTotal(client, months[k]); });
+    const carried = {};
+    sortedKeys.forEach(key=>{
+      const entry = client.months[key] || {};
+      Object.keys(entry).forEach(id=>{ carried[id] = entry[id]; });
+      months[key] = Object.assign({}, carried);
+      months[key].total = accountTotal(client, months[key]);
+    });
     return months;
   }
   function buildUnifiedTotals(months){ const u={}; Object.entries(months).forEach(([k,e])=>{ u[k]=e.total; }); return u; }
@@ -4218,7 +4242,6 @@ TEI.render = TEI.render || {};
     document.getElementById('heroTitle').textContent = client.personal.firstName
       ? `${timeGreeting()}, ${client.personal.firstName}.`
       : 'Welcome to your Wealth OS.';
-    document.getElementById('setupBanner').style.display = 'none'; // superseded by the richer empty state below
 
     const months = TEI.calc.buildMergedMonths(client);
     const mKeys = Object.keys(months).sort();
@@ -6247,6 +6270,10 @@ window.TEI = window.TEI || {};
   let clientId = 'preview-client';
   const uploadQueue = [];
   const editing = {}; // per-section id of the record currently being edited, e.g. editing.account = '123'
+  // Which month each of the three "log this month" widgets is currently
+  // pointed at -- defaults to the current month, but can be moved to any
+  // past month via the picker to backfill or correct history.
+  const selectedMonth = { accounts: currentMonthKey(), holdings: currentMonthKey(), goals: currentMonthKey() };
   function clearFieldsAdv(ids){ ids.forEach(id=>{ const el = document.getElementById(id); if(el) el.value=''; }); }
 
   function showToast(msg){
@@ -6455,12 +6482,63 @@ window.TEI = window.TEI || {};
     renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderReconciliation();
   }
 
-  /* ================= MONTHLY BALANCES ================= */
+  /* ================= MONTHLY BALANCES / HOLDINGS / GOALS ================
+     All three "log this month" widgets share one pattern: a month picker
+     (defaults to current month, but can move to any past month to backfill
+     or correct history), a form of current values for the picked month, a
+     Save button that upserts to Supabase via TEI.wealthOS, and a history
+     list of previously-logged months with an Edit action that just moves
+     the picker. Both client and adviser roles get full read/write here --
+     this is the one edit surface both roles share equally. ---------- */
+  const MONTH_WIDGET = {
+    accounts:{ picker:'curMonthPicker', history:'monthlyBalanceHistory', source:()=>client.months },
+    holdings:{ picker:'curMonthPickerHoldings', history:'monthlyHoldingHistory', source:()=>client.holdingsMonths },
+    goals:{ picker:'curMonthPickerGoals', history:'monthlyGoalHistory', source:()=>client.goalsMonths }
+  };
+  function renderMonthHistory(kind){
+    const cfg = MONTH_WIDGET[kind];
+    const el = document.getElementById(cfg.history);
+    if(!el) return;
+    const monthsObj = cfg.source() || {};
+    const keys = Object.keys(monthsObj).sort().reverse();
+    if(!keys.length){ el.innerHTML = ''; return; }
+    el.innerHTML = `<div class="note" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+      const isSelected = k === selectedMonth[kind];
+      return `<div class="list-row"${isSelected ? ' style="border-color:var(--gold);"' : ''}>
+        <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
+        <button type="button" class="btn-ghost" data-edit-month="${kind}" data-month-key="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('[data-edit-month]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        selectedMonth[btn.dataset.editMonth] = btn.dataset.monthKey;
+        if(btn.dataset.editMonth === 'accounts') renderMonthlyBalanceFields();
+        else if(btn.dataset.editMonth === 'holdings') renderMonthlyHoldingFields();
+        else renderMonthlyGoalFields();
+      });
+    });
+  }
+  function wireMonthPickers(){
+    const wire = (id, kind, renderFn) => {
+      const el = document.getElementById(id);
+      if(!el || el.dataset.wired) return;
+      el.dataset.wired = '1';
+      el.addEventListener('change', e=>{
+        if(!e.target.value) return;
+        selectedMonth[kind] = e.target.value;
+        renderFn();
+      });
+    };
+    wire(MONTH_WIDGET.accounts.picker, 'accounts', renderMonthlyBalanceFields);
+    wire(MONTH_WIDGET.holdings.picker, 'holdings', renderMonthlyHoldingFields);
+    wire(MONTH_WIDGET.goals.picker, 'goals', renderMonthlyGoalFields);
+  }
+
   function renderMonthlyBalanceFields(){
+    const key = selectedMonth.accounts;
+    document.getElementById(MONTH_WIDGET.accounts.picker).value = key;
     const wrap = document.getElementById('monthlyBalanceFields');
-    document.getElementById('curMonthLabel').textContent = currentMonthKey();
-    if(!client.accounts.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add accounts first.</div></div>`; return; }
-    const key = currentMonthKey();
+    if(!client.accounts.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add accounts first.</div></div>`; renderMonthHistory('accounts'); return; }
     const existing = client.months[key] || {};
     wrap.innerHTML = client.accounts.map(acc=>{
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
@@ -6472,76 +6550,126 @@ window.TEI = window.TEI || {};
       }
       return `<label class="form-field"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-month-acct="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00"></label>`;
     }).join('');
+    renderMonthHistory('accounts');
   }
-  function saveMonth(){
-    const key = currentMonthKey();
+  async function saveMonth(){
+    const key = selectedMonth.accounts;
+    const btn = document.getElementById('saveMonthBtn');
+    const toSave = Array.from(document.querySelectorAll('[data-month-acct]'))
+      .map(el=>({id:el.dataset.monthAcct, v:parseFloat(el.value)}))
+      .filter(x=>!isNaN(x.v));
+    if(!toSave.length){ showToast('Nothing to save'); return; }
+    btn.disabled = true;
+    try{
+      for(const item of toSave){ await TEI.wealthOS.saveAccountMonth(item.id, key, item.v); }
+    } catch(err){
+      console.error('Wealth OS: failed to save monthly balance', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
     const entry = client.months[key] ? Object.assign({}, client.months[key]) : {};
-    document.querySelectorAll('[data-month-acct]').forEach(el=>{
-      const v = parseFloat(el.value);
-      if(!isNaN(v)){
-        // data-month-acct only exists on accounts without holdings (see
-        // renderMonthlyBalanceFields) — holdings-backed accounts render a
-        // disabled field with no data-month-acct, so they can't reach here.
-        entry[el.dataset.monthAcct] = v;
-        const acc = client.accounts.find(a=>a.id===el.dataset.monthAcct);
-        if(acc) TEI.calc.stampEdit(acc, 'adviser');
-      }
+    toSave.forEach(item=>{
+      entry[item.id] = item.v;
+      const acc = client.accounts.find(a=>a.id===item.id);
+      if(acc) TEI.calc.stampEdit(acc, 'adviser');
     });
     client.months[key] = entry;
+    renderMonthHistory('accounts');
     showToast('Saved ' + key);
   }
 
   /* ---------- monthly holdings & goal progress — same pattern as accounts,
      extended per Paddy's request that everything be updatable monthly ---------- */
   function renderMonthlyHoldingFields(){
+    const key = selectedMonth.holdings;
+    document.getElementById(MONTH_WIDGET.holdings.picker).value = key;
     const wrap = document.getElementById('monthlyHoldingFields');
-    document.getElementById('curMonthLabelHoldings').textContent = currentMonthKey();
-    if(!client.holdings.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add holdings first.</div></div>`; return; }
-    const key = currentMonthKey();
+    if(!client.holdings.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add holdings first.</div></div>`; renderMonthHistory('holdings'); return; }
     const existing = client.holdingsMonths[key] || {};
-    wrap.innerHTML = client.holdings.map(h=>`
-      <label class="form-field"><span>${h.name}</span><input type="number" step="0.01" data-month-holding="${h.id}" value="${existing[h.id]!=null?existing[h.id]:(h.value!=null?h.value:'')}" placeholder="0.00"></label>
-    `).join('');
+    const isCurrent = key === currentMonthKey();
+    wrap.innerHTML = client.holdings.map(h=>{
+      const fallback = existing[h.id]!=null ? existing[h.id] : (isCurrent && h.value!=null ? h.value : '');
+      return `<label class="form-field"><span>${h.name}</span><input type="number" step="0.01" data-month-holding="${h.id}" value="${fallback}" placeholder="0.00"></label>`;
+    }).join('');
+    renderMonthHistory('holdings');
   }
-  function saveHoldingMonth(){
-    const key = currentMonthKey();
+  async function saveHoldingMonth(){
+    const key = selectedMonth.holdings;
+    const isCurrent = key === currentMonthKey();
+    const btn = document.getElementById('saveHoldingMonthBtn');
+    const toSave = Array.from(document.querySelectorAll('[data-month-holding]'))
+      .map(el=>({id:el.dataset.monthHolding, v:parseFloat(el.value)}))
+      .filter(x=>!isNaN(x.v));
+    if(!toSave.length){ showToast('Nothing to save'); return; }
+    btn.disabled = true;
+    try{
+      for(const item of toSave){ await TEI.wealthOS.saveHoldingMonth(item.id, key, item.v); }
+    } catch(err){
+      console.error('Wealth OS: failed to save monthly holding value', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
     const entry = client.holdingsMonths[key] ? Object.assign({}, client.holdingsMonths[key]) : {};
-    document.querySelectorAll('[data-month-holding]').forEach(el=>{
-      const v = parseFloat(el.value);
-      if(!isNaN(v)){
-        entry[el.dataset.monthHolding] = v;
-        const h = client.holdings.find(x=>x.id===el.dataset.monthHolding);
-        if(h){ h.value = v; TEI.calc.stampEdit(h, 'adviser'); }
+    toSave.forEach(item=>{
+      entry[item.id] = item.v;
+      const h = client.holdings.find(x=>x.id===item.id);
+      if(h){
+        // Only the current month should move the holding's live/displayed
+        // value -- backfilling a past month must not overwrite today's
+        // number with a historical one.
+        if(isCurrent) h.value = item.v;
+        TEI.calc.stampEdit(h, 'adviser');
       }
     });
     client.holdingsMonths[key] = entry;
     renderHoldings();
+    renderMonthHistory('holdings');
     showToast('Saved ' + key);
   }
   function renderMonthlyGoalFields(){
+    const key = selectedMonth.goals;
+    document.getElementById(MONTH_WIDGET.goals.picker).value = key;
     const wrap = document.getElementById('monthlyGoalFields');
-    document.getElementById('curMonthLabelGoals').textContent = currentMonthKey();
     const trackable = client.goals.filter(g=>g.progressType!=='completion');
-    if(!trackable.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add a monetary or income goal first.</div></div>`; return; }
-    const key = currentMonthKey();
+    if(!trackable.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add a monetary or income goal first.</div></div>`; renderMonthHistory('goals'); return; }
     const existing = client.goalsMonths[key] || {};
+    const isCurrent = key === currentMonthKey();
     wrap.innerHTML = trackable.map(g=>{
       const gp = TEI.calc.goalProgress(client, g);
-      return `<label class="form-field"><span>${g.name}</span><input type="number" step="0.01" data-month-goal="${g.id}" value="${existing[g.id]!=null?existing[g.id]:(gp.current||'')}" placeholder="0.00"></label>`;
+      const fallback = existing[g.id]!=null ? existing[g.id] : (isCurrent ? (gp.current||'') : '');
+      return `<label class="form-field"><span>${g.name}</span><input type="number" step="0.01" data-month-goal="${g.id}" value="${fallback}" placeholder="0.00"></label>`;
     }).join('');
+    renderMonthHistory('goals');
   }
-  function saveGoalMonth(){
-    const key = currentMonthKey();
+  async function saveGoalMonth(){
+    const key = selectedMonth.goals;
+    const btn = document.getElementById('saveGoalMonthBtn');
+    const toSave = Array.from(document.querySelectorAll('[data-month-goal]'))
+      .map(el=>({id:el.dataset.monthGoal, v:parseFloat(el.value)}))
+      .filter(x=>!isNaN(x.v));
+    if(!toSave.length){ showToast('Nothing to save'); return; }
+    btn.disabled = true;
+    try{
+      for(const item of toSave){ await TEI.wealthOS.saveGoalMonth(item.id, key, item.v); }
+    } catch(err){
+      console.error('Wealth OS: failed to save monthly goal progress', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
     const entry = client.goalsMonths[key] ? Object.assign({}, client.goalsMonths[key]) : {};
-    document.querySelectorAll('[data-month-goal]').forEach(el=>{
-      const v = parseFloat(el.value);
-      if(!isNaN(v)){
-        entry[el.dataset.monthGoal] = v;
-        const g = client.goals.find(x=>x.id===el.dataset.monthGoal);
-        if(g) TEI.calc.stampEdit(g, 'adviser');
-      }
+    toSave.forEach(item=>{
+      entry[item.id] = item.v;
+      const g = client.goals.find(x=>x.id===item.id);
+      if(g) TEI.calc.stampEdit(g, 'adviser');
     });
     client.goalsMonths[key] = entry;
+    renderMonthHistory('goals');
     showToast('Saved ' + key);
   }
 
@@ -7933,6 +8061,7 @@ window.TEI = window.TEI || {};
     document.getElementById('saveMonthBtn').addEventListener('click', saveMonth);
     document.getElementById('saveHoldingMonthBtn').addEventListener('click', saveHoldingMonth);
     document.getElementById('saveGoalMonthBtn').addEventListener('click', saveGoalMonth);
+    wireMonthPickers();
     document.getElementById('advAddAssetBtn').addEventListener('click', addAsset);
     document.getElementById('advAddLiabBtn').addEventListener('click', addLiability);
     document.getElementById('addGoalBtn').addEventListener('click', addGoal);
@@ -8975,15 +9104,25 @@ window.TEI = window.TEI || {};
 (function(){
   const LAST_CLIENT_KEY = 'teiWealthOsLastClientId';
 
+  /* Two possible error surfaces: #loadError inside #clientApp (client-role
+     load failures, or an adviser's client dashboard failing to open), and
+     #clientListError on the client-list landing page (adviser's client
+     list failing to load). Only one is ever visible at a time since the
+     pages themselves are mutually exclusive, so it's simplest to just keep
+     both in sync rather than have every caller know which one applies. */
   function showLoadError(detail){
     const el = document.getElementById('loadError');
     const detailEl = document.getElementById('loadErrorDetail');
     if(detailEl) detailEl.textContent = detail || '';
     if(el) el.style.display = 'block';
+    const listEl = document.getElementById('clientListError');
+    if(listEl){ listEl.textContent = detail || 'Something went wrong.'; listEl.style.display = 'block'; }
   }
   function hideLoadError(){
     const el = document.getElementById('loadError');
     if(el) el.style.display = 'none';
+    const listEl = document.getElementById('clientListError');
+    if(listEl) listEl.style.display = 'none';
   }
 
   function wo(supabase){ return supabase.schema('wealth_os'); }
@@ -9016,12 +9155,23 @@ window.TEI = window.TEI || {};
 
     const accountIds = (accountsRes.data||[]).map(a=>a.id);
     const goalIds = (goalsRes.data||[]).map(g=>g.id);
-    const [holdingsRes, goalAccountsRes] = await Promise.all([
+    const [holdingsRes, goalAccountsRes, accountMonthsRes, goalMonthsRes] = await Promise.all([
       accountIds.length ? w.from('holdings').select('*').in('account_id', accountIds) : Promise.resolve({data:[], error:null}),
       goalIds.length ? w.from('goal_accounts').select('*').in('goal_id', goalIds) : Promise.resolve({data:[], error:null}),
+      accountIds.length ? w.from('account_months').select('*').in('account_id', accountIds) : Promise.resolve({data:[], error:null}),
+      goalIds.length ? w.from('goal_months').select('*').in('goal_id', goalIds) : Promise.resolve({data:[], error:null}),
     ]);
     if(holdingsRes.error) throw holdingsRes.error;
     if(goalAccountsRes.error) throw goalAccountsRes.error;
+    if(accountMonthsRes.error) throw accountMonthsRes.error;
+    if(goalMonthsRes.error) throw goalMonthsRes.error;
+
+    // holding_months needs holdingIds, only known once holdingsRes above resolves.
+    const holdingIds = (holdingsRes.data||[]).map(h=>h.id);
+    const holdingMonthsRes = holdingIds.length
+      ? await w.from('holding_months').select('*').in('holding_id', holdingIds)
+      : {data:[], error:null};
+    if(holdingMonthsRes.error) throw holdingMonthsRes.error;
 
     return {
       client: clientRes.data,
@@ -9037,6 +9187,9 @@ window.TEI = window.TEI || {};
       wealthLiabilities: wealthLiabilitiesRes.data||[],
       insurance: insuranceRes.data||[],
       documents: documentsRes.data||[],
+      accountMonths: accountMonthsRes.data||[],
+      holdingMonths: holdingMonthsRes.data||[],
+      goalMonths: goalMonthsRes.data||[],
     };
   }
 
@@ -9046,7 +9199,7 @@ window.TEI = window.TEI || {};
      through that same function so every default-filling rule (jsonb columns
      with no row yet, empty arrays, etc.) is handled in one place rather than
      re-implemented here. */
-  function adaptClientBundle(bundle){
+  function adaptClientBundle(bundle, role){
     const c = bundle.client || {};
     const cf = bundle.cashflowSettings || {};
 
@@ -9055,6 +9208,23 @@ window.TEI = window.TEI || {};
       (goalAccountsByGoal[ga.goal_id] = goalAccountsByGoal[ga.goal_id] || []).push(ga.account_id);
     });
 
+    /* Reshape flat "one row per record per month" tables back into the
+       { 'YYYY-MM': { recordId: value } } nested shape client.months /
+       holdingsMonths / goalsMonths already expect -- nothing downstream
+       (TEI.calc.buildMergedMonths, charts) needs to know this now comes
+       from Supabase instead of the local-only object it used to be. */
+    function groupMonths(rows, idField){
+      const out = {};
+      (rows||[]).forEach(row=>{
+        const key = row.month_key;
+        (out[key] = out[key] || {})[row[idField]] = row.value;
+      });
+      return out;
+    }
+    const months = groupMonths(bundle.accountMonths, 'account_id');
+    const holdingsMonths = groupMonths(bundle.holdingMonths, 'holding_id');
+    const goalsMonths = groupMonths(bundle.goalMonths, 'goal_id');
+
     const loaded = {
       meta:{
         clientId: c.id,
@@ -9062,7 +9232,12 @@ window.TEI = window.TEI || {};
         createdAt: c.created_at,
         lastUpdated: c.last_updated,
         completion:{ percent:0, missing:[] }, // not tracked in DB yet
-        lastAdviserReview: null
+        lastAdviserReview: null,
+        // 'adviser' or 'client' -- who is currently viewing this bundle, not
+        // who owns it. Render functions use this to decide whether to show
+        // edit affordances. Not an enforced permission on its own (RLS is);
+        // see TEI.calc.stampEdit's comment for the same caveat.
+        role: role || 'client'
       },
       personal:{
         firstName: c.first_name, lastName: c.last_name, dob: c.dob,
@@ -9140,45 +9315,60 @@ window.TEI = window.TEI || {};
       coachCorner: c.coach_corner, forecastCoach: c.forecast_coach, cashflowCoach: c.cashflow_coach,
       portfolioCoach: c.portfolio_coach, weeklyFocus: c.weekly_focus, monthlyWins: c.monthly_wins,
       journeyOverrides: c.journey_overrides, wealthInsights: c.wealth_insights, wealthNextSteps: c.wealth_next_steps,
-      dividendHistory: c.dividend_history, investorStage: c.investor_stage, northStar: c.north_star
+      dividendHistory: c.dividend_history, investorStage: c.investor_stage, northStar: c.north_star,
+
+      months, holdingsMonths, goalsMonths
     };
 
     return TEI.data.mergeDefaults(loaded);
   }
 
-  /* ---------- client switcher (adviser role only) ---------- */
-  function renderClientSwitcher(clients, currentId){
-    const bar = document.getElementById('wealthOsClientSwitcherBar');
-    const sel = document.getElementById('wealthOsClientSelect');
-    if(!bar || !sel) return;
-    if(!clients.length){ bar.style.display = 'none'; return; }
-    // No field in this schema reliably tells apart "adviser's own dummy test
-    // client" from a real client sharing the same name -- when both were set
-    // up under the same login, even user_id matches on both. So this just
-    // shows first_name/last_name plainly; if two rows read the same, that's
-    // resolved by renaming the dummy row's name in the database itself, not
-    // by guessing here.
-    sel.innerHTML = clients.map(c=>{
-      const name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim();
-      const label = name || ('Client ' + String(c.id).slice(0,8));
-      return `<option value="${c.id}" ${c.id===currentId?'selected':''}>${label}</option>`;
-    }).join('');
-    bar.style.display = 'flex';
-  }
-
-  function pickDefaultClientId(clients){
-    let stored = null;
-    try{ stored = localStorage.getItem(LAST_CLIENT_KEY); }catch(e){}
-    if(stored && clients.some(c=>c.id===stored)) return stored;
-    return clients.length ? clients[0].id : null;
+  /* Which of an adviser's clients to highlight as "last viewed" on the
+     client-list landing page -- purely a UX nicety (bolding/pre-selecting a
+     row), not an auto-navigation like it used to be. No field in this schema
+     reliably tells apart "adviser's own dummy test client" from a real
+     client sharing the same name -- when both were set up under the same
+     login, even user_id matches on both -- so callers just show
+     first_name/last_name plainly; duplicate-looking rows get resolved by
+     renaming the dummy row's name in the database, not by guessing here. */
+  function lastViewedClientId(){
+    try{ return localStorage.getItem(LAST_CLIENT_KEY); }catch(e){ return null; }
   }
 
   /* ---------- top-level orchestration ---------- */
-  async function loadClientById(supabase, clientId){
+  async function loadClientById(supabase, clientId, role){
     const bundle = await fetchClientBundle(supabase, clientId);
-    return adaptClientBundle(bundle);
+    return adaptClientBundle(bundle, role);
   }
 
+  /* Adviser opening a specific client from the client-list landing page --
+     also remembers it as "last viewed" for next time. */
+  async function openClientAsAdviser(clientId){
+    try{ localStorage.setItem(LAST_CLIENT_KEY, clientId); }catch(e){}
+    return await loadClientById(window.teiSupabase, clientId, 'adviser');
+  }
+
+  /* Creates a brand-new clients row and hands back its id, ready to drop
+     straight into the Onboarding Wizard. user_id is deliberately left null
+     -- the client isn't linked to a Supabase auth account yet (that happens
+     separately when they're invited/sign up); existing RLS ownership checks
+     already tolerate user_id IS NULL by falling through to the adviser
+     branch, so this doesn't need any RLS changes of its own. */
+  async function createClient(initialFields){
+    const row = Object.assign({
+      first_name: (initialFields && initialFields.firstName) || 'New',
+      last_name: (initialFields && initialFields.lastName) || 'Client',
+      onboarding_complete: false,
+      last_updated: new Date().toISOString()
+    }, initialFields && initialFields.extra ? initialFields.extra : {});
+    return await insertRow('clients', row);
+  }
+
+  /* Returns { role:'client', client } for a client-role login (their own
+     dashboard, loaded immediately), or { role:'adviser', clients } for an
+     adviser -- the adviser's client list, with nothing client-shaped loaded
+     yet. TEI.app.init() renders the client-list landing page for the latter
+     and only calls openClientAsAdviser() once one is actually picked. */
   async function loadWealthOSClient(){
     hideLoadError();
     try{
@@ -9203,16 +9393,9 @@ window.TEI = window.TEI || {};
       }
 
       if(profile.role === 'adviser'){
-        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id').order('first_name', {ascending:true});
+        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated').order('first_name', {ascending:true});
         if(clientsErr) throw clientsErr;
-        if(!clients || !clients.length){
-          showLoadError('No clients found yet.');
-          return null;
-        }
-        const targetId = pickDefaultClientId(clients);
-        renderClientSwitcher(clients, targetId);
-        try{ localStorage.setItem(LAST_CLIENT_KEY, targetId); }catch(e){}
-        return await loadClientById(supabase, targetId);
+        return { role:'adviser', clients: clients || [] };
       }
 
       // client role: exactly one clients row, linked via user_id
@@ -9222,32 +9405,13 @@ window.TEI = window.TEI || {};
         showLoadError('No client record is linked to your account yet. Contact TEI for help.');
         return null;
       }
-      return await loadClientById(supabase, own.id);
+      return { role:'client', client: await loadClientById(supabase, own.id, 'client') };
     } catch(err){
       console.error('Wealth OS: failed to load client data', err);
       showLoadError((err && err.message) || 'Unexpected error.');
       return null;
     }
   }
-
-  function wireClientSwitcher(onSwitch){
-    const sel = document.getElementById('wealthOsClientSelect');
-    if(!sel || sel.dataset.wired) return;
-    sel.addEventListener('change', async ()=>{
-      const id = sel.value;
-      try{ localStorage.setItem(LAST_CLIENT_KEY, id); }catch(e){}
-      hideLoadError();
-      try{
-        const loaded = await loadClientById(window.teiSupabase, id);
-        onSwitch(loaded);
-      } catch(err){
-        console.error('Wealth OS: failed to switch client', err);
-        showLoadError((err && err.message) || 'Unexpected error.');
-      }
-    });
-    sel.dataset.wired = '1';
-  }
-
 
   /* ============================================================
      PHASE 2: write-back helpers.
@@ -9499,10 +9663,41 @@ window.TEI = window.TEI || {};
     return await importHoldingsRows(accountId, localHoldings);
   }
 
+  /* ---------- monthly history: one row per record per month, upserted by
+     (record_id, month_key). Both client and adviser roles call these --
+     RLS (wealth_os_phase3_monthly_history.sql) already lets a client write
+     their own rows, so there's no server-side month restriction to add. */
+  async function saveAccountMonth(accountId, monthKey, value){
+    const row = { account_id: accountId, month_key: monthKey, value,
+      last_edited_by: 'adviser', last_edited_at: new Date().toISOString() };
+    const { data, error } = await wo(window.teiSupabase).from('account_months')
+      .upsert(row, { onConflict: 'account_id,month_key' }).select().single();
+    if(error) throw error;
+    return data;
+  }
+  async function saveHoldingMonth(holdingId, monthKey, value){
+    const row = { holding_id: holdingId, month_key: monthKey, value,
+      last_edited_by: 'adviser', last_edited_at: new Date().toISOString() };
+    const { data, error } = await wo(window.teiSupabase).from('holding_months')
+      .upsert(row, { onConflict: 'holding_id,month_key' }).select().single();
+    if(error) throw error;
+    return data;
+  }
+  async function saveGoalMonth(goalId, monthKey, value){
+    const row = { goal_id: goalId, month_key: monthKey, value,
+      last_edited_by: 'adviser', last_edited_at: new Date().toISOString() };
+    const { data, error } = await wo(window.teiSupabase).from('goal_months')
+      .upsert(row, { onConflict: 'goal_id,month_key' }).select().single();
+    if(error) throw error;
+    return data;
+  }
+
   TEI.wealthOS = {
-    loadWealthOSClient, loadClientById, wireClientSwitcher, showLoadError, hideLoadError,
+    loadWealthOSClient, loadClientById, openClientAsAdviser, createClient, lastViewedClientId,
+    showLoadError, hideLoadError,
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
     saveIncome, deleteIncome, saveExpense, deleteExpense,
+    saveAccountMonth, saveHoldingMonth, saveGoalMonth,
     saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount
@@ -9606,49 +9801,128 @@ window.TEI = window.TEI || {};
     document.getElementById('clientApp').style.display = mode === 'client' ? 'block' : 'none';
     document.getElementById('adviserApp').style.display = mode === 'adviser' ? 'block' : 'none';
     document.getElementById('onboardingApp').style.display = mode === 'onboarding' ? 'block' : 'none';
-    document.querySelectorAll('[data-mode-btn]').forEach(b=> b.classList.toggle('active', b.dataset.modeBtn === mode));
-    if(mode === 'client'){ rerenderCurrentPage(); }
+    if(mode === 'client'){ rerenderCurrentPage(); applyRoleChrome(); }
     if(mode === 'adviser' && TEI.adviser && TEI.adviser.refresh){ TEI.adviser.refresh(); }
     if(mode === 'onboarding' && TEI.onboarding && TEI.onboarding.refresh){ TEI.onboarding.refresh(); }
     window.scrollTo({top:0, behavior:'auto'});
   }
 
+  /* Shows the adviser-only bar above the client dashboard (real navigation,
+     not the old role-blind "Preview" toggle) -- stays hidden for every
+     client-role login, so clients see no banner at all above their
+     dashboard. Called whenever the client dashboard (re)renders. */
+  function applyRoleChrome(){
+    const bar = document.getElementById('advDashboardBar');
+    if(!bar) return;
+    const isAdviser = state.client && state.client.meta && state.client.meta.role === 'adviser';
+    bar.style.display = isAdviser ? 'flex' : 'none';
+  }
+
   function wireModeSwitch(){
-    document.querySelectorAll('[data-mode-btn]').forEach(btn=>{
-      btn.addEventListener('click', ()=> setMode(btn.dataset.modeBtn));
-    });
     const previewLink = document.getElementById('advPreviewLink');
     if(previewLink) previewLink.addEventListener('click', ()=>{ setMode('client'); showPage('home'); });
-    ['setupBannerLink','setOnboardingLink','advOnboardingLink'].forEach(id=>{
+    ['setOnboardingLink','advOnboardingLink'].forEach(id=>{
       const el = document.getElementById(id);
       if(el) el.addEventListener('click', (e)=>{ e.preventDefault(); setMode('onboarding'); });
     });
+    const backBtn = document.getElementById('backToClientListBtn');
+    if(backBtn) backBtn.addEventListener('click', showClientListPage);
+    const workspaceBtn = document.getElementById('openAdviserWorkspaceBtn');
+    if(workspaceBtn) workspaceBtn.addEventListener('click', ()=> setMode('adviser'));
   }
 
-  function wireClientFileLoader(){
-    const input = document.getElementById('loadClientFileInput');
-    if(!input) return;
-    input.addEventListener('change', ()=>{
-      const file = input.files[0];
-      if(!file) return;
-      const reader = new FileReader();
-      reader.onload = (e)=>{
-        let parsed;
-        try{ parsed = JSON.parse(e.target.result); }
-        catch(err){ showToast('That file is not valid JSON'); return; }
-        const merged = TEI.data.mergeDefaults(parsed);
-        Object.keys(state.client).forEach(k=> delete state.client[k]);
-        Object.assign(state.client, merged);
-        updateAvatar(state.client);
-        document.getElementById('loadClientFileName').textContent = 'Loaded: ' + file.name;
-        rerenderCurrentPage();
-        if(TEI.adviser && TEI.adviser.refresh) TEI.adviser.refresh();
-        if(TEI.onboarding && TEI.onboarding.refresh) TEI.onboarding.refresh();
-        showToast('Loaded ' + file.name);
-      };
-      reader.readAsText(file);
-      input.value = '';
+  /* ================= ADVISER CLIENT LIST (landing page) ================= */
+  function renderClientListRows(clients){
+    const wrap = document.getElementById('clientListRows');
+    if(!clients.length){
+      wrap.innerHTML = `<div class="empty-state"><div class="big">No clients yet</div><div class="small">Add your first client to get started.</div></div>`;
+      return;
+    }
+    const lastViewed = TEI.wealthOS.lastViewedClientId();
+    wrap.innerHTML = clients.map(c=>{
+      const name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || ('Client ' + String(c.id).slice(0,8));
+      const updated = c.last_updated ? new Date(c.last_updated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No activity yet';
+      return `<div class="list-row">
+        <div class="lr-main"><b>${name}</b>${c.id===lastViewed ? ' <span class="tag-pill">Last viewed</span>' : ''}<div class="lr-meta">Last updated ${updated}</div></div>
+        <div class="lr-actions"><button type="button" class="btn-ghost" data-open-client="${c.id}">Open →</button></div>
+      </div>`;
+    }).join('');
+    wrap.querySelectorAll('[data-open-client]').forEach(btn=>{
+      btn.addEventListener('click', ()=> openClient(btn.dataset.openClient));
     });
+  }
+
+  async function showClientListPage(){
+    document.getElementById('clientApp').style.display = 'none';
+    document.getElementById('adviserApp').style.display = 'none';
+    document.getElementById('onboardingApp').style.display = 'none';
+    document.getElementById('clientListApp').style.display = 'block';
+    window.scrollTo({top:0, behavior:'auto'});
+    const errEl = document.getElementById('clientListError');
+    errEl.style.display = 'none';
+    try{
+      const result = await TEI.wealthOS.loadWealthOSClient();
+      if(!result) return; // redirected to login, or a load error is already shown elsewhere
+      state.adviserClients = result.clients || [];
+      renderClientListRows(state.adviserClients);
+    } catch(err){
+      console.error('Wealth OS: failed to load client list', err);
+      errEl.textContent = (err && err.message) || 'Could not load your client list.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  async function openClient(clientId){
+    const errEl = document.getElementById('clientListError');
+    errEl.style.display = 'none';
+    try{
+      const loaded = await TEI.wealthOS.openClientAsAdviser(clientId);
+      startClientView(loaded);
+    } catch(err){
+      console.error('Wealth OS: failed to open client', err);
+      errEl.textContent = (err && err.message) || 'Could not open that client.';
+      errEl.style.display = 'block';
+    }
+  }
+
+  async function addNewClient(){
+    const btn = document.getElementById('addNewClientBtn');
+    const errEl = document.getElementById('clientListError');
+    errEl.style.display = 'none';
+    btn.disabled = true;
+    try{
+      const row = await TEI.wealthOS.createClient({});
+      const loaded = await TEI.wealthOS.openClientAsAdviser(row.id);
+      startClientView(loaded);
+      setMode('onboarding');
+    } catch(err){
+      console.error('Wealth OS: failed to create client', err);
+      errEl.textContent = (err && err.message) || 'Could not create a new client.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function wireClientListPage(){
+    document.getElementById('addNewClientBtn').addEventListener('click', addNewClient);
+    const signOutBtn = document.getElementById('clientListSignOutBtn');
+    if(signOutBtn) signOutBtn.addEventListener('click', ()=>{ if(window.TeiHubAuth) TeiHubAuth.signOut(); });
+  }
+
+  /* Loads a client's dashboard into #clientApp -- used both for a client's
+     own login and for an adviser opening/creating one from the client list.
+     Mutates state.client in place going forward (see openClient/addNewClient
+     and TEI.adviser's own save flows) rather than replacing the object, so
+     nav/theme wiring done once at startup keeps working unchanged. */
+  function startClientView(loadedClient){
+    document.getElementById('clientListApp').style.display = 'none';
+    state.client = loadedClient;
+    updateAvatar(state.client);
+    showPage('home');
+    if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(state.client);
+    if(TEI.onboarding && TEI.onboarding.init) TEI.onboarding.init(state.client);
+    setMode('client');
   }
 
   /* ================= THEME (light/dark) ================= */
@@ -9676,35 +9950,28 @@ window.TEI = window.TEI || {};
      see the script block above). If there's no session it redirects to
      /hub/login.html and returns early -- nothing else in this function runs
      against a half-loaded page. On any other failure it leaves the visible
-     #loadError banner up rather than rendering a blank/broken dashboard. */
+     #loadError banner up rather than rendering a blank/broken dashboard.
+
+     Client-role logins go straight into startClientView(). Adviser logins
+     land on the client-list page instead (showClientListPage) -- nothing
+     client-shaped renders until they open or add a client from there. */
   async function init(){
     wireNav();
     wireModeSwitch();
-    wireClientFileLoader();
+    wireClientListPage();
     wireTheme();
 
-    const loaded = await TEI.wealthOS.loadWealthOSClient();
-    if(!loaded) return; // either redirected to login, or a load error is already shown
+    const result = await TEI.wealthOS.loadWealthOSClient();
+    if(!result) return; // either redirected to login, or a load error is already shown
 
-    state.client = loaded;
-    updateAvatar(state.client);
-    showPage('home');
-    if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(state.client);
-    if(TEI.onboarding && TEI.onboarding.init) TEI.onboarding.init(state.client);
-    setMode('client');
+    if(result.role === 'adviser' && !result.client){
+      state.adviserClients = result.clients || [];
+      renderClientListRows(state.adviserClients);
+      document.getElementById('clientListApp').style.display = 'block';
+      return;
+    }
 
-    /* Adviser client switcher: reloads the selected client's full bundle and
-       mutates state.client in place (same pattern as the "Load client file…"
-       picker above) so every mode (client/adviser/onboarding) picks up the
-       change without a page reload. */
-    TEI.wealthOS.wireClientSwitcher((newClient)=>{
-      Object.keys(state.client).forEach(k=> delete state.client[k]);
-      Object.assign(state.client, newClient);
-      updateAvatar(state.client);
-      rerenderCurrentPage();
-      if(TEI.adviser && TEI.adviser.refresh) TEI.adviser.refresh();
-      if(TEI.onboarding && TEI.onboarding.refresh) TEI.onboarding.refresh();
-    });
+    startClientView(result.client);
   }
 
   TEI.app = { showPage, showToast, rerenderCurrentPage, setMode, PAGES, state, updateAvatar };

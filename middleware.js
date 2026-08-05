@@ -4,7 +4,17 @@ export const config = {
   matcher: ["/hub/:path*"],
 };
 
-const PUBLIC_EXACT = new Set(["/hub/login.html", "/hub/reset-password.html"]);
+// Only these hub pages require a real Supabase login. Everything else under
+// /hub/* is public by default (fronted instead by a shared client-side
+// password gate on the pages themselves, for pilot-cohort convenience) --
+// Wealth OS gates real per-client financial data, and the education platform
+// gates per-user lesson progress (CompletionStore has no guest fallback).
+const PROTECTED_EXACT = new Set([
+  "/hub/wealth-os.html",
+  "/hub/education/index.html",
+  "/hub/education/lesson.html",
+  "/hub/education/module.html",
+]);
 
 function parseCookieHeader(cookieHeader) {
   if (!cookieHeader) return [];
@@ -22,7 +32,7 @@ export default async function middleware(request) {
   const url = new URL(request.url);
   const { pathname } = url;
 
-  if (PUBLIC_EXACT.has(pathname) || pathname.startsWith("/hub/js/")) {
+  if (!PROTECTED_EXACT.has(pathname) || pathname.startsWith("/hub/js/")) {
     return;
   }
 
