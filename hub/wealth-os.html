@@ -107,6 +107,7 @@ a{color:inherit;}
 .btn-ghost:hover{color:var(--cream); border-color:rgba(247,244,237,0.35);}
 .btn-ghost.on-light{color:var(--ink-soft); border-color:var(--line);}
 .btn-ghost.on-light:hover{color:var(--ink); border-color:var(--ink-soft2);}
+.btn-ghost.active{background:var(--gold); color:var(--card-dark); border-color:var(--gold);}
 
 @media (max-width:860px){ h1{font-size:27px;} }
 /* ================= NAV ================= */
@@ -536,6 +537,25 @@ footer p{color:var(--ink-soft2); font-size:14px;}
 
 .toast{position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px); opacity:0; background:var(--card-dark); color:var(--cream); padding:10px 20px; border-radius:var(--radius-pill); font-size:15px; font-weight:600; transition:opacity 0.25s, transform 0.25s; pointer-events:none; z-index:100;}
 .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+/* Client feedback widget: persistent floating button + compose panel.
+   z-index 95 sits below .sidebar/.toast (100) but above .scrim (90). Panel
+   uses --card-light-bg/--ink (the same theme-adaptive pair .card-light and
+   the Update-page form fields use) rather than a hardcoded white box, so it
+   reads correctly in both #clientApp[data-theme="light"|"dark"] -- a plain
+   white panel would go low-contrast against near-white --ink text in dark
+   theme, same trap .nav-dropdown's fixed #fff background already has. */
+.feedback-fab{position:fixed; right:22px; bottom:22px; width:52px; height:52px; border-radius:50%; background:var(--gold); color:var(--card-dark); border:none; font-size:22px; box-shadow:0 10px 24px rgba(29,53,87,0.28); cursor:pointer; z-index:95; display:flex; align-items:center; justify-content:center;}
+.feedback-panel{position:fixed; right:22px; bottom:86px; width:320px; max-width:calc(100vw - 32px); max-height:70vh; overflow-y:auto; background:var(--card-light-bg); border:1px solid var(--card-light-border); border-radius:var(--radius); box-shadow:0 14px 34px rgba(29,53,87,0.24); padding:var(--space-lg); display:none; z-index:95; color:var(--ink);}
+.feedback-panel.open{display:block;}
+.fp-head{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.fp-title{font-weight:700; font-size:15px; color:var(--ink); font-family:var(--font-display);}
+.fp-close{background:none; border:none; font-size:20px; line-height:1; color:var(--ink-soft2); cursor:pointer; padding:0;}
+.fp-sub{font-size:12.5px; color:var(--ink-soft2); margin-top:4px; margin-bottom:2px;}
+.fp-actions{margin-top:10px;}
+.fp-history{margin-top:14px; border-top:1px solid var(--line); padding-top:10px;}
+.fp-history-label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--ink-soft2); margin-bottom:4px;}
+@media (max-width:480px){ .feedback-fab{right:16px; bottom:16px;} .feedback-panel{right:16px; bottom:80px;} }
 
 @media (max-width:860px){
       .goal-grid{grid-template-columns:1fr;}
@@ -1119,10 +1139,28 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <button type="button" class="btn-ghost" id="clientListSignOutBtn">Sign out</button>
+        <button type="button" class="btn-ghost" id="feedbackInboxToggleBtn">🔔 Feedback <span class="tag-pill" id="feedbackBadge" style="display:none; margin-left:4px;">0</span></button>
         <button type="button" class="btn-primary" id="addNewClientBtn">+ Add new client</button>
       </div>
     </div>
     <div id="clientListError" style="display:none; background:var(--oxblood-bg); color:#D68992; text-align:center; padding:16px 20px; font-size:13px; border-radius:8px; margin-bottom:16px;"></div>
+
+    <!-- Cross-client feedback inbox: everything reported by every client,
+         in one place, before an adviser even picks who to open -- this is
+         the "replace texting my phone" surface. Collapsed by default so a
+         quiet day doesn't push the client list down the page; the badge on
+         the toggle button above is what actually flags "something's here". -->
+    <div class="card" id="feedbackInboxCard" style="display:none; margin-bottom:16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+        <div style="color:var(--cream); font-weight:700; font-size:15px;">Client feedback</div>
+        <div style="display:flex; gap:6px;">
+          <button type="button" class="btn-ghost fi-filter-btn active" data-feedback-filter="open" style="padding:6px 14px; font-size:12.5px;">Open</button>
+          <button type="button" class="btn-ghost fi-filter-btn" data-feedback-filter="all" style="padding:6px 14px; font-size:12.5px;">All</button>
+        </div>
+      </div>
+      <div id="feedbackInboxRows"></div>
+    </div>
+
     <div class="card">
       <div id="clientListRows"></div>
     </div>
@@ -1141,6 +1179,41 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </div>
 
 <div class="scrim" id="sidebarScrim"></div>
+
+<!-- Client feedback widget: persistent floating button + compose panel,
+     lives outside every .page div and the .app-shell so showPage() never
+     touches or recreates it -- same reasoning that already keeps #toast
+     alive across page swaps. Hidden entirely when an adviser is "Managing
+     this client" (see TEI.feedback.refresh / applyRoleChrome) -- feedback
+     is a client-only affordance, the inverse of advDashboardBar. -->
+<button type="button" class="feedback-fab" id="feedbackFabBtn" aria-label="Send feedback">💬</button>
+<div class="feedback-panel" id="feedbackPanel">
+  <div class="fp-head">
+    <div class="fp-title">Something not right?</div>
+    <button type="button" class="fp-close" id="feedbackCloseBtn" aria-label="Close">&times;</button>
+  </div>
+  <div class="fp-sub">Send a quick note straight to your adviser — not a live chat, they'll follow up.</div>
+  <label class="form-field on-light" style="margin:12px 0 8px;">
+    <span>What's this about?</span>
+    <select id="feedbackArea">
+      <option value="general">General</option>
+      <option value="portfolio">Portfolio</option>
+      <option value="goals">Goals</option>
+      <option value="cashflow">Cashflow</option>
+      <option value="deposits">Deposits / Update</option>
+      <option value="documents">Documents</option>
+    </select>
+  </label>
+  <label class="form-field on-light">
+    <span>Message</span>
+    <textarea id="feedbackMessage" rows="3" maxlength="1000" placeholder="e.g. Portfolio value isn't updating after I add a deposit"></textarea>
+  </label>
+  <div class="fp-actions">
+    <button type="button" class="btn-primary" id="feedbackSubmitBtn" style="width:100%;">Send</button>
+  </div>
+  <div class="fp-history" id="feedbackHistory"></div>
+</div>
+
 <div class="app-shell">
   <aside class="sidebar" id="sidebar">
     <button type="button" class="sidebar-close" id="sidebarCloseBtn" aria-label="Close menu">&times;</button>
@@ -2093,6 +2166,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <label class="form-field on-light"><span>Goal type</span><select id="clNewGoalType">
             <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
             <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+            <option value="Build a Business">Build a Business</option>
             <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
           </select></label>
           <label class="form-field on-light"><span>Name</span><input type="text" id="clNewGoalName" placeholder="e.g. House deposit"></label>
@@ -2102,6 +2176,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           </select></label>
           <label class="form-field on-light" id="clGoalTargetAmountField"><span>Target £</span><input type="number" id="clNewGoalTargetAmount" placeholder="0"></label>
           <label class="form-field on-light" id="clGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="clNewGoalTargetIncome" placeholder="0"></label>
+          <label class="form-field on-light" id="clGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="clNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
           <div class="form-field on-light" id="clGoalLinkedAccountsField"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:12px;">
@@ -2260,6 +2335,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <option value="Pension">Pension</option>
             <option value="Dividend Income">Dividend Income</option>
             <option value="Rental Income">Rental Income</option>
+            <option value="Self-Employed">Self-Employed</option>
+            <option value="Business Venture Income">Business Venture Income</option>
             <option value="Other">Other</option>
           </select>
         </label>
@@ -2428,6 +2505,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <option value="Retirement">Retirement</option>
             <option value="Financial Independence">Financial Independence</option>
             <option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+            <option value="Build a Business">Build a Business</option>
             <option value="Education">Education</option>
             <option value="Lifestyle">Lifestyle</option>
             <option value="Other">Other</option>
@@ -2444,6 +2522,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </label>
         <label class="form-field on-light" id="obGoalTargetAmountField"><span>Target £</span><input type="number" id="obNewGoalTargetAmount" placeholder="0"></label>
         <label class="form-field on-light" id="obGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="obNewGoalTargetIncome" placeholder="0"></label>
+        <label class="form-field on-light" id="obGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="obNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
         <div class="form-field on-light" id="obGoalLinkedAccountsField"><span>Linked account(s)</span><div id="obNewGoalLinkedAccounts" class="checkbox-list"></div></div>
         <button type="button" class="btn-primary" id="obAddGoalBtn">Add</button>
       </div>
@@ -2745,6 +2824,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Goal type</span><select id="newGoalType">
           <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
           <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+          <option value="Build a Business">Build a Business</option>
           <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
         </select></label>
         <label class="form-field"><span>Name</span><input type="text" id="newGoalName" placeholder="e.g. House deposit"></label>
@@ -2754,6 +2834,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </select></label>
         <label class="form-field" id="advGoalTargetAmountField"><span>Target £</span><input type="number" id="newGoalTargetAmount" placeholder="0"></label>
         <label class="form-field" id="advGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="newGoalTargetIncome" placeholder="0"></label>
+        <label class="form-field" id="advGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="newGoalLinkedIncome"><option value="">Whole household income</option></select></label>
         <div class="form-field" id="advGoalLinkedAccountsField"><span>Linked account(s)</span><div id="newGoalLinkedAccounts" class="checkbox-list on-dark"></div></div>
         <label class="form-field"><span>Status</span><select id="newGoalStatus">
           <option value="active">Active</option><option value="paused">Paused</option><option value="completed">Completed</option>
@@ -2770,7 +2851,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Owner</span><select id="advNewIncomeOwner"><option value="client">Client</option><option value="partner">Partner</option></select></label>
         <label class="form-field"><span>Type</span><select id="advNewIncomeType">
           <option value="Salary">Salary</option><option value="Bonus">Bonus</option><option value="Pension">Pension</option>
-          <option value="Dividend Income">Dividend Income</option><option value="Rental Income">Rental Income</option><option value="Other">Other</option>
+          <option value="Dividend Income">Dividend Income</option><option value="Rental Income">Rental Income</option>
+          <option value="Self-Employed">Self-Employed</option><option value="Business Venture Income">Business Venture Income</option>
+          <option value="Other">Other</option>
         </select></label>
         <label class="form-field"><span>Amount £</span><input type="number" id="advNewIncomeAmount" placeholder="0"></label>
         <label class="form-field"><span>Frequency</span><select id="advNewIncomeFrequency">
@@ -3027,7 +3110,7 @@ window.TEI = window.TEI || {};
     merged.wealth.assets = Array.isArray(merged.wealth.assets) ? merged.wealth.assets : [];
     merged.wealth.liabilities = Array.isArray(merged.wealth.liabilities) ? merged.wealth.liabilities : [];
     merged.insights = Object.assign({nextBestAction:null, milestones:[]}, (loaded||{}).insights||{});
-    ['accounts','holdings','dividendHoldings','goals','documents','insurance'].forEach(k=>{
+    ['accounts','holdings','dividendHoldings','goals','documents','insurance','feedback'].forEach(k=>{
       merged[k] = Array.isArray((loaded||{})[k]) ? loaded[k] : [];
     });
     merged.months = (loaded && loaded.months) || {};
@@ -3309,7 +3392,12 @@ window.TEI = window.TEI || {};
       return {pct: goal.completed ? 100 : 0, current:null, target:null, isComplete: !!goal.completed};
     }
     if(goal.progressType === 'income'){
-      const currentAnnualIncome = totalMonthlyIncome(client) * 12;
+      // Household total by default, or — if linkedIncomeId is set (e.g. a
+      // "Build a Business" goal tracking one Self-Employed/Business Venture
+      // Income entry) — just that one income stream. Falls back to the
+      // household total if the linked entry has since been removed.
+      const linked = goal.linkedIncomeId && (client.cashflow.income||[]).find(i=>i.id===goal.linkedIncomeId);
+      const currentAnnualIncome = linked ? toMonthlyAmount(linked.amount, linked.frequency)*12 : totalMonthlyIncome(client)*12;
       const target = Number(goal.targetIncome)||0;
       const pct = target > 0 ? Math.min(100, (currentAnnualIncome/target)*100) : 0;
       return {pct, current:currentAnnualIncome, target, isComplete: target>0 && currentAnnualIncome>=target};
@@ -4903,6 +4991,7 @@ TEI.render = TEI.render || {};
   const TYPE_ICON = {
     'Build Wealth':'📈', 'Buy a Home':'🏡', 'Retirement':'🏛️',
     'Financial Independence':'🕊️', 'Improve Tax Efficiency':'📋',
+    'Build a Business':'💼',
     'Education':'🎓', 'Lifestyle':'🌿', 'Other':'🎯'
   };
   const HEALTH_LABEL = {'on-track':'🟢 On Track','ahead':'🔵 Ahead','at-risk':'🟡 At Risk','off-track':'🔴 Off Track'};
@@ -6039,7 +6128,9 @@ TEI.render = TEI.render || {};
     const pt = document.getElementById('clNewGoalProgressType').value;
     document.getElementById('clGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
     document.getElementById('clGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('clGoalLinkedIncomeField').style.display = pt==='income' ? 'flex' : 'none';
     document.getElementById('clGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+    if(pt==='income') refreshClGoalLinkedIncomeOptions(TEI.app.state.client);
   }
 
   function refreshClGoalLinkedAccountOptions(client){
@@ -6055,6 +6146,34 @@ TEI.render = TEI.render || {};
     }
   }
 
+  /* Single-income link for 'income' progress-type goals. A "Build a
+     Business" goal only offers Self-Employed/Business Venture Income
+     entries -- no "whole household" fallback, since tracking a business
+     goal against total household income defeats the point. Any other goal
+     category keeps the original "pick any income source, or leave it on
+     the household total" choice. */
+  function refreshClGoalLinkedIncomeOptions(client){
+    const sel = document.getElementById('clNewGoalLinkedIncome');
+    if(!sel) return;
+    const selected = sel.value;
+    const goalType = document.getElementById('clNewGoalType').value;
+    const allIncome = client.cashflow.income || [];
+    const opt = i=>`<option value="${i.id}">${i.type} — ${fmtGBP(TEI.calc.toMonthlyAmount(i.amount, i.frequency))}/mo</option>`;
+    if(goalType === 'Build a Business'){
+      const income = allIncome.filter(i=> i.type==='Self-Employed' || i.type==='Business Venture Income');
+      if(!income.length){
+        sel.innerHTML = '<option value="">Add a Self-Employed or Business Venture Income entry first</option>';
+        sel.value = '';
+        return;
+      }
+      sel.innerHTML = income.map(opt).join('');
+      sel.value = income.some(i=>i.id===selected) ? selected : income[0].id;
+    } else {
+      sel.innerHTML = '<option value="">Whole household income</option>' + allIncome.map(opt).join('');
+      sel.value = allIncome.some(i=>i.id===selected) ? selected : '';
+    }
+  }
+
   function cancelClGoalEdit(){
     editingGoalId = null;
     document.getElementById('clGoalFormTitle').textContent = 'Add a goal';
@@ -6064,6 +6183,7 @@ TEI.render = TEI.render || {};
     document.getElementById('clNewGoalProgressType').value = 'monetary';
     toggleClGoalProgressFields();
     refreshClGoalLinkedAccountOptions(TEI.app.state.client);
+    refreshClGoalLinkedIncomeOptions(TEI.app.state.client);
   }
 
   function startClGoalEdit(client, goalId){
@@ -6081,6 +6201,8 @@ TEI.render = TEI.render || {};
     refreshClGoalLinkedAccountOptions(client);
     const wrap = document.getElementById('clNewGoalLinkedAccounts');
     wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked = (g.linkedAccountIds||[]).includes(cb.value); });
+    refreshClGoalLinkedIncomeOptions(client);
+    document.getElementById('clNewGoalLinkedIncome').value = g.linkedIncomeId || '';
     document.getElementById('clAddGoalBtn').textContent = 'Save changes';
     document.getElementById('clCancelGoalEditBtn').style.display = 'inline-block';
     document.getElementById('clGoalFormTitle').scrollIntoView({behavior:'smooth', block:'center'});
@@ -6135,8 +6257,13 @@ TEI.render = TEI.render || {};
     const targetAmount = parseFloat(document.getElementById('clNewGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('clNewGoalTargetIncome').value) || null;
     const linkedAccountIds = Array.from(document.getElementById('clNewGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    const linkedIncomeId = document.getElementById('clNewGoalLinkedIncome').value || null;
     if(progressType === 'monetary' && !linkedAccountIds.length){
       TEI.app.showToast('Link at least one account so this goal has something to track progress from');
+      return;
+    }
+    if(progressType === 'income' && type === 'Build a Business' && !linkedIncomeId){
+      TEI.app.showToast('Add a Self-Employed or Business Venture Income entry, then link it here');
       return;
     }
     const btn = document.getElementById('clAddGoalBtn');
@@ -6144,7 +6271,7 @@ TEI.render = TEI.render || {};
     if(editingGoalId){
       const existing = client.goals.find(g=>g.id===editingGoalId);
       if(!existing){ cancelClGoalEdit(); btn.disabled = false; return; }
-      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds});
+      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, linkedIncomeId});
       TEI.calc.stampEdit(merged, client.meta.role);
       try{
         await TEI.wealthOS.saveGoal(client.meta.clientId, existing.id, merged);
@@ -6160,7 +6287,7 @@ TEI.render = TEI.render || {};
       TEI.app.showToast('Goal updated');
     } else {
       const g = TEI.calc.stampEdit({id: TEI.data.uid(), type, name, targetDate, progressType, targetAmount, targetIncome,
-        completed:false, status:'active', linkedAccountIds, statusHistory:[]}, client.meta.role);
+        completed:false, status:'active', linkedAccountIds, linkedIncomeId, statusHistory:[]}, client.meta.role);
       try{
         g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
       } catch(err){
@@ -6172,6 +6299,7 @@ TEI.render = TEI.render || {};
       btn.disabled = false;
       client.goals.push(g);
       ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('clNewGoalLinkedIncome').value = '';
       TEI.app.showToast('Goal added');
     }
     TEI.app.rerenderCurrentPage();
@@ -6182,6 +6310,16 @@ TEI.render = TEI.render || {};
     if(typeEl && !typeEl.dataset.wired){
       typeEl.dataset.wired = '1';
       typeEl.addEventListener('change', toggleClGoalProgressFields);
+    }
+    const goalTypeEl = document.getElementById('clNewGoalType');
+    if(goalTypeEl && !goalTypeEl.dataset.wired){
+      goalTypeEl.dataset.wired = '1';
+      // Re-run the same show/hide + linked-income refresh -- the "Which
+      // income?" list is filtered by goal category (see
+      // refreshClGoalLinkedIncomeOptions), so switching to/from "Build a
+      // Business" needs to rebuild it even though visibility itself only
+      // depends on progress type.
+      goalTypeEl.addEventListener('change', toggleClGoalProgressFields);
     }
     const btn = document.getElementById('clAddGoalBtn');
     if(btn && !btn.dataset.wired){
@@ -6222,6 +6360,7 @@ TEI.render = TEI.render || {};
     renderDepositsMonthlyWidget(client);
     if(!editingGoalId) toggleClGoalProgressFields();
     refreshClGoalLinkedAccountOptions(client);
+    refreshClGoalLinkedIncomeOptions(client);
     renderClGoalsList(client);
     renderCashflowMonthlyWidget(client);
   };
@@ -7719,6 +7858,8 @@ window.TEI = window.TEI || {};
         refreshAccountSelects();
         const wrap = document.getElementById('newGoalLinkedAccounts');
         wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked = (g.linkedAccountIds||[]).includes(cb.value); });
+        refreshAdvGoalLinkedIncomeOptions();
+        document.getElementById('newGoalLinkedIncome').value = g.linkedIncomeId || '';
         document.getElementById('addGoalBtn').textContent = 'Save changes';
         document.getElementById('newGoalName').scrollIntoView({behavior:'smooth', block:'center'});
       });
@@ -7728,12 +7869,42 @@ window.TEI = window.TEI || {};
     editing.goal = null;
     document.getElementById('addGoalBtn').textContent = 'Add goal';
     ['newGoalName','newGoalDate','newGoalTargetAmount','newGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('newGoalLinkedIncome').value = '';
   }
   function toggleAdvGoalProgressFields(){
     const pt = document.getElementById('newGoalProgressType').value;
     document.getElementById('advGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
     document.getElementById('advGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('advGoalLinkedIncomeField').style.display = pt==='income' ? 'flex' : 'none';
     document.getElementById('advGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+    if(pt==='income') refreshAdvGoalLinkedIncomeOptions();
+  }
+  /* Single-income link for 'income' progress-type goals. A "Build a
+     Business" goal only offers Self-Employed/Business Venture Income
+     entries -- no "whole household" fallback, since tracking a business
+     goal against total household income defeats the point. Any other goal
+     category keeps the original "pick any income source, or leave it on
+     the household total" choice. */
+  function refreshAdvGoalLinkedIncomeOptions(){
+    const sel = document.getElementById('newGoalLinkedIncome');
+    if(!sel) return;
+    const selected = sel.value;
+    const goalType = document.getElementById('newGoalType').value;
+    const allIncome = client.cashflow.income || [];
+    const opt = i=>`<option value="${i.id}">${i.type} — ${fmtGBP(TEI.calc.toMonthlyAmount(i.amount, i.frequency))}/mo</option>`;
+    if(goalType === 'Build a Business'){
+      const income = allIncome.filter(i=> i.type==='Self-Employed' || i.type==='Business Venture Income');
+      if(!income.length){
+        sel.innerHTML = '<option value="">Add a Self-Employed or Business Venture Income entry first</option>';
+        sel.value = '';
+        return;
+      }
+      sel.innerHTML = income.map(opt).join('');
+      sel.value = income.some(i=>i.id===selected) ? selected : income[0].id;
+    } else {
+      sel.innerHTML = '<option value="">Whole household income</option>' + allIncome.map(opt).join('');
+      sel.value = allIncome.some(i=>i.id===selected) ? selected : '';
+    }
   }
   async function addGoal(){
     const type = document.getElementById('newGoalType').value;
@@ -7744,6 +7915,7 @@ window.TEI = window.TEI || {};
     const targetAmount = parseFloat(document.getElementById('newGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('newGoalTargetIncome').value) || null;
     const linkedAccountIds = Array.from(document.getElementById('newGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    const linkedIncomeId = document.getElementById('newGoalLinkedIncome').value || null;
     const status = document.getElementById('newGoalStatus').value;
     // Monetary goals' progress is always the sum of their linked accounts
     // (see TEI.calc.goalProgress) -- with none linked it can only ever show
@@ -7753,13 +7925,17 @@ window.TEI = window.TEI || {};
       showToast('Link at least one account so this goal has something to track progress from');
       return;
     }
+    if(progressType === 'income' && type === 'Build a Business' && !linkedIncomeId){
+      showToast('Add a Self-Employed or Business Venture Income entry, then link it here');
+      return;
+    }
     const btn = document.getElementById('addGoalBtn');
     btn.disabled = true;
     let g;
     if(editing.goal){
       g = client.goals.find(x=>x.id===editing.goal);
       if(!g){ cancelGoalEdit(); btn.disabled = false; return; }
-      const merged = Object.assign({}, g, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, status, completed: progressType==='completion' ? status==='completed' : g.completed});
+      const merged = Object.assign({}, g, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, linkedIncomeId, status, completed: progressType==='completion' ? status==='completed' : g.completed});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveGoal(client.meta.clientId, g.id, merged);
@@ -7774,7 +7950,7 @@ window.TEI = window.TEI || {};
       cancelGoalEdit();
       showToast('Goal updated');
     } else {
-      g = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:status==='completed', status, linkedAccountIds, statusHistory:[]}, 'adviser');
+      g = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:status==='completed', status, linkedAccountIds, linkedIncomeId, statusHistory:[]}, 'adviser');
       try{
         g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
       } catch(err){
@@ -7786,6 +7962,7 @@ window.TEI = window.TEI || {};
       btn.disabled = false;
       client.goals.push(g);
       ['newGoalName','newGoalDate','newGoalTargetAmount','newGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('newGoalLinkedIncome').value = '';
       showToast('Goal added');
     }
     renderGoals();
@@ -8077,6 +8254,7 @@ window.TEI = window.TEI || {};
   function renderAdvIncomeList(){
     const list = document.getElementById('advIncomeList');
     list.innerHTML = client.cashflow.income.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No income sources yet.</div></div>`;
+    refreshAdvGoalLinkedIncomeOptions();
     client.cashflow.income.forEach(i=>{
       const row = document.createElement('div');
       row.className = 'list-row';
@@ -8830,6 +9008,11 @@ window.TEI = window.TEI || {};
     renderLiabilities();
     renderGoals();
     document.getElementById('newGoalProgressType').addEventListener('change', toggleAdvGoalProgressFields);
+    // The "Which income?" list is filtered by goal category (see
+    // refreshAdvGoalLinkedIncomeOptions) so switching to/from "Build a
+    // Business" needs to rebuild it too, even though visibility itself
+    // only depends on progress type.
+    document.getElementById('newGoalType').addEventListener('change', toggleAdvGoalProgressFields);
     toggleAdvGoalProgressFields();
     renderHoldings();
     renderMonthlyHoldingFields();
@@ -8843,6 +9026,7 @@ window.TEI = window.TEI || {};
     fillCashflowForm();
     renderDocuments();
     refreshAccountSelects();
+    refreshAdvGoalLinkedIncomeOptions();
     renderUploadQueue();
     wireUpload();
 
@@ -8892,6 +9076,7 @@ window.TEI = window.TEI || {};
     fillCashflowForm();
     renderDocuments();
     refreshAccountSelects();
+    refreshAdvGoalLinkedIncomeOptions();
   }
 
   TEI.adviser = { init, refresh };
@@ -9027,6 +9212,7 @@ window.TEI = window.TEI || {};
           <button type="button" class="btn-ghost on-light" data-del-income="${i.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
         </div>`;
     }, 'Nothing added yet.');
+    refreshGoalLinkedIncomeOptions();
     document.querySelectorAll('[data-del-income]').forEach(btn=> btn.addEventListener('click', async function(){
       const id = this.dataset.delIncome;
       this.disabled = true;
@@ -9566,7 +9752,36 @@ window.TEI = window.TEI || {};
     const pt = document.getElementById('obNewGoalProgressType').value;
     document.getElementById('obGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
     document.getElementById('obGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('obGoalLinkedIncomeField').style.display = pt==='income' ? 'flex' : 'none';
     document.getElementById('obGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+    if(pt==='income') refreshGoalLinkedIncomeOptions();
+  }
+  /* Single-income link for 'income' progress-type goals. A "Build a
+     Business" goal only offers Self-Employed/Business Venture Income
+     entries -- no "whole household" fallback, since tracking a business
+     goal against total household income defeats the point. Any other goal
+     category keeps the original "pick any income source, or leave it on
+     the household total" choice. */
+  function refreshGoalLinkedIncomeOptions(){
+    const sel = document.getElementById('obNewGoalLinkedIncome');
+    if(!sel) return;
+    const selected = sel.value;
+    const goalType = document.getElementById('obNewGoalType').value;
+    const allIncome = client.cashflow.income || [];
+    const opt = i=>`<option value="${i.id}">${i.type} — ${fmtGBP(TEI.calc.toMonthlyAmount(i.amount, i.frequency))}/mo</option>`;
+    if(goalType === 'Build a Business'){
+      const income = allIncome.filter(i=> i.type==='Self-Employed' || i.type==='Business Venture Income');
+      if(!income.length){
+        sel.innerHTML = '<option value="">Add a Self-Employed or Business Venture Income entry first</option>';
+        sel.value = '';
+        return;
+      }
+      sel.innerHTML = income.map(opt).join('');
+      sel.value = income.some(i=>i.id===selected) ? selected : income[0].id;
+    } else {
+      sel.innerHTML = '<option value="">Whole household income</option>' + allIncome.map(opt).join('');
+      sel.value = allIncome.some(i=>i.id===selected) ? selected : '';
+    }
   }
   function renderObGoals(){
     renderEditableList('obGoalsList', client.goals, g=>{
@@ -9605,6 +9820,8 @@ window.TEI = window.TEI || {};
       document.getElementById('obNewGoalTargetIncome').value = item.targetIncome||'';
       refreshGoalLinkedAccountOptions();
       setCheckedLinkedAccounts(document.getElementById('obNewGoalLinkedAccounts'), item.linkedAccountIds);
+      refreshGoalLinkedIncomeOptions();
+      document.getElementById('obNewGoalLinkedIncome').value = item.linkedIncomeId || '';
       document.getElementById('obAddGoalBtn').textContent = 'Save changes';
     }));
   }
@@ -9616,6 +9833,7 @@ window.TEI = window.TEI || {};
     const targetAmount = parseFloat(document.getElementById('obNewGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('obNewGoalTargetIncome').value) || null;
     const linkedAccountIds = getCheckedLinkedAccounts(document.getElementById('obNewGoalLinkedAccounts'));
+    const linkedIncomeId = document.getElementById('obNewGoalLinkedIncome').value || null;
     if(!name){ showToast('Give the goal a name'); return; }
     // Monetary goals' progress is always the sum of their linked accounts
     // (see TEI.calc.goalProgress) -- with none linked it can only ever show
@@ -9625,12 +9843,16 @@ window.TEI = window.TEI || {};
       showToast('Link at least one account so this goal has something to track progress from');
       return;
     }
+    if(progressType === 'income' && type === 'Build a Business' && !linkedIncomeId){
+      showToast('Add a Self-Employed or Business Venture Income entry, then link it here');
+      return;
+    }
     const btn = document.getElementById('obAddGoalBtn');
     btn.disabled = true;
     let item;
     if(editing.goal){
       const existing = client.goals.find(g=>g.id===editing.goal);
-      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds});
+      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, linkedIncomeId});
       TEI.calc.stampEdit(merged, 'client');
       try{
         await TEI.wealthOS.saveGoal(client.meta.clientId, existing.id, merged);
@@ -9646,7 +9868,7 @@ window.TEI = window.TEI || {};
       editing.goal = null;
       document.getElementById('obAddGoalBtn').textContent = 'Add';
     } else {
-      item = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:false, status:'active', linkedAccountIds, statusHistory:[]}, 'client');
+      item = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:false, status:'active', linkedAccountIds, linkedIncomeId, statusHistory:[]}, 'client');
       try{
         item.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, item);
       } catch(err){
@@ -9660,6 +9882,7 @@ window.TEI = window.TEI || {};
     }
     clearFields(['obNewGoalName','obNewGoalDate','obNewGoalTargetAmount','obNewGoalTargetIncome']);
     refreshGoalLinkedAccountOptions();
+    document.getElementById('obNewGoalLinkedIncome').value = '';
     renderObGoals();
   }
 
@@ -9765,7 +9988,7 @@ window.TEI = window.TEI || {};
     fillAccountsToggle(); renderObAccounts();
     refreshHoldingAccountSelect(); renderObHoldings();
     refreshLiabilityLinkOptions();
-    refreshGoalLinkedAccountOptions(); toggleGoalProgressFields(); renderObGoals();
+    refreshGoalLinkedAccountOptions(); refreshGoalLinkedIncomeOptions(); toggleGoalProgressFields(); renderObGoals();
     renderObDocuments();
 
     document.getElementById('obAddIncomeBtn').addEventListener('click', addOrSaveIncome);
@@ -9777,6 +10000,11 @@ window.TEI = window.TEI || {};
     document.getElementById('obAddAcctBtn').addEventListener('click', addOrSaveAccount);
     document.getElementById('obAddHoldingBtn').addEventListener('click', addOrSaveHolding);
     document.getElementById('obNewGoalProgressType').addEventListener('change', toggleGoalProgressFields);
+    // The "Which income?" list is filtered by goal category (see
+    // refreshGoalLinkedIncomeOptions) so switching to/from "Build a
+    // Business" needs to rebuild it too, even though visibility itself
+    // only depends on progress type.
+    document.getElementById('obNewGoalType').addEventListener('change', toggleGoalProgressFields);
     document.getElementById('obAddGoalBtn').addEventListener('click', addOrSaveGoal);
     document.getElementById('obAddDocBtn').addEventListener('click', addObDocument);
 
@@ -9846,7 +10074,7 @@ window.TEI = window.TEI || {};
     fillAccountsToggle(); renderObAccounts();
     refreshHoldingAccountSelect(); renderObHoldings();
     refreshLiabilityLinkOptions();
-    refreshGoalLinkedAccountOptions(); renderObGoals();
+    refreshGoalLinkedAccountOptions(); refreshGoalLinkedIncomeOptions(); renderObGoals();
     renderObDocuments();
   }
 
@@ -9912,7 +10140,7 @@ window.TEI = window.TEI || {};
     const [
       clientRes, accountsRes, goalsRes, incomeRes, expensesRes,
       cashflowRes, dividendHoldingsRes, wealthAssetsRes, wealthLiabilitiesRes,
-      insuranceRes, documentsRes, cashflowMonthsRes
+      insuranceRes, documentsRes, cashflowMonthsRes, feedbackRes
     ] = await Promise.all([
       w.from('clients').select('*').eq('id', clientId).single(),
       w.from('accounts').select('*').eq('client_id', clientId),
@@ -9926,10 +10154,11 @@ window.TEI = window.TEI || {};
       w.from('insurance').select('*').eq('client_id', clientId),
       w.from('documents').select('*').eq('client_id', clientId),
       w.from('cashflow_months').select('*').eq('client_id', clientId),
+      w.from('feedback').select('*').eq('client_id', clientId).order('created_at', {ascending:false}),
     ]);
 
     const firstError = [clientRes, accountsRes, goalsRes, incomeRes, expensesRes, cashflowRes,
-      dividendHoldingsRes, wealthAssetsRes, wealthLiabilitiesRes, insuranceRes, documentsRes, cashflowMonthsRes]
+      dividendHoldingsRes, wealthAssetsRes, wealthLiabilitiesRes, insuranceRes, documentsRes, cashflowMonthsRes, feedbackRes]
       .map(r=>r.error).find(Boolean);
     if(firstError) throw firstError;
 
@@ -9974,6 +10203,7 @@ window.TEI = window.TEI || {};
       goalMonths: goalMonthsRes.data||[],
       accountDeposits: accountDepositsRes.data||[],
       cashflowMonths: cashflowMonthsRes.data||[],
+      feedback: feedbackRes.data||[],
     };
   }
 
@@ -10070,6 +10300,7 @@ window.TEI = window.TEI || {};
         progressType: g.progress_type, targetAmount: g.target_value, targetIncome: g.target_income,
         completed: g.completed, status: g.status,
         linkedAccountIds: goalAccountsByGoal[g.id] || [],
+        linkedIncomeId: g.linked_income_id,
         statusHistory: g.status_history, lastEditedBy: g.last_edited_by, lastEditedAt: g.last_edited_at
       })),
 
@@ -10111,6 +10342,16 @@ window.TEI = window.TEI || {};
       documents: (bundle.documents||[]).map(d=>({
         id:d.id, name:d.name, type:d.type, storagePath:d.storage_path, uploadedAt:d.uploaded_at,
         date: d.uploaded_at, url: d.storage_path || null
+      })),
+
+      // feedback: the client's own bug-report/feedback widget submissions,
+      // newest first (already ordered server-side). Adviser-side triage
+      // (status changes) happens through TEI.wealthOS.updateFeedbackStatus,
+      // not here -- this is just what the client sees of their own history.
+      feedback: (bundle.feedback||[]).map(f=>({
+        id:f.id, area:f.area, pageContext:f.page_context, message:f.message,
+        status:f.status, submittedBy:f.submitted_by, createdAt:f.created_at,
+        statusUpdatedAt:f.status_updated_at, statusUpdatedBy:f.status_updated_by
       })),
 
       coachCorner: c.coach_corner, forecastCoach: c.forecast_coach, cashflowCoach: c.cashflow_coach,
@@ -10202,7 +10443,14 @@ window.TEI = window.TEI || {};
       if(profile.role === 'adviser'){
         const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated').order('first_name', {ascending:true});
         if(clientsErr) throw clientsErr;
-        return { role:'adviser', clients: clients || [] };
+        // Cross-client feedback inbox: RLS already grants advisers unrestricted
+        // select on this table (see wealth_os_phase5_feedback.sql), so no
+        // client_id filter is needed here -- this is genuinely everyone's
+        // feedback in one query, capped at the 200 most recent so the landing
+        // page never has to page through history.
+        const { data: feedback, error: feedbackErr } = await w.from('feedback').select('*').order('created_at', {ascending:false}).limit(200);
+        if(feedbackErr) throw feedbackErr;
+        return { role:'adviser', clients: clients || [], feedback: feedback || [] };
       }
 
       // client role: exactly one clients row, linked via user_id
@@ -10294,6 +10542,7 @@ window.TEI = window.TEI || {};
       status: g.status || 'active',
       progress_type: g.progressType,
       target_income: g.targetIncome != null ? g.targetIncome : null,
+      linked_income_id: g.linkedIncomeId || null,
       completed: !!g.completed,
       status_history: g.statusHistory || [],
       last_edited_by: g.lastEditedBy || null,
@@ -10533,6 +10782,22 @@ window.TEI = window.TEI || {};
     return data;
   }
 
+  /* feedback: a fire-and-forget bug-report/feedback note, not a chat thread
+     -- plain insert (no upsert/onConflict, there's no natural dedupe key
+     like the monthly logs have). Triage happens via updateFeedbackStatus,
+     which only ever changes `status`, never the message itself. */
+  async function saveFeedback(clientId, area, pageContext, message, source){
+    return await insertRow('feedback', {
+      client_id: clientId, area: area || null, page_context: pageContext || null,
+      message, submitted_by: source || 'client'
+    });
+  }
+  async function updateFeedbackStatus(feedbackId, status, updatedBy){
+    return await updateRow('feedback', 'id', feedbackId, {
+      status, status_updated_at: new Date().toISOString(), status_updated_by: updatedBy || 'adviser'
+    });
+  }
+
   TEI.wealthOS = {
     loadWealthOSClient, loadClientById, openClientAsAdviser, createClient, lastViewedClientId,
     showLoadError, hideLoadError,
@@ -10541,8 +10806,100 @@ window.TEI = window.TEI || {};
     saveAccountMonth, saveHoldingMonth, saveGoalMonth, saveAccountDeposit, saveCashflowMonth,
     saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory,
-    saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount
+    saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
+    saveFeedback, updateFeedbackStatus
   };
+})();
+
+</script>
+<script>
+window.TEI = window.TEI || {};
+
+/* Client feedback widget: the persistent FAB + compose panel's behaviour.
+   Fire-and-forget submissions only -- no polling, no reply thread. Visible
+   only for a real client-role view (hidden when an adviser has this client
+   open in "Manage this client" mode); see applyVisibility(). */
+(function(){
+  let client = null;
+
+  function statusLabel(s){ return s==='resolved' ? 'Resolved' : s==='read' ? 'Seen' : 'Sent'; }
+  function statusClass(s){ return s==='resolved' ? 'approved' : s==='read' ? 'rejected' : 'pending'; }
+
+  function renderHistory(){
+    const wrap = document.getElementById('feedbackHistory');
+    if(!wrap) return;
+    const items = ((client && client.feedback) || []).slice(0, 5);
+    if(!items.length){
+      wrap.innerHTML = '<div class="fp-history-label">Your recent reports</div><div class="empty-state on-light" style="padding:8px 0;"><div class="small">Nothing sent yet.</div></div>';
+      return;
+    }
+    wrap.innerHTML = '<div class="fp-history-label">Your recent reports</div>' +
+      items.map(f=>{
+        const when = new Date(f.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+        const preview = (f.message||'').slice(0,60) + ((f.message||'').length>60 ? '…' : '');
+        return `<div class="list-row on-light"><div class="lr-main">${preview}<div class="lr-meta">${when} · <span class="status-pill ${statusClass(f.status)}">${statusLabel(f.status)}</span></div></div></div>`;
+      }).join('');
+  }
+
+  function openPanel(){ const p = document.getElementById('feedbackPanel'); if(p){ p.classList.add('open'); renderHistory(); } }
+  function closePanel(){ const p = document.getElementById('feedbackPanel'); if(p) p.classList.remove('open'); }
+
+  async function submit(){
+    const areaEl = document.getElementById('feedbackArea');
+    const msgEl = document.getElementById('feedbackMessage');
+    const message = (msgEl.value||'').trim();
+    if(!message){ TEI.app.showToast('Add a quick note first'); return; }
+    const btn = document.getElementById('feedbackSubmitBtn');
+    btn.disabled = true;
+    try{
+      const pageContext = TEI.app.state ? TEI.app.state.currentPage : null;
+      const row = await TEI.wealthOS.saveFeedback(client.meta.clientId, areaEl.value, pageContext, message, client.meta.role);
+      client.feedback = client.feedback || [];
+      client.feedback.unshift({
+        id: row.id, area: row.area, pageContext: row.page_context, message: row.message,
+        status: row.status, submittedBy: row.submitted_by, createdAt: row.created_at
+      });
+      msgEl.value = '';
+      renderHistory();
+      TEI.app.showToast("Sent — your adviser will follow up");
+    } catch(err){
+      console.error('Wealth OS: failed to send feedback', err);
+      TEI.app.showToast("Couldn't send — " + (err.message || 'try again'));
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function applyVisibility(){
+    const fab = document.getElementById('feedbackFabBtn');
+    if(!fab) return;
+    const isClient = !!(client && client.meta && client.meta.role !== 'adviser');
+    fab.style.display = isClient ? 'flex' : 'none';
+    if(!isClient) closePanel();
+  }
+
+  let wired = false;
+  function wire(){
+    if(wired) return;
+    wired = true;
+    document.getElementById('feedbackFabBtn').addEventListener('click', (e)=>{ e.stopPropagation(); openPanel(); });
+    document.getElementById('feedbackCloseBtn').addEventListener('click', closePanel);
+    document.getElementById('feedbackPanel').addEventListener('click', (e)=> e.stopPropagation());
+    document.getElementById('feedbackSubmitBtn').addEventListener('click', submit);
+    document.addEventListener('click', closePanel);
+  }
+
+  function init(sharedClient){
+    client = sharedClient;
+    wire();
+    applyVisibility();
+  }
+  function refresh(sharedClient){
+    client = sharedClient;
+    applyVisibility();
+  }
+
+  TEI.feedback = { init, refresh };
 })();
 
 </script>
@@ -10674,9 +11031,11 @@ window.TEI = window.TEI || {};
      dashboard. Called whenever the client dashboard (re)renders. */
   function applyRoleChrome(){
     const bar = document.getElementById('advDashboardBar');
-    if(!bar) return;
-    const isAdviser = state.client && state.client.meta && state.client.meta.role === 'adviser';
-    bar.style.display = isAdviser ? 'flex' : 'none';
+    if(bar){
+      const isAdviser = state.client && state.client.meta && state.client.meta.role === 'adviser';
+      bar.style.display = isAdviser ? 'flex' : 'none';
+    }
+    if(TEI.feedback && TEI.feedback.refresh) TEI.feedback.refresh(state.client);
   }
 
   function wireModeSwitch(){
@@ -10713,6 +11072,69 @@ window.TEI = window.TEI || {};
     });
   }
 
+  /* ================= Cross-client feedback inbox ================= */
+  /* state.adviserFeedback is populated alongside state.adviserClients
+     (loadWealthOSClient's adviser branch fetches both in one query pair --
+     RLS already grants advisers unrestricted select, no per-client filter
+     needed). Rendered here, on the client-list landing page only (v1) --
+     this is the one cross-client surface in the app, so it's the one place
+     that can show "everything, before you even pick a client". */
+  function renderFeedbackInboxRows(){
+    const wrap = document.getElementById('feedbackInboxRows');
+    if(!wrap) return;
+    const clientsById = {};
+    (state.adviserClients||[]).forEach(c=>{ clientsById[c.id] = c; });
+    const all = state.adviserFeedback || [];
+    const rows = (state.feedbackFilter||'open') === 'all' ? all : all.filter(f=> f.status !== 'resolved');
+    if(!rows.length){
+      wrap.innerHTML = `<div class="empty-state"><div class="small">Nothing to review.</div></div>`;
+      return;
+    }
+    wrap.innerHTML = rows.map(f=>{
+      const c = clientsById[f.client_id];
+      const name = c ? ([c.first_name, c.last_name].filter(Boolean).join(' ').trim() || 'Client') : 'Unknown client';
+      const when = new Date(f.created_at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      const statusClass = f.status==='resolved' ? 'approved' : f.status==='read' ? 'rejected' : 'pending';
+      return `<div class="list-row">
+        <div class="lr-main"><b>${name}</b> <span class="tag-pill">${f.area||'general'}</span> <span class="status-pill ${statusClass}">${f.status}</span>
+          <div class="lr-meta">${(f.message||'').slice(0,140)}${(f.message||'').length>140?'…':''} — ${when}${f.page_context ? ' · on ' + f.page_context : ''}</div></div>
+        <div class="lr-actions">
+          ${f.status==='new' ? `<button type="button" class="btn-ghost" data-mark-read="${f.id}">Mark read</button>` : ''}
+          ${f.status!=='resolved' ? `<button type="button" class="btn-ghost" data-mark-resolved="${f.id}">Resolve</button>` : ''}
+          <button type="button" class="btn-ghost" data-open-feedback-client="${f.client_id}">Open client →</button>
+        </div>
+      </div>`;
+    }).join('');
+    wrap.querySelectorAll('[data-mark-read]').forEach(btn=> btn.addEventListener('click', ()=> setFeedbackStatus(btn.dataset.markRead, 'read')));
+    wrap.querySelectorAll('[data-mark-resolved]').forEach(btn=> btn.addEventListener('click', ()=> setFeedbackStatus(btn.dataset.markResolved, 'resolved')));
+    wrap.querySelectorAll('[data-open-feedback-client]').forEach(btn=> btn.addEventListener('click', ()=> openClient(btn.dataset.openFeedbackClient)));
+  }
+
+  function updateFeedbackBadge(){
+    const badge = document.getElementById('feedbackBadge');
+    if(!badge) return;
+    const count = (state.adviserFeedback||[]).filter(f=> f.status==='new').length;
+    badge.style.display = count ? 'inline-block' : 'none';
+    badge.textContent = count;
+  }
+
+  function renderFeedbackInbox(){
+    renderFeedbackInboxRows();
+    updateFeedbackBadge();
+  }
+
+  async function setFeedbackStatus(feedbackId, status){
+    try{
+      await TEI.wealthOS.updateFeedbackStatus(feedbackId, status, 'adviser');
+      const row = (state.adviserFeedback||[]).find(f=> f.id === feedbackId);
+      if(row) row.status = status;
+      renderFeedbackInbox();
+    } catch(err){
+      console.error('Wealth OS: failed to update feedback status', err);
+      showToast("Couldn't update — " + (err.message || 'try again'));
+    }
+  }
+
   async function showClientListPage(){
     document.getElementById('clientApp').style.display = 'none';
     document.getElementById('adviserApp').style.display = 'none';
@@ -10725,7 +11147,9 @@ window.TEI = window.TEI || {};
       const result = await TEI.wealthOS.loadWealthOSClient();
       if(!result) return; // redirected to login, or a load error is already shown elsewhere
       state.adviserClients = result.clients || [];
+      state.adviserFeedback = result.feedback || [];
       renderClientListRows(state.adviserClients);
+      renderFeedbackInbox();
     } catch(err){
       console.error('Wealth OS: failed to load client list', err);
       errEl.textContent = (err && err.message) || 'Could not load your client list.';
@@ -10769,6 +11193,19 @@ window.TEI = window.TEI || {};
     document.getElementById('addNewClientBtn').addEventListener('click', addNewClient);
     const signOutBtn = document.getElementById('clientListSignOutBtn');
     if(signOutBtn) signOutBtn.addEventListener('click', ()=>{ if(window.TeiHubAuth) TeiHubAuth.signOut(); });
+
+    const inboxToggleBtn = document.getElementById('feedbackInboxToggleBtn');
+    if(inboxToggleBtn) inboxToggleBtn.addEventListener('click', ()=>{
+      const card = document.getElementById('feedbackInboxCard');
+      if(card) card.style.display = card.style.display === 'none' ? 'block' : 'none';
+    });
+    document.querySelectorAll('.fi-filter-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        state.feedbackFilter = btn.dataset.feedbackFilter;
+        document.querySelectorAll('.fi-filter-btn').forEach(b=> b.classList.toggle('active', b===btn));
+        renderFeedbackInboxRows();
+      });
+    });
   }
 
   /* Loads a client's dashboard into #clientApp -- used both for a client's
@@ -10783,6 +11220,7 @@ window.TEI = window.TEI || {};
     showPage('home');
     if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(state.client);
     if(TEI.onboarding && TEI.onboarding.init) TEI.onboarding.init(state.client);
+    if(TEI.feedback && TEI.feedback.init) TEI.feedback.init(state.client);
     setMode('client');
   }
 
@@ -10827,7 +11265,9 @@ window.TEI = window.TEI || {};
 
     if(result.role === 'adviser' && !result.client){
       state.adviserClients = result.clients || [];
+      state.adviserFeedback = result.feedback || [];
       renderClientListRows(state.adviserClients);
+      renderFeedbackInbox();
       document.getElementById('clientListApp').style.display = 'block';
       return;
     }
