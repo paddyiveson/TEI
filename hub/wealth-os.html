@@ -4044,20 +4044,25 @@ window.TEI = window.TEI || {};
   // any chart element that doesn't override its color inherits it, and goes
   // invisible against light mode's cream page background. Chart elements are
   // drawn once at creation time and don't auto-update on a theme toggle, so
-  // this reads the live token at the moment each chart is actually built.
+  // this reads the live theme at the moment each chart is actually built.
+  //
+  // This used to read --k-ink/--k-ink-softer via getComputedStyle, which on
+  // paper should track the theme fine (the CSS custom properties themselves
+  // are correct and every plain HTML element using them renders correctly) —
+  // but repeated real-world testing kept showing washed-out axis labels in
+  // light mode regardless, i.e. this specific getComputedStyle read wasn't
+  // reliably resolving before Chart.js consumed the value. currentGrid()
+  // below never had that problem because it just checks the data-theme
+  // attribute directly with no CSS custom property lookup in between --
+  // switched to the same direct approach here rather than keep chasing the
+  // computed-style path.
   function currentInk(){
-    const v = getComputedStyle(document.getElementById('clientApp')).getPropertyValue('--k-ink').trim();
-    return v || 'rgba(247,244,237,0.65)';
+    const theme = document.getElementById('clientApp').getAttribute('data-theme');
+    return theme === 'light' ? '#1D2733' : '#F7F4ED';
   }
-  // Same problem as currentInk, but for grid lines and axis tick labels —
-  // GRID and Chart.defaults.color are both fixed cream tones. --k-ink-softer
-  // already flips correctly per theme (translucent cream in dark, muted
-  // navy-blue in light), so it doubles as a ready-made theme-aware tick
-  // colour. Grid lines get a low-opacity version of the current theme's ink
-  // so they read as a subtle line against the page in either mode.
   function currentInkSoft(){
-    const v = getComputedStyle(document.getElementById('clientApp')).getPropertyValue('--k-ink-softer').trim();
-    return v || 'rgba(247,244,237,0.7)';
+    const theme = document.getElementById('clientApp').getAttribute('data-theme');
+    return theme === 'light' ? '#44608A' : 'rgba(247,244,237,0.7)';
   }
   function currentGrid(){
     const theme = document.getElementById('clientApp').getAttribute('data-theme');
