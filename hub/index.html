@@ -117,6 +117,22 @@ nav {
 </style>
 </head>
 <body>
+<script>
+/* Safety net: a Supabase password-recovery link can land here instead of
+   /hub/reset-password.html if the project's Site URL falls back to the
+   site root. Forward the code/token on immediately so the reset form still
+   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
+(function () {
+  var search = window.location.search || "";
+  var hash = window.location.hash || "";
+  var params = new URLSearchParams(search);
+  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
+  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
+  if (hasAuthPayload || isRecovery) {
+    window.location.replace("/hub/reset-password.html" + search + hash);
+  }
+})();
+</script>
 <div id="hubGate" style="position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1D3557 0%,#0f1e3a 100%);display:flex;align-items:center;justify-content:center;padding:24px;">
   <div style="max-width:380px;width:100%;text-align:center;">
     <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid #C9A84C;display:flex;align-items:center;justify-content:center;font-size:20px;color:#C9A84C;margin:0 auto 24px;">&#10022;</div>
