@@ -84,11 +84,18 @@ module.exports = async function handler(req, res) {
     const tdRes = await fetch(tdUrl);
     const data = await tdRes.json().catch(() => null);
     if (!tdRes.ok || !data) {
-      console.error("prices: Twelve Data HTTP error", tdRes.status);
-      // TEMP DEBUG (remove once the root cause is confirmed): surfaces the
-      // upstream HTTP status + response body directly in the browser
-      // response so it doesn't require digging through Vercel's log UI.
-      res.status(502).json({ error: "Price feed unavailable", debugTwelveDataStatus: tdRes.status, debugTwelveDataBody: data });
+      console.error("prices: Twelve Data HTTP error", tdRes.status, data);
+      // Twelve Data's free tier charges 1 credit per symbol in the batch
+      // (plus 1 more for the exchange-rate call below) against an 8/minute
+      // cap -- a portfolio with more than a handful of live-priced holdings
+      // can hit this on a single refresh. Worth a distinct message rather
+      // than the generic one, since "wait a minute and retry" is genuinely
+      // the fix rather than something broken.
+      if (tdRes.status === 429) {
+        res.status(429).json({ error: "Twelve Data's per-minute rate limit was hit -- wait a minute and try again." });
+        return;
+      }
+      res.status(502).json({ error: "Price feed unavailable" });
       return;
     }
 
