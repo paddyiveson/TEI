@@ -1399,10 +1399,37 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 <div id="page-goals" class="page">
 <header class="hero wrap k-greeting"><h1>Goals</h1><div class="sub">Progress and priorities across everything you're building towards.</div></header>
 
-<section class="wrap" style="padding-top:var(--space-lg); display:none;" id="goalsEmptyState">
+<section class="wrap" style="padding-top:var(--space-lg);">
+  <div class="dgrid">
+    <div class="span-12">
+      <div class="dcard">
+        <div class="k">Add a goal</div>
+        <div class="sub2" style="margin-bottom:12px;">What are you building towards? Monetary goals need at least one linked account, since their progress is tracked from what's actually in it.</div>
+        <div class="form-grid">
+          <label class="form-field on-light"><span>Goal type</span><select id="clNewGoalType">
+            <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
+            <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+            <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
+          </select></label>
+          <label class="form-field on-light"><span>Name</span><input type="text" id="clNewGoalName" placeholder="e.g. House deposit"></label>
+          <label class="form-field on-light"><span>Target date</span><input type="month" id="clNewGoalDate"></label>
+          <label class="form-field on-light"><span>Track progress by</span><select id="clNewGoalProgressType">
+            <option value="monetary">Amount saved (£)</option><option value="income">Income level</option><option value="completion">Done / not done</option>
+          </select></label>
+          <label class="form-field on-light" id="clGoalTargetAmountField"><span>Target £</span><input type="number" id="clNewGoalTargetAmount" placeholder="0"></label>
+          <label class="form-field on-light" id="clGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="clNewGoalTargetIncome" placeholder="0"></label>
+          <div class="form-field on-light" id="clGoalLinkedAccountsField"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
+        </div>
+        <button type="button" class="btn-primary" id="clAddGoalBtn" style="margin-top:12px;">Add goal</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:0; display:none;" id="goalsEmptyState">
   <div class="empty-hero-card">
     <div class="eh-title">No goals set yet</div>
-    <div class="eh-sub">Once goals are added in Adviser Workspace, progress, priorities and milestones will appear here.</div>
+    <div class="eh-sub">Add your first goal above and progress, priorities and milestones will appear here.</div>
   </div>
 </section>
 
@@ -1797,6 +1824,20 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 <div id="page-cashflow" class="page">
 <header class="hero wrap k-greeting"><h1>Cashflow</h1><div class="sub">Income, spending, and how effectively it's becoming future wealth.</div></header>
 
+<section class="wrap" style="padding-top:var(--space-lg); padding-bottom:0;">
+  <div class="dgrid">
+    <div class="span-12">
+      <a href="#" class="navlink dcard update-nudge" data-page="update" style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
+        <div>
+          <div class="k">Had a month that differed from usual?</div>
+          <div class="sub2" id="cashflowUpdateSummary">–</div>
+        </div>
+        <span class="btn-primary" style="pointer-events:none;">Update →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
 <section class="wrap" style="padding-top:var(--space-lg);">
   <div class="dgrid">
     <div class="span-6">
@@ -1966,7 +2007,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
 <!-- ============================= UPDATE ============================= -->
 <div id="page-update" class="page">
-<header class="hero wrap k-greeting"><h1>Update</h1><div class="sub">Keep your account balances and holdings current.</div></header>
+<header class="hero wrap k-greeting"><h1>Update</h1><div class="sub">Log what happened this month — balances, deposits, holdings and cashflow.</div></header>
 <section class="wrap" style="padding-top:var(--space-lg);">
   <div class="k-section-label">Account balances</div>
   <div class="dgrid">
@@ -1984,7 +2025,25 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 </section>
-<section class="wrap" style="padding-bottom:var(--space-2xl);">
+<section class="wrap">
+  <div class="k-section-label">Deposits</div>
+  <div class="dgrid">
+    <div class="span-12">
+      <div class="dcard">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:2px;">
+          <div class="k">What did you deposit this month?</div>
+          <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);">Month <input type="month" id="depositsMonthPicker" style="border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:'Inter',sans-serif; font-size:13px;"></label>
+        </div>
+        <div class="sub2" style="margin-bottom:12px;">Money paid in, separate from the balance itself — this is what lets us track how much of your growth is new money vs. performance.</div>
+        <div id="depositsMonthlyFields" class="form-grid"></div>
+        <button type="button" class="btn-primary" id="depositsMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
+        <div class="sub2" id="depositsTotalSummary" style="margin-top:14px;"></div>
+        <div id="depositsMonthlyHistory"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap">
   <div class="k-section-label">Holdings</div>
   <div class="dgrid">
     <div class="span-12">
@@ -1997,6 +2056,26 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div id="holdingsMonthlyFields" class="form-grid"></div>
         <button type="button" class="btn-primary" id="holdingsMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
         <div id="holdingsMonthlyHistory"></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="wrap" style="padding-bottom:var(--space-2xl);">
+  <div class="k-section-label">Cashflow</div>
+  <div class="dgrid">
+    <div class="span-12">
+      <div class="dcard">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:2px;">
+          <div class="k">Did this month differ from usual?</div>
+          <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);">Month <input type="month" id="cashflowMonthPicker" style="border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:'Inter',sans-serif; font-size:13px;"></label>
+        </div>
+        <div class="sub2" style="margin-bottom:12px;" id="cashflowStatedHint">Log this month's actual income and expenses if they differed from your usual stated amounts.</div>
+        <div class="form-grid">
+          <label class="form-field on-light"><span>Actual income this month £</span><input type="number" step="0.01" id="cashflowActualIncome" placeholder="0.00"></label>
+          <label class="form-field on-light"><span>Actual expenses this month £</span><input type="number" step="0.01" id="cashflowActualExpenses" placeholder="0.00"></label>
+        </div>
+        <button type="button" class="btn-primary" id="cashflowMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
+        <div id="cashflowMonthlyHistory"></div>
       </div>
     </div>
   </div>
@@ -2924,6 +3003,7 @@ window.TEI = window.TEI || {};
     merged.contribLog = (loaded && loaded.contribLog) || {};
     merged.holdingsMonths = (loaded && loaded.holdingsMonths) || {};
     merged.goalsMonths = (loaded && loaded.goalsMonths) || {};
+    merged.cashflowMonths = (loaded && loaded.cashflowMonths) || {};
     merged.estatePlanning = (loaded && loaded.estatePlanning) || {};
     merged.northStar = Object.assign({goalLabel:'', status:'', focusOverride:''}, (loaded||{}).northStar||{});
     merged.coachCorner = Object.assign({message:'', actionLabel:'', actionPage:'', mode:'auto', updatedAt:null}, (loaded||{}).coachCorner||{});
@@ -5090,7 +5170,83 @@ TEI.render = TEI.render || {};
     }
   }
 
+  /* ================= ADD A GOAL (both roles) =================
+     Client-facing add-only form -- editing/deleting an existing goal
+     stays adviser-only for now, but anyone can add a new one. Same
+     validation as Adviser Workspace's version: a monetary goal needs at
+     least one linked account, since TEI.calc.goalProgress only ever reads
+     progress from linked accounts. */
+  function toggleClGoalProgressFields(){
+    const pt = document.getElementById('clNewGoalProgressType').value;
+    document.getElementById('clGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
+    document.getElementById('clGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('clGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+  }
+
+  function refreshClGoalLinkedAccountOptions(client){
+    const wrap = document.getElementById('clNewGoalLinkedAccounts');
+    if(!wrap) return;
+    const selectedIds = Array.from(wrap.querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    if(!(client.accounts||[]).length){
+      wrap.innerHTML = '<span>Add an account first to link a goal to it.</span>';
+      wrap.classList.add('empty');
+    } else {
+      wrap.classList.remove('empty');
+      wrap.innerHTML = client.accounts.map(a=>`<label><input type="checkbox" value="${a.id}" ${selectedIds.includes(a.id)?'checked':''}> ${TEI.data.acctLabel(a)}</label>`).join('');
+    }
+  }
+
+  async function addClGoal(){
+    const client = TEI.app.state.client;
+    const type = document.getElementById('clNewGoalType').value;
+    const name = document.getElementById('clNewGoalName').value.trim();
+    if(!name){ TEI.app.showToast('Give the goal a name'); return; }
+    const targetDate = document.getElementById('clNewGoalDate').value || null;
+    const progressType = document.getElementById('clNewGoalProgressType').value;
+    const targetAmount = parseFloat(document.getElementById('clNewGoalTargetAmount').value) || null;
+    const targetIncome = parseFloat(document.getElementById('clNewGoalTargetIncome').value) || null;
+    const linkedAccountIds = Array.from(document.getElementById('clNewGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    if(progressType === 'monetary' && !linkedAccountIds.length){
+      TEI.app.showToast('Link at least one account so this goal has something to track progress from');
+      return;
+    }
+    const btn = document.getElementById('clAddGoalBtn');
+    btn.disabled = true;
+    const g = TEI.calc.stampEdit({id: TEI.data.uid(), type, name, targetDate, progressType, targetAmount, targetIncome,
+      completed:false, status:'active', linkedAccountIds, statusHistory:[]}, client.meta.role);
+    try{
+      g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
+    } catch(err){
+      console.error('Wealth OS: failed to save goal', err);
+      TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
+    client.goals.push(g);
+    ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+    TEI.app.showToast('Goal added');
+    TEI.app.rerenderCurrentPage();
+  }
+
+  function wireClAddGoalForm(){
+    const typeEl = document.getElementById('clNewGoalProgressType');
+    if(typeEl && !typeEl.dataset.wired){
+      typeEl.dataset.wired = '1';
+      typeEl.addEventListener('change', toggleClGoalProgressFields);
+    }
+    const btn = document.getElementById('clAddGoalBtn');
+    if(btn && !btn.dataset.wired){
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', addClGoal);
+    }
+  }
+
   TEI.render.goals = function(client){
+    wireClAddGoalForm();
+    toggleClGoalProgressFields();
+    refreshClGoalLinkedAccountOptions(client);
+
     const allGoals = client.goals || [];
     const empty = document.getElementById('goalsEmptyState');
     const content = document.getElementById('goalsContent');
@@ -5667,6 +5823,163 @@ TEI.render = TEI.render || {};
     TEI.app.showToast('Saved ' + key);
   }
 
+  /* ---------- Deposits: money paid INTO an account, separate from its
+     balance/value log above. Powers "total deposited vs current value" --
+     how much of your growth is new money vs performance. ---------- */
+  let depositsMonthKey = null;
+
+  function renderDepositsTotalSummary(client){
+    const el = document.getElementById('depositsTotalSummary');
+    if(!el) return;
+    const totalDeposited = Object.values(client.contribLog||{})
+      .reduce((sum, monthEntry)=> sum + Object.values(monthEntry||{}).reduce((s,v)=> s + (Number(v)||0), 0), 0);
+    const currentValue = TEI.calc.latestNetWorth ? TEI.calc.latestNetWorth(client) : (client.accounts||[]).reduce((s,a)=>s+(Number(a.value)||0),0);
+    if(!totalDeposited){ el.textContent = ''; return; }
+    const growth = currentValue - totalDeposited;
+    el.innerHTML = `Total deposited: <b>${fmtGBP(totalDeposited)}</b> &middot; Current value: <b>${fmtGBP(currentValue)}</b> &middot; Growth: <b style="color:${growth>=0?'var(--k-up-ink, #2D7D52)':'var(--k-down-ink, #C0392B)'};">${growth>=0?'+':''}${fmtGBP(growth)}</b>`;
+  }
+
+  function renderDepositsMonthlyHistory(client){
+    const el = document.getElementById('depositsMonthlyHistory');
+    if(!el) return;
+    const monthsObj = client.contribLog || {};
+    const keys = Object.keys(monthsObj).sort().reverse();
+    if(!keys.length){ el.innerHTML = ''; return; }
+    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+      const isSelected = k === depositsMonthKey;
+      return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
+        <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
+        <button type="button" class="btn-ghost on-light" data-deposits-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('[data-deposits-edit-month]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        depositsMonthKey = btn.dataset.depositsEditMonth;
+        renderDepositsMonthlyWidget(TEI.app.state.client);
+      });
+    });
+  }
+
+  function renderDepositsMonthlyWidget(client){
+    if(!depositsMonthKey) depositsMonthKey = TEI.data.currentMonthKey();
+    const picker = document.getElementById('depositsMonthPicker');
+    if(picker) picker.value = depositsMonthKey;
+    const wrap = document.getElementById('depositsMonthlyFields');
+    const accounts = client.accounts || [];
+    if(!accounts.length){
+      wrap.innerHTML = `<div class="empty-state on-light" style="padding:10px 0; grid-column:1/-1;"><div class="small">No accounts yet.</div></div>`;
+      renderDepositsMonthlyHistory(client);
+      renderDepositsTotalSummary(client);
+      return;
+    }
+    const existing = (client.contribLog && client.contribLog[depositsMonthKey]) || {};
+    wrap.innerHTML = accounts.map(acc=>
+      `<label class="form-field on-light"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-deposits-month-field="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00"></label>`
+    ).join('');
+    renderDepositsMonthlyHistory(client);
+    renderDepositsTotalSummary(client);
+  }
+
+  async function saveDepositsMonthly(){
+    const client = TEI.app.state.client;
+    const key = depositsMonthKey;
+    const btn = document.getElementById('depositsMonthlySaveBtn');
+    const toSave = Array.from(document.querySelectorAll('[data-deposits-month-field]'))
+      .map(el=>({id:el.dataset.depositsMonthField, v:parseFloat(el.value)}))
+      .filter(x=>!isNaN(x.v));
+    if(!toSave.length){ TEI.app.showToast('Nothing to save'); return; }
+    btn.disabled = true;
+    try{
+      for(const item of toSave){ await TEI.wealthOS.saveAccountDeposit(item.id, key, item.v, client.meta.role); }
+    } catch(err){
+      console.error('Wealth OS: failed to save monthly deposit', err);
+      TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
+    client.contribLog = client.contribLog || {};
+    const entry = client.contribLog[key] ? Object.assign({}, client.contribLog[key]) : {};
+    toSave.forEach(item=>{ entry[item.id] = item.v; });
+    client.contribLog[key] = entry;
+    renderDepositsMonthlyWidget(client);
+    TEI.app.showToast('Saved ' + key);
+  }
+
+  /* ---------- Cashflow actuals: one figure per month for income and for
+     expenses, logged only when they differed from the stated regular
+     amounts -- not itemised, just "how did this month actually go". ---------- */
+  let cashflowMonthKey = null;
+
+  function renderCashflowMonthlyHistory(client){
+    const el = document.getElementById('cashflowMonthlyHistory');
+    if(!el) return;
+    const monthsObj = client.cashflowMonths || {};
+    const keys = Object.keys(monthsObj).sort().reverse();
+    if(!keys.length){ el.innerHTML = ''; return; }
+    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+      const isSelected = k === cashflowMonthKey;
+      const entry = monthsObj[k] || {};
+      const parts = [];
+      if(entry.actualIncome!=null) parts.push('Income ' + fmtGBP(entry.actualIncome));
+      if(entry.actualExpenses!=null) parts.push('Expenses ' + fmtGBP(entry.actualExpenses));
+      return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
+        <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b><div class="lr-meta">${parts.join(' · ')||'–'}</div></div>
+        <button type="button" class="btn-ghost on-light" data-cashflow-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('[data-cashflow-edit-month]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        cashflowMonthKey = btn.dataset.cashflowEditMonth;
+        renderCashflowMonthlyWidget(TEI.app.state.client);
+      });
+    });
+  }
+
+  function renderCashflowMonthlyWidget(client){
+    if(!cashflowMonthKey) cashflowMonthKey = TEI.data.currentMonthKey();
+    const picker = document.getElementById('cashflowMonthPicker');
+    if(picker) picker.value = cashflowMonthKey;
+    const existing = (client.cashflowMonths && client.cashflowMonths[cashflowMonthKey]) || {};
+    const incomeEl = document.getElementById('cashflowActualIncome');
+    const expensesEl = document.getElementById('cashflowActualExpenses');
+    if(incomeEl) incomeEl.value = existing.actualIncome!=null ? existing.actualIncome : '';
+    if(expensesEl) expensesEl.value = existing.actualExpenses!=null ? existing.actualExpenses : '';
+    const hint = document.getElementById('cashflowStatedHint');
+    if(hint){
+      const statedIncome = TEI.calc.totalMonthlyIncome ? TEI.calc.totalMonthlyIncome(client) : null;
+      hint.textContent = statedIncome!=null
+        ? `Your stated monthly income is ${fmtGBP(statedIncome)}. Log this month's actual figures only if they differed.`
+        : `Log this month's actual income and expenses if they differed from your usual stated amounts.`;
+    }
+    renderCashflowMonthlyHistory(client);
+  }
+
+  async function saveCashflowMonthly(){
+    const client = TEI.app.state.client;
+    const key = cashflowMonthKey;
+    const btn = document.getElementById('cashflowMonthlySaveBtn');
+    const incomeVal = parseFloat(document.getElementById('cashflowActualIncome').value);
+    const expensesVal = parseFloat(document.getElementById('cashflowActualExpenses').value);
+    const actualIncome = isNaN(incomeVal) ? null : incomeVal;
+    const actualExpenses = isNaN(expensesVal) ? null : expensesVal;
+    if(actualIncome==null && actualExpenses==null){ TEI.app.showToast('Nothing to save'); return; }
+    btn.disabled = true;
+    try{
+      await TEI.wealthOS.saveCashflowMonth(client.meta.clientId, key, actualIncome, actualExpenses, client.meta.role);
+    } catch(err){
+      console.error('Wealth OS: failed to save monthly cashflow actuals', err);
+      TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
+    client.cashflowMonths = client.cashflowMonths || {};
+    client.cashflowMonths[key] = { actualIncome, actualExpenses };
+    renderCashflowMonthlyHistory(client);
+    TEI.app.showToast('Saved ' + key);
+  }
+
   function wireUpdatePage(){
     const wire = (id, handler) => {
       const el = document.getElementById(id);
@@ -5678,14 +5991,20 @@ TEI.render = TEI.render || {};
     };
     wire('balancesMonthPicker', e=>{ if(!e.target.value) return; balancesMonthKey = e.target.value; renderBalancesMonthlyWidget(TEI.app.state.client); });
     wire('holdingsMonthPicker', e=>{ if(!e.target.value) return; holdingsMonthKey = e.target.value; renderHoldingsMonthlyWidget(TEI.app.state.client); });
+    wire('depositsMonthPicker', e=>{ if(!e.target.value) return; depositsMonthKey = e.target.value; renderDepositsMonthlyWidget(TEI.app.state.client); });
+    wire('cashflowMonthPicker', e=>{ if(!e.target.value) return; cashflowMonthKey = e.target.value; renderCashflowMonthlyWidget(TEI.app.state.client); });
     wireBtn('balancesMonthlySaveBtn', saveBalancesMonthly);
     wireBtn('holdingsMonthlySaveBtn', saveHoldingsMonthly);
+    wireBtn('depositsMonthlySaveBtn', saveDepositsMonthly);
+    wireBtn('cashflowMonthlySaveBtn', saveCashflowMonthly);
   }
 
   TEI.render.update = function(client){
     wireUpdatePage();
     renderBalancesMonthlyWidget(client);
     renderHoldingsMonthlyWidget(client);
+    renderDepositsMonthlyWidget(client);
+    renderCashflowMonthlyWidget(client);
   };
 })();
 
@@ -6417,7 +6736,19 @@ TEI.render = TEI.render || {};
     });
   }
 
+  /* Compact "keep it current" nudge card -- the actual log lives on the
+     Update page (TEI.render.update) now, not inline here. */
+  function renderCashflowUpdateSummary(client){
+    const el = document.getElementById('cashflowUpdateSummary');
+    if(!el) return;
+    const keys = Object.keys(client.cashflowMonths||{}).sort();
+    el.textContent = keys.length
+      ? `Last logged for ${TEI.data.monthLabel(keys[keys.length-1])}`
+      : 'Not logged yet';
+  }
+
   TEI.render.cashflow = function(client){
+    renderCashflowUpdateSummary(client);
     renderBudgetStats(client);
     renderIncomeVsSpending(client);
     renderWealthConversionDashboard(client);
@@ -9375,7 +9706,7 @@ window.TEI = window.TEI || {};
     const [
       clientRes, accountsRes, goalsRes, incomeRes, expensesRes,
       cashflowRes, dividendHoldingsRes, wealthAssetsRes, wealthLiabilitiesRes,
-      insuranceRes, documentsRes
+      insuranceRes, documentsRes, cashflowMonthsRes
     ] = await Promise.all([
       w.from('clients').select('*').eq('id', clientId).single(),
       w.from('accounts').select('*').eq('client_id', clientId),
@@ -9388,25 +9719,28 @@ window.TEI = window.TEI || {};
       w.from('wealth_liabilities').select('*').eq('client_id', clientId),
       w.from('insurance').select('*').eq('client_id', clientId),
       w.from('documents').select('*').eq('client_id', clientId),
+      w.from('cashflow_months').select('*').eq('client_id', clientId),
     ]);
 
     const firstError = [clientRes, accountsRes, goalsRes, incomeRes, expensesRes, cashflowRes,
-      dividendHoldingsRes, wealthAssetsRes, wealthLiabilitiesRes, insuranceRes, documentsRes]
+      dividendHoldingsRes, wealthAssetsRes, wealthLiabilitiesRes, insuranceRes, documentsRes, cashflowMonthsRes]
       .map(r=>r.error).find(Boolean);
     if(firstError) throw firstError;
 
     const accountIds = (accountsRes.data||[]).map(a=>a.id);
     const goalIds = (goalsRes.data||[]).map(g=>g.id);
-    const [holdingsRes, goalAccountsRes, accountMonthsRes, goalMonthsRes] = await Promise.all([
+    const [holdingsRes, goalAccountsRes, accountMonthsRes, goalMonthsRes, accountDepositsRes] = await Promise.all([
       accountIds.length ? w.from('holdings').select('*').in('account_id', accountIds) : Promise.resolve({data:[], error:null}),
       goalIds.length ? w.from('goal_accounts').select('*').in('goal_id', goalIds) : Promise.resolve({data:[], error:null}),
       accountIds.length ? w.from('account_months').select('*').in('account_id', accountIds) : Promise.resolve({data:[], error:null}),
       goalIds.length ? w.from('goal_months').select('*').in('goal_id', goalIds) : Promise.resolve({data:[], error:null}),
+      accountIds.length ? w.from('account_deposits').select('*').in('account_id', accountIds) : Promise.resolve({data:[], error:null}),
     ]);
     if(holdingsRes.error) throw holdingsRes.error;
     if(goalAccountsRes.error) throw goalAccountsRes.error;
     if(accountMonthsRes.error) throw accountMonthsRes.error;
     if(goalMonthsRes.error) throw goalMonthsRes.error;
+    if(accountDepositsRes.error) throw accountDepositsRes.error;
 
     // holding_months needs holdingIds, only known once holdingsRes above resolves.
     const holdingIds = (holdingsRes.data||[]).map(h=>h.id);
@@ -9432,6 +9766,8 @@ window.TEI = window.TEI || {};
       accountMonths: accountMonthsRes.data||[],
       holdingMonths: holdingMonthsRes.data||[],
       goalMonths: goalMonthsRes.data||[],
+      accountDeposits: accountDepositsRes.data||[],
+      cashflowMonths: cashflowMonthsRes.data||[],
     };
   }
 
@@ -9455,17 +9791,25 @@ window.TEI = window.TEI || {};
        holdingsMonths / goalsMonths already expect -- nothing downstream
        (TEI.calc.buildMergedMonths, charts) needs to know this now comes
        from Supabase instead of the local-only object it used to be. */
-    function groupMonths(rows, idField){
+    function groupMonths(rows, idField, valueField){
       const out = {};
       (rows||[]).forEach(row=>{
         const key = row.month_key;
-        (out[key] = out[key] || {})[row[idField]] = row.value;
+        (out[key] = out[key] || {})[row[idField]] = row[valueField||'value'];
       });
       return out;
     }
     const months = groupMonths(bundle.accountMonths, 'account_id');
     const holdingsMonths = groupMonths(bundle.holdingMonths, 'holding_id');
     const goalsMonths = groupMonths(bundle.goalMonths, 'goal_id');
+    const contribLog = groupMonths(bundle.accountDeposits, 'account_id', 'amount');
+    // cashflow_months is client-level (one row per month, not per record) --
+    // { 'YYYY-MM': {actualIncome, actualExpenses} } rather than the
+    // recordId-keyed shape the other monthly tables use.
+    const cashflowMonths = {};
+    (bundle.cashflowMonths||[]).forEach(row=>{
+      cashflowMonths[row.month_key] = { actualIncome: row.actual_income, actualExpenses: row.actual_expenses };
+    });
 
     const loaded = {
       meta:{
@@ -9559,7 +9903,7 @@ window.TEI = window.TEI || {};
       journeyOverrides: c.journey_overrides, wealthInsights: c.wealth_insights, wealthNextSteps: c.wealth_next_steps,
       dividendHistory: c.dividend_history, investorStage: c.investor_stage, northStar: c.north_star,
 
-      months, holdingsMonths, goalsMonths
+      months, holdingsMonths, goalsMonths, contribLog, cashflowMonths
     };
 
     return TEI.data.mergeDefaults(loaded);
@@ -9934,12 +10278,39 @@ window.TEI = window.TEI || {};
     return data;
   }
 
+  /* ---------- client self-service logging: deposits + cashflow actuals ----------
+     Same "both roles, no server-side restriction beyond RLS" pattern as the
+     Phase 3 monthly-history tables. account_deposits tracks money paid INTO
+     an account during a month (distinct from account_months, which is the
+     balance/value AT month-end) -- lets "total deposited vs current value"
+     be worked out later without guessing how much of a balance change was
+     new money vs growth. cashflow_months is one row per client per month
+     (not per income-source/expense-line) -- a quick "how did this month
+     actually go" log against the stated regular income/expense figures. */
+  async function saveAccountDeposit(accountId, monthKey, amount, source){
+    const row = { account_id: accountId, month_key: monthKey, amount,
+      last_edited_by: source || 'adviser', last_edited_at: new Date().toISOString() };
+    const { data, error } = await wo(window.teiSupabase).from('account_deposits')
+      .upsert(row, { onConflict: 'account_id,month_key' }).select().single();
+    if(error) throw error;
+    return data;
+  }
+  async function saveCashflowMonth(clientId, monthKey, actualIncome, actualExpenses, source){
+    const row = { client_id: clientId, month_key: monthKey,
+      actual_income: actualIncome, actual_expenses: actualExpenses,
+      last_edited_by: source || 'adviser', last_edited_at: new Date().toISOString() };
+    const { data, error } = await wo(window.teiSupabase).from('cashflow_months')
+      .upsert(row, { onConflict: 'client_id,month_key' }).select().single();
+    if(error) throw error;
+    return data;
+  }
+
   TEI.wealthOS = {
     loadWealthOSClient, loadClientById, openClientAsAdviser, createClient, lastViewedClientId,
     showLoadError, hideLoadError,
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
     saveIncome, deleteIncome, saveExpense, deleteExpense,
-    saveAccountMonth, saveHoldingMonth, saveGoalMonth,
+    saveAccountMonth, saveHoldingMonth, saveGoalMonth, saveAccountDeposit, saveCashflowMonth,
     saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount
