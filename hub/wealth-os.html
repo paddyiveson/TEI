@@ -6540,15 +6540,22 @@ window.TEI = window.TEI || {};
     const wrap = document.getElementById('monthlyBalanceFields');
     if(!client.accounts.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add accounts first.</div></div>`; renderMonthHistory('accounts'); return; }
     const existing = client.months[key] || {};
+    // Holdings-linked accounts stay locked to the live holdings total only
+    // for the CURRENT month (that's the one figure other pages/net-worth
+    // read as "now", so it can't silently diverge from the holdings list).
+    // Any other month is real history -- editable like any other account,
+    // since holdings weren't necessarily logged that granularly back then.
+    const isCurrent = key === currentMonthKey();
     wrap.innerHTML = client.accounts.map(acc=>{
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      if(hasHoldings){
+      if(hasHoldings && isCurrent){
         const total = TEI.calc.holdingsTotalForAccount(client, acc.id);
         return `<label class="form-field"><span>${TEI.data.acctLabel(acc)}</span>
           <input type="text" disabled value="${fmtGBP(total)}" style="opacity:0.6;" title="Calculated from logged holdings">
           <span class="note" style="margin-top:2px;">From holdings — edit in Portfolio</span></label>`;
       }
-      return `<label class="form-field"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-month-acct="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00"></label>`;
+      const hint = hasHoldings ? `<span class="note" style="margin-top:2px;">Historical value — the current month is calculated from holdings instead</span>` : '';
+      return `<label class="form-field"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-month-acct="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00">${hint}</label>`;
     }).join('');
     renderMonthHistory('accounts');
   }
