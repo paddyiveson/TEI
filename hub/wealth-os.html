@@ -2908,6 +2908,12 @@ window.TEI = window.TEI || {};
 
   function fmtGBP(v){ return '£' + Number(v||0).toLocaleString('en-GB', {maximumFractionDigits:0}); }
   function uid(){ return String(Date.now()) + Math.floor(Math.random()*1000); }
+  /* uid() strings (timestamp+random digits) and real Postgres/Supabase UUIDs
+     are never confusable formats -- used wherever code needs to tell "this
+     record already exists in Supabase" from "this is still local-only"
+     without tracking a separate saved/unsaved flag that wouldn't survive a
+     page reload. */
+  function isRealId(id){ return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id); }
   /* Shared account display label — nickname is optional everywhere it's
      captured, so every dropdown/checkbox/list that references an account by
      name needs the same fallback (provider + type, or just type), otherwise
@@ -3790,7 +3796,7 @@ window.TEI = window.TEI || {};
 
   TEI.data = {
     defaultClient, mergeDefaults, getEmbeddedClient,
-    fmtGBP, uid, monthLabel, currentMonthKey, monthsBetweenInclusive,
+    fmtGBP, uid, isRealId, monthLabel, currentMonthKey, monthsBetweenInclusive,
     MONTH_ABBR, acctLabel
   };
   TEI.calc = {
@@ -6332,10 +6338,20 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-acct]').forEach(btn=>{
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', async function(){
         if(!confirm('Remove this account? Its holdings and monthly history will stay orphaned in the file.')) return;
-        client.accounts = client.accounts.filter(a=>a.id !== this.dataset.delAcct);
-        if(editing.account === this.dataset.delAcct) cancelAcctEdit();
+        const id = this.dataset.delAcct;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteAccount(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete account', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        client.accounts = client.accounts.filter(a=>a.id !== id);
+        if(editing.account === id) cancelAcctEdit();
         renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderReconciliation();
       });
     });
@@ -6374,7 +6390,7 @@ window.TEI = window.TEI || {};
     document.getElementById('advAcctContribPersonalField').style.display = isPension ? 'flex' : 'none';
     document.getElementById('advAcctContribEmployerField').style.display = isPension ? 'flex' : 'none';
   }
-  function addAccount(){
+  async function addAccount(){
     const name = document.getElementById('newAcctName').value.trim();
     if(!name){ showToast('Give the account a name first'); return; }
     const type = document.getElementById('newAcctType').value;
@@ -6384,14 +6400,28 @@ window.TEI = window.TEI || {};
     const contribEmployer = parseFloat(document.getElementById('newAcctContribEmployer').value)||0;
     const provider = document.getElementById('newAcctProvider').value.trim();
     const key = currentMonthKey();
+    const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      Object.assign(acc, {name, type, provider, value: hasHoldings ? acc.value : value});
-      if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; delete acc.contribution; }
-      else { acc.contribution = contrib; delete acc.contributionPersonal; delete acc.contributionSacrifice; }
-      TEI.calc.stampEdit(acc, 'adviser');
+      const patch = {name, type, provider, value: hasHoldings ? acc.value : value};
+      if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
+      else { patch.contribution = contrib; }
+      const merged = Object.assign({}, acc, patch);
+      if(type==='pension') delete merged.contribution; else { delete merged.contributionPersonal; delete merged.contributionSacrifice; }
+      TEI.calc.stampEdit(merged, 'adviser');
+      btn.disabled = true;
+      try{
+        await TEI.wealthOS.saveAccount(client.meta.clientId, acc.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save account', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(acc, merged);
       // This account's balance is derived from its logged holdings — the manually
       // typed value is ignored for the balance itself, so holdings stay the one
       // source of truth rather than silently being overridden by a stale number.
@@ -6404,6 +6434,16 @@ window.TEI = window.TEI || {};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
+      btn.disabled = true;
+      try{
+        acc.id = await TEI.wealthOS.saveAccount(client.meta.clientId, null, acc);
+      } catch(err){
+        console.error('Wealth OS: failed to save account', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
       client.accounts.push(acc);
       // Seed this month's balance so the account shows up in net worth immediately,
       // rather than reading as £0 until someone visits "Log this month's balances".
@@ -6520,9 +6560,19 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-asset]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        client.wealth.assets = client.wealth.assets.filter(a=>a.id!==this.dataset.delAsset);
-        if(editing.asset === this.dataset.delAsset) cancelAssetEdit();
+      btn.addEventListener('click', async function(){
+        const id = this.dataset.delAsset;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteWealthAsset(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete asset', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        client.wealth.assets = client.wealth.assets.filter(a=>a.id!==id);
+        if(editing.asset === id) cancelAssetEdit();
         renderAssets(); refreshAccountSelects();
       });
     });
@@ -6543,20 +6593,42 @@ window.TEI = window.TEI || {};
     document.getElementById('advAddAssetBtn').textContent = 'Add';
     ['advNewAssetValue','advNewAssetNotes'].forEach(id=>document.getElementById(id).value='');
   }
-  function addAsset(){
+  async function addAsset(){
     const type = document.getElementById('advNewAssetType').value;
     const value = parseFloat(document.getElementById('advNewAssetValue').value);
     if(isNaN(value)){ showToast('Give the asset a value'); return; }
     const notes = document.getElementById('advNewAssetNotes').value.trim();
+    const btn = document.getElementById('advAddAssetBtn');
+    btn.disabled = true;
     if(editing.asset){
       const a = client.wealth.assets.find(x=>x.id===editing.asset);
-      if(!a){ cancelAssetEdit(); return; }
-      Object.assign(a, {type, value, notes});
-      TEI.calc.stampEdit(a, 'adviser');
+      if(!a){ cancelAssetEdit(); btn.disabled = false; return; }
+      const merged = Object.assign({}, a, {type, value, notes});
+      TEI.calc.stampEdit(merged, 'adviser');
+      try{
+        await TEI.wealthOS.saveWealthAsset(client.meta.clientId, a.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save asset', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(a, merged);
       cancelAssetEdit();
       showToast('Asset updated');
     } else {
-      client.wealth.assets.push(TEI.calc.stampEdit({id:uid(), type, value, notes}, 'adviser'));
+      const a = TEI.calc.stampEdit({id:uid(), type, value, notes}, 'adviser');
+      try{
+        a.id = await TEI.wealthOS.saveWealthAsset(client.meta.clientId, null, a);
+      } catch(err){
+        console.error('Wealth OS: failed to save asset', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.wealth.assets.push(a);
       ['advNewAssetValue','advNewAssetNotes'].forEach(id=>document.getElementById(id).value='');
       showToast('Asset added');
     }
@@ -6577,9 +6649,19 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-liab]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        client.wealth.liabilities = client.wealth.liabilities.filter(l=>l.id!==this.dataset.delLiab);
-        if(editing.liability === this.dataset.delLiab) cancelLiabEdit();
+      btn.addEventListener('click', async function(){
+        const id = this.dataset.delLiab;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteWealthLiability(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete liability', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        client.wealth.liabilities = client.wealth.liabilities.filter(l=>l.id!==id);
+        if(editing.liability === id) cancelLiabEdit();
         renderLiabilities();
       });
     });
@@ -6600,20 +6682,42 @@ window.TEI = window.TEI || {};
     document.getElementById('advAddLiabBtn').textContent = 'Add';
     document.getElementById('advNewLiabBalance').value = '';
   }
-  function addLiability(){
+  async function addLiability(){
     const type = document.getElementById('advNewLiabType').value;
     const balance = parseFloat(document.getElementById('advNewLiabBalance').value);
     if(isNaN(balance)){ showToast('Give the liability a balance'); return; }
     const linkedAssetId = document.getElementById('advNewLiabLinkedAsset').value || null;
+    const btn = document.getElementById('advAddLiabBtn');
+    btn.disabled = true;
     if(editing.liability){
       const l = client.wealth.liabilities.find(x=>x.id===editing.liability);
-      if(!l){ cancelLiabEdit(); return; }
-      Object.assign(l, {type, balance, linkedAssetId});
-      TEI.calc.stampEdit(l, 'adviser');
+      if(!l){ cancelLiabEdit(); btn.disabled = false; return; }
+      const merged = Object.assign({}, l, {type, balance, linkedAssetId});
+      TEI.calc.stampEdit(merged, 'adviser');
+      try{
+        await TEI.wealthOS.saveWealthLiability(client.meta.clientId, l.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save liability', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(l, merged);
       cancelLiabEdit();
       showToast('Liability updated');
     } else {
-      client.wealth.liabilities.push(TEI.calc.stampEdit({id:uid(), type, balance, linkedAssetId}, 'adviser'));
+      const l = TEI.calc.stampEdit({id:uid(), type, balance, linkedAssetId}, 'adviser');
+      try{
+        l.id = await TEI.wealthOS.saveWealthLiability(client.meta.clientId, null, l);
+      } catch(err){
+        console.error('Wealth OS: failed to save liability', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.wealth.liabilities.push(l);
       document.getElementById('advNewLiabBalance').value = '';
       showToast('Liability added');
     }
@@ -6643,21 +6747,45 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-goal]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        client.goals = client.goals.filter(g=>g.id!==this.dataset.delGoal);
-        if(editing.goal === this.dataset.delGoal) cancelGoalEdit();
+      btn.addEventListener('click', async function(){
+        const id = this.dataset.delGoal;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteGoal(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete goal', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        client.goals = client.goals.filter(g=>g.id!==id);
+        if(editing.goal === id) cancelGoalEdit();
         renderGoals(); renderMonthlyGoalFields();
       });
     });
     list.querySelectorAll('[data-toggle-complete-goal]').forEach(btn=>{
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', async function(){
         const g = client.goals.find(g=>g.id===this.dataset.toggleCompleteGoal);
         if(!g) return;
-        g.status = g.status==='completed' ? 'active' : 'completed';
-        if(g.progressType==='completion') g.completed = g.status==='completed';
-        g.statusHistory = g.statusHistory || [];
-        g.statusHistory.push({date:new Date().toISOString(), status:g.status});
-        TEI.calc.stampEdit(g, 'adviser');
+        const nextStatus = g.status==='completed' ? 'active' : 'completed';
+        const nextHistory = (g.statusHistory||[]).concat([{date:new Date().toISOString(), status:nextStatus}]);
+        const merged = Object.assign({}, g, {
+          status: nextStatus,
+          completed: g.progressType==='completion' ? nextStatus==='completed' : g.completed,
+          statusHistory: nextHistory
+        });
+        TEI.calc.stampEdit(merged, 'adviser');
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.saveGoal(client.meta.clientId, g.id, merged);
+        } catch(err){
+          console.error('Wealth OS: failed to update goal status', err);
+          showToast("Couldn't save — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        this.disabled = false;
+        Object.assign(g, merged);
         renderGoals(); showToast(g.status==='completed' ? 'Goal marked complete' : 'Goal reopened');
       });
     });
@@ -6692,7 +6820,7 @@ window.TEI = window.TEI || {};
     document.getElementById('advGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
     document.getElementById('advGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
   }
-  function addGoal(){
+  async function addGoal(){
     const type = document.getElementById('newGoalType').value;
     const name = document.getElementById('newGoalName').value.trim();
     if(!name){ showToast('Give the goal a name'); return; }
@@ -6702,16 +6830,37 @@ window.TEI = window.TEI || {};
     const targetIncome = parseFloat(document.getElementById('newGoalTargetIncome').value) || null;
     const linkedAccountIds = Array.from(document.getElementById('newGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
     const status = document.getElementById('newGoalStatus').value;
+    const btn = document.getElementById('addGoalBtn');
+    btn.disabled = true;
     let g;
     if(editing.goal){
       g = client.goals.find(x=>x.id===editing.goal);
-      if(!g){ cancelGoalEdit(); return; }
-      Object.assign(g, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, status, completed: progressType==='completion' ? status==='completed' : g.completed});
-      TEI.calc.stampEdit(g, 'adviser');
+      if(!g){ cancelGoalEdit(); btn.disabled = false; return; }
+      const merged = Object.assign({}, g, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, status, completed: progressType==='completion' ? status==='completed' : g.completed});
+      TEI.calc.stampEdit(merged, 'adviser');
+      try{
+        await TEI.wealthOS.saveGoal(client.meta.clientId, g.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save goal', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(g, merged);
       cancelGoalEdit();
       showToast('Goal updated');
     } else {
       g = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:status==='completed', status, linkedAccountIds, statusHistory:[]}, 'adviser');
+      try{
+        g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
+      } catch(err){
+        console.error('Wealth OS: failed to save goal', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
       client.goals.push(g);
       ['newGoalName','newGoalDate','newGoalTargetAmount','newGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
       showToast('Goal added');
@@ -6741,11 +6890,21 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-holding]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        const removed = client.holdings.find(h=>h.id===this.dataset.delHolding);
-        client.holdings = client.holdings.filter(h=>h.id!==this.dataset.delHolding);
+      btn.addEventListener('click', async function(){
+        const id = this.dataset.delHolding;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteHolding(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete holding', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        const removed = client.holdings.find(h=>h.id===id);
+        client.holdings = client.holdings.filter(h=>h.id!==id);
         if(removed) TEI.calc.syncAccountValueFromHoldings(client, removed.accountId);
-        if(editing.holding === this.dataset.delHolding) cancelHoldingEdit();
+        if(editing.holding === id) cancelHoldingEdit();
         renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
       });
     });
@@ -6769,7 +6928,7 @@ window.TEI = window.TEI || {};
     ['newHoldingName','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newHoldingSector').value = '';
   }
-  function addHolding(){
+  async function addHolding(){
     const accountId = document.getElementById('newHoldingAccount').value;
     const name = document.getElementById('newHoldingName').value.trim();
     const value = parseFloat(document.getElementById('newHoldingValue').value);
@@ -6778,12 +6937,24 @@ window.TEI = window.TEI || {};
     const costBasisInput = document.getElementById('newHoldingCostBasis').value;
     const costBasis = costBasisInput ? parseFloat(costBasisInput) : null;
     const sector = document.getElementById('newHoldingSector').value || null;
+    const btn = document.getElementById('addHoldingBtn');
+    btn.disabled = true;
     if(editing.holding){
       const h = client.holdings.find(x=>x.id===editing.holding);
-      if(!h){ cancelHoldingEdit(); return; }
+      if(!h){ cancelHoldingEdit(); btn.disabled = false; return; }
       const oldAccountId = h.accountId;
-      Object.assign(h, {accountId, name, value, costBasis, sector});
-      TEI.calc.stampEdit(h, 'adviser');
+      const merged = Object.assign({}, h, {accountId, name, value, costBasis, sector});
+      TEI.calc.stampEdit(merged, 'adviser');
+      try{
+        await TEI.wealthOS.saveHolding(accountId, h.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save holding', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(h, merged);
       TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
       TEI.calc.syncAccountValueFromHoldings(client, oldAccountId);
       if(accountId !== oldAccountId) TEI.calc.syncAccountValueFromHoldings(client, accountId);
@@ -6791,6 +6962,15 @@ window.TEI = window.TEI || {};
       showToast('Holding updated');
     } else {
       const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker:null, units:null, avgOpen:null, costBasis, sector, value}, 'adviser');
+      try{
+        h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
+      } catch(err){
+        console.error('Wealth OS: failed to save holding', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
       client.holdings.push(h);
       TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
@@ -6819,7 +6999,22 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-div-hist]').forEach(btn=>{
-      btn.addEventListener('click', function(){ client.dividendHistory = client.dividendHistory.filter(y=>String(y.year)!==this.dataset.delDivHist); renderDividendHistory(); });
+      btn.addEventListener('click', async function(){
+        const yearStr = this.dataset.delDivHist;
+        const nextHistory = client.dividendHistory.filter(y=>String(y.year)!==yearStr);
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.saveDividendHistory(client.meta.clientId, nextHistory);
+        } catch(err){
+          console.error('Wealth OS: failed to save dividend history', err);
+          showToast("Couldn't save — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        this.disabled = false;
+        client.dividendHistory = nextHistory;
+        renderDividendHistory();
+      });
     });
     list.querySelectorAll('[data-edit-div-hist]').forEach(btn=>{
       btn.addEventListener('click', function(){
@@ -6832,13 +7027,27 @@ window.TEI = window.TEI || {};
       });
     });
   }
-  function addDividendHistory(){
+  async function addDividendHistory(){
     const year = parseInt(document.getElementById('newDivHistYear').value);
     const amount = parseFloat(document.getElementById('newDivHistAmount').value);
     if(isNaN(year) || isNaN(amount)){ showToast('Give a year and amount'); return; }
     const existed = client.dividendHistory.some(y=>y.year===year);
-    client.dividendHistory = client.dividendHistory.filter(y=>y.year!==year);
-    client.dividendHistory.push({year, amount});
+    const nextHistory = client.dividendHistory.filter(y=>y.year!==year).concat([{year, amount}]);
+    // no dedicated "add" button id in this section's markup -- disable the inputs instead
+    document.getElementById('newDivHistYear').disabled = true;
+    document.getElementById('newDivHistAmount').disabled = true;
+    try{
+      await TEI.wealthOS.saveDividendHistory(client.meta.clientId, nextHistory);
+    } catch(err){
+      console.error('Wealth OS: failed to save dividend history', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      document.getElementById('newDivHistYear').disabled = false;
+      document.getElementById('newDivHistAmount').disabled = false;
+      return;
+    }
+    document.getElementById('newDivHistYear').disabled = false;
+    document.getElementById('newDivHistAmount').disabled = false;
+    client.dividendHistory = nextHistory;
     ['newDivHistYear','newDivHistAmount'].forEach(id=>document.getElementById(id).value='');
     renderDividendHistory(); showToast(existed ? 'Dividend year updated' : 'Dividend year added');
   }
@@ -6868,9 +7077,19 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-div]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        client.dividendHoldings = client.dividendHoldings.filter(h=>h.id!==this.dataset.delDiv);
-        if(editing.dividend === this.dataset.delDiv) cancelDividendEdit();
+      btn.addEventListener('click', async function(){
+        const id = this.dataset.delDiv;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteDividendHolding(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete dividend holding', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        client.dividendHoldings = client.dividendHoldings.filter(h=>h.id!==id);
+        if(editing.dividend === id) cancelDividendEdit();
         renderDividends();
       });
     });
@@ -6892,20 +7111,42 @@ window.TEI = window.TEI || {};
     document.getElementById('addDivBtn').textContent = 'Add holding';
     ['newDivName','newDivYield','newDivGrowth','newDivAmount'].forEach(id=>document.getElementById(id).value='');
   }
-  function addDividend(){
+  async function addDividend(){
     const name = document.getElementById('newDivName').value.trim();
     const yieldPct = parseFloat(document.getElementById('newDivYield').value);
     const growth = parseFloat(document.getElementById('newDivGrowth').value)||0;
     const amount = parseFloat(document.getElementById('newDivAmount').value)||0;
     if(!name || isNaN(yieldPct)){ showToast('Give the holding a name and yield'); return; }
+    const btn = document.getElementById('addDivBtn');
+    btn.disabled = true;
     if(editing.dividend){
       const h = client.dividendHoldings.find(x=>x.id===editing.dividend);
-      if(!h){ cancelDividendEdit(); return; }
-      Object.assign(h, {name, yield:yieldPct, growth, amount});
+      if(!h){ cancelDividendEdit(); btn.disabled = false; return; }
+      const merged = Object.assign({}, h, {name, yield:yieldPct, growth, amount});
+      try{
+        await TEI.wealthOS.saveDividendHolding(client.meta.clientId, h.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save dividend holding', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(h, merged);
       cancelDividendEdit();
       showToast('Dividend holding updated');
     } else {
-      client.dividendHoldings.push({id:uid(), name, yield:yieldPct, growth, amount});
+      const h = {id:uid(), name, yield:yieldPct, growth, amount};
+      try{
+        h.id = await TEI.wealthOS.saveDividendHolding(client.meta.clientId, null, h);
+      } catch(err){
+        console.error('Wealth OS: failed to save dividend holding', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.dividendHoldings.push(h);
       ['newDivName','newDivYield','newDivGrowth','newDivAmount'].forEach(id=>document.getElementById(id).value='');
       showToast('Dividend holding added');
     }
@@ -6928,9 +7169,19 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-adv-income]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        client.cashflow.income = client.cashflow.income.filter(i=>i.id!==this.dataset.delAdvIncome);
-        if(editing.advIncome === this.dataset.delAdvIncome) cancelAdvIncomeEdit();
+      btn.addEventListener('click', async function(){
+        const id = this.dataset.delAdvIncome;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteIncome(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete income', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        client.cashflow.income = client.cashflow.income.filter(i=>i.id!==id);
+        if(editing.advIncome === id) cancelAdvIncomeEdit();
         renderAdvIncomeList();
       });
     });
@@ -6952,21 +7203,43 @@ window.TEI = window.TEI || {};
     document.getElementById('advAddIncomeBtn').textContent = 'Add';
     document.getElementById('advNewIncomeAmount').value = '';
   }
-  function addAdvIncome(){
+  async function addAdvIncome(){
     const owner = document.getElementById('advNewIncomeOwner').value;
     const type = document.getElementById('advNewIncomeType').value;
     const amount = parseFloat(document.getElementById('advNewIncomeAmount').value);
     if(isNaN(amount)){ showToast('Give an amount'); return; }
     const frequency = document.getElementById('advNewIncomeFrequency').value;
+    const btn = document.getElementById('advAddIncomeBtn');
+    btn.disabled = true;
     if(editing.advIncome){
       const i = client.cashflow.income.find(x=>x.id===editing.advIncome);
-      if(!i){ cancelAdvIncomeEdit(); return; }
-      Object.assign(i, {owner, type, amount, frequency});
-      TEI.calc.stampEdit(i, 'adviser');
+      if(!i){ cancelAdvIncomeEdit(); btn.disabled = false; return; }
+      const merged = Object.assign({}, i, {owner, type, amount, frequency});
+      TEI.calc.stampEdit(merged, 'adviser');
+      try{
+        await TEI.wealthOS.saveIncome(client.meta.clientId, i.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save income', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(i, merged);
       cancelAdvIncomeEdit();
       showToast('Income updated');
     } else {
-      client.cashflow.income.push(TEI.calc.stampEdit({id:uid(), owner, type, amount, frequency}, 'adviser'));
+      const i = TEI.calc.stampEdit({id:uid(), owner, type, amount, frequency}, 'adviser');
+      try{
+        i.id = await TEI.wealthOS.saveIncome(client.meta.clientId, null, i);
+      } catch(err){
+        console.error('Wealth OS: failed to save income', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.cashflow.income.push(i);
       document.getElementById('advNewIncomeAmount').value = '';
       showToast('Income added');
     }
@@ -6989,8 +7262,17 @@ window.TEI = window.TEI || {};
       list.appendChild(row);
     });
     list.querySelectorAll('[data-del-adv-exp]').forEach(btn=>{
-      btn.addEventListener('click', function(){
+      btn.addEventListener('click', async function(){
         const [k,id] = this.dataset.delAdvExp.split(':');
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.deleteExpense(id);
+        } catch(err){
+          console.error('Wealth OS: failed to delete expense', err);
+          showToast("Couldn't remove — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
         client.cashflow.expenses[k] = client.cashflow.expenses[k].filter(e=>e.id!==id);
         if(editing['advExp'+k] === id) cancelAdvExpenseEdit(k);
         renderAdvExpenseList(k);
@@ -7017,22 +7299,44 @@ window.TEI = window.TEI || {};
     document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Add';
     clearFieldsAdv([labelId, amtId]);
   }
-  function addAdvExpense(kind){
+  async function addAdvExpense(kind){
     const labelId = kind==='fixed' ? 'advNewFixedLabel' : 'advNewVariableLabel';
     const amtId = kind==='fixed' ? 'advNewFixedAmount' : 'advNewVariableAmount';
     const label = document.getElementById(labelId).value.trim();
     const amount = parseFloat(document.getElementById(amtId).value);
     if(!label || isNaN(amount)){ showToast('Give it a name and amount'); return; }
     const editKey = 'advExp'+kind;
+    const btn = document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn');
+    btn.disabled = true;
     if(editing[editKey]){
       const e = client.cashflow.expenses[kind].find(x=>x.id===editing[editKey]);
-      if(!e){ cancelAdvExpenseEdit(kind); return; }
-      Object.assign(e, {label, amount});
-      TEI.calc.stampEdit(e, 'adviser');
+      if(!e){ cancelAdvExpenseEdit(kind); btn.disabled = false; return; }
+      const merged = Object.assign({}, e, {label, amount});
+      TEI.calc.stampEdit(merged, 'adviser');
+      try{
+        await TEI.wealthOS.saveExpense(client.meta.clientId, e.id, merged, kind);
+      } catch(err){
+        console.error('Wealth OS: failed to save expense', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(e, merged);
       cancelAdvExpenseEdit(kind);
       showToast('Expense updated');
     } else {
-      client.cashflow.expenses[kind].push(TEI.calc.stampEdit({id:uid(), label, amount}, 'adviser'));
+      const e = TEI.calc.stampEdit({id:uid(), label, amount}, 'adviser');
+      try{
+        e.id = await TEI.wealthOS.saveExpense(client.meta.clientId, null, e, kind);
+      } catch(err){
+        console.error('Wealth OS: failed to save expense', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.cashflow.expenses[kind].push(e);
       clearFieldsAdv([labelId, amtId]);
       showToast('Expense added');
     }
@@ -7054,16 +7358,40 @@ window.TEI = window.TEI || {};
         </div>`;
       list.appendChild(row);
     });
-    list.querySelectorAll('[data-del-oneoff]').forEach(btn=> btn.addEventListener('click', function(){
-      client.cashflow.oneOffs = client.cashflow.oneOffs.filter(o=>o.id!==this.dataset.delOneoff);
-      if(editing.oneOff === this.dataset.delOneoff) cancelOneOffEdit();
+    list.querySelectorAll('[data-del-oneoff]').forEach(btn=> btn.addEventListener('click', async function(){
+      const id = this.dataset.delOneoff;
+      const nextOneOffs = client.cashflow.oneOffs.filter(o=>o.id!==id);
+      this.disabled = true;
+      try{
+        await saveOneOffs(nextOneOffs);
+      } catch(err){
+        console.error('Wealth OS: failed to save one-offs', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      this.disabled = false;
+      client.cashflow.oneOffs = nextOneOffs;
+      if(editing.oneOff === id) cancelOneOffEdit();
       renderAdvOneOffList(); fillCashflowForm();
     }));
-    list.querySelectorAll('[data-toggle-oneoff]').forEach(btn=> btn.addEventListener('click', function(){
+    list.querySelectorAll('[data-toggle-oneoff]').forEach(btn=> btn.addEventListener('click', async function(){
       const o = client.cashflow.oneOffs.find(o=>o.id===this.dataset.toggleOneoff);
       if(!o) return;
-      o.enabled = !o.enabled;
-      TEI.calc.stampEdit(o, 'adviser');
+      const merged = Object.assign({}, o, {enabled: !o.enabled});
+      TEI.calc.stampEdit(merged, 'adviser');
+      const nextOneOffs = client.cashflow.oneOffs.map(x=>x.id===o.id?merged:x);
+      this.disabled = true;
+      try{
+        await saveOneOffs(nextOneOffs);
+      } catch(err){
+        console.error('Wealth OS: failed to save one-offs', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      this.disabled = false;
+      client.cashflow.oneOffs = nextOneOffs;
       renderAdvOneOffList(); fillCashflowForm();
     }));
     list.querySelectorAll('[data-edit-oneoff]').forEach(btn=> btn.addEventListener('click', function(){
@@ -7082,21 +7410,55 @@ window.TEI = window.TEI || {};
     clearFieldsAdv(['advNewOneOffLabel','advNewOneOffAmount']);
     document.getElementById('advNewOneOffEnabled').checked = true;
   }
-  function addAdvOneOff(){
+  /* every one-off edit writes the whole cashflow_settings row (one_offs is
+     a jsonb array column there, not its own table) -- build the settings
+     payload against a throwaway clone with the new array substituted in,
+     save it, and only then commit the array to the real client object. */
+  async function saveOneOffs(nextOneOffs){
+    const tempClient = Object.assign({}, client, { cashflow: Object.assign({}, client.cashflow, { oneOffs: nextOneOffs }) });
+    await TEI.wealthOS.saveCashflowSettings(client.meta.clientId, tempClient);
+  }
+
+  async function addAdvOneOff(){
     const label = document.getElementById('advNewOneOffLabel').value.trim();
     const amount = parseFloat(document.getElementById('advNewOneOffAmount').value);
     if(!label || isNaN(amount)){ showToast('Give it a name and amount'); return; }
     const enabled = document.getElementById('advNewOneOffEnabled').checked;
-    client.cashflow.oneOffs = client.cashflow.oneOffs || [];
+    const existingOneOffs = client.cashflow.oneOffs || [];
+    const btn = document.getElementById('advAddOneOffBtn');
+    btn.disabled = true;
+    let nextOneOffs;
     if(editing.oneOff){
-      const o = client.cashflow.oneOffs.find(x=>x.id===editing.oneOff);
-      if(!o){ cancelOneOffEdit(); return; }
-      Object.assign(o, {label, amount, enabled});
-      TEI.calc.stampEdit(o, 'adviser');
+      const o = existingOneOffs.find(x=>x.id===editing.oneOff);
+      if(!o){ cancelOneOffEdit(); btn.disabled = false; return; }
+      const merged = Object.assign({}, o, {label, amount, enabled});
+      TEI.calc.stampEdit(merged, 'adviser');
+      nextOneOffs = existingOneOffs.map(x=>x.id===o.id?merged:x);
+      try{
+        await saveOneOffs(nextOneOffs);
+      } catch(err){
+        console.error('Wealth OS: failed to save one-offs', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.cashflow.oneOffs = nextOneOffs;
       cancelOneOffEdit();
       showToast('One-off updated');
     } else {
-      client.cashflow.oneOffs.push(TEI.calc.stampEdit({id:uid(), label, amount, enabled}, 'adviser'));
+      const o = TEI.calc.stampEdit({id:uid(), label, amount, enabled}, 'adviser');
+      nextOneOffs = existingOneOffs.concat([o]);
+      try{
+        await saveOneOffs(nextOneOffs);
+      } catch(err){
+        console.error('Wealth OS: failed to save one-offs', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.cashflow.oneOffs = nextOneOffs;
       clearFieldsAdv(['advNewOneOffLabel','advNewOneOffAmount']);
       document.getElementById('advNewOneOffEnabled').checked = true;
       showToast('One-off added');
@@ -7268,7 +7630,7 @@ window.TEI = window.TEI || {};
     const file = fileInput.files[0];
     if(!file){ resultEl.textContent = 'Choose a CSV file first.'; return; }
     const reader = new FileReader();
-    reader.onload = function(e){
+    reader.onload = async function(e){
       const rows = parseHoldingsCsvRows(String(e.target.result));
       if(!rows.length){ resultEl.textContent = 'That file looks empty.'; return; }
       const header = rows[0]; const col = {};
@@ -7294,13 +7656,31 @@ window.TEI = window.TEI || {};
       if(!parsed.length){ resultEl.textContent = 'No usable holding rows found in that file.'; return; }
       const existingCount = client.holdings.filter(h=>h.accountId===accountId).length;
       if(existingCount && !confirm(`Replace the ${existingCount} existing holding(s) for this account with ${parsed.length} from the file?`)) return;
-      client.holdings = client.holdings.filter(h=>h.accountId!==accountId).concat(parsed);
+      resultEl.textContent = 'Importing…';
+      let saved;
+      try{
+        saved = await TEI.wealthOS.replaceHoldingsForAccount(accountId, parsed);
+      } catch(err){
+        console.error('Wealth OS: failed to import holdings', err);
+        resultEl.textContent = "Import failed — " + (err.message || 'try again') + '. Nothing was changed.';
+        return;
+      }
+      // Map the returned DB rows straight back to local shape (rather than
+      // correlating by array position against `parsed`, which would depend
+      // on insert-order being preserved) so every row's id is the real one
+      // Supabase generated.
+      const savedWithLocalShape = saved.map(row=>({
+        id: row.id, accountId: row.account_id, name: row.name, ticker: row.ticker,
+        units: row.units, avgOpen: row.avg_open, costBasis: row.cost_basis,
+        value: row.value, sector: row.sector
+      }));
+      client.holdings = client.holdings.filter(h=>h.accountId!==accountId).concat(savedWithLocalShape);
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
       renderHoldings();
       renderMonthlyHoldingFields();
       renderMonthlyBalanceFields();
       renderAccounts();
-      resultEl.textContent = `Imported ${parsed.length} holding${parsed.length===1?'':'s'}${skipped?', skipped '+skipped+' row'+(skipped===1?'':'s'):''}.`;
+      resultEl.textContent = `Imported ${savedWithLocalShape.length} holding${savedWithLocalShape.length===1?'':'s'}${skipped?', skipped '+skipped+' row'+(skipped===1?'':'s'):''}.`;
       showToast('Holdings imported');
     };
     reader.readAsText(file);
@@ -7730,8 +8110,18 @@ window.TEI = window.TEI || {};
           <button type="button" class="btn-ghost on-light" data-del-income="${i.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
         </div>`;
     }, 'Nothing added yet.');
-    document.querySelectorAll('[data-del-income]').forEach(btn=> btn.addEventListener('click', function(){
-      client.cashflow.income = client.cashflow.income.filter(i=>i.id!==this.dataset.delIncome); renderIncomeList();
+    document.querySelectorAll('[data-del-income]').forEach(btn=> btn.addEventListener('click', async function(){
+      const id = this.dataset.delIncome;
+      this.disabled = true;
+      try{
+        await TEI.wealthOS.deleteIncome(id);
+      } catch(err){
+        console.error('Wealth OS: failed to delete income', err);
+        showToast("Couldn't remove — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      client.cashflow.income = client.cashflow.income.filter(i=>i.id!==id); renderIncomeList();
     }));
     document.querySelectorAll('[data-edit-income]').forEach(btn=> btn.addEventListener('click', function(){
       const item = client.cashflow.income.find(i=>i.id===this.dataset.editIncome); if(!item) return;
@@ -7743,20 +8133,42 @@ window.TEI = window.TEI || {};
       document.getElementById('obAddIncomeBtn').textContent = 'Save changes';
     }));
   }
-  function addOrSaveIncome(){
+  async function addOrSaveIncome(){
     const owner = document.getElementById('obNewIncomeOwner').value;
     const type = document.getElementById('obNewIncomeType').value;
     const amount = parseFloat(document.getElementById('obNewIncomeAmount').value);
     const frequency = document.getElementById('obNewIncomeFrequency').value;
     if(isNaN(amount)){ showToast('Add an amount'); return; }
+    const btn = document.getElementById('obAddIncomeBtn');
+    btn.disabled = true;
     if(editing.income){
       const item = client.cashflow.income.find(i=>i.id===editing.income);
-      Object.assign(item, {owner, type, amount, frequency});
-      TEI.calc.stampEdit(item, 'client');
+      const merged = Object.assign({}, item, {owner, type, amount, frequency});
+      TEI.calc.stampEdit(merged, 'client');
+      try{
+        await TEI.wealthOS.saveIncome(client.meta.clientId, item.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save income', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(item, merged);
       editing.income = null;
       document.getElementById('obAddIncomeBtn').textContent = 'Add';
     } else {
-      client.cashflow.income.push(TEI.calc.stampEdit({id:uid(), owner, type, amount, frequency}, 'client'));
+      const item = TEI.calc.stampEdit({id:uid(), owner, type, amount, frequency}, 'client');
+      try{
+        item.id = await TEI.wealthOS.saveIncome(client.meta.clientId, null, item);
+      } catch(err){
+        console.error('Wealth OS: failed to save income', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.cashflow.income.push(item);
     }
     clearFields(['obNewIncomeAmount']);
     renderIncomeList();
@@ -7770,8 +8182,17 @@ window.TEI = window.TEI || {};
          <button type="button" class="btn-ghost on-light" data-edit-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
          <button type="button" class="btn-ghost on-light" data-del-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
        </div>`, 'Nothing added yet.');
-    document.querySelectorAll('[data-del-exp]').forEach(btn=> btn.addEventListener('click', function(){
+    document.querySelectorAll('[data-del-exp]').forEach(btn=> btn.addEventListener('click', async function(){
       const [k,id] = this.dataset.delExp.split(':');
+      this.disabled = true;
+      try{
+        await TEI.wealthOS.deleteExpense(id);
+      } catch(err){
+        console.error('Wealth OS: failed to delete expense', err);
+        showToast("Couldn't remove — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
       client.cashflow.expenses[k] = client.cashflow.expenses[k].filter(e=>e.id!==id);
       renderExpenseList(k);
     }));
@@ -7786,7 +8207,7 @@ window.TEI = window.TEI || {};
       document.getElementById(k==='fixed' ? 'obAddFixedBtn' : 'obAddVariableBtn').textContent = 'Save changes';
     }));
   }
-  function addOrSaveExpense(kind){
+  async function addOrSaveExpense(kind){
     const labelId = kind==='fixed' ? 'obNewFixedLabel' : 'obNewVariableLabel';
     const amtId = kind==='fixed' ? 'obNewFixedAmount' : 'obNewVariableAmount';
     const btnId = kind==='fixed' ? 'obAddFixedBtn' : 'obAddVariableBtn';
@@ -7794,14 +8215,36 @@ window.TEI = window.TEI || {};
     const amount = parseFloat(document.getElementById(amtId).value);
     if(!label || isNaN(amount)){ showToast('Give it a name and amount'); return; }
     const editKey = kind+'Exp';
+    const btn = document.getElementById(btnId);
+    btn.disabled = true;
     if(editing[editKey]){
       const item = client.cashflow.expenses[kind].find(e=>e.id===editing[editKey]);
-      Object.assign(item, {label, amount});
-      TEI.calc.stampEdit(item, 'client');
+      const merged = Object.assign({}, item, {label, amount});
+      TEI.calc.stampEdit(merged, 'client');
+      try{
+        await TEI.wealthOS.saveExpense(client.meta.clientId, item.id, merged, kind);
+      } catch(err){
+        console.error('Wealth OS: failed to save expense', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(item, merged);
       editing[editKey] = null;
       document.getElementById(btnId).textContent = 'Add';
     } else {
-      client.cashflow.expenses[kind].push(TEI.calc.stampEdit({id:uid(), label, amount}, 'client'));
+      const item = TEI.calc.stampEdit({id:uid(), label, amount}, 'client');
+      try{
+        item.id = await TEI.wealthOS.saveExpense(client.meta.clientId, null, item, kind);
+      } catch(err){
+        console.error('Wealth OS: failed to save expense', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.cashflow.expenses[kind].push(item);
     }
     clearFields([labelId, amtId]);
     renderExpenseList(kind);
@@ -7844,8 +8287,18 @@ window.TEI = window.TEI || {};
          <button type="button" class="btn-ghost on-light" data-edit-asset="${a.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
          <button type="button" class="btn-ghost on-light" data-del-asset="${a.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
        </div>`, 'Nothing added yet.');
-    document.querySelectorAll('[data-del-asset]').forEach(btn=> btn.addEventListener('click', function(){
-      client.wealth.assets = client.wealth.assets.filter(a=>a.id!==this.dataset.delAsset);
+    document.querySelectorAll('[data-del-asset]').forEach(btn=> btn.addEventListener('click', async function(){
+      const id = this.dataset.delAsset;
+      this.disabled = true;
+      try{
+        await TEI.wealthOS.deleteWealthAsset(id);
+      } catch(err){
+        console.error('Wealth OS: failed to delete asset', err);
+        showToast("Couldn't remove — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      client.wealth.assets = client.wealth.assets.filter(a=>a.id!==id);
       renderAssetsList(); refreshLiabilityLinkOptions();
     }));
     document.querySelectorAll('[data-edit-asset]').forEach(btn=> btn.addEventListener('click', function(){
@@ -7857,19 +8310,41 @@ window.TEI = window.TEI || {};
       document.getElementById('obAddAssetBtn').textContent = 'Save changes';
     }));
   }
-  function addOrSaveAsset(){
+  async function addOrSaveAsset(){
     const type = document.getElementById('obNewAssetType').value;
     const value = parseFloat(document.getElementById('obNewAssetValue').value);
     const notes = document.getElementById('obNewAssetNotes').value.trim();
     if(isNaN(value)){ showToast('Add a value'); return; }
+    const btn = document.getElementById('obAddAssetBtn');
+    btn.disabled = true;
     if(editing.asset){
       const item = client.wealth.assets.find(a=>a.id===editing.asset);
-      Object.assign(item, {type, value, notes});
-      TEI.calc.stampEdit(item, 'client');
+      const merged = Object.assign({}, item, {type, value, notes});
+      TEI.calc.stampEdit(merged, 'client');
+      try{
+        await TEI.wealthOS.saveWealthAsset(client.meta.clientId, item.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save asset', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(item, merged);
       editing.asset = null;
       document.getElementById('obAddAssetBtn').textContent = 'Add';
     } else {
-      client.wealth.assets.push(TEI.calc.stampEdit({id:uid(), type, value, notes}, 'client'));
+      const item = TEI.calc.stampEdit({id:uid(), type, value, notes}, 'client');
+      try{
+        item.id = await TEI.wealthOS.saveWealthAsset(client.meta.clientId, null, item);
+      } catch(err){
+        console.error('Wealth OS: failed to save asset', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.wealth.assets.push(item);
     }
     clearFields(['obNewAssetValue','obNewAssetNotes']);
     renderAssetsList(); refreshLiabilityLinkOptions();
@@ -7889,8 +8364,18 @@ window.TEI = window.TEI || {};
          <button type="button" class="btn-ghost on-light" data-del-liab="${l.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
        </div>`;
     }, 'Nothing added yet.');
-    document.querySelectorAll('[data-del-liab]').forEach(btn=> btn.addEventListener('click', function(){
-      client.wealth.liabilities = client.wealth.liabilities.filter(l=>l.id!==this.dataset.delLiab);
+    document.querySelectorAll('[data-del-liab]').forEach(btn=> btn.addEventListener('click', async function(){
+      const id = this.dataset.delLiab;
+      this.disabled = true;
+      try{
+        await TEI.wealthOS.deleteWealthLiability(id);
+      } catch(err){
+        console.error('Wealth OS: failed to delete liability', err);
+        showToast("Couldn't remove — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      client.wealth.liabilities = client.wealth.liabilities.filter(l=>l.id!==id);
       renderLiabilitiesList();
     }));
     document.querySelectorAll('[data-edit-liab]').forEach(btn=> btn.addEventListener('click', function(){
@@ -7902,19 +8387,41 @@ window.TEI = window.TEI || {};
       document.getElementById('obAddLiabBtn').textContent = 'Save changes';
     }));
   }
-  function addOrSaveLiability(){
+  async function addOrSaveLiability(){
     const type = document.getElementById('obNewLiabType').value;
     const balance = parseFloat(document.getElementById('obNewLiabBalance').value);
     const linkedAssetId = document.getElementById('obNewLiabLinkedAsset').value || null;
     if(isNaN(balance)){ showToast('Add a balance'); return; }
+    const btn = document.getElementById('obAddLiabBtn');
+    btn.disabled = true;
     if(editing.liability){
       const item = client.wealth.liabilities.find(l=>l.id===editing.liability);
-      Object.assign(item, {type, balance, linkedAssetId});
-      TEI.calc.stampEdit(item, 'client');
+      const merged = Object.assign({}, item, {type, balance, linkedAssetId});
+      TEI.calc.stampEdit(merged, 'client');
+      try{
+        await TEI.wealthOS.saveWealthLiability(client.meta.clientId, item.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save liability', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(item, merged);
       editing.liability = null;
       document.getElementById('obAddLiabBtn').textContent = 'Add';
     } else {
-      client.wealth.liabilities.push(TEI.calc.stampEdit({id:uid(), type, balance, linkedAssetId}, 'client'));
+      const item = TEI.calc.stampEdit({id:uid(), type, balance, linkedAssetId}, 'client');
+      try{
+        item.id = await TEI.wealthOS.saveWealthLiability(client.meta.clientId, null, item);
+      } catch(err){
+        console.error('Wealth OS: failed to save liability', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      client.wealth.liabilities.push(item);
     }
     clearFields(['obNewLiabBalance']);
     renderLiabilitiesList();
@@ -7932,8 +8439,18 @@ window.TEI = window.TEI || {};
          <button type="button" class="btn-ghost on-light" data-edit-acct="${acc.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
          <button type="button" class="btn-ghost on-light" data-del-ob-acct="${acc.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
        </div>`, 'Nothing added yet.');
-    document.querySelectorAll('[data-del-ob-acct]').forEach(btn=> btn.addEventListener('click', function(){
-      client.accounts = client.accounts.filter(a=>a.id!==this.dataset.delObAcct);
+    document.querySelectorAll('[data-del-ob-acct]').forEach(btn=> btn.addEventListener('click', async function(){
+      const id = this.dataset.delObAcct;
+      this.disabled = true;
+      try{
+        await TEI.wealthOS.deleteAccount(id);
+      } catch(err){
+        console.error('Wealth OS: failed to delete account', err);
+        showToast("Couldn't remove — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      client.accounts = client.accounts.filter(a=>a.id!==id);
       renderObAccounts(); refreshHoldingAccountSelect(); refreshGoalLinkedAccountOptions();
     }));
     document.querySelectorAll('[data-edit-acct]').forEach(btn=> btn.addEventListener('click', function(){
@@ -7960,7 +8477,7 @@ window.TEI = window.TEI || {};
     const key = TEI.data.currentMonthKey();
     client.months[key] = Object.assign({}, client.months[key], {[accId]: value});
   }
-  function addOrSaveAccount(){
+  async function addOrSaveAccount(){
     const type = document.getElementById('obNewAcctType').value;
     const provider = document.getElementById('obNewAcctProvider').value.trim();
     const value = parseFloat(document.getElementById('obNewAcctBalance').value)||0;
@@ -7968,12 +8485,26 @@ window.TEI = window.TEI || {};
     const contrib = parseFloat(document.getElementById('obNewAcctContrib').value)||0;
     const contribPersonal = parseFloat(document.getElementById('obNewAcctContribPersonal').value)||0;
     const contribEmployer = parseFloat(document.getElementById('obNewAcctContribEmployer').value)||0;
+    const btn = document.getElementById('obAddAcctBtn');
+    btn.disabled = true;
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
-      Object.assign(acc, {name, type, provider, value});
-      if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; delete acc.contribution; }
-      else { acc.contribution = contrib; delete acc.contributionPersonal; delete acc.contributionSacrifice; }
-      TEI.calc.stampEdit(acc, 'client');
+      const patch = {name, type, provider, value};
+      if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
+      else { patch.contribution = contrib; }
+      const merged = Object.assign({}, acc, patch);
+      if(type==='pension') delete merged.contribution; else { delete merged.contributionPersonal; delete merged.contributionSacrifice; }
+      TEI.calc.stampEdit(merged, 'client');
+      try{
+        await TEI.wealthOS.saveAccount(client.meta.clientId, acc.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save account', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(acc, merged);
       editing.account = null;
       document.getElementById('obAddAcctBtn').textContent = 'Add';
       seedMonthBalance(acc.id, value);
@@ -7981,6 +8512,15 @@ window.TEI = window.TEI || {};
       const acc = {id:uid(), name, type, provider, value, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; } else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'client');
+      try{
+        acc.id = await TEI.wealthOS.saveAccount(client.meta.clientId, null, acc);
+      } catch(err){
+        console.error('Wealth OS: failed to save account', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
       client.accounts.push(acc);
       // Seed this month's balance so the account shows up correctly in the wealth
       // composition breakdown immediately, rather than reading as £0 there until
@@ -8006,9 +8546,19 @@ window.TEI = window.TEI || {};
          <button type="button" class="btn-ghost on-light" data-del-ob-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
        </div>`;
     }, 'Nothing added — totally fine to skip this.');
-    document.querySelectorAll('[data-del-ob-holding]').forEach(btn=> btn.addEventListener('click', function(){
-      const removed = client.holdings.find(h=>h.id===this.dataset.delObHolding);
-      client.holdings = client.holdings.filter(h=>h.id!==this.dataset.delObHolding);
+    document.querySelectorAll('[data-del-ob-holding]').forEach(btn=> btn.addEventListener('click', async function(){
+      const id = this.dataset.delObHolding;
+      this.disabled = true;
+      try{
+        await TEI.wealthOS.deleteHolding(id);
+      } catch(err){
+        console.error('Wealth OS: failed to delete holding', err);
+        showToast("Couldn't remove — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      const removed = client.holdings.find(h=>h.id===id);
+      client.holdings = client.holdings.filter(h=>h.id!==id);
       if(removed) TEI.calc.syncAccountValueFromHoldings(client, removed.accountId);
       renderObHoldings();
     }));
@@ -8027,7 +8577,7 @@ window.TEI = window.TEI || {};
   function seedHoldingMonth(holdingId, value){
     TEI.calc.seedMonthlyValue(client.holdingsMonths, TEI.data.currentMonthKey(), holdingId, value);
   }
-  function addOrSaveHolding(){
+  async function addOrSaveHolding(){
     const accountId = document.getElementById('obNewHoldingAccount').value;
     const name = document.getElementById('obNewHoldingName').value.trim();
     const ticker = document.getElementById('obNewHoldingTicker').value.trim() || null;
@@ -8036,11 +8586,23 @@ window.TEI = window.TEI || {};
     const costBasis = parseFloat(document.getElementById('obNewHoldingCost').value) || null;
     if(!accountId){ showToast('Add an account first, on the previous step'); return; }
     if(!name){ showToast('Give it a name'); return; }
+    const btn = document.getElementById('obAddHoldingBtn');
+    btn.disabled = true;
     if(editing.holding){
       const item = client.holdings.find(h=>h.id===editing.holding);
       const oldAccountId = item.accountId;
-      Object.assign(item, {accountId, name, ticker, quantity, value, costBasis});
-      TEI.calc.stampEdit(item, 'client');
+      const merged = Object.assign({}, item, {accountId, name, ticker, quantity, value, costBasis});
+      TEI.calc.stampEdit(merged, 'client');
+      try{
+        await TEI.wealthOS.saveHolding(accountId, item.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save holding', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(item, merged);
       editing.holding = null;
       document.getElementById('obAddHoldingBtn').textContent = 'Add';
       seedHoldingMonth(item.id, value);
@@ -8048,6 +8610,15 @@ window.TEI = window.TEI || {};
       if(accountId !== oldAccountId) TEI.calc.syncAccountValueFromHoldings(client, accountId);
     } else {
       const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, quantity, value, costBasis, sector:null, theme:[], geography:null, assetType:null}, 'client');
+      try{
+        h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
+      } catch(err){
+        console.error('Wealth OS: failed to save holding', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
       client.holdings.push(h);
       seedHoldingMonth(h.id, value);
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
@@ -8094,8 +8665,18 @@ window.TEI = window.TEI || {};
          <button type="button" class="btn-ghost on-light" data-del-ob-goal="${g.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
        </div>`;
     }, 'Nothing added yet.');
-    document.querySelectorAll('[data-del-ob-goal]').forEach(btn=> btn.addEventListener('click', function(){
-      client.goals = client.goals.filter(g=>g.id!==this.dataset.delObGoal); renderObGoals();
+    document.querySelectorAll('[data-del-ob-goal]').forEach(btn=> btn.addEventListener('click', async function(){
+      const id = this.dataset.delObGoal;
+      this.disabled = true;
+      try{
+        await TEI.wealthOS.deleteGoal(id);
+      } catch(err){
+        console.error('Wealth OS: failed to delete goal', err);
+        showToast("Couldn't remove — " + (err.message || 'try again'));
+        this.disabled = false;
+        return;
+      }
+      client.goals = client.goals.filter(g=>g.id!==id); renderObGoals();
     }));
     document.querySelectorAll('[data-edit-goal]').forEach(btn=> btn.addEventListener('click', function(){
       const item = client.goals.find(g=>g.id===this.dataset.editGoal); if(!item) return;
@@ -8112,7 +8693,7 @@ window.TEI = window.TEI || {};
       document.getElementById('obAddGoalBtn').textContent = 'Save changes';
     }));
   }
-  function addOrSaveGoal(){
+  async function addOrSaveGoal(){
     const type = document.getElementById('obNewGoalType').value;
     const name = document.getElementById('obNewGoalName').value.trim();
     const targetDate = document.getElementById('obNewGoalDate').value || null;
@@ -8121,15 +8702,37 @@ window.TEI = window.TEI || {};
     const targetIncome = parseFloat(document.getElementById('obNewGoalTargetIncome').value) || null;
     const linkedAccountIds = getCheckedLinkedAccounts(document.getElementById('obNewGoalLinkedAccounts'));
     if(!name){ showToast('Give the goal a name'); return; }
+    const btn = document.getElementById('obAddGoalBtn');
+    btn.disabled = true;
     let item;
     if(editing.goal){
-      item = client.goals.find(g=>g.id===editing.goal);
-      Object.assign(item, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds});
-      TEI.calc.stampEdit(item, 'client');
+      const existing = client.goals.find(g=>g.id===editing.goal);
+      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds});
+      TEI.calc.stampEdit(merged, 'client');
+      try{
+        await TEI.wealthOS.saveGoal(client.meta.clientId, existing.id, merged);
+      } catch(err){
+        console.error('Wealth OS: failed to save goal', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
+      Object.assign(existing, merged);
+      item = existing;
       editing.goal = null;
       document.getElementById('obAddGoalBtn').textContent = 'Add';
     } else {
       item = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:false, status:'active', linkedAccountIds, statusHistory:[]}, 'client');
+      try{
+        item.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, item);
+      } catch(err){
+        console.error('Wealth OS: failed to save goal', err);
+        showToast("Couldn't save — " + (err.message || 'try again'));
+        btn.disabled = false;
+        return;
+      }
+      btn.disabled = false;
       client.goals.push(item);
     }
     // Monetary/income goals get an automatic monthly progress snapshot every time
@@ -8208,12 +8811,19 @@ window.TEI = window.TEI || {};
       <div class="range-stat accent-gold"><span class="rs-label">Monthly savings, roughly</span><b>${fmtGBP(income-spend)}</b></div>
     `;
   }
-  function finish(){
+  async function finish(){
     client.settings.onboardingComplete = true;
     client.meta.lastUpdated = new Date().toISOString();
     client.meta.completion = completion(client);
+    try{
+      await TEI.wealthOS.setOnboardingComplete(client.meta.clientId);
+    } catch(err){
+      console.error('Wealth OS: failed to mark onboarding complete', err);
+      showToast("Couldn't save that this step is complete — " + (err.message || 'try again') + '. Your entries so far are still saved individually.');
+      return;
+    }
     downloadClient();
-    showToast('Downloaded as a backup — this build does not yet save changes back to your TEI account automatically');
+    showToast('All done — saved to your TEI account, and downloaded as a backup copy too');
   }
   function downloadClient(){
     const blob = new Blob([JSON.stringify(client, null, 2)], {type:'application/json'});
@@ -8255,12 +8865,60 @@ window.TEI = window.TEI || {};
     document.getElementById('obAddDocBtn').addEventListener('click', addObDocument);
 
     document.getElementById('backBtn').addEventListener('click', ()=>goToStep(nextVisibleStep(step,-1)));
-    document.getElementById('nextBtn').addEventListener('click', ()=>{ if(step===8) finish(); goToStep(nextVisibleStep(step,1)); });
-    document.getElementById('skipStepBtn').addEventListener('click', ()=>goToStep(nextVisibleStep(step,1)));
+    document.getElementById('nextBtn').addEventListener('click', async ()=>{
+      if(!(await saveContinuousFieldsIfLeaving())) return;
+      if(step===8){ await finish(); return; }
+      goToStep(nextVisibleStep(step,1));
+    });
+    document.getElementById('skipStepBtn').addEventListener('click', async ()=>{
+      if(!(await saveContinuousFieldsIfLeaving())) return;
+      goToStep(nextVisibleStep(step,1));
+    });
     document.getElementById('finishBtn').addEventListener('click', finish);
     document.getElementById('downloadProgressBtn').addEventListener('click', downloadClient);
 
     goToStep(1);
+  }
+
+  /* Steps 1, 2 (cashflow basics) and 3 (property value) have fields with no
+     per-field save button of their own -- they write straight to the local
+     client object as you type (see wirePersonal / wireCashflowBasics /
+     wireWealth), so the one moment to actually persist them to Supabase is
+     when leaving the step via Next/Skip. Every other step (income, expenses,
+     assets, liabilities, accounts, holdings, goals) already saves per-record
+     through its own Add/Save button instead -- this only covers the three
+     exceptions. */
+  async function saveContinuousFieldsIfLeaving(){
+    if(step !== 1 && step !== 2 && step !== 3) return true;
+    const nextBtnEl = document.getElementById('nextBtn');
+    nextBtnEl.disabled = true;
+    try{
+      if(step === 1){
+        await TEI.wealthOS.saveClientPersonal(client.meta.clientId, client.personal);
+      } else if(step === 2){
+        await TEI.wealthOS.saveCashflowSettings(client.meta.clientId, client);
+      } else if(step === 3){
+        const property = getPropertyAsset();
+        // property.id starts as a uid() string (see wireWealth) until it's
+        // been saved once -- after that it's a real Supabase UUID, which
+        // survives a page reload (unlike a local "already saved" flag would),
+        // so that format check is what decides insert vs. update here.
+        if(property){
+          if(TEI.data.isRealId(property.id)){
+            await TEI.wealthOS.saveWealthAsset(client.meta.clientId, property.id, property);
+          } else {
+            property.id = await TEI.wealthOS.saveWealthAsset(client.meta.clientId, null, property);
+          }
+        }
+      }
+    } catch(err){
+      console.error('Wealth OS: failed to save', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      nextBtnEl.disabled = false;
+      return false;
+    }
+    nextBtnEl.disabled = false;
+    return true;
   }
 
   function refresh(){
@@ -8590,7 +9248,265 @@ window.TEI = window.TEI || {};
     sel.dataset.wired = '1';
   }
 
-  TEI.wealthOS = { loadWealthOSClient, loadClientById, wireClientSwitcher, showLoadError, hideLoadError };
+
+  /* ============================================================
+     PHASE 2: write-back helpers.
+     Generic insert/update/delete primitives, then a snake_case row
+     mapper per table (the inverse of adaptClientBundle's mapping
+     above), then one high-level save/delete function per entity --
+     these are what the UI (adviser manual entry, onboarding wizard,
+     CSV import) actually calls. Every save is "explicit": the caller
+     awaits it and only touches local state once Supabase confirms,
+     rather than optimistic local-first updates.
+     ============================================================ */
+
+  async function insertRow(table, row){
+    const { data, error } = await wo(window.teiSupabase).from(table).insert(row).select().single();
+    if(error) throw error;
+    return data;
+  }
+  async function updateRow(table, idColumn, idValue, row){
+    const { data, error } = await wo(window.teiSupabase).from(table).update(row).eq(idColumn, idValue).select().single();
+    if(error) throw error;
+    return data;
+  }
+  async function deleteRow(table, idColumn, idValue){
+    const { error } = await wo(window.teiSupabase).from(table).delete().eq(idColumn, idValue);
+    if(error) throw error;
+  }
+
+  /* ---------- per-table row mappers (local camelCase -> DB snake_case) ---------- */
+
+  function accountToRow(clientId, a){
+    return {
+      client_id: clientId,
+      provider: a.provider || null,
+      type: a.type,
+      value: a.value,
+      return_pct: a.returnPct != null ? a.returnPct : null,
+      contribution: a.contribution != null ? a.contribution : null,
+      contribution_personal: a.contributionPersonal != null ? a.contributionPersonal : null,
+      contribution_sacrifice: a.contributionSacrifice != null ? a.contributionSacrifice : null,
+      last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
+      last_edited_by: a.lastEditedBy || null,
+      last_edited_at: a.lastEditedAt || null
+    };
+    // deliberately no "name" -- accounts.name is generated client-side from
+    // provider+type (see adaptClientBundle above), not a stored column.
+  }
+
+  function holdingToRow(accountId, h){
+    return {
+      account_id: accountId,
+      name: h.name,
+      ticker: h.ticker || null,
+      // onboarding-created holdings use h.quantity, adviser/CSV-created use
+      // h.units -- both map onto the one real DB column so either entry
+      // path persists correctly.
+      units: h.quantity != null ? h.quantity : (h.units != null ? h.units : null),
+      avg_open: h.avgOpen != null ? h.avgOpen : null,
+      cost_basis: h.costBasis != null ? h.costBasis : null,
+      value: h.value,
+      sector: h.sector || null
+    };
+    // holdings has no last_edited_by/last_edited_at column (confirmed via
+    // information_schema) -- deliberately omitted.
+  }
+
+  function goalToRow(clientId, g){
+    return {
+      client_id: clientId,
+      name: g.name,
+      type: g.type,
+      target_value: g.targetAmount != null ? g.targetAmount : null,
+      target_date: g.targetDate || null,
+      status: g.status || 'active',
+      progress_type: g.progressType,
+      target_income: g.targetIncome != null ? g.targetIncome : null,
+      completed: !!g.completed,
+      status_history: g.statusHistory || [],
+      last_edited_by: g.lastEditedBy || null,
+      last_edited_at: g.lastEditedAt || null
+    };
+  }
+
+  function dividendHoldingToRow(clientId, d){
+    return { client_id: clientId, name: d.name, yield: d.yield, growth: d.growth, amount: d.amount };
+  }
+
+  // income/wealth_assets/wealth_liabilities column names assumed from the
+  // brief's mapping (matches every other client_id-keyed table's pattern)
+  // pending final confirmation -- see chat for the introspection query
+  // covering these three specifically. Adjust here if that comes back
+  // different.
+  function incomeToRow(clientId, i){
+    return {
+      client_id: clientId, owner: i.owner || null, type: i.type, amount: i.amount, frequency: i.frequency,
+      last_edited_by: i.lastEditedBy || null, last_edited_at: i.lastEditedAt || null
+    };
+  }
+  function wealthAssetToRow(clientId, a){
+    return { client_id: clientId, type: a.type, value: a.value, notes: a.notes || null };
+  }
+  function wealthLiabilityToRow(clientId, l){
+    return { client_id: clientId, type: l.type, balance: l.balance, linked_asset_id: l.linkedAssetId || null };
+  }
+
+  function cashflowSettingsToRow(clientId, client){
+    const cf = client.cashflow || {};
+    const pref = client.preferences || {};
+    return {
+      client_id: clientId,
+      monthly_savings: cf.saving ? cf.saving.monthlySavings : null,
+      monthly_investing: cf.saving ? cf.saving.monthlyInvesting : null,
+      emergency_fund_target: cf.emergencyFund ? cf.emergencyFund.target : null,
+      emergency_fund_current: cf.emergencyFund ? cf.emergencyFund.current : null,
+      scenario: cf.scenario != null ? cf.scenario : null,
+      best_mult: cf.bestMult != null ? cf.bestMult : null,
+      worst_mult: cf.worstMult != null ? cf.worstMult : null,
+      one_offs: cf.oneOffs || null,
+      savings_goals: cf.savingsGoals || null,
+      fi_multiple: pref.fiMultiple != null ? pref.fiMultiple : null,
+      fi_override: pref.fiOverride != null ? pref.fiOverride : null,
+      wealth_conversion_target: pref.wealthConversionTarget != null ? pref.wealthConversionTarget : null,
+      monte_carlo: client.monteCarlo || null
+    };
+  }
+
+  function clientPersonalToRow(personal){
+    return {
+      first_name: personal.firstName, last_name: personal.lastName, dob: personal.dob || null,
+      employment_status: personal.employmentStatus || null, relationship_status: personal.relationshipStatus || null,
+      risk_profile: personal.riskProfile || null, email: personal.email || null, notes: personal.notes || null,
+      partner_name: personal.partner ? personal.partner.name : null,
+      partner_employment_status: personal.partner ? personal.partner.employmentStatus : null,
+      last_updated: new Date().toISOString()
+    };
+  }
+
+  /* goal_accounts has no single-row id of its own -- every goal save
+     replaces its full linked-accounts set rather than diffing it. */
+  async function syncGoalAccounts(goalId, accountIds){
+    const supabase = window.teiSupabase;
+    const { error: delErr } = await wo(supabase).from('goal_accounts').delete().eq('goal_id', goalId);
+    if(delErr) throw delErr;
+    if(accountIds && accountIds.length){
+      const rows = accountIds.map(accId=>({ goal_id: goalId, account_id: accId }));
+      const { error: insErr } = await wo(supabase).from('goal_accounts').insert(rows);
+      if(insErr) throw insErr;
+    }
+  }
+
+  /* ---------- high-level per-entity save/delete (what the UI calls) ---------- */
+
+  async function saveAccount(clientId, existingId, local){
+    const row = accountToRow(clientId, local);
+    const saved = existingId ? await updateRow('accounts','id',existingId,row) : await insertRow('accounts', row);
+    return saved.id;
+  }
+  async function deleteAccount(id){ await deleteRow('accounts','id',id); }
+
+  async function saveHolding(accountId, existingId, local){
+    const row = holdingToRow(accountId, local);
+    const saved = existingId ? await updateRow('holdings','id',existingId,row) : await insertRow('holdings', row);
+    return saved.id;
+  }
+  async function deleteHolding(id){ await deleteRow('holdings','id',id); }
+
+  async function saveGoal(clientId, existingId, local){
+    const row = goalToRow(clientId, local);
+    const saved = existingId ? await updateRow('goals','id',existingId,row) : await insertRow('goals', row);
+    await syncGoalAccounts(saved.id, local.linkedAccountIds || []);
+    return saved.id;
+  }
+  async function deleteGoal(id){
+    const supabase = window.teiSupabase;
+    await wo(supabase).from('goal_accounts').delete().eq('goal_id', id);
+    await deleteRow('goals','id',id);
+  }
+
+  async function saveIncome(clientId, existingId, local){
+    const row = incomeToRow(clientId, local);
+    const saved = existingId ? await updateRow('income','id',existingId,row) : await insertRow('income', row);
+    return saved.id;
+  }
+  async function deleteIncome(id){ await deleteRow('income','id',id); }
+
+  async function saveExpense(clientId, existingId, local, category){
+    const row = { client_id: clientId, category: category, label: local.label, amount: local.amount };
+    const saved = existingId ? await updateRow('expenses','id',existingId,row) : await insertRow('expenses', row);
+    return saved.id;
+  }
+  async function deleteExpense(id){ await deleteRow('expenses','id',id); }
+
+  async function saveWealthAsset(clientId, existingId, local){
+    const row = wealthAssetToRow(clientId, local);
+    const saved = existingId ? await updateRow('wealth_assets','id',existingId,row) : await insertRow('wealth_assets', row);
+    return saved.id;
+  }
+  async function deleteWealthAsset(id){ await deleteRow('wealth_assets','id',id); }
+
+  async function saveWealthLiability(clientId, existingId, local){
+    const row = wealthLiabilityToRow(clientId, local);
+    const saved = existingId ? await updateRow('wealth_liabilities','id',existingId,row) : await insertRow('wealth_liabilities', row);
+    return saved.id;
+  }
+  async function deleteWealthLiability(id){ await deleteRow('wealth_liabilities','id',id); }
+
+  async function saveDividendHolding(clientId, existingId, local){
+    const row = dividendHoldingToRow(clientId, local);
+    const saved = existingId ? await updateRow('dividend_holdings','id',existingId,row) : await insertRow('dividend_holdings', row);
+    return saved.id;
+  }
+  async function deleteDividendHolding(id){ await deleteRow('dividend_holdings','id',id); }
+
+  async function saveCashflowSettings(clientId, client){
+    const row = cashflowSettingsToRow(clientId, client);
+    const { data, error } = await wo(window.teiSupabase).from('cashflow_settings')
+      .upsert(row, { onConflict: 'client_id' }).select().single();
+    if(error) throw error;
+    return data;
+  }
+
+  async function saveClientPersonal(clientId, personal){
+    return await updateRow('clients','id',clientId, clientPersonalToRow(personal));
+  }
+
+  async function setOnboardingComplete(clientId){
+    return await updateRow('clients','id',clientId, { onboarding_complete:true, last_updated:new Date().toISOString() });
+  }
+
+  /* dividendHistory lives as a jsonb array directly on the clients row
+     (clients.dividend_history), not its own table -- every edit writes the
+     whole array back. */
+  async function saveDividendHistory(clientId, historyArray){
+    return await updateRow('clients','id',clientId, { dividend_history: historyArray, last_updated: new Date().toISOString() });
+  }
+
+  async function importHoldingsRows(accountId, localHoldings){
+    const rows = localHoldings.map(h=>holdingToRow(accountId, h));
+    const { data, error } = await wo(window.teiSupabase).from('holdings').insert(rows).select();
+    if(error) throw error;
+    return data;
+  }
+
+  /* CSV import replaces an account's whole holdings list -- matches the
+     confirm() prompt's "replace the N existing holdings" semantics exactly,
+     so delete-then-bulk-insert rather than trying to diff old vs new rows. */
+  async function replaceHoldingsForAccount(accountId, localHoldings){
+    await deleteRow('holdings', 'account_id', accountId);
+    if(!localHoldings.length) return [];
+    return await importHoldingsRows(accountId, localHoldings);
+  }
+
+  TEI.wealthOS = {
+    loadWealthOSClient, loadClientById, wireClientSwitcher, showLoadError, hideLoadError,
+    saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
+    saveIncome, deleteIncome, saveExpense, deleteExpense,
+    saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
+    saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory,
+    saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount
+  };
 })();
 
 </script>
