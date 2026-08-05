@@ -8117,11 +8117,22 @@ window.TEI = window.TEI || {};
     renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
   }
 
+  function sleep(ms){ return new Promise(resolve=>setTimeout(resolve, ms)); }
+
   /* Live prices: value = price * units for every holding that has both a
      ticker and a unit count -- overwrites the manual "Value £" entry rather
      than just suggesting it (decided 2026-08 off pilot feedback that manual
      entry was the hassle). Holdings with no ticker, or a ticker but no
-     units, are left alone -- there's nothing to multiply. */
+     units, are left alone -- there's nothing to multiply.
+
+     Twelve Data's free tier charges 1 credit per symbol per request (plus 1
+     for the exchange-rate call) against an 8/minute cap -- a portfolio with
+     more than a handful of live-priced holdings can exceed that in a single
+     click regardless of how often you refresh, since the whole batch is
+     costed at once. Chunk unique tickers into groups of <=7 (leaving
+     headroom for the FX credit) and pace a request per chunk a little over
+     a minute apart -- fine for the "refresh a couple of times a day" use
+     case this is actually needed for, just slower for a big portfolio. */
   async function refreshLivePrices(){
     const btn = document.getElementById('refreshLivePricesBtn');
     const status = document.getElementById('livePricesStatus');
@@ -8130,10 +8141,27 @@ window.TEI = window.TEI || {};
       status.textContent = 'No holdings have both a ticker and units set yet.';
       return;
     }
+    const CHUNK_SIZE = 7;
+    const WAIT_MS = 65000; // a little over a minute, so Twelve Data's per-minute window has genuinely rolled over
+    const uniqueTickers = [...new Set(priceable.map(h=>h.ticker.toUpperCase()))];
+    const chunks = [];
+    for(let i=0;i<uniqueTickers.length;i+=CHUNK_SIZE) chunks.push(uniqueTickers.slice(i,i+CHUNK_SIZE));
+
     btn.disabled = true;
-    status.textContent = 'Fetching live prices…';
+    const prices = {}, errors = {};
+    let usdGbpRate = null;
     try{
-      const { prices, errors, usdGbpRate } = await TEI.wealthOS.fetchLivePrices(priceable.map(h=>h.ticker));
+      for(let i=0;i<chunks.length;i++){
+        if(i>0){
+          status.textContent = `Pacing around Twelve Data's rate limit — waiting before batch ${i+1} of ${chunks.length}…`;
+          await sleep(WAIT_MS);
+        }
+        status.textContent = chunks.length>1 ? `Fetching live prices (batch ${i+1} of ${chunks.length})…` : 'Fetching live prices…';
+        const res = await TEI.wealthOS.fetchLivePrices(chunks[i]);
+        Object.assign(prices, res.prices||{});
+        Object.assign(errors, res.errors||{});
+        if(res.usdGbpRate != null) usdGbpRate = res.usdGbpRate;
+      }
       // Twelve Data prices come back in USD (it doesn't cover LSE-listed
       // tickers at all, so every ticker priced here is assumed US-listed --
       // see api/prices.js). Refuse to convert if the FX rate itself failed
@@ -8158,7 +8186,7 @@ window.TEI = window.TEI || {};
         updated++;
       }
       touchedAccounts.forEach(accId=>TEI.calc.syncAccountValueFromHoldings(client, accId));
-      const failed = Object.keys(errors||{});
+      const failed = Object.keys(errors);
       status.textContent = `Updated ${updated} of ${priceable.length} priced holding${priceable.length===1?'':'s'}` +
         ` (1 USD = £${usdGbpRate.toFixed(4)})` +
         (failed.length ? ` — couldn't price ${failed.join(', ')}` : '') +
