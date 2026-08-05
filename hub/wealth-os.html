@@ -2166,6 +2166,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <label class="form-field on-light"><span>Goal type</span><select id="clNewGoalType">
             <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
             <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+            <option value="Build a Business">Build a Business</option>
             <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
           </select></label>
           <label class="form-field on-light"><span>Name</span><input type="text" id="clNewGoalName" placeholder="e.g. House deposit"></label>
@@ -2175,6 +2176,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           </select></label>
           <label class="form-field on-light" id="clGoalTargetAmountField"><span>Target £</span><input type="number" id="clNewGoalTargetAmount" placeholder="0"></label>
           <label class="form-field on-light" id="clGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="clNewGoalTargetIncome" placeholder="0"></label>
+          <label class="form-field on-light" id="clGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="clNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
           <div class="form-field on-light" id="clGoalLinkedAccountsField"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:12px;">
@@ -2333,6 +2335,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <option value="Pension">Pension</option>
             <option value="Dividend Income">Dividend Income</option>
             <option value="Rental Income">Rental Income</option>
+            <option value="Self-Employed">Self-Employed</option>
+            <option value="Business Venture Income">Business Venture Income</option>
             <option value="Other">Other</option>
           </select>
         </label>
@@ -2501,6 +2505,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <option value="Retirement">Retirement</option>
             <option value="Financial Independence">Financial Independence</option>
             <option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+            <option value="Build a Business">Build a Business</option>
             <option value="Education">Education</option>
             <option value="Lifestyle">Lifestyle</option>
             <option value="Other">Other</option>
@@ -2517,6 +2522,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </label>
         <label class="form-field on-light" id="obGoalTargetAmountField"><span>Target £</span><input type="number" id="obNewGoalTargetAmount" placeholder="0"></label>
         <label class="form-field on-light" id="obGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="obNewGoalTargetIncome" placeholder="0"></label>
+        <label class="form-field on-light" id="obGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="obNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
         <div class="form-field on-light" id="obGoalLinkedAccountsField"><span>Linked account(s)</span><div id="obNewGoalLinkedAccounts" class="checkbox-list"></div></div>
         <button type="button" class="btn-primary" id="obAddGoalBtn">Add</button>
       </div>
@@ -2818,6 +2824,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Goal type</span><select id="newGoalType">
           <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
           <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+          <option value="Build a Business">Build a Business</option>
           <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
         </select></label>
         <label class="form-field"><span>Name</span><input type="text" id="newGoalName" placeholder="e.g. House deposit"></label>
@@ -2827,6 +2834,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </select></label>
         <label class="form-field" id="advGoalTargetAmountField"><span>Target £</span><input type="number" id="newGoalTargetAmount" placeholder="0"></label>
         <label class="form-field" id="advGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="newGoalTargetIncome" placeholder="0"></label>
+        <label class="form-field" id="advGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="newGoalLinkedIncome"><option value="">Whole household income</option></select></label>
         <div class="form-field" id="advGoalLinkedAccountsField"><span>Linked account(s)</span><div id="newGoalLinkedAccounts" class="checkbox-list on-dark"></div></div>
         <label class="form-field"><span>Status</span><select id="newGoalStatus">
           <option value="active">Active</option><option value="paused">Paused</option><option value="completed">Completed</option>
@@ -2843,7 +2851,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Owner</span><select id="advNewIncomeOwner"><option value="client">Client</option><option value="partner">Partner</option></select></label>
         <label class="form-field"><span>Type</span><select id="advNewIncomeType">
           <option value="Salary">Salary</option><option value="Bonus">Bonus</option><option value="Pension">Pension</option>
-          <option value="Dividend Income">Dividend Income</option><option value="Rental Income">Rental Income</option><option value="Other">Other</option>
+          <option value="Dividend Income">Dividend Income</option><option value="Rental Income">Rental Income</option>
+          <option value="Self-Employed">Self-Employed</option><option value="Business Venture Income">Business Venture Income</option>
+          <option value="Other">Other</option>
         </select></label>
         <label class="form-field"><span>Amount £</span><input type="number" id="advNewIncomeAmount" placeholder="0"></label>
         <label class="form-field"><span>Frequency</span><select id="advNewIncomeFrequency">
@@ -3382,7 +3392,12 @@ window.TEI = window.TEI || {};
       return {pct: goal.completed ? 100 : 0, current:null, target:null, isComplete: !!goal.completed};
     }
     if(goal.progressType === 'income'){
-      const currentAnnualIncome = totalMonthlyIncome(client) * 12;
+      // Household total by default, or — if linkedIncomeId is set (e.g. a
+      // "Build a Business" goal tracking one Self-Employed/Business Venture
+      // Income entry) — just that one income stream. Falls back to the
+      // household total if the linked entry has since been removed.
+      const linked = goal.linkedIncomeId && (client.cashflow.income||[]).find(i=>i.id===goal.linkedIncomeId);
+      const currentAnnualIncome = linked ? toMonthlyAmount(linked.amount, linked.frequency)*12 : totalMonthlyIncome(client)*12;
       const target = Number(goal.targetIncome)||0;
       const pct = target > 0 ? Math.min(100, (currentAnnualIncome/target)*100) : 0;
       return {pct, current:currentAnnualIncome, target, isComplete: target>0 && currentAnnualIncome>=target};
@@ -4976,6 +4991,7 @@ TEI.render = TEI.render || {};
   const TYPE_ICON = {
     'Build Wealth':'📈', 'Buy a Home':'🏡', 'Retirement':'🏛️',
     'Financial Independence':'🕊️', 'Improve Tax Efficiency':'📋',
+    'Build a Business':'💼',
     'Education':'🎓', 'Lifestyle':'🌿', 'Other':'🎯'
   };
   const HEALTH_LABEL = {'on-track':'🟢 On Track','ahead':'🔵 Ahead','at-risk':'🟡 At Risk','off-track':'🔴 Off Track'};
@@ -6112,7 +6128,9 @@ TEI.render = TEI.render || {};
     const pt = document.getElementById('clNewGoalProgressType').value;
     document.getElementById('clGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
     document.getElementById('clGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('clGoalLinkedIncomeField').style.display = pt==='income' ? 'flex' : 'none';
     document.getElementById('clGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+    if(pt==='income') refreshClGoalLinkedIncomeOptions(TEI.app.state.client);
   }
 
   function refreshClGoalLinkedAccountOptions(client){
@@ -6128,6 +6146,34 @@ TEI.render = TEI.render || {};
     }
   }
 
+  /* Single-income link for 'income' progress-type goals. A "Build a
+     Business" goal only offers Self-Employed/Business Venture Income
+     entries -- no "whole household" fallback, since tracking a business
+     goal against total household income defeats the point. Any other goal
+     category keeps the original "pick any income source, or leave it on
+     the household total" choice. */
+  function refreshClGoalLinkedIncomeOptions(client){
+    const sel = document.getElementById('clNewGoalLinkedIncome');
+    if(!sel) return;
+    const selected = sel.value;
+    const goalType = document.getElementById('clNewGoalType').value;
+    const allIncome = client.cashflow.income || [];
+    const opt = i=>`<option value="${i.id}">${i.type} — ${fmtGBP(TEI.calc.toMonthlyAmount(i.amount, i.frequency))}/mo</option>`;
+    if(goalType === 'Build a Business'){
+      const income = allIncome.filter(i=> i.type==='Self-Employed' || i.type==='Business Venture Income');
+      if(!income.length){
+        sel.innerHTML = '<option value="">Add a Self-Employed or Business Venture Income entry first</option>';
+        sel.value = '';
+        return;
+      }
+      sel.innerHTML = income.map(opt).join('');
+      sel.value = income.some(i=>i.id===selected) ? selected : income[0].id;
+    } else {
+      sel.innerHTML = '<option value="">Whole household income</option>' + allIncome.map(opt).join('');
+      sel.value = allIncome.some(i=>i.id===selected) ? selected : '';
+    }
+  }
+
   function cancelClGoalEdit(){
     editingGoalId = null;
     document.getElementById('clGoalFormTitle').textContent = 'Add a goal';
@@ -6137,6 +6183,7 @@ TEI.render = TEI.render || {};
     document.getElementById('clNewGoalProgressType').value = 'monetary';
     toggleClGoalProgressFields();
     refreshClGoalLinkedAccountOptions(TEI.app.state.client);
+    refreshClGoalLinkedIncomeOptions(TEI.app.state.client);
   }
 
   function startClGoalEdit(client, goalId){
@@ -6154,6 +6201,8 @@ TEI.render = TEI.render || {};
     refreshClGoalLinkedAccountOptions(client);
     const wrap = document.getElementById('clNewGoalLinkedAccounts');
     wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked = (g.linkedAccountIds||[]).includes(cb.value); });
+    refreshClGoalLinkedIncomeOptions(client);
+    document.getElementById('clNewGoalLinkedIncome').value = g.linkedIncomeId || '';
     document.getElementById('clAddGoalBtn').textContent = 'Save changes';
     document.getElementById('clCancelGoalEditBtn').style.display = 'inline-block';
     document.getElementById('clGoalFormTitle').scrollIntoView({behavior:'smooth', block:'center'});
@@ -6208,8 +6257,13 @@ TEI.render = TEI.render || {};
     const targetAmount = parseFloat(document.getElementById('clNewGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('clNewGoalTargetIncome').value) || null;
     const linkedAccountIds = Array.from(document.getElementById('clNewGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    const linkedIncomeId = document.getElementById('clNewGoalLinkedIncome').value || null;
     if(progressType === 'monetary' && !linkedAccountIds.length){
       TEI.app.showToast('Link at least one account so this goal has something to track progress from');
+      return;
+    }
+    if(progressType === 'income' && type === 'Build a Business' && !linkedIncomeId){
+      TEI.app.showToast('Add a Self-Employed or Business Venture Income entry, then link it here');
       return;
     }
     const btn = document.getElementById('clAddGoalBtn');
@@ -6217,7 +6271,7 @@ TEI.render = TEI.render || {};
     if(editingGoalId){
       const existing = client.goals.find(g=>g.id===editingGoalId);
       if(!existing){ cancelClGoalEdit(); btn.disabled = false; return; }
-      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds});
+      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, linkedIncomeId});
       TEI.calc.stampEdit(merged, client.meta.role);
       try{
         await TEI.wealthOS.saveGoal(client.meta.clientId, existing.id, merged);
@@ -6233,7 +6287,7 @@ TEI.render = TEI.render || {};
       TEI.app.showToast('Goal updated');
     } else {
       const g = TEI.calc.stampEdit({id: TEI.data.uid(), type, name, targetDate, progressType, targetAmount, targetIncome,
-        completed:false, status:'active', linkedAccountIds, statusHistory:[]}, client.meta.role);
+        completed:false, status:'active', linkedAccountIds, linkedIncomeId, statusHistory:[]}, client.meta.role);
       try{
         g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
       } catch(err){
@@ -6245,6 +6299,7 @@ TEI.render = TEI.render || {};
       btn.disabled = false;
       client.goals.push(g);
       ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('clNewGoalLinkedIncome').value = '';
       TEI.app.showToast('Goal added');
     }
     TEI.app.rerenderCurrentPage();
@@ -6255,6 +6310,16 @@ TEI.render = TEI.render || {};
     if(typeEl && !typeEl.dataset.wired){
       typeEl.dataset.wired = '1';
       typeEl.addEventListener('change', toggleClGoalProgressFields);
+    }
+    const goalTypeEl = document.getElementById('clNewGoalType');
+    if(goalTypeEl && !goalTypeEl.dataset.wired){
+      goalTypeEl.dataset.wired = '1';
+      // Re-run the same show/hide + linked-income refresh -- the "Which
+      // income?" list is filtered by goal category (see
+      // refreshClGoalLinkedIncomeOptions), so switching to/from "Build a
+      // Business" needs to rebuild it even though visibility itself only
+      // depends on progress type.
+      goalTypeEl.addEventListener('change', toggleClGoalProgressFields);
     }
     const btn = document.getElementById('clAddGoalBtn');
     if(btn && !btn.dataset.wired){
@@ -6295,6 +6360,7 @@ TEI.render = TEI.render || {};
     renderDepositsMonthlyWidget(client);
     if(!editingGoalId) toggleClGoalProgressFields();
     refreshClGoalLinkedAccountOptions(client);
+    refreshClGoalLinkedIncomeOptions(client);
     renderClGoalsList(client);
     renderCashflowMonthlyWidget(client);
   };
@@ -7792,6 +7858,8 @@ window.TEI = window.TEI || {};
         refreshAccountSelects();
         const wrap = document.getElementById('newGoalLinkedAccounts');
         wrap.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.checked = (g.linkedAccountIds||[]).includes(cb.value); });
+        refreshAdvGoalLinkedIncomeOptions();
+        document.getElementById('newGoalLinkedIncome').value = g.linkedIncomeId || '';
         document.getElementById('addGoalBtn').textContent = 'Save changes';
         document.getElementById('newGoalName').scrollIntoView({behavior:'smooth', block:'center'});
       });
@@ -7801,12 +7869,42 @@ window.TEI = window.TEI || {};
     editing.goal = null;
     document.getElementById('addGoalBtn').textContent = 'Add goal';
     ['newGoalName','newGoalDate','newGoalTargetAmount','newGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('newGoalLinkedIncome').value = '';
   }
   function toggleAdvGoalProgressFields(){
     const pt = document.getElementById('newGoalProgressType').value;
     document.getElementById('advGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
     document.getElementById('advGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('advGoalLinkedIncomeField').style.display = pt==='income' ? 'flex' : 'none';
     document.getElementById('advGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+    if(pt==='income') refreshAdvGoalLinkedIncomeOptions();
+  }
+  /* Single-income link for 'income' progress-type goals. A "Build a
+     Business" goal only offers Self-Employed/Business Venture Income
+     entries -- no "whole household" fallback, since tracking a business
+     goal against total household income defeats the point. Any other goal
+     category keeps the original "pick any income source, or leave it on
+     the household total" choice. */
+  function refreshAdvGoalLinkedIncomeOptions(){
+    const sel = document.getElementById('newGoalLinkedIncome');
+    if(!sel) return;
+    const selected = sel.value;
+    const goalType = document.getElementById('newGoalType').value;
+    const allIncome = client.cashflow.income || [];
+    const opt = i=>`<option value="${i.id}">${i.type} — ${fmtGBP(TEI.calc.toMonthlyAmount(i.amount, i.frequency))}/mo</option>`;
+    if(goalType === 'Build a Business'){
+      const income = allIncome.filter(i=> i.type==='Self-Employed' || i.type==='Business Venture Income');
+      if(!income.length){
+        sel.innerHTML = '<option value="">Add a Self-Employed or Business Venture Income entry first</option>';
+        sel.value = '';
+        return;
+      }
+      sel.innerHTML = income.map(opt).join('');
+      sel.value = income.some(i=>i.id===selected) ? selected : income[0].id;
+    } else {
+      sel.innerHTML = '<option value="">Whole household income</option>' + allIncome.map(opt).join('');
+      sel.value = allIncome.some(i=>i.id===selected) ? selected : '';
+    }
   }
   async function addGoal(){
     const type = document.getElementById('newGoalType').value;
@@ -7817,6 +7915,7 @@ window.TEI = window.TEI || {};
     const targetAmount = parseFloat(document.getElementById('newGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('newGoalTargetIncome').value) || null;
     const linkedAccountIds = Array.from(document.getElementById('newGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
+    const linkedIncomeId = document.getElementById('newGoalLinkedIncome').value || null;
     const status = document.getElementById('newGoalStatus').value;
     // Monetary goals' progress is always the sum of their linked accounts
     // (see TEI.calc.goalProgress) -- with none linked it can only ever show
@@ -7826,13 +7925,17 @@ window.TEI = window.TEI || {};
       showToast('Link at least one account so this goal has something to track progress from');
       return;
     }
+    if(progressType === 'income' && type === 'Build a Business' && !linkedIncomeId){
+      showToast('Add a Self-Employed or Business Venture Income entry, then link it here');
+      return;
+    }
     const btn = document.getElementById('addGoalBtn');
     btn.disabled = true;
     let g;
     if(editing.goal){
       g = client.goals.find(x=>x.id===editing.goal);
       if(!g){ cancelGoalEdit(); btn.disabled = false; return; }
-      const merged = Object.assign({}, g, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, status, completed: progressType==='completion' ? status==='completed' : g.completed});
+      const merged = Object.assign({}, g, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, linkedIncomeId, status, completed: progressType==='completion' ? status==='completed' : g.completed});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveGoal(client.meta.clientId, g.id, merged);
@@ -7847,7 +7950,7 @@ window.TEI = window.TEI || {};
       cancelGoalEdit();
       showToast('Goal updated');
     } else {
-      g = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:status==='completed', status, linkedAccountIds, statusHistory:[]}, 'adviser');
+      g = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:status==='completed', status, linkedAccountIds, linkedIncomeId, statusHistory:[]}, 'adviser');
       try{
         g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
       } catch(err){
@@ -7859,6 +7962,7 @@ window.TEI = window.TEI || {};
       btn.disabled = false;
       client.goals.push(g);
       ['newGoalName','newGoalDate','newGoalTargetAmount','newGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('newGoalLinkedIncome').value = '';
       showToast('Goal added');
     }
     renderGoals();
@@ -8150,6 +8254,7 @@ window.TEI = window.TEI || {};
   function renderAdvIncomeList(){
     const list = document.getElementById('advIncomeList');
     list.innerHTML = client.cashflow.income.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No income sources yet.</div></div>`;
+    refreshAdvGoalLinkedIncomeOptions();
     client.cashflow.income.forEach(i=>{
       const row = document.createElement('div');
       row.className = 'list-row';
@@ -8903,6 +9008,11 @@ window.TEI = window.TEI || {};
     renderLiabilities();
     renderGoals();
     document.getElementById('newGoalProgressType').addEventListener('change', toggleAdvGoalProgressFields);
+    // The "Which income?" list is filtered by goal category (see
+    // refreshAdvGoalLinkedIncomeOptions) so switching to/from "Build a
+    // Business" needs to rebuild it too, even though visibility itself
+    // only depends on progress type.
+    document.getElementById('newGoalType').addEventListener('change', toggleAdvGoalProgressFields);
     toggleAdvGoalProgressFields();
     renderHoldings();
     renderMonthlyHoldingFields();
@@ -8916,6 +9026,7 @@ window.TEI = window.TEI || {};
     fillCashflowForm();
     renderDocuments();
     refreshAccountSelects();
+    refreshAdvGoalLinkedIncomeOptions();
     renderUploadQueue();
     wireUpload();
 
@@ -8965,6 +9076,7 @@ window.TEI = window.TEI || {};
     fillCashflowForm();
     renderDocuments();
     refreshAccountSelects();
+    refreshAdvGoalLinkedIncomeOptions();
   }
 
   TEI.adviser = { init, refresh };
@@ -9100,6 +9212,7 @@ window.TEI = window.TEI || {};
           <button type="button" class="btn-ghost on-light" data-del-income="${i.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
         </div>`;
     }, 'Nothing added yet.');
+    refreshGoalLinkedIncomeOptions();
     document.querySelectorAll('[data-del-income]').forEach(btn=> btn.addEventListener('click', async function(){
       const id = this.dataset.delIncome;
       this.disabled = true;
@@ -9639,7 +9752,36 @@ window.TEI = window.TEI || {};
     const pt = document.getElementById('obNewGoalProgressType').value;
     document.getElementById('obGoalTargetAmountField').style.display = pt==='monetary' ? 'flex' : 'none';
     document.getElementById('obGoalTargetIncomeField').style.display = pt==='income' ? 'flex' : 'none';
+    document.getElementById('obGoalLinkedIncomeField').style.display = pt==='income' ? 'flex' : 'none';
     document.getElementById('obGoalLinkedAccountsField').style.display = pt==='monetary' ? 'flex' : 'none';
+    if(pt==='income') refreshGoalLinkedIncomeOptions();
+  }
+  /* Single-income link for 'income' progress-type goals. A "Build a
+     Business" goal only offers Self-Employed/Business Venture Income
+     entries -- no "whole household" fallback, since tracking a business
+     goal against total household income defeats the point. Any other goal
+     category keeps the original "pick any income source, or leave it on
+     the household total" choice. */
+  function refreshGoalLinkedIncomeOptions(){
+    const sel = document.getElementById('obNewGoalLinkedIncome');
+    if(!sel) return;
+    const selected = sel.value;
+    const goalType = document.getElementById('obNewGoalType').value;
+    const allIncome = client.cashflow.income || [];
+    const opt = i=>`<option value="${i.id}">${i.type} — ${fmtGBP(TEI.calc.toMonthlyAmount(i.amount, i.frequency))}/mo</option>`;
+    if(goalType === 'Build a Business'){
+      const income = allIncome.filter(i=> i.type==='Self-Employed' || i.type==='Business Venture Income');
+      if(!income.length){
+        sel.innerHTML = '<option value="">Add a Self-Employed or Business Venture Income entry first</option>';
+        sel.value = '';
+        return;
+      }
+      sel.innerHTML = income.map(opt).join('');
+      sel.value = income.some(i=>i.id===selected) ? selected : income[0].id;
+    } else {
+      sel.innerHTML = '<option value="">Whole household income</option>' + allIncome.map(opt).join('');
+      sel.value = allIncome.some(i=>i.id===selected) ? selected : '';
+    }
   }
   function renderObGoals(){
     renderEditableList('obGoalsList', client.goals, g=>{
@@ -9678,6 +9820,8 @@ window.TEI = window.TEI || {};
       document.getElementById('obNewGoalTargetIncome').value = item.targetIncome||'';
       refreshGoalLinkedAccountOptions();
       setCheckedLinkedAccounts(document.getElementById('obNewGoalLinkedAccounts'), item.linkedAccountIds);
+      refreshGoalLinkedIncomeOptions();
+      document.getElementById('obNewGoalLinkedIncome').value = item.linkedIncomeId || '';
       document.getElementById('obAddGoalBtn').textContent = 'Save changes';
     }));
   }
@@ -9689,6 +9833,7 @@ window.TEI = window.TEI || {};
     const targetAmount = parseFloat(document.getElementById('obNewGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('obNewGoalTargetIncome').value) || null;
     const linkedAccountIds = getCheckedLinkedAccounts(document.getElementById('obNewGoalLinkedAccounts'));
+    const linkedIncomeId = document.getElementById('obNewGoalLinkedIncome').value || null;
     if(!name){ showToast('Give the goal a name'); return; }
     // Monetary goals' progress is always the sum of their linked accounts
     // (see TEI.calc.goalProgress) -- with none linked it can only ever show
@@ -9698,12 +9843,16 @@ window.TEI = window.TEI || {};
       showToast('Link at least one account so this goal has something to track progress from');
       return;
     }
+    if(progressType === 'income' && type === 'Build a Business' && !linkedIncomeId){
+      showToast('Add a Self-Employed or Business Venture Income entry, then link it here');
+      return;
+    }
     const btn = document.getElementById('obAddGoalBtn');
     btn.disabled = true;
     let item;
     if(editing.goal){
       const existing = client.goals.find(g=>g.id===editing.goal);
-      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds});
+      const merged = Object.assign({}, existing, {type, name, targetDate, progressType, targetAmount, targetIncome, linkedAccountIds, linkedIncomeId});
       TEI.calc.stampEdit(merged, 'client');
       try{
         await TEI.wealthOS.saveGoal(client.meta.clientId, existing.id, merged);
@@ -9719,7 +9868,7 @@ window.TEI = window.TEI || {};
       editing.goal = null;
       document.getElementById('obAddGoalBtn').textContent = 'Add';
     } else {
-      item = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:false, status:'active', linkedAccountIds, statusHistory:[]}, 'client');
+      item = TEI.calc.stampEdit({id:uid(), type, name, targetDate, progressType, targetAmount, targetIncome, completed:false, status:'active', linkedAccountIds, linkedIncomeId, statusHistory:[]}, 'client');
       try{
         item.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, item);
       } catch(err){
@@ -9733,6 +9882,7 @@ window.TEI = window.TEI || {};
     }
     clearFields(['obNewGoalName','obNewGoalDate','obNewGoalTargetAmount','obNewGoalTargetIncome']);
     refreshGoalLinkedAccountOptions();
+    document.getElementById('obNewGoalLinkedIncome').value = '';
     renderObGoals();
   }
 
@@ -9838,7 +9988,7 @@ window.TEI = window.TEI || {};
     fillAccountsToggle(); renderObAccounts();
     refreshHoldingAccountSelect(); renderObHoldings();
     refreshLiabilityLinkOptions();
-    refreshGoalLinkedAccountOptions(); toggleGoalProgressFields(); renderObGoals();
+    refreshGoalLinkedAccountOptions(); refreshGoalLinkedIncomeOptions(); toggleGoalProgressFields(); renderObGoals();
     renderObDocuments();
 
     document.getElementById('obAddIncomeBtn').addEventListener('click', addOrSaveIncome);
@@ -9850,6 +10000,11 @@ window.TEI = window.TEI || {};
     document.getElementById('obAddAcctBtn').addEventListener('click', addOrSaveAccount);
     document.getElementById('obAddHoldingBtn').addEventListener('click', addOrSaveHolding);
     document.getElementById('obNewGoalProgressType').addEventListener('change', toggleGoalProgressFields);
+    // The "Which income?" list is filtered by goal category (see
+    // refreshGoalLinkedIncomeOptions) so switching to/from "Build a
+    // Business" needs to rebuild it too, even though visibility itself
+    // only depends on progress type.
+    document.getElementById('obNewGoalType').addEventListener('change', toggleGoalProgressFields);
     document.getElementById('obAddGoalBtn').addEventListener('click', addOrSaveGoal);
     document.getElementById('obAddDocBtn').addEventListener('click', addObDocument);
 
@@ -9919,7 +10074,7 @@ window.TEI = window.TEI || {};
     fillAccountsToggle(); renderObAccounts();
     refreshHoldingAccountSelect(); renderObHoldings();
     refreshLiabilityLinkOptions();
-    refreshGoalLinkedAccountOptions(); renderObGoals();
+    refreshGoalLinkedAccountOptions(); refreshGoalLinkedIncomeOptions(); renderObGoals();
     renderObDocuments();
   }
 
@@ -10145,6 +10300,7 @@ window.TEI = window.TEI || {};
         progressType: g.progress_type, targetAmount: g.target_value, targetIncome: g.target_income,
         completed: g.completed, status: g.status,
         linkedAccountIds: goalAccountsByGoal[g.id] || [],
+        linkedIncomeId: g.linked_income_id,
         statusHistory: g.status_history, lastEditedBy: g.last_edited_by, lastEditedAt: g.last_edited_at
       })),
 
@@ -10386,6 +10542,7 @@ window.TEI = window.TEI || {};
       status: g.status || 'active',
       progress_type: g.progressType,
       target_income: g.targetIncome != null ? g.targetIncome : null,
+      linked_income_id: g.linkedIncomeId || null,
       completed: !!g.completed,
       status_history: g.statusHistory || [],
       last_edited_by: g.lastEditedBy || null,
