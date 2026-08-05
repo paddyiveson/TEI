@@ -760,10 +760,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .missing-list{list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:6px;}
 .missing-list li{font-size:14.5px; color:var(--ink-soft); display:flex; align-items:center; gap:8px;}
 .missing-list li:before{content:'•'; color:var(--gold);}
-.checkbox-list{display:flex; flex-direction:column; gap:7px; max-height:130px; overflow-y:auto; border:1px solid var(--line); border-radius:6px; padding:9px 11px; background:#fff;}
-.checkbox-list label{display:flex; align-items:center; gap:8px; font-size:13.5px; color:var(--ink); cursor:pointer; font-weight:400;}
+.checkbox-list{display:flex; flex-direction:column; gap:7px; max-height:130px; overflow-y:auto; border:1px solid #E2DCCB; border-radius:6px; padding:9px 11px; background:#fff;}
+/* Fixed (non-theme) ink colours: this box's background is always white
+   regardless of #clientApp[data-theme], but --ink/--ink-soft2 flip to
+   near-white in dark mode -- which made this text vanish. Use .on-dark
+   below for a genuinely dark box instead of the theme variables here. */
+.checkbox-list label{display:flex; align-items:center; gap:8px; font-size:13.5px; color:#1D2733; cursor:pointer; font-weight:400;}
 .checkbox-list input[type=checkbox]{margin:0; flex:none;}
-.checkbox-list.empty{color:var(--ink-soft2); font-style:italic;}
+.checkbox-list.empty{color:#8A7F63; font-style:italic;}
 .checkbox-list.on-dark{background:rgba(247,244,237,0.06); border-color:rgba(247,244,237,0.14);}
 .checkbox-list.on-dark label{color:var(--cream);}
 .checkbox-list.on-dark.empty{color:var(--cream-soft2);}
@@ -3086,6 +3090,12 @@ window.TEI = window.TEI || {};
 
   function fmtGBP(v){ return '£' + Number(v||0).toLocaleString('en-GB', {maximumFractionDigits:0}); }
   function uid(){ return String(Date.now()) + Math.floor(Math.random()*1000); }
+  /* Goal target-date fields are <input type="month">, which gives "YYYY-MM"
+     -- but goals.target_date is a Postgres `date` column that rejects a
+     bare year-month ("invalid input syntax for type date"), which is what
+     surfaced to users as an add-goal failure. Day-of-month is never shown
+     or used, so "-01" is just to satisfy the column type. */
+  function monthInputToDate(monthValue){ return monthValue ? monthValue + '-01' : null; }
   /* uid() strings (timestamp+random digits) and real Postgres/Supabase UUIDs
      are never confusable formats -- used wherever code needs to tell "this
      record already exists in Supabase" from "this is still local-only"
@@ -3987,7 +3997,7 @@ window.TEI = window.TEI || {};
   TEI.data = {
     defaultClient, mergeDefaults, getEmbeddedClient,
     fmtGBP, uid, isRealId, monthLabel, currentMonthKey, monthsBetweenInclusive,
-    MONTH_ABBR, acctLabel
+    MONTH_ABBR, acctLabel, monthInputToDate
   };
   TEI.calc = {
     accountTotal, buildMergedMonths, buildUnifiedTotals, latestBreakdown, latestNetWorth,
@@ -4053,8 +4063,20 @@ window.TEI = window.TEI || {};
     const theme = document.getElementById('clientApp').getAttribute('data-theme');
     return theme === 'light' ? 'rgba(29,53,87,0.10)' : 'rgba(247,244,237,0.08)';
   }
+  // Same problem again, but for the wealth-projection scenario lines: NAVY/
+  // OXBLOOD/FOREST are pastels tuned to pop against a dark card and go
+  // low-contrast against light mode's white/cream one. Darker, same-hue-family
+  // stand-ins (matching --k-down-ink/--k-up-ink's light-theme values) keep dark
+  // mode's look untouched and fix light mode.
+  function currentRateColor(key){
+    const theme = document.getElementById('clientApp').getAttribute('data-theme');
+    if(theme === 'light'){
+      return {conservative:'#93414C', base:'#2C4A73', optimistic:'#3F6A4A'}[key];
+    }
+    return {conservative:OXBLOOD, base:NAVY, optimistic:FOREST}[key];
+  }
 
-  TEI.charts = { NAVY, GOLD, OXBLOOD, FOREST, GRID, FILL_NAVY, ACCT_COLORS, makeChart, currentInk, currentInkSoft, currentGrid };
+  TEI.charts = { NAVY, GOLD, OXBLOOD, FOREST, GRID, FILL_NAVY, ACCT_COLORS, makeChart, currentInk, currentInkSoft, currentGrid, currentRateColor };
 })();
 
 </script>
@@ -6046,7 +6068,7 @@ TEI.render = TEI.render || {};
     document.getElementById('clGoalFormTitle').textContent = 'Edit goal';
     document.getElementById('clNewGoalType').value = g.type;
     document.getElementById('clNewGoalName').value = g.name;
-    document.getElementById('clNewGoalDate').value = g.targetDate||'';
+    document.getElementById('clNewGoalDate').value = (g.targetDate||'').slice(0,7);
     document.getElementById('clNewGoalProgressType').value = g.progressType;
     toggleClGoalProgressFields();
     document.getElementById('clNewGoalTargetAmount').value = g.targetAmount||'';
@@ -6103,7 +6125,7 @@ TEI.render = TEI.render || {};
     const type = document.getElementById('clNewGoalType').value;
     const name = document.getElementById('clNewGoalName').value.trim();
     if(!name){ TEI.app.showToast('Give the goal a name'); return; }
-    const targetDate = document.getElementById('clNewGoalDate').value || null;
+    const targetDate = TEI.data.monthInputToDate(document.getElementById('clNewGoalDate').value);
     const progressType = document.getElementById('clNewGoalProgressType').value;
     const targetAmount = parseFloat(document.getElementById('clNewGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('clNewGoalTargetIncome').value) || null;
@@ -6366,8 +6388,7 @@ TEI.render = TEI.render || {};
     const leversActive = leverAnnualContribution !== actualAnnualContribution;
     const startYear = new Date().getFullYear();
     const years = []; for(let y=startYear; y<=startYear+20; y++) years.push(y);
-    const {OXBLOOD, NAVY, FOREST, GOLD, makeChart, currentInkSoft, currentGrid} = TEI.charts;
-    const rateColor = {conservative:OXBLOOD, base:NAVY, optimistic:FOREST};
+    const {GOLD, makeChart, currentInkSoft, currentGrid, currentRateColor} = TEI.charts;
 
     const actualSeries = [latestTotal];
     for(let i=1;i<years.length;i++){ actualSeries.push(actualSeries[i-1]*(1+EXPECTED_RATE) + actualAnnualContribution); }
@@ -6383,9 +6404,10 @@ TEI.render = TEI.render || {};
       // checked rates don't stack overlapping fills into a muddy block.
       const shouldFill = leversActive && firstScenario;
       if(shouldFill) firstScenario = false;
+      const color = currentRateColor(r.key);
       datasets.push({
-        label, data:series, borderColor:rateColor[r.key],
-        backgroundColor: rateColor[r.key]+'26',
+        label, data:series, borderColor:color,
+        backgroundColor: color+'26',
         fill: shouldFill ? 0 : false,
         pointRadius:0, borderWidth: leversActive ? 3.5 : 2.5, tension:0.15, order:2
       });
@@ -7686,7 +7708,7 @@ window.TEI = window.TEI || {};
         editing.goal = g.id;
         document.getElementById('newGoalType').value = g.type;
         document.getElementById('newGoalName').value = g.name;
-        document.getElementById('newGoalDate').value = g.targetDate||'';
+        document.getElementById('newGoalDate').value = (g.targetDate||'').slice(0,7);
         document.getElementById('newGoalProgressType').value = g.progressType;
         toggleAdvGoalProgressFields();
         document.getElementById('newGoalTargetAmount').value = g.targetAmount||'';
@@ -7715,7 +7737,7 @@ window.TEI = window.TEI || {};
     const type = document.getElementById('newGoalType').value;
     const name = document.getElementById('newGoalName').value.trim();
     if(!name){ showToast('Give the goal a name'); return; }
-    const targetDate = document.getElementById('newGoalDate').value || null;
+    const targetDate = TEI.data.monthInputToDate(document.getElementById('newGoalDate').value);
     const progressType = document.getElementById('newGoalProgressType').value;
     const targetAmount = parseFloat(document.getElementById('newGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('newGoalTargetIncome').value) || null;
@@ -9576,7 +9598,7 @@ window.TEI = window.TEI || {};
       editing.goal = item.id;
       document.getElementById('obNewGoalType').value = item.type;
       document.getElementById('obNewGoalName').value = item.name;
-      document.getElementById('obNewGoalDate').value = item.targetDate||'';
+      document.getElementById('obNewGoalDate').value = (item.targetDate||'').slice(0,7);
       document.getElementById('obNewGoalProgressType').value = item.progressType;
       toggleGoalProgressFields();
       document.getElementById('obNewGoalTargetAmount').value = item.targetAmount||'';
@@ -9589,7 +9611,7 @@ window.TEI = window.TEI || {};
   async function addOrSaveGoal(){
     const type = document.getElementById('obNewGoalType').value;
     const name = document.getElementById('obNewGoalName').value.trim();
-    const targetDate = document.getElementById('obNewGoalDate').value || null;
+    const targetDate = TEI.data.monthInputToDate(document.getElementById('obNewGoalDate').value);
     const progressType = document.getElementById('obNewGoalProgressType').value;
     const targetAmount = parseFloat(document.getElementById('obNewGoalTargetAmount').value) || null;
     const targetIncome = parseFloat(document.getElementById('obNewGoalTargetIncome').value) || null;
