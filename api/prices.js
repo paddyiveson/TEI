@@ -85,7 +85,10 @@ module.exports = async function handler(req, res) {
     const data = await tdRes.json().catch(() => null);
     if (!tdRes.ok || !data) {
       console.error("prices: Twelve Data HTTP error", tdRes.status);
-      res.status(502).json({ error: "Price feed unavailable" });
+      // TEMP DEBUG (remove once the root cause is confirmed): surfaces the
+      // upstream HTTP status + response body directly in the browser
+      // response so it doesn't require digging through Vercel's log UI.
+      res.status(502).json({ error: "Price feed unavailable", debugTwelveDataStatus: tdRes.status, debugTwelveDataBody: data });
       return;
     }
 
