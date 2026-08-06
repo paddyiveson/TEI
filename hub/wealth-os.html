@@ -1039,9 +1039,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-acct-pill{background:rgba(247,244,237,0.08); border-radius:8px; padding:7px 11px; flex:1; min-width:110px;}
 .k-acct-pill .ap-name{font-size:11px; color:rgba(247,244,237,0.6); text-transform:uppercase; letter-spacing:.04em; font-weight:700;}
 .k-acct-pill .ap-value{font-size:14.5px; font-weight:700; color:var(--k-emphasis-ink); margin-top:3px; font-family:var(--font-display);}
-.k-acct-pill .ap-meta{display:flex; justify-content:space-between; font-size:11.5px; color:rgba(247,244,237,0.55); margin-top:3px;}
+.k-acct-pill .ap-meta{display:flex; justify-content:space-between; flex-wrap:wrap; row-gap:2px; column-gap:8px; font-size:11.5px; color:rgba(247,244,237,0.55); margin-top:3px;}
 .k-acct-pill .ap-meta .up{color:var(--k-emph-up);}
 .k-acct-pill .ap-meta .down{color:var(--k-emph-down);}
+.k-acct-pill .ap-warn-icon{width:12px; height:12px; color:var(--k-emph-down); margin-left:5px; vertical-align:-1px; cursor:help;}
 
 .k-badge-soon{font-size:10px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; padding:2px 7px; border-radius:9px; background:var(--k-badge-bg); color:var(--k-badge-ink); margin-left:8px; vertical-align:middle;}
 .k-lock-icon{width:10px; height:10px; flex:none; display:inline-block; vertical-align:-1px; color:var(--k-accent);}
@@ -1628,6 +1629,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <div class="rs">Annualised<b class="up" id="poPerfAnn">–</b></div>
           <div class="rs">All-time<b class="up" id="poPerfAll">–</b></div>
         </div>
+        <div class="k-rowstats" style="margin-top:8px;">
+          <div class="rs">Investment return<b class="up" id="poPerfInvest">–</b></div>
+        </div>
+        <div class="sub2" id="poDiscrepancy" style="margin-top:6px; display:none;"></div>
         <div class="k-acct-pills" id="acctPillGrid"></div>
       </div>
     </div>
@@ -2738,9 +2743,11 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field" id="advAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="newAcctContribPersonal" placeholder="0"></label>
         <label class="form-field" id="advAcctContribEmployerField" style="display:none;"><span>Employer / salary sacrifice £/mo</span><input type="number" id="newAcctContribEmployer" placeholder="0"></label>
         <label class="form-field"><span>Provider</span><input type="text" id="newAcctProvider" placeholder="e.g. Vanguard"></label>
+        <label class="form-field"><span>Total contributions to date £ (optional)</span><input type="number" id="newAcctOpeningContrib" placeholder="0"></label>
+        <label class="form-field"><span>Cash balance £ (optional)</span><input type="number" id="newAcctCashBalance" placeholder="0"></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension.</div>
+      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing.</div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -2769,7 +2776,12 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div class="card" style="margin-bottom:16px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
         <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Holdings</h3>
-        <button type="button" class="btn-ghost" id="refreshLivePricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <label style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--cream-soft2); white-space:nowrap;">
+            <input type="checkbox" id="skipRecentlyPricedCheckbox"> Skip holdings priced in the last hour
+          </label>
+          <button type="button" class="btn-ghost" id="refreshLivePricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+        </div>
       </div>
       <div class="note" style="margin-top:0;">What sits inside each account. For bulk entry use CSV / Spreadsheet Import instead. Give a holding a ticker + units and "Refresh live prices" will price it automatically — leave ticker blank to keep entering the value by hand.</div>
       <div class="small" id="livePricesStatus" style="margin:-4px 0 10px; color:var(--cream-soft2);"></div>
@@ -2779,9 +2791,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Name</span><input type="text" id="newHoldingName" placeholder="e.g. VWRP"></label>
         <label class="form-field"><span>Ticker (optional)</span><input type="text" id="newHoldingTicker" placeholder="e.g. AAPL"></label>
         <label class="form-field"><span>Units (optional)</span><input type="number" id="newHoldingUnits" placeholder="0" step="any"></label>
-        <label class="form-field"><span>Avg open price £ (optional)</span><input type="number" id="newHoldingAvgOpen" placeholder="0" step="any"></label>
+        <label class="form-field"><span id="newHoldingAvgOpenLabel">Avg open price £ (optional)</span><input type="number" id="newHoldingAvgOpen" placeholder="0" step="any"></label>
         <label class="form-field"><span>Value £ (optional if units + ticker or avg open given)</span><input type="number" id="newHoldingValue" placeholder="0"></label>
-        <label class="form-field"><span>Cost basis £ (optional)</span><input type="number" id="newHoldingCostBasis" placeholder="0"></label>
+        <label class="form-field" id="newHoldingCostBasisField"><span>Cost basis £ (optional)</span><input type="number" id="newHoldingCostBasis" placeholder="0"></label>
         <label class="form-field"><span>Sector (optional)</span><select id="newHoldingSector">
           <option value="">–</option><option>Technology</option><option>Healthcare</option><option>Financials</option><option>Energy</option><option>Consumer</option><option>Industrials</option><option>Other</option>
         </select></label>
@@ -3228,13 +3240,21 @@ window.TEI = window.TEI || {};
 
   /* ---------- Holdings-derived account values ----------
      When an account has individual holdings logged, the account's value is
-     derived by summing those holdings rather than trusting a separately
-     maintained manual balance -- so the two numbers can never silently
-     disagree or double-count the same money. Manual entry remains the
-     source of truth only for accounts with no holdings logged at all.
-     syncAccountValueFromHoldings must be called after any holdings mutation
-     (add/edit/delete/import) so the current month's balance -- and every
-     net worth figure downstream of it -- stays in step immediately. */
+     derived by summing those holdings (plus any manually-tracked cash
+     balance sitting alongside them, e.g. contributions not yet invested,
+     dividends not yet reinvested -- see acc.cashBalance) rather than
+     trusting a separately maintained manual balance -- so the two numbers
+     can never silently disagree or double-count the same money. Manual
+     entry remains the source of truth only for accounts with no holdings
+     logged at all. syncAccountValueFromHoldings must be called after any
+     holdings mutation (add/edit/delete/import) so the current month's
+     balance -- and every net worth figure downstream of it -- stays in
+     step immediately. Without a cash balance figure, an account's true
+     value silently understates itself by however much of its
+     contributions haven't been put into a priced holding yet -- which
+     also throws off the deposits-based Investment return (see
+     depositsReturn()), since it reads as a loss rather than uninvested
+     cash. */
   function accountHasHoldings(client, accountId){
     return client.holdings.some(h=>h.accountId===accountId);
   }
@@ -3243,9 +3263,9 @@ window.TEI = window.TEI || {};
   }
   function syncAccountValueFromHoldings(client, accountId){
     if(!accountHasHoldings(client, accountId)) return; // no holdings left -- leave the last value as an editable manual balance
-    const total = holdingsTotalForAccount(client, accountId);
-    seedMonthlyValue(client.months, currentMonthKey(), accountId, total);
     const acc = client.accounts.find(a=>a.id===accountId);
+    const total = holdingsTotalForAccount(client, accountId) + (acc && Number(acc.cashBalance)||0);
+    seedMonthlyValue(client.months, currentMonthKey(), accountId, total);
     if(acc) acc.value = total; // keep the account's own display value (used in list rows) in step too
   }
 
@@ -5424,6 +5444,121 @@ TEI.render = TEI.render || {};
     return pctReturn(first, last);
   }
 
+  /* Investment return -- deliberately separate from the calendar-based
+     accountReturn()/YTD-Annualised-All-time above, which mixes new money in
+     with actual performance. Two possible bases, since neither alone covers
+     everything: cost basis only exists for priced/cost-tracked holdings;
+     deposits works for any account but only as accurate as what's actually
+     been logged (opening lump sum + monthly Deposits widget). Resolved down
+     to ONE displayed figure -- cost basis preferred where it exists (more
+     precise, updates on every price refresh), deposits as fallback,
+     confirmed with user 2026-08 after an earlier side-by-side version read
+     as redundant. */
+  function holdingsCostBasisReturn(holdings){
+    const withCost = holdings.filter(h=>h.costBasis!=null && h.costBasis>0);
+    if(!withCost.length) return null;
+    const value = withCost.reduce((s,h)=>s+(Number(h.value)||0),0);
+    const costBasis = withCost.reduce((s,h)=>s+(Number(h.costBasis)||0),0);
+    const gain = value - costBasis;
+    return { amount: gain, pct: costBasis>0 ? gain/costBasis*100 : null };
+  }
+  /* accountIds=null means "whole portfolio" (every account with a logged
+     deposit, not just investment types). client.contribLog is keyed
+     [monthKey][accountId] -- see TEI.wealthOS's account_deposits mapping.
+     openingContributions is the one-off "total contributions to date" lump
+     sum entered on the account itself (Adviser Workspace > Accounts) --
+     added on top so this has something to work with immediately at account
+     setup, before any monthly Deposits history has been logged. */
+  function depositsReturn(client, accountIds, currentValue){
+    let totalDeposited = 0, totalRelief = 0;
+    const idSet = accountIds ? new Set(accountIds) : null;
+    (client.accounts||[]).forEach(a=>{
+      if(idSet && !idSet.has(a.id)) return;
+      totalDeposited += Number(a.openingContributions)||0;
+    });
+    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+      Object.entries(monthEntry||{}).forEach(([accId,e])=>{
+        if(idSet && !idSet.has(accId)) return;
+        totalDeposited += (Number(e && e.amount)||0) + (Number(e && e.sacrificeAmount)||0);
+        totalRelief += Number(e && e.reliefAmount)||0;
+      });
+    });
+    if(!totalDeposited && !totalRelief) return null;
+    const growth = currentValue - totalDeposited - totalRelief;
+    return { amount: growth, pct: totalDeposited>0 ? growth/totalDeposited*100 : null };
+  }
+  /* The one figure actually shown: cost basis when available, else
+     deposits, else null (dash). Returned with `source` so callers can
+     optionally note which basis produced it. */
+  function investmentReturn(client, accountIds, holdings, currentValue){
+    const costRet = holdingsCostBasisReturn(holdings);
+    if(costRet && costRet.pct!=null) return Object.assign({source:'cost basis'}, costRet);
+    const depRet = depositsReturn(client, accountIds, currentValue);
+    if(depRet && depRet.pct!=null) return Object.assign({source:'deposits'}, depRet);
+    return null;
+  }
+  function fmtInvestmentReturn(ret){
+    if(!ret || ret.pct==null) return '–';
+    const sign = ret.amount>=0 ? '+' : '';
+    return `${sign}${fmtGBP(ret.amount)} (${fmtPct(ret.pct)} · ${ret.source})`;
+  }
+
+  const RECON_TOLERANCE = 1; // £ -- ignore sub-£1 rounding noise
+  /* Flags money that's been stated as contributed (opening lump sum +
+     logged Deposits) but isn't showing up anywhere it should: neither in a
+     holding's cost basis nor in the account's cash balance. Usually means
+     one of: a holding is missing its Avg open price (so its cost basis is
+     still null and doesn't count here), cash balance hasn't been updated,
+     or a contribution/holding was mistyped. Deliberately worded as a
+     nudge, not an alarm -- holdings with no cost-basis tracking at all are
+     a normal, common case, not an error, so a discrepancy here is a
+     prompt to check, not proof something's wrong. */
+  function acctContributedTotal(client, accountId){
+    const acct = client.accounts.find(a=>a.id===accountId);
+    let total = (acct && Number(acct.openingContributions))||0;
+    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+      const e = monthEntry && monthEntry[accountId];
+      if(e) total += (Number(e.amount)||0) + (Number(e.sacrificeAmount)||0);
+    });
+    return total;
+  }
+  function contributionDiscrepancy(client, accountIds){
+    const idSet = accountIds ? new Set(accountIds) : null;
+    const scopedAccounts = (client.accounts||[]).filter(a=>!idSet || idSet.has(a.id));
+    // Only pull an account into the comparison if IT has a stated
+    // contribution baseline. Summing every account's real cost basis
+    // against only the subset that happens to have a contributions figure
+    // entered would make an untracked account's genuine holdings look like
+    // a huge fake "discrepancy" against nothing -- each account has to be
+    // its own apples-to-apples check before being added to the total.
+    let contributed = 0, accountedFor = 0, uncostedHoldings = 0, anyStated = false;
+    scopedAccounts.forEach(a=>{
+      const acctContributed = acctContributedTotal(client, a.id);
+      if(!acctContributed) return;
+      anyStated = true;
+      contributed += acctContributed;
+      accountedFor += Number(a.cashBalance)||0;
+      client.holdings.filter(h=>h.accountId===a.id).forEach(h=>{
+        if(h.costBasis!=null && h.costBasis>0) accountedFor += Number(h.costBasis)||0;
+        else if(h.ticker || h.units!=null) uncostedHoldings++;
+      });
+    });
+    if(!anyStated) return null; // nothing stated anywhere in scope -- nothing to check against
+
+    const diff = contributed - accountedFor;
+    if(Math.abs(diff) <= RECON_TOLERANCE) return null;
+    return { contributed, accountedFor, diff, uncostedHoldings };
+  }
+  function fmtDiscrepancy(d){
+    if(!d) return '';
+    const over = d.diff > 0; // contributed more than is accounted for
+    const amount = fmtGBP(Math.abs(d.diff));
+    const hint = d.uncostedHoldings
+      ? ` — check cash balance, or add an Avg open price to ${d.uncostedHoldings===1?'a holding':'holdings'} missing one`
+      : ' — check cash balance and contributions for typos';
+    return `⚠ ${amount} ${over?'unaccounted for':'more accounted for than contributed'}${hint}`;
+  }
+
   function renderOverview(client){
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);
@@ -5447,6 +5582,29 @@ TEI.render = TEI.render || {};
     const annEl = document.getElementById('poPerfAnn'); annEl.textContent = fmtPct(ann); annEl.className = ann==null ? '' : (ann>=0?'up':'down');
     const allEl = document.getElementById('poPerfAll'); allEl.textContent = fmtPct(all); allEl.className = all==null ? '' : (all>=0?'up':'down');
 
+    const invHoldings = client.holdings.filter(h=>invAccts.some(a=>a.id===h.accountId));
+    const invRet = investmentReturn(client, invAccts.map(a=>a.id), invHoldings, total);
+    const investEl = document.getElementById('poPerfInvest');
+    investEl.textContent = fmtInvestmentReturn(invRet);
+    investEl.className = !invRet || invRet.pct==null ? '' : (invRet.pct>=0?'up':'down');
+
+    const discEl = document.getElementById('poDiscrepancy');
+    // Consolidated into one list here rather than repeating the full
+    // sentence in every account pill (was unreadable once more than a
+    // couple of accounts had a discrepancy) -- pills themselves just get a
+    // small warning icon with the detail on hover, see below.
+    const acctDiscs = invAccts.map(a=>({a, d: contributionDiscrepancy(client, [a.id])})).filter(x=>x.d);
+    if(acctDiscs.length){
+      discEl.style.display = '';
+      discEl.style.color = 'var(--k-emph-down)';
+      const list = acctDiscs.map(x=>`${TEI.data.acctLabel(x.a)} (${fmtGBP(Math.abs(x.d.diff))})`).join(', ');
+      const anyUncosted = acctDiscs.some(x=>x.d.uncostedHoldings);
+      discEl.textContent = `⚠ Doesn't fully reconcile: ${list} — check cash balances${anyUncosted?', missing Avg open prices,':''} or contribution figures for typos.`;
+    } else {
+      discEl.style.display = 'none';
+    }
+    const discByAccount = Object.fromEntries(acctDiscs.map(x=>[x.a.id, x.d]));
+
     const grid = document.getElementById('acctPillGrid');
     if(!invAccts.length){
       grid.innerHTML = `<div class="line">No investment accounts yet. Add ISA, GIA, LISA or Pension accounts in Adviser Workspace.</div>`;
@@ -5456,10 +5614,19 @@ TEI.render = TEI.render || {};
       const val = Number(b[a.id])||0;
       const ret = accountReturn(client, months, a.id);
       const contrib = TEI.calc.acctContribTotal(a);
+      const acctInvRet = investmentReturn(client, [a.id], client.holdings.filter(h=>h.accountId===a.id), val);
+      const badges = [
+        `<span class="${ret==null?'':(ret>=0?'up':'down')}">${fmtPct(ret)}</span>`,
+        acctInvRet ? `<span class="${acctInvRet.pct>=0?'up':'down'}" title="Investment return via ${acctInvRet.source}">${acctInvRet.amount>=0?'+':''}${fmtGBP(acctInvRet.amount)}</span>` : '',
+        contrib>0 ? `<span>${fmtGBP(contrib)}/mo</span>` : '',
+        a.cashBalance>0 ? `<span title="Cash sitting in this account, not yet in a priced holding">Cash ${fmtGBP(a.cashBalance)}</span>` : ''
+      ].filter(Boolean).join('');
+      const acctDisc = discByAccount[a.id];
+      const warnIcon = acctDisc ? `<svg class="ap-warn-icon" viewBox="0 0 24 24" fill="none" title="${fmtDiscrepancy(acctDisc).replace(/"/g,'&quot;')}"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>` : '';
       return `<div class="k-acct-pill">
-        <div class="ap-name">${TEI.data.acctLabel(a)}</div>
+        <div class="ap-name">${TEI.data.acctLabel(a)}${warnIcon}</div>
         <div class="ap-value">${fmtGBP(val)}</div>
-        <div class="ap-meta"><span class="${ret==null?'':(ret>=0?'up':'down')}">${fmtPct(ret)}</span>${contrib>0?`<span>${fmtGBP(contrib)}/mo</span>`:''}</div>
+        <div class="ap-meta">${badges}</div>
       </div>`;
     }).join('');
   }
@@ -5529,7 +5696,17 @@ TEI.render = TEI.render || {};
     const el = document.getElementById('driversContent');
     const withCost = client.holdings.filter(h=> h.costBasis!=null && h.costBasis>0);
     if(!withCost.length){
-      el.innerHTML = `<div class="line">Add a cost basis to your holdings in Adviser Workspace to see performance drivers.</div>`;
+      // Cost basis comes from two different places depending on the
+      // holding: a manual "Cost basis £" entry for tickerless holdings, or
+      // avgOpen + a live-price refresh for ticker'd ones (the manual field
+      // is hidden for those -- see updateHoldingFormForTicker). Point at
+      // whichever actually applies rather than a single blanket message.
+      const hasTickerHoldings = client.holdings.some(h=>h.ticker);
+      const hasTickerlessHoldings = client.holdings.some(h=>!h.ticker);
+      const tips = [];
+      if(hasTickerHoldings) tips.push('for a ticker\'d holding, add an Avg open price in Adviser Workspace and hit Refresh price');
+      if(hasTickerlessHoldings) tips.push('for others, add a Cost basis in Adviser Workspace');
+      el.innerHTML = `<div class="line">Add cost basis to your holdings to see performance drivers — ${tips.join(', or ')}.</div>`;
       return;
     }
     const withGain = withCost.map(h=>({h, gain: h.value - h.costBasis}));
@@ -7388,6 +7565,8 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctContrib').value = acc.type==='pension' ? '' : (acc.contribution||'');
         document.getElementById('newAcctContribPersonal').value = acc.type==='pension' ? (acc.contributionPersonal||'') : '';
         document.getElementById('newAcctContribEmployer').value = acc.type==='pension' ? (acc.contributionSacrifice||'') : '';
+        document.getElementById('newAcctOpeningContrib').value = acc.openingContributions!=null ? acc.openingContributions : '';
+        document.getElementById('newAcctCashBalance').value = acc.cashBalance!=null ? acc.cashBalance : '';
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
@@ -7397,7 +7576,7 @@ window.TEI = window.TEI || {};
   function cancelAcctEdit(){
     editing.account = null;
     document.getElementById('addAcctBtn').textContent = 'Add account';
-    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
+    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance'].forEach(id=>document.getElementById(id).value='');
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
@@ -7415,13 +7594,17 @@ window.TEI = window.TEI || {};
     const contribPersonal = parseFloat(document.getElementById('newAcctContribPersonal').value)||0;
     const contribEmployer = parseFloat(document.getElementById('newAcctContribEmployer').value)||0;
     const provider = document.getElementById('newAcctProvider').value.trim();
+    const openingContribInput = document.getElementById('newAcctOpeningContrib').value;
+    const openingContributions = openingContribInput ? parseFloat(openingContribInput) : null;
+    const cashBalanceInput = document.getElementById('newAcctCashBalance').value;
+    const cashBalance = cashBalanceInput ? parseFloat(cashBalanceInput) : null;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {type, provider, value: hasHoldings ? acc.value : value};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -7446,7 +7629,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), type, value, provider, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -7464,7 +7647,7 @@ window.TEI = window.TEI || {};
       // Seed this month's balance so the account shows up in net worth immediately,
       // rather than reading as £0 until someone visits "Log this month's balances".
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
-      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
+      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance'].forEach(id=>document.getElementById(id).value='');
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -8001,14 +8184,22 @@ window.TEI = window.TEI || {};
       const acct = client.accounts.find(a=>a.id===h.accountId);
       const row = document.createElement('div');
       row.className = 'list-row';
+      const canLivePrice = h.ticker && h.units!=null;
       row.innerHTML = `
         <div class="lr-main"><b>${h.name}</b>${h.ticker?' <span style="color:var(--cream-soft2); font-size:13px;">'+h.ticker+'</span>':''}<div class="lr-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'} · ${fmtGBP(h.value)}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div></div>
         <div style="display:flex; gap:8px; flex-none:1;">
+          ${canLivePrice ? `<button type="button" class="btn-ghost" data-refresh-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Refresh price</button>` : ''}
           <button type="button" class="btn-ghost" data-edit-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
           <button type="button" class="btn-ghost" data-del-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
         </div>
       `;
       list.appendChild(row);
+    });
+    list.querySelectorAll('[data-refresh-holding]').forEach(btn=>{
+      btn.addEventListener('click', function(){
+        const h = client.holdings.find(x=>x.id===this.dataset.refreshHolding); if(!h) return;
+        refreshOneHolding(h, this);
+      });
     });
     list.querySelectorAll('[data-del-holding]').forEach(btn=>{
       btn.addEventListener('click', async function(){
@@ -8037,11 +8228,20 @@ window.TEI = window.TEI || {};
         document.getElementById('newHoldingName').value = h.name;
         document.getElementById('newHoldingTicker').value = h.ticker||'';
         document.getElementById('newHoldingUnits').value = h.units!=null ? h.units : '';
-        document.getElementById('newHoldingAvgOpen').value = h.avgOpen!=null ? h.avgOpen : '';
+        // Legacy-data backfill, ticker-gated: a tickerless holding's cost
+        // basis was never currency-converted, so reverse-deriving avgOpen
+        // from it is always safe. A ticker'd holding's costBasis is GBP
+        // (already converted by a past refresh, or about to be) while
+        // avgOpen is USD-native -- backfilling one into the other would get
+        // silently re-multiplied by the FX rate on the next refresh.
+        const backfillAvgOpen = (!h.ticker && h.avgOpen==null && h.costBasis!=null && h.units)
+          ? h.costBasis / h.units : null;
+        document.getElementById('newHoldingAvgOpen').value = h.avgOpen!=null ? h.avgOpen : (backfillAvgOpen!=null ? backfillAvgOpen : '');
         document.getElementById('newHoldingValue').value = h.value;
         document.getElementById('newHoldingCostBasis').value = h.costBasis||'';
         document.getElementById('newHoldingSector').value = h.sector||'';
         document.getElementById('addHoldingBtn').textContent = 'Save changes';
+        updateHoldingFormForTicker();
         document.getElementById('newHoldingName').scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
@@ -8051,6 +8251,29 @@ window.TEI = window.TEI || {};
     document.getElementById('addHoldingBtn').textContent = 'Add holding';
     ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newHoldingSector').value = '';
+    updateHoldingFormForTicker();
+  }
+  /* Ticker-gated form chrome: a ticker'd holding's cost basis is always
+     derived (see addHolding's costBasis logic below and refreshOneHolding's
+     conversion), so the manual input only makes sense -- and is only shown
+     -- for holdings with no ticker. Avg Open's label/placeholder flips
+     between £ and $ for the same reason (native-currency convention, see
+     api/prices.js). Called on every ticker-field keystroke and whenever the
+     form is populated/reset programmatically. */
+  function updateHoldingFormForTicker(){
+    const ticker = document.getElementById('newHoldingTicker').value.trim();
+    const label = document.getElementById('newHoldingAvgOpenLabel');
+    const avgOpenInput = document.getElementById('newHoldingAvgOpen');
+    const costField = document.getElementById('newHoldingCostBasisField');
+    if(ticker){
+      label.textContent = 'Avg open price $ (optional — native currency, converted to £ automatically)';
+      avgOpenInput.placeholder = 'e.g. 250 (USD)';
+      costField.style.display = 'none';
+    } else {
+      label.textContent = 'Avg open price £ (optional)';
+      avgOpenInput.placeholder = '0';
+      costField.style.display = '';
+    }
   }
   async function addHolding(){
     const accountId = document.getElementById('newHoldingAccount').value;
@@ -8070,8 +8293,14 @@ window.TEI = window.TEI || {};
     if(value==null && ticker && units!=null) value = 0;
     if(!accountId){ showToast('Add an account first'); return; }
     if(!name || value==null || isNaN(value)){ showToast('Give the holding a name, and either a value, units + avg open, or a ticker + units to live-price'); return; }
+    // Cost basis: for a ticker'd holding this form never sets it -- it's
+    // always derived from avgOpen*units*usdGbpRate by refreshLivePrices()/
+    // refreshOneHolding() instead, and the input is hidden (see
+    // updateHoldingFormForTicker). For a tickerless holding, a typed value
+    // wins; otherwise fall back to avgOpen*units (same immediacy as the
+    // value fallback above, no FX involved since it's already GBP-native).
     const costBasisInput = document.getElementById('newHoldingCostBasis').value;
-    const costBasis = costBasisInput ? parseFloat(costBasisInput) : null;
+    const manualCostBasis = costBasisInput ? parseFloat(costBasisInput) : null;
     const sector = document.getElementById('newHoldingSector').value || null;
     const btn = document.getElementById('addHoldingBtn');
     btn.disabled = true;
@@ -8079,6 +8308,8 @@ window.TEI = window.TEI || {};
       const h = client.holdings.find(x=>x.id===editing.holding);
       if(!h){ cancelHoldingEdit(); btn.disabled = false; return; }
       const oldAccountId = h.accountId;
+      const costBasis = ticker ? h.costBasis
+        : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
       const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value, costBasis, sector});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
@@ -8097,6 +8328,8 @@ window.TEI = window.TEI || {};
       cancelHoldingEdit();
       showToast('Holding updated');
     } else {
+      const costBasis = ticker ? null
+        : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
       const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, value}, 'adviser');
       try{
         h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
@@ -8112,45 +8345,119 @@ window.TEI = window.TEI || {};
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
       ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newHoldingSector').value = '';
+      updateHoldingFormForTicker();
       showToast(ticker && units!=null && !valueInput ? 'Holding added — click Refresh live prices to price it' : 'Holding added');
     }
     renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
+  }
+
+  function sleep(ms){ return new Promise(resolve=>setTimeout(resolve, ms)); }
+
+  /* Shared by the batch refresh and the per-row "Refresh price" button, so
+     the two paths can never drift (e.g. one gaining a cost-basis conversion
+     the other forgets). value = price * usdGbpRate * units, always;
+     costBasis is only touched when avgOpen is set (native-currency avg
+     open, same rate, same units) -- a ticker'd holding with no avgOpen yet
+     just keeps whatever costBasis it already had (null for a brand new
+     one). lastPricedAt is stamped for the "skip recently refreshed" batch
+     option. Isolated try/catch per holding -- a single bad write here must
+     not strand the rest of a multi-holding batch mid-refresh. Returns
+     {ok:true} or {ok:false, error} rather than throwing. */
+  async function applyLivePriceToHolding(h, price, usdGbpRate){
+    try{
+      const value = price * usdGbpRate * h.units;
+      const patch = { value, lastPricedAt: new Date().toISOString() };
+      if(h.avgOpen != null) patch.costBasis = h.avgOpen * usdGbpRate * h.units;
+      const merged = Object.assign({}, h, patch);
+      TEI.calc.stampEdit(merged, 'adviser');
+      await TEI.wealthOS.saveHolding(h.accountId, h.id, merged);
+      Object.assign(h, merged);
+      TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
+      return {ok:true};
+    } catch(err){
+      console.error('Wealth OS: failed to apply live price to holding', h.ticker, err);
+      return {ok:false, error: err.message || 'save failed'};
+    }
+  }
+
+  const RECENTLY_PRICED_WINDOW_MS = 60*60*1000; // 1 hour -- see "skip holdings priced in the last hour" checkbox
+  function pricedRecently(h){
+    return h.lastPricedAt && (Date.now() - new Date(h.lastPricedAt).getTime()) < RECENTLY_PRICED_WINDOW_MS;
   }
 
   /* Live prices: value = price * units for every holding that has both a
      ticker and a unit count -- overwrites the manual "Value £" entry rather
      than just suggesting it (decided 2026-08 off pilot feedback that manual
      entry was the hassle). Holdings with no ticker, or a ticker but no
-     units, are left alone -- there's nothing to multiply. */
+     units, are left alone -- there's nothing to multiply.
+
+     Twelve Data's free tier charges 1 credit per symbol per request (plus 1
+     for the exchange-rate call) against an 8/minute cap -- a portfolio with
+     more than a handful of live-priced holdings can exceed that in a single
+     click regardless of how often you refresh, since the whole batch is
+     costed at once. Chunk unique tickers into groups of <=7 (leaving
+     headroom for the FX credit) and pace a request per chunk a little over
+     a minute apart -- fine for the "refresh a couple of times a day" use
+     case this is actually needed for, just slower for a big portfolio. The
+     "skip recently priced" checkbox and the per-row refresh button (see
+     refreshOneHolding) exist specifically to avoid needing this at all
+     while tagging one new ticker at a time during setup. */
   async function refreshLivePrices(){
     const btn = document.getElementById('refreshLivePricesBtn');
     const status = document.getElementById('livePricesStatus');
-    const priceable = client.holdings.filter(h=>h.ticker && h.units!=null);
+    const skipRecent = document.getElementById('skipRecentlyPricedCheckbox').checked;
+    let priceable = client.holdings.filter(h=>h.ticker && h.units!=null);
+    if(skipRecent) priceable = priceable.filter(h=>!pricedRecently(h));
     if(!priceable.length){
-      status.textContent = 'No holdings have both a ticker and units set yet.';
+      status.textContent = skipRecent
+        ? 'Nothing to refresh -- every live-priced holding was priced in the last hour.'
+        : 'No holdings have both a ticker and units set yet.';
       return;
     }
+    const CHUNK_SIZE = 7;
+    const WAIT_MS = 65000; // a little over a minute, so Twelve Data's per-minute window has genuinely rolled over
+    const uniqueTickers = [...new Set(priceable.map(h=>h.ticker.toUpperCase()))];
+    const chunks = [];
+    for(let i=0;i<uniqueTickers.length;i+=CHUNK_SIZE) chunks.push(uniqueTickers.slice(i,i+CHUNK_SIZE));
+
     btn.disabled = true;
-    status.textContent = 'Fetching live prices…';
+    const prices = {}, errors = {};
+    let usdGbpRate = null;
     try{
-      const { prices, errors } = await TEI.wealthOS.fetchLivePrices(priceable.map(h=>h.ticker));
+      for(let i=0;i<chunks.length;i++){
+        if(i>0){
+          status.textContent = `Pacing around Twelve Data's rate limit — waiting before batch ${i+1} of ${chunks.length}…`;
+          await sleep(WAIT_MS);
+        }
+        status.textContent = chunks.length>1 ? `Fetching live prices (batch ${i+1} of ${chunks.length})…` : 'Fetching live prices…';
+        const res = await TEI.wealthOS.fetchLivePrices(chunks[i]);
+        Object.assign(prices, res.prices||{});
+        Object.assign(errors, res.errors||{});
+        if(res.usdGbpRate != null) usdGbpRate = res.usdGbpRate;
+      }
+      // Twelve Data prices come back in USD (it doesn't cover LSE-listed
+      // tickers at all, so every ticker priced here is assumed US-listed --
+      // see api/prices.js). Refuse to convert if the FX rate itself failed
+      // to come back, rather than silently storing a dollar figure as GBP.
+      if(usdGbpRate == null){
+        status.textContent = "Couldn't fetch the USD/GBP exchange rate — try again.";
+        showToast("Couldn't refresh prices");
+        return;
+      }
       const touchedAccounts = new Set();
       let updated = 0;
+      const failedHoldings = [];
       for(const h of priceable){
         const price = prices[h.ticker.toUpperCase()];
         if(price == null) continue;
-        const value = price * h.units;
-        const merged = Object.assign({}, h, {value});
-        TEI.calc.stampEdit(merged, 'adviser');
-        await TEI.wealthOS.saveHolding(h.accountId, h.id, merged);
-        Object.assign(h, merged);
-        TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
-        touchedAccounts.add(h.accountId);
-        updated++;
+        const res = await applyLivePriceToHolding(h, price, usdGbpRate);
+        if(res.ok){ touchedAccounts.add(h.accountId); updated++; }
+        else failedHoldings.push(h.ticker);
       }
       touchedAccounts.forEach(accId=>TEI.calc.syncAccountValueFromHoldings(client, accId));
-      const failed = Object.keys(errors||{});
+      const failed = [...new Set([...Object.keys(errors), ...failedHoldings])];
       status.textContent = `Updated ${updated} of ${priceable.length} priced holding${priceable.length===1?'':'s'}` +
+        ` (1 USD = £${usdGbpRate.toFixed(4)})` +
         (failed.length ? ` — couldn't price ${failed.join(', ')}` : '') +
         ` · ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
       renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
@@ -8160,6 +8467,46 @@ window.TEI = window.TEI || {};
       status.textContent = "Couldn't fetch live prices — " + (err.message || 'try again');
     } finally {
       btn.disabled = false;
+    }
+  }
+
+  /* C-i: refresh a single holding's price without re-batching the whole
+     portfolio -- 2 Twelve Data credits (1 price + 1 FX), no chunking/pacing
+     needed. Exists specifically for tagging one new ticker at a time during
+     setup, where the big batch button would otherwise re-fetch everything
+     already fresh just to check the one new holding. */
+  async function refreshOneHolding(h, btnEl){
+    const status = document.getElementById('livePricesStatus');
+    if(btnEl) btnEl.disabled = true;
+    status.textContent = `Fetching live price for ${h.ticker}…`;
+    try{
+      const { prices, errors, usdGbpRate } = await TEI.wealthOS.fetchLivePrices([h.ticker]);
+      if(usdGbpRate == null){
+        status.textContent = "Couldn't fetch the USD/GBP exchange rate — try again.";
+        showToast("Couldn't refresh price");
+        return;
+      }
+      const price = prices[h.ticker.toUpperCase()];
+      if(price == null){
+        status.textContent = `Couldn't price ${h.ticker}` + (errors[h.ticker.toUpperCase()] ? ` — ${errors[h.ticker.toUpperCase()]}` : '');
+        showToast("Couldn't refresh price");
+        return;
+      }
+      const res = await applyLivePriceToHolding(h, price, usdGbpRate);
+      if(!res.ok){
+        status.textContent = `Couldn't save ${h.ticker}'s refreshed price — ${res.error}`;
+        showToast("Couldn't refresh price");
+        return;
+      }
+      TEI.calc.syncAccountValueFromHoldings(client, h.accountId);
+      status.textContent = `Refreshed ${h.ticker} (1 USD = £${usdGbpRate.toFixed(4)}) · ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+      renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
+      showToast(`Refreshed ${h.ticker}`);
+    } catch(err){
+      console.error('Wealth OS: failed to refresh one holding', h.ticker, err);
+      status.textContent = "Couldn't fetch live price — " + (err.message || 'try again');
+    } finally {
+      if(btnEl) btnEl.disabled = false;
     }
   }
 
@@ -8824,15 +9171,26 @@ window.TEI = window.TEI || {};
       }
       let skipped = 0;
       const parsed = rows.slice(1).map(cols=>{
-        const ticker = col.ticker>=0 ? (cols[col.ticker]||'').trim() : '';
+        const ticker = col.ticker>=0 ? (cols[col.ticker]||'').trim().toUpperCase() : '';
         const rawName = col.name>=0 ? (cols[col.name]||'').trim() : '';
         const name = rawName || ticker;
         const units = col.units>=0 ? parseHoldingNumber(cols[col.units]) : null;
         const avgOpen = col.avgOpen>=0 ? parseHoldingNumber(cols[col.avgOpen]) : null;
-        const costBasis = col.costBasis>=0 ? parseHoldingNumber(cols[col.costBasis]) : null;
+        let costBasis = col.costBasis>=0 ? parseHoldingNumber(cols[col.costBasis]) : null;
         let value = col.value>=0 ? parseHoldingNumber(cols[col.value]) : null;
-        if(value==null && units!=null && avgOpen!=null) value = units*avgOpen;
-        if(value==null && costBasis!=null) value = costBasis;
+        if(ticker){
+          // Ticker'd rows are live-priced going forward: avgOpen is
+          // native-currency (USD) and any raw value/cost-basis column
+          // would be treated as GBP here despite not being converted yet
+          // -- same deferred-to-refresh convention addHolding() uses for a
+          // manually-added ticker+units holding (value=0 pending refresh,
+          // costBasis left unset until avgOpen*rate can be computed).
+          if(value==null && units!=null) value = 0;
+          costBasis = null;
+        } else {
+          if(value==null && units!=null && avgOpen!=null) value = units*avgOpen;
+          if(value==null && costBasis!=null) value = costBasis;
+        }
         if(!name || value==null){ skipped++; return null; }
         return {id:uid(), accountId, name, ticker:ticker||null, units, avgOpen, costBasis, value};
       }).filter(Boolean);
@@ -9126,6 +9484,8 @@ window.TEI = window.TEI || {};
     document.getElementById('addGoalBtn').addEventListener('click', addGoal);
     document.getElementById('addHoldingBtn').addEventListener('click', addHolding);
     document.getElementById('refreshLivePricesBtn').addEventListener('click', refreshLivePrices);
+    document.getElementById('newHoldingTicker').addEventListener('input', updateHoldingFormForTicker);
+    updateHoldingFormForTicker();
     document.getElementById('addDivBtn').addEventListener('click', addDividend);
     document.getElementById('addDivHistBtn').addEventListener('click', addDividendHistory);
     document.getElementById('advAddIncomeBtn').addEventListener('click', addAdvIncome);
@@ -10373,12 +10733,14 @@ window.TEI = window.TEI || {};
         returnPct: a.return_pct, lastUpdated: a.last_updated,
         lastEditedBy: a.last_edited_by, lastEditedAt: a.last_edited_at,
         contribution: a.contribution, contributionPersonal: a.contribution_personal,
-        contributionSacrifice: a.contribution_sacrifice
+        contributionSacrifice: a.contribution_sacrifice,
+        openingContributions: a.opening_contributions, cashBalance: a.cash_balance
       })),
 
       holdings: (bundle.holdings||[]).map(h=>({
         id: h.id, accountId: h.account_id, name: h.name, ticker: h.ticker, units: h.units,
         avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, value: h.value,
+        lastPricedAt: h.last_priced_at,
         lastEditedBy: h.last_edited_by, lastEditedAt: h.last_edited_at
       })),
 
@@ -10593,6 +10955,8 @@ window.TEI = window.TEI || {};
       contribution: a.contribution != null ? a.contribution : null,
       contribution_personal: a.contributionPersonal != null ? a.contributionPersonal : null,
       contribution_sacrifice: a.contributionSacrifice != null ? a.contributionSacrifice : null,
+      opening_contributions: a.openingContributions != null ? a.openingContributions : null,
+      cash_balance: a.cashBalance != null ? a.cashBalance : null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
       last_edited_by: a.lastEditedBy || null,
       last_edited_at: a.lastEditedAt || null
@@ -10613,10 +10977,14 @@ window.TEI = window.TEI || {};
       avg_open: h.avgOpen != null ? h.avgOpen : null,
       cost_basis: h.costBasis != null ? h.costBasis : null,
       value: h.value,
-      sector: h.sector || null
+      sector: h.sector || null,
+      last_priced_at: h.lastPricedAt || null
     };
     // holdings has no last_edited_by/last_edited_at column (confirmed via
-    // information_schema) -- deliberately omitted.
+    // information_schema) -- deliberately omitted. last_priced_at is
+    // different: a dedicated "when was this last live-priced" timestamp
+    // added specifically for the "skip holdings priced in the last hour"
+    // refresh option, only ever set by applyLivePriceToHolding().
   }
 
   function goalToRow(clientId, g){
@@ -10724,12 +11092,15 @@ window.TEI = window.TEI || {};
      can't live in this client-side app). Manual refresh only, never
      auto-fetched on page load: the free-tier quota is shared across every
      adviser/client session, and a silent background call per page view
-     would burn through it fast for no benefit. Returns {prices, errors} in
-     the same shape the endpoint gives back so callers can report partial
-     failures (e.g. one bad ticker) without losing the rest of the batch. */
+     would burn through it fast for no benefit. Returns {prices, errors,
+     usdGbpRate} in the same shape the endpoint gives back so callers can
+     report partial failures (e.g. one bad ticker) without losing the rest
+     of the batch. usdGbpRate is null if the FX lookup itself failed --
+     callers must not fall back to treating the raw price as GBP in that
+     case (see api/prices.js header comment re: the USD-only assumption). */
   async function fetchLivePrices(tickers){
     const symbols = [...new Set((tickers||[]).map(t=>String(t||'').trim().toUpperCase()).filter(Boolean))];
-    if(!symbols.length) return {prices:{}, errors:{}};
+    if(!symbols.length) return {prices:{}, errors:{}, usdGbpRate:null};
     const { data:{session} } = await window.teiSupabase.auth.getSession();
     const token = session ? session.access_token : null;
     if(!token) throw new Error('Not signed in');
@@ -10738,7 +11109,7 @@ window.TEI = window.TEI || {};
     });
     const body = await res.json().catch(()=>({}));
     if(!res.ok) throw new Error(body.error || 'Price feed unavailable');
-    return { prices: body.prices||{}, errors: body.errors||{} };
+    return { prices: body.prices||{}, errors: body.errors||{}, usdGbpRate: body.usdGbpRate!=null ? body.usdGbpRate : null };
   }
 
   async function saveGoal(clientId, existingId, local){
