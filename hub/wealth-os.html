@@ -6746,6 +6746,7 @@ TEI.render = TEI.render || {};
   const INFLATION_RATE = 0.03;         // general cost-of-living growth applied to the FI target
   const SPENDING_INCREASE_RATE = 0.035; // lifestyle creep on top of inflation -- spending tends to rise faster than prices alone
   const PAY_RISE_RATE = 0.035;         // assumed annual growth in contributions, modelling typical pay rises
+  const SUSTAINABLE_SPEND_RATIO = 0.70; // once modelled spend reaches this share of modelled income, lifestyle creep is assumed to stop (see taper note below)
 
   /* ---------- shared helpers ----------
      yearsToFI models the target and the contribution as moving, not fixed:
@@ -6754,21 +6755,49 @@ TEI.render = TEI.render || {};
      contribution grows each year with an assumed pay rise. Deliberately
      biased toward caution -- if the assumptions are wrong, better that they
      were too bleak than too generous. Returns an object rather than a bare
-     number so callers can also show the nominal pound figures reached. */
-  function yearsToFI(fiTarget, current, annualContribution, rate, inflationRate, spendingIncreaseRate, payRiseRate){
+     number so callers can also show the nominal pound figures reached.
+
+     Lifestyle-creep taper: spending increase (3.5%/yr real) compounds faster
+     than income (pay rise, also 3.5%/yr, but nominal -- so barely above
+     inflation in real terms). Left unchecked for decades, modelled spend
+     eventually eats modelled income entirely, which is not a realistic
+     lifestyle path and makes the target run away rather than get caught.
+     So once modelled annual spend reaches SUSTAINABLE_SPEND_RATIO of
+     modelled annual income, spending increase is assumed to stop (the
+     target and spend keep growing with inflation only) from that year on.
+     Requires real income and spend figures (annualIncome/annualSpend) --
+     without a known income the taper can't be evaluated, so it's skipped
+     and the target keeps compounding at the full rate (unchanged, existing
+     behaviour) rather than guessed at. */
+  function yearsToFI(fiTarget, current, annualContribution, rate, inflationRate, spendingIncreaseRate, payRiseRate, annualIncome, annualSpend){
     inflationRate = inflationRate || 0;
     spendingIncreaseRate = spendingIncreaseRate || 0;
     payRiseRate = payRiseRate || 0;
-    if(!fiTarget || fiTarget<=0) return {yrs:null, nominalValue:null, nominalTarget:null};
+    if(!fiTarget || fiTarget<=0) return {yrs:null, nominalValue:null, nominalTarget:null, taperYear:null};
     let value = current, target = fiTarget, contribution = annualContribution, yrs = 0;
+    let spend = annualSpend||0, income = annualIncome||0;
+    const canTaper = income>0 && spend>0;
+    let spendingRate = spendingIncreaseRate, tapered = false, taperYear = null;
     while(value < target && yrs < 60){
+      if(canTaper && !tapered && (spend/income) >= SUSTAINABLE_SPEND_RATIO){
+        tapered = true;
+        taperYear = yrs;
+        spendingRate = 0;
+      }
       value = value*(1+rate) + contribution;
-      target = target*(1+inflationRate)*(1+spendingIncreaseRate);
+      target = target*(1+inflationRate)*(1+spendingRate);
+      spend = spend*(1+inflationRate)*(1+spendingRate);
+      income = income*(1+payRiseRate);
       contribution = contribution*(1+payRiseRate);
       yrs++;
     }
     const reached = !(yrs>=60 && value<target);
-    return {yrs: reached ? yrs : null, nominalValue: reached ? value : null, nominalTarget: reached ? target : null};
+    return {
+      yrs: reached ? yrs : null,
+      nominalValue: reached ? value : null,
+      nominalTarget: reached ? target : null,
+      taperYear: reached ? taperYear : null
+    };
   }
   function trajectoryLabel(yrs, hasBudget){
     if(yrs==null) return hasBudget ? 'Target outpacing growth' : 'Set your budget';
@@ -6792,9 +6821,11 @@ TEI.render = TEI.render || {};
     const thisYear = new Date().getFullYear();
     const accessAge = TEI.calc.pensionAccessAge(client);
 
+    const annualIncome = budgetFi.income*12;
+
     const fullTotal = TEI.calc.latestNetWorth(client);
     const fullContribution = TEI.calc.totalMonthlyContribution(client)*12;
-    const fiFull = yearsToFI(budgetFi.fiTarget, fullTotal, fullContribution, EXPECTED_RATE, INFLATION_RATE, SPENDING_INCREASE_RATE, PAY_RISE_RATE);
+    const fiFull = yearsToFI(budgetFi.fiTarget, fullTotal, fullContribution, EXPECTED_RATE, INFLATION_RATE, SPENDING_INCREASE_RATE, PAY_RISE_RATE, annualIncome, budgetFi.annualSpend);
     const ageAtFull = fiFull.yrs!=null ? TEI.calc.ageInYear(client, thisYear+fiFull.yrs) : null;
     const pensionAccessible = ageAtFull!=null && ageAtFull>=accessAge;
 
@@ -6802,7 +6833,7 @@ TEI.render = TEI.render || {};
     if(!pensionAccessible && fiFull.yrs!=null){
       latestTotal = TEI.calc.latestNonPensionNetWorth(client);
       annualContribution = TEI.calc.nonPensionMonthlyContribution(client)*12;
-      fi = yearsToFI(budgetFi.fiTarget, latestTotal, annualContribution, EXPECTED_RATE, INFLATION_RATE, SPENDING_INCREASE_RATE, PAY_RISE_RATE);
+      fi = yearsToFI(budgetFi.fiTarget, latestTotal, annualContribution, EXPECTED_RATE, INFLATION_RATE, SPENDING_INCREASE_RATE, PAY_RISE_RATE, annualIncome, budgetFi.annualSpend);
       excludedPension = true;
     }
     const yrs = fi.yrs;
@@ -6831,9 +6862,12 @@ TEI.render = TEI.render || {};
     const pensionNote = excludedPension
       ? ` Your pension is not counted toward this date -- it is not accessible until age ${accessAge}, which is later than when the rest of your money reaches the target, though it carries on growing in the background for later in life.`
       : '';
+    const taperNote = fi.taperYear!=null
+      ? ` From around ${thisYear+fi.taperYear}, this also assumes your spending stops rising faster than inflation -- by then it would be taking up ${(SUSTAINABLE_SPEND_RATIO*100).toFixed(0)}% of your income on these growth assumptions, which isn't a realistic pace to sustain indefinitely, so the model holds spending growth to inflation only from that point.`
+      : '';
     let explainerText;
     if(yrs!=null){
-      explainerText = `Your FI target grows each year by inflation and a separate allowance for spending naturally rising over time, and your contributions grow each year with a typical pay rise, so ${thisYear+yrs} reflects real purchasing power -- not just today's numbers run forward unchanged. This is a single expected-case estimate based on an ${(EXPECTED_RATE*100).toFixed(0)}% average return, which will not happen smoothly year to year.${pensionNote}`;
+      explainerText = `Your FI target grows each year by inflation and a separate allowance for spending naturally rising over time, and your contributions grow each year with a typical pay rise, so ${thisYear+yrs} reflects real purchasing power -- not just today's numbers run forward unchanged. This is a single expected-case estimate based on an ${(EXPECTED_RATE*100).toFixed(0)}% average return, which will not happen smoothly year to year.${pensionNote}${taperNote}`;
     } else if(budgetFi.fiTarget>0){
       const combinedTargetGrowth = ((1+INFLATION_RATE)*(1+SPENDING_INCREASE_RATE)-1)*100;
       explainerText = `On these assumptions, your FI target is growing at roughly ${combinedTargetGrowth.toFixed(1)}%/yr (inflation and spending increase combined), close to the ${(EXPECTED_RATE*100).toFixed(0)}% investment growth rate -- so the model can't find a year where your money catches up within a 60-year horizon. This usually means contributions need to rise faster than they currently are, not that financial independence is actually out of reach.`;
