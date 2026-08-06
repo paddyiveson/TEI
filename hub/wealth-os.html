@@ -10563,6 +10563,13 @@ window.TEI = window.TEI || {};
     refreshLiabilityLinkOptions();
     refreshGoalLinkedAccountOptions(); refreshGoalLinkedIncomeOptions(); renderObGoals();
     renderObDocuments();
+    // setMode('onboarding') (via "Run onboarding" / "Redo onboarding") calls
+    // this every time the wizard is (re-)entered, but `step` is left over
+    // from whatever step it was on last -- for a client who has already
+    // finished onboarding once, that's step 9 (Complete), where the whole
+    // nav bar including Back/Skip/Continue is hidden by design. Redoing
+    // onboarding should always start from the top.
+    goToStep(1);
   }
 
   TEI.onboarding = { init, refresh };
