@@ -1628,10 +1628,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <div class="rs">Annualised<b class="up" id="poPerfAnn">–</b></div>
           <div class="rs">All-time<b class="up" id="poPerfAll">–</b></div>
         </div>
-        <div class="sub2" style="margin:10px 0 0; opacity:.75;">Investment return — performance only, separate from calendar growth above</div>
-        <div class="k-rowstats" style="margin-top:2px;">
-          <div class="rs">vs. cost basis<b class="up" id="poPerfCost">–</b></div>
-          <div class="rs">vs. deposits<b class="up" id="poPerfDeposits">–</b></div>
+        <div class="k-rowstats" style="margin-top:8px;">
+          <div class="rs">Investment return<b class="up" id="poPerfInvest">–</b></div>
         </div>
         <div class="k-acct-pills" id="acctPillGrid"></div>
       </div>
@@ -2743,9 +2741,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field" id="advAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="newAcctContribPersonal" placeholder="0"></label>
         <label class="form-field" id="advAcctContribEmployerField" style="display:none;"><span>Employer / salary sacrifice £/mo</span><input type="number" id="newAcctContribEmployer" placeholder="0"></label>
         <label class="form-field"><span>Provider</span><input type="text" id="newAcctProvider" placeholder="e.g. Vanguard"></label>
+        <label class="form-field"><span>Total contributions to date £ (optional)</span><input type="number" id="newAcctOpeningContrib" placeholder="0"></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension.</div>
+      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page.</div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -5436,25 +5435,36 @@ TEI.render = TEI.render || {};
 
   /* Investment return -- deliberately separate from the calendar-based
      accountReturn()/YTD-Annualised-All-time above, which mixes new money in
-     with actual performance. Two bases, since neither alone covers
+     with actual performance. Two possible bases, since neither alone covers
      everything: cost basis only exists for priced/cost-tracked holdings;
      deposits works for any account but only as accurate as what's actually
-     been logged via the Update-page Deposits widget. Shown side by side
-     rather than picking one (confirmed with user 2026-08). */
+     been logged (opening lump sum + monthly Deposits widget). Resolved down
+     to ONE displayed figure -- cost basis preferred where it exists (more
+     precise, updates on every price refresh), deposits as fallback,
+     confirmed with user 2026-08 after an earlier side-by-side version read
+     as redundant. */
   function holdingsCostBasisReturn(holdings){
     const withCost = holdings.filter(h=>h.costBasis!=null && h.costBasis>0);
     if(!withCost.length) return null;
     const value = withCost.reduce((s,h)=>s+(Number(h.value)||0),0);
     const costBasis = withCost.reduce((s,h)=>s+(Number(h.costBasis)||0),0);
     const gain = value - costBasis;
-    return { value, costBasis, gain, pct: costBasis>0 ? gain/costBasis*100 : null };
+    return { amount: gain, pct: costBasis>0 ? gain/costBasis*100 : null };
   }
   /* accountIds=null means "whole portfolio" (every account with a logged
      deposit, not just investment types). client.contribLog is keyed
-     [monthKey][accountId] -- see TEI.wealthOS's account_deposits mapping. */
+     [monthKey][accountId] -- see TEI.wealthOS's account_deposits mapping.
+     openingContributions is the one-off "total contributions to date" lump
+     sum entered on the account itself (Adviser Workspace > Accounts) --
+     added on top so this has something to work with immediately at account
+     setup, before any monthly Deposits history has been logged. */
   function depositsReturn(client, accountIds, currentValue){
     let totalDeposited = 0, totalRelief = 0;
     const idSet = accountIds ? new Set(accountIds) : null;
+    (client.accounts||[]).forEach(a=>{
+      if(idSet && !idSet.has(a.id)) return;
+      totalDeposited += Number(a.openingContributions)||0;
+    });
     Object.values(client.contribLog||{}).forEach(monthEntry=>{
       Object.entries(monthEntry||{}).forEach(([accId,e])=>{
         if(idSet && !idSet.has(accId)) return;
@@ -5464,7 +5474,22 @@ TEI.render = TEI.render || {};
     });
     if(!totalDeposited && !totalRelief) return null;
     const growth = currentValue - totalDeposited - totalRelief;
-    return { totalDeposited, totalRelief, growth, pct: totalDeposited>0 ? growth/totalDeposited*100 : null };
+    return { amount: growth, pct: totalDeposited>0 ? growth/totalDeposited*100 : null };
+  }
+  /* The one figure actually shown: cost basis when available, else
+     deposits, else null (dash). Returned with `source` so callers can
+     optionally note which basis produced it. */
+  function investmentReturn(client, accountIds, holdings, currentValue){
+    const costRet = holdingsCostBasisReturn(holdings);
+    if(costRet && costRet.pct!=null) return Object.assign({source:'cost basis'}, costRet);
+    const depRet = depositsReturn(client, accountIds, currentValue);
+    if(depRet && depRet.pct!=null) return Object.assign({source:'deposits'}, depRet);
+    return null;
+  }
+  function fmtInvestmentReturn(ret){
+    if(!ret || ret.pct==null) return '–';
+    const sign = ret.amount>=0 ? '+' : '';
+    return `${sign}${fmtGBP(ret.amount)} (${fmtPct(ret.pct)} · ${ret.source})`;
   }
 
   function renderOverview(client){
@@ -5491,15 +5516,10 @@ TEI.render = TEI.render || {};
     const allEl = document.getElementById('poPerfAll'); allEl.textContent = fmtPct(all); allEl.className = all==null ? '' : (all>=0?'up':'down');
 
     const invHoldings = client.holdings.filter(h=>invAccts.some(a=>a.id===h.accountId));
-    const costRet = holdingsCostBasisReturn(invHoldings);
-    const costEl = document.getElementById('poPerfCost');
-    costEl.textContent = costRet && costRet.pct!=null ? fmtPct(costRet.pct) : '–';
-    costEl.className = !costRet || costRet.pct==null ? '' : (costRet.pct>=0?'up':'down');
-
-    const depRet = depositsReturn(client, invAccts.map(a=>a.id), total);
-    const depEl = document.getElementById('poPerfDeposits');
-    depEl.textContent = depRet && depRet.pct!=null ? fmtPct(depRet.pct) : '–';
-    depEl.className = !depRet || depRet.pct==null ? '' : (depRet.pct>=0?'up':'down');
+    const invRet = investmentReturn(client, invAccts.map(a=>a.id), invHoldings, total);
+    const investEl = document.getElementById('poPerfInvest');
+    investEl.textContent = fmtInvestmentReturn(invRet);
+    investEl.className = !invRet || invRet.pct==null ? '' : (invRet.pct>=0?'up':'down');
 
     const grid = document.getElementById('acctPillGrid');
     if(!invAccts.length){
@@ -5510,12 +5530,10 @@ TEI.render = TEI.render || {};
       const val = Number(b[a.id])||0;
       const ret = accountReturn(client, months, a.id);
       const contrib = TEI.calc.acctContribTotal(a);
-      const cbRet = holdingsCostBasisReturn(client.holdings.filter(h=>h.accountId===a.id));
-      const depRetAcct = depositsReturn(client, [a.id], val);
+      const acctInvRet = investmentReturn(client, [a.id], client.holdings.filter(h=>h.accountId===a.id), val);
       const badges = [
         `<span class="${ret==null?'':(ret>=0?'up':'down')}">${fmtPct(ret)}</span>`,
-        cbRet && cbRet.pct!=null ? `<span class="${cbRet.pct>=0?'up':'down'}" title="Return vs. cost basis">CB ${fmtPct(cbRet.pct)}</span>` : '',
-        depRetAcct && depRetAcct.pct!=null ? `<span class="${depRetAcct.pct>=0?'up':'down'}" title="Return vs. deposits">Dep ${fmtPct(depRetAcct.pct)}</span>` : '',
+        acctInvRet ? `<span class="${acctInvRet.pct>=0?'up':'down'}" title="Investment return via ${acctInvRet.source}">${acctInvRet.amount>=0?'+':''}${fmtGBP(acctInvRet.amount)}</span>` : '',
         contrib>0 ? `<span>${fmtGBP(contrib)}/mo</span>` : ''
       ].filter(Boolean).join('');
       return `<div class="k-acct-pill">
@@ -7460,6 +7478,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctContrib').value = acc.type==='pension' ? '' : (acc.contribution||'');
         document.getElementById('newAcctContribPersonal').value = acc.type==='pension' ? (acc.contributionPersonal||'') : '';
         document.getElementById('newAcctContribEmployer').value = acc.type==='pension' ? (acc.contributionSacrifice||'') : '';
+        document.getElementById('newAcctOpeningContrib').value = acc.openingContributions!=null ? acc.openingContributions : '';
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
@@ -7469,7 +7488,7 @@ window.TEI = window.TEI || {};
   function cancelAcctEdit(){
     editing.account = null;
     document.getElementById('addAcctBtn').textContent = 'Add account';
-    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
+    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib'].forEach(id=>document.getElementById(id).value='');
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
@@ -7487,13 +7506,15 @@ window.TEI = window.TEI || {};
     const contribPersonal = parseFloat(document.getElementById('newAcctContribPersonal').value)||0;
     const contribEmployer = parseFloat(document.getElementById('newAcctContribEmployer').value)||0;
     const provider = document.getElementById('newAcctProvider').value.trim();
+    const openingContribInput = document.getElementById('newAcctOpeningContrib').value;
+    const openingContributions = openingContribInput ? parseFloat(openingContribInput) : null;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {type, provider, value: hasHoldings ? acc.value : value};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -7518,7 +7539,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), type, value, provider, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, openingContributions, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -7536,7 +7557,7 @@ window.TEI = window.TEI || {};
       // Seed this month's balance so the account shows up in net worth immediately,
       // rather than reading as £0 until someone visits "Log this month's balances".
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
-      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider'].forEach(id=>document.getElementById(id).value='');
+      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib'].forEach(id=>document.getElementById(id).value='');
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -10622,7 +10643,8 @@ window.TEI = window.TEI || {};
         returnPct: a.return_pct, lastUpdated: a.last_updated,
         lastEditedBy: a.last_edited_by, lastEditedAt: a.last_edited_at,
         contribution: a.contribution, contributionPersonal: a.contribution_personal,
-        contributionSacrifice: a.contribution_sacrifice
+        contributionSacrifice: a.contribution_sacrifice,
+        openingContributions: a.opening_contributions
       })),
 
       holdings: (bundle.holdings||[]).map(h=>({
@@ -10843,6 +10865,7 @@ window.TEI = window.TEI || {};
       contribution: a.contribution != null ? a.contribution : null,
       contribution_personal: a.contributionPersonal != null ? a.contributionPersonal : null,
       contribution_sacrifice: a.contributionSacrifice != null ? a.contributionSacrifice : null,
+      opening_contributions: a.openingContributions != null ? a.openingContributions : null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
       last_edited_by: a.lastEditedBy || null,
       last_edited_at: a.lastEditedAt || null
