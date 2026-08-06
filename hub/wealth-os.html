@@ -3363,8 +3363,15 @@ window.TEI = window.TEI || {};
     return year - birthYear;
   }
   function latestNonPensionNetWorth(client){
+    // Per-account fallback to a.value (same idiom as goalProgress below) --
+    // unlike latestNetWorth's all-or-nothing fallback, this matters here
+    // because a client can have monthly history for some accounts but not
+    // a brand-new one added since the last snapshot; without this an
+    // un-snapshotted account silently contributed £0 instead of its entered
+    // value, which could badly understate non-pension wealth in the pension-
+    // exclusion path of the FI Dashboard.
     const b = latestBreakdown(buildMergedMonths(client));
-    return client.accounts.filter(a=>a.type!=='pension').reduce((s,a)=> s + (Number(b[a.id])||0), 0);
+    return client.accounts.filter(a=>a.type!=='pension').reduce((s,a)=> s + (b[a.id]!=null ? Number(b[a.id])||0 : (Number(a.value)||0)), 0);
   }
   function nonPensionMonthlyContribution(client){
     return client.accounts.filter(a=>a.type!=='pension').reduce((s,a)=>s+acctContribTotal(a),0);
