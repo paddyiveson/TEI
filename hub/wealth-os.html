@@ -5534,7 +5534,17 @@ TEI.render = TEI.render || {};
     const el = document.getElementById('driversContent');
     const withCost = client.holdings.filter(h=> h.costBasis!=null && h.costBasis>0);
     if(!withCost.length){
-      el.innerHTML = `<div class="line">Add a cost basis to your holdings in Adviser Workspace to see performance drivers.</div>`;
+      // Cost basis comes from two different places depending on the
+      // holding: a manual "Cost basis £" entry for tickerless holdings, or
+      // avgOpen + a live-price refresh for ticker'd ones (the manual field
+      // is hidden for those -- see updateHoldingFormForTicker). Point at
+      // whichever actually applies rather than a single blanket message.
+      const hasTickerHoldings = client.holdings.some(h=>h.ticker);
+      const hasTickerlessHoldings = client.holdings.some(h=>!h.ticker);
+      const tips = [];
+      if(hasTickerHoldings) tips.push('for a ticker\'d holding, add an Avg open price in Adviser Workspace and hit Refresh price');
+      if(hasTickerlessHoldings) tips.push('for others, add a Cost basis in Adviser Workspace');
+      el.innerHTML = `<div class="line">Add cost basis to your holdings to see performance drivers — ${tips.join(', or ')}.</div>`;
       return;
     }
     const withGain = withCost.map(h=>({h, gain: h.value - h.costBasis}));
