@@ -1039,7 +1039,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-acct-pill{background:rgba(247,244,237,0.08); border-radius:8px; padding:7px 11px; flex:1; min-width:110px;}
 .k-acct-pill .ap-name{font-size:11px; color:rgba(247,244,237,0.6); text-transform:uppercase; letter-spacing:.04em; font-weight:700;}
 .k-acct-pill .ap-value{font-size:14.5px; font-weight:700; color:var(--k-emphasis-ink); margin-top:3px; font-family:var(--font-display);}
-.k-acct-pill .ap-meta{display:flex; justify-content:space-between; font-size:11.5px; color:rgba(247,244,237,0.55); margin-top:3px;}
+.k-acct-pill .ap-meta{display:flex; justify-content:space-between; flex-wrap:wrap; row-gap:2px; column-gap:8px; font-size:11.5px; color:rgba(247,244,237,0.55); margin-top:3px;}
 .k-acct-pill .ap-meta .up{color:var(--k-emph-up);}
 .k-acct-pill .ap-meta .down{color:var(--k-emph-down);}
 
@@ -1627,6 +1627,11 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <div class="rs">YTD return<b class="up" id="poPerfYtd">–</b></div>
           <div class="rs">Annualised<b class="up" id="poPerfAnn">–</b></div>
           <div class="rs">All-time<b class="up" id="poPerfAll">–</b></div>
+        </div>
+        <div class="sub2" style="margin:10px 0 0; opacity:.75;">Investment return — performance only, separate from calendar growth above</div>
+        <div class="k-rowstats" style="margin-top:2px;">
+          <div class="rs">vs. cost basis<b class="up" id="poPerfCost">–</b></div>
+          <div class="rs">vs. deposits<b class="up" id="poPerfDeposits">–</b></div>
         </div>
         <div class="k-acct-pills" id="acctPillGrid"></div>
       </div>
@@ -5429,6 +5434,39 @@ TEI.render = TEI.render || {};
     return pctReturn(first, last);
   }
 
+  /* Investment return -- deliberately separate from the calendar-based
+     accountReturn()/YTD-Annualised-All-time above, which mixes new money in
+     with actual performance. Two bases, since neither alone covers
+     everything: cost basis only exists for priced/cost-tracked holdings;
+     deposits works for any account but only as accurate as what's actually
+     been logged via the Update-page Deposits widget. Shown side by side
+     rather than picking one (confirmed with user 2026-08). */
+  function holdingsCostBasisReturn(holdings){
+    const withCost = holdings.filter(h=>h.costBasis!=null && h.costBasis>0);
+    if(!withCost.length) return null;
+    const value = withCost.reduce((s,h)=>s+(Number(h.value)||0),0);
+    const costBasis = withCost.reduce((s,h)=>s+(Number(h.costBasis)||0),0);
+    const gain = value - costBasis;
+    return { value, costBasis, gain, pct: costBasis>0 ? gain/costBasis*100 : null };
+  }
+  /* accountIds=null means "whole portfolio" (every account with a logged
+     deposit, not just investment types). client.contribLog is keyed
+     [monthKey][accountId] -- see TEI.wealthOS's account_deposits mapping. */
+  function depositsReturn(client, accountIds, currentValue){
+    let totalDeposited = 0, totalRelief = 0;
+    const idSet = accountIds ? new Set(accountIds) : null;
+    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+      Object.entries(monthEntry||{}).forEach(([accId,e])=>{
+        if(idSet && !idSet.has(accId)) return;
+        totalDeposited += (Number(e && e.amount)||0) + (Number(e && e.sacrificeAmount)||0);
+        totalRelief += Number(e && e.reliefAmount)||0;
+      });
+    });
+    if(!totalDeposited && !totalRelief) return null;
+    const growth = currentValue - totalDeposited - totalRelief;
+    return { totalDeposited, totalRelief, growth, pct: totalDeposited>0 ? growth/totalDeposited*100 : null };
+  }
+
   function renderOverview(client){
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);
@@ -5452,6 +5490,17 @@ TEI.render = TEI.render || {};
     const annEl = document.getElementById('poPerfAnn'); annEl.textContent = fmtPct(ann); annEl.className = ann==null ? '' : (ann>=0?'up':'down');
     const allEl = document.getElementById('poPerfAll'); allEl.textContent = fmtPct(all); allEl.className = all==null ? '' : (all>=0?'up':'down');
 
+    const invHoldings = client.holdings.filter(h=>invAccts.some(a=>a.id===h.accountId));
+    const costRet = holdingsCostBasisReturn(invHoldings);
+    const costEl = document.getElementById('poPerfCost');
+    costEl.textContent = costRet && costRet.pct!=null ? fmtPct(costRet.pct) : '–';
+    costEl.className = !costRet || costRet.pct==null ? '' : (costRet.pct>=0?'up':'down');
+
+    const depRet = depositsReturn(client, invAccts.map(a=>a.id), total);
+    const depEl = document.getElementById('poPerfDeposits');
+    depEl.textContent = depRet && depRet.pct!=null ? fmtPct(depRet.pct) : '–';
+    depEl.className = !depRet || depRet.pct==null ? '' : (depRet.pct>=0?'up':'down');
+
     const grid = document.getElementById('acctPillGrid');
     if(!invAccts.length){
       grid.innerHTML = `<div class="line">No investment accounts yet. Add ISA, GIA, LISA or Pension accounts in Adviser Workspace.</div>`;
@@ -5461,10 +5510,18 @@ TEI.render = TEI.render || {};
       const val = Number(b[a.id])||0;
       const ret = accountReturn(client, months, a.id);
       const contrib = TEI.calc.acctContribTotal(a);
+      const cbRet = holdingsCostBasisReturn(client.holdings.filter(h=>h.accountId===a.id));
+      const depRetAcct = depositsReturn(client, [a.id], val);
+      const badges = [
+        `<span class="${ret==null?'':(ret>=0?'up':'down')}">${fmtPct(ret)}</span>`,
+        cbRet && cbRet.pct!=null ? `<span class="${cbRet.pct>=0?'up':'down'}" title="Return vs. cost basis">CB ${fmtPct(cbRet.pct)}</span>` : '',
+        depRetAcct && depRetAcct.pct!=null ? `<span class="${depRetAcct.pct>=0?'up':'down'}" title="Return vs. deposits">Dep ${fmtPct(depRetAcct.pct)}</span>` : '',
+        contrib>0 ? `<span>${fmtGBP(contrib)}/mo</span>` : ''
+      ].filter(Boolean).join('');
       return `<div class="k-acct-pill">
         <div class="ap-name">${TEI.data.acctLabel(a)}</div>
         <div class="ap-value">${fmtGBP(val)}</div>
-        <div class="ap-meta"><span class="${ret==null?'':(ret>=0?'up':'down')}">${fmtPct(ret)}</span>${contrib>0?`<span>${fmtGBP(contrib)}/mo</span>`:''}</div>
+        <div class="ap-meta">${badges}</div>
       </div>`;
     }).join('');
   }
