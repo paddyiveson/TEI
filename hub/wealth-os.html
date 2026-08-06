@@ -1638,10 +1638,22 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 
+  <!-- Only shown once >=2 accounts have holdings (see TEI.render.portfolio) --
+       lets the adviser scope Coach's Corner, the Companies chart, Top
+       Holdings, Performance Drivers and Portfolio Insights below to a
+       single account instead of the whole portfolio. Portfolio Overview
+       above (poTotal/perf stats/acctPillGrid) is deliberately NOT scoped --
+       it already shows one pill per account with its own figures. -->
+  <div class="dgrid" id="analysisScopeRow" style="display:none; margin-top:12px;">
+    <div class="span-12">
+      <div class="k-pill-toggle" id="analysisScopeToggle"></div>
+    </div>
+  </div>
+
   <div class="dgrid" style="margin-top:12px;">
     <div class="span-12">
       <div class="dcard advisory">
-        <div class="k">Portfolio coach's corner</div>
+        <div class="k" id="pfcHeading">Portfolio coach's corner</div>
         <div class="line" id="pfcMessage">–</div>
         <a href="#" class="btn-primary cc-action" id="pfcActionBtn" style="display:none; margin-top:10px;">–</a>
       </div>
@@ -1655,7 +1667,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div class="span-12">
       <div class="dcard">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div class="k">Companies</div>
+          <div class="k" id="analysisCompaniesHeading">Companies</div>
           <div class="k-pill-toggle" id="analysisToggle">
             <button type="button" data-analysis-view="companies" class="active">Companies</button>
             <button type="button" data-analysis-view="more">More insights <span class="k-badge-soon">Soon</span></button>
@@ -1685,14 +1697,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="dgrid">
     <div class="span-6">
       <div class="dcard" style="height:100%;">
-        <div class="k">Top holdings</div>
-        <div class="line">Your 10 largest positions, across every account.</div>
+        <div class="k" id="topHoldingsHeading">Top holdings</div>
+        <div class="line" id="topHoldingsSubline">Your 10 largest positions, across every account.</div>
         <div style="overflow-x:auto;"><table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Value</th><th style="text-align:right;">%</th><th>Account</th></tr></thead><tbody id="topHoldingsBody"></tbody></table></div>
       </div>
     </div>
     <div class="span-6">
       <div class="dcard" style="height:100%;">
-        <div class="k">Performance drivers</div>
+        <div class="k" id="driversHeading">Performance drivers</div>
         <div class="line">Unrealised gain or loss vs. cost basis — not a time-windowed return.</div>
         <div id="driversContent" style="margin-top:8px;"></div>
       </div>
@@ -1748,7 +1760,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="dgrid">
     <div class="span-6">
       <div class="dcard advisory k-insights-tint" style="height:100%;">
-        <div class="k">Portfolio insights</div>
+        <div class="k" id="portfolioInsightsHeading">Portfolio insights</div>
         <div class="line" style="margin-bottom:8px;">What your portfolio tells you.</div>
         <div id="portfolioInsightsList"></div>
       </div>
@@ -5463,6 +5475,46 @@ TEI.render = TEI.render || {};
 
   function investmentAccounts(client){ return client.accounts.filter(a=> INV_TYPES.includes(a.type)); }
 
+  /* ---------- Account-scoped analysis ----------
+     Lets the adviser view Coach's Corner / Companies / Top Holdings /
+     Performance Drivers / Portfolio Insights scoped to a single account
+     instead of merged across the whole portfolio. Only offered once >=2
+     accounts actually have holdings (see wireAnalysisScope) -- with 0 or 1
+     such accounts an "All Portfolio" vs "this one account" split would
+     just show identical numbers twice.
+     Deliberately NOT scoped: Portfolio Overview (poTotal/perf stats/
+     acctPillGrid -- already has its own per-account pills, see
+     renderOverview) and Dividend income (client.dividendHoldings/
+     dividendHistory carry no accountId in the data model at all). */
+  let analysisScopeAccountId = null; // null = "All Portfolio"
+
+  function scopedClientView(client, accountId){
+    if(!accountId) return client;
+    return Object.assign({}, client, {
+      holdings: client.holdings.filter(h=>h.accountId===accountId),
+      accounts: client.accounts.filter(a=>a.id===accountId)
+    });
+  }
+  /* computeSignals() mixes holdings-composition facts (concentration,
+     sector spread -- genuinely meaningful scoped to one account) with
+     account-independent life-advice facts that would turn misleading if
+     naively scoped -- e.g. filtering client.accounts down to one GIA would
+     make pensionAccounts.length read as 0 and wrongly fire "no pension
+     logged" on every non-pension account tab, even when the client's
+     pension is fine elsewhere. pickTopSignal/pickSignals already support
+     excludeIds (used today to de-dupe Coach's Corner against the Insights
+     list below it) -- reuse that same mechanism rather than touching
+     computeSignals itself. */
+  const ACCOUNT_SCOPE_EXCLUDE_SIGNALS = ['pension-no-personal-contribution',
+    'pension-contributing-well','no-pension-employed',
+    'portfolio-monthly-contribution','strong-saving-high-concentration'];
+
+  function acctHeadingSuffix(client, accountId){
+    if(!accountId) return '';
+    const acc = client.accounts.find(a=>a.id===accountId);
+    return acc ? ' — ' + TEI.data.acctLabel(acc) : '';
+  }
+
   function investmentSeries(client, months, invAccts){
     const series = {};
     Object.keys(months).sort().forEach(key=>{
@@ -5727,6 +5779,53 @@ TEI.render = TEI.render || {};
     toggle.dataset.wired = '1';
   }
 
+  /* Re-renders every account-scopable card for the current
+     analysisScopeAccountId. Deliberately NOT renderOverview or the
+     dividend-income section -- see the header comment on
+     analysisScopeAccountId above for why those are excluded. Called once
+     up front by wireAnalysisScope and again on every switcher click. */
+  function applyAnalysisScope(client){
+    const scopeId = analysisScopeAccountId;
+    const suffix = acctHeadingSuffix(client, scopeId);
+    document.getElementById('analysisCompaniesHeading').textContent = 'Companies' + suffix;
+    document.getElementById('topHoldingsHeading').textContent = 'Top holdings' + suffix;
+    document.getElementById('topHoldingsSubline').textContent = scopeId
+      ? 'Your 10 largest positions in this account.'
+      : 'Your 10 largest positions, across every account.';
+    document.getElementById('driversHeading').textContent = 'Performance drivers' + suffix;
+    document.getElementById('portfolioInsightsHeading').textContent = 'Portfolio insights' + suffix;
+    const scoped = scopedClientView(client, scopeId);
+    renderAnalysisCompanies(scoped);
+    renderTopHoldings(scoped);
+    renderDrivers(scoped);
+    renderInsights(client, scopeId);
+    renderPortfolioCoach(client, scopeId);
+  }
+
+  function wireAnalysisScope(client){
+    const row = document.getElementById('analysisScopeRow');
+    const toggle = document.getElementById('analysisScopeToggle');
+    const eligible = client.accounts.filter(a=>TEI.calc.accountHasHoldings(client, a.id));
+    analysisScopeAccountId = null; // reset to "All Portfolio" on every full render, same as other transient page-entry state in this app
+    if(eligible.length < 2){
+      row.style.display = 'none';
+      applyAnalysisScope(client);
+      return;
+    }
+    row.style.display = '';
+    toggle.innerHTML = `<button type="button" data-scope-account="" class="active">All Portfolio</button>` +
+      eligible.map(a=>`<button type="button" data-scope-account="${a.id}">${TEI.data.acctLabel(a)}</button>`).join('');
+    toggle.querySelectorAll('[data-scope-account]').forEach(btn=>{
+      btn.addEventListener('click', function(){
+        toggle.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
+        this.classList.add('active');
+        analysisScopeAccountId = this.dataset.scopeAccount || null;
+        applyAnalysisScope(client);
+      });
+    });
+    applyAnalysisScope(client);
+  }
+
   function renderTopHoldings(client){
     const body = document.getElementById('topHoldingsBody');
     if(!client.holdings.length){
@@ -5900,11 +5999,19 @@ TEI.render = TEI.render || {};
      the same sentence -- previously this list recalculated concentration and
      sector exposure independently, in different wording, with no de-dup
      against Coach's Corner. */
-  function renderInsights(client){
+  function renderInsights(client, scopeAccountId){
     const list = document.getElementById('portfolioInsightsList');
-    const coachSignal = TEI.calc.pickTopSignal(client, 'portfolio', {overrideKey:'portfolioCoach'});
+    const scoped = scopedClientView(client, scopeAccountId);
+    // De-dupe against whatever Coach's Corner is actually showing --
+    // mirrors renderPortfolioCoach's own branching exactly (same call,
+    // same excludeIds) so the id used for exclusion here always matches
+    // the signal really occupying that slot above, scoped or not.
+    const coachSignal = scopeAccountId
+      ? TEI.calc.pickTopSignal(scoped, 'portfolio', {excludeIds: ACCOUNT_SCOPE_EXCLUDE_SIGNALS})
+      : TEI.calc.pickTopSignal(client, 'portfolio', {overrideKey:'portfolioCoach'});
     const excludeIds = coachSignal && coachSignal.id ? [coachSignal.id] : [];
-    const signals = TEI.calc.pickSignals(client, 'portfolio', 4, {excludeIds});
+    if(scopeAccountId) excludeIds.push(...ACCOUNT_SCOPE_EXCLUDE_SIGNALS);
+    const signals = TEI.calc.pickSignals(scoped, 'portfolio', 4, {excludeIds});
     const lines = signals.map(s=>s.message);
     if(!lines.length) lines.push('Insights will appear once holdings are logged.');
     list.innerHTML = lines.map(l=>`<div class="k-insight-item"><div class="dot"></div>${l}</div>`).join('');
@@ -5939,8 +6046,22 @@ TEI.render = TEI.render || {};
     link.onclick = function(e){ e.preventDefault(); if(TEI.app) TEI.app.showPage('learning'); };
   }
 
-  function renderPortfolioCoach(client){
-    const pc = TEI.calc.computePortfolioCoach(client);
+  function renderPortfolioCoach(client, scopeAccountId){
+    document.getElementById('pfcHeading').textContent = 'Portfolio coach\'s corner' + acctHeadingSuffix(client, scopeAccountId);
+    let pc;
+    if(scopeAccountId){
+      // Bypass TEI.calc.computePortfolioCoach on purpose: its
+      // overrideKey:'portfolioCoach' surfaces a manual, adviser-authored
+      // whole-portfolio note that shouldn't be attributed to a single
+      // account. computePortfolioCoach itself stays untouched -- it's
+      // shared with Adviser Workspace's Insights tab.
+      const scoped = scopedClientView(client, scopeAccountId);
+      const s = TEI.calc.pickTopSignal(scoped, 'portfolio', {excludeIds: ACCOUNT_SCOPE_EXCLUDE_SIGNALS, fallbackActionLabel:'Review Portfolio', fallbackActionPage:'portfolio'});
+      pc = s ? {message:s.message, actionLabel:s.actionLabel, actionPage:s.actionPage}
+             : {message:'Holdings look reasonably spread for this account.', actionLabel:null};
+    } else {
+      pc = TEI.calc.computePortfolioCoach(client);
+    }
     document.getElementById('pfcMessage').textContent = pc.message;
     const btn = document.getElementById('pfcActionBtn');
     if(pc.actionLabel){
@@ -5965,17 +6086,13 @@ TEI.render = TEI.render || {};
 
   TEI.render.portfolio = function(client){
     renderOverview(client);
-    renderAnalysisCompanies(client);
     wireAnalysisToggle(client);
-    renderTopHoldings(client);
-    renderDrivers(client);
+    wireAnalysisScope(client); // also renders Companies/Top Holdings/Performance Drivers/Insights/Coach's Corner, scoped or not
     renderDivStats(client);
     renderDivIncomeChart(client, false);
     renderDivContributors(client);
     wireDivToggle(client);
-    renderInsights(client);
     renderStage(client);
-    renderPortfolioCoach(client);
     renderHoldingsUpdateSummary(client);
   };
 })();
