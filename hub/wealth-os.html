@@ -5513,31 +5513,37 @@ TEI.render = TEI.render || {};
      nudge, not an alarm -- holdings with no cost-basis tracking at all are
      a normal, common case, not an error, so a discrepancy here is a
      prompt to check, not proof something's wrong. */
+  function acctContributedTotal(client, accountId){
+    const acct = client.accounts.find(a=>a.id===accountId);
+    let total = (acct && Number(acct.openingContributions))||0;
+    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+      const e = monthEntry && monthEntry[accountId];
+      if(e) total += (Number(e.amount)||0) + (Number(e.sacrificeAmount)||0);
+    });
+    return total;
+  }
   function contributionDiscrepancy(client, accountIds){
     const idSet = accountIds ? new Set(accountIds) : null;
-    let contributed = 0;
-    (client.accounts||[]).forEach(a=>{
-      if(idSet && !idSet.has(a.id)) return;
-      contributed += Number(a.openingContributions)||0;
-    });
-    Object.values(client.contribLog||{}).forEach(monthEntry=>{
-      Object.entries(monthEntry||{}).forEach(([accId,e])=>{
-        if(idSet && !idSet.has(accId)) return;
-        contributed += (Number(e && e.amount)||0) + (Number(e && e.sacrificeAmount)||0);
+    const scopedAccounts = (client.accounts||[]).filter(a=>!idSet || idSet.has(a.id));
+    // Only pull an account into the comparison if IT has a stated
+    // contribution baseline. Summing every account's real cost basis
+    // against only the subset that happens to have a contributions figure
+    // entered would make an untracked account's genuine holdings look like
+    // a huge fake "discrepancy" against nothing -- each account has to be
+    // its own apples-to-apples check before being added to the total.
+    let contributed = 0, accountedFor = 0, uncostedHoldings = 0, anyStated = false;
+    scopedAccounts.forEach(a=>{
+      const acctContributed = acctContributedTotal(client, a.id);
+      if(!acctContributed) return;
+      anyStated = true;
+      contributed += acctContributed;
+      accountedFor += Number(a.cashBalance)||0;
+      client.holdings.filter(h=>h.accountId===a.id).forEach(h=>{
+        if(h.costBasis!=null && h.costBasis>0) accountedFor += Number(h.costBasis)||0;
+        else if(h.ticker || h.units!=null) uncostedHoldings++;
       });
     });
-    if(!contributed) return null; // nothing stated -- nothing to check against
-
-    let accountedFor = 0, uncostedHoldings = 0;
-    client.holdings.forEach(h=>{
-      if(idSet && !idSet.has(h.accountId)) return;
-      if(h.costBasis!=null && h.costBasis>0) accountedFor += Number(h.costBasis)||0;
-      else if(h.ticker || h.units!=null) uncostedHoldings++;
-    });
-    (client.accounts||[]).forEach(a=>{
-      if(idSet && !idSet.has(a.id)) return;
-      accountedFor += Number(a.cashBalance)||0;
-    });
+    if(!anyStated) return null; // nothing stated anywhere in scope -- nothing to check against
 
     const diff = contributed - accountedFor;
     if(Math.abs(diff) <= RECON_TOLERANCE) return null;
