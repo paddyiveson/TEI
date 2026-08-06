@@ -2831,6 +2831,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Yield %</span><input type="number" id="newDivYield" step="0.1" placeholder="0"></label>
         <label class="form-field"><span>Growth %/yr</span><input type="number" id="newDivGrowth" step="0.1" placeholder="0"></label>
         <label class="form-field"><span>Amount invested £</span><input type="number" id="newDivAmount" placeholder="0"></label>
+        <label class="form-field"><span>Pays</span><select id="newDivFrequency"><option value="annual">Annually</option><option value="semiannual">Semi-annually</option><option value="quarterly">Quarterly</option><option value="monthly">Monthly</option></select></label>
         <button type="button" class="btn-primary" id="addDivBtn">Add holding</button>
       </div>
     </div>
@@ -4190,6 +4191,28 @@ window.TEI = window.TEI || {};
   // manual-override / unrecognized-ticker catch-all.
   const SECTOR_OPTIONS = ['Communication Services','Consumer Discretionary','Financials',
     'Health Care','Industrials','Information Technology','Other'];
+
+  /* Dividend payment frequency -- how many times a year a holding actually
+     pays out matters for reinvestment compounding (a monthly payer like
+     JEPQ reinvests, and so compounds, far more often per year than an
+     annual payer at the same nominal yield). 'annual' is the default for
+     holdings that predate this field, matching the compounding this app
+     already assumed before frequency was tracked, so existing holdings'
+     numbers don't silently change until someone sets their real schedule. */
+  const DIVIDEND_FREQUENCY_OPTIONS = [
+    {value:'annual', label:'Annually', periodsPerYear:1},
+    {value:'semiannual', label:'Semi-annually', periodsPerYear:2},
+    {value:'quarterly', label:'Quarterly', periodsPerYear:4},
+    {value:'monthly', label:'Monthly', periodsPerYear:12}
+  ];
+  function dividendPeriodsPerYear(frequency){
+    const match = DIVIDEND_FREQUENCY_OPTIONS.find(f=>f.value===frequency);
+    return match ? match.periodsPerYear : 1;
+  }
+  function dividendFrequencyLabel(frequency){
+    const match = DIVIDEND_FREQUENCY_OPTIONS.find(f=>f.value===frequency);
+    return match ? match.label : 'Annually';
+  }
   function lookupTickerInfo(ticker){
     const t = (ticker||'').trim().toUpperCase();
     return TICKER_INFO[t] || { sector:null, theme:[] };
@@ -4199,7 +4222,8 @@ window.TEI = window.TEI || {};
     defaultClient, mergeDefaults, getEmbeddedClient,
     fmtGBP, uid, isRealId, monthLabel, currentMonthKey, monthsBetweenInclusive,
     MONTH_ABBR, acctLabel, monthInputToDate,
-    lookupTickerInfo, SECTOR_OPTIONS
+    lookupTickerInfo, SECTOR_OPTIONS,
+    DIVIDEND_FREQUENCY_OPTIONS, dividendPeriodsPerYear, dividendFrequencyLabel
   };
   TEI.calc = {
     accountTotal, buildMergedMonths, buildUnifiedTotals, latestBreakdown, latestNetWorth,
@@ -5940,11 +5964,15 @@ TEI.render = TEI.render || {};
     // vs. yield), so reinvesting isn't guaranteed to beat taking income in
     // every case — when it doesn't, no green segment shows for that year
     // rather than a bar that would visually shrink.
+    // Compounds at the holding's actual payment frequency, not once a year —
+    // a monthly payer reinvests (and so compounds) 12x/yr at the same
+    // nominal yield, which meaningfully outgrows an annual payer over time.
     const reinvestExtra = allYears.map((y,i)=>{
       if(!showReinvested || !forecastYears.includes(y) || !holdings.length) return null;
       const yrsOut = y - startYear;
       const reinvestedTotal = holdings.reduce((s,h)=>{
-        const value = (Number(h.amount)||0) * Math.pow(1+(Number(h.yield)||0)/100, yrsOut);
+        const m = TEI.data.dividendPeriodsPerYear(h.frequency);
+        const value = (Number(h.amount)||0) * Math.pow(1+(Number(h.yield)||0)/100/m, m*yrsOut);
         return s + value*(Number(h.yield)||0)/100;
       }, 0);
       return Math.max(0, reinvestedTotal - (forecastData[i]||0));
@@ -5973,7 +6001,7 @@ TEI.render = TEI.render || {};
 
   const DIV_NOTES = {
     base: 'Gold bars are actual dividend income received, logged year by year in Adviser Workspace. Faded gold is a forecast, illustrative only and not a guarantee — assumes the yield stays flat and each holding\'s payout grows at its own rate, taken as income with no reinvestment and no share price change.',
-    reinvested: 'Green shows the extra income the forecast years could produce if dividends were reinvested instead of taken — illustrative only, not a guarantee. Assumes dividends are reinvested each year, compounding the position at the current yield, a simplified DRIP model rather than a forecast of returns.'
+    reinvested: 'Green shows the extra income the forecast years could produce if dividends were reinvested instead of taken — illustrative only, not a guarantee. Assumes each payout is reinvested as it lands, compounding the position at the current yield and the holding\'s own payment frequency (e.g. monthly payers compound monthly), a simplified DRIP model rather than a forecast of returns.'
   };
 
   function renderDivContributors(client){
@@ -8830,7 +8858,7 @@ window.TEI = window.TEI || {};
     client.dividendHoldings.forEach(h=>{
       const row = document.createElement('div');
       row.className = 'list-row';
-      row.innerHTML = `<div class="lr-main"><b>${h.name}</b><div class="lr-meta">${h.yield}% yield · ${h.growth}% growth · ${fmtGBP(h.amount||0)} invested</div></div>
+      row.innerHTML = `<div class="lr-main"><b>${h.name}</b><div class="lr-meta">${h.yield}% yield · ${h.growth}% growth · ${fmtGBP(h.amount||0)} invested · pays ${TEI.data.dividendFrequencyLabel(h.frequency).toLowerCase()}</div></div>
         <div style="display:flex; gap:8px; flex-none:1;">
           <button type="button" class="btn-ghost" data-edit-div="${h.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
           <button type="button" class="btn-ghost" data-del-div="${h.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
@@ -8862,6 +8890,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newDivYield').value = h.yield;
         document.getElementById('newDivGrowth').value = h.growth;
         document.getElementById('newDivAmount').value = h.amount;
+        document.getElementById('newDivFrequency').value = h.frequency || 'annual';
         document.getElementById('addDivBtn').textContent = 'Save changes';
         document.getElementById('newDivName').scrollIntoView({behavior:'smooth', block:'center'});
       });
@@ -8871,19 +8900,21 @@ window.TEI = window.TEI || {};
     editing.dividend = null;
     document.getElementById('addDivBtn').textContent = 'Add holding';
     ['newDivName','newDivYield','newDivGrowth','newDivAmount'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('newDivFrequency').value = 'annual';
   }
   async function addDividend(){
     const name = document.getElementById('newDivName').value.trim();
     const yieldPct = parseFloat(document.getElementById('newDivYield').value);
     const growth = parseFloat(document.getElementById('newDivGrowth').value)||0;
     const amount = parseFloat(document.getElementById('newDivAmount').value)||0;
+    const frequency = document.getElementById('newDivFrequency').value || 'annual';
     if(!name || isNaN(yieldPct)){ showToast('Give the holding a name and yield'); return; }
     const btn = document.getElementById('addDivBtn');
     btn.disabled = true;
     if(editing.dividend){
       const h = client.dividendHoldings.find(x=>x.id===editing.dividend);
       if(!h){ cancelDividendEdit(); btn.disabled = false; return; }
-      const merged = Object.assign({}, h, {name, yield:yieldPct, growth, amount});
+      const merged = Object.assign({}, h, {name, yield:yieldPct, growth, amount, frequency});
       try{
         await TEI.wealthOS.saveDividendHolding(client.meta.clientId, h.id, merged);
       } catch(err){
@@ -8897,7 +8928,7 @@ window.TEI = window.TEI || {};
       cancelDividendEdit();
       showToast('Dividend holding updated');
     } else {
-      const h = {id:uid(), name, yield:yieldPct, growth, amount};
+      const h = {id:uid(), name, yield:yieldPct, growth, amount, frequency};
       try{
         h.id = await TEI.wealthOS.saveDividendHolding(client.meta.clientId, null, h);
       } catch(err){
@@ -8909,6 +8940,7 @@ window.TEI = window.TEI || {};
       btn.disabled = false;
       client.dividendHoldings.push(h);
       ['newDivName','newDivYield','newDivGrowth','newDivAmount'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('newDivFrequency').value = 'annual';
       showToast('Dividend holding added');
     }
     renderDividends();
@@ -11063,7 +11095,7 @@ window.TEI = window.TEI || {};
       },
       monteCarlo: cf.monte_carlo,
 
-      dividendHoldings: (bundle.dividendHoldings||[]).map(h=>({id:h.id, name:h.name, yield:h.yield, growth:h.growth, amount:h.amount})),
+      dividendHoldings: (bundle.dividendHoldings||[]).map(h=>({id:h.id, name:h.name, yield:h.yield, growth:h.growth, amount:h.amount, frequency:h.frequency||'annual'})),
 
       wealth:{
         assets: (bundle.wealthAssets||[]).map(a=>({id:a.id, type:a.type, value:a.value, notes:a.notes})),
@@ -11297,7 +11329,7 @@ window.TEI = window.TEI || {};
   }
 
   function dividendHoldingToRow(clientId, d){
-    return { client_id: clientId, name: d.name, yield: d.yield, growth: d.growth, amount: d.amount };
+    return { client_id: clientId, name: d.name, yield: d.yield, growth: d.growth, amount: d.amount, frequency: d.frequency || 'annual' };
   }
 
   // income/wealth_assets/wealth_liabilities column names assumed from the
