@@ -2742,9 +2742,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field" id="advAcctContribEmployerField" style="display:none;"><span>Employer / salary sacrifice £/mo</span><input type="number" id="newAcctContribEmployer" placeholder="0"></label>
         <label class="form-field"><span>Provider</span><input type="text" id="newAcctProvider" placeholder="e.g. Vanguard"></label>
         <label class="form-field"><span>Total contributions to date £ (optional)</span><input type="number" id="newAcctOpeningContrib" placeholder="0"></label>
+        <label class="form-field"><span>Cash balance £ (optional)</span><input type="number" id="newAcctCashBalance" placeholder="0"></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page.</div>
+      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing.</div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -3237,13 +3238,21 @@ window.TEI = window.TEI || {};
 
   /* ---------- Holdings-derived account values ----------
      When an account has individual holdings logged, the account's value is
-     derived by summing those holdings rather than trusting a separately
-     maintained manual balance -- so the two numbers can never silently
-     disagree or double-count the same money. Manual entry remains the
-     source of truth only for accounts with no holdings logged at all.
-     syncAccountValueFromHoldings must be called after any holdings mutation
-     (add/edit/delete/import) so the current month's balance -- and every
-     net worth figure downstream of it -- stays in step immediately. */
+     derived by summing those holdings (plus any manually-tracked cash
+     balance sitting alongside them, e.g. contributions not yet invested,
+     dividends not yet reinvested -- see acc.cashBalance) rather than
+     trusting a separately maintained manual balance -- so the two numbers
+     can never silently disagree or double-count the same money. Manual
+     entry remains the source of truth only for accounts with no holdings
+     logged at all. syncAccountValueFromHoldings must be called after any
+     holdings mutation (add/edit/delete/import) so the current month's
+     balance -- and every net worth figure downstream of it -- stays in
+     step immediately. Without a cash balance figure, an account's true
+     value silently understates itself by however much of its
+     contributions haven't been put into a priced holding yet -- which
+     also throws off the deposits-based Investment return (see
+     depositsReturn()), since it reads as a loss rather than uninvested
+     cash. */
   function accountHasHoldings(client, accountId){
     return client.holdings.some(h=>h.accountId===accountId);
   }
@@ -3252,9 +3261,9 @@ window.TEI = window.TEI || {};
   }
   function syncAccountValueFromHoldings(client, accountId){
     if(!accountHasHoldings(client, accountId)) return; // no holdings left -- leave the last value as an editable manual balance
-    const total = holdingsTotalForAccount(client, accountId);
-    seedMonthlyValue(client.months, currentMonthKey(), accountId, total);
     const acc = client.accounts.find(a=>a.id===accountId);
+    const total = holdingsTotalForAccount(client, accountId) + (acc && Number(acc.cashBalance)||0);
+    seedMonthlyValue(client.months, currentMonthKey(), accountId, total);
     if(acc) acc.value = total; // keep the account's own display value (used in list rows) in step too
   }
 
@@ -5534,7 +5543,8 @@ TEI.render = TEI.render || {};
       const badges = [
         `<span class="${ret==null?'':(ret>=0?'up':'down')}">${fmtPct(ret)}</span>`,
         acctInvRet ? `<span class="${acctInvRet.pct>=0?'up':'down'}" title="Investment return via ${acctInvRet.source}">${acctInvRet.amount>=0?'+':''}${fmtGBP(acctInvRet.amount)}</span>` : '',
-        contrib>0 ? `<span>${fmtGBP(contrib)}/mo</span>` : ''
+        contrib>0 ? `<span>${fmtGBP(contrib)}/mo</span>` : '',
+        a.cashBalance>0 ? `<span title="Cash sitting in this account, not yet in a priced holding">Cash ${fmtGBP(a.cashBalance)}</span>` : ''
       ].filter(Boolean).join('');
       return `<div class="k-acct-pill">
         <div class="ap-name">${TEI.data.acctLabel(a)}</div>
@@ -7479,6 +7489,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctContribPersonal').value = acc.type==='pension' ? (acc.contributionPersonal||'') : '';
         document.getElementById('newAcctContribEmployer').value = acc.type==='pension' ? (acc.contributionSacrifice||'') : '';
         document.getElementById('newAcctOpeningContrib').value = acc.openingContributions!=null ? acc.openingContributions : '';
+        document.getElementById('newAcctCashBalance').value = acc.cashBalance!=null ? acc.cashBalance : '';
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
@@ -7488,7 +7499,7 @@ window.TEI = window.TEI || {};
   function cancelAcctEdit(){
     editing.account = null;
     document.getElementById('addAcctBtn').textContent = 'Add account';
-    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib'].forEach(id=>document.getElementById(id).value='');
+    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance'].forEach(id=>document.getElementById(id).value='');
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
@@ -7508,13 +7519,15 @@ window.TEI = window.TEI || {};
     const provider = document.getElementById('newAcctProvider').value.trim();
     const openingContribInput = document.getElementById('newAcctOpeningContrib').value;
     const openingContributions = openingContribInput ? parseFloat(openingContribInput) : null;
+    const cashBalanceInput = document.getElementById('newAcctCashBalance').value;
+    const cashBalance = cashBalanceInput ? parseFloat(cashBalanceInput) : null;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -7539,7 +7552,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), type, value, provider, openingContributions, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -7557,7 +7570,7 @@ window.TEI = window.TEI || {};
       // Seed this month's balance so the account shows up in net worth immediately,
       // rather than reading as £0 until someone visits "Log this month's balances".
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
-      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib'].forEach(id=>document.getElementById(id).value='');
+      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance'].forEach(id=>document.getElementById(id).value='');
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -10644,7 +10657,7 @@ window.TEI = window.TEI || {};
         lastEditedBy: a.last_edited_by, lastEditedAt: a.last_edited_at,
         contribution: a.contribution, contributionPersonal: a.contribution_personal,
         contributionSacrifice: a.contribution_sacrifice,
-        openingContributions: a.opening_contributions
+        openingContributions: a.opening_contributions, cashBalance: a.cash_balance
       })),
 
       holdings: (bundle.holdings||[]).map(h=>({
@@ -10866,6 +10879,7 @@ window.TEI = window.TEI || {};
       contribution_personal: a.contributionPersonal != null ? a.contributionPersonal : null,
       contribution_sacrifice: a.contributionSacrifice != null ? a.contributionSacrifice : null,
       opening_contributions: a.openingContributions != null ? a.openingContributions : null,
+      cash_balance: a.cashBalance != null ? a.cashBalance : null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
       last_edited_by: a.lastEditedBy || null,
       last_edited_at: a.lastEditedAt || null
