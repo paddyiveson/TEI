@@ -2793,8 +2793,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Value £ (optional if units + ticker or avg open given)</span><input type="number" id="newHoldingValue" placeholder="0"></label>
         <label class="form-field" id="newHoldingCostBasisField"><span>Cost basis £ (optional)</span><input type="number" id="newHoldingCostBasis" placeholder="0"></label>
         <label class="form-field"><span>Sector (optional)</span><select id="newHoldingSector">
-          <option value="">–</option><option>Technology</option><option>Healthcare</option><option>Financials</option><option>Energy</option><option>Consumer</option><option>Industrials</option><option>Other</option>
+          <option value="">–</option><option>Communication Services</option><option>Consumer Discretionary</option><option>Financials</option><option>Health Care</option><option>Industrials</option><option>Information Technology</option><option>Other</option>
         </select></label>
+        <label class="form-field"><span>Theme (optional)</span><input type="text" id="newHoldingTheme" placeholder="e.g. AI Infrastructure, Semiconductors"></label>
         <button type="button" class="btn-primary" id="addHoldingBtn">Add holding</button>
       </div>
     </div>
@@ -4125,10 +4126,61 @@ window.TEI = window.TEI || {};
     return {message:s.message, actionLabel:s.actionLabel, actionPage:s.actionPage, relevant:s.relevant!==false};
   }
 
+  /* Ticker -> {sector, theme[]} lookup, hardcoded per Paddy's decision (no
+     new Supabase table for this -- only the *result* is stored, on
+     holdings.sector / holdings.theme). Seeded from Paddy's actual clients'
+     holdings, not generic examples. Sector strings here are the only
+     allowed values in the Sector <select> (see SECTOR_OPTIONS) -- keep
+     them in sync if either list changes. Unrecognized ticker ->
+     {sector:null, theme:[]}, i.e. "Other"/blank; callers treat that as
+     "leave it to the adviser", never force-select "Other". */
+  const TICKER_INFO = {
+    ONDS:{ sector:'Industrials', theme:['Defense','Drones & Autonomy'] },
+    PLTR:{ sector:'Information Technology', theme:['AI Infrastructure','Defense'] },
+    TSLA:{ sector:'Consumer Discretionary', theme:['Electric Vehicles','Robotics & Automation'] },
+    ASTS:{ sector:'Communication Services', theme:['Space Connectivity'] },
+    NBIS:{ sector:'Information Technology', theme:['AI Infrastructure'] },
+    IQE: { sector:'Information Technology', theme:['Semiconductors'] },
+    ZETA:{ sector:'Information Technology', theme:['AI Marketing','Data & Analytics'] },
+    HIMS:{ sector:'Health Care', theme:['Digital Health'] },
+    TEM: { sector:'Health Care', theme:['Healthcare AI','Genomics'] },
+    HOOD:{ sector:'Financials', theme:['Digital Finance'] },
+    MSFT:{ sector:'Information Technology', theme:['AI Infrastructure','Cloud Computing'] },
+    NVDA:{ sector:'Information Technology', theme:['AI Infrastructure','Semiconductors'] },
+    AMZN:{ sector:'Consumer Discretionary', theme:['Cloud Computing','E-commerce'] },
+    GOOG:{ sector:'Communication Services', theme:['AI Infrastructure','Cloud Computing'] },
+    MELI:{ sector:'Consumer Discretionary', theme:['E-commerce','Digital Finance'] },
+    SIVE:{ sector:'Information Technology', theme:['Semiconductors'] },
+    '2DG':{ sector:'Information Technology', theme:['Semiconductors'] }, // Sivers Semiconductors, gettex code
+    XSOP:{ sector:null, theme:['Emerging Markets'] },
+    JEQP:{ sector:null, theme:['Equity Income'] },
+    NWG: { sector:'Financials', theme:[] },
+    HSBA:{ sector:'Financials', theme:[] },
+    GRAB:{ sector:'Industrials', theme:['Digital Finance'] },
+    EOSE:{ sector:'Industrials', theme:['Energy Storage','Renewable Energy'] },
+    NVTS:{ sector:'Information Technology', theme:['Semiconductors','AI Infrastructure'] },
+    OSCR:{ sector:'Health Care', theme:['Digital Health'] },
+    JOBY:{ sector:'Industrials', theme:['Advanced Air Mobility'] },
+    RKLB:{ sector:'Industrials', theme:['Space Technology'] },
+    SPCX:{ sector:'Industrials', theme:['Space Technology','Space Connectivity'] },
+    KRKNF:{ sector:'Industrials', theme:['Marine Robotics','Defense'] },
+    NU:  { sector:'Financials', theme:['Digital Finance'] }
+  };
+  // Sectors used by the seed tickers above only -- don't list GICS buckets
+  // no seed ticker uses yet. Kept alphabetical; 'Other' stays last as the
+  // manual-override / unrecognized-ticker catch-all.
+  const SECTOR_OPTIONS = ['Communication Services','Consumer Discretionary','Financials',
+    'Health Care','Industrials','Information Technology','Other'];
+  function lookupTickerInfo(ticker){
+    const t = (ticker||'').trim().toUpperCase();
+    return TICKER_INFO[t] || { sector:null, theme:[] };
+  }
+
   TEI.data = {
     defaultClient, mergeDefaults, getEmbeddedClient,
     fmtGBP, uid, isRealId, monthLabel, currentMonthKey, monthsBetweenInclusive,
-    MONTH_ABBR, acctLabel, monthInputToDate
+    MONTH_ABBR, acctLabel, monthInputToDate,
+    lookupTickerInfo, SECTOR_OPTIONS
   };
   TEI.calc = {
     accountTotal, buildMergedMonths, buildUnifiedTotals, latestBreakdown, latestNetWorth,
@@ -8184,7 +8236,7 @@ window.TEI = window.TEI || {};
       row.className = 'list-row';
       const canLivePrice = h.ticker && h.units!=null;
       row.innerHTML = `
-        <div class="lr-main"><b>${h.name}</b>${h.ticker?' <span style="color:var(--cream-soft2); font-size:13px;">'+h.ticker+'</span>':''}<div class="lr-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'} · ${fmtGBP(h.value)}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div></div>
+        <div class="lr-main"><b>${h.name}</b>${h.ticker?' <span style="color:var(--cream-soft2); font-size:13px;">'+h.ticker+'</span>':''}${(h.theme&&h.theme.length)?h.theme.map(t=>` <span class="tag-pill" style="opacity:0.8;">${t}</span>`).join(''):''}<div class="lr-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'} · ${fmtGBP(h.value)}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div></div>
         <div style="display:flex; gap:8px; flex-none:1;">
           ${canLivePrice ? `<button type="button" class="btn-ghost" data-refresh-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Refresh price</button>` : ''}
           <button type="button" class="btn-ghost" data-edit-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
@@ -8237,7 +8289,19 @@ window.TEI = window.TEI || {};
         document.getElementById('newHoldingAvgOpen').value = h.avgOpen!=null ? h.avgOpen : (backfillAvgOpen!=null ? backfillAvgOpen : '');
         document.getElementById('newHoldingValue').value = h.value;
         document.getElementById('newHoldingCostBasis').value = h.costBasis||'';
-        document.getElementById('newHoldingSector').value = h.sector||'';
+        // Legacy sector values (e.g. old "Technology"/"Consumer" buckets)
+        // may no longer match a current <option> now that the list has
+        // been narrowed/renamed -- setting .value to an unmatched string
+        // silently resolves to "", which would blank the sector on the
+        // next save if the adviser doesn't touch this field. Inject it as
+        // an extra option so it round-trips unchanged until deliberately
+        // changed.
+        const sectorSel = document.getElementById('newHoldingSector');
+        if(h.sector && ![...sectorSel.options].some(o=>o.value===h.sector)){
+          sectorSel.add(new Option(h.sector, h.sector));
+        }
+        sectorSel.value = h.sector||'';
+        document.getElementById('newHoldingTheme').value = (h.theme && h.theme.length) ? h.theme.join(', ') : '';
         document.getElementById('addHoldingBtn').textContent = 'Save changes';
         updateHoldingFormForTicker();
         document.getElementById('newHoldingName').scrollIntoView({behavior:'smooth', block:'center'});
@@ -8249,6 +8313,7 @@ window.TEI = window.TEI || {};
     document.getElementById('addHoldingBtn').textContent = 'Add holding';
     ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newHoldingSector').value = '';
+    document.getElementById('newHoldingTheme').value = '';
     updateHoldingFormForTicker();
   }
   /* Ticker-gated form chrome: a ticker'd holding's cost basis is always
@@ -8272,6 +8337,15 @@ window.TEI = window.TEI || {};
       avgOpenInput.placeholder = '0';
       costField.style.display = '';
     }
+    // Auto-fill sector/theme from the ticker lookup, but only into blank
+    // fields -- never clobber a manual override the adviser already typed
+    // (this also covers the edit-populate case, since that call happens
+    // after the real stored sector/theme are already set into the form).
+    const info = TEI.data.lookupTickerInfo(ticker);
+    const sectorField = document.getElementById('newHoldingSector');
+    const themeField = document.getElementById('newHoldingTheme');
+    if(sectorField.value.trim()==='' && info.sector) sectorField.value = info.sector;
+    if(themeField.value.trim()==='' && info.theme.length) themeField.value = info.theme.join(', ');
   }
   async function addHolding(){
     const accountId = document.getElementById('newHoldingAccount').value;
@@ -8300,6 +8374,7 @@ window.TEI = window.TEI || {};
     const costBasisInput = document.getElementById('newHoldingCostBasis').value;
     const manualCostBasis = costBasisInput ? parseFloat(costBasisInput) : null;
     const sector = document.getElementById('newHoldingSector').value || null;
+    const theme = parseThemeInput(document.getElementById('newHoldingTheme').value);
     const btn = document.getElementById('addHoldingBtn');
     btn.disabled = true;
     if(editing.holding){
@@ -8308,7 +8383,7 @@ window.TEI = window.TEI || {};
       const oldAccountId = h.accountId;
       const costBasis = ticker ? h.costBasis
         : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
-      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value, costBasis, sector});
+      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value, costBasis, sector, theme});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveHolding(accountId, h.id, merged);
@@ -8328,7 +8403,7 @@ window.TEI = window.TEI || {};
     } else {
       const costBasis = ticker ? null
         : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
-      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, value}, 'adviser');
+      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, theme, value}, 'adviser');
       try{
         h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
       } catch(err){
@@ -8343,6 +8418,7 @@ window.TEI = window.TEI || {};
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
       ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newHoldingSector').value = '';
+      document.getElementById('newHoldingTheme').value = '';
       updateHoldingFormForTicker();
       showToast(ticker && units!=null && !valueInput ? 'Holding added — click Refresh live prices to price it' : 'Holding added');
     }
@@ -9137,6 +9213,9 @@ window.TEI = window.TEI || {};
     s=s.replace(/[£$,%\s]/g,'');
     if(s===''||isNaN(parseFloat(s))) return null;
     const v=parseFloat(s); return neg?-v:v;
+  }
+  function parseThemeInput(raw){
+    return (raw||'').split(',').map(s=>s.trim()).filter(Boolean);
   }
   const HOLDING_COLUMN_ALIASES = {
     ticker:['ticker','symbol','code','stock'],
@@ -10168,7 +10247,13 @@ window.TEI = window.TEI || {};
       TEI.calc.syncAccountValueFromHoldings(client, oldAccountId);
       if(accountId !== oldAccountId) TEI.calc.syncAccountValueFromHoldings(client, accountId);
     } else {
-      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, quantity, value, costBasis, sector:null, theme:[], geography:null, assetType:null}, 'client');
+      // Ticker-derived sector/theme, same lookup the adviser form uses --
+      // fixes the previous dead stub (sector:null, theme:[]) that got
+      // silently discarded on save. No sector/theme fields in this
+      // onboarding form itself; the client just gets sensible defaults,
+      // editable later by the adviser on the Portfolio page.
+      const info = TEI.data.lookupTickerInfo(ticker);
+      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, quantity, value, costBasis, sector: info.sector, theme: info.theme, geography:null, assetType:null}, 'client');
       try{
         h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
       } catch(err){
@@ -10786,7 +10871,7 @@ window.TEI = window.TEI || {};
 
       holdings: (bundle.holdings||[]).map(h=>({
         id: h.id, accountId: h.account_id, name: h.name, ticker: h.ticker, units: h.units,
-        avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, value: h.value,
+        avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, theme: h.theme || [], value: h.value,
         lastPricedAt: h.last_priced_at,
         lastEditedBy: h.last_edited_by, lastEditedAt: h.last_edited_at
       })),
@@ -11025,6 +11110,7 @@ window.TEI = window.TEI || {};
       cost_basis: h.costBasis != null ? h.costBasis : null,
       value: h.value,
       sector: h.sector || null,
+      theme: (h.theme && h.theme.length) ? h.theme : null,
       last_priced_at: h.lastPricedAt || null
     };
     // holdings has no last_edited_by/last_edited_at column (confirmed via
