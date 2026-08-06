@@ -1042,7 +1042,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-acct-pill .ap-meta{display:flex; justify-content:space-between; flex-wrap:wrap; row-gap:2px; column-gap:8px; font-size:11.5px; color:rgba(247,244,237,0.55); margin-top:3px;}
 .k-acct-pill .ap-meta .up{color:var(--k-emph-up);}
 .k-acct-pill .ap-meta .down{color:var(--k-emph-down);}
-.k-acct-pill .ap-warning{font-size:10.5px; color:var(--k-emph-down); margin-top:4px; line-height:1.35;}
+.k-acct-pill .ap-warn-icon{width:12px; height:12px; color:var(--k-emph-down); margin-left:5px; vertical-align:-1px; cursor:help;}
 
 .k-badge-soon{font-size:10px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; padding:2px 7px; border-radius:9px; background:var(--k-badge-bg); color:var(--k-badge-ink); margin-left:8px; vertical-align:middle;}
 .k-lock-icon{width:10px; height:10px; flex:none; display:inline-block; vertical-align:-1px; color:var(--k-accent);}
@@ -5589,14 +5589,21 @@ TEI.render = TEI.render || {};
     investEl.className = !invRet || invRet.pct==null ? '' : (invRet.pct>=0?'up':'down');
 
     const discEl = document.getElementById('poDiscrepancy');
-    const disc = contributionDiscrepancy(client, invAccts.map(a=>a.id));
-    if(disc){
+    // Consolidated into one list here rather than repeating the full
+    // sentence in every account pill (was unreadable once more than a
+    // couple of accounts had a discrepancy) -- pills themselves just get a
+    // small warning icon with the detail on hover, see below.
+    const acctDiscs = invAccts.map(a=>({a, d: contributionDiscrepancy(client, [a.id])})).filter(x=>x.d);
+    if(acctDiscs.length){
       discEl.style.display = '';
       discEl.style.color = 'var(--k-emph-down)';
-      discEl.textContent = fmtDiscrepancy(disc);
+      const list = acctDiscs.map(x=>`${TEI.data.acctLabel(x.a)} (${fmtGBP(Math.abs(x.d.diff))})`).join(', ');
+      const anyUncosted = acctDiscs.some(x=>x.d.uncostedHoldings);
+      discEl.textContent = `⚠ Doesn't fully reconcile: ${list} — check cash balances${anyUncosted?', missing Avg open prices,':''} or contribution figures for typos.`;
     } else {
       discEl.style.display = 'none';
     }
+    const discByAccount = Object.fromEntries(acctDiscs.map(x=>[x.a.id, x.d]));
 
     const grid = document.getElementById('acctPillGrid');
     if(!invAccts.length){
@@ -5614,12 +5621,12 @@ TEI.render = TEI.render || {};
         contrib>0 ? `<span>${fmtGBP(contrib)}/mo</span>` : '',
         a.cashBalance>0 ? `<span title="Cash sitting in this account, not yet in a priced holding">Cash ${fmtGBP(a.cashBalance)}</span>` : ''
       ].filter(Boolean).join('');
-      const acctDisc = contributionDiscrepancy(client, [a.id]);
+      const acctDisc = discByAccount[a.id];
+      const warnIcon = acctDisc ? `<svg class="ap-warn-icon" viewBox="0 0 24 24" fill="none" title="${fmtDiscrepancy(acctDisc).replace(/"/g,'&quot;')}"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>` : '';
       return `<div class="k-acct-pill">
-        <div class="ap-name">${TEI.data.acctLabel(a)}</div>
+        <div class="ap-name">${TEI.data.acctLabel(a)}${warnIcon}</div>
         <div class="ap-value">${fmtGBP(val)}</div>
         <div class="ap-meta">${badges}</div>
-        ${acctDisc ? `<div class="ap-warning">${fmtDiscrepancy(acctDisc)}</div>` : ''}
       </div>`;
     }).join('');
   }
