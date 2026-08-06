@@ -2267,7 +2267,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="wrap">
     <span class="brand">The Everyday<span> Investor</span></span>
     <div style="display:flex; gap:14px; align-items:center;">
-      <button type="button" class="btn-ghost" id="downloadProgressBtn">Save progress (download)</button>
       <button type="button" class="btn-ghost" id="skipOnboardingLink">Skip for now →</button>
     </div>
   </div>
@@ -2589,11 +2588,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div class="wizard-sub">Here's a quick summary. You can change any of this later — nothing is locked in.</div>
     <div class="card range-stats" id="obSummaryStats" style="margin-bottom:20px;"></div>
     <div class="card-light" style="margin-bottom:20px;">
-      Everything you entered here has been saved to your account. Finishing here also downloads a file as a local backup —
-      handy to keep, but not required.
+      Everything you entered here has been saved to your account.
     </div>
     <div class="form-actions">
-      <button type="button" class="btn-primary" id="finishBtn">Finish &amp; download</button>
+      <button type="button" class="btn-primary" id="finishBtn">Finish</button>
       <a href="#" id="goToDashboardLink" class="btn-ghost" style="text-decoration:none;">View my dashboard →</a>
     </div>
   </div>
@@ -9435,6 +9433,48 @@ window.TEI = window.TEI || {};
   }
 
   /* ================= INIT (shared client object, populated from Supabase by TEI.wealthOS) ================= */
+  /* init(sharedClient) can run more than once per page load -- an adviser
+     opening/creating clients from the client list goes through
+     startClientView, which calls this every time. All the addEventListener
+     wiring below must only ever run once, or every Add button ends up with
+     N stacked listeners and a single click inserts the same new record N
+     times (see the identical guard in the Onboarding and Feedback
+     modules). `wired` guards that; everything above it just repaints the
+     current `client` and is safe to repeat. */
+  let wired = false;
+  function wireAdviserControls(){
+    wireTabs();
+    wireSubtabs();
+    document.getElementById('newGoalProgressType').addEventListener('change', toggleAdvGoalProgressFields);
+    // The "Which income?" list is filtered by goal category (see
+    // refreshAdvGoalLinkedIncomeOptions) so switching to/from "Build a
+    // Business" needs to rebuild it too, even though visibility itself
+    // only depends on progress type.
+    document.getElementById('newGoalType').addEventListener('change', toggleAdvGoalProgressFields);
+    wireUpload();
+
+    document.getElementById('newAcctType').addEventListener('change', toggleAdvAcctContribFields);
+    document.getElementById('addAcctBtn').addEventListener('click', addAccount);
+    document.getElementById('saveMonthBtn').addEventListener('click', saveMonth);
+    document.getElementById('saveHoldingMonthBtn').addEventListener('click', saveHoldingMonth);
+    document.getElementById('advAddAssetBtn').addEventListener('click', addAsset);
+    document.getElementById('advAddLiabBtn').addEventListener('click', addLiability);
+    document.getElementById('addGoalBtn').addEventListener('click', addGoal);
+    document.getElementById('addHoldingBtn').addEventListener('click', addHolding);
+    document.getElementById('refreshLivePricesBtn').addEventListener('click', refreshLivePrices);
+    document.getElementById('newHoldingTicker').addEventListener('input', updateHoldingFormForTicker);
+    document.getElementById('addDivBtn').addEventListener('click', addDividend);
+    document.getElementById('addDivHistBtn').addEventListener('click', addDividendHistory);
+    document.getElementById('advAddIncomeBtn').addEventListener('click', addAdvIncome);
+    document.getElementById('advAddFixedBtn').addEventListener('click', ()=>addAdvExpense('fixed'));
+    document.getElementById('advAddVariableBtn').addEventListener('click', ()=>addAdvExpense('variable'));
+    document.getElementById('advAddOneOffBtn').addEventListener('click', addAdvOneOff);
+    document.getElementById('saveCashflowBtn').addEventListener('click', saveCashflow);
+    document.getElementById('addDocBtn').addEventListener('click', addDocument);
+    document.getElementById('csvImportBtn').addEventListener('click', importHoldingsCsv);
+    document.getElementById('exportBtn').addEventListener('click', exportClient);
+    document.getElementById('markReviewedBtn').addEventListener('click', markUpdatesReviewed);
+  }
   function init(sharedClient){
     client = sharedClient;
     clientId = client.meta.clientId || 'preview-client';
@@ -9442,8 +9482,6 @@ window.TEI = window.TEI || {};
     document.getElementById('advClientName').textContent = fullName || client.meta.displayName || clientId;
     document.getElementById('exportFilename').textContent = clientId + '.json';
 
-    wireTabs();
-    wireSubtabs();
     renderOverview();
     fillPersonalForm();
     renderAccounts();
@@ -9451,12 +9489,6 @@ window.TEI = window.TEI || {};
     renderAssets();
     renderLiabilities();
     renderGoals();
-    document.getElementById('newGoalProgressType').addEventListener('change', toggleAdvGoalProgressFields);
-    // The "Which income?" list is filtered by goal category (see
-    // refreshAdvGoalLinkedIncomeOptions) so switching to/from "Build a
-    // Business" needs to rebuild it too, even though visibility itself
-    // only depends on progress type.
-    document.getElementById('newGoalType').addEventListener('change', toggleAdvGoalProgressFields);
     toggleAdvGoalProgressFields();
     renderHoldings();
     renderMonthlyHoldingFields();
@@ -9472,31 +9504,10 @@ window.TEI = window.TEI || {};
     refreshAccountSelects();
     refreshAdvGoalLinkedIncomeOptions();
     renderUploadQueue();
-    wireUpload();
-
-    document.getElementById('newAcctType').addEventListener('change', toggleAdvAcctContribFields);
-    document.getElementById('addAcctBtn').addEventListener('click', addAccount);
-    document.getElementById('saveMonthBtn').addEventListener('click', saveMonth);
-    document.getElementById('saveHoldingMonthBtn').addEventListener('click', saveHoldingMonth);
     wireMonthPickers();
-    document.getElementById('advAddAssetBtn').addEventListener('click', addAsset);
-    document.getElementById('advAddLiabBtn').addEventListener('click', addLiability);
-    document.getElementById('addGoalBtn').addEventListener('click', addGoal);
-    document.getElementById('addHoldingBtn').addEventListener('click', addHolding);
-    document.getElementById('refreshLivePricesBtn').addEventListener('click', refreshLivePrices);
-    document.getElementById('newHoldingTicker').addEventListener('input', updateHoldingFormForTicker);
     updateHoldingFormForTicker();
-    document.getElementById('addDivBtn').addEventListener('click', addDividend);
-    document.getElementById('addDivHistBtn').addEventListener('click', addDividendHistory);
-    document.getElementById('advAddIncomeBtn').addEventListener('click', addAdvIncome);
-    document.getElementById('advAddFixedBtn').addEventListener('click', ()=>addAdvExpense('fixed'));
-    document.getElementById('advAddVariableBtn').addEventListener('click', ()=>addAdvExpense('variable'));
-    document.getElementById('advAddOneOffBtn').addEventListener('click', addAdvOneOff);
-    document.getElementById('saveCashflowBtn').addEventListener('click', saveCashflow);
-    document.getElementById('addDocBtn').addEventListener('click', addDocument);
-    document.getElementById('csvImportBtn').addEventListener('click', importHoldingsCsv);
-    document.getElementById('exportBtn').addEventListener('click', exportClient);
-    document.getElementById('markReviewedBtn').addEventListener('click', markUpdatesReviewed);
+
+    if(!wired){ wired = true; wireAdviserControls(); }
   }
 
   function refresh(){
@@ -10408,35 +10419,33 @@ window.TEI = window.TEI || {};
       showToast("Couldn't save that this step is complete — " + (err.message || 'try again') + '. Your entries so far are still saved individually.');
       return;
     }
-    downloadClient();
-    showToast('All done — saved to your TEI account, and downloaded as a backup copy too');
-  }
-  function downloadClient(){
-    const blob = new Blob([JSON.stringify(client, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = clientId + '.json';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    // Reaching here from step 8's "Create Client Dashboard" button --
+    // finish() itself never used to advance the wizard, so the click
+    // saved everything but visibly left you stuck on the Review step.
+    goToStep(TOTAL_STEPS);
+    showToast('All done — saved to your TEI account');
   }
 
   /* ================= INIT (shared client object, populated from Supabase by TEI.wealthOS) ================= */
-  function init(sharedClient){
-    client = sharedClient;
-    clientId = client.meta.clientId || 'preview-client';
+  /* init() can run more than once per page load -- an adviser opening/
+     creating a client goes through startClientView, which calls this every
+     time (open client A, back to the list, open client B, or reopen the
+     same client). All the addEventListener wiring below must only ever
+     happen once, or every button ends up with N stacked listeners: each
+     "Add" click then inserts the same new record N times (edits look fine,
+     since re-running an update/Object.assign N times is harmless), and
+     Next/Back fire their step transition N times per click, skipping steps.
+     `wired` guards that; the fill/render calls above it stay unguarded
+     since they just repaint the current `client` and are safe to repeat. */
+  let wired = false;
+  function wireOnboardingControls(){
     document.getElementById('skipOnboardingLink').addEventListener('click', ()=> TEI.app.setMode('client'));
     document.getElementById('goToDashboardLink').addEventListener('click', (e)=>{ e.preventDefault(); TEI.app.setMode('client'); });
 
     wireYnToggles();
-    fillPersonal(); wirePersonal();
-    renderIncomeList(); renderExpenseList('fixed'); renderExpenseList('variable');
-    fillCashflowBasics(); wireCashflowBasics();
-    fillWealth(); wireWealth();
-    fillAccountsToggle(); renderObAccounts();
-    refreshHoldingAccountSelect(); renderObHoldings();
-    refreshLiabilityLinkOptions();
-    refreshGoalLinkedAccountOptions(); refreshGoalLinkedIncomeOptions(); toggleGoalProgressFields(); renderObGoals();
-    renderObDocuments();
+    wirePersonal();
+    wireCashflowBasics();
+    wireWealth();
 
     document.getElementById('obAddIncomeBtn').addEventListener('click', addOrSaveIncome);
     document.getElementById('obAddFixedBtn').addEventListener('click', ()=>addOrSaveExpense('fixed'));
@@ -10456,17 +10465,48 @@ window.TEI = window.TEI || {};
     document.getElementById('obAddDocBtn').addEventListener('click', addObDocument);
 
     document.getElementById('backBtn').addEventListener('click', ()=>goToStep(nextVisibleStep(step,-1)));
-    document.getElementById('nextBtn').addEventListener('click', async ()=>{
-      if(!(await saveContinuousFieldsIfLeaving())) return;
-      if(step===8){ await finish(); return; }
-      goToStep(nextVisibleStep(step,1));
+    // Both handlers disable the button they were clicked on for their own
+    // duration -- saveContinuousFieldsIfLeaving() only ever disables
+    // nextBtn (see its comment), so a fast double-tap on "Skip this step"
+    // wasn't blocked by anything: two overlapping saves could each resolve
+    // and call goToStep(nextVisibleStep(...)) off a stale `step`, hopping
+    // two steps forward on what looked like one click.
+    document.getElementById('nextBtn').addEventListener('click', async function(){
+      this.disabled = true;
+      try{
+        if(!(await saveContinuousFieldsIfLeaving())) return;
+        if(step===8){ await finish(); return; }
+        goToStep(nextVisibleStep(step,1));
+      } finally {
+        this.disabled = false;
+      }
     });
-    document.getElementById('skipStepBtn').addEventListener('click', async ()=>{
-      if(!(await saveContinuousFieldsIfLeaving())) return;
-      goToStep(nextVisibleStep(step,1));
+    document.getElementById('skipStepBtn').addEventListener('click', async function(){
+      this.disabled = true;
+      try{
+        if(!(await saveContinuousFieldsIfLeaving())) return;
+        goToStep(nextVisibleStep(step,1));
+      } finally {
+        this.disabled = false;
+      }
     });
     document.getElementById('finishBtn').addEventListener('click', finish);
-    document.getElementById('downloadProgressBtn').addEventListener('click', downloadClient);
+  }
+  function init(sharedClient){
+    client = sharedClient;
+    clientId = client.meta.clientId || 'preview-client';
+
+    fillPersonal();
+    renderIncomeList(); renderExpenseList('fixed'); renderExpenseList('variable');
+    fillCashflowBasics();
+    fillWealth();
+    fillAccountsToggle(); renderObAccounts();
+    refreshHoldingAccountSelect(); renderObHoldings();
+    refreshLiabilityLinkOptions();
+    refreshGoalLinkedAccountOptions(); refreshGoalLinkedIncomeOptions(); toggleGoalProgressFields(); renderObGoals();
+    renderObDocuments();
+
+    if(!wired){ wired = true; wireOnboardingControls(); }
 
     goToStep(1);
   }
