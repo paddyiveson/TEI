@@ -1042,6 +1042,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-acct-pill .ap-meta{display:flex; justify-content:space-between; flex-wrap:wrap; row-gap:2px; column-gap:8px; font-size:11.5px; color:rgba(247,244,237,0.55); margin-top:3px;}
 .k-acct-pill .ap-meta .up{color:var(--k-emph-up);}
 .k-acct-pill .ap-meta .down{color:var(--k-emph-down);}
+.k-acct-pill .ap-warning{font-size:10.5px; color:var(--k-emph-down); margin-top:4px; line-height:1.35;}
 
 .k-badge-soon{font-size:10px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; padding:2px 7px; border-radius:9px; background:var(--k-badge-bg); color:var(--k-badge-ink); margin-left:8px; vertical-align:middle;}
 .k-lock-icon{width:10px; height:10px; flex:none; display:inline-block; vertical-align:-1px; color:var(--k-accent);}
@@ -1631,6 +1632,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div class="k-rowstats" style="margin-top:8px;">
           <div class="rs">Investment return<b class="up" id="poPerfInvest">–</b></div>
         </div>
+        <div class="sub2" id="poDiscrepancy" style="margin-top:6px; display:none;"></div>
         <div class="k-acct-pills" id="acctPillGrid"></div>
       </div>
     </div>
@@ -5501,6 +5503,56 @@ TEI.render = TEI.render || {};
     return `${sign}${fmtGBP(ret.amount)} (${fmtPct(ret.pct)} · ${ret.source})`;
   }
 
+  const RECON_TOLERANCE = 1; // £ -- ignore sub-£1 rounding noise
+  /* Flags money that's been stated as contributed (opening lump sum +
+     logged Deposits) but isn't showing up anywhere it should: neither in a
+     holding's cost basis nor in the account's cash balance. Usually means
+     one of: a holding is missing its Avg open price (so its cost basis is
+     still null and doesn't count here), cash balance hasn't been updated,
+     or a contribution/holding was mistyped. Deliberately worded as a
+     nudge, not an alarm -- holdings with no cost-basis tracking at all are
+     a normal, common case, not an error, so a discrepancy here is a
+     prompt to check, not proof something's wrong. */
+  function contributionDiscrepancy(client, accountIds){
+    const idSet = accountIds ? new Set(accountIds) : null;
+    let contributed = 0;
+    (client.accounts||[]).forEach(a=>{
+      if(idSet && !idSet.has(a.id)) return;
+      contributed += Number(a.openingContributions)||0;
+    });
+    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+      Object.entries(monthEntry||{}).forEach(([accId,e])=>{
+        if(idSet && !idSet.has(accId)) return;
+        contributed += (Number(e && e.amount)||0) + (Number(e && e.sacrificeAmount)||0);
+      });
+    });
+    if(!contributed) return null; // nothing stated -- nothing to check against
+
+    let accountedFor = 0, uncostedHoldings = 0;
+    client.holdings.forEach(h=>{
+      if(idSet && !idSet.has(h.accountId)) return;
+      if(h.costBasis!=null && h.costBasis>0) accountedFor += Number(h.costBasis)||0;
+      else if(h.ticker || h.units!=null) uncostedHoldings++;
+    });
+    (client.accounts||[]).forEach(a=>{
+      if(idSet && !idSet.has(a.id)) return;
+      accountedFor += Number(a.cashBalance)||0;
+    });
+
+    const diff = contributed - accountedFor;
+    if(Math.abs(diff) <= RECON_TOLERANCE) return null;
+    return { contributed, accountedFor, diff, uncostedHoldings };
+  }
+  function fmtDiscrepancy(d){
+    if(!d) return '';
+    const over = d.diff > 0; // contributed more than is accounted for
+    const amount = fmtGBP(Math.abs(d.diff));
+    const hint = d.uncostedHoldings
+      ? ` — check cash balance, or add an Avg open price to ${d.uncostedHoldings===1?'a holding':'holdings'} missing one`
+      : ' — check cash balance and contributions for typos';
+    return `⚠ ${amount} ${over?'unaccounted for':'more accounted for than contributed'}${hint}`;
+  }
+
   function renderOverview(client){
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);
@@ -5530,6 +5582,16 @@ TEI.render = TEI.render || {};
     investEl.textContent = fmtInvestmentReturn(invRet);
     investEl.className = !invRet || invRet.pct==null ? '' : (invRet.pct>=0?'up':'down');
 
+    const discEl = document.getElementById('poDiscrepancy');
+    const disc = contributionDiscrepancy(client, invAccts.map(a=>a.id));
+    if(disc){
+      discEl.style.display = '';
+      discEl.style.color = 'var(--k-emph-down)';
+      discEl.textContent = fmtDiscrepancy(disc);
+    } else {
+      discEl.style.display = 'none';
+    }
+
     const grid = document.getElementById('acctPillGrid');
     if(!invAccts.length){
       grid.innerHTML = `<div class="line">No investment accounts yet. Add ISA, GIA, LISA or Pension accounts in Adviser Workspace.</div>`;
@@ -5546,10 +5608,12 @@ TEI.render = TEI.render || {};
         contrib>0 ? `<span>${fmtGBP(contrib)}/mo</span>` : '',
         a.cashBalance>0 ? `<span title="Cash sitting in this account, not yet in a priced holding">Cash ${fmtGBP(a.cashBalance)}</span>` : ''
       ].filter(Boolean).join('');
+      const acctDisc = contributionDiscrepancy(client, [a.id]);
       return `<div class="k-acct-pill">
         <div class="ap-name">${TEI.data.acctLabel(a)}</div>
         <div class="ap-value">${fmtGBP(val)}</div>
         <div class="ap-meta">${badges}</div>
+        ${acctDisc ? `<div class="ap-warning">${fmtDiscrepancy(acctDisc)}</div>` : ''}
       </div>`;
     }).join('');
   }
