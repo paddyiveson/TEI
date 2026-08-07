@@ -10715,13 +10715,14 @@ window.TEI = window.TEI || {};
     } catch(err){
       console.error('Wealth OS: failed to mark onboarding complete', err);
       showToast("Couldn't save that this step is complete — " + (err.message || 'try again') + '. Your entries so far are still saved individually.');
-      return;
+      return false;
     }
     // Reaching here from step 8's "Create Client Dashboard" button --
     // finish() itself never used to advance the wizard, so the click
     // saved everything but visibly left you stuck on the Review step.
     goToStep(TOTAL_STEPS);
     showToast('All done — saved to your TEI account');
+    return true;
   }
 
   /* ================= INIT (shared client object, populated from Supabase by TEI.wealthOS) ================= */
@@ -10788,7 +10789,24 @@ window.TEI = window.TEI || {};
         this.disabled = false;
       }
     });
-    document.getElementById('finishBtn').addEventListener('click', finish);
+    // finish() itself is shared with step 8's "Create Client Dashboard"
+    // nextBtn (see its comment above), where landing on step 9 -- the
+    // Complete/summary screen -- is the correct outcome. This button lives
+    // on that same step 9, so its job is different: actually leave the
+    // wizard for the client dashboard, matching what "View my dashboard →"
+    // right next to it already does. Re-saving via finish() here is
+    // harmless (same idempotent update), but skipping the mode switch on
+    // failure -- rather than always navigating -- keeps this consistent
+    // with every other Save-then-advance control in the wizard.
+    document.getElementById('finishBtn').addEventListener('click', async function(){
+      this.disabled = true;
+      try{
+        const ok = await finish();
+        if(ok) TEI.app.setMode('client');
+      } finally {
+        this.disabled = false;
+      }
+    });
   }
   function init(sharedClient){
     client = sharedClient;
