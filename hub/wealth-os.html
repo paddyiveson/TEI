@@ -3141,6 +3141,15 @@ window.TEI = window.TEI || {};
     const merged = Object.assign({}, d, loaded||{});
     ['meta','settings','preferences'].forEach(k=>{ merged[k] = Object.assign({}, d[k], (loaded||{})[k]||{}); });
     merged.meta.completion = Object.assign({percent:0, missing:[]}, (loaded && loaded.meta && loaded.meta.completion) || {});
+    // Same Object.assign-copies-a-present-but-undefined-key trap as
+    // cashflow below -- adaptClientBundle always builds preferences as a
+    // literal object ({fiMultiple: cf.fi_multiple, ...}), so for a client
+    // with no cashflow_settings row yet, loaded.preferences.fiMultiple is
+    // an explicit `undefined` that clobbers d.preferences' default instead
+    // of being skipped. fiOverride is deliberately left alone -- null there
+    // is a meaningful "no override" state, not a missing default.
+    merged.preferences.fiMultiple = merged.preferences.fiMultiple != null ? merged.preferences.fiMultiple : d.preferences.fiMultiple;
+    merged.preferences.wealthConversionTarget = merged.preferences.wealthConversionTarget != null ? merged.preferences.wealthConversionTarget : d.preferences.wealthConversionTarget;
 
     merged.personal = Object.assign({}, d.personal, (loaded||{}).personal||{});
     merged.personal.partner = Object.assign({name:'', employmentStatus:'', incomeSources:[]}, (loaded && loaded.personal && loaded.personal.partner) || {});
