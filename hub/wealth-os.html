@@ -3153,6 +3153,20 @@ window.TEI = window.TEI || {};
     merged.cashflow.expenses.variable = Array.isArray(merged.cashflow.expenses.variable) ? merged.cashflow.expenses.variable : [];
     merged.cashflow.saving = Object.assign({monthlySavings:0, monthlyInvesting:0}, (loaded && loaded.cashflow && loaded.cashflow.saving) || {});
     merged.cashflow.emergencyFund = Object.assign({target:0,current:0}, (loaded && loaded.cashflow && loaded.cashflow.emergencyFund) || {});
+    // adaptClientBundle always sets these keys on loaded.cashflow (as
+    // `undefined` when the client has no cashflow_settings row yet, e.g.
+    // brand-new onboarding) -- the Object.assign above copies a present-but-
+    // undefined key over d.cashflow's default rather than skipping it, so
+    // each needs its own null-coalesce back to the default here, same as
+    // saving/emergencyFund above. Left unfixed, `scenario` in particular
+    // reached saveCashflowSettings() as `null`, which the DB's NOT NULL
+    // constraint on cashflow_settings.scenario rejects -- surfacing as the
+    // onboarding wizard being stuck unable to leave Step 2.
+    merged.cashflow.scenario = merged.cashflow.scenario != null ? merged.cashflow.scenario : d.cashflow.scenario;
+    merged.cashflow.bestMult = merged.cashflow.bestMult != null ? merged.cashflow.bestMult : d.cashflow.bestMult;
+    merged.cashflow.worstMult = merged.cashflow.worstMult != null ? merged.cashflow.worstMult : d.cashflow.worstMult;
+    merged.cashflow.oneOffs = Array.isArray(merged.cashflow.oneOffs) ? merged.cashflow.oneOffs : d.cashflow.oneOffs;
+    merged.cashflow.savingsGoals = Array.isArray(merged.cashflow.savingsGoals) ? merged.cashflow.savingsGoals : d.cashflow.savingsGoals;
 
     merged.monteCarlo = Object.assign({conservative:true,base:true,optimistic:false}, (loaded||{}).monteCarlo||{});
     merged.wealth = Object.assign({assets:[], liabilities:[]}, (loaded||{}).wealth||{});
