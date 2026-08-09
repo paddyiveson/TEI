@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Planning — TEI Cortex</title>
+<link rel="stylesheet" href="/admin/css/admin-tokens.css">
+</head>
+<body>
+<div class="shell">
+  <header class="admin-header" id="adminHeader"></header>
+  <main class="admin-main">
+    <div class="placeholder-page">
+      <div class="placeholder-icon">📊</div>
+      <h1>Portfolio Planning</h1>
+      <p>Not built yet. Real portfolio data — accounts, holdings, allocation — already lives inside each client's workspace. A dedicated scenario and analysis workspace (contribution changes, cash deployment, goal funding under assumptions) isn't scoped for this pass.</p>
+      <p><a href="/admin/clients.html">Go to Clients →</a></p>
+    </div>
+  </main>
+</div>
+
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/admin/js/admin-auth.js"></script>
+<script src="/admin/js/admin-shell.js"></script>
+<script>
+(function () {
+  TeiAdminAuth.requireAdviser().then(function (profile) {
+    if (!profile) return;
+    renderAdminHeader(document.getElementById('adminHeader'), 'planning');
+  }).catch(function (err) {
+    console.error(err);
+    document.body.innerHTML =
+      '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap;color:#b3453f;max-width:900px;">' +
+      'Something went wrong loading this page:\n\n' + (err && (err.stack || err.message) || err) +
+      '</pre>';
+  });
+})();
+</script>
+</body>
+</html>

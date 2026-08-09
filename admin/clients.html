@@ -3,24 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Client Context — TEI Cortex</title>
+<title>Clients — TEI Cortex</title>
 <link rel="stylesheet" href="/admin/css/admin-tokens.css">
 </head>
 <body>
 <div class="shell">
   <header class="admin-header" id="adminHeader"></header>
   <main class="admin-main">
-    <p class="eyebrow">TEI Cortex</p>
-    <h1>Client Context</h1>
-    <p style="color:var(--ink-soft); font-size:14px; margin-bottom:24px;">
-      A narrow, read-mostly reference for your own thinking — TEI coaching clients only.
-      Never a match score, never a "relevant investments" list. Supports your judgement; never outputs one.
-    </p>
 
-    <ul class="client-list" id="clientList">
-      <li class="pipeline-empty">Loading…</li>
-    </ul>
+    <!-- List mode: no ?id= -->
+    <div id="listView" style="display:none;">
+      <p class="eyebrow">TEI Cortex</p>
+      <h1>Clients</h1>
+      <ul class="picker-list" id="pickerList"><li class="pipeline-empty">Loading…</li></ul>
+    </div>
+
+    <!-- Detail mode: ?id=<wealth_os.clients.id> -->
+    <div id="detailView" style="display:none;">
+      <div id="loadingState"><p>Loading…</p></div>
+      <div id="workspaceRoot" class="dashboard-grid" style="display:none;">
+        <p class="eyebrow" style="grid-column:1/-1;margin-bottom:-8px;"><a href="/admin/clients.html">&larr; All clients</a></p>
+        <h1 id="clientHeading" style="grid-column:1/-1;"></h1>
+
+        <div class="dashboard-card" id="summaryCard"></div>
+        <div class="dashboard-card" id="goalsCard"></div>
+        <div class="dashboard-card dashboard-card--wide" id="portfolioCard"></div>
+
+        <div class="dashboard-card" id="contextCard"></div>
+        <div class="dashboard-card" id="notesCard"></div>
+        <div class="dashboard-card" id="followUpsCard"></div>
+
+        <div class="dashboard-card dashboard-card--full" id="planCard"></div>
+        <div class="dashboard-card dashboard-card--wide" id="decisionsCard"></div>
+        <div class="dashboard-card dashboard-card--wide" id="documentsCard"></div>
+      </div>
+    </div>
   </main>
+</div>
+
+<!-- Create new plan modal -->
+<div class="modal-backdrop" id="newPlanBackdrop">
+  <div class="modal-box">
+    <h2>Create new plan</h2>
+    <p style="font-size:12.5px;color:var(--ink-soft);">This supersedes the current active plan, if one exists.</p>
+    <form id="newPlanForm">
+      <div class="field"><label for="npTitle">Title</label><input type="text" id="npTitle" required></div>
+      <div class="field"><label for="npReviewDate">Review date</label><input type="date" id="npReviewDate"></div>
+      <div class="conviction-grid">
+        <div class="field"><label for="npEquity">Equity %</label><input type="number" step="0.1" id="npEquity"></div>
+        <div class="field"><label for="npBonds">Bonds %</label><input type="number" step="0.1" id="npBonds"></div>
+        <div class="field"><label for="npCash">Cash %</label><input type="number" step="0.1" id="npCash"></div>
+        <div class="field"><label for="npOther">Other %</label><input type="number" step="0.1" id="npOther"></div>
+      </div>
+      <div class="field"><label for="npNotes">Allocation notes</label><textarea id="npNotes"></textarea></div>
+      <p class="field-error" id="newPlanError"></p>
+      <div class="modal-actions">
+        <button type="button" id="newPlanCancel">Cancel</button>
+        <button type="submit" class="primary">Create</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <script src="/hub/js/supabase-config.js"></script>
@@ -28,18 +70,26 @@
 <script src="/admin/js/admin-auth.js"></script>
 <script src="/admin/js/admin-shell.js"></script>
 <script src="/admin/js/cortex-client.js"></script>
+<script src="/admin/js/wealth-os-client.js"></script>
 <script src="/admin/js/clients.js"></script>
 <script>
 (function () {
   TeiAdminAuth.requireAdviser({
     onDenied: function () {
-      document.getElementById('clientList').innerHTML =
-        '<li class="pipeline-empty">Your account doesn\'t have adviser access.</li>';
+      document.body.innerHTML = '<p style="padding:40px;font-family:sans-serif;">Your account doesn\'t have adviser access.</p>';
     }
   }).then(function (profile) {
     if (!profile) return;
     renderAdminHeader(document.getElementById('adminHeader'), 'clients');
-    ClientsController.init(window.teiSupabase);
+    var params = new URLSearchParams(window.location.search);
+    var clientId = params.get('id');
+    if (clientId) {
+      document.getElementById('detailView').style.display = 'block';
+      ClientsController.initDetail(window.teiSupabase, clientId);
+    } else {
+      document.getElementById('listView').style.display = 'block';
+      ClientsController.initList(window.teiSupabase);
+    }
   }).catch(function (err) {
     console.error(err);
     document.body.innerHTML =

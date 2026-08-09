@@ -217,6 +217,17 @@
     return created;
   }
 
+  /** Most recent client-level decisions across every client, for the Home
+   *  dashboard -- not scoped to one clientId like listDecisions(). */
+  async function listRecentDecisionsAllClients(supabase, limit) {
+    const res = await wo(supabase)
+      .from('decision_log_entries')
+      .select('*')
+      .order('entry_date', { ascending: false })
+      .limit(limit || 5);
+    return unwrap(res);
+  }
+
   async function listDecisions(supabase, clientId) {
     const res = await wo(supabase)
       .from('decision_log_entries')
@@ -257,6 +268,7 @@
     saveActivePlan,
     createNewPlan,
     listDecisions,
+    listRecentDecisionsAllClients,
     addDecision,
     updateDecision,
     deleteDecision,

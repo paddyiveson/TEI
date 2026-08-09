@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home — TEI Cortex</title>
+<title>Decisions &amp; History — TEI Cortex</title>
 <link rel="stylesheet" href="/admin/css/admin-tokens.css">
 </head>
 <body>
@@ -11,15 +11,12 @@
   <header class="admin-header" id="adminHeader"></header>
   <main class="admin-main">
     <p class="eyebrow">TEI Cortex</p>
-    <h1>Home</h1>
+    <h1>Decisions &amp; History</h1>
+    <p style="color:var(--ink-soft);font-size:14px;margin-bottom:20px;">
+      Every recorded decision, across every client and every investment, in one place — the record of why, not just what.
+    </p>
     <div id="loadingState"><p>Loading…</p></div>
-    <div class="dashboard-grid" id="homeGrid" style="display:none;">
-      <div class="dashboard-card" id="clientsCard"></div>
-      <div class="dashboard-card" id="pipelineCard"></div>
-      <div class="dashboard-card" id="followUpsCard"></div>
-      <div class="dashboard-card dashboard-card--wide" id="decisionsCard"></div>
-    </div>
-    <p style="margin-top:32px;font-size:12px;color:var(--ink-soft);">Cortex is TEI's private adviser workspace. Nothing here is client-facing — approved outputs reach clients only through Wealth OS, via a deliberate adviser step.</p>
+    <div id="decisionsList" style="display:none;"></div>
   </main>
 </div>
 
@@ -29,7 +26,7 @@
 <script src="/admin/js/admin-shell.js"></script>
 <script src="/admin/js/cortex-client.js"></script>
 <script src="/admin/js/wealth-os-client.js"></script>
-<script src="/admin/js/home.js"></script>
+<script src="/admin/js/decisions.js"></script>
 <script>
 (function () {
   TeiAdminAuth.requireAdviser({
@@ -38,8 +35,8 @@
     }
   }).then(function (profile) {
     if (!profile) return;
-    renderAdminHeader(document.getElementById('adminHeader'), 'home');
-    HomeController.init(window.teiSupabase);
+    renderAdminHeader(document.getElementById('adminHeader'), 'decisions');
+    DecisionsController.init(window.teiSupabase);
   }).catch(function (err) {
     console.error(err);
     document.body.innerHTML =

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Intelligence — TEI Cortex</title>
+<link rel="stylesheet" href="/admin/css/admin-tokens.css">
+</head>
+<body>
+<div class="shell">
+  <header class="admin-header" id="adminHeader"></header>
+  <main class="admin-main">
+    <div class="pipeline-toolbar">
+      <div>
+        <p class="eyebrow">TEI Cortex</p>
+        <h1>Investment Intelligence</h1>
+      </div>
+      <button class="primary" id="newIdeaBtn" type="button">+ New idea</button>
+    </div>
+
+    <div class="pipeline-board" id="pipelineBoard">
+      <p class="pipeline-empty">Loading…</p>
+    </div>
+  </main>
+</div>
+
+<!-- New idea modal -->
+<div class="modal-backdrop" id="newIdeaBackdrop">
+  <div class="modal-box">
+    <h2>New idea</h2>
+    <form id="newIdeaForm">
+      <div class="field">
+        <label for="ideaTicker">Ticker</label>
+        <input type="text" id="ideaTicker" required autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaCompany">Company name</label>
+        <input type="text" id="ideaCompany" required autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaSector">Sector</label>
+        <input type="text" id="ideaSector" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaTheme">Theme</label>
+        <input type="text" id="ideaTheme" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaWhy">Why did this catch your attention?</label>
+        <textarea id="ideaWhy" style="min-height:60px;"></textarea>
+      </div>
+      <p class="field-error" id="newIdeaError"></p>
+      <div class="modal-actions">
+        <button type="button" id="newIdeaCancel">Cancel</button>
+        <button type="submit" class="primary" id="newIdeaSubmit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/admin/js/admin-auth.js"></script>
+<script src="/admin/js/admin-shell.js"></script>
+<script src="/admin/js/cortex-client.js"></script>
+<script src="/admin/js/pipeline.js"></script>
+<script>
+(function () {
+  TeiAdminAuth.requireAdviser({
+    onDenied: function () {
+      document.getElementById('pipelineBoard').innerHTML =
+        '<p class="pipeline-empty">Your account doesn\'t have adviser access.</p>';
+    }
+  }).then(function (profile) {
+    if (!profile) return;
+    renderAdminHeader(document.getElementById('adminHeader'), 'investments');
+    PipelineController.init(window.teiSupabase);
+  }).catch(function (err) {
+    console.error(err);
+    document.body.innerHTML =
+      '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap;color:#b3453f;max-width:900px;">' +
+      'Something went wrong loading this page:\n\n' + (err && (err.stack || err.message) || err) +
+      '</pre>';
+  });
+})();
+</script>
+</body>
+</html>

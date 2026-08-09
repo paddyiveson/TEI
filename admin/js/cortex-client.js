@@ -127,6 +127,25 @@
     return cx(supabase).from('client_notes').delete().eq('id', id).then(unwrap);
   }
 
+  /** Open follow-ups across every client, for the Home dashboard -- not
+   *  scoped to one client_reference like listFollowUps(). */
+  function listAllOpenFollowUps(supabase) {
+    return cx(supabase).from('client_follow_ups').select('*')
+      .eq('status', 'open')
+      .order('due_date', { ascending: true, nullsFirst: false })
+      .then(unwrap);
+  }
+
+  /** Most recent Investment Intelligence decisions across every investment,
+   *  for the Home dashboard -- not scoped to one investment_id like
+   *  listDecisions(). */
+  function listAllInvestmentDecisions(supabase, limit) {
+    return cx(supabase).from('investment_decisions').select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit || 5)
+      .then(unwrap);
+  }
+
   function listFollowUps(supabase, clientReference) {
     return cx(supabase).from('client_follow_ups').select('*')
       .eq('client_reference', clientReference)
@@ -148,6 +167,67 @@
 
   function deleteFollowUp(supabase, id) {
     return cx(supabase).from('client_follow_ups').delete().eq('id', id).then(unwrap);
+  }
+
+  // ---------- Documents ----------
+  // Storage + cortex.client_documents. Extraction is deliberately manual --
+  // upload here, then ask Claude Code in a session to read the file and help
+  // populate the client record. No automated pipeline, no "proposed" staging
+  // state -- status is a plain field the adviser sets by hand.
+
+  var DOCUMENTS_BUCKET = 'client-documents';
+
+  function sanitizeFilename(name) {
+    return name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  }
+
+  function uploadDocument(supabase, clientReference, file, documentType, notes) {
+    return getCurrentAdviserId(supabase).then(function (adviserId) {
+      var path = clientReference + '/' + Date.now() + '-' + sanitizeFilename(file.name);
+      return supabase.storage.from(DOCUMENTS_BUCKET).upload(path, file).then(function (uploadRes) {
+        if (uploadRes.error) throw uploadRes.error;
+        return cx(supabase).from('client_documents').insert({
+          adviser_id: adviserId,
+          client_reference: clientReference,
+          name: file.name,
+          document_type: documentType,
+          storage_path: path,
+          notes: notes || null,
+        }).select().single().then(unwrap);
+      });
+    });
+  }
+
+  function listClientDocuments(supabase, clientReference) {
+    return cx(supabase).from('client_documents').select('*')
+      .eq('client_reference', clientReference)
+      .order('uploaded_at', { ascending: false })
+      .then(unwrap);
+  }
+
+  /** All documents across every client, for the global Documents library. */
+  function listAllDocuments(supabase) {
+    return cx(supabase).from('client_documents').select('*')
+      .order('uploaded_at', { ascending: false })
+      .then(unwrap);
+  }
+
+  function updateDocument(supabase, id, fields) {
+    var row = Object.assign({}, fields, { updated_at: new Date().toISOString() });
+    return cx(supabase).from('client_documents').update(row).eq('id', id).select().single().then(unwrap);
+  }
+
+  function deleteDocument(supabase, id, storagePath) {
+    return supabase.storage.from(DOCUMENTS_BUCKET).remove([storagePath]).then(function () {
+      return cx(supabase).from('client_documents').delete().eq('id', id).then(unwrap);
+    });
+  }
+
+  function getDocumentSignedUrl(supabase, storagePath) {
+    return supabase.storage.from(DOCUMENTS_BUCKET).createSignedUrl(storagePath, 300).then(function (res) {
+      if (res.error) throw res.error;
+      return res.data.signedUrl;
+    });
   }
 
   function unwrap(res) {
@@ -172,8 +252,16 @@
     updateClientNote: updateClientNote,
     deleteClientNote: deleteClientNote,
     listFollowUps: listFollowUps,
+    listAllOpenFollowUps: listAllOpenFollowUps,
+    listAllInvestmentDecisions: listAllInvestmentDecisions,
     addFollowUp: addFollowUp,
     updateFollowUp: updateFollowUp,
     deleteFollowUp: deleteFollowUp,
+    uploadDocument: uploadDocument,
+    listClientDocuments: listClientDocuments,
+    listAllDocuments: listAllDocuments,
+    updateDocument: updateDocument,
+    deleteDocument: deleteDocument,
+    getDocumentSignedUrl: getDocumentSignedUrl,
   };
 })();
