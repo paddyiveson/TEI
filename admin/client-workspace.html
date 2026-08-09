@@ -159,6 +159,12 @@
       document.getElementById('listView').style.display = 'block';
       ClientWorkspaceController.initList(window.teiSupabase);
     }
+  }).catch(function (err) {
+    console.error(err);
+    document.body.innerHTML =
+      '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap;color:#b3453f;max-width:900px;">' +
+      'Something went wrong loading this page:\n\n' + (err && (err.stack || err.message) || err) +
+      '</pre>';
   });
 })();
 </script>
