@@ -3519,7 +3519,13 @@ window.TEI = window.TEI || {};
     const doneCount = checks.filter(c=>c.done).length;
     const percent = Math.round((doneCount/checks.length)*100);
     const missing = checks.filter(c=>!c.done).map(c=>({id:c.id, label:c.label, section:c.section}));
-    return {percent, missing};
+    // 'profile' is pre-filled by the adviser at client creation (create-user.mjs /
+    // the client-list "add client" flow), so it's done before a client has entered
+    // a single number of their own. hasRealData looks past it, so callers can tell
+    // "hasn't started" apart from "clicked through the wizard's non-blocking Finish
+    // without adding anything" -- both currently read as onboardingComplete:true.
+    const hasRealData = checks.some(c=>c.id!=='profile' && c.done);
+    return {percent, missing, hasRealData};
   }
 
   /* ---------- Client Foundation: edit source-tagging & monthly history ----------
@@ -3664,7 +3670,7 @@ window.TEI = window.TEI || {};
      condensed summary. */
   const JOURNEY_STAGES = [
     {id:'build',         name:'Build your dashboard', sub:'Onboarding complete, accounts connected',
-      auto:(c)=> c.settings.onboardingComplete },
+      auto:(c)=> c.settings.onboardingComplete && completion(c).hasRealData },
     {id:'foundations',   name:'Financial foundations', sub:'Budget set and emergency fund in place',
       auto:(c)=> { const ef=c.cashflow.emergencyFund||{}; if(!c.cashflow.income.length) return false; if(!ef.target) return null; return ef.current>=ef.target; } },
     {id:'growing',       name:'Growing wealth', sub:'Consistent investing, more than one account',
@@ -4241,6 +4247,90 @@ window.TEI = window.TEI || {};
     return TICKER_INFO[t] || { sector:null, theme:[] };
   }
 
+  const RECON_TOLERANCE = 1; // £ -- ignore sub-£1 rounding noise
+  /* Flags money that's been stated as contributed (opening lump sum +
+     logged Deposits) but isn't showing up anywhere it should: neither in a
+     holding's cost basis nor in the account's cash balance. Usually means
+     one of: a holding is missing its Avg open price (so its cost basis is
+     still null and doesn't count here), cash balance hasn't been updated,
+     or a contribution/holding was mistyped. Deliberately worded as a
+     nudge, not an alarm -- holdings with no cost-basis tracking at all are
+     a normal, common case, not an error, so a discrepancy here is a
+     prompt to check, not proof something's wrong. */
+  function acctContributedTotal(client, accountId){
+    const acct = client.accounts.find(a=>a.id===accountId);
+    let total = (acct && Number(acct.openingContributions))||0;
+    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+      const e = monthEntry && monthEntry[accountId];
+      if(e) total += (Number(e.amount)||0) + (Number(e.sacrificeAmount)||0);
+    });
+    return total;
+  }
+  function contributionDiscrepancy(client, accountIds){
+    const idSet = accountIds ? new Set(accountIds) : null;
+    const scopedAccounts = (client.accounts||[]).filter(a=>!idSet || idSet.has(a.id));
+    // Only pull an account into the comparison if IT has a stated
+    // contribution baseline. Summing every account's real cost basis
+    // against only the subset that happens to have a contributions figure
+    // entered would make an untracked account's genuine holdings look like
+    // a huge fake "discrepancy" against nothing -- each account has to be
+    // its own apples-to-apples check before being added to the total.
+    let contributed = 0, accountedFor = 0, uncostedHoldings = 0, anyStated = false;
+    scopedAccounts.forEach(a=>{
+      const acctContributed = acctContributedTotal(client, a.id);
+      if(!acctContributed) return;
+      anyStated = true;
+      contributed += acctContributed;
+      accountedFor += Number(a.cashBalance)||0;
+      client.holdings.filter(h=>h.accountId===a.id).forEach(h=>{
+        if(h.costBasis!=null && h.costBasis>0) accountedFor += Number(h.costBasis)||0;
+        else if(h.ticker || h.units!=null) uncostedHoldings++;
+      });
+    });
+    if(!anyStated) return null; // nothing stated anywhere in scope -- nothing to check against
+
+    const diff = contributed - accountedFor;
+    if(Math.abs(diff) <= RECON_TOLERANCE) return null;
+    return { contributed, accountedFor, diff, uncostedHoldings };
+  }
+  function fmtDiscrepancy(d){
+    if(!d) return '';
+    const over = d.diff > 0; // contributed more than is accounted for
+    const amount = fmtGBP(Math.abs(d.diff));
+    const hint = d.uncostedHoldings
+      ? ` — check cash balance, or add an Avg open price to ${d.uncostedHoldings===1?'a holding':'holdings'} missing one`
+      : ' — check cash balance and contributions for typos';
+    return `⚠ ${amount} ${over?'unaccounted for':'more accounted for than contributed'}${hint}`;
+  }
+  /* Only the "unaccounted for" direction (contributed > accounted, diff>0)
+     is ever worth a red flag -- money genuinely can't be traced to a
+     holding or cash balance. The other direction (accounted for >
+     contributed) almost always means something benign that isn't tracked
+     as a "contribution" by design -- LISA/pension tax relief, or trading
+     gains reinvested without fresh deposits (see 2026-08 investigation on
+     eToro GIA: withdrew ~£10k of gains, net deposits legitimately sit
+     below cost basis). Flagging that direction as urgently as real missing
+     money trained advisers to distrust a nudge that was usually just good
+     news, so it's deliberately excluded from the flagged set entirely. */
+  function isDiscrepancyFlaggable(d){
+    return !!d && d.diff > RECON_TOLERANCE;
+  }
+  /* "Mark reviewed" (Adviser Workspace, Accounts list) stores the diff at
+     the moment an adviser investigated and accepted a gap as explained
+     (realized trading losses, FX-recompute drift -- see the same 2026-08
+     investigation) so Portfolio Overview stops flagging it. Re-flags if the
+     gap drifts meaningfully from what was accepted -- ordinary day-to-day
+     FX/price wobble shouldn't retrigger it, but a fresh, different-sized
+     problem should. Deliberately not "dismiss forever": a static mute
+     would hide a genuinely new issue behind an old, unrelated approval. */
+  const DISMISS_DRIFT_FLOOR = 25; // £ -- minimum drift tolerated regardless of size
+  const DISMISS_DRIFT_PCT = 0.1; // plus 10% of the accepted amount itself
+  function isDiscrepancyDismissed(acc, diff){
+    if(!acc || acc.discrepancyDismissedAmount == null) return false;
+    const allowedDrift = Math.max(DISMISS_DRIFT_FLOOR, Math.abs(acc.discrepancyDismissedAmount) * DISMISS_DRIFT_PCT);
+    return Math.abs(diff - acc.discrepancyDismissedAmount) <= allowedDrift;
+  }
+
   TEI.data = {
     defaultClient, mergeDefaults, getEmbeddedClient,
     fmtGBP, uid, isRealId, monthLabel, currentMonthKey, monthsBetweenInclusive,
@@ -4262,7 +4352,11 @@ window.TEI = window.TEI || {};
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
     netWorth, goalProgress, completion,
     /* Operating Model Refinement — source tagging, monthly history, updates feed */
-    stampEdit, seedMonthlyValue, collectClientUpdates
+    stampEdit, seedMonthlyValue, collectClientUpdates,
+    /* Contribution-vs-holdings reconciliation (Portfolio Overview flags +
+       Adviser Workspace "Mark reviewed") */
+    RECON_TOLERANCE, acctContributedTotal, contributionDiscrepancy, fmtDiscrepancy,
+    isDiscrepancyFlaggable, isDiscrepancyDismissed
   };
 })();
 
@@ -4572,7 +4666,10 @@ TEI.render = TEI.render || {};
     const manual = (client.weeklyFocus||[]).map(f=>Object.assign({source:'manual'}, f));
     if(manual.length >= 3) return manual.slice(0,3);
     const auto = [];
-    if(!client.settings.onboardingComplete) auto.push({id:'auto-onboard', label:'Finish setting up your dashboard', linkPage:'settings', done:false, source:'auto'});
+    // A client can click through the wizard's non-blocking Finish without
+    // entering anything, leaving onboardingComplete:true on an empty
+    // dashboard -- keep nudging until there's real data, not just a flag.
+    if(!client.settings.onboardingComplete || !TEI.calc.completion(client).hasRealData) auto.push({id:'auto-onboard', label:'Finish setting up your dashboard', linkPage:'settings', done:false, source:'auto'});
     if(!client.cashflow.income.length) auto.push({id:'auto-budget', label:'Add your income and budget', linkPage:'cashflow', done:false, source:'auto'});
     const ef = client.cashflow.emergencyFund||{};
     if(ef.target>0 && ef.current<ef.target) auto.push({id:'auto-ef', label:'Top up your emergency fund', linkPage:'cashflow', done:false, source:'auto'});
@@ -4643,10 +4740,14 @@ TEI.render = TEI.render || {};
      onboarding Review step, so the two never disagree. ---------------- */
   function renderEmptyState(client){
     const section = document.getElementById('emptyStateSection');
-    if(client.settings.onboardingComplete){ section.style.display = 'none'; return; }
+    const c = TEI.calc.completion(client);
+    // onboardingComplete alone isn't enough -- the wizard's Finish step is
+    // deliberately non-blocking, so a client can reach it without adding a
+    // single account/goal/etc. Keep the empty state up until there's real
+    // data, or it silently leaves them on a blank dashboard forever.
+    if(client.settings.onboardingComplete && c.hasRealData){ section.style.display = 'none'; return; }
     section.style.display = 'block';
 
-    const c = TEI.calc.completion(client);
     document.getElementById('ehProgressFill').style.width = c.percent+'%';
     document.getElementById('ehProgressLabel').textContent = c.percent + '% set up';
     document.getElementById('ehChecklist').innerHTML = c.missing.length
@@ -5659,61 +5760,10 @@ TEI.render = TEI.render || {};
     return `${sign}${fmtGBP(ret.amount)} (${fmtPct(ret.pct)} · ${ret.source})`;
   }
 
-  const RECON_TOLERANCE = 1; // £ -- ignore sub-£1 rounding noise
-  /* Flags money that's been stated as contributed (opening lump sum +
-     logged Deposits) but isn't showing up anywhere it should: neither in a
-     holding's cost basis nor in the account's cash balance. Usually means
-     one of: a holding is missing its Avg open price (so its cost basis is
-     still null and doesn't count here), cash balance hasn't been updated,
-     or a contribution/holding was mistyped. Deliberately worded as a
-     nudge, not an alarm -- holdings with no cost-basis tracking at all are
-     a normal, common case, not an error, so a discrepancy here is a
-     prompt to check, not proof something's wrong. */
-  function acctContributedTotal(client, accountId){
-    const acct = client.accounts.find(a=>a.id===accountId);
-    let total = (acct && Number(acct.openingContributions))||0;
-    Object.values(client.contribLog||{}).forEach(monthEntry=>{
-      const e = monthEntry && monthEntry[accountId];
-      if(e) total += (Number(e.amount)||0) + (Number(e.sacrificeAmount)||0);
-    });
-    return total;
-  }
-  function contributionDiscrepancy(client, accountIds){
-    const idSet = accountIds ? new Set(accountIds) : null;
-    const scopedAccounts = (client.accounts||[]).filter(a=>!idSet || idSet.has(a.id));
-    // Only pull an account into the comparison if IT has a stated
-    // contribution baseline. Summing every account's real cost basis
-    // against only the subset that happens to have a contributions figure
-    // entered would make an untracked account's genuine holdings look like
-    // a huge fake "discrepancy" against nothing -- each account has to be
-    // its own apples-to-apples check before being added to the total.
-    let contributed = 0, accountedFor = 0, uncostedHoldings = 0, anyStated = false;
-    scopedAccounts.forEach(a=>{
-      const acctContributed = acctContributedTotal(client, a.id);
-      if(!acctContributed) return;
-      anyStated = true;
-      contributed += acctContributed;
-      accountedFor += Number(a.cashBalance)||0;
-      client.holdings.filter(h=>h.accountId===a.id).forEach(h=>{
-        if(h.costBasis!=null && h.costBasis>0) accountedFor += Number(h.costBasis)||0;
-        else if(h.ticker || h.units!=null) uncostedHoldings++;
-      });
-    });
-    if(!anyStated) return null; // nothing stated anywhere in scope -- nothing to check against
-
-    const diff = contributed - accountedFor;
-    if(Math.abs(diff) <= RECON_TOLERANCE) return null;
-    return { contributed, accountedFor, diff, uncostedHoldings };
-  }
-  function fmtDiscrepancy(d){
-    if(!d) return '';
-    const over = d.diff > 0; // contributed more than is accounted for
-    const amount = fmtGBP(Math.abs(d.diff));
-    const hint = d.uncostedHoldings
-      ? ` — check cash balance, or add an Avg open price to ${d.uncostedHoldings===1?'a holding':'holdings'} missing one`
-      : ' — check cash balance and contributions for typos';
-    return `⚠ ${amount} ${over?'unaccounted for':'more accounted for than contributed'}${hint}`;
-  }
+  // acctContributedTotal/contributionDiscrepancy/fmtDiscrepancy/RECON_TOLERANCE
+  // moved to TEI.calc (see the calc-engine script block) so Adviser
+  // Workspace's "Mark reviewed" control can share the exact same math
+  // instead of a second, driftable copy -- called here as TEI.calc.*.
 
   function renderOverview(client){
     const months = TEI.calc.buildMergedMonths(client);
@@ -5749,7 +5799,14 @@ TEI.render = TEI.render || {};
     // sentence in every account pill (was unreadable once more than a
     // couple of accounts had a discrepancy) -- pills themselves just get a
     // small warning icon with the detail on hover, see below.
-    const acctDiscs = invAccts.map(a=>({a, d: contributionDiscrepancy(client, [a.id])})).filter(x=>x.d);
+    // Only the "unaccounted for" direction ever flags (see
+    // TEI.calc.isDiscrepancyFlaggable), and only if nobody's already
+    // reviewed and accepted this account's gap at roughly its current size
+    // (TEI.calc.isDiscrepancyDismissed -- set via Adviser Workspace's
+    // "Mark reviewed" button).
+    const acctDiscs = invAccts
+      .map(a=>({a, d: TEI.calc.contributionDiscrepancy(client, [a.id])}))
+      .filter(x=> TEI.calc.isDiscrepancyFlaggable(x.d) && !TEI.calc.isDiscrepancyDismissed(x.a, x.d.diff));
     if(acctDiscs.length){
       discEl.style.display = '';
       discEl.style.color = 'var(--k-emph-down)';
@@ -5778,7 +5835,7 @@ TEI.render = TEI.render || {};
         a.cashBalance>0 ? `<span title="Cash sitting in this account, not yet in a priced holding">Cash ${fmtGBP(a.cashBalance)}</span>` : ''
       ].filter(Boolean).join('');
       const acctDisc = discByAccount[a.id];
-      const warnIcon = acctDisc ? `<svg class="ap-warn-icon" viewBox="0 0 24 24" fill="none" title="${fmtDiscrepancy(acctDisc).replace(/"/g,'&quot;')}"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>` : '';
+      const warnIcon = acctDisc ? `<svg class="ap-warn-icon" viewBox="0 0 24 24" fill="none" title="${TEI.calc.fmtDiscrepancy(acctDisc).replace(/"/g,'&quot;')}"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>` : '';
       return `<div class="k-acct-pill">
         <div class="ap-name">${TEI.data.acctLabel(a)}${warnIcon}</div>
         <div class="ap-value">${fmtGBP(val)}</div>
@@ -7778,12 +7835,31 @@ window.TEI = window.TEI || {};
       row.className = 'list-row';
       const isPension = acc.type === 'pension';
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
+      // Contribution-vs-holdings check, adviser-side: same math and same
+      // "only the unaccounted-for direction counts" rule Portfolio Overview
+      // uses (see TEI.calc.isDiscrepancyFlaggable) -- this is where an
+      // adviser actually investigates and either fixes the underlying
+      // figures or, once satisfied a gap is explained (realized losses,
+      // FX-recompute drift, tax relief...), marks it reviewed so it stops
+      // flagging on the client-facing Portfolio page too.
+      const disc = TEI.calc.contributionDiscrepancy(client, [acc.id]);
+      const flaggable = TEI.calc.isDiscrepancyFlaggable(disc);
+      const dismissed = flaggable && TEI.calc.isDiscrepancyDismissed(acc, disc.diff);
+      let discRow = '';
+      if(flaggable && !dismissed){
+        discRow = `<div class="small" style="color:var(--k-emph-down); margin-top:4px;">${TEI.calc.fmtDiscrepancy(disc)}
+          <button type="button" class="btn-ghost" data-mark-reviewed="${acc.id}" style="padding:2px 8px; font-size:10px; margin-left:6px;">Mark reviewed</button></div>`;
+      } else if(flaggable && dismissed){
+        discRow = `<div class="small" style="color:var(--cream-soft2); margin-top:4px;">Reviewed — accepting a ${fmtGBP(Math.abs(disc.diff))} gap as explained (as of ${new Date(acc.discrepancyDismissedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}).
+          <button type="button" class="btn-ghost" data-clear-reviewed="${acc.id}" style="padding:2px 8px; font-size:10px; margin-left:6px;">Clear</button></div>`;
+      }
       row.innerHTML = `
         <div class="lr-main">
           <b>${TEI.data.acctLabel(acc)}</b> <span class="tag-pill">${acc.type}</span>${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}
           <div class="lr-meta">${acc.provider||'No provider set'} · value ${fmtGBP(acc.value)}
             ${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}
           </div>
+          ${discRow}
         </div>
         <div style="display:flex; gap:8px; flex-none:1;">
           <button type="button" class="btn-ghost" data-edit-acct="${acc.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
@@ -7810,6 +7886,12 @@ window.TEI = window.TEI || {};
         renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderReconciliation();
       });
     });
+    list.querySelectorAll('[data-mark-reviewed]').forEach(btn=>{
+      btn.addEventListener('click', ()=> setDiscrepancyReviewed(btn.dataset.markReviewed, true));
+    });
+    list.querySelectorAll('[data-clear-reviewed]').forEach(btn=>{
+      btn.addEventListener('click', ()=> setDiscrepancyReviewed(btn.dataset.clearReviewed, false));
+    });
     list.querySelectorAll('[data-edit-acct]').forEach(btn=>{
       btn.addEventListener('click', function(){
         const acc = client.accounts.find(a=>a.id===this.dataset.editAcct); if(!acc) return;
@@ -7831,6 +7913,38 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
+  }
+  /* "Mark reviewed" / "Clear" for the contribution-discrepancy check above --
+     stores (or clears) the diff at review time on the account itself so
+     Portfolio Overview's flag (see TEI.calc.isDiscrepancyDismissed) tracks
+     what was actually investigated, not just whatever the gap happens to be
+     today. Re-renders the client-facing Portfolio page too (same cross-shell
+     gap as refreshLivePrices/addAccount -- adviserApp and clientApp are
+     separate DOM shells sharing one client object). */
+  async function setDiscrepancyReviewed(accountId, mark){
+    const acc = client.accounts.find(a=>a.id===accountId);
+    if(!acc) return;
+    let patch;
+    if(mark){
+      const disc = TEI.calc.contributionDiscrepancy(client, [accountId]);
+      if(!TEI.calc.isDiscrepancyFlaggable(disc)) return; // nothing currently flagged to review
+      patch = { discrepancyDismissedAmount: disc.diff, discrepancyDismissedAt: new Date().toISOString() };
+    } else {
+      patch = { discrepancyDismissedAmount: null, discrepancyDismissedAt: null };
+    }
+    const merged = Object.assign({}, acc, patch);
+    TEI.calc.stampEdit(merged, 'adviser');
+    try{
+      await TEI.wealthOS.saveAccount(client.meta.clientId, acc.id, merged);
+    } catch(err){
+      console.error('Wealth OS: failed to save discrepancy review', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      return;
+    }
+    Object.assign(acc, merged);
+    renderAccounts();
+    if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
+    showToast(mark ? 'Marked reviewed' : 'Cleared');
   }
   function cancelAcctEdit(){
     editing.account = null;
@@ -7911,6 +8025,11 @@ window.TEI = window.TEI || {};
       showToast('Account added');
     }
     renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderReconciliation();
+    // See the matching comment in refreshLivePrices -- account edits (e.g.
+    // opening contributions, cash balance) feed the Portfolio Overview
+    // discrepancy check too, so it needs the same immediate cross-shell
+    // re-render, not just on next visit to the client dashboard.
+    if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
   }
 
   /* ================= MONTHLY BALANCES / HOLDINGS / GOALS ================
@@ -8744,6 +8863,14 @@ window.TEI = window.TEI || {};
         (failed.length ? ` — couldn't price ${failed.join(', ')}` : '') +
         ` · ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
       renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
+      // Portfolio Overview (poTotal/acctPillGrid) lives on a different page
+      // than this Update-page refresh button -- its DOM stays in the
+      // document (just class-hidden) so it's safe, and necessary, to
+      // re-render it here too. Without this the pills kept showing
+      // whatever manual figure was on screen the last time the Portfolio
+      // page itself was rendered, until the adviser happened to navigate
+      // away and back (which re-renders it fresh from the now-synced data).
+      if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
       showToast(updated ? `Refreshed ${updated} live price${updated===1?'':'s'}` : "Couldn't refresh prices");
     } catch(err){
       console.error('Wealth OS: failed to refresh live prices', err);
@@ -8784,6 +8911,9 @@ window.TEI = window.TEI || {};
       TEI.calc.syncAccountValueFromHoldings(client, h.accountId);
       status.textContent = `Refreshed ${h.ticker} (1 USD = £${usdGbpRate.toFixed(4)}) · ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
       renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
+      // See the matching comment in refreshLivePrices -- keep Portfolio
+      // Overview's account cards in step immediately, not just on next visit.
+      if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
       showToast(`Refreshed ${h.ticker}`);
     } catch(err){
       console.error('Wealth OS: failed to refresh one holding', h.ticker, err);
@@ -11097,7 +11227,8 @@ window.TEI = window.TEI || {};
         lastEditedBy: a.last_edited_by, lastEditedAt: a.last_edited_at,
         contribution: a.contribution, contributionPersonal: a.contribution_personal,
         contributionSacrifice: a.contribution_sacrifice,
-        openingContributions: a.opening_contributions, cashBalance: a.cash_balance
+        openingContributions: a.opening_contributions, cashBalance: a.cash_balance,
+        discrepancyDismissedAmount: a.discrepancy_dismissed_amount, discrepancyDismissedAt: a.discrepancy_dismissed_at
       })),
 
       holdings: (bundle.holdings||[]).map(h=>({
@@ -11320,6 +11451,8 @@ window.TEI = window.TEI || {};
       contribution_sacrifice: a.contributionSacrifice != null ? a.contributionSacrifice : null,
       opening_contributions: a.openingContributions != null ? a.openingContributions : null,
       cash_balance: a.cashBalance != null ? a.cashBalance : null,
+      discrepancy_dismissed_amount: a.discrepancyDismissedAmount != null ? a.discrepancyDismissedAmount : null,
+      discrepancy_dismissed_at: a.discrepancyDismissedAt || null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
       last_edited_by: a.lastEditedBy || null,
       last_edited_at: a.lastEditedAt || null
