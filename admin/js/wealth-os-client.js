@@ -3,8 +3,9 @@
  * Client Workspace. Kept separate from cortex-client.js since it's a
  * different schema and a different read/write posture -- most functions
  * here are read-only (canonical Wealth OS data; editing stays in Wealth
- * OS's own adviser Manual Entry UI), with investment_plans/*/decision_log_entries
- * being the deliberate exception (see header comments on those functions).
+ * OS's own adviser Manual Entry UI), with investment_plans, plan_investments,
+ * plan_investment_accounts and decision_log_entries being the deliberate
+ * exception (see header comments on those functions).
  *
  * Every function here involves at least one dependent follow-up query (an
  * id list from one fetch feeding a .in() filter on the next), so this file
