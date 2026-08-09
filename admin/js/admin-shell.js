@@ -12,7 +12,8 @@ function renderAdminHeader(root, current) {
     <a class="brand" href="/admin/index.html"><span class="mark">C</span>TEI Cortex</a>
     <nav class="admin-nav">
       <a href="/admin/index.html" class="${navClass('pipeline')}">Pipeline</a>
-      <a href="/admin/clients.html" class="${navClass('clients')}">Client Context</a>
+      <a href="/admin/client-workspace.html" class="${navClass('workspace')}">Clients</a>
+      <a href="/admin/clients.html" class="${navClass('clients')}">Client Notes</a>
       <a href="/admin/portfolio-blueprint.html" class="${navClass('blueprint')}">Portfolio Blueprint</a>
     </nav>
     <a href="#" class="admin-signout" data-tei-signout>Sign out</a>

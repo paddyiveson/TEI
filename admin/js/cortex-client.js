@@ -97,6 +97,59 @@
     });
   }
 
+  // ---------- Client Workspace: client_notes / client_follow_ups ----------
+  // Informal, editable adviser-private records (unlike investment_decisions'
+  // append-only model) -- see admin/css/admin-tokens.css .visibility-note.private
+  // and the plan's rationale for why these stay separate from client_context.
+
+  function listClientNotes(supabase, clientReference) {
+    return cx(supabase).from('client_notes').select('*')
+      .eq('client_reference', clientReference)
+      .order('created_at', { ascending: false })
+      .then(unwrap);
+  }
+
+  function addClientNote(supabase, clientReference, body) {
+    return getCurrentAdviserId(supabase).then(function (adviserId) {
+      return cx(supabase).from('client_notes')
+        .insert({ adviser_id: adviserId, client_reference: clientReference, body: body })
+        .select().single().then(unwrap);
+    });
+  }
+
+  function updateClientNote(supabase, id, body) {
+    return cx(supabase).from('client_notes')
+      .update({ body: body, updated_at: new Date().toISOString() })
+      .eq('id', id).select().single().then(unwrap);
+  }
+
+  function deleteClientNote(supabase, id) {
+    return cx(supabase).from('client_notes').delete().eq('id', id).then(unwrap);
+  }
+
+  function listFollowUps(supabase, clientReference) {
+    return cx(supabase).from('client_follow_ups').select('*')
+      .eq('client_reference', clientReference)
+      .order('due_date', { ascending: true, nullsFirst: false })
+      .then(unwrap);
+  }
+
+  function addFollowUp(supabase, clientReference, fields) {
+    return getCurrentAdviserId(supabase).then(function (adviserId) {
+      var row = Object.assign({}, fields, { adviser_id: adviserId, client_reference: clientReference });
+      return cx(supabase).from('client_follow_ups').insert(row).select().single().then(unwrap);
+    });
+  }
+
+  function updateFollowUp(supabase, id, fields) {
+    var row = Object.assign({}, fields, { updated_at: new Date().toISOString() });
+    return cx(supabase).from('client_follow_ups').update(row).eq('id', id).select().single().then(unwrap);
+  }
+
+  function deleteFollowUp(supabase, id) {
+    return cx(supabase).from('client_follow_ups').delete().eq('id', id).then(unwrap);
+  }
+
   function unwrap(res) {
     if (res.error) throw res.error;
     return res.data;
@@ -114,5 +167,13 @@
     listClientsReadOnly: listClientsReadOnly,
     getClientContext: getClientContext,
     saveClientContext: saveClientContext,
+    listClientNotes: listClientNotes,
+    addClientNote: addClientNote,
+    updateClientNote: updateClientNote,
+    deleteClientNote: deleteClientNote,
+    listFollowUps: listFollowUps,
+    addFollowUp: addFollowUp,
+    updateFollowUp: updateFollowUp,
+    deleteFollowUp: deleteFollowUp,
   };
 })();
