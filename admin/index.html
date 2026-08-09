@@ -3,53 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — TEI Cortex</title>
-<style>
-body { margin: 0; font-family: 'Inter', sans-serif; background: #F7F4ED; color: #1D3557; }
-.placeholder-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
-.placeholder-card { max-width: 420px; text-align: center; }
-.placeholder-card p { font-size: 14px; color: rgba(29,53,87,.7); margin: 8px 0; }
-.placeholder-signout { display: inline-block; margin-top: 16px; font-size: 13px; color: #C9A84C; cursor: pointer; }
-</style>
+<title>Pipeline — TEI Cortex</title>
+<link rel="stylesheet" href="/admin/css/admin-tokens.css">
 </head>
 <body>
-<div class="placeholder-wrap">
-  <div class="placeholder-card">
-    <p id="status">Checking access…</p>
-    <a id="signOutLink" class="placeholder-signout" style="display:none;">Sign out</a>
+<div class="shell">
+  <header class="admin-header" id="adminHeader"></header>
+  <main class="admin-main">
+    <div class="pipeline-toolbar">
+      <div>
+        <p class="eyebrow">TEI Cortex</p>
+        <h1>Pipeline</h1>
+      </div>
+      <button class="primary" id="newIdeaBtn" type="button">+ New idea</button>
+    </div>
+
+    <div class="pipeline-board" id="pipelineBoard">
+      <p class="pipeline-empty">Loading…</p>
+    </div>
+  </main>
+</div>
+
+<!-- New idea modal -->
+<div class="modal-backdrop" id="newIdeaBackdrop">
+  <div class="modal-box">
+    <h2>New idea</h2>
+    <form id="newIdeaForm">
+      <div class="field">
+        <label for="ideaTicker">Ticker</label>
+        <input type="text" id="ideaTicker" required autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaCompany">Company name</label>
+        <input type="text" id="ideaCompany" required autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaSector">Sector</label>
+        <input type="text" id="ideaSector" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaTheme">Theme</label>
+        <input type="text" id="ideaTheme" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ideaWhy">Why did this catch your attention?</label>
+        <textarea id="ideaWhy" style="min-height:60px;"></textarea>
+      </div>
+      <p class="field-error" id="newIdeaError"></p>
+      <div class="modal-actions">
+        <button type="button" id="newIdeaCancel">Cancel</button>
+        <button type="submit" class="primary" id="newIdeaSubmit">Create</button>
+      </div>
+    </form>
   </div>
 </div>
 
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/admin/js/admin-auth.js"></script>
+<script src="/admin/js/admin-shell.js"></script>
+<script src="/admin/js/cortex-client.js"></script>
+<script src="/admin/js/pipeline.js"></script>
 <script>
 (function () {
-  // Placeholder only -- step 2 of the build (admin-auth gate, proven working
-  // in isolation) before any Cortex screen exists. Replaced by the real
-  // Pipeline view in a later step; this file is not a stub meant to persist.
   TeiAdminAuth.requireAdviser({
     onDenied: function () {
-      document.getElementById('status').textContent =
-        "Your account doesn't have adviser access.";
-      var link = document.getElementById('signOutLink');
-      link.style.display = 'inline-block';
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        TeiAdminAuth.signOut();
-      });
+      document.getElementById('pipelineBoard').innerHTML =
+        '<p class="pipeline-empty">Your account doesn\'t have adviser access.</p>';
     }
   }).then(function (profile) {
-    if (!profile) return; // navigating away (signed out) or denied above
-    document.getElementById('status').textContent =
-      'Signed in as adviser: ' + profile.user.email;
-    var link = document.getElementById('signOutLink');
-    link.style.display = 'inline-block';
-    link.textContent = 'Sign out';
-    link.addEventListener('click', function (e) {
-      e.preventDefault();
-      TeiAdminAuth.signOut();
-    });
+    if (!profile) return;
+    renderAdminHeader(document.getElementById('adminHeader'), 'pipeline');
+    PipelineController.init(window.teiSupabase);
   });
 })();
 </script>
