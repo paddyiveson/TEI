@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — TEI Cortex</title>
+<style>
+body { margin: 0; font-family: 'Inter', sans-serif; background: #F7F4ED; color: #1D3557; }
+.placeholder-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.placeholder-card { max-width: 420px; text-align: center; }
+.placeholder-card p { font-size: 14px; color: rgba(29,53,87,.7); margin: 8px 0; }
+.placeholder-signout { display: inline-block; margin-top: 16px; font-size: 13px; color: #C9A84C; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="placeholder-wrap">
+  <div class="placeholder-card">
+    <p id="status">Checking access…</p>
+    <a id="signOutLink" class="placeholder-signout" style="display:none;">Sign out</a>
+  </div>
+</div>
+
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/admin/js/admin-auth.js"></script>
+<script>
+(function () {
+  // Placeholder only -- step 2 of the build (admin-auth gate, proven working
+  // in isolation) before any Cortex screen exists. Replaced by the real
+  // Pipeline view in a later step; this file is not a stub meant to persist.
+  TeiAdminAuth.requireAdviser({
+    onDenied: function () {
+      document.getElementById('status').textContent =
+        "Your account doesn't have adviser access.";
+      var link = document.getElementById('signOutLink');
+      link.style.display = 'inline-block';
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        TeiAdminAuth.signOut();
+      });
+    }
+  }).then(function (profile) {
+    if (!profile) return; // navigating away (signed out) or denied above
+    document.getElementById('status').textContent =
+      'Signed in as adviser: ' + profile.user.email;
+    var link = document.getElementById('signOutLink');
+    link.style.display = 'inline-block';
+    link.textContent = 'Sign out';
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      TeiAdminAuth.signOut();
+    });
+  });
+})();
+</script>
+</body>
+</html>

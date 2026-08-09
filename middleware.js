@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 
 export const config = {
-  matcher: ["/hub/:path*"],
+  matcher: ["/hub/:path*", "/admin/:path*"],
 };
 
 // Only these hub pages require a real Supabase login. Everything else under
@@ -15,6 +15,17 @@ const PROTECTED_EXACT = new Set([
   "/hub/education/lesson.html",
   "/hub/education/module.html",
 ]);
+
+// Everything under /admin/ requires a session, except the login page itself
+// and the static assets it needs to load before that check can even run.
+// Role verification (adviser vs. client) happens client-side on each admin
+// page via TeiAdminAuth.requireAdviser() -- this middleware only confirms a
+// session exists, same division of responsibility as the hub check above.
+function isProtectedAdminPath(pathname) {
+  if (pathname === "/admin/login.html") return false;
+  if (pathname.startsWith("/admin/js/") || pathname.startsWith("/admin/css/")) return false;
+  return pathname.startsWith("/admin/");
+}
 
 function parseCookieHeader(cookieHeader) {
   if (!cookieHeader) return [];
@@ -32,7 +43,9 @@ export default async function middleware(request) {
   const url = new URL(request.url);
   const { pathname } = url;
 
-  if (!PROTECTED_EXACT.has(pathname) || pathname.startsWith("/hub/js/")) {
+  const isHub = PROTECTED_EXACT.has(pathname) && !pathname.startsWith("/hub/js/");
+  const isAdmin = isProtectedAdminPath(pathname);
+  if (!isHub && !isAdmin) {
     return;
   }
 
@@ -55,7 +68,8 @@ export default async function middleware(request) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const loginUrl = new URL("/hub/login.html", url.origin);
+    const loginPath = isAdmin ? "/admin/login.html" : "/hub/login.html";
+    const loginUrl = new URL(loginPath, url.origin);
     loginUrl.searchParams.set("redirect", pathname + url.search);
     return Response.redirect(loginUrl.toString(), 302);
   }
