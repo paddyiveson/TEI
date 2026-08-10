@@ -2924,16 +2924,18 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <h3 style="margin:0 0 14px; color:var(--cream); font-family:'Playfair Display',serif;">Cashflow — Expenses</h3>
       <div class="note" style="margin-top:0;">Fixed</div>
       <div id="advFixedList"></div>
-      <div class="mini-form" style="grid-template-columns:2fr 1fr auto;">
+      <div class="mini-form" style="grid-template-columns:2fr 1fr 1fr auto;">
         <label class="form-field"><span>What is it?</span><input type="text" id="advNewFixedLabel" placeholder="e.g. Mortgage"></label>
         <label class="form-field"><span>£/month</span><input type="number" id="advNewFixedAmount" placeholder="0"></label>
+        <label class="form-field" id="advNewFixedOwnerField" style="display:none;"><span>Whose cost?</span><select id="advNewFixedOwner"><option value="client">Individual</option><option value="joint">Joint / shared</option></select></label>
         <button type="button" class="btn-primary" id="advAddFixedBtn">Add</button>
       </div>
       <div class="note">Variable</div>
       <div id="advVariableList"></div>
-      <div class="mini-form" style="grid-template-columns:2fr 1fr auto;">
+      <div class="mini-form" style="grid-template-columns:2fr 1fr 1fr auto;">
         <label class="form-field"><span>What is it?</span><input type="text" id="advNewVariableLabel" placeholder="e.g. Everyday spending"></label>
         <label class="form-field"><span>£/month</span><input type="number" id="advNewVariableAmount" placeholder="0"></label>
+        <label class="form-field" id="advNewVariableOwnerField" style="display:none;"><span>Whose cost?</span><select id="advNewVariableOwner"><option value="client">Individual</option><option value="joint">Joint / shared</option></select></label>
         <button type="button" class="btn-primary" id="advAddVariableBtn">Add</button>
       </div>
       <div class="note">One-off costs — irregular items (e.g. car repair, annual insurance renewal) included in this month's plan only while enabled. Untick to keep the record without counting it.</div>
@@ -9334,7 +9336,7 @@ window.TEI = window.TEI || {};
     items.forEach(e=>{
       const row = document.createElement('div');
       row.className = 'list-row';
-      row.innerHTML = `<div class="lr-main"><b>${e.label}</b><div class="lr-meta">${fmtGBP(e.amount)}/mo</div></div>
+      row.innerHTML = `<div class="lr-main"><b>${e.label}</b>${e.owner==='joint' ? ' <span class="tag-pill">Joint</span>' : ''}<div class="lr-meta">${fmtGBP(e.amount)}/mo</div></div>
         <div style="display:flex; gap:8px; flex-none:1;">
           <button type="button" class="btn-ghost" data-edit-adv-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
           <button type="button" class="btn-ghost" data-del-adv-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
@@ -9367,10 +9369,20 @@ window.TEI = window.TEI || {};
         const amtId = k==='fixed' ? 'advNewFixedAmount' : 'advNewVariableAmount';
         document.getElementById(labelId).value = e.label;
         document.getElementById(amtId).value = e.amount;
+        document.getElementById(k==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value = e.owner || 'client';
         document.getElementById(k==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Save changes';
         document.getElementById(amtId).scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
+  }
+  /* The Joint/shared owner toggle only makes sense once this client is
+     actually linked into a household (see the Overview household card) --
+     otherwise "joint" has nothing to be joint with. Hidden for everyone
+     else so the common case (no household) never sees an irrelevant field. */
+  function toggleAdvExpenseOwnerFields(){
+    const show = !!client.meta.householdId;
+    document.getElementById('advNewFixedOwnerField').style.display = show ? 'flex' : 'none';
+    document.getElementById('advNewVariableOwnerField').style.display = show ? 'flex' : 'none';
   }
   function cancelAdvExpenseEdit(kind){
     editing['advExp'+kind] = null;
@@ -9378,6 +9390,7 @@ window.TEI = window.TEI || {};
     const amtId = kind==='fixed' ? 'advNewFixedAmount' : 'advNewVariableAmount';
     document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Add';
     clearFieldsAdv([labelId, amtId]);
+    document.getElementById(kind==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value = 'client';
   }
   async function addAdvExpense(kind){
     const labelId = kind==='fixed' ? 'advNewFixedLabel' : 'advNewVariableLabel';
@@ -9385,13 +9398,17 @@ window.TEI = window.TEI || {};
     const label = document.getElementById(labelId).value.trim();
     const amount = parseFloat(document.getElementById(amtId).value);
     if(!label || isNaN(amount)){ showToast('Give it a name and amount'); return; }
+    // Owner only comes from the form when this client is actually linked into
+    // a household (the field's hidden otherwise) -- everyone else's expenses
+    // stay implicitly individual, same as before this feature existed.
+    const owner = client.meta.householdId ? document.getElementById(kind==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value : 'client';
     const editKey = 'advExp'+kind;
     const btn = document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn');
     btn.disabled = true;
     if(editing[editKey]){
       const e = client.cashflow.expenses[kind].find(x=>x.id===editing[editKey]);
       if(!e){ cancelAdvExpenseEdit(kind); btn.disabled = false; return; }
-      const merged = Object.assign({}, e, {label, amount});
+      const merged = Object.assign({}, e, {label, amount, owner});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveExpense(client.meta.clientId, e.id, merged, kind);
@@ -9406,7 +9423,7 @@ window.TEI = window.TEI || {};
       cancelAdvExpenseEdit(kind);
       showToast('Expense updated');
     } else {
-      const e = TEI.calc.stampEdit({id:uid(), label, amount}, 'adviser');
+      const e = TEI.calc.stampEdit({id:uid(), label, amount, owner}, 'adviser');
       try{
         e.id = await TEI.wealthOS.saveExpense(client.meta.clientId, null, e, kind);
       } catch(err){
@@ -10077,6 +10094,7 @@ window.TEI = window.TEI || {};
     renderAdvIncomeList();
     renderAdvExpenseList('fixed');
     renderAdvExpenseList('variable');
+    toggleAdvExpenseOwnerFields();
     renderAdvOneOffList();
     fillCashflowForm();
     renderDocuments();
@@ -10109,6 +10127,7 @@ window.TEI = window.TEI || {};
     renderAdvIncomeList();
     renderAdvExpenseList('fixed');
     renderAdvExpenseList('variable');
+    toggleAdvExpenseOwnerFields();
     renderAdvOneOffList();
     fillCashflowForm();
     renderDocuments();
@@ -11431,8 +11450,8 @@ window.TEI = window.TEI || {};
           lastEditedBy: i.last_edited_by, lastEditedAt: i.last_edited_at
         })),
         expenses:{
-          fixed: (bundle.expenses||[]).filter(e=>e.category==='fixed').map(e=>({id:e.id, label:e.label, amount:e.amount})),
-          variable: (bundle.expenses||[]).filter(e=>e.category==='variable').map(e=>({id:e.id, label:e.label, amount:e.amount}))
+          fixed: (bundle.expenses||[]).filter(e=>e.category==='fixed').map(e=>({id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client'})),
+          variable: (bundle.expenses||[]).filter(e=>e.category==='variable').map(e=>({id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client'}))
         },
         saving:{ monthlySavings: cf.monthly_savings, monthlyInvesting: cf.monthly_investing },
         emergencyFund:{ target: cf.emergency_fund_target, current: cf.emergency_fund_current },
@@ -11866,7 +11885,7 @@ window.TEI = window.TEI || {};
   async function deleteIncome(id){ await deleteRow('income','id',id); }
 
   async function saveExpense(clientId, existingId, local, category){
-    const row = { client_id: clientId, category: category, label: local.label, amount: local.amount };
+    const row = { client_id: clientId, category: category, label: local.label, amount: local.amount, owner: local.owner || 'client' };
     const saved = existingId ? await updateRow('expenses','id',existingId,row) : await insertRow('expenses', row);
     return saved.id;
   }
