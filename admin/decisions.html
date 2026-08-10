@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decisions &amp; History — TEI Cortex</title>
+<link rel="stylesheet" href="/admin/css/admin-tokens.css">
+</head>
+<body>
+<div class="shell">
+  <header class="admin-header" id="adminHeader"></header>
+  <main class="admin-main">
+    <p class="eyebrow">TEI Cortex</p>
+    <h1>Decisions &amp; History</h1>
+    <p style="color:var(--ink-soft);font-size:14px;margin-bottom:20px;">
+      Every recorded decision, across every client and every investment, in one place — the record of why, not just what.
+    </p>
+    <div id="loadingState"><p>Loading…</p></div>
+    <div id="decisionsList" style="display:none;"></div>
+  </main>
+</div>
+
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/admin/js/admin-auth.js"></script>
+<script src="/admin/js/admin-shell.js"></script>
+<script src="/admin/js/cortex-client.js"></script>
+<script src="/admin/js/wealth-os-client.js"></script>
+<script src="/admin/js/decisions.js"></script>
+<script>
+(function () {
+  TeiAdminAuth.requireAdviser({
+    onDenied: function () {
+      document.getElementById('loadingState').textContent = "Your account doesn't have adviser access.";
+    }
+  }).then(function (profile) {
+    if (!profile) return;
+    renderAdminHeader(document.getElementById('adminHeader'), 'decisions');
+    DecisionsController.init(window.teiSupabase);
+  }).catch(function (err) {
+    console.error(err);
+    document.body.innerHTML =
+      '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap;color:#b3453f;max-width:900px;">' +
+      'Something went wrong loading this page:\n\n' + (err && (err.stack || err.message) || err) +
+      '</pre>';
+  });
+})();
+</script>
+</body>
+</html>

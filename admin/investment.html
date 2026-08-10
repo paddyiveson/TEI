@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Record — TEI Cortex</title>
+<link rel="stylesheet" href="/admin/css/admin-tokens.css">
+</head>
+<body>
+<div class="shell">
+  <header class="admin-header" id="adminHeader"></header>
+  <main class="admin-main">
+    <div id="loadingState"><p>Loading…</p></div>
+
+    <div id="recordRoot" style="display:none;">
+      <p class="eyebrow" id="statusEyebrow"></p>
+      <h1 id="companyHeading"></h1>
+
+      <div class="banner warn" id="dirtyBanner">Unsaved changes — click Save changes below to keep them.</div>
+
+      <!-- Identity -->
+      <div class="card">
+        <div class="field-grid">
+          <div class="field"><label for="fCompanyName">Company name</label><input type="text" id="fCompanyName"></div>
+          <div class="field"><label for="fTicker">Ticker</label><input type="text" id="fTicker"></div>
+          <div class="field"><label for="fSector">Sector</label><input type="text" id="fSector"></div>
+          <div class="field"><label for="fIndustry">Industry</label><input type="text" id="fIndustry"></div>
+          <div class="field"><label for="fTheme">Theme</label><input type="text" id="fTheme"></div>
+          <div class="field">
+            <label for="fRole">Investment role</label>
+            <select id="fRole">
+              <option value="compounder">Compounder</option>
+              <option value="growth_opportunity">Growth Opportunity</option>
+              <option value="undervalued_opportunity">Undervalued Opportunity</option>
+              <option value="turnaround_special_situation">Turnaround / Special Situation</option>
+              <option value="defensive_resilience">Defensive / Resilience</option>
+              <option value="income">Income / Cash Generation</option>
+            </select>
+          </div>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="fCyclical">
+          <label for="fCyclical">Cyclical (descriptor under Undervalued Opportunity)</label>
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="card">
+        <div class="status-row">
+          <div class="field">
+            <label for="lifecycleStatus">Lifecycle status</label>
+            <select id="lifecycleStatus">
+              <option value="idea">Idea</option>
+              <option value="research">Research</option>
+              <option value="watch">Watch</option>
+              <option value="approved">Approved</option>
+              <option value="portfolio_candidate">Portfolio Candidate</option>
+              <option value="held">Held</option>
+              <option value="archived">Archived</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="field" id="subStatusField" style="display:none;">
+            <label for="subStatus">Sub-status</label>
+            <select id="subStatus">
+              <option value="">—</option>
+              <option value="monitor">Monitor</option>
+              <option value="reduce">Reduce</option>
+              <option value="exit">Exit</option>
+            </select>
+          </div>
+        </div>
+        <p style="font-size:12.5px; color: var(--ink-soft); margin: 10px 0 0;">Status and sub-status save immediately when changed.</p>
+      </div>
+
+      <div class="tab-bar">
+        <button type="button" class="active" data-tab="record">Record</button>
+        <button type="button" data-tab="decisions">Decision History</button>
+      </div>
+
+      <!-- Record tab -->
+      <div class="tab-panel active" id="recordPanel">
+        <details class="section-card" open>
+          <summary>Investment Story</summary>
+          <div class="section-body">
+            <div class="field"><label for="fStoryOpportunity">What is the opportunity?</label><textarea id="fStoryOpportunity"></textarea></div>
+            <div class="field"><label for="fStoryWhyExists">Why does it exist?</label><textarea id="fStoryWhyExists"></textarea></div>
+            <div class="field"><label for="fStoryLongTermCase">What is the long-term case?</label><textarea id="fStoryLongTermCase"></textarea></div>
+            <div class="field"><label for="fStoryAssumptions">What assumptions need to be true?</label><textarea id="fStoryAssumptions"></textarea></div>
+            <div class="field"><label for="fStoryWhatCouldBeWrong">What could make this idea wrong?</label><textarea id="fStoryWhatCouldBeWrong"></textarea></div>
+          </div>
+        </details>
+
+        <details class="section-card">
+          <summary>Business Quality</summary>
+          <div class="section-body">
+            <div class="field"><label for="fQualityManagement">Management</label><textarea id="fQualityManagement"></textarea></div>
+            <div class="field"><label for="fQualityBusiness">Business quality</label><textarea id="fQualityBusiness"></textarea></div>
+            <div class="field"><label for="fQualityCompetitiveAdvantage">Competitive advantage</label><textarea id="fQualityCompetitiveAdvantage"></textarea></div>
+            <div class="field"><label for="fQualityFinancialStrength">Financial strength</label><textarea id="fQualityFinancialStrength"></textarea></div>
+          </div>
+        </details>
+
+        <details class="section-card">
+          <summary>Conviction</summary>
+          <div class="section-body">
+            <div class="conviction-grid">
+              <div class="field"><label for="f_conviction_opportunity">Opportunity (1-5)</label><input type="number" min="1" max="5" id="f_conviction_opportunity"></div>
+              <div class="field"><label for="f_conviction_business">Business (1-5)</label><input type="number" min="1" max="5" id="f_conviction_business"></div>
+              <div class="field"><label for="f_conviction_management">Management (1-5)</label><input type="number" min="1" max="5" id="f_conviction_management"></div>
+              <div class="field"><label for="f_conviction_financial">Financial (1-5)</label><input type="number" min="1" max="5" id="f_conviction_financial"></div>
+              <div class="field"><label for="f_conviction_valuation">Valuation (1-5)</label><input type="number" min="1" max="5" id="f_conviction_valuation"></div>
+            </div>
+            <div class="field">
+              <label for="fConvictionBand">Conviction band</label>
+              <select id="fConvictionBand">
+                <option value="">— not set —</option>
+                <option value="core">Core</option>
+                <option value="developing">Developing</option>
+                <option value="watch">Watch</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fConvictionReason">Reason (required whenever a band is set)</label>
+              <textarea id="fConvictionReason"></textarea>
+              <p class="field-error" id="convictionReasonError">Required whenever a conviction band is set.</p>
+            </div>
+          </div>
+        </details>
+
+        <details class="section-card">
+          <summary>Trigger Conditions</summary>
+          <div class="section-body">
+            <div class="field">
+              <label for="fTriggerConditions">What would change your mind, in either direction? Private, plain text — no monitoring or alerts attached.</label>
+              <textarea id="fTriggerConditions"></textarea>
+            </div>
+          </div>
+        </details>
+
+        <!-- Portfolio Candidate: only visible once lifecycle_status reaches portfolio_candidate -->
+        <div class="card" id="portfolioCandidateCard" style="display:none;">
+          <h2>Portfolio Candidate</h2>
+          <p style="font-size:13.5px; color:var(--ink-soft); margin-top:-8px; margin-bottom:16px;">Given everything you know today, is this a better opportunity than the alternatives already available to you?</p>
+          <div class="field"><label for="fPcOpportunityCost">Opportunity cost</label><textarea id="fPcOpportunityCost"></textarea></div>
+          <div class="field"><label for="fPcPortfolioFit">Portfolio fit</label><textarea id="fPcPortfolioFit"></textarea></div>
+          <div class="field"><label for="fPcClientNotes">Client context notes</label><textarea id="fPcClientNotes"></textarea></div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-top: 8px;">
+          <button type="button" class="primary" id="saveRecordBtn" disabled>Save changes</button>
+        </div>
+      </div>
+
+      <!-- Decision History tab -->
+      <div class="tab-panel" id="decisionsPanel">
+        <div class="card">
+          <h2>Log a decision</h2>
+          <form id="decisionForm">
+            <div class="field">
+              <label for="dWhatChanged">What changed</label>
+              <select id="dWhatChanged">
+                <option value="conviction_change">Conviction change</option>
+                <option value="status_change">Status change</option>
+                <option value="position_change">Position change</option>
+                <option value="no_change">Reviewed, no change</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dReason">Reason (required — your own words, informed by the four-lens check)</label>
+              <textarea id="dReason"></textarea>
+            </div>
+            <div class="field">
+              <label for="dNext">What would change my mind next</label>
+              <textarea id="dNext"></textarea>
+            </div>
+            <p class="field-error" id="decisionError"></p>
+            <div style="display:flex; justify-content:flex-end;">
+              <button type="submit" class="primary" id="decisionSubmit">Add entry</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Append-only: no edit/delete control anywhere in this list, by design. -->
+        <ul class="decision-list" id="decisionList"></ul>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/admin/js/admin-auth.js"></script>
+<script src="/admin/js/admin-shell.js"></script>
+<script src="/admin/js/cortex-client.js"></script>
+<script src="/admin/js/investment.js"></script>
+<script>
+(function () {
+  TeiAdminAuth.requireAdviser({
+    onDenied: function () {
+      document.getElementById('loadingState').textContent = "Your account doesn't have adviser access.";
+    }
+  }).then(function (profile) {
+    if (!profile) return;
+    renderAdminHeader(document.getElementById('adminHeader'), 'investments');
+    InvestmentController.init(window.teiSupabase);
+  }).catch(function (err) {
+    console.error(err);
+    document.body.innerHTML =
+      '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap;color:#b3453f;max-width:900px;">' +
+      'Something went wrong loading this page:\n\n' + (err && (err.stack || err.message) || err) +
+      '</pre>';
+  });
+})();
+</script>
+</body>
+</html>

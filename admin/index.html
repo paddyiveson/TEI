@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home — TEI Cortex</title>
+<link rel="stylesheet" href="/admin/css/admin-tokens.css">
+</head>
+<body>
+<div class="shell">
+  <header class="admin-header" id="adminHeader"></header>
+  <main class="admin-main">
+    <p class="eyebrow">TEI Cortex</p>
+    <h1>Home</h1>
+    <div id="loadingState"><p>Loading…</p></div>
+    <div class="dashboard-grid" id="homeGrid" style="display:none;">
+      <div class="dashboard-card" id="clientsCard"></div>
+      <div class="dashboard-card" id="pipelineCard"></div>
+      <div class="dashboard-card" id="followUpsCard"></div>
+      <div class="dashboard-card dashboard-card--wide" id="decisionsCard"></div>
+    </div>
+    <p style="margin-top:32px;font-size:12px;color:var(--ink-soft);">Cortex is TEI's private adviser workspace. Nothing here is client-facing — approved outputs reach clients only through Wealth OS, via a deliberate adviser step.</p>
+  </main>
+</div>
+
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/admin/js/admin-auth.js"></script>
+<script src="/admin/js/admin-shell.js"></script>
+<script src="/admin/js/cortex-client.js"></script>
+<script src="/admin/js/wealth-os-client.js"></script>
+<script src="/admin/js/home.js"></script>
+<script>
+(function () {
+  TeiAdminAuth.requireAdviser({
+    onDenied: function () {
+      document.getElementById('loadingState').textContent = "Your account doesn't have adviser access.";
+    }
+  }).then(function (profile) {
+    if (!profile) return;
+    renderAdminHeader(document.getElementById('adminHeader'), 'home');
+    HomeController.init(window.teiSupabase);
+  }).catch(function (err) {
+    console.error(err);
+    document.body.innerHTML =
+      '<pre style="padding:40px;font-family:monospace;white-space:pre-wrap;color:#b3453f;max-width:900px;">' +
+      'Something went wrong loading this page:\n\n' + (err && (err.stack || err.message) || err) +
+      '</pre>';
+  });
+})();
+</script>
+</body>
+</html>
