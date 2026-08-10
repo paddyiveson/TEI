@@ -3422,13 +3422,19 @@ window.TEI = window.TEI || {};
     }, 0);
   }
   function actualCashMonthlyContribution(client){
-    const fromAccounts = client.accounts.filter(a=>a.type==='cash').reduce((s,a)=>s+acctContribTotal(a),0);
-    // Prefer real account data when it has actually been entered. Only fall
-    // back to the stated "Monthly savings" figure when no cash account
-    // contribution is on file, so this doesn't sit at zero purely because a
-    // formal Cash account was never set up.
-    if(fromAccounts > 0) return fromAccounts;
-    return (client.cashflow.saving && Number(client.cashflow.saving.monthlySavings)) || 0;
+    // Account-derived only — no fallback to the stated "Monthly savings"
+    // figure. That fallback used to substitute the self-reported figure
+    // whenever no cash account had a contribution logged, on the assumption
+    // it must represent saving happening somewhere untracked. In practice
+    // there was no way to tell that apart from a client who was already
+    // being counted via their ISA/pension contribution fields, so the stated
+    // figure would get added a second time — see the 2026-08-10 nudge
+    // review, which caught this doubling a genuine surplus into a fabricated
+    // deficit. A client saving into a bank account they've never logged in
+    // Wealth OS now shows £0 for that portion instead of a guess; the fix is
+    // to log a cash account, not to infer one from a Cashflow-page total
+    // that may or may not already be captured elsewhere.
+    return client.accounts.filter(a=>a.type==='cash').reduce((s,a)=>s+acctContribTotal(a),0);
   }
   function actualTotalSavingInvesting(client){
     return actualInvestmentMonthlyContribution(client) + actualCashMonthlyContribution(client);
