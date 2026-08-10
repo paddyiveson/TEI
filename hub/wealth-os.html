@@ -2487,12 +2487,15 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="conditional-block" id="obAccountsBlock" style="margin-top:16px;">
         <div id="obAccountsList"></div>
         <div class="mini-form">
-          <label class="form-field on-light"><span>Wrapper type</span><select id="obNewAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="lisa">LISA</option><option value="pension">Pension</option><option value="cash">Cash</option><option value="other">Other</option></select></label>
+          <label class="form-field on-light"><span>Wrapper type</span><select id="obNewAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="lisa">LISA</option><option value="pension">Pension</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="other">Other</option></select></label>
           <label class="form-field on-light"><span>Provider</span><input type="text" id="obNewAcctProvider" placeholder="e.g. Vanguard"></label>
           <label class="form-field on-light"><span>Current value £</span><input type="number" id="obNewAcctBalance" placeholder="0"></label>
           <label class="form-field on-light" id="obAcctContribField"><span>Add £/month, if any</span><input type="number" id="obNewAcctContrib" placeholder="0"></label>
           <label class="form-field on-light" id="obAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="obNewAcctContribPersonal" placeholder="0"></label>
           <label class="form-field on-light" id="obAcctContribEmployerField" style="display:none;"><span>Employer / salary sacrifice £/mo</span><input type="number" id="obNewAcctContribEmployer" placeholder="0"></label>
+          <label class="form-field on-light" id="obAcctInterestRateField" style="display:none;"><span>Interest rate % AER</span><input type="number" step="0.01" id="obNewAcctInterestRate" placeholder="0.00"></label>
+          <label class="form-field on-light" id="obAcctRateTypeField" style="display:none;"><span>Rate type</span><select id="obNewAcctRateType"><option value="variable">Variable</option><option value="fixed">Fixed</option></select></label>
+          <label class="form-field on-light" id="obAcctMaturityField" style="display:none;"><span>Maturity date</span><input type="date" id="obNewAcctMaturityDate"></label>
           <button type="button" class="btn-primary" id="obAddAcctBtn">Add</button>
         </div>
       </div>
@@ -2736,10 +2739,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div class="subtab-panel" id="subtab-accounts">
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Accounts</h3>
-      <div class="note" style="margin-top:0;">ISA, GIA, pension, LISA, cash or other. Current value seeds this month's balance automatically — adjust it below for later months.</div>
+      <div class="note" style="margin-top:0;">ISA, GIA, pension, LISA, Cash ISA, current/deposit or other. Current value seeds this month's balance automatically — adjust it below for later months.</div>
       <div id="accountsList"></div>
       <div class="mini-form">
-        <label class="form-field"><span>Type</span><select id="newAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="pension">Pension</option><option value="lisa">LISA</option><option value="cash">Cash</option><option value="other">Other</option></select></label>
+        <label class="form-field"><span>Type</span><select id="newAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="pension">Pension</option><option value="lisa">LISA</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="other">Other</option></select></label>
         <label class="form-field"><span>Current value £</span><input type="number" id="newAcctBalance" placeholder="0"></label>
         <label class="form-field" id="advAcctContribField"><span>Contribution £/mo</span><input type="number" id="newAcctContrib" placeholder="0"></label>
         <label class="form-field" id="advAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="newAcctContribPersonal" placeholder="0"></label>
@@ -2747,9 +2750,12 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Provider</span><input type="text" id="newAcctProvider" placeholder="e.g. Vanguard"></label>
         <label class="form-field"><span>Total contributions to date £ (optional)</span><input type="number" id="newAcctOpeningContrib" placeholder="0"></label>
         <label class="form-field"><span>Cash balance £ (optional)</span><input type="number" id="newAcctCashBalance" placeholder="0"></label>
+        <label class="form-field" id="advAcctInterestRateField" style="display:none;"><span>Interest rate % AER</span><input type="number" step="0.01" id="newAcctInterestRate" placeholder="0.00"></label>
+        <label class="form-field" id="advAcctRateTypeField" style="display:none;"><span>Rate type</span><select id="newAcctRateType"><option value="variable">Variable</option><option value="fixed">Fixed</option></select></label>
+        <label class="form-field" id="advAcctMaturityField" style="display:none;"><span>Maturity date</span><input type="date" id="newAcctMaturityDate"></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing.</div>
+      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing. "Interest rate" — shown for Cash ISA / Current-Deposit accounts — accrues automatically each month into the account balance; set Rate type to Fixed and add a Maturity date for fixed-term products, which stop accruing past that date until the rate is reviewed.</div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -3246,8 +3252,13 @@ window.TEI = window.TEI || {};
      accounts without a nickname show up blank or indistinguishable in some
      surfaces and correctly in others. */
   /* Account display name is always derived, never manually entered — the
-     accounts table has no "name" column (see accountToRow's comment). */
-  function acctLabel(a){ return a.provider ? a.provider+' '+a.type.toUpperCase() : a.type.toUpperCase(); }
+     accounts table has no "name" column (see accountToRow's comment).
+     Most type codes read fine uppercased as-is (ISA, GIA, CASH, OTHER) --
+     ACCT_TYPE_WORD only needs an entry where that's not true, e.g. a
+     compound code like cash_isa which would otherwise show as "CASH_ISA". */
+  const ACCT_TYPE_WORD = {cash_isa:'Cash ISA'};
+  function acctTypeWord(type){ return ACCT_TYPE_WORD[type] || String(type||'').toUpperCase(); }
+  function acctLabel(a){ return a.provider ? a.provider+' '+acctTypeWord(a.type) : acctTypeWord(a.type); }
   function monthLabel(key){ const [y,m] = key.split('-').map(Number); return MONTH_ABBR[m-1] + " '" + String(y).slice(2); }
   function currentMonthKey(){ const n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
   function monthsBetweenInclusive(fromKey, toKey){
@@ -3287,6 +3298,48 @@ window.TEI = window.TEI || {};
     const total = holdingsTotalForAccount(client, accountId) + (acc && Number(acc.cashBalance)||0);
     seedMonthlyValue(client.months, currentMonthKey(), accountId, total);
     if(acc) acc.value = total; // keep the account's own display value (used in list rows) in step too
+  }
+
+  /* ---------- Cash ISA / Current-Deposit interest accrual ----------
+     Cash-flavoured accounts (type 'cash' or 'cash_isa') can carry an
+     interest_rate (annual %, AER). Interest is recomputed fresh every time
+     the client bundle loads, monthly-compounded from the account's own
+     lastUpdated date (the date its value was last confirmed/saved) up to
+     today -- nothing is written back to the database by this function, the
+     same "recompute in-memory, persist only on an explicit save" pattern
+     syncAccountValueFromHoldings and live price refresh already use. That
+     makes it safe to run on every load: it's a pure function of the saved
+     value/date/rate, so it can never double-credit or drift, and the
+     baseline only moves forward when the account is next explicitly saved
+     (editing it, or logging a monthly balance) -- at which point the
+     accrued value becomes the new starting point.
+     Fixed-rate accounts stop accruing once maturityDate has passed --
+     interestAccruedToDate/value are computed as of the maturity date, and
+     acc.matured is set so the UI can prompt for a rate review, rather than
+     silently assuming an indefinite rollover at the old rate. */
+  function accrueCashInterest(client, accountId){
+    const acc = client.accounts.find(a=>a.id===accountId);
+    if(!acc) return;
+    if(acc.type !== 'cash' && acc.type !== 'cash_isa') return;
+    if(accountHasHoldings(client, accountId)) return; // priced holdings drive value instead
+    const rate = Number(acc.interestRate);
+    if(!rate || !acc.lastUpdated) return;
+    const baseDate = new Date(acc.lastUpdated);
+    if(isNaN(baseDate.getTime())) return;
+    const today = new Date();
+    let asOf = today;
+    acc.matured = false;
+    if(acc.rateType === 'fixed' && acc.maturityDate){
+      const maturity = new Date(acc.maturityDate);
+      if(!isNaN(maturity.getTime()) && maturity < today){ asOf = maturity; acc.matured = true; }
+    }
+    const wholeMonths = (asOf.getFullYear()-baseDate.getFullYear())*12 + (asOf.getMonth()-baseDate.getMonth()) - (asOf.getDate() < baseDate.getDate() ? 1 : 0);
+    if(wholeMonths <= 0) return; // nothing has compounded yet
+    const grown = acc.value * Math.pow(1 + (rate/100)/12, wholeMonths);
+    const interestEarned = grown - acc.value;
+    acc.interestAccruedToDate = (Number(acc.interestAccruedToDate)||0) + interestEarned;
+    acc.value = grown;
+    seedMonthlyValue(client.months, currentMonthKey(), accountId, grown);
   }
 
   /* Entries are sparse -- a month only has a value for an account if someone
@@ -3419,7 +3472,7 @@ window.TEI = window.TEI || {};
     // Wealth OS now shows £0 for that portion instead of a guess; the fix is
     // to log a cash account, not to infer one from a Cashflow-page total
     // that may or may not already be captured elsewhere.
-    return client.accounts.filter(a=>a.type==='cash').reduce((s,a)=>s+acctContribTotal(a),0);
+    return client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa').reduce((s,a)=>s+acctContribTotal(a),0);
   }
   function actualTotalSavingInvesting(client){
     return actualInvestmentMonthlyContribution(client) + actualCashMonthlyContribution(client);
@@ -4330,7 +4383,7 @@ window.TEI = window.TEI || {};
     trailingReturnPct, acctContribTotal, totalMonthlyContribution,
     pensionAccessAge, ageInYear, latestNonPensionNetWorth, nonPensionMonthlyContribution,
     actualInvestmentMonthlyContribution, actualCashMonthlyContribution, actualTotalSavingInvesting,
-    accountHasHoldings, holdingsTotalForAccount, syncAccountValueFromHoldings, groupedHoldings,
+    accountHasHoldings, holdingsTotalForAccount, syncAccountValueFromHoldings, accrueCashInterest, groupedHoldings,
     computeSignals, pickTopSignal, pickSignals, computeNetWorthFact,
     computeBudgetAndFI, computeEoyProjection, computeGoalState, computeSDLT, computeNextBestAction,
     computePortfolioCoach,
@@ -4812,7 +4865,7 @@ TEI.render = TEI.render || {};
   /* ---------- asset / liability / composition math, shared across this page's sections ---------- */
   function investTotal(client, b){ return client.accounts.filter(a=>['isa','gia','lisa'].includes(a.type)).reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function pensionTotal(client, b){ return client.accounts.filter(a=>a.type==='pension').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
-  function cashAcctTotal(client, b){ return client.accounts.filter(a=>a.type==='cash').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
+  function cashAcctTotal(client, b){ return client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function otherAssetsTotal(client){ return (client.wealth.assets||[]).filter(a=>a.type!=='property').reduce((s,a)=>s+(Number(a.value)||0),0); }
   function propertyValue(client){ return (client.wealth.assets||[]).filter(a=>a.type==='property').reduce((s,a)=>s+(Number(a.value)||0),0); }
 
@@ -4874,7 +4927,7 @@ TEI.render = TEI.render || {};
     return (parts[0][0] + (parts[1]?parts[1][0]:'')).toUpperCase();
   }
 
-  const ACCOUNT_TYPE_LABEL = {isa:'ISA', gia:'GIA', pension:'Pension', lisa:'LISA', cash:'Cash'};
+  const ACCOUNT_TYPE_LABEL = {isa:'ISA', gia:'GIA', pension:'Pension', lisa:'LISA', cash:'Current / Deposit Account', cash_isa:'Cash ISA'};
 
   /* Milestones: auto-detected round net-worth figures reached, plus adviser-added custom ones
      from client.insights.milestones (same field the previous build of this page used). Feeds
@@ -5044,7 +5097,13 @@ TEI.render = TEI.render || {};
 
   /* ---------------- 4. Wealth Composition (assets + liabilities, merged) & Accounts ----------------
      Palette follows the data-viz rule: no navy in categorical segments (it's the app's own
-     surface color and reads flat/invisible against navy cards). */
+     surface color and reads flat/invisible against navy cards).
+     Deliberate: 'cash_isa' joins the Cash bucket here (and every other type==='cash' filter
+     across the app), not Investments -- it behaves like cash for growth/composition purposes
+     even though it's technically an ISA wrapper. It's also left out of the isa-specific ISA-
+     allowance nudges (isaAccounts, "Race to £100k" liquidTotal, INV_TYPES/CF_INV_TYPES) since
+     those track Stocks & Shares ISA holdings specifically -- worth revisiting with the adviser
+     if Cash ISA should also count toward the annual ISA allowance headline. */
   const COMP_PALETTE = { property:'#4A7A96', investments:'#C9A84C', pension:'#6B9A78', cash:'#A8A08C', other:'#B5525F' };
   function renderComposition(client){
     const months = TEI.calc.buildMergedMonths(client);
@@ -5055,7 +5114,7 @@ TEI.render = TEI.render || {};
       {key:'property', label:'Property', value:propertyValue(client), color:COMP_PALETTE.property, accounts:[]},
       {key:'investments', label:'Investments', value:investTotal(client,b), color:COMP_PALETTE.investments, accounts:client.accounts.filter(a=>['isa','gia','lisa'].includes(a.type))},
       {key:'pension', label:'Pension', value:pensionTotal(client,b), color:COMP_PALETTE.pension, accounts:client.accounts.filter(a=>a.type==='pension')},
-      {key:'cash', label:'Cash', value:cashAcctTotal(client,b), color:COMP_PALETTE.cash, accounts:client.accounts.filter(a=>a.type==='cash')},
+      {key:'cash', label:'Cash', value:cashAcctTotal(client,b), color:COMP_PALETTE.cash, accounts:client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa')},
       {key:'other', label:'Other', value:otherAssetsTotal(client), color:COMP_PALETTE.other, sub:otherLabels, accounts:[]},
     ].filter(c=>c.value>0);
 
@@ -5626,7 +5685,7 @@ TEI.render = TEI.render || {};
 (function(){
   const {fmtGBP} = TEI.data;
   const INV_TYPES = ['isa','gia','lisa','pension'];
-  const ACCT_TYPE_LABEL = {isa:'Stocks & Shares ISA', gia:'GIA', lisa:'LISA', pension:'Pension', cash:'Cash'};
+  const ACCT_TYPE_LABEL = {isa:'Stocks & Shares ISA', gia:'GIA', lisa:'LISA', pension:'Pension', cash:'Current / Deposit Account', cash_isa:'Cash ISA'};
 
   function investmentAccounts(client){ return client.accounts.filter(a=> INV_TYPES.includes(a.type)); }
 
@@ -7933,6 +7992,9 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctContribEmployer').value = acc.type==='pension' ? (acc.contributionSacrifice||'') : '';
         document.getElementById('newAcctOpeningContrib').value = acc.openingContributions!=null ? acc.openingContributions : '';
         document.getElementById('newAcctCashBalance').value = acc.cashBalance!=null ? acc.cashBalance : '';
+        document.getElementById('newAcctInterestRate').value = acc.interestRate!=null ? acc.interestRate : '';
+        document.getElementById('newAcctRateType').value = acc.rateType || 'variable';
+        document.getElementById('newAcctMaturityDate').value = acc.maturityDate || '';
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
@@ -7974,16 +8036,28 @@ window.TEI = window.TEI || {};
   function cancelAcctEdit(){
     editing.account = null;
     document.getElementById('addAcctBtn').textContent = 'Add account';
-    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance'].forEach(id=>document.getElementById(id).value='');
+    ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('newAcctRateType').value = 'variable';
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
   }
   function toggleAdvAcctContribFields(){
-    const isPension = document.getElementById('newAcctType').value === 'pension';
+    const type = document.getElementById('newAcctType').value;
+    const isPension = type === 'pension';
     document.getElementById('advAcctContribField').style.display = isPension ? 'none' : 'flex';
     document.getElementById('advAcctContribPersonalField').style.display = isPension ? 'flex' : 'none';
     document.getElementById('advAcctContribEmployerField').style.display = isPension ? 'flex' : 'none';
+    const isCash = type === 'cash' || type === 'cash_isa';
+    document.getElementById('advAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
+    document.getElementById('advAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
+    toggleAdvAcctMaturityField();
+  }
+  function toggleAdvAcctMaturityField(){
+    const type = document.getElementById('newAcctType').value;
+    const isCash = type === 'cash' || type === 'cash_isa';
+    const isFixed = document.getElementById('newAcctRateType').value === 'fixed';
+    document.getElementById('advAcctMaturityField').style.display = (isCash && isFixed) ? 'flex' : 'none';
   }
   async function addAccount(){
     const type = document.getElementById('newAcctType').value;
@@ -7996,13 +8070,19 @@ window.TEI = window.TEI || {};
     const openingContributions = openingContribInput ? parseFloat(openingContribInput) : null;
     const cashBalanceInput = document.getElementById('newAcctCashBalance').value;
     const cashBalance = cashBalanceInput ? parseFloat(cashBalanceInput) : null;
+    const isCashType = type === 'cash' || type === 'cash_isa';
+    const interestRateInput = document.getElementById('newAcctInterestRate').value;
+    const interestRate = isCashType && interestRateInput ? parseFloat(interestRateInput) : null;
+    const rateType = isCashType && interestRate!=null ? document.getElementById('newAcctRateType').value : null;
+    const maturityDateInput = document.getElementById('newAcctMaturityDate').value;
+    const maturityDate = isCashType && rateType==='fixed' && maturityDateInput ? maturityDateInput : null;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -8027,7 +8107,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -8045,7 +8125,8 @@ window.TEI = window.TEI || {};
       // Seed this month's balance so the account shows up in net worth immediately,
       // rather than reading as £0 until someone visits "Log this month's balances".
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
-      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance'].forEach(id=>document.getElementById(id).value='');
+      ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
+      document.getElementById('newAcctRateType').value = 'variable';
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -9895,6 +9976,7 @@ window.TEI = window.TEI || {};
     wireUpload();
 
     document.getElementById('newAcctType').addEventListener('change', toggleAdvAcctContribFields);
+    document.getElementById('newAcctRateType').addEventListener('change', toggleAdvAcctMaturityField);
     document.getElementById('addAcctBtn').addEventListener('click', addAccount);
     document.getElementById('saveMonthBtn').addEventListener('click', saveMonth);
     document.getElementById('saveHoldingMonthBtn').addEventListener('click', saveHoldingMonth);
@@ -10432,7 +10514,7 @@ window.TEI = window.TEI || {};
   }
   function renderObAccounts(){
     renderEditableList('obAccountsList', client.accounts, acc=>
-      `<div class="lr-main"><b>${acc.name || (acc.provider ? acc.provider+' '+acc.type.toUpperCase() : acc.type.toUpperCase())}</b> <span class="tag-pill">${acc.type}</span><div class="lr-meta">${fmtGBP(acc.value)}${acc.contribution?' · '+fmtGBP(acc.contribution)+'/mo':''}</div></div>
+      `<div class="lr-main"><b>${acc.name || TEI.data.acctLabel(acc)}</b> <span class="tag-pill">${acc.type}</span><div class="lr-meta">${fmtGBP(acc.value)}${acc.contribution?' · '+fmtGBP(acc.contribution)+'/mo':''}</div></div>
        <div class="lr-actions">
          <button type="button" class="btn-ghost on-light" data-edit-acct="${acc.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
          <button type="button" class="btn-ghost on-light" data-del-ob-acct="${acc.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
@@ -10460,15 +10542,29 @@ window.TEI = window.TEI || {};
       document.getElementById('obNewAcctContrib').value = item.type==='pension' ? '' : (item.contribution||'');
       document.getElementById('obNewAcctContribPersonal').value = item.type==='pension' ? (item.contributionPersonal||'') : '';
       document.getElementById('obNewAcctContribEmployer').value = item.type==='pension' ? (item.contributionSacrifice||'') : '';
+      document.getElementById('obNewAcctInterestRate').value = item.interestRate!=null ? item.interestRate : '';
+      document.getElementById('obNewAcctRateType').value = item.rateType || 'variable';
+      document.getElementById('obNewAcctMaturityDate').value = item.maturityDate || '';
       toggleAcctContribFields();
       document.getElementById('obAddAcctBtn').textContent = 'Save changes';
     }));
   }
   function toggleAcctContribFields(){
-    const isPension = document.getElementById('obNewAcctType').value === 'pension';
+    const type = document.getElementById('obNewAcctType').value;
+    const isPension = type === 'pension';
     document.getElementById('obAcctContribField').style.display = isPension ? 'none' : 'flex';
     document.getElementById('obAcctContribPersonalField').style.display = isPension ? 'flex' : 'none';
     document.getElementById('obAcctContribEmployerField').style.display = isPension ? 'flex' : 'none';
+    const isCash = type === 'cash' || type === 'cash_isa';
+    document.getElementById('obAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
+    document.getElementById('obAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
+    toggleAcctMaturityField();
+  }
+  function toggleAcctMaturityField(){
+    const type = document.getElementById('obNewAcctType').value;
+    const isCash = type === 'cash' || type === 'cash_isa';
+    const isFixed = document.getElementById('obNewAcctRateType').value === 'fixed';
+    document.getElementById('obAcctMaturityField').style.display = (isCash && isFixed) ? 'flex' : 'none';
   }
   function seedMonthBalance(accId, value){
     const key = TEI.data.currentMonthKey();
@@ -10481,11 +10577,17 @@ window.TEI = window.TEI || {};
     const contrib = parseFloat(document.getElementById('obNewAcctContrib').value)||0;
     const contribPersonal = parseFloat(document.getElementById('obNewAcctContribPersonal').value)||0;
     const contribEmployer = parseFloat(document.getElementById('obNewAcctContribEmployer').value)||0;
+    const isCashType = type === 'cash' || type === 'cash_isa';
+    const interestRateInput = document.getElementById('obNewAcctInterestRate').value;
+    const interestRate = isCashType && interestRateInput ? parseFloat(interestRateInput) : null;
+    const rateType = isCashType && interestRate!=null ? document.getElementById('obNewAcctRateType').value : null;
+    const maturityDateInput = document.getElementById('obNewAcctMaturityDate').value;
+    const maturityDate = isCashType && rateType==='fixed' && maturityDateInput ? maturityDateInput : null;
     const btn = document.getElementById('obAddAcctBtn');
     btn.disabled = true;
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
-      const patch = {type, provider, value};
+      const patch = {type, provider, value, interestRate, rateType, maturityDate};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -10505,7 +10607,7 @@ window.TEI = window.TEI || {};
       document.getElementById('obAddAcctBtn').textContent = 'Add';
       seedMonthBalance(acc.id, value);
     } else {
-      const acc = {id:uid(), type, provider, value, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, provider, value, interestRate, rateType, maturityDate, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; } else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'client');
       try{
@@ -10523,7 +10625,8 @@ window.TEI = window.TEI || {};
       // a monthly balance is logged separately.
       seedMonthBalance(acc.id, value);
     }
-    clearFields(['obNewAcctProvider','obNewAcctBalance','obNewAcctContrib','obNewAcctContribPersonal','obNewAcctContribEmployer']);
+    clearFields(['obNewAcctProvider','obNewAcctBalance','obNewAcctContrib','obNewAcctContribPersonal','obNewAcctContribEmployer','obNewAcctInterestRate','obNewAcctMaturityDate']);
+    document.getElementById('obNewAcctRateType').value = 'variable';
     toggleAcctContribFields();
     renderObAccounts(); refreshHoldingAccountSelect(); refreshGoalLinkedAccountOptions();
   }
@@ -10897,6 +11000,7 @@ window.TEI = window.TEI || {};
     document.getElementById('obAddAssetBtn').addEventListener('click', addOrSaveAsset);
     document.getElementById('obAddLiabBtn').addEventListener('click', addOrSaveLiability);
     document.getElementById('obNewAcctType').addEventListener('change', toggleAcctContribFields);
+    document.getElementById('obNewAcctRateType').addEventListener('change', toggleAcctMaturityField);
     document.getElementById('obAddAcctBtn').addEventListener('click', addOrSaveAccount);
     document.getElementById('obAddHoldingBtn').addEventListener('click', addOrSaveHolding);
     document.getElementById('obNewGoalProgressType').addEventListener('change', toggleGoalProgressFields);
@@ -11236,13 +11340,15 @@ window.TEI = window.TEI || {};
 
       accounts: (bundle.accounts||[]).map(a=>({
         id: a.id,
-        name: a.provider ? `${a.provider} ${String(a.type||'').toUpperCase()}` : String(a.type||'').toUpperCase(),
+        name: TEI.data.acctLabel({provider: a.provider, type: a.type}),
         type: a.type, value: a.value, provider: a.provider,
         returnPct: a.return_pct, lastUpdated: a.last_updated,
         lastEditedBy: a.last_edited_by, lastEditedAt: a.last_edited_at,
         contribution: a.contribution, contributionPersonal: a.contribution_personal,
         contributionSacrifice: a.contribution_sacrifice,
         openingContributions: a.opening_contributions, cashBalance: a.cash_balance,
+        interestRate: a.interest_rate, rateType: a.rate_type, maturityDate: a.maturity_date,
+        interestAccruedToDate: a.interest_accrued_to_date, lastAccruedAt: a.last_accrued_at,
         discrepancyDismissedAmount: a.discrepancy_dismissed_amount, discrepancyDismissedAt: a.discrepancy_dismissed_at
       })),
 
@@ -11320,7 +11426,11 @@ window.TEI = window.TEI || {};
       months, holdingsMonths, goalsMonths, contribLog, cashflowMonths
     };
 
-    return TEI.data.mergeDefaults(loaded);
+    const merged = TEI.data.mergeDefaults(loaded);
+    // Bring interest-bearing cash accounts up to date for this session -- see
+    // accrueCashInterest's own comment for why this is safe to run on every load.
+    (merged.accounts||[]).forEach(a=> TEI.calc.accrueCashInterest(merged, a.id));
+    return merged;
   }
 
   /* Which of an adviser's clients to highlight as "last viewed" on the
@@ -11466,6 +11576,11 @@ window.TEI = window.TEI || {};
       contribution_sacrifice: a.contributionSacrifice != null ? a.contributionSacrifice : null,
       opening_contributions: a.openingContributions != null ? a.openingContributions : null,
       cash_balance: a.cashBalance != null ? a.cashBalance : null,
+      interest_rate: a.interestRate != null ? a.interestRate : null,
+      rate_type: a.rateType || null,
+      maturity_date: a.maturityDate || null,
+      interest_accrued_to_date: a.interestAccruedToDate != null ? a.interestAccruedToDate : null,
+      last_accrued_at: a.lastAccruedAt || null,
       discrepancy_dismissed_amount: a.discrepancyDismissedAmount != null ? a.discrepancyDismissedAmount : null,
       discrepancy_dismissed_at: a.discrepancyDismissedAt || null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
