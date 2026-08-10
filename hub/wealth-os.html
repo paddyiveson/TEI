@@ -1993,7 +1993,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="dcard">
         <div class="k">This month, at a glance</div>
         <div class="k-chart-box" style="height:200px;"><canvas id="chartIncomeSpend"></canvas></div>
-        <div class="sub2">"Disposable income" is what's left after living costs and your stated saving &amp; investing commitment — money with no destination yet.</div>
+        <div class="sub2">"Disposable income" is what's left after living costs and your calculated saving &amp; investing commitment — money with no destination yet.</div>
         <div class="line"><span class="k-badge-soon">Coming soon</span> A full trend timeline (income, expenses, disposable income and contributions over time) once monthly cashflow logging is in place.</div>
       </div>
     </div>
@@ -2409,15 +2409,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       </div>
     </div>
 
-    <div class="card-light" style="margin-bottom:16px;">
-      <h3 style="margin:0 0 4px; font-size:15px; font-family:'Playfair Display',serif;">Saving &amp; investing</h3>
-      <div class="wizard-sub" style="margin-top:0; margin-bottom:10px;">Everything you're setting aside each month, including your own pension contributions (not your employer's).</div>
-      <div class="form-grid" style="grid-template-columns:1fr 1fr; margin-top:10px;">
-        <label class="form-field on-light"><span>Monthly savings £</span><input type="number" id="obMonthlySavings"></label>
-        <label class="form-field on-light"><span>Monthly investing £</span><input type="number" id="obMonthlyInvesting"></label>
-      </div>
-    </div>
-
     <div class="card-light">
       <h3 style="margin:0 0 4px; font-size:15px; font-family:'Playfair Display',serif;">Emergency fund</h3>
       <div class="wizard-sub" style="margin-bottom:10px;">A cash buffer before anything else gets invested. Most people aim for 3–6 months of essential costs.</div>
@@ -2426,6 +2417,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field on-light"><span>Currently have £</span><input type="number" id="obEfCurrent"></label>
       </div>
     </div>
+    <div class="wizard-sub" style="margin-top:16px; margin-bottom:0;">Your monthly saving &amp; investing rate is calculated automatically from the accounts you add next — no need to enter it separately.</div>
   </div>
   <!-- STEP 3: WEALTH FOUNDATION -->
   <div class="wizard-step" data-step="3">
@@ -2939,22 +2931,15 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Cashflow — Saving, Emergency Fund &amp; Preferences</h3>
-      <div class="note" style="margin-top:0;">Monthly savings/investing should include the client's own pension contributions (not employer/salary sacrifice).</div>
+      <div class="note" style="margin-top:0;">Monthly savings and investing are calculated from account contribution fields, not typed here — see Accounts. Personal pension contributions count as investing; employer/salary sacrifice counts as neither, since it never touches take-home pay.</div>
+      <div class="range-stats" style="margin-top:0; margin-bottom:16px;" id="cfCalculatedSavingStats"></div>
       <div class="form-grid">
-        <label class="form-field"><span>Monthly savings £</span><input type="number" id="cfMonthlySavings"></label>
-        <label class="form-field"><span>Monthly investing £</span><input type="number" id="cfMonthlyInvesting"></label>
         <label class="form-field"><span>FI multiple</span><input type="number" id="cfFiMultiple" value="25"></label>
         <label class="form-field"><span>Emergency fund target £</span><input type="number" id="cfEfTarget"></label>
         <label class="form-field"><span>Emergency fund current £</span><input type="number" id="cfEfCurrent"></label>
         <label class="form-field"><span>Wealth conversion target %</span><input type="number" id="cfWcTarget" value="20"></label>
       </div>
       <button type="button" class="btn-primary" id="saveCashflowBtn">Save cashflow</button>
-    </div>
-
-    <div class="card" style="margin-bottom:16px;">
-      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Contribution reconciliation</h3>
-      <div class="note" style="margin-top:0;">Compares stated monthly savings/investing against what accounts actually show — non-pension account contributions plus the pension's personal contribution only (employer/salary sacrifice is excluded, since it never touches take-home pay).</div>
-      <div class="range-stats" id="reconStats" style="margin-top:12px;"></div>
     </div>
     </div>
 
@@ -3728,21 +3713,6 @@ window.TEI = window.TEI || {};
     return {text:'Update this month’s balances', why:'Keeping the numbers current is what makes the projections worth trusting.'};
   }
 
-  /* ---------- Contribution reconciliation ----------
-     Compares what the client TOLD us they save/invest (cashflow.saving) against
-     what's actually flowing into accounts. Pension is only counted on the
-     personal-contribution side — employer/salary-sacrifice never touches
-     take-home pay, so it shouldn't appear in a take-home-based figure. */
-  function computeContributionReconciliation(client){
-    const nonPensionTotal = client.accounts.filter(a=>a.type!=='pension').reduce((s,a)=>s+(Number(a.contribution)||0),0);
-    const pensionPersonalTotal = client.accounts.filter(a=>a.type==='pension').reduce((s,a)=>s+(Number(a.contributionPersonal)||0),0);
-    const actualTotal = nonPensionTotal + pensionPersonalTotal;
-    const saving = (client.cashflow && client.cashflow.saving) || {};
-    const statedTotal = (Number(saving.monthlySavings)||0) + (Number(saving.monthlyInvesting)||0);
-    const diff = statedTotal - actualTotal;
-    return {actualTotal, statedTotal, diff, matches: Math.abs(diff) < 1, nonPensionTotal, pensionPersonalTotal};
-  }
-
   /* ================= Shared signals engine =================
      Every Coach's Corner and Insights list across the app (Home, Cashflow,
      Portfolio, Forecast, Adviser Workspace) used to be its own hardcoded
@@ -3824,14 +3794,6 @@ window.TEI = window.TEI || {};
         push({id:'undirected-surplus', domain:['cashflow'], severity:40, tier:'warning',
           message:`You have ${fmtGBP(budgetFi.savings)}/mo of disposable income that isn't yet directed into investing. Paying yourself first — before discretionary spending — could accelerate your financial independence journey.`,
           actionLabel:'Try it in Scenario Corner', actionPage:'cashflow'});
-      }
-      const recon = computeContributionReconciliation(client);
-      if(!recon.matches && recon.statedTotal > 0){
-        push({id:'contribution-mismatch', domain:['cashflow'], severity:35, tier:'warning',
-          message: recon.diff > 0
-            ? `You've told us ${fmtGBP(recon.diff)}/mo more is going to saving & investing than your accounts show — worth checking those figures line up.`
-            : `Your accounts show ${fmtGBP(Math.abs(recon.diff))}/mo more going to saving & investing than you've stated — your stated figure may be out of date.`,
-          actionLabel:'Review Cashflow', actionPage:'cashflow'});
       }
       const isaAccounts = client.accounts.filter(a=>a.type==='isa');
       if(isaAccounts.length){
@@ -4343,8 +4305,17 @@ window.TEI = window.TEI || {};
   const DISMISS_DRIFT_PCT = 0.1; // plus 10% of the accepted amount itself
   function isDiscrepancyDismissed(acc, diff){
     if(!acc || acc.discrepancyDismissedAmount == null) return false;
+    // A gap that has shrunk from what was accepted is an improvement, not a
+    // new problem -- it always stays dismissed, however far it's shrunk.
+    // Only a gap that grows re-opens the flag, and only once it grows past
+    // a drift tolerance (ordinary day-to-day FX/price wobble shouldn't
+    // retrigger it, but a materially bigger gap should). Previously this
+    // check was symmetric, so an improving gap re-flagged exactly like a
+    // worsening one -- reading as "still broken" when it had actually
+    // gotten better.
+    if(diff <= acc.discrepancyDismissedAmount) return true;
     const allowedDrift = Math.max(DISMISS_DRIFT_FLOOR, Math.abs(acc.discrepancyDismissedAmount) * DISMISS_DRIFT_PCT);
-    return Math.abs(diff - acc.discrepancyDismissedAmount) <= allowedDrift;
+    return (diff - acc.discrepancyDismissedAmount) <= allowedDrift;
   }
 
   TEI.data = {
@@ -4362,7 +4333,7 @@ window.TEI = window.TEI || {};
     accountHasHoldings, holdingsTotalForAccount, syncAccountValueFromHoldings, groupedHoldings,
     computeSignals, pickTopSignal, pickSignals, computeNetWorthFact,
     computeBudgetAndFI, computeEoyProjection, computeGoalState, computeSDLT, computeNextBestAction,
-    computePortfolioCoach, computeContributionReconciliation,
+    computePortfolioCoach,
     financialFreedomPct, nextMilestone, computeJourney, JOURNEY_STAGES,
     /* Phase 1 — Client Foundation derived helpers */
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
@@ -6068,11 +6039,16 @@ TEI.render = TEI.render || {};
     });
     // Reinvested-growth segment — the *extra* on top of the base forecast if
     // dividends are reinvested instead of taken. Stacks visually above the
-    // gold forecast bar when the toggle is on. Clamped to zero rather than
-    // negative: the two models compound on different rates (payout growth
-    // vs. yield), so reinvesting isn't guaranteed to beat taking income in
-    // every case — when it doesn't, no green segment shows for that year
-    // rather than a bar that would visually shrink.
+    // gold forecast bar when the toggle is on.
+    // Both paths now compound on the same payout-growth factor
+    // (1+growth/100)^yrsOut — previously "taken" applied growth but
+    // "reinvested" didn't, so a holding with strong growth but modest yield
+    // could show taken income overtaking the reinvested position, and the
+    // clamp-to-zero hid the reinvestment benefit exactly where compounding
+    // matters most. Reinvestment is now a strict multiplicative bonus on
+    // top of that shared growth factor, so the extra segment can never be
+    // negative — the Math.max(0, ...) below is just float-rounding safety
+    // at yrsOut=0, not load-bearing the way it used to be.
     // Compounds at the holding's actual payment frequency, not once a year —
     // a monthly payer reinvests (and so compounds) 12x/yr at the same
     // nominal yield, which meaningfully outgrows an annual payer over time.
@@ -6081,7 +6057,9 @@ TEI.render = TEI.render || {};
       const yrsOut = y - startYear;
       const reinvestedTotal = holdings.reduce((s,h)=>{
         const m = TEI.data.dividendPeriodsPerYear(h.frequency);
-        const value = (Number(h.amount)||0) * Math.pow(1+(Number(h.yield)||0)/100/m, m*yrsOut);
+        const growthFactor = Math.pow(1+(Number(h.growth)||0)/100, yrsOut);
+        const reinvestFactor = Math.pow(1+(Number(h.yield)||0)/100/m, m*yrsOut);
+        const value = (Number(h.amount)||0) * growthFactor * reinvestFactor;
         return s + value*(Number(h.yield)||0)/100;
       }, 0);
       return Math.max(0, reinvestedTotal - (forecastData[i]||0));
@@ -6110,7 +6088,7 @@ TEI.render = TEI.render || {};
 
   const DIV_NOTES = {
     base: 'Gold bars are actual dividend income received, logged year by year in Adviser Workspace. Faded gold is a forecast, illustrative only and not a guarantee — assumes the yield stays flat and each holding\'s payout grows at its own rate, taken as income with no reinvestment and no share price change.',
-    reinvested: 'Green shows the extra income the forecast years could produce if dividends were reinvested instead of taken — illustrative only, not a guarantee. Assumes each payout is reinvested as it lands, compounding the position at the current yield and the holding\'s own payment frequency (e.g. monthly payers compound monthly), a simplified DRIP model rather than a forecast of returns.'
+    reinvested: 'Green shows the extra income the forecast years could produce if dividends were reinvested instead of taken — illustrative only, not a guarantee. Assumes each payout is reinvested as it lands, compounding the position at the current yield and the holding\'s own payment frequency (e.g. monthly payers compound monthly), on top of the same payout growth assumed for the taken-as-income bars, a simplified DRIP model rather than a forecast of returns.'
   };
 
   function renderDivContributors(client){
@@ -7930,7 +7908,7 @@ window.TEI = window.TEI || {};
         }
         client.accounts = client.accounts.filter(a=>a.id !== id);
         if(editing.account === id) cancelAcctEdit();
-        renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderReconciliation();
+        renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderCalculatedSavingStats();
       });
     });
     list.querySelectorAll('[data-mark-reviewed]').forEach(btn=>{
@@ -8071,7 +8049,7 @@ window.TEI = window.TEI || {};
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
-    renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderReconciliation();
+    renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderCalculatedSavingStats();
     // See the matching comment in refreshLivePrices -- account edits (e.g.
     // opening contributions, cash balance) feed the Portfolio Overview
     // discrepancy check too, so it needs the same immediate cross-shell
@@ -9462,37 +9440,37 @@ window.TEI = window.TEI || {};
   }
 
   function fillCashflowForm(){
-    client.cashflow.saving = client.cashflow.saving || {monthlySavings:0, monthlyInvesting:0};
-    document.getElementById('cfMonthlySavings').value = client.cashflow.saving.monthlySavings||0;
-    document.getElementById('cfMonthlyInvesting').value = client.cashflow.saving.monthlyInvesting||0;
     document.getElementById('cfFiMultiple').value = client.preferences.fiMultiple||25;
     document.getElementById('cfEfTarget').value = (client.cashflow.emergencyFund||{}).target||0;
     document.getElementById('cfEfCurrent').value = (client.cashflow.emergencyFund||{}).current||0;
     document.getElementById('cfWcTarget').value = client.preferences.wealthConversionTarget||20;
-    renderReconciliation();
+    renderCalculatedSavingStats();
   }
-  function renderReconciliation(){
-    const el = document.getElementById('reconStats');
+  /* Monthly savings/investing used to be typed here and compared against
+     accounts via a separate "contribution reconciliation" check -- both
+     numbers were self-reported, so they could drift from accounts (and
+     from each other) with nothing to catch it. Now purely account-derived,
+     same source the rest of the app already treats as ground truth, so
+     there's nothing left to reconcile against -- just the calculated
+     figures themselves, read-only. */
+  function renderCalculatedSavingStats(){
+    const el = document.getElementById('cfCalculatedSavingStats');
     if(!el) return;
-    const r = TEI.calc.computeContributionReconciliation(client);
+    const investing = TEI.calc.actualInvestmentMonthlyContribution(client);
+    const savings = TEI.calc.actualCashMonthlyContribution(client);
     el.innerHTML = `
-      <div class="range-stat"><span class="rs-label">Stated (savings + investing)</span><b>${fmtGBP(r.statedTotal)}</b></div>
-      <div class="range-stat"><span class="rs-label">Actual (accounts + pension personal)</span><b>${fmtGBP(r.actualTotal)}</b></div>
-      <div class="range-stat ${r.matches?'accent-up':'accent-down'}"><span class="rs-label">${r.matches?'Matches':'Difference'}</span><b>${r.matches?'—':(r.diff>0?'+':'')+fmtGBP(r.diff)}</b></div>
+      <div class="range-stat"><span class="rs-label">Monthly savings (cash accounts)</span><b>${fmtGBP(savings)}</b></div>
+      <div class="range-stat"><span class="rs-label">Monthly investing (ISA/GIA/LISA/pension personal)</span><b>${fmtGBP(investing)}</b></div>
     `;
   }
   function saveCashflow(){
-    client.cashflow.saving = TEI.calc.stampEdit({
-      monthlySavings: parseFloat(document.getElementById('cfMonthlySavings').value)||0,
-      monthlyInvesting: parseFloat(document.getElementById('cfMonthlyInvesting').value)||0
-    }, 'adviser');
     client.preferences.fiMultiple = parseFloat(document.getElementById('cfFiMultiple').value)||25;
     client.cashflow.emergencyFund = TEI.calc.stampEdit({
       target: parseFloat(document.getElementById('cfEfTarget').value)||0,
       current: parseFloat(document.getElementById('cfEfCurrent').value)||0
     }, 'adviser');
     client.preferences.wealthConversionTarget = parseFloat(document.getElementById('cfWcTarget').value)||20;
-    renderReconciliation();
+    renderCalculatedSavingStats();
     showToast('Cashflow saved');
   }
 
@@ -9843,12 +9821,6 @@ window.TEI = window.TEI || {};
     if(income > 0){
       const rate = (budgetFi.committedSaving/income*100);
       if(rate < 15) cards.push({section:'Cashflow', message: `Savings rate is ${rate.toFixed(0)}% — below the typical 15-20% benchmark.`});
-    }
-    const recon = TEI.calc.computeContributionReconciliation(client);
-    if(!recon.matches && recon.statedTotal > 0){
-      cards.push({section:'Cashflow', message: recon.diff > 0
-        ? `Stated monthly saving/investing (${fmtGBP(recon.statedTotal)}) is ${fmtGBP(recon.diff)} higher than what accounts actually show (${fmtGBP(recon.actualTotal)}).`
-        : `Accounts show ${fmtGBP(recon.actualTotal)}/mo going to saving/investing — ${fmtGBP(Math.abs(recon.diff))} more than the stated figure (${fmtGBP(recon.statedTotal)}).`});
     }
     const monthKeys = Object.keys(client.months||{}).sort();
     if(monthKeys.length >= 2){
@@ -10281,14 +10253,10 @@ window.TEI = window.TEI || {};
   }
 
   function fillCashflowBasics(){
-    document.getElementById('obMonthlySavings').value = client.cashflow.saving.monthlySavings||'';
-    document.getElementById('obMonthlyInvesting').value = client.cashflow.saving.monthlyInvesting||'';
     document.getElementById('obEfTarget').value = (client.cashflow.emergencyFund||{}).target||'';
     document.getElementById('obEfCurrent').value = (client.cashflow.emergencyFund||{}).current||'';
   }
   function wireCashflowBasics(){
-    document.getElementById('obMonthlySavings').addEventListener('input', e=>{ client.cashflow.saving.monthlySavings = parseFloat(e.target.value)||0; TEI.calc.stampEdit(client.cashflow.saving,'client'); });
-    document.getElementById('obMonthlyInvesting').addEventListener('input', e=>{ client.cashflow.saving.monthlyInvesting = parseFloat(e.target.value)||0; TEI.calc.stampEdit(client.cashflow.saving,'client'); });
     document.getElementById('obEfTarget').addEventListener('input', e=>{ client.cashflow.emergencyFund.target = parseFloat(e.target.value)||0; TEI.calc.stampEdit(client.cashflow.emergencyFund,'client'); });
     document.getElementById('obEfCurrent').addEventListener('input', e=>{ client.cashflow.emergencyFund.current = parseFloat(e.target.value)||0; TEI.calc.stampEdit(client.cashflow.emergencyFund,'client'); });
   }
