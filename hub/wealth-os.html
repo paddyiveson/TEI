@@ -2333,6 +2333,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
       <div class="conditional-block" id="obPartnerBlock">
         <h3 style="margin:18px 0 4px; font-size:15px; font-family:'Playfair Display',serif;">Your partner</h3>
+        <div class="note" style="margin:0 0 12px;">Enter your own individual accounts and income in this onboarding — not combined household figures. Once your partner also has a TEI profile, your adviser can link the two into a household, and shared costs (rent, bills, anything you both pay for) can then be tagged as joint so they're counted once at the household level, not duplicated or missed on either dashboard.</div>
         <div class="form-grid" style="grid-template-columns:1fr 1fr;">
           <label class="form-field on-light"><span>Partner's name</span><input type="text" id="obPartnerName"></label>
           <label class="form-field on-light"><span>Partner's employment status</span>
@@ -2652,6 +2653,15 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div class="completion-rail" style="background:rgba(247,244,237,0.14);"><div class="completion-fill" id="ovCompletionFill" style="width:0%;"></div></div>
       </div>
     </div>
+    <div class="card" style="margin-bottom:16px; display:none;" id="advHouseholdCard">
+      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Household — <span id="advHouseholdMembers"></span></h3>
+      <div class="note" style="margin-top:0;">Combined across every linked member. Each person's own figures below stay individual — this is the household-level rollup only.</div>
+      <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:10px;">
+        <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household net worth</div><b id="advHouseholdNetWorth" style="color:var(--cream); font-size:20px;">–</b></div>
+        <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household income /mo</div><b id="advHouseholdIncome" style="color:var(--cream); font-size:20px;">–</b></div>
+        <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household expenditure /mo</div><b id="advHouseholdExpenditure" style="color:var(--cream); font-size:20px;">–</b></div>
+      </div>
+    </div>
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Missing information</h3>
       <ul class="missing-list" id="ovMissingList" style="margin:0;"></ul>
@@ -2711,6 +2721,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </label>
         <label class="form-field"><span>Relationship status</span>
           <select id="mRelationship"><option value="">Not set</option><option>Single</option><option>Partnered</option><option>Married</option></select>
+          <span style="font-size:11.5px; color:var(--cream-soft2); margin-top:2px;">Partnered/Married clients still keep their own individual accounts and income here — link the two client records into a household from the client list to get a combined household rollup and tag shared costs as joint.</span>
         </label>
         <label class="form-field"><span>Risk profile (self-reported)</span>
           <select id="mRisk"><option value="">Not set</option><option>Cautious</option><option>Balanced</option><option>Growth</option><option>Aggressive</option></select>
@@ -3514,6 +3525,22 @@ window.TEI = window.TEI || {};
     const otherAssetsTotal = (client.wealth.assets||[]).reduce((s,a)=> s + (Number(a.value)||0), 0);
     const liabilitiesTotal = (client.wealth.liabilities||[]).reduce((s,l)=> s + (Number(l.balance)||0), 0);
     return accountsTotal + otherAssetsTotal - liabilitiesTotal;
+  }
+
+  /* Household rollup = each member's own netWorth/income/expenditure,
+     summed. Every member's accounts/income/expenses are still just that
+     member's own flat client_id-scoped rows (see loadHouseholdSummary) --
+     this is purely an additive total across bundles, not a merge, so
+     nothing here can double-count a figure that only exists under one
+     member's client_id. Joint items (Phase B) also live under exactly one
+     member's client_id, so summing every member's own total already
+     counts a joint item exactly once. */
+  function householdTotals(bundles){
+    return (bundles||[]).reduce((t, b)=>({
+      netWorth: t.netWorth + netWorth(b),
+      monthlyIncome: t.monthlyIncome + totalMonthlyIncome(b),
+      monthlyExpenditure: t.monthlyExpenditure + totalFixedExpenses(b) + totalVariableExpenses(b)
+    }), {netWorth:0, monthlyIncome:0, monthlyExpenditure:0});
   }
 
   /* goalProgress — one function, three progress models, matching goal.progressType.
@@ -4390,7 +4417,7 @@ window.TEI = window.TEI || {};
     financialFreedomPct, nextMilestone, computeJourney, JOURNEY_STAGES,
     /* Phase 1 — Client Foundation derived helpers */
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
-    netWorth, goalProgress, completion,
+    netWorth, goalProgress, completion, householdTotals,
     /* Operating Model Refinement — source tagging, monthly history, updates feed */
     stampEdit, seedMonthlyValue, collectClientUpdates,
     /* Contribution-vs-holdings reconciliation (Portfolio Overview flags +
@@ -9864,6 +9891,35 @@ window.TEI = window.TEI || {};
     document.getElementById('ovOpportunitiesList').innerHTML = opportunities.length
       ? opportunities.map(o=>`<li>${o}</li>`).join('')
       : '<li style="color:var(--cream-soft2);">Nothing flagged right now.</li>';
+    renderHouseholdCard();
+  }
+  /* Fetches and renders the household rollup card, only when this client is
+     actually linked -- otherwise the card just stays hidden (its default
+     state in the markup) so unlinked clients (most of them) render exactly
+     as before. A stale request guard (householdRenderToken) stops an
+     earlier, still-in-flight load from overwriting a newer client's card
+     if the adviser switches clients quickly, since this is async and
+     renderOverview doesn't await it. */
+  let householdRenderToken = 0;
+  async function renderHouseholdCard(){
+    const card = document.getElementById('advHouseholdCard');
+    const householdId = client.meta.householdId;
+    if(!householdId){ card.style.display = 'none'; return; }
+    const token = ++householdRenderToken;
+    try{
+      const summary = await TEI.wealthOS.loadHouseholdSummary(window.teiSupabase, householdId);
+      if(token !== householdRenderToken) return; // a newer client's card has since started loading
+      if(!summary){ card.style.display = 'none'; return; }
+      const totals = TEI.calc.householdTotals(summary.bundles);
+      document.getElementById('advHouseholdMembers').textContent = summary.members.map(m=>[m.first_name,m.last_name].filter(Boolean).join(' ').trim()||'Client').join(' & ');
+      document.getElementById('advHouseholdNetWorth').textContent = fmtGBP(totals.netWorth);
+      document.getElementById('advHouseholdIncome').textContent = fmtGBP(totals.monthlyIncome);
+      document.getElementById('advHouseholdExpenditure').textContent = fmtGBP(totals.monthlyExpenditure);
+      card.style.display = 'block';
+    } catch(err){
+      console.error('Wealth OS: failed to load household summary', err);
+      if(token === householdRenderToken) card.style.display = 'none';
+    }
   }
 
   /* ================= CLIENT UPDATES ================= */
@@ -11318,6 +11374,7 @@ window.TEI = window.TEI || {};
     const loaded = {
       meta:{
         clientId: c.id,
+        householdId: c.household_id || null,
         displayName: [c.first_name, c.last_name].filter(Boolean).join(' ') || 'Client',
         createdAt: c.created_at,
         lastUpdated: c.last_updated,
@@ -11451,6 +11508,23 @@ window.TEI = window.TEI || {};
     return adaptClientBundle(bundle, role);
   }
 
+  /* Household rollup: loads every member's full client bundle (reusing
+     loadClientById so net worth/income/expenditure are computed by the
+     exact same TEI.calc functions as each member's own dashboard, rather
+     than a second parallel calc that could drift) and hands them to
+     TEI.calc.householdTotals for summing. Households are small (almost
+     always 2 people), so N full loads is cheap in practice; returns null
+     if the household has fewer than 2 members left (e.g. the other person
+     was just unlinked) since there's nothing to roll up. */
+  async function loadHouseholdSummary(supabase, householdId){
+    const w = wo(supabase);
+    const { data: members, error } = await w.from('clients').select('id, first_name, last_name').eq('household_id', householdId);
+    if(error) throw error;
+    if(!members || members.length < 2) return null;
+    const bundles = await Promise.all(members.map(m=> loadClientById(supabase, m.id, 'adviser')));
+    return { members, bundles };
+  }
+
   /* Adviser opening a specific client from the client-list landing page --
      also remembers it as "last viewed" for next time. */
   async function openClientAsAdviser(clientId){
@@ -11472,6 +11546,33 @@ window.TEI = window.TEI || {};
       last_updated: new Date().toISOString()
     }, initialFields && initialFields.extra ? initialFields.extra : {});
     return await insertRow('clients', row);
+  }
+
+  /* Links two existing clients (e.g. spouses/partners) into one household.
+     If clientB already belongs to a household, clientA joins it -- so
+     linking a third person later just means picking any existing member,
+     not tracking who was "first". If neither has one, a new household row
+     is created. Adviser-only by RLS (households_write_adviser_only). */
+  async function linkHousehold(clientIdA, clientIdB){
+    const w = wo(window.teiSupabase);
+    const { data: rows, error: readErr } = await w.from('clients').select('id, household_id').in('id', [clientIdA, clientIdB]);
+    if(readErr) throw readErr;
+    const a = rows.find(r=>r.id===clientIdA), b = rows.find(r=>r.id===clientIdB);
+    let householdId = (b && b.household_id) || (a && a.household_id);
+    if(!householdId){
+      const household = await insertRow('households', {});
+      householdId = household.id;
+    }
+    const { error: updateErr } = await w.from('clients').update({household_id: householdId}).in('id', [clientIdA, clientIdB]);
+    if(updateErr) throw updateErr;
+    return householdId;
+  }
+  /* Removes just this one client from its household -- other members stay
+     linked. Doesn't delete the households row even if it's now empty; an
+     orphaned household with no members is harmless and adviser tooling
+     doesn't currently need to clean those up. */
+  async function unlinkHousehold(clientId){
+    await updateRow('clients', 'id', clientId, {household_id: null});
   }
 
   /* Returns { role:'client', client } for a client-role login (their own
@@ -11509,7 +11610,7 @@ window.TEI = window.TEI || {};
       }
 
       if(profile.role === 'adviser'){
-        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated').order('first_name', {ascending:true});
+        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated, household_id').order('first_name', {ascending:true});
         if(clientsErr) throw clientsErr;
         // Cross-client feedback inbox: RLS already grants advisers unrestricted
         // select on this table (see wealth_os_phase5_feedback.sql), so no
@@ -11518,7 +11619,13 @@ window.TEI = window.TEI || {};
         // page never has to page through history.
         const { data: feedback, error: feedbackErr } = await w.from('feedback').select('*').order('created_at', {ascending:false}).limit(200);
         if(feedbackErr) throw feedbackErr;
-        return { role:'adviser', clients: clients || [], feedback: feedback || [] };
+        // Households: just id/label, membership is read off each client's
+        // household_id above -- this is only fetched to resolve a household's
+        // label if one was ever set (most are unlabelled, grouping falls back
+        // to member names).
+        const { data: households, error: householdsErr } = await w.from('households').select('*');
+        if(householdsErr) throw householdsErr;
+        return { role:'adviser', clients: clients || [], feedback: feedback || [], households: households || [] };
       }
 
       // client role: exactly one clients row, linked via user_id
@@ -11906,6 +12013,7 @@ window.TEI = window.TEI || {};
 
   TEI.wealthOS = {
     loadWealthOSClient, loadClientById, openClientAsAdviser, createClient, lastViewedClientId,
+    linkHousehold, unlinkHousehold, loadHouseholdSummary,
     showLoadError, hideLoadError,
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
     saveIncome, deleteIncome, saveExpense, deleteExpense,
@@ -12158,6 +12266,16 @@ window.TEI = window.TEI || {};
   }
 
   /* ================= ADVISER CLIENT LIST (landing page) ================= */
+  /* Household linking is additive to the existing flat, alphabetical list --
+     linked clients still render as individual rows (so nothing about the
+     unlinked majority changes), just with a household badge naming their
+     other member(s) and a swapped action (Unlink instead of Link). The list
+     itself stays alphabetical by first name rather than being regrouped by
+     household, so a client's position never jumps around as households are
+     formed/broken.
+     state.linkingClientId tracks which single row (if any) currently has
+     its "pick a household partner" inline picker open -- local UI state,
+     not persisted, reset by any full list re-render. */
   function renderClientListRows(clients){
     const wrap = document.getElementById('clientListRows');
     if(!clients.length){
@@ -12165,16 +12283,85 @@ window.TEI = window.TEI || {};
       return;
     }
     const lastViewed = TEI.wealthOS.lastViewedClientId();
+    const clientsById = {};
+    clients.forEach(c=>{ clientsById[c.id] = c; });
+    const nameOf = c => [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || ('Client ' + String(c.id).slice(0,8));
     wrap.innerHTML = clients.map(c=>{
-      const name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || ('Client ' + String(c.id).slice(0,8));
+      const name = nameOf(c);
       const updated = c.last_updated ? new Date(c.last_updated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No activity yet';
+      const householdMates = c.household_id ? clients.filter(o=>o.id!==c.id && o.household_id===c.household_id) : [];
+      const householdBadge = c.household_id
+        ? ` <span class="tag-pill" title="Household">🏠 ${householdMates.length ? householdMates.map(nameOf).join(', ') : 'Household'}</span>`
+        : '';
+      const isLinking = state.linkingClientId === c.id;
+      // "Link household" only ever shows for a client with no household_id
+      // yet, so every other client is a valid pick here -- including ones
+      // already in a household (a third member joining an existing one).
+      const otherOptions = clients.filter(o=>o.id!==c.id);
+      const picker = isLinking
+        ? `<div class="mini-form" style="margin-top:8px;">
+             <label class="form-field"><span>Link to</span><select data-household-partner="${c.id}">${otherOptions.map(o=>`<option value="${o.id}">${nameOf(o)}</option>`).join('')}</select></label>
+             <button type="button" class="btn-primary" data-confirm-link="${c.id}" style="padding:6px 14px; font-size:12px;">Confirm</button>
+             <button type="button" class="btn-ghost" data-cancel-link="${c.id}" style="padding:6px 14px; font-size:12px;">Cancel</button>
+           </div>`
+        : '';
       return `<div class="list-row">
-        <div class="lr-main"><b>${name}</b>${c.id===lastViewed ? ' <span class="tag-pill">Last viewed</span>' : ''}<div class="lr-meta">Last updated ${updated}</div></div>
-        <div class="lr-actions"><button type="button" class="btn-ghost" data-open-client="${c.id}">Open →</button></div>
+        <div class="lr-main"><b>${name}</b>${c.id===lastViewed ? ' <span class="tag-pill">Last viewed</span>' : ''}${householdBadge}<div class="lr-meta">Last updated ${updated}</div>${picker}</div>
+        <div class="lr-actions">
+          ${c.household_id
+            ? `<button type="button" class="btn-ghost" data-unlink-household="${c.id}" style="padding:6px 14px; font-size:12px;">Unlink</button>`
+            : `<button type="button" class="btn-ghost" data-link-household="${c.id}" style="padding:6px 14px; font-size:12px;">Link household</button>`}
+          <button type="button" class="btn-ghost" data-open-client="${c.id}">Open →</button>
+        </div>
       </div>`;
     }).join('');
     wrap.querySelectorAll('[data-open-client]').forEach(btn=>{
       btn.addEventListener('click', ()=> openClient(btn.dataset.openClient));
+    });
+    wrap.querySelectorAll('[data-link-household]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ state.linkingClientId = btn.dataset.linkHousehold; renderClientListRows(clients); });
+    });
+    wrap.querySelectorAll('[data-cancel-link]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ state.linkingClientId = null; renderClientListRows(clients); });
+    });
+    wrap.querySelectorAll('[data-confirm-link]').forEach(btn=>{
+      btn.addEventListener('click', async function(){
+        const clientId = this.dataset.confirmLink;
+        const sel = wrap.querySelector(`[data-household-partner="${clientId}"]`);
+        const partnerId = sel && sel.value;
+        if(!partnerId) return;
+        this.disabled = true;
+        try{
+          const householdId = await TEI.wealthOS.linkHousehold(clientId, partnerId);
+          clients.forEach(c=>{ if(c.id===clientId || c.id===partnerId) c.household_id = householdId; });
+        } catch(err){
+          console.error('Wealth OS: failed to link household', err);
+          showToast("Couldn't link — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        state.linkingClientId = null;
+        renderClientListRows(clients);
+        showToast('Household linked');
+      });
+    });
+    wrap.querySelectorAll('[data-unlink-household]').forEach(btn=>{
+      btn.addEventListener('click', async function(){
+        const clientId = this.dataset.unlinkHousehold;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.unlinkHousehold(clientId);
+          const c = clientsById[clientId];
+          if(c) c.household_id = null;
+        } catch(err){
+          console.error('Wealth OS: failed to unlink household', err);
+          showToast("Couldn't unlink — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        renderClientListRows(clients);
+        showToast('Removed from household');
+      });
     });
   }
 
