@@ -2661,6 +2661,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household income /mo</div><b id="advHouseholdIncome" style="color:var(--cream); font-size:20px;">–</b></div>
         <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household expenditure /mo</div><b id="advHouseholdExpenditure" style="color:var(--cream); font-size:20px;">–</b></div>
       </div>
+      <div id="advHouseholdJointAccounts" style="margin-top:12px;"></div>
     </div>
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Missing information</h3>
@@ -2764,9 +2765,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field" id="advAcctInterestRateField" style="display:none;"><span>Interest rate % AER</span><input type="number" step="0.01" id="newAcctInterestRate" placeholder="0.00"></label>
         <label class="form-field" id="advAcctRateTypeField" style="display:none;"><span>Rate type</span><select id="newAcctRateType"><option value="variable">Variable</option><option value="fixed">Fixed</option></select></label>
         <label class="form-field" id="advAcctMaturityField" style="display:none;"><span>Maturity date</span><input type="date" id="newAcctMaturityDate"></label>
+        <label class="form-field" id="advAcctJointField" style="display:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="newAcctIsJoint" style="width:auto;"><span>Joint account</span></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing. "Interest rate" — shown for Cash ISA / Current-Deposit accounts — accrues automatically each month into the account balance; set Rate type to Fixed and add a Maturity date for fixed-term products, which stop accruing past that date until the rate is reviewed.</div>
+      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing. "Interest rate" — shown for Cash ISA / Current-Deposit accounts — accrues automatically each month into the account balance; set Rate type to Fixed and add a Maturity date for fixed-term products, which stop accruing past that date until the rate is reviewed. "Joint account" (only shown once this client is linked into a household) marks this account as shared — it stays owned/edited here, but shows up read-only in the household summary and on the other member's household card too.</div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -7968,7 +7970,7 @@ window.TEI = window.TEI || {};
       }
       row.innerHTML = `
         <div class="lr-main">
-          <b>${TEI.data.acctLabel(acc)}</b> <span class="tag-pill">${acc.type}</span>${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}
+          <b>${TEI.data.acctLabel(acc)}</b> <span class="tag-pill">${acc.type}</span>${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}${acc.isJoint ? ' <span class="tag-pill">Joint</span>' : ''}
           <div class="lr-meta">${acc.provider||'No provider set'} · value ${fmtGBP(acc.value)}
             ${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}
           </div>
@@ -8024,6 +8026,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctInterestRate').value = acc.interestRate!=null ? acc.interestRate : '';
         document.getElementById('newAcctRateType').value = acc.rateType || 'variable';
         document.getElementById('newAcctMaturityDate').value = acc.maturityDate || '';
+        document.getElementById('newAcctIsJoint').checked = !!acc.isJoint;
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
@@ -8067,6 +8070,7 @@ window.TEI = window.TEI || {};
     document.getElementById('addAcctBtn').textContent = 'Add account';
     ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newAcctRateType').value = 'variable';
+    document.getElementById('newAcctIsJoint').checked = false;
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
@@ -8080,6 +8084,7 @@ window.TEI = window.TEI || {};
     const isCash = type === 'cash' || type === 'cash_isa';
     document.getElementById('advAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
+    document.getElementById('advAcctJointField').style.display = client.meta.householdId ? 'flex' : 'none';
     toggleAdvAcctMaturityField();
   }
   function toggleAdvAcctMaturityField(){
@@ -8105,13 +8110,17 @@ window.TEI = window.TEI || {};
     const rateType = isCashType && interestRate!=null ? document.getElementById('newAcctRateType').value : null;
     const maturityDateInput = document.getElementById('newAcctMaturityDate').value;
     const maturityDate = isCashType && rateType==='fixed' && maturityDateInput ? maturityDateInput : null;
+    // The Joint checkbox is only visible (and meaningful) once this client has
+    // a household -- for everyone else it stays false regardless of the
+    // (hidden) checkbox's DOM state, same guard as the expense owner field.
+    const isJoint = !!client.meta.householdId && document.getElementById('newAcctIsJoint').checked;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -8136,7 +8145,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -8156,6 +8165,7 @@ window.TEI = window.TEI || {};
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
       ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newAcctRateType').value = 'variable';
+      document.getElementById('newAcctIsJoint').checked = false;
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -9932,6 +9942,19 @@ window.TEI = window.TEI || {};
       document.getElementById('advHouseholdNetWorth').textContent = fmtGBP(totals.netWorth);
       document.getElementById('advHouseholdIncome').textContent = fmtGBP(totals.monthlyIncome);
       document.getElementById('advHouseholdExpenditure').textContent = fmtGBP(totals.monthlyExpenditure);
+      // Joint accounts across every member, read from each member's own bundle
+      // (already loaded above) rather than a second query -- accounts stay
+      // owned/edited on the member who added them (see accounts_select_joint_
+      // household RLS), this is a read-only combined listing.
+      const jointRows = [];
+      summary.members.forEach((m,i)=>{
+        (summary.bundles[i].accounts||[]).filter(a=>a.isJoint).forEach(a=>{
+          jointRows.push(`<div class="lr-meta">${TEI.data.acctLabel(a)} — ${fmtGBP(a.value)} <span style="color:var(--cream-soft2);">(${[m.first_name,m.last_name].filter(Boolean).join(' ').trim()||'Client'})</span></div>`);
+        });
+      });
+      document.getElementById('advHouseholdJointAccounts').innerHTML = jointRows.length
+        ? `<div class="wizard-sub" style="margin:0 0 4px; color:var(--cream-soft);">Joint accounts</div>${jointRows.join('')}`
+        : '';
       card.style.display = 'block';
     } catch(err){
       console.error('Wealth OS: failed to load household summary', err);
@@ -10095,6 +10118,7 @@ window.TEI = window.TEI || {};
     renderAdvExpenseList('fixed');
     renderAdvExpenseList('variable');
     toggleAdvExpenseOwnerFields();
+    toggleAdvAcctContribFields();
     renderAdvOneOffList();
     fillCashflowForm();
     renderDocuments();
@@ -10128,6 +10152,7 @@ window.TEI = window.TEI || {};
     renderAdvExpenseList('fixed');
     renderAdvExpenseList('variable');
     toggleAdvExpenseOwnerFields();
+    toggleAdvAcctContribFields();
     renderAdvOneOffList();
     fillCashflowForm();
     renderDocuments();
@@ -11425,6 +11450,7 @@ window.TEI = window.TEI || {};
         openingContributions: a.opening_contributions, cashBalance: a.cash_balance,
         interestRate: a.interest_rate, rateType: a.rate_type, maturityDate: a.maturity_date,
         interestAccruedToDate: a.interest_accrued_to_date, lastAccruedAt: a.last_accrued_at,
+        isJoint: !!a.is_joint,
         discrepancyDismissedAmount: a.discrepancy_dismissed_amount, discrepancyDismissedAt: a.discrepancy_dismissed_at
       })),
 
@@ -11707,6 +11733,7 @@ window.TEI = window.TEI || {};
       maturity_date: a.maturityDate || null,
       interest_accrued_to_date: a.interestAccruedToDate != null ? a.interestAccruedToDate : null,
       last_accrued_at: a.lastAccruedAt || null,
+      is_joint: !!a.isJoint,
       discrepancy_dismissed_amount: a.discrepancyDismissedAmount != null ? a.discrepancyDismissedAmount : null,
       discrepancy_dismissed_at: a.discrepancyDismissedAt || null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
