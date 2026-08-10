@@ -4285,10 +4285,20 @@ window.TEI = window.TEI || {};
     scopedAccounts.forEach(a=>{
       const acctContributed = acctContributedTotal(client, a.id);
       if(!acctContributed) return;
+      const acctHoldings = client.holdings.filter(h=>h.accountId===a.id);
+      const hasCashBalance = (Number(a.cashBalance)||0) > 0;
+      // An account with a contribution figure logged but literally no
+      // holdings and no cash balance entered yet is mid-setup, not a
+      // reconciliation problem -- without this guard the full contributed
+      // amount reads as "unaccounted for" (e.g. a brand-new LISA showing
+      // "£24,000 unaccounted for" the day it was added, before the client
+      // has had a chance to log what's actually in it). Skip it from the
+      // comparison until there's something to reconcile it against.
+      if(!acctHoldings.length && !hasCashBalance) return;
       anyStated = true;
       contributed += acctContributed;
       accountedFor += Number(a.cashBalance)||0;
-      client.holdings.filter(h=>h.accountId===a.id).forEach(h=>{
+      acctHoldings.forEach(h=>{
         if(h.costBasis!=null && h.costBasis>0) accountedFor += Number(h.costBasis)||0;
         else if(h.ticker || h.units!=null) uncostedHoldings++;
       });
@@ -5271,6 +5281,19 @@ TEI.render = TEI.render || {};
     const gp = TEI.calc.goalProgress(client, g);
     const monthlyContrib = TEI.calc.totalMonthlyContribution(client);
     let etaText = '—', etaDate = null;
+    if(g.progressType === 'income'){
+      // "remaining" here is an annual income shortfall (£/yr) -- dividing
+      // it by the household's monthly ISA/pension contribution rate (as
+      // the branch below does for monetary goals) produced a plausible-
+      // looking but meaningless date, since investing into ISAs/pensions
+      // has no causal link to growing self-employment/business income.
+      // Show the client's own stated target date instead of a computed
+      // guess, same as a completion-type goal shows no computed ETA.
+      const remaining = Math.max(0, (gp.target||0)-(gp.current||0));
+      if(gp.isComplete){ etaText = 'Reached'; }
+      else if(g.targetDate){ etaDate = new Date(g.targetDate); etaText = etaDate.toLocaleDateString('en-GB',{month:'short',year:'numeric'}); }
+      return {pct:gp.pct, current:gp.current, target:gp.target, remaining, etaText, etaDate, gp};
+    }
     if(g.progressType !== 'completion'){
       const remaining = Math.max(0, (gp.target||0)-(gp.current||0));
       if(remaining > 0 && monthlyContrib > 0){
@@ -7233,8 +7256,20 @@ TEI.render = TEI.render || {};
     const keys = Object.keys(months).sort();
     let estAnnualGrowth = null;
     if(keys.length>=2){
+      // last-first is the change over the client's *entire* logged history,
+      // which can be anywhere from 2 months to several years -- subtracting
+      // a flat one year of contribution, then comparing the leftover
+      // straight against one year of contribution, only isolated a fair
+      // per-year growth rate by coincidence for a client with ~12 months of
+      // data. Scaling both the contribution deduction AND the result to the
+      // actual elapsed period (same elapsedYears idiom used for CAGR
+      // elsewhere in this file) keeps estAnnualGrowth a genuine per-year
+      // figure, comparable to annualContribution regardless of how much
+      // history exists.
       const first = months[keys[0]].total, last = months[keys[keys.length-1]].total;
-      estAnnualGrowth = last - first - annualContribution;
+      const [sy,sm] = keys[0].split('-').map(Number), [ly,lm] = keys[keys.length-1].split('-').map(Number);
+      const elapsedYears = (ly-sy)+(lm-sm)/12;
+      estAnnualGrowth = elapsedYears>0 ? (last - first - annualContribution*elapsedYears) / elapsedYears : null;
     }
     if(estAnnualGrowth!=null && estAnnualGrowth>annualContribution && estAnnualGrowth>0){
       lines.push('Your investment growth is becoming a larger contributor to your wealth than your own contributions — a sign compounding is taking hold.');
@@ -7554,7 +7589,13 @@ TEI.render = TEI.render || {};
         const monthsLeft = g.targetDate ? monthsBetweenInclusive(currentMonthKey(), g.targetDate) : null;
         const active = monthsLeft == null || monthsLeft > 0;
         const remaining = Math.max(0, (gp.target||0) - (gp.current||0));
-        const monthly = (active && monthsLeft) ? remaining/monthsLeft : 0;
+        // remaining is an annual income shortfall (£/yr) for income-type
+        // goals, not a cash amount -- dividing it by monthsLeft and adding
+        // it into totalMonthly (a £/mo "going to goals this month" figure)
+        // corrupted that stat the same way the Goals-page ETA was corrupted
+        // (see goalMetric above). totalSaved/totalRemaining already
+        // excluded income goals; totalMonthly now does too.
+        const monthly = (active && monthsLeft && g.progressType!=='income') ? remaining/monthsLeft : 0;
         if(active) totalMonthly += monthly;
         if(g.progressType!=='income'){ totalSaved += (gp.current||0); totalRemaining += remaining; }
         const targetText = g.progressType==='income' ? fmtGBP(gp.target)+'/yr' : fmtGBP(gp.target);
