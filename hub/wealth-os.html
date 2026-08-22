@@ -2333,6 +2333,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
       <div class="conditional-block" id="obPartnerBlock">
         <h3 style="margin:18px 0 4px; font-size:15px; font-family:'Playfair Display',serif;">Your partner</h3>
+        <div class="note" style="margin:0 0 12px;">Enter your own individual accounts and income in this onboarding — not combined household figures. Once your partner also has a TEI profile, your adviser can link the two into a household, and shared costs (rent, bills, anything you both pay for) can then be tagged as joint so they're counted once at the household level, not duplicated or missed on either dashboard.</div>
         <div class="form-grid" style="grid-template-columns:1fr 1fr;">
           <label class="form-field on-light"><span>Partner's name</span><input type="text" id="obPartnerName"></label>
           <label class="form-field on-light"><span>Partner's employment status</span>
@@ -2652,6 +2653,16 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div class="completion-rail" style="background:rgba(247,244,237,0.14);"><div class="completion-fill" id="ovCompletionFill" style="width:0%;"></div></div>
       </div>
     </div>
+    <div class="card" style="margin-bottom:16px; display:none;" id="advHouseholdCard">
+      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Household — <span id="advHouseholdMembers"></span></h3>
+      <div class="note" style="margin-top:0;">Combined across every linked member. Each person's own figures below stay individual — this is the household-level rollup only.</div>
+      <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:10px;">
+        <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household net worth</div><b id="advHouseholdNetWorth" style="color:var(--cream); font-size:20px;">–</b></div>
+        <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household income /mo</div><b id="advHouseholdIncome" style="color:var(--cream); font-size:20px;">–</b></div>
+        <div><div class="wizard-sub" style="margin:0; color:var(--cream-soft);">Household expenditure /mo</div><b id="advHouseholdExpenditure" style="color:var(--cream); font-size:20px;">–</b></div>
+      </div>
+      <div id="advHouseholdJointAccounts" style="margin-top:12px;"></div>
+    </div>
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Missing information</h3>
       <ul class="missing-list" id="ovMissingList" style="margin:0;"></ul>
@@ -2711,6 +2722,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </label>
         <label class="form-field"><span>Relationship status</span>
           <select id="mRelationship"><option value="">Not set</option><option>Single</option><option>Partnered</option><option>Married</option></select>
+          <span style="font-size:11.5px; color:var(--cream-soft2); margin-top:2px;">Partnered/Married clients still keep their own individual accounts and income here — link the two client records into a household from the client list to get a combined household rollup and tag shared costs as joint.</span>
         </label>
         <label class="form-field"><span>Risk profile (self-reported)</span>
           <select id="mRisk"><option value="">Not set</option><option>Cautious</option><option>Balanced</option><option>Growth</option><option>Aggressive</option></select>
@@ -2753,9 +2765,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field" id="advAcctInterestRateField" style="display:none;"><span>Interest rate % AER</span><input type="number" step="0.01" id="newAcctInterestRate" placeholder="0.00"></label>
         <label class="form-field" id="advAcctRateTypeField" style="display:none;"><span>Rate type</span><select id="newAcctRateType"><option value="variable">Variable</option><option value="fixed">Fixed</option></select></label>
         <label class="form-field" id="advAcctMaturityField" style="display:none;"><span>Maturity date</span><input type="date" id="newAcctMaturityDate"></label>
+        <label class="form-field" id="advAcctJointField" style="display:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="newAcctIsJoint" style="width:auto;"><span>Joint account</span></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing. "Interest rate" — shown for Cash ISA / Current-Deposit accounts — accrues automatically each month into the account balance; set Rate type to Fixed and add a Maturity date for fixed-term products, which stop accruing past that date until the rate is reviewed.</div>
+      <div class="note">Pension contributions split personal / salary-sacrifice — shown when Type is set to Pension. "Total contributions to date" is a one-off lump sum for money paid in before this was set up (e.g. transferred from an old spreadsheet) — it powers Investment return immediately, and adds to whatever's logged month-by-month afterwards via Deposits on the Update page. "Cash balance" is money sitting in this account not yet put into a priced holding — added on top of your holdings' value so the account total and Investment return both reconcile correctly instead of that cash silently vanishing. "Interest rate" — shown for Cash ISA / Current-Deposit accounts — accrues automatically each month into the account balance; set Rate type to Fixed and add a Maturity date for fixed-term products, which stop accruing past that date until the rate is reviewed. "Joint account" (only shown once this client is linked into a household) marks this account as shared — it stays owned/edited here, but shows up read-only in the household summary and on the other member's household card too.</div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -2913,16 +2926,18 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <h3 style="margin:0 0 14px; color:var(--cream); font-family:'Playfair Display',serif;">Cashflow — Expenses</h3>
       <div class="note" style="margin-top:0;">Fixed</div>
       <div id="advFixedList"></div>
-      <div class="mini-form" style="grid-template-columns:2fr 1fr auto;">
+      <div class="mini-form" style="grid-template-columns:2fr 1fr 1fr auto;">
         <label class="form-field"><span>What is it?</span><input type="text" id="advNewFixedLabel" placeholder="e.g. Mortgage"></label>
         <label class="form-field"><span>£/month</span><input type="number" id="advNewFixedAmount" placeholder="0"></label>
+        <label class="form-field" id="advNewFixedOwnerField" style="display:none;"><span>Whose cost?</span><select id="advNewFixedOwner"><option value="client">Individual</option><option value="joint">Joint / shared</option></select></label>
         <button type="button" class="btn-primary" id="advAddFixedBtn">Add</button>
       </div>
       <div class="note">Variable</div>
       <div id="advVariableList"></div>
-      <div class="mini-form" style="grid-template-columns:2fr 1fr auto;">
+      <div class="mini-form" style="grid-template-columns:2fr 1fr 1fr auto;">
         <label class="form-field"><span>What is it?</span><input type="text" id="advNewVariableLabel" placeholder="e.g. Everyday spending"></label>
         <label class="form-field"><span>£/month</span><input type="number" id="advNewVariableAmount" placeholder="0"></label>
+        <label class="form-field" id="advNewVariableOwnerField" style="display:none;"><span>Whose cost?</span><select id="advNewVariableOwner"><option value="client">Individual</option><option value="joint">Joint / shared</option></select></label>
         <button type="button" class="btn-primary" id="advAddVariableBtn">Add</button>
       </div>
       <div class="note">One-off costs — irregular items (e.g. car repair, annual insurance renewal) included in this month's plan only while enabled. Untick to keep the record without counting it.</div>
@@ -3514,6 +3529,22 @@ window.TEI = window.TEI || {};
     const otherAssetsTotal = (client.wealth.assets||[]).reduce((s,a)=> s + (Number(a.value)||0), 0);
     const liabilitiesTotal = (client.wealth.liabilities||[]).reduce((s,l)=> s + (Number(l.balance)||0), 0);
     return accountsTotal + otherAssetsTotal - liabilitiesTotal;
+  }
+
+  /* Household rollup = each member's own netWorth/income/expenditure,
+     summed. Every member's accounts/income/expenses are still just that
+     member's own flat client_id-scoped rows (see loadHouseholdSummary) --
+     this is purely an additive total across bundles, not a merge, so
+     nothing here can double-count a figure that only exists under one
+     member's client_id. Joint items (Phase B) also live under exactly one
+     member's client_id, so summing every member's own total already
+     counts a joint item exactly once. */
+  function householdTotals(bundles){
+    return (bundles||[]).reduce((t, b)=>({
+      netWorth: t.netWorth + netWorth(b),
+      monthlyIncome: t.monthlyIncome + totalMonthlyIncome(b),
+      monthlyExpenditure: t.monthlyExpenditure + totalFixedExpenses(b) + totalVariableExpenses(b)
+    }), {netWorth:0, monthlyIncome:0, monthlyExpenditure:0});
   }
 
   /* goalProgress — one function, three progress models, matching goal.progressType.
@@ -4390,7 +4421,7 @@ window.TEI = window.TEI || {};
     financialFreedomPct, nextMilestone, computeJourney, JOURNEY_STAGES,
     /* Phase 1 — Client Foundation derived helpers */
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
-    netWorth, goalProgress, completion,
+    netWorth, goalProgress, completion, householdTotals,
     /* Operating Model Refinement — source tagging, monthly history, updates feed */
     stampEdit, seedMonthlyValue, collectClientUpdates,
     /* Contribution-vs-holdings reconciliation (Portfolio Overview flags +
@@ -7939,7 +7970,7 @@ window.TEI = window.TEI || {};
       }
       row.innerHTML = `
         <div class="lr-main">
-          <b>${TEI.data.acctLabel(acc)}</b> <span class="tag-pill">${acc.type}</span>${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}
+          <b>${TEI.data.acctLabel(acc)}</b> <span class="tag-pill">${acc.type}</span>${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}${acc.isJoint ? ' <span class="tag-pill">Joint</span>' : ''}
           <div class="lr-meta">${acc.provider||'No provider set'} · value ${fmtGBP(acc.value)}
             ${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}
           </div>
@@ -7995,6 +8026,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctInterestRate').value = acc.interestRate!=null ? acc.interestRate : '';
         document.getElementById('newAcctRateType').value = acc.rateType || 'variable';
         document.getElementById('newAcctMaturityDate').value = acc.maturityDate || '';
+        document.getElementById('newAcctIsJoint').checked = !!acc.isJoint;
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
@@ -8038,6 +8070,7 @@ window.TEI = window.TEI || {};
     document.getElementById('addAcctBtn').textContent = 'Add account';
     ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newAcctRateType').value = 'variable';
+    document.getElementById('newAcctIsJoint').checked = false;
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
@@ -8051,6 +8084,7 @@ window.TEI = window.TEI || {};
     const isCash = type === 'cash' || type === 'cash_isa';
     document.getElementById('advAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
+    document.getElementById('advAcctJointField').style.display = client.meta.householdId ? 'flex' : 'none';
     toggleAdvAcctMaturityField();
   }
   function toggleAdvAcctMaturityField(){
@@ -8076,13 +8110,17 @@ window.TEI = window.TEI || {};
     const rateType = isCashType && interestRate!=null ? document.getElementById('newAcctRateType').value : null;
     const maturityDateInput = document.getElementById('newAcctMaturityDate').value;
     const maturityDate = isCashType && rateType==='fixed' && maturityDateInput ? maturityDateInput : null;
+    // The Joint checkbox is only visible (and meaningful) once this client has
+    // a household -- for everyone else it stays false regardless of the
+    // (hidden) checkbox's DOM state, same guard as the expense owner field.
+    const isJoint = !!client.meta.householdId && document.getElementById('newAcctIsJoint').checked;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint};
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -8107,7 +8145,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -8127,6 +8165,7 @@ window.TEI = window.TEI || {};
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
       ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newAcctRateType').value = 'variable';
+      document.getElementById('newAcctIsJoint').checked = false;
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -9307,7 +9346,7 @@ window.TEI = window.TEI || {};
     items.forEach(e=>{
       const row = document.createElement('div');
       row.className = 'list-row';
-      row.innerHTML = `<div class="lr-main"><b>${e.label}</b><div class="lr-meta">${fmtGBP(e.amount)}/mo</div></div>
+      row.innerHTML = `<div class="lr-main"><b>${e.label}</b>${e.owner==='joint' ? ' <span class="tag-pill">Joint</span>' : ''}<div class="lr-meta">${fmtGBP(e.amount)}/mo</div></div>
         <div style="display:flex; gap:8px; flex-none:1;">
           <button type="button" class="btn-ghost" data-edit-adv-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
           <button type="button" class="btn-ghost" data-del-adv-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
@@ -9340,10 +9379,20 @@ window.TEI = window.TEI || {};
         const amtId = k==='fixed' ? 'advNewFixedAmount' : 'advNewVariableAmount';
         document.getElementById(labelId).value = e.label;
         document.getElementById(amtId).value = e.amount;
+        document.getElementById(k==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value = e.owner || 'client';
         document.getElementById(k==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Save changes';
         document.getElementById(amtId).scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
+  }
+  /* The Joint/shared owner toggle only makes sense once this client is
+     actually linked into a household (see the Overview household card) --
+     otherwise "joint" has nothing to be joint with. Hidden for everyone
+     else so the common case (no household) never sees an irrelevant field. */
+  function toggleAdvExpenseOwnerFields(){
+    const show = !!client.meta.householdId;
+    document.getElementById('advNewFixedOwnerField').style.display = show ? 'flex' : 'none';
+    document.getElementById('advNewVariableOwnerField').style.display = show ? 'flex' : 'none';
   }
   function cancelAdvExpenseEdit(kind){
     editing['advExp'+kind] = null;
@@ -9351,6 +9400,7 @@ window.TEI = window.TEI || {};
     const amtId = kind==='fixed' ? 'advNewFixedAmount' : 'advNewVariableAmount';
     document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Add';
     clearFieldsAdv([labelId, amtId]);
+    document.getElementById(kind==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value = 'client';
   }
   async function addAdvExpense(kind){
     const labelId = kind==='fixed' ? 'advNewFixedLabel' : 'advNewVariableLabel';
@@ -9358,13 +9408,17 @@ window.TEI = window.TEI || {};
     const label = document.getElementById(labelId).value.trim();
     const amount = parseFloat(document.getElementById(amtId).value);
     if(!label || isNaN(amount)){ showToast('Give it a name and amount'); return; }
+    // Owner only comes from the form when this client is actually linked into
+    // a household (the field's hidden otherwise) -- everyone else's expenses
+    // stay implicitly individual, same as before this feature existed.
+    const owner = client.meta.householdId ? document.getElementById(kind==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value : 'client';
     const editKey = 'advExp'+kind;
     const btn = document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn');
     btn.disabled = true;
     if(editing[editKey]){
       const e = client.cashflow.expenses[kind].find(x=>x.id===editing[editKey]);
       if(!e){ cancelAdvExpenseEdit(kind); btn.disabled = false; return; }
-      const merged = Object.assign({}, e, {label, amount});
+      const merged = Object.assign({}, e, {label, amount, owner});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveExpense(client.meta.clientId, e.id, merged, kind);
@@ -9379,7 +9433,7 @@ window.TEI = window.TEI || {};
       cancelAdvExpenseEdit(kind);
       showToast('Expense updated');
     } else {
-      const e = TEI.calc.stampEdit({id:uid(), label, amount}, 'adviser');
+      const e = TEI.calc.stampEdit({id:uid(), label, amount, owner}, 'adviser');
       try{
         e.id = await TEI.wealthOS.saveExpense(client.meta.clientId, null, e, kind);
       } catch(err){
@@ -9864,6 +9918,48 @@ window.TEI = window.TEI || {};
     document.getElementById('ovOpportunitiesList').innerHTML = opportunities.length
       ? opportunities.map(o=>`<li>${o}</li>`).join('')
       : '<li style="color:var(--cream-soft2);">Nothing flagged right now.</li>';
+    renderHouseholdCard();
+  }
+  /* Fetches and renders the household rollup card, only when this client is
+     actually linked -- otherwise the card just stays hidden (its default
+     state in the markup) so unlinked clients (most of them) render exactly
+     as before. A stale request guard (householdRenderToken) stops an
+     earlier, still-in-flight load from overwriting a newer client's card
+     if the adviser switches clients quickly, since this is async and
+     renderOverview doesn't await it. */
+  let householdRenderToken = 0;
+  async function renderHouseholdCard(){
+    const card = document.getElementById('advHouseholdCard');
+    const householdId = client.meta.householdId;
+    if(!householdId){ card.style.display = 'none'; return; }
+    const token = ++householdRenderToken;
+    try{
+      const summary = await TEI.wealthOS.loadHouseholdSummary(window.teiSupabase, householdId);
+      if(token !== householdRenderToken) return; // a newer client's card has since started loading
+      if(!summary){ card.style.display = 'none'; return; }
+      const totals = TEI.calc.householdTotals(summary.bundles);
+      document.getElementById('advHouseholdMembers').textContent = summary.members.map(m=>[m.first_name,m.last_name].filter(Boolean).join(' ').trim()||'Client').join(' & ');
+      document.getElementById('advHouseholdNetWorth').textContent = fmtGBP(totals.netWorth);
+      document.getElementById('advHouseholdIncome').textContent = fmtGBP(totals.monthlyIncome);
+      document.getElementById('advHouseholdExpenditure').textContent = fmtGBP(totals.monthlyExpenditure);
+      // Joint accounts across every member, read from each member's own bundle
+      // (already loaded above) rather than a second query -- accounts stay
+      // owned/edited on the member who added them (see accounts_select_joint_
+      // household RLS), this is a read-only combined listing.
+      const jointRows = [];
+      summary.members.forEach((m,i)=>{
+        (summary.bundles[i].accounts||[]).filter(a=>a.isJoint).forEach(a=>{
+          jointRows.push(`<div class="lr-meta">${TEI.data.acctLabel(a)} — ${fmtGBP(a.value)} <span style="color:var(--cream-soft2);">(${[m.first_name,m.last_name].filter(Boolean).join(' ').trim()||'Client'})</span></div>`);
+        });
+      });
+      document.getElementById('advHouseholdJointAccounts').innerHTML = jointRows.length
+        ? `<div class="wizard-sub" style="margin:0 0 4px; color:var(--cream-soft);">Joint accounts</div>${jointRows.join('')}`
+        : '';
+      card.style.display = 'block';
+    } catch(err){
+      console.error('Wealth OS: failed to load household summary', err);
+      if(token === householdRenderToken) card.style.display = 'none';
+    }
   }
 
   /* ================= CLIENT UPDATES ================= */
@@ -10021,6 +10117,8 @@ window.TEI = window.TEI || {};
     renderAdvIncomeList();
     renderAdvExpenseList('fixed');
     renderAdvExpenseList('variable');
+    toggleAdvExpenseOwnerFields();
+    toggleAdvAcctContribFields();
     renderAdvOneOffList();
     fillCashflowForm();
     renderDocuments();
@@ -10053,6 +10151,8 @@ window.TEI = window.TEI || {};
     renderAdvIncomeList();
     renderAdvExpenseList('fixed');
     renderAdvExpenseList('variable');
+    toggleAdvExpenseOwnerFields();
+    toggleAdvAcctContribFields();
     renderAdvOneOffList();
     fillCashflowForm();
     renderDocuments();
@@ -11318,6 +11418,7 @@ window.TEI = window.TEI || {};
     const loaded = {
       meta:{
         clientId: c.id,
+        householdId: c.household_id || null,
         displayName: [c.first_name, c.last_name].filter(Boolean).join(' ') || 'Client',
         createdAt: c.created_at,
         lastUpdated: c.last_updated,
@@ -11349,6 +11450,7 @@ window.TEI = window.TEI || {};
         openingContributions: a.opening_contributions, cashBalance: a.cash_balance,
         interestRate: a.interest_rate, rateType: a.rate_type, maturityDate: a.maturity_date,
         interestAccruedToDate: a.interest_accrued_to_date, lastAccruedAt: a.last_accrued_at,
+        isJoint: !!a.is_joint,
         discrepancyDismissedAmount: a.discrepancy_dismissed_amount, discrepancyDismissedAt: a.discrepancy_dismissed_at
       })),
 
@@ -11374,8 +11476,8 @@ window.TEI = window.TEI || {};
           lastEditedBy: i.last_edited_by, lastEditedAt: i.last_edited_at
         })),
         expenses:{
-          fixed: (bundle.expenses||[]).filter(e=>e.category==='fixed').map(e=>({id:e.id, label:e.label, amount:e.amount})),
-          variable: (bundle.expenses||[]).filter(e=>e.category==='variable').map(e=>({id:e.id, label:e.label, amount:e.amount}))
+          fixed: (bundle.expenses||[]).filter(e=>e.category==='fixed').map(e=>({id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client'})),
+          variable: (bundle.expenses||[]).filter(e=>e.category==='variable').map(e=>({id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client'}))
         },
         saving:{ monthlySavings: cf.monthly_savings, monthlyInvesting: cf.monthly_investing },
         emergencyFund:{ target: cf.emergency_fund_target, current: cf.emergency_fund_current },
@@ -11451,6 +11553,23 @@ window.TEI = window.TEI || {};
     return adaptClientBundle(bundle, role);
   }
 
+  /* Household rollup: loads every member's full client bundle (reusing
+     loadClientById so net worth/income/expenditure are computed by the
+     exact same TEI.calc functions as each member's own dashboard, rather
+     than a second parallel calc that could drift) and hands them to
+     TEI.calc.householdTotals for summing. Households are small (almost
+     always 2 people), so N full loads is cheap in practice; returns null
+     if the household has fewer than 2 members left (e.g. the other person
+     was just unlinked) since there's nothing to roll up. */
+  async function loadHouseholdSummary(supabase, householdId){
+    const w = wo(supabase);
+    const { data: members, error } = await w.from('clients').select('id, first_name, last_name').eq('household_id', householdId);
+    if(error) throw error;
+    if(!members || members.length < 2) return null;
+    const bundles = await Promise.all(members.map(m=> loadClientById(supabase, m.id, 'adviser')));
+    return { members, bundles };
+  }
+
   /* Adviser opening a specific client from the client-list landing page --
      also remembers it as "last viewed" for next time. */
   async function openClientAsAdviser(clientId){
@@ -11472,6 +11591,33 @@ window.TEI = window.TEI || {};
       last_updated: new Date().toISOString()
     }, initialFields && initialFields.extra ? initialFields.extra : {});
     return await insertRow('clients', row);
+  }
+
+  /* Links two existing clients (e.g. spouses/partners) into one household.
+     If clientB already belongs to a household, clientA joins it -- so
+     linking a third person later just means picking any existing member,
+     not tracking who was "first". If neither has one, a new household row
+     is created. Adviser-only by RLS (households_write_adviser_only). */
+  async function linkHousehold(clientIdA, clientIdB){
+    const w = wo(window.teiSupabase);
+    const { data: rows, error: readErr } = await w.from('clients').select('id, household_id').in('id', [clientIdA, clientIdB]);
+    if(readErr) throw readErr;
+    const a = rows.find(r=>r.id===clientIdA), b = rows.find(r=>r.id===clientIdB);
+    let householdId = (b && b.household_id) || (a && a.household_id);
+    if(!householdId){
+      const household = await insertRow('households', {});
+      householdId = household.id;
+    }
+    const { error: updateErr } = await w.from('clients').update({household_id: householdId}).in('id', [clientIdA, clientIdB]);
+    if(updateErr) throw updateErr;
+    return householdId;
+  }
+  /* Removes just this one client from its household -- other members stay
+     linked. Doesn't delete the households row even if it's now empty; an
+     orphaned household with no members is harmless and adviser tooling
+     doesn't currently need to clean those up. */
+  async function unlinkHousehold(clientId){
+    await updateRow('clients', 'id', clientId, {household_id: null});
   }
 
   /* Returns { role:'client', client } for a client-role login (their own
@@ -11509,7 +11655,7 @@ window.TEI = window.TEI || {};
       }
 
       if(profile.role === 'adviser'){
-        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated').order('first_name', {ascending:true});
+        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated, household_id').order('first_name', {ascending:true});
         if(clientsErr) throw clientsErr;
         // Cross-client feedback inbox: RLS already grants advisers unrestricted
         // select on this table (see wealth_os_phase5_feedback.sql), so no
@@ -11518,7 +11664,13 @@ window.TEI = window.TEI || {};
         // page never has to page through history.
         const { data: feedback, error: feedbackErr } = await w.from('feedback').select('*').order('created_at', {ascending:false}).limit(200);
         if(feedbackErr) throw feedbackErr;
-        return { role:'adviser', clients: clients || [], feedback: feedback || [] };
+        // Households: just id/label, membership is read off each client's
+        // household_id above -- this is only fetched to resolve a household's
+        // label if one was ever set (most are unlabelled, grouping falls back
+        // to member names).
+        const { data: households, error: householdsErr } = await w.from('households').select('*');
+        if(householdsErr) throw householdsErr;
+        return { role:'adviser', clients: clients || [], feedback: feedback || [], households: households || [] };
       }
 
       // client role: exactly one clients row, linked via user_id
@@ -11581,6 +11733,7 @@ window.TEI = window.TEI || {};
       maturity_date: a.maturityDate || null,
       interest_accrued_to_date: a.interestAccruedToDate != null ? a.interestAccruedToDate : null,
       last_accrued_at: a.lastAccruedAt || null,
+      is_joint: !!a.isJoint,
       discrepancy_dismissed_amount: a.discrepancyDismissedAmount != null ? a.discrepancyDismissedAmount : null,
       discrepancy_dismissed_at: a.discrepancyDismissedAt || null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
@@ -11759,7 +11912,7 @@ window.TEI = window.TEI || {};
   async function deleteIncome(id){ await deleteRow('income','id',id); }
 
   async function saveExpense(clientId, existingId, local, category){
-    const row = { client_id: clientId, category: category, label: local.label, amount: local.amount };
+    const row = { client_id: clientId, category: category, label: local.label, amount: local.amount, owner: local.owner || 'client' };
     const saved = existingId ? await updateRow('expenses','id',existingId,row) : await insertRow('expenses', row);
     return saved.id;
   }
@@ -11906,6 +12059,7 @@ window.TEI = window.TEI || {};
 
   TEI.wealthOS = {
     loadWealthOSClient, loadClientById, openClientAsAdviser, createClient, lastViewedClientId,
+    linkHousehold, unlinkHousehold, loadHouseholdSummary,
     showLoadError, hideLoadError,
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
     saveIncome, deleteIncome, saveExpense, deleteExpense,
@@ -12158,6 +12312,16 @@ window.TEI = window.TEI || {};
   }
 
   /* ================= ADVISER CLIENT LIST (landing page) ================= */
+  /* Household linking is additive to the existing flat, alphabetical list --
+     linked clients still render as individual rows (so nothing about the
+     unlinked majority changes), just with a household badge naming their
+     other member(s) and a swapped action (Unlink instead of Link). The list
+     itself stays alphabetical by first name rather than being regrouped by
+     household, so a client's position never jumps around as households are
+     formed/broken.
+     state.linkingClientId tracks which single row (if any) currently has
+     its "pick a household partner" inline picker open -- local UI state,
+     not persisted, reset by any full list re-render. */
   function renderClientListRows(clients){
     const wrap = document.getElementById('clientListRows');
     if(!clients.length){
@@ -12165,16 +12329,85 @@ window.TEI = window.TEI || {};
       return;
     }
     const lastViewed = TEI.wealthOS.lastViewedClientId();
+    const clientsById = {};
+    clients.forEach(c=>{ clientsById[c.id] = c; });
+    const nameOf = c => [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || ('Client ' + String(c.id).slice(0,8));
     wrap.innerHTML = clients.map(c=>{
-      const name = [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || ('Client ' + String(c.id).slice(0,8));
+      const name = nameOf(c);
       const updated = c.last_updated ? new Date(c.last_updated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No activity yet';
+      const householdMates = c.household_id ? clients.filter(o=>o.id!==c.id && o.household_id===c.household_id) : [];
+      const householdBadge = c.household_id
+        ? ` <span class="tag-pill" title="Household">🏠 ${householdMates.length ? householdMates.map(nameOf).join(', ') : 'Household'}</span>`
+        : '';
+      const isLinking = state.linkingClientId === c.id;
+      // "Link household" only ever shows for a client with no household_id
+      // yet, so every other client is a valid pick here -- including ones
+      // already in a household (a third member joining an existing one).
+      const otherOptions = clients.filter(o=>o.id!==c.id);
+      const picker = isLinking
+        ? `<div class="mini-form" style="margin-top:8px;">
+             <label class="form-field"><span>Link to</span><select data-household-partner="${c.id}">${otherOptions.map(o=>`<option value="${o.id}">${nameOf(o)}</option>`).join('')}</select></label>
+             <button type="button" class="btn-primary" data-confirm-link="${c.id}" style="padding:6px 14px; font-size:12px;">Confirm</button>
+             <button type="button" class="btn-ghost" data-cancel-link="${c.id}" style="padding:6px 14px; font-size:12px;">Cancel</button>
+           </div>`
+        : '';
       return `<div class="list-row">
-        <div class="lr-main"><b>${name}</b>${c.id===lastViewed ? ' <span class="tag-pill">Last viewed</span>' : ''}<div class="lr-meta">Last updated ${updated}</div></div>
-        <div class="lr-actions"><button type="button" class="btn-ghost" data-open-client="${c.id}">Open →</button></div>
+        <div class="lr-main"><b>${name}</b>${c.id===lastViewed ? ' <span class="tag-pill">Last viewed</span>' : ''}${householdBadge}<div class="lr-meta">Last updated ${updated}</div>${picker}</div>
+        <div class="lr-actions">
+          ${c.household_id
+            ? `<button type="button" class="btn-ghost" data-unlink-household="${c.id}" style="padding:6px 14px; font-size:12px;">Unlink</button>`
+            : `<button type="button" class="btn-ghost" data-link-household="${c.id}" style="padding:6px 14px; font-size:12px;">Link household</button>`}
+          <button type="button" class="btn-ghost" data-open-client="${c.id}">Open →</button>
+        </div>
       </div>`;
     }).join('');
     wrap.querySelectorAll('[data-open-client]').forEach(btn=>{
       btn.addEventListener('click', ()=> openClient(btn.dataset.openClient));
+    });
+    wrap.querySelectorAll('[data-link-household]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ state.linkingClientId = btn.dataset.linkHousehold; renderClientListRows(clients); });
+    });
+    wrap.querySelectorAll('[data-cancel-link]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ state.linkingClientId = null; renderClientListRows(clients); });
+    });
+    wrap.querySelectorAll('[data-confirm-link]').forEach(btn=>{
+      btn.addEventListener('click', async function(){
+        const clientId = this.dataset.confirmLink;
+        const sel = wrap.querySelector(`[data-household-partner="${clientId}"]`);
+        const partnerId = sel && sel.value;
+        if(!partnerId) return;
+        this.disabled = true;
+        try{
+          const householdId = await TEI.wealthOS.linkHousehold(clientId, partnerId);
+          clients.forEach(c=>{ if(c.id===clientId || c.id===partnerId) c.household_id = householdId; });
+        } catch(err){
+          console.error('Wealth OS: failed to link household', err);
+          showToast("Couldn't link — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        state.linkingClientId = null;
+        renderClientListRows(clients);
+        showToast('Household linked');
+      });
+    });
+    wrap.querySelectorAll('[data-unlink-household]').forEach(btn=>{
+      btn.addEventListener('click', async function(){
+        const clientId = this.dataset.unlinkHousehold;
+        this.disabled = true;
+        try{
+          await TEI.wealthOS.unlinkHousehold(clientId);
+          const c = clientsById[clientId];
+          if(c) c.household_id = null;
+        } catch(err){
+          console.error('Wealth OS: failed to unlink household', err);
+          showToast("Couldn't unlink — " + (err.message || 'try again'));
+          this.disabled = false;
+          return;
+        }
+        renderClientListRows(clients);
+        showToast('Removed from household');
+      });
     });
   }
 
