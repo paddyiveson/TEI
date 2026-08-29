@@ -790,6 +790,27 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .entity-pill .ep-warn{font-size:12px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(247,244,237,0.1);}
 .entity-pill .ep-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid rgba(247,244,237,0.1);}
 .entity-pill .ep-actions button{padding:5px 12px; font-size:11px;}
+
+/* Holdings grouped by account (2026-08-29) -- a flat grid of every
+   holding across every account read as too dense once there were more
+   than a handful. Each account gets one collapsed-by-default group;
+   opening one reveals that account's own .entity-pill-grid inside.
+   Deliberately not tied to the 860px collapsible-card breakpoint used
+   elsewhere (see enhanceMobileCollapse) -- this is about density on any
+   screen size, not just mobile, so it's always-on. */
+.holdings-group{background:var(--card-dark2); border:1px solid rgba(247,244,237,0.14); border-radius:10px; margin-bottom:10px; overflow:hidden;}
+/* .card (this group's own parent) is --card-dark; .entity-pill (nested
+   inside .hg-body below) is --card-dark2 same as this wrapper -- so each
+   pill is distinguished from its group by border + the group's own
+   padding inset, not a third background shade, rather than adding a
+   fourth colour to the stack just for this one nested case. */
+.holdings-group .hg-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:13px 15px; cursor:pointer;}
+.holdings-group .hg-name{font-size:14.5px; color:var(--cream); font-weight:600;}
+.holdings-group .hg-meta{color:var(--cream-soft2); font-size:12.5px; margin-top:2px;}
+.holdings-group .hg-chev{color:var(--gold); font-size:12px; flex:none; transition:transform .15s;}
+.holdings-group.open .hg-chev{transform:rotate(90deg);}
+.holdings-group .hg-body{display:none; padding:0 15px 15px;}
+.holdings-group.open .hg-body{display:block;}
 textarea{background:#fff; border:1px solid var(--line); border-radius:6px; padding:8px 10px; color:var(--ink); font-family:'Inter',sans-serif; font-size:15.5px; width:100%; resize:vertical;}
 
 @media (max-width:860px){
@@ -8030,6 +8051,12 @@ window.TEI = window.TEI || {};
   // pointed at -- defaults to the current month, but can be moved to any
   // past month via the picker to backfill or correct history.
   const selectedMonth = { accounts: currentMonthKey(), holdings: currentMonthKey() };
+  // Which account groups are expanded on Holdings -- keyed by account id
+  // ('_unknown' for holdings whose account was since deleted). Lives here
+  // rather than on the DOM (dataset.expanded) because the whole group list
+  // gets rebuilt from scratch on every renderHoldings() call, same reason
+  // selectedMonth/editing above are plain module state rather than DOM state.
+  const holdingsGroupExpanded = {};
   function clearFieldsAdv(ids){ ids.forEach(id=>{ const el = document.getElementById(id); if(el) el.value=''; }); }
 
   function showToast(msg){
@@ -8909,16 +8936,10 @@ window.TEI = window.TEI || {};
   }
 
   /* ================= HOLDINGS ================= */
-  function renderHoldings(){
-    const list = document.getElementById('holdingsList');
-    list.className = 'entity-pill-grid';
-    list.innerHTML = client.holdings.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No holdings yet.</div></div>`;
-    client.holdings.forEach(h=>{
-      const acct = client.accounts.find(a=>a.id===h.accountId);
-      const row = document.createElement('div');
-      row.className = 'entity-pill';
-      const canLivePrice = h.ticker && h.units!=null;
-      row.innerHTML = `
+  function holdingPillHtml(h){
+    const canLivePrice = h.ticker && h.units!=null;
+    return `
+      <div class="entity-pill">
         <div class="ep-top">
           <div class="ep-heading">
             <span class="ep-name">${h.name}</span>
@@ -8927,15 +8948,56 @@ window.TEI = window.TEI || {};
           ${canLivePrice ? `<button type="button" class="ep-icon-btn" data-refresh-holding="${h.id}" title="Refresh live price" aria-label="Refresh live price">⟳</button>` : ''}
         </div>
         <div class="ep-value">${fmtGBP(h.value)}</div>
-        <div class="ep-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
+        <div class="ep-meta">${h.units!=null?h.units+' units'+(h.ticker?' (live-priced)':''):''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
         ${(h.theme&&h.theme.length)?`<div class="ep-tags">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.85;">${t}</span>`).join('')}</div>`:''}
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-holding="${h.id}">Edit</button>
           <button type="button" class="btn-ghost" data-del-holding="${h.id}">Remove</button>
         </div>
-      `;
-      list.appendChild(row);
-    });
+      </div>`;
+  }
+  /* Grouped by account, collapsed by default -- a flat grid of every
+     holding across every account (the original layout) read as too
+     dense once there were more than a handful, reported live against a
+     screenshot. Each group's own header carries the holding count and
+     account subtotal so that's visible without opening anything; the
+     account's own name/provider/type already live on its Accounts card,
+     so isn't repeated per-holding inside here any more. */
+  function renderHoldings(){
+    const list = document.getElementById('holdingsList');
+    list.className = 'holdings-groups';
+    if(!client.holdings.length){
+      list.innerHTML = `<div class="empty-state" style="padding:14px 0;"><div class="small">No holdings yet.</div></div>`;
+    } else {
+      const byAccount = {};
+      client.holdings.forEach(h=>{ const key = h.accountId || '_unknown'; (byAccount[key] = byAccount[key] || []).push(h); });
+      const groupKeys = Object.keys(byAccount).sort((a,b)=>{
+        const an = a==='_unknown' ? 'Unknown account' : TEI.data.acctLabel(client.accounts.find(x=>x.id===a) || {});
+        const bn = b==='_unknown' ? 'Unknown account' : TEI.data.acctLabel(client.accounts.find(x=>x.id===b) || {});
+        return an.localeCompare(bn);
+      });
+      list.innerHTML = groupKeys.map(key=>{
+        const holdings = byAccount[key];
+        const acct = key==='_unknown' ? null : client.accounts.find(x=>x.id===key);
+        const name = acct ? TEI.data.acctLabel(acct) : 'Unknown account';
+        const total = holdings.reduce((s,h)=>s+(Number(h.value)||0), 0);
+        const open = !!holdingsGroupExpanded[key];
+        return `<div class="holdings-group${open?' open':''}" data-holdings-group="${key}">
+          <div class="hg-head">
+            <div><div class="hg-name">${name}</div><div class="hg-meta">${holdings.length} holding${holdings.length===1?'':'s'} · ${fmtGBP(total)}</div></div>
+            <span class="hg-chev">▸</span>
+          </div>
+          <div class="hg-body"><div class="entity-pill-grid">${holdings.map(holdingPillHtml).join('')}</div></div>
+        </div>`;
+      }).join('');
+      list.querySelectorAll('[data-holdings-group]').forEach(group=>{
+        group.querySelector('.hg-head').addEventListener('click', ()=>{
+          const key = group.dataset.holdingsGroup;
+          holdingsGroupExpanded[key] = !holdingsGroupExpanded[key];
+          group.classList.toggle('open', holdingsGroupExpanded[key]);
+        });
+      });
+    }
     list.querySelectorAll('[data-refresh-holding]').forEach(btn=>{
       btn.addEventListener('click', function(){
         const h = client.holdings.find(x=>x.id===this.dataset.refreshHolding); if(!h) return;
@@ -9113,6 +9175,7 @@ window.TEI = window.TEI || {};
       updateHoldingFormForTicker();
       showToast(ticker && units!=null && !valueInput ? 'Holding added — click Refresh live prices to price it' : 'Holding added');
     }
+    holdingsGroupExpanded[accountId] = true; // so the account you just added/edited a holding in doesn't collapse the moment it re-renders
     renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
   }
 
