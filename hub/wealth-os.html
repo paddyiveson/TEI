@@ -767,14 +767,28 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
    long column of plain text rows was hard to scan; a grid of clearly-
    bordered cards reads at a glance instead, and scales down to one
    column on a narrow screen the same way .acct-pill-grid already does. */
-.entity-pill-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px;}
+/* v2 (2026-08-29): first pass read as a dense run-on sentence -- ticker
+   and sector tags competing for the same top-right slot, the £ figure
+   buried mid-sentence at the same size as everything around it, no
+   consistent place for actions to land. Gives each card one clear
+   headline number (.ep-value, set the way .acct-pill's own value line
+   already is elsewhere in this app) and pushes everything else down into
+   quieter secondary rows, each with a fixed slot so cards for holdings
+   with 3 theme tags and cards with none still read the same shape. */
+.entity-pill-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px;}
 @media (max-width:640px){ .entity-pill-grid{grid-template-columns:1fr;} }
-.entity-pill{background:var(--card-dark2); border:1px solid rgba(247,244,237,0.14); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column;}
-.entity-pill .ep-top{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;}
-.entity-pill .ep-name{font-size:14.5px; color:var(--cream); font-weight:600;}
-.entity-pill .ep-meta{color:var(--cream-soft2); font-size:13px; margin-top:4px;}
-.entity-pill .ep-warn{font-size:12px; margin-top:6px;}
-.entity-pill .ep-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.entity-pill{background:var(--card-dark2); border:1px solid rgba(247,244,237,0.14); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column;}
+.entity-pill .ep-top{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+.entity-pill .ep-heading{min-width:0;}
+.entity-pill .ep-name{font-size:15px; color:var(--cream); font-weight:600; overflow-wrap:anywhere;}
+.entity-pill .ep-ticker{display:block; font-size:11px; color:var(--cream-soft2); font-family:'Inter',sans-serif; letter-spacing:.03em; margin-top:1px;}
+.entity-pill .ep-icon-btn{flex:none; width:26px; height:26px; border-radius:50%; border:1px solid rgba(247,244,237,0.2); background:transparent; color:var(--cream-soft); font-size:13px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;}
+.entity-pill .ep-icon-btn:hover{border-color:var(--gold); color:var(--gold);}
+.entity-pill .ep-value{font-family:'Playfair Display',serif; font-size:21px; font-weight:700; color:var(--cream); margin-top:10px; line-height:1.1;}
+.entity-pill .ep-meta{color:var(--cream-soft2); font-size:12.5px; margin-top:4px; line-height:1.5;}
+.entity-pill .ep-tags{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px;}
+.entity-pill .ep-warn{font-size:12px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(247,244,237,0.1);}
+.entity-pill .ep-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid rgba(247,244,237,0.1);}
 .entity-pill .ep-actions button{padding:5px 12px; font-size:11px;}
 textarea{background:#fff; border:1px solid var(--line); border-radius:6px; padding:8px 10px; color:var(--ink); font-family:'Inter',sans-serif; font-size:15.5px; width:100%; resize:vertical;}
 
@@ -8134,21 +8148,21 @@ window.TEI = window.TEI || {};
       const dismissed = flaggable && TEI.calc.isDiscrepancyDismissed(acc, disc.diff);
       let discRow = '';
       if(flaggable && !dismissed){
-        discRow = `<div class="small" style="color:var(--k-emph-down); margin-top:4px;">${TEI.calc.fmtDiscrepancy(disc)}
+        discRow = `<div class="ep-warn" style="color:var(--k-emph-down);">${TEI.calc.fmtDiscrepancy(disc)}
           <button type="button" class="btn-ghost" data-mark-reviewed="${acc.id}" style="padding:2px 8px; font-size:10px; margin-left:6px;">Mark reviewed</button></div>`;
       } else if(flaggable && dismissed){
-        discRow = `<div class="small" style="color:var(--cream-soft2); margin-top:4px;">Reviewed — accepting a ${fmtGBP(Math.abs(disc.diff))} gap as explained (as of ${new Date(acc.discrepancyDismissedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}).
+        discRow = `<div class="ep-warn" style="color:var(--cream-soft2);">Reviewed — accepting a ${fmtGBP(Math.abs(disc.diff))} gap as explained (as of ${new Date(acc.discrepancyDismissedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}).
           <button type="button" class="btn-ghost" data-clear-reviewed="${acc.id}" style="padding:2px 8px; font-size:10px; margin-left:6px;">Clear</button></div>`;
       }
+      const acctTags = (hasHoldings || acc.isJoint) ? `<div class="ep-tags">${hasHoldings?'<span class="tag-pill" style="opacity:0.7;">from holdings</span>':''}${acc.isJoint?'<span class="tag-pill">Joint</span>':''}</div>` : '';
       row.innerHTML = `
         <div class="ep-top">
-          <span class="ep-name">${TEI.data.acctLabel(acc)}</span>
+          <div class="ep-heading"><span class="ep-name">${TEI.data.acctLabel(acc)}</span></div>
           <span class="tag-pill">${acc.type}</span>
         </div>
-        <div class="ep-meta">${acc.provider||'No provider set'} · value ${fmtGBP(acc.value)}
-          ${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}
-          ${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}${acc.isJoint ? ' <span class="tag-pill">Joint</span>' : ''}
-        </div>
+        <div class="ep-value">${fmtGBP(acc.value)}</div>
+        <div class="ep-meta">${acc.provider||'No provider set'}${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}</div>
+        ${acctTags}
         ${discRow}
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-acct="${acc.id}">Edit</button>
@@ -8713,10 +8727,11 @@ window.TEI = window.TEI || {};
       row.className = 'entity-pill';
       row.innerHTML = `
         <div class="ep-top">
-          <span class="ep-name">${g.name}</span>
+          <div class="ep-heading"><span class="ep-name">${g.name}</span></div>
           <span class="tag-pill">${g.status}</span>
         </div>
-        <div class="ep-meta">${g.type} · ${targetText}${linkedNames?' · tracks '+linkedNames:''}${g.targetDate?' · by '+g.targetDate:''}</div>
+        <div class="ep-value">${targetText}</div>
+        <div class="ep-meta">${g.type}${linkedNames?' · tracks '+linkedNames:''}${g.targetDate?' · by '+g.targetDate:''}</div>
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-goal="${g.id}">Edit</button>
           <button type="button" class="btn-ghost" data-toggle-complete-goal="${g.id}">${g.status==='completed'?'Reopen':'Mark complete'}</button>
@@ -8905,13 +8920,16 @@ window.TEI = window.TEI || {};
       const canLivePrice = h.ticker && h.units!=null;
       row.innerHTML = `
         <div class="ep-top">
-          <span class="ep-name">${h.name}</span>
-          ${h.ticker?'<span class="tag-pill" style="opacity:0.8;">'+h.ticker+'</span>':''}
+          <div class="ep-heading">
+            <span class="ep-name">${h.name}</span>
+            ${h.ticker?`<span class="ep-ticker">${h.ticker}</span>`:''}
+          </div>
+          ${canLivePrice ? `<button type="button" class="ep-icon-btn" data-refresh-holding="${h.id}" title="Refresh live price" aria-label="Refresh live price">⟳</button>` : ''}
         </div>
-        ${(h.theme&&h.theme.length)?`<div class="ep-meta">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.8; margin-right:4px;">${t}</span>`).join('')}</div>`:''}
-        <div class="ep-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'} · ${fmtGBP(h.value)}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
+        <div class="ep-value">${fmtGBP(h.value)}</div>
+        <div class="ep-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
+        ${(h.theme&&h.theme.length)?`<div class="ep-tags">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.85;">${t}</span>`).join('')}</div>`:''}
         <div class="ep-actions">
-          ${canLivePrice ? `<button type="button" class="btn-ghost" data-refresh-holding="${h.id}">Refresh price</button>` : ''}
           <button type="button" class="btn-ghost" data-edit-holding="${h.id}">Edit</button>
           <button type="button" class="btn-ghost" data-del-holding="${h.id}">Remove</button>
         </div>
@@ -9456,10 +9474,11 @@ window.TEI = window.TEI || {};
       row.className = 'entity-pill';
       row.innerHTML = `
         <div class="ep-top">
-          <span class="ep-name">${i.type}</span>
+          <div class="ep-heading"><span class="ep-name">${i.type}</span></div>
           <span class="tag-pill">${i.owner}</span>
         </div>
-        <div class="ep-meta">${fmtGBP(i.amount)} · ${i.frequency}</div>
+        <div class="ep-value">${fmtGBP(i.amount)}</div>
+        <div class="ep-meta">${i.frequency}</div>
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-adv-income="${i.id}">Edit</button>
           <button type="button" class="btn-ghost" data-del-adv-income="${i.id}">Remove</button>
