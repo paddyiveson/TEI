@@ -702,6 +702,21 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .adv-tabs button{background:transparent; border:1px solid rgba(247,244,237,0.2); color:var(--cream-soft); padding:9px 18px; border-radius:var(--radius-pill); font-size:13.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;}
 .adv-tabs button.active{background:var(--gold); color:var(--card-dark); border-color:var(--gold);}
 
+/* My Details (client-facing page) reparents the Adviser Workspace's Manual
+   Entry panel wholesale -- see mountMyDetailsPanel. That panel's controls
+   (.card, .adv-subtabs pills, .month-badge, ...) all use --card-dark/
+   --cream, which are fixed dark-theme colours, not the client app's own
+   #clientApp[data-theme] tokens -- so on a client whose theme is set to
+   light, anything NOT inside a .card (the subtab pills themselves, month
+   badges) sat directly on the light page background with light-on-light
+   text, unreadable. Rather than threading light-mode variants through
+   every one of those shared adviser-only classes, #mydetailsHost gives
+   the whole reused panel its own fixed dark backdrop so it reads exactly
+   like it does in the real Adviser Workspace, regardless of the client's
+   own theme choice. */
+#mydetailsHost:not(:empty){background:var(--card-dark); border-radius:var(--radius); padding:22px 20px;}
+@media (max-width:560px){ #mydetailsHost:not(:empty){padding:16px 12px;} }
+
 .adv-subtabs{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 18px; padding-bottom:16px; border-bottom:1px solid rgba(247,244,237,0.12);}
 .adv-subtabs button{background:transparent; border:1px solid rgba(247,244,237,0.16); color:var(--cream-soft2); padding:7px 14px; border-radius:var(--radius-pill); font-size:12.5px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;}
 .adv-subtabs button.active{background:rgba(201,168,76,0.16); color:var(--gold); border-color:var(--gold);}
@@ -1278,7 +1293,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <a href="#" class="navlink" data-page="planning"><span class="ic">◆</span>Forecast</a>
       <a href="#" class="navlink" data-page="cashflow"><span class="ic">↻</span>Cashflow</a>
       <a href="#" class="navlink" data-page="update"><span class="ic">✎</span>Update</a>
-      <a href="#" class="navlink" data-page="mydetails"><span class="ic">☺</span>My Details</a>
+      <a href="#" class="navlink" data-page="mydetails"><span class="ic">◐</span>My Details</a>
       <a href="#" class="navlink" data-page="learning"><span class="ic">◇</span>Learn</a>
       <a href="#" class="navlink" data-page="documents"><span class="ic">▢</span>Documents</a>
     </nav>
