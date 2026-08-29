@@ -6409,6 +6409,19 @@ TEI.render = TEI.render || {};
   const {fmtGBP} = TEI.data;
   let balancesMonthKey = null;
   let holdingsMonthKey = null;
+  /* Every month ever logged used to render in full below each "log this
+     month" widget -- reported live as a "huge pointless list" once an
+     account had a couple of years of history (Adviser Workspace's
+     equivalent, see renderMonthHistory, got the identical fix). Caps to
+     the most recent MONTH_HISTORY_CAP by default; each widget's expanded
+     state lives on its own history container (el.dataset.expanded) so it
+     survives the re-render every edit/save triggers. */
+  const MONTH_HISTORY_CAP = 6;
+  function monthHistoryToggleHtml(keys, expanded){
+    return keys.length > MONTH_HISTORY_CAP
+      ? `<button type="button" class="btn-ghost on-light" data-toggle-month-history style="margin-top:8px; width:100%;">${expanded ? 'Show fewer' : 'Show all ' + keys.length + ' months'}</button>`
+      : '';
+  }
 
   function renderBalancesMonthlyHistory(client){
     const el = document.getElementById('balancesMonthlyHistory');
@@ -6416,19 +6429,24 @@ TEI.render = TEI.render || {};
     const monthsObj = client.months || {};
     const keys = Object.keys(monthsObj).sort().reverse();
     if(!keys.length){ el.innerHTML = ''; return; }
-    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+    const expanded = el.dataset.expanded === '1';
+    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
+    const rows = visibleKeys.map(k=>{
       const isSelected = k === balancesMonthKey;
       return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
         <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
         <button type="button" class="btn-ghost on-light" data-balances-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
       </div>`;
     }).join('');
+    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + rows + monthHistoryToggleHtml(keys, expanded);
     el.querySelectorAll('[data-balances-edit-month]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         balancesMonthKey = btn.dataset.balancesEditMonth;
         renderBalancesMonthlyWidget(TEI.app.state.client);
       });
     });
+    const toggleBtn = el.querySelector('[data-toggle-month-history]');
+    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderBalancesMonthlyHistory(client); });
   }
 
   function renderBalancesMonthlyWidget(client){
@@ -6494,19 +6512,24 @@ TEI.render = TEI.render || {};
     const monthsObj = client.holdingsMonths || {};
     const keys = Object.keys(monthsObj).sort().reverse();
     if(!keys.length){ el.innerHTML = ''; return; }
-    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+    const expanded = el.dataset.expanded === '1';
+    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
+    const rows = visibleKeys.map(k=>{
       const isSelected = k === holdingsMonthKey;
       return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
         <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
         <button type="button" class="btn-ghost on-light" data-holdings-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
       </div>`;
     }).join('');
+    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + rows + monthHistoryToggleHtml(keys, expanded);
     el.querySelectorAll('[data-holdings-edit-month]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         holdingsMonthKey = btn.dataset.holdingsEditMonth;
         renderHoldingsMonthlyWidget(TEI.app.state.client);
       });
     });
+    const toggleBtn = el.querySelector('[data-toggle-month-history]');
+    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderHoldingsMonthlyHistory(client); });
   }
 
   function renderHoldingsMonthlyWidget(client){
@@ -6609,19 +6632,24 @@ TEI.render = TEI.render || {};
     const monthsObj = client.contribLog || {};
     const keys = Object.keys(monthsObj).sort().reverse();
     if(!keys.length){ el.innerHTML = ''; return; }
-    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+    const expanded = el.dataset.expanded === '1';
+    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
+    const rows = visibleKeys.map(k=>{
       const isSelected = k === depositsMonthKey;
       return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
         <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
         <button type="button" class="btn-ghost on-light" data-deposits-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
       </div>`;
     }).join('');
+    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + rows + monthHistoryToggleHtml(keys, expanded);
     el.querySelectorAll('[data-deposits-edit-month]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         depositsMonthKey = btn.dataset.depositsEditMonth;
         renderDepositsMonthlyWidget(TEI.app.state.client);
       });
     });
+    const toggleBtn = el.querySelector('[data-toggle-month-history]');
+    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderDepositsMonthlyHistory(client); });
   }
 
   function reliefPreviewLabel(acc){ return acc.type === 'lisa' ? 'Government bonus added' : 'Tax relief added'; }
@@ -6714,7 +6742,9 @@ TEI.render = TEI.render || {};
     const monthsObj = client.cashflowMonths || {};
     const keys = Object.keys(monthsObj).sort().reverse();
     if(!keys.length){ el.innerHTML = ''; return; }
-    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+    const expanded = el.dataset.expanded === '1';
+    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
+    const rows = visibleKeys.map(k=>{
       const isSelected = k === cashflowMonthKey;
       const entry = monthsObj[k] || {};
       const parts = [];
@@ -6725,12 +6755,15 @@ TEI.render = TEI.render || {};
         <button type="button" class="btn-ghost on-light" data-cashflow-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
       </div>`;
     }).join('');
+    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + rows + monthHistoryToggleHtml(keys, expanded);
     el.querySelectorAll('[data-cashflow-edit-month]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         cashflowMonthKey = btn.dataset.cashflowEditMonth;
         renderCashflowMonthlyWidget(TEI.app.state.client);
       });
     });
+    const toggleBtn = el.querySelector('[data-toggle-month-history]');
+    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderCashflowMonthlyHistory(client); });
   }
 
   function renderCashflowMonthlyWidget(client){
@@ -8330,6 +8363,13 @@ window.TEI = window.TEI || {};
     accounts:{ picker:'curMonthPicker', history:'monthlyBalanceHistory', source:()=>client.months },
     holdings:{ picker:'curMonthPickerHoldings', history:'monthlyHoldingHistory', source:()=>client.holdingsMonths }
   };
+  /* Every month ever logged used to render in full -- reported live
+     against a screenshot as "huge pointless list" once an account had a
+     couple of years of history. Caps to the most recent MONTH_HISTORY_CAP
+     by default, with a "Show all" toggle that remembers its expanded
+     state on the container itself (el.dataset.expanded) so it survives
+     the re-render every edit/save triggers. */
+  const MONTH_HISTORY_CAP = 6;
   function renderMonthHistory(kind){
     const cfg = MONTH_WIDGET[kind];
     const el = document.getElementById(cfg.history);
@@ -8337,13 +8377,19 @@ window.TEI = window.TEI || {};
     const monthsObj = cfg.source() || {};
     const keys = Object.keys(monthsObj).sort().reverse();
     if(!keys.length){ el.innerHTML = ''; return; }
-    el.innerHTML = `<div class="note" style="margin:12px 0 6px;">Previously logged months</div>` + keys.map(k=>{
+    const expanded = el.dataset.expanded === '1';
+    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
+    const rows = visibleKeys.map(k=>{
       const isSelected = k === selectedMonth[kind];
       return `<div class="list-row"${isSelected ? ' style="border-color:var(--gold);"' : ''}>
         <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
         <button type="button" class="btn-ghost" data-edit-month="${kind}" data-month-key="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
       </div>`;
     }).join('');
+    const toggle = keys.length > MONTH_HISTORY_CAP
+      ? `<button type="button" class="btn-ghost" data-toggle-month-history style="margin-top:8px; width:100%;">${expanded ? 'Show fewer' : 'Show all ' + keys.length + ' months'}</button>`
+      : '';
+    el.innerHTML = `<div class="note" style="margin:12px 0 6px;">Previously logged months</div>` + rows + toggle;
     el.querySelectorAll('[data-edit-month]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         selectedMonth[btn.dataset.editMonth] = btn.dataset.monthKey;
@@ -8351,6 +8397,8 @@ window.TEI = window.TEI || {};
         else renderMonthlyHoldingFields();
       });
     });
+    const toggleBtn = el.querySelector('[data-toggle-month-history]');
+    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderMonthHistory(kind); });
   }
   function wireMonthPickers(){
     const wire = (id, kind, renderFn) => {
