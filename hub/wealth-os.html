@@ -860,16 +860,28 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .missing-list{list-style:none; margin:14px 0 0; padding:0; display:flex; flex-direction:column; gap:6px;}
 .missing-list li{font-size:14.5px; color:var(--ink-soft); display:flex; align-items:center; gap:8px;}
 .missing-list li:before{content:'•'; color:var(--gold);}
-.checkbox-list{display:flex; flex-direction:column; gap:7px; max-height:130px; overflow-y:auto; border:1px solid #E2DCCB; border-radius:6px; padding:9px 11px; background:#fff;}
+/* Was a fixed-height (130px) scrollable stack of full-width rows -- with
+   more than 4-5 accounts it needed an internal scrollbar, and sitting
+   next to short fields (Target £, Status) in a `.mini-form`/`.form-grid`
+   row with `align-items:end` pushed those short fields down to match its
+   height, reading as broken layout rather than a tall field (reported by
+   user against a live screenshot, 2026-08-29). Now a set of wrapping
+   toggle chips -- no fixed height/scrollbar, and every linked-accounts
+   field is given `grid-column:1/-1` at each of its 3 call sites (client
+   Update page, Onboarding, Adviser Manual Entry) so it always takes the
+   full row on its own instead of sharing one with shorter fields. */
+.checkbox-list{display:flex; flex-wrap:wrap; gap:7px;}
 /* Fixed (non-theme) ink colours: this box's background is always white
    regardless of #clientApp[data-theme], but --ink/--ink-soft2 flip to
    near-white in dark mode -- which made this text vanish. Use .on-dark
    below for a genuinely dark box instead of the theme variables here. */
-.checkbox-list label{display:flex; align-items:center; gap:8px; font-size:13.5px; color:#1D2733; cursor:pointer; font-weight:400;}
-.checkbox-list input[type=checkbox]{margin:0; flex:none;}
+.checkbox-list label{display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:500; color:#1D2733; cursor:pointer; background:#fff; border:1px solid #E2DCCB; border-radius:999px; padding:6px 13px 6px 10px; transition:background .15s, border-color .15s, color .15s;}
+.checkbox-list input[type=checkbox]{margin:0; flex:none; accent-color:#1D3557;}
+.checkbox-list label:has(input:checked){background:#1D3557; border-color:#1D3557; color:#fff;}
 .checkbox-list.empty{color:#8A7F63; font-style:italic;}
-.checkbox-list.on-dark{background:rgba(247,244,237,0.06); border-color:rgba(247,244,237,0.14);}
-.checkbox-list.on-dark label{color:var(--cream);}
+.checkbox-list.on-dark label{background:rgba(247,244,237,0.06); border-color:rgba(247,244,237,0.22); color:var(--cream);}
+.checkbox-list.on-dark input[type=checkbox]{accent-color:var(--gold);}
+.checkbox-list.on-dark label:has(input:checked){background:var(--gold); border-color:var(--gold); color:var(--card-dark);}
 .checkbox-list.on-dark.empty{color:var(--cream-soft2);}
 
 
@@ -2274,7 +2286,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <label class="form-field on-light" id="clGoalTargetAmountField"><span>Target £</span><input type="number" id="clNewGoalTargetAmount" placeholder="0"></label>
           <label class="form-field on-light" id="clGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="clNewGoalTargetIncome" placeholder="0"></label>
           <label class="form-field on-light" id="clGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="clNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
-          <div class="form-field on-light" id="clGoalLinkedAccountsField"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
+          <div class="form-field on-light" id="clGoalLinkedAccountsField" style="grid-column:1/-1;"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
         </div>
         <div style="display:flex; gap:10px; margin-top:12px;">
           <button type="button" class="btn-primary" id="clAddGoalBtn">Add goal</button>
@@ -2615,7 +2627,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field on-light" id="obGoalTargetAmountField"><span>Target £</span><input type="number" id="obNewGoalTargetAmount" placeholder="0"></label>
         <label class="form-field on-light" id="obGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="obNewGoalTargetIncome" placeholder="0"></label>
         <label class="form-field on-light" id="obGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="obNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
-        <div class="form-field on-light" id="obGoalLinkedAccountsField"><span>Linked account(s)</span><div id="obNewGoalLinkedAccounts" class="checkbox-list"></div></div>
+        <div class="form-field on-light" id="obGoalLinkedAccountsField" style="grid-column:1/-1;"><span>Linked account(s)</span><div id="obNewGoalLinkedAccounts" class="checkbox-list"></div></div>
         <button type="button" class="btn-primary" id="obAddGoalBtn">Add</button>
       </div>
     </div>
@@ -2966,7 +2978,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field" id="advGoalTargetAmountField"><span>Target £</span><input type="number" id="newGoalTargetAmount" placeholder="0"></label>
         <label class="form-field" id="advGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="newGoalTargetIncome" placeholder="0"></label>
         <label class="form-field" id="advGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="newGoalLinkedIncome"><option value="">Whole household income</option></select></label>
-        <div class="form-field" id="advGoalLinkedAccountsField"><span>Linked account(s)</span><div id="newGoalLinkedAccounts" class="checkbox-list on-dark"></div></div>
+        <div class="form-field" id="advGoalLinkedAccountsField" style="grid-column:1/-1;"><span>Linked account(s)</span><div id="newGoalLinkedAccounts" class="checkbox-list on-dark"></div></div>
         <label class="form-field"><span>Status</span><select id="newGoalStatus">
           <option value="active">Active</option><option value="paused">Paused</option><option value="completed">Completed</option>
         </select></label>
