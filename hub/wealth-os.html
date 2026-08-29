@@ -759,6 +759,23 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .list-row:last-child{border-bottom:none;}
 .list-row .lr-main{flex:1;}
 .list-row .lr-meta{color:var(--cream-soft2); font-size:13.5px; margin-top:2px;}
+
+/* Bordered pill-cards for Accounts/Holdings/Goals/Income, replacing the
+   plain stacked .list-row rows those four sections used to render as --
+   same visual language as the client-facing .acct-pill (Portfolio
+   Overview) rather than a new one-off component. Feedback was that a
+   long column of plain text rows was hard to scan; a grid of clearly-
+   bordered cards reads at a glance instead, and scales down to one
+   column on a narrow screen the same way .acct-pill-grid already does. */
+.entity-pill-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:10px;}
+@media (max-width:640px){ .entity-pill-grid{grid-template-columns:1fr;} }
+.entity-pill{background:var(--card-dark2); border:1px solid rgba(247,244,237,0.14); border-radius:10px; padding:12px 14px; display:flex; flex-direction:column;}
+.entity-pill .ep-top{display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;}
+.entity-pill .ep-name{font-size:14.5px; color:var(--cream); font-weight:600;}
+.entity-pill .ep-meta{color:var(--cream-soft2); font-size:13px; margin-top:4px;}
+.entity-pill .ep-warn{font-size:12px; margin-top:6px;}
+.entity-pill .ep-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.entity-pill .ep-actions button{padding:5px 12px; font-size:11px;}
 textarea{background:#fff; border:1px solid var(--line); border-radius:6px; padding:8px 10px; color:var(--ink); font-family:'Inter',sans-serif; font-size:15.5px; width:100%; resize:vertical;}
 
 @media (max-width:860px){
@@ -782,8 +799,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   .list-row{flex-direction:column; align-items:stretch; gap:8px;}
   .list-row > div[style*="flex-none"]{margin-left:0; align-self:flex-end;}
   .adv-tabs button, .adv-subtabs button{padding:11px 16px;}
-  .list-row [data-edit-acct], .list-row [data-del-acct],
-  .list-row button.btn-ghost{padding:9px 14px; font-size:12.5px;}
+  .list-row button.btn-ghost, .entity-pill .ep-actions button{padding:9px 14px; font-size:12.5px;}
 }
 /* Collapsible cards (see enhanceMobileCollapse in the Adviser Workspace
    module) -- every top-level Overview/Manual-Entry card that has a
@@ -2679,14 +2695,17 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </div>
 
 <section class="wrap" id="advBody">
+  <!-- Was 7 tabs (Overview/Client Updates/Insights/Manual Entry/Import/
+       Upload/Export) -- Insights folded into Overview as one more card
+       (see renderOverview -> renderInsightsTab), and Import/Upload/Export
+       merged into one "Tools" tab (#tab-tools) since each was only ever
+       1-2 cards on its own; those cards are collapsible on mobile the
+       same as everywhere else (see enhanceMobileCollapse). -->
   <div class="adv-tabs">
     <button data-tab="overview" class="active" type="button">Overview</button>
     <button data-tab="updates" type="button">Client Updates</button>
-    <button data-tab="insights" type="button">Insights</button>
     <button data-tab="manual" type="button">Manual Entry</button>
-    <button data-tab="import" type="button">CSV / Spreadsheet Import</button>
-    <button data-tab="upload" type="button">Document Upload</button>
-    <button data-tab="export" type="button">Review &amp; Export</button>
+    <button data-tab="tools" type="button">Tools</button>
   </div>
 
   <!-- ===================== OVERVIEW ===================== -->
@@ -2713,9 +2732,15 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Missing information</h3>
       <ul class="missing-list" id="ovMissingList" style="margin:0;"></ul>
     </div>
-    <div class="card">
+    <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Key opportunities</h3>
       <ul class="missing-list" id="ovOpportunitiesList" style="margin:0;"></ul>
+    </div>
+    <!-- Was its own "Insights" tab -- folded in here (see renderOverview). -->
+    <div class="card">
+      <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Insights</h3>
+      <div class="note" style="margin-top:0; margin-bottom:14px;">Generated observations pulled from across the Client Foundation — only shown where there's something worth flagging.</div>
+      <div id="insightsList"></div>
     </div>
   </div>
 
@@ -2732,14 +2757,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
     <div class="card">
       <div id="updatesList"></div>
-    </div>
-  </div>
-
-  <!-- ===================== INSIGHTS ===================== -->
-  <div class="tab-panel" id="tab-insights">
-    <div class="card">
-      <div class="note" style="margin-top:0; margin-bottom:14px;">Generated observations pulled from across the Client Foundation — only shown where there's something worth flagging.</div>
-      <div id="insightsList"></div>
     </div>
   </div>
 
@@ -3033,9 +3050,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 
-  <!-- ===================== CSV IMPORT ===================== -->
-  <div class="tab-panel" id="tab-import">
-    <div class="card">
+  <!-- ===================== TOOLS ===================== -->
+  <!-- Was three separate tabs (CSV Import / Document Upload / Review &
+       Export) -- each was only ever 1-2 cards, so folded into one "Tools"
+       tab; every card here still opens on its own <h3> as a collapsible
+       section on mobile (see enhanceMobileCollapse), same as everywhere
+       else, so nothing about reachability was lost by merging the tabs. -->
+  <div class="tab-panel" id="tab-tools">
+    <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Holdings CSV import</h3>
       <div class="note" style="margin-top:0;">Broker export with Ticker, Units, Average price (or Book cost/Value) columns. Replaces that account's holdings list.</div>
       <div class="form-grid" style="grid-template-columns:1fr 1fr; margin-top:14px;">
@@ -3045,10 +3067,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <button type="button" class="btn-primary" id="csvImportBtn">Import holdings</button>
       <div class="note" id="csvImportResult"></div>
     </div>
-  </div>
-
-  <!-- ===================== DOCUMENT UPLOAD ===================== -->
-  <div class="tab-panel" id="tab-upload">
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Upload statements, screenshots or PDFs</h3>
       <div class="note" style="margin-top:0; margin-bottom:16px;">
@@ -3059,18 +3077,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <label class="upload-zone" id="uploadZone" for="uploadInput">
         <div class="uz-icon">⤒</div>
         <div class="uz-title">Drop files here, or click to choose</div>
-        <div class="uz-sub">PDF, PNG, JPG, XLSX, CSV — CSVs can be parsed directly in the CSV Import tab instead</div>
+        <div class="uz-sub">PDF, PNG, JPG, XLSX, CSV — CSVs can be parsed directly via Holdings CSV import above</div>
         <input type="file" id="uploadInput" multiple accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv">
       </label>
     </div>
-    <div class="card">
+    <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Review queue</h3>
       <div id="uploadQueueList"></div>
     </div>
-  </div>
-
-  <!-- ===================== EXPORT ===================== -->
-  <div class="tab-panel" id="tab-export">
     <div class="card">
       <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Review &amp; export</h3>
       <div class="note" style="margin-top:0;">
@@ -7973,10 +7987,9 @@ window.TEI = window.TEI || {};
         document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
         this.classList.add('active');
         document.getElementById('tab-'+this.dataset.tab).classList.add('active');
-        if(this.dataset.tab === 'export') renderExportSummary();
+        if(this.dataset.tab === 'tools') renderExportSummary();
         if(this.dataset.tab === 'overview') renderOverview();
         if(this.dataset.tab === 'updates') renderUpdates();
-        if(this.dataset.tab === 'insights') renderInsightsTab();
       });
     });
   }
@@ -8057,10 +8070,11 @@ window.TEI = window.TEI || {};
   /* ================= ACCOUNTS ================= */
   function renderAccounts(){
     const list = document.getElementById('accountsList');
+    list.className = 'entity-pill-grid';
     list.innerHTML = client.accounts.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No accounts yet — add one below.</div></div>`;
     client.accounts.forEach(acc=>{
       const row = document.createElement('div');
-      row.className = 'list-row';
+      row.className = 'entity-pill';
       const isPension = acc.type === 'pension';
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
       // Contribution-vs-holdings check, adviser-side: same math and same
@@ -8082,16 +8096,18 @@ window.TEI = window.TEI || {};
           <button type="button" class="btn-ghost" data-clear-reviewed="${acc.id}" style="padding:2px 8px; font-size:10px; margin-left:6px;">Clear</button></div>`;
       }
       row.innerHTML = `
-        <div class="lr-main">
-          <b>${TEI.data.acctLabel(acc)}</b> <span class="tag-pill">${acc.type}</span>${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}${acc.isJoint ? ' <span class="tag-pill">Joint</span>' : ''}
-          <div class="lr-meta">${acc.provider||'No provider set'} · value ${fmtGBP(acc.value)}
-            ${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}
-          </div>
-          ${discRow}
+        <div class="ep-top">
+          <span class="ep-name">${TEI.data.acctLabel(acc)}</span>
+          <span class="tag-pill">${acc.type}</span>
         </div>
-        <div style="display:flex; gap:8px; flex-none:1;">
-          <button type="button" class="btn-ghost" data-edit-acct="${acc.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
-          <button type="button" class="btn-ghost" data-del-acct="${acc.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
+        <div class="ep-meta">${acc.provider||'No provider set'} · value ${fmtGBP(acc.value)}
+          ${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}
+          ${hasHoldings ? ' <span class="tag-pill" style="opacity:0.7;">from holdings</span>' : ''}${acc.isJoint ? ' <span class="tag-pill">Joint</span>' : ''}
+        </div>
+        ${discRow}
+        <div class="ep-actions">
+          <button type="button" class="btn-ghost" data-edit-acct="${acc.id}">Edit</button>
+          <button type="button" class="btn-ghost" data-del-acct="${acc.id}">Remove</button>
         </div>
       `;
       list.appendChild(row);
@@ -8625,6 +8641,7 @@ window.TEI = window.TEI || {};
   /* ================= GOALS ================= */
   function renderGoals(){
     const list = document.getElementById('goalsList');
+    list.className = 'entity-pill-grid';
     list.innerHTML = client.goals.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No goals yet.</div></div>`;
     client.goals.forEach(g=>{
       const linkedNames = (g.linkedAccountIds||[]).map(id=>{ const a=client.accounts.find(x=>x.id===id); return a?TEI.data.acctLabel(a):null; }).filter(Boolean).join(', ');
@@ -8633,13 +8650,17 @@ window.TEI = window.TEI || {};
       else if(g.progressType==='completion') targetText = g.completed ? 'Complete' : 'Not yet';
       else targetText = fmtGBP(g.targetAmount);
       const row = document.createElement('div');
-      row.className = 'list-row';
+      row.className = 'entity-pill';
       row.innerHTML = `
-        <div class="lr-main"><b>${g.name}</b> <span class="tag-pill">${g.status}</span><div class="lr-meta">${g.type} · ${targetText}${linkedNames?' · tracks '+linkedNames:''}${g.targetDate?' · by '+g.targetDate:''}</div></div>
-        <div style="display:flex; gap:8px; flex-none:1;">
-          <button type="button" class="btn-ghost" data-edit-goal="${g.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
-          <button type="button" class="btn-ghost" data-toggle-complete-goal="${g.id}" style="padding:5px 12px; font-size:11px;">${g.status==='completed'?'Reopen':'Mark complete'}</button>
-          <button type="button" class="btn-ghost" data-del-goal="${g.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
+        <div class="ep-top">
+          <span class="ep-name">${g.name}</span>
+          <span class="tag-pill">${g.status}</span>
+        </div>
+        <div class="ep-meta">${g.type} · ${targetText}${linkedNames?' · tracks '+linkedNames:''}${g.targetDate?' · by '+g.targetDate:''}</div>
+        <div class="ep-actions">
+          <button type="button" class="btn-ghost" data-edit-goal="${g.id}">Edit</button>
+          <button type="button" class="btn-ghost" data-toggle-complete-goal="${g.id}">${g.status==='completed'?'Reopen':'Mark complete'}</button>
+          <button type="button" class="btn-ghost" data-del-goal="${g.id}">Remove</button>
         </div>
       `;
       list.appendChild(row);
@@ -8815,18 +8836,24 @@ window.TEI = window.TEI || {};
   /* ================= HOLDINGS ================= */
   function renderHoldings(){
     const list = document.getElementById('holdingsList');
+    list.className = 'entity-pill-grid';
     list.innerHTML = client.holdings.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No holdings yet.</div></div>`;
     client.holdings.forEach(h=>{
       const acct = client.accounts.find(a=>a.id===h.accountId);
       const row = document.createElement('div');
-      row.className = 'list-row';
+      row.className = 'entity-pill';
       const canLivePrice = h.ticker && h.units!=null;
       row.innerHTML = `
-        <div class="lr-main"><b>${h.name}</b>${h.ticker?' <span style="color:var(--cream-soft2); font-size:13px;">'+h.ticker+'</span>':''}${(h.theme&&h.theme.length)?h.theme.map(t=>` <span class="tag-pill" style="opacity:0.8;">${t}</span>`).join(''):''}<div class="lr-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'} · ${fmtGBP(h.value)}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div></div>
-        <div style="display:flex; gap:8px; flex-none:1;">
-          ${canLivePrice ? `<button type="button" class="btn-ghost" data-refresh-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Refresh price</button>` : ''}
-          <button type="button" class="btn-ghost" data-edit-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
-          <button type="button" class="btn-ghost" data-del-holding="${h.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
+        <div class="ep-top">
+          <span class="ep-name">${h.name}</span>
+          ${h.ticker?'<span class="tag-pill" style="opacity:0.8;">'+h.ticker+'</span>':''}
+        </div>
+        ${(h.theme&&h.theme.length)?`<div class="ep-meta">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.8; margin-right:4px;">${t}</span>`).join('')}</div>`:''}
+        <div class="ep-meta">${acct?TEI.data.acctLabel(acct):'Unknown account'} · ${fmtGBP(h.value)}${h.ticker&&h.units?' · '+h.units+' units (live-priced)':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
+        <div class="ep-actions">
+          ${canLivePrice ? `<button type="button" class="btn-ghost" data-refresh-holding="${h.id}">Refresh price</button>` : ''}
+          <button type="button" class="btn-ghost" data-edit-holding="${h.id}">Edit</button>
+          <button type="button" class="btn-ghost" data-del-holding="${h.id}">Remove</button>
         </div>
       `;
       list.appendChild(row);
@@ -9361,15 +9388,21 @@ window.TEI = window.TEI || {};
   /* ================= CASHFLOW: INCOME & EXPENSES ================= */
   function renderAdvIncomeList(){
     const list = document.getElementById('advIncomeList');
+    list.className = 'entity-pill-grid';
     list.innerHTML = client.cashflow.income.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No income sources yet.</div></div>`;
     refreshAdvGoalLinkedIncomeOptions();
     client.cashflow.income.forEach(i=>{
       const row = document.createElement('div');
-      row.className = 'list-row';
-      row.innerHTML = `<div class="lr-main"><b>${i.type}</b> <span class="tag-pill">${i.owner}</span><div class="lr-meta">${fmtGBP(i.amount)} · ${i.frequency}</div></div>
-        <div style="display:flex; gap:8px; flex-none:1;">
-          <button type="button" class="btn-ghost" data-edit-adv-income="${i.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
-          <button type="button" class="btn-ghost" data-del-adv-income="${i.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
+      row.className = 'entity-pill';
+      row.innerHTML = `
+        <div class="ep-top">
+          <span class="ep-name">${i.type}</span>
+          <span class="tag-pill">${i.owner}</span>
+        </div>
+        <div class="ep-meta">${fmtGBP(i.amount)} · ${i.frequency}</div>
+        <div class="ep-actions">
+          <button type="button" class="btn-ghost" data-edit-adv-income="${i.id}">Edit</button>
+          <button type="button" class="btn-ghost" data-del-adv-income="${i.id}">Remove</button>
         </div>`;
       list.appendChild(row);
     });
@@ -10032,6 +10065,7 @@ window.TEI = window.TEI || {};
       ? opportunities.map(o=>`<li>${o}</li>`).join('')
       : '<li style="color:var(--cream-soft2);">Nothing flagged right now.</li>';
     renderHouseholdCard();
+    renderInsightsTab(); // Insights was its own tab -- now just the last card on Overview.
   }
   /* Fetches and renders the household rollup card, only when this client is
      actually linked -- otherwise the card just stays hidden (its default
