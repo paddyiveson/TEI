@@ -754,6 +754,22 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .learn-grid{grid-template-columns:1fr;}
 }
+/* Adviser Workspace / Manual Entry on a phone -- .form-grid's 2-column
+   fallback above is still cramped once each column is under ~180px wide
+   (labels wrap, number inputs clip), and .list-row (every Accounts/
+   Holdings/Goals/Income row, each with Edit/Remove buttons) had no
+   narrow-screen treatment at all, so the buttons squeezed up against the
+   label text with no way to tap either reliably. Also widens .adv-tabs/
+   .adv-subtabs pill buttons and .list-row's action buttons to a ~40px+
+   touch target -- both were sized for a mouse. */
+@media (max-width:560px){
+  .form-grid, .mini-form{grid-template-columns:1fr;}
+  .list-row{flex-direction:column; align-items:stretch; gap:8px;}
+  .list-row > div[style*="flex-none"]{margin-left:0; align-self:flex-end;}
+  .adv-tabs button, .adv-subtabs button{padding:11px 16px;}
+  .list-row [data-edit-acct], .list-row [data-del-acct],
+  .list-row button.btn-ghost{padding:9px 14px; font-size:12.5px;}
+}
 
 /* ================= ONBOARDING WIZARD ================= */
 .wizard-header{background:var(--card-dark); padding:20px 0;}
@@ -1260,7 +1276,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <a href="#" data-avatar-action="profile">Profile</a>
           <a href="#" data-avatar-action="notifications">Notifications</a>
           <a href="#" data-avatar-action="preferences">Preferences</a>
-          <a href="#" class="navlink" data-page="settings" data-close-dropdown="1">Settings</a>
+          <a href="#" class="navlink" data-page="mydetails" data-close-dropdown="1">My Details</a>
           <a href="#" data-avatar-action="help">Help &amp; Support</a>
           <a href="#" class="dd-danger" data-avatar-action="signout">Sign Out</a>
         </div>
@@ -2237,26 +2253,26 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </section>
 </div>
 
-<!-- ============================= SETTINGS ============================= -->
-<div id="page-settings" class="page">
-<header class="hero wrap"><h1>Settings</h1><div class="sub">Changes here apply to this session only.</div></header>
-<section class="wrap" style="padding-top:0;">
-  <form class="card" id="settingsForm" style="max-width:520px;">
-    <div class="form-grid" style="grid-template-columns:1fr;">
-      <div class="form-field"><span>Onboarding</span><div style="display:flex; align-items:center; gap:10px;"><span class="status-pill pending" id="setOnboardingStatus">–</span><a href="#" id="setOnboardingLink" class="btn-ghost" style="text-decoration:none; font-size:11.5px; padding:5px 12px;">Redo onboarding →</a></div></div>
-      <label class="form-field"><span>First name</span><input type="text" id="setFirstName"></label>
-      <label class="form-field"><span>Last name</span><input type="text" id="setLastName"></label>
-      <label class="form-field"><span>Email</span><input type="email" id="setEmail"></label>
-      <label class="form-field"><span>Risk profile</span>
-        <select id="setRisk"><option value="">Not set</option><option value="Cautious">Cautious</option><option value="Balanced">Balanced</option><option value="Growth">Growth</option><option value="Aggressive">Aggressive</option></select>
-      </label>
-      <label class="form-field"><span>Notes</span><input type="text" id="setNotes"></label>
+<!-- ============================= MY DETAILS ============================= -->
+<!-- Reuses the Adviser Workspace's Manual Entry forms rather than a
+     duplicated copy -- see mountMyDetailsPanel. Personal/contact, accounts,
+     income, holdings, wealth, cashflow and goals are all editable here;
+     risk profile stays adviser-set (hidden via #mRiskField for client-role
+     sessions). Every save already goes through TEI.calc.stampEdit(record,
+     client.meta.role), so client edits surface in the adviser's Client
+     Updates tab exactly like they do today for accounts/holdings/goals. -->
+<div id="page-mydetails" class="page">
+<header class="hero wrap k-greeting"><h1>My Details</h1><div class="sub">Keep your personal details, accounts, income, holdings and goals up to date.</div></header>
+<section class="wrap" style="padding-top:var(--space-lg); padding-bottom:var(--space-2xl);">
+  <div class="dgrid">
+    <div class="span-12">
+      <div class="dcard" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:10px;"><span class="status-pill pending" id="setOnboardingStatus">–</span><a href="#" id="setOnboardingLink" class="btn-ghost" style="text-decoration:none; font-size:11.5px; padding:5px 12px;">Redo onboarding →</a></div>
+        <span class="form-meta">Client ID: <span id="setClientId">–</span> &middot; Last updated: <span id="setLastUpdated">–</span></span>
+      </div>
     </div>
-    <div class="form-actions">
-      <button type="submit" class="btn-primary">Save for this session</button>
-      <span class="form-meta">Client ID: <span id="setClientId">–</span> &middot; Last exported: <span id="setLastUpdated">–</span></span>
-    </div>
-  </form>
+    <div class="span-12" id="mydetailsHost"></div>
+  </div>
 </section>
 </div>
 
@@ -2698,6 +2714,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   </div>
 
   <!-- ===================== MANUAL ENTRY ===================== -->
+  <!-- tabManualAnchor marks tab-manual's home inside the Adviser Workspace.
+       The client-facing "My Details" page (#page-mydetails) reparents this
+       whole panel out to its own host div when a client-role session opens
+       it (see mountMyDetailsPanel/restoreMyDetailsPanel) so both roles share
+       one set of forms/handlers instead of a duplicated copy -- an adviser
+       previewing the client dashboard and clicking back into their real
+       workspace is what triggers the restore, via the anchor. -->
+  <div id="tabManualAnchor" style="display:none;"></div>
   <div class="tab-panel" id="tab-manual">
 
     <div class="adv-subtabs">
@@ -2724,7 +2748,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <select id="mRelationship"><option value="">Not set</option><option>Single</option><option>Partnered</option><option>Married</option></select>
           <span style="font-size:11.5px; color:var(--cream-soft2); margin-top:2px;">Partnered/Married clients still keep their own individual accounts and income here — link the two client records into a household from the client list to get a combined household rollup and tag shared costs as joint.</span>
         </label>
-        <label class="form-field"><span>Risk profile (self-reported)</span>
+        <label class="form-field" id="mRiskField"><span>Risk profile (self-reported)</span>
           <select id="mRisk"><option value="">Not set</option><option>Cautious</option><option>Balanced</option><option>Growth</option><option>Aggressive</option></select>
         </label>
         <label class="form-field"><span>Onboarding complete?</span>
@@ -4526,6 +4550,7 @@ TEI.render = TEI.render || {};
     {tag:'05', page:'portfolio', title:'My Investments',  desc:'Holdings, allocation and your investing journey.'},
     {tag:'06', page:'learning',  title:'Learn',          desc:'Lessons and insights from the TEI Education Platform.'},
     {tag:'07', page:'documents', title:'My Vault',       desc:'Statements, reports and meeting notes, kept safe.'},
+    {tag:'08', page:'mydetails', title:'My Details',     desc:'Personal details, accounts, income, holdings and goals.'},
   ];
 
   /* financialFreedomPct, nextMilestone and journey stages now live in TEI.calc —
@@ -4740,7 +4765,7 @@ TEI.render = TEI.render || {};
     // A client can click through the wizard's non-blocking Finish without
     // entering anything, leaving onboardingComplete:true on an empty
     // dashboard -- keep nudging until there's real data, not just a flag.
-    if(!client.settings.onboardingComplete || !TEI.calc.completion(client).hasRealData) auto.push({id:'auto-onboard', label:'Finish setting up your dashboard', linkPage:'settings', done:false, source:'auto'});
+    if(!client.settings.onboardingComplete || !TEI.calc.completion(client).hasRealData) auto.push({id:'auto-onboard', label:'Finish setting up your dashboard', linkPage:'mydetails', done:false, source:'auto'});
     if(!client.cashflow.income.length) auto.push({id:'auto-budget', label:'Add your income and budget', linkPage:'cashflow', done:false, source:'auto'});
     const ef = client.cashflow.emergencyFund||{};
     if(ef.target>0 && ef.current<ef.target) auto.push({id:'auto-ef', label:'Top up your emergency fund', linkPage:'cashflow', done:false, source:'auto'});
@@ -4828,7 +4853,7 @@ TEI.render = TEI.render || {};
       ? 'Start whenever you’re ready — even adding one account gives me something to work with.'
       : `You're ${c.percent}% of the way there. Keep going — each piece you add makes the picture clearer.`;
     const link = document.getElementById('ehContinueLink');
-    link.onclick = (e)=>{ e.preventDefault(); TEI.app.showPage('settings'); };
+    link.onclick = (e)=>{ e.preventDefault(); TEI.app.showPage('mydetails'); };
   }
 
   function renderQuickNav(){
@@ -7823,14 +7848,15 @@ TEI.render = TEI.render || {};
     `).join('');
   }
 
-  function renderSettings(client){
-    document.getElementById('setFirstName').value = client.personal.firstName||'';
-    document.getElementById('setLastName').value = client.personal.lastName||'';
-    document.getElementById('setEmail').value = client.personal.email||'';
-    document.getElementById('setRisk').value = client.personal.riskProfile||'';
-    document.getElementById('setNotes').value = client.personal.notes||'';
+  /* My Details reuses the Adviser Workspace's Manual Entry panel (Profile,
+     Accounts & Balances, Holdings & Dividends, Wealth, Goals, Cashflow,
+     Documents) rather than a second copy of those forms -- see
+     mountMyDetailsPanel below. This function only owns the small
+     client-styled header strip (onboarding status/redo link, client id,
+     last-updated) that used to live on the old Settings page. */
+  function renderMyDetails(client){
     document.getElementById('setClientId').textContent = client.meta.clientId;
-    document.getElementById('setLastUpdated').textContent = client.meta.lastUpdated ? new Date(client.meta.lastUpdated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Not set';
+    document.getElementById('setLastUpdated').textContent = client.personal.lastEditedAt ? new Date(client.personal.lastEditedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Not set';
     const obStatus = document.getElementById('setOnboardingStatus');
     if(obStatus){
       obStatus.textContent = client.settings.onboardingComplete ? 'Complete' : 'Not complete';
@@ -7839,26 +7865,53 @@ TEI.render = TEI.render || {};
     const obLink = document.getElementById('setOnboardingLink');
     if(obLink) obLink.href = 'onboarding.html?client=' + encodeURIComponent(client.meta.clientId||'');
 
-    const form = document.getElementById('settingsForm');
-    if(!form.dataset.wired){
-      form.addEventListener('submit', function(e){
-        e.preventDefault();
-        client.personal.firstName = document.getElementById('setFirstName').value.trim();
-        client.personal.lastName = document.getElementById('setLastName').value.trim();
-        client.personal.email = document.getElementById('setEmail').value.trim();
-        client.personal.riskProfile = document.getElementById('setRisk').value;
-        client.personal.notes = document.getElementById('setNotes').value.trim();
-        TEI.app.showToast('Saved for this session — export from Adviser Workspace to make it permanent.');
-        TEI.app.updateAvatar(client);
-        TEI.app.rerenderCurrentPage();
-      });
-      form.dataset.wired = '1';
+    mountMyDetailsPanel(client);
+  }
+
+  /* Moves the Adviser Workspace's #tab-manual panel (Profile/Accounts/
+     Holdings/Wealth/Goals/Cashflow/Documents, plus its adv-subtabs bar)
+     out of the hidden #adviserApp shell and into this page's host div, so
+     a client-role session gets the exact same forms and save handlers an
+     adviser uses -- no duplicated markup, no separate wiring to keep in
+     sync. TEI.adviser.init/refresh is what actually populates the fields
+     and wires the Add/Save buttons; it's safe to call repeatedly (the
+     module already re-runs it every time an adviser opens a different
+     client). Risk profile stays adviser-only: #mRiskField is hidden for
+     every non-adviser session (savePersonal() also refuses to overwrite
+     it while hidden, so this is belt-and-braces, not the only guard). */
+  function mountMyDetailsPanel(client){
+    const host = document.getElementById('mydetailsHost');
+    const panel = document.getElementById('tab-manual');
+    if(!host || !panel) return;
+    if(panel.parentNode !== host) host.appendChild(panel);
+
+    if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(client);
+
+    panel.classList.add('active');
+    document.querySelectorAll('.adv-subtabs button').forEach(b=> b.classList.toggle('active', b.dataset.subtab === 'profile'));
+    document.querySelectorAll('.subtab-panel').forEach(p=> p.classList.toggle('active', p.id === 'subtab-profile'));
+
+    const riskField = document.getElementById('mRiskField');
+    if(riskField) riskField.style.display = (client.meta.role === 'adviser') ? '' : 'none';
+  }
+
+  /* Puts #tab-manual back where the Adviser Workspace expects it. Only
+     needed for an adviser who used "Preview" to see the client dashboard
+     (which can open My Details) and then clicks back into their real
+     workspace -- a client-role session never calls setMode('adviser') at
+     all, so this is a no-op for every normal client visit. */
+  function restoreMyDetailsPanel(){
+    const anchor = document.getElementById('tabManualAnchor');
+    const panel = document.getElementById('tab-manual');
+    if(anchor && panel && panel.parentNode !== anchor.parentNode){
+      anchor.parentNode.insertBefore(panel, anchor);
     }
   }
 
   TEI.render.learning = renderLearning;
   TEI.render.documents = renderDocuments;
-  TEI.render.settings = renderSettings;
+  TEI.render.mydetails = renderMyDetails;
+  TEI.myDetails = { restorePanel: restoreMyDetailsPanel };
 })();
 
 </script>
@@ -7923,22 +7976,52 @@ window.TEI = window.TEI || {};
     document.getElementById('mRisk').value = client.personal.riskProfile||'';
     document.getElementById('mOnboarding').value = String(!!client.settings.onboardingComplete);
     document.getElementById('mNotes').value = client.personal.notes||'';
-    ['mFirstName','mLastName','mEmail','mEmployment','mRelationship','mRisk','mOnboarding','mNotes'].forEach(id=>{
-      document.getElementById(id).addEventListener('change', savePersonal);
-    });
+    // fillPersonalForm() runs on every init/refresh (new client opened,
+    // any field saved elsewhere re-rendering the workspace, My Details
+    // remounting) -- guard so re-wiring doesn't stack a fresh 'change'
+    // listener on top of the last one each time (same double-fire bug
+    // the module-level `wired` flag exists to avoid for the Add buttons).
+    const personalForm = document.getElementById('subtab-profile');
+    if(personalForm && !personalForm.dataset.wired){
+      ['mFirstName','mLastName','mEmail','mEmployment','mRelationship','mRisk','mOnboarding','mNotes'].forEach(id=>{
+        document.getElementById(id).addEventListener('change', savePersonal);
+      });
+      personalForm.dataset.wired = '1';
+    }
   }
-  function savePersonal(){
+  /* Was in-memory only until 2026-08-29 -- typing into Profile changed
+     client.personal locally but nothing wrote it back to Supabase; the only
+     way it actually persisted was downloading the JSON export and
+     re-importing it by hand. Every other Manual Entry section (accounts,
+     holdings, goals, cashflow) already saves for real -- this brings
+     Profile in line with that, and is what makes the client-facing "My
+     Details" page (which reuses this exact form/handler) actually work. */
+  async function savePersonal(){
     client.personal.firstName = document.getElementById('mFirstName').value.trim();
     client.personal.lastName = document.getElementById('mLastName').value.trim();
     client.personal.email = document.getElementById('mEmail').value.trim();
     client.personal.employmentStatus = document.getElementById('mEmployment').value;
     client.personal.relationshipStatus = document.getElementById('mRelationship').value;
-    client.personal.riskProfile = document.getElementById('mRisk').value;
+    // Risk profile input is hidden from client-role sessions (see
+    // mountMyDetailsPanel) but the field still exists in the DOM either
+    // way -- only actually overwrite it when the control is visible, so a
+    // client session can never blank out an adviser-set risk profile just
+    // by saving an unrelated field on this form.
+    const riskField = document.getElementById('mRiskField');
+    if(!riskField || riskField.style.display !== 'none'){
+      client.personal.riskProfile = document.getElementById('mRisk').value;
+    }
     client.settings.onboardingComplete = document.getElementById('mOnboarding').value === 'true';
     client.personal.notes = document.getElementById('mNotes').value.trim();
-    TEI.calc.stampEdit(client.personal, 'adviser');
+    TEI.calc.stampEdit(client.personal, client.meta.role);
     const fullName = [client.personal.firstName, client.personal.lastName].filter(Boolean).join(' ');
     document.getElementById('advClientName').textContent = fullName || client.meta.displayName;
+    try{
+      await TEI.wealthOS.saveClientPersonal(client.meta.clientId, client.personal);
+    } catch(err){
+      console.error('Wealth OS: failed to save personal details', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+    }
   }
 
   /* ================= ACCOUNTS ================= */
@@ -11434,7 +11517,8 @@ window.TEI = window.TEI || {};
         firstName: c.first_name, lastName: c.last_name, dob: c.dob,
         employmentStatus: c.employment_status, relationshipStatus: c.relationship_status,
         riskProfile: c.risk_profile, email: c.email, notes: c.notes,
-        partner:{ name: c.partner_name, employmentStatus: c.partner_employment_status, incomeSources:[] }
+        partner:{ name: c.partner_name, employmentStatus: c.partner_employment_status, incomeSources:[] },
+        lastEditedBy: c.last_edited_by, lastEditedAt: c.last_edited_at
       },
       settings:{ currency: c.currency, onboardingComplete: c.onboarding_complete },
       estatePlanning: c.estate_planning || {},
@@ -11835,7 +11919,8 @@ window.TEI = window.TEI || {};
       risk_profile: personal.riskProfile || null, email: personal.email || null, notes: personal.notes || null,
       partner_name: personal.partner ? personal.partner.name : null,
       partner_employment_status: personal.partner ? personal.partner.employmentStatus : null,
-      last_updated: new Date().toISOString()
+      last_updated: new Date().toISOString(),
+      last_edited_by: personal.lastEditedBy || null, last_edited_at: personal.lastEditedAt || null
     };
   }
 
@@ -12167,7 +12252,7 @@ window.TEI = window.TEI || {};
 window.TEI = window.TEI || {};
 
 (function(){
-  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','settings'];
+  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -12276,6 +12361,12 @@ window.TEI = window.TEI || {};
 
   function setMode(mode){
     state.mode = mode;
+    // Undo the My Details reparenting (see TEI.myDetails.restorePanel)
+    // before showing the real Adviser Workspace, in case an adviser
+    // previewed the client dashboard, opened My Details, then clicked
+    // back into their own workspace -- otherwise Manual Entry would be
+    // sitting inside the (now-hidden) client shell instead of advBody.
+    if(mode === 'adviser' && TEI.myDetails && TEI.myDetails.restorePanel) TEI.myDetails.restorePanel();
     document.getElementById('clientApp').style.display = mode === 'client' ? 'block' : 'none';
     document.getElementById('adviserApp').style.display = mode === 'adviser' ? 'block' : 'none';
     document.getElementById('onboardingApp').style.display = mode === 'onboarding' ? 'block' : 'none';
