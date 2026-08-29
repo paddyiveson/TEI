@@ -770,6 +770,21 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   .list-row [data-edit-acct], .list-row [data-del-acct],
   .list-row button.btn-ghost{padding:9px 14px; font-size:12.5px;}
 }
+/* Collapsible cards (see enhanceMobileCollapse in the Adviser Workspace
+   module) -- every top-level Overview/Manual-Entry card that has a
+   leading <h3> becomes tap-to-expand below the same 860px breakpoint the
+   JS itself checks, so the workspace opens on headings instead of one
+   long unbroken scroll. Cards with no <h3> (upload zone, some list
+   containers) are left untouched by the JS and so never get this class. */
+@media (max-width:860px){
+  .card.mcollapse{cursor:default;}
+  .card.mcollapse .mcollapse-header{cursor:pointer; display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:0 !important;}
+  .card.mcollapse .mcollapse-chevron{color:var(--gold); font-size:13px; flex:none; margin-left:auto; transition:transform .15s;}
+  .card.mcollapse.expanded .mcollapse-header{margin-bottom:14px !important;}
+  .card.mcollapse.expanded .mcollapse-chevron{transform:rotate(90deg);}
+  .card.mcollapse > .mcollapse-body{display:none;}
+  .card.mcollapse.expanded > .mcollapse-body{display:block;}
+}
 
 /* ================= ONBOARDING WIZARD ================= */
 .wizard-header{background:var(--card-dark); padding:20px 0;}
@@ -10212,6 +10227,68 @@ window.TEI = window.TEI || {};
     updateHoldingFormForTicker();
 
     if(!wired){ wired = true; wireAdviserControls(); }
+    enhanceMobileCollapse();
+  }
+
+  /* Adviser Workspace on a phone was one continuous scroll through every
+     card in whichever tab/subtab was open (Overview's four cards, each
+     Manual Entry subtab's form-then-list-then-history stack, ...) --
+     nothing to jump to, no way to see just the one thing you came for.
+     Rather than restructuring the markup of every individual section
+     (dozens of cards, several different section authors over time), this
+     turns every top-level `.card` that has a leading <h3> into a
+     collapsible one generically, phone-width only: the h3 becomes a tap
+     target, everything else in the card gets moved into one wrapper div
+     (same reparent-without-touching-ids trick #tab-manual itself uses)
+     so it can be hidden/shown as a unit without disturbing any of the
+     ids/handlers inside. Only ever wraps a given card once
+     (data-mcollapse-done guard) -- safe to call again on every re-render,
+     since renderXxx() functions replace a specific list/field container's
+     innerHTML, never the static card shell itself. Desktop is untouched:
+     this only runs below the 860px breakpoint the CSS collapse rules use,
+     and simply does nothing above it. First card in each tab/subtab panel
+     opens expanded by default; the rest start collapsed. */
+  function enhanceMobileCollapse(){
+    if(window.innerWidth > 860) return;
+    // Deliberately document-wide, not scoped to #advBody: My Details (see
+    // mountMyDetailsPanel in the client-app module) reparents #tab-manual
+    // and its subtab-panels out of #advBody into the client page's own
+    // host div, so scoping this query to #advBody would silently miss
+    // every card in a client-role session's My Details page. .tab-panel/
+    // .subtab-panel are only ever used by this workspace either way.
+    document.querySelectorAll('.tab-panel, .subtab-panel').forEach(panel=>{
+      let opened = false;
+      panel.querySelectorAll(':scope > .card').forEach(card=>{
+        if(card.dataset.mcollapseDone) return;
+        // Most cards have a bare <h3> as their first child, but several
+        // (anything with a month picker or extra controls next to the
+        // title -- "Log a month's balances", "Holdings", ...) wrap the
+        // <h3> in a flex-row <div> alongside those controls instead. Use
+        // whichever is actually there as the tap target, so those don't
+        // silently fall through as non-collapsible.
+        const header = card.querySelector(':scope > h3') || card.querySelector(':scope > div:has(> h3)');
+        if(!header) return; // no heading to tap -- leave this one alone
+        card.classList.add('mcollapse');
+        card.dataset.mcollapseDone = '1';
+        header.classList.add('mcollapse-header');
+        const chevron = document.createElement('span');
+        chevron.className = 'mcollapse-chevron';
+        chevron.textContent = '▸';
+        header.appendChild(chevron);
+        const body = document.createElement('div');
+        body.className = 'mcollapse-body';
+        let node = header.nextSibling;
+        while(node){ const next = node.nextSibling; body.appendChild(node); node = next; }
+        card.appendChild(body);
+        if(!opened){ card.classList.add('expanded'); opened = true; }
+        header.addEventListener('click', (e)=>{
+          // A header row can contain a real control (month picker, etc.) --
+          // let taps on those work normally instead of also toggling the card.
+          if(e.target.closest('input, select, button, a, textarea')) return;
+          card.classList.toggle('expanded');
+        });
+      });
+    });
   }
 
   function refresh(){
@@ -10241,6 +10318,7 @@ window.TEI = window.TEI || {};
     renderDocuments();
     refreshAccountSelects();
     refreshAdvGoalLinkedIncomeOptions();
+    enhanceMobileCollapse();
   }
 
   TEI.adviser = { init, refresh };
