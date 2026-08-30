@@ -1110,6 +1110,11 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .dcard.emphasis .traj-down{color:var(--k-emph-down) !important;}
 
 .k-chart-box{height:130px; margin-top:10px; position:relative; background:var(--k-chart-panel-bg); border-radius:8px; padding:10px 6px 2px;}
+/* Treemap tiles are their own solid blocks of color right up to the card
+   edge -- the subtle chart-panel background every other chart sits on
+   (line/bar charts need it to separate axes from the card) just reads as
+   an extra, redundant border around a treemap and makes it look busier. */
+.k-chart-box.flush{background:transparent; padding:0;}
 
 .k-range-toggle{display:inline-flex; background:rgba(247,244,237,0.1); border-radius:20px; padding:3px; gap:2px;}
 #clientApp[data-theme="light"] .k-range-toggle{background:rgba(247,244,237,0.12);}
@@ -1837,7 +1842,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           </div>
         </div>
         <div id="analysisCompanies">
-          <div class="k-chart-box" style="height:280px; max-width:340px; margin:0 auto;"><canvas id="chartAnalysisCompanies"></canvas></div>
+          <div class="k-chart-box flush" style="height:320px;"><canvas id="chartAnalysisCompanies"></canvas></div>
           <div class="k-chart-legend" id="analysisCompaniesLegend"></div>
           <div id="analysisCompaniesEmpty"></div>
         </div>
@@ -3206,6 +3211,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </div>
 <!-- Chart.js v4.4.0 UMD build, loaded from CDN (matches the pattern already used in hub/guides/portfolio.html elsewhere in this repo) rather than inlined -- avoids embedding ~150KB of minified library source by hand. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<!-- chartjs-chart-treemap v2 -- Chart.js core has no treemap controller/element, this registers one (Chart.TreemapController/TreemapElement) on top of the UMD build above. Powers the "Companies" treemap on the Portfolio page. -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-chart-treemap@2.3.0/dist/chartjs-chart-treemap.min.js"></script>
 
 <!-- Supabase auth (config/client/hub-auth) -- same three tags used across the rest of the hub (see hub/index.html), loaded before TEI.wealthOS / TEI.app so window.teiSupabase, TeiAuth and TeiHubAuth exist by the time those scripts run. -->
 <script src="/hub/js/supabase-config.js"></script>
@@ -6104,7 +6111,30 @@ TEI.render = TEI.render || {};
     }).join('');
   }
 
-  const ANALYSIS_PALETTE = ['#4A7A96','#C9A84C','#6B9A78','#B5525F','#C97B4C','#A8A08C'];
+  // Tonal navy/gold ramp, not the old 6-hue pie palette -- reuses the app's
+  // own brand tones (card-dark, card-dark2, NAVY, GOLD) rather than
+  // inventing new ones, and reads as one deliberate family of shades
+  // instead of a rainbow of unrelated sector-style colors.
+  const TREEMAP_PALETTE = ['#1D3557','#25406B','#44608A','#7F91AC','#C9A84C','#DDCB93'];
+  // Relative luminance (WCAG-ish, no gamma correction -- close enough for a
+  // binary light/dark label-ink choice) so a light gold box gets dark ink
+  // and a dark navy box gets cream ink, rather than one ink color guessed
+  // from the page theme regardless of what shade the box itself landed on.
+  function relLuminance(hex){
+    const n = parseInt(hex.slice(1), 16);
+    const r = (n>>16&255)/255, g = (n>>8&255)/255, b = (n&255)/255;
+    return 0.2126*r + 0.7152*g + 0.0722*b;
+  }
+  function hexToRgba(hex, alpha){
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${n>>16&255},${n>>8&255},${n&255},${alpha})`;
+  }
+  // Treemap, not a pie: box area reads relative size at a glance and each
+  // box can carry its own ticker + weight label directly, which a pie's
+  // tiny slices/legend pairing couldn't do for anything past the top 3-4
+  // holdings. Needs chartjs-chart-treemap (registers Chart's
+  // TreemapController/TreemapElement) loaded alongside Chart.js core, which
+  // has no treemap chart type of its own.
   function renderAnalysisCompanies(client){
     const emptyEl = document.getElementById('analysisCompaniesEmpty');
     const legendEl = document.getElementById('analysisCompaniesLegend');
@@ -6112,27 +6142,58 @@ TEI.render = TEI.render || {};
     if(!client.holdings.length){
       emptyEl.innerHTML = `<div class="line" style="text-align:center;">No holdings logged yet.</div>`;
       legendEl.innerHTML = '';
-      makeChart('chartAnalysisCompanies', {type:'pie', data:{labels:[],datasets:[{data:[]}]}, options:{maintainAspectRatio:false}});
+      makeChart('chartAnalysisCompanies', {type:'treemap', data:{datasets:[{tree:[], key:'value'}]}, options:{maintainAspectRatio:false}});
       return;
     }
     emptyEl.innerHTML = '';
     const grouped = TEI.calc.groupedHoldings(client);
     const total = grouped.reduce((s,g)=>s+g.value,0);
     const top10 = [...grouped].sort((a,b)=>b.value-a.value).slice(0,10);
-    const colors = top10.map((h,i)=>ANALYSIS_PALETTE[i%ANALYSIS_PALETTE.length]);
+    const colors = top10.map((h,i)=>TREEMAP_PALETTE[i%TREEMAP_PALETTE.length]);
+    // Two-tier ink per box: full-strength for the ticker, a translucent
+    // version of the same color for the % underneath -- gives the label a
+    // clear hierarchy instead of both lines shouting at the same weight.
+    const inks = colors.map(c=>relLuminance(c) > 0.5 ? '#1D2733' : '#F7F4ED');
+    const inksSoft = inks.map(c=>hexToRgba(c, 0.62));
     const theme = document.getElementById('clientApp').getAttribute('data-theme');
     const segBorder = theme==='light' ? '#F7F4ED' : '#20344E';
     makeChart('chartAnalysisCompanies', {
-      type:'pie',
-      data:{labels:top10.map(h=>h.name), datasets:[{data:top10.map(h=>h.value), backgroundColor:colors, borderColor:segBorder, borderWidth:2}]},
+      type:'treemap',
+      data:{datasets:[{
+        tree: top10,
+        key: 'value',
+        groups: ['name'],
+        spacing: 1,
+        borderWidth: 1,
+        borderColor: segBorder,
+        backgroundColor(ctx){ return ctx.type==='data' ? colors[ctx.dataIndex % colors.length] : 'transparent'; },
+        labels:{
+          display:true,
+          align:'left', position:'top', padding:10,
+          color(ctx){
+            if(ctx.type!=='data') return '#1D2733';
+            const i = ctx.dataIndex % inks.length;
+            return [inks[i], inksSoft[i]];
+          },
+          font:[{size:13, weight:'700'}, {size:11, weight:'500'}],
+          formatter(ctx){
+            const h = ctx.raw._data;
+            const pct = total ? (h.value/total*100).toFixed(1) : '0.0';
+            return [h.ticker ? h.ticker.toUpperCase() : h.name, pct+'%'];
+          }
+        }
+      }]},
       options:{maintainAspectRatio:false,
         plugins:{
           legend:{display:false},
-          tooltip:{callbacks:{label:c=>c.label+': '+fmtGBP(c.raw)+' ('+(total?(c.raw/total*100).toFixed(1):0)+'%)'}}
+          tooltip:{callbacks:{
+            title:()=>'',
+            label:c=>c.raw._data.name+': '+fmtGBP(c.raw.v)+' ('+(total?(c.raw.v/total*100).toFixed(1):0)+'%)'
+          }}
         }
       }
     });
-    legendEl.innerHTML = top10.map((h,i)=>`<div class="lg"><span class="sw" style="background:${colors[i]};"></span>${h.name}</div>`).join('');
+    legendEl.innerHTML = '';
   }
 
   function wireAnalysisToggle(client){
