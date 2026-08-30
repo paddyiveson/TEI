@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<!-- TEI Cost of Waiting Calculator — CLIENT HUB VERSION. Gated behind hubGate, same as the other hub/guides/*.html tools. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost of Waiting Calculator - The Everyday Investor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --navy:    #1D3557;
+  --navy-dk: #0f1e3a;
+  --navy-md: #2B4C7E;
+  --cream:   #F7F4ED;
+  --cream-dk:#EDE8DA;
+  --gold:    #C9A84C;
+  --gold-dk: #b8922d;
+  --gold-lt: #FBF4E0;
+  --text:    #1a1a2e;
+  --mid:     #4a5568;
+  --lt:      #718096;
+  --white:   #ffffff;
+  --green:   #2D7D52;
+  --radius:  10px;
+  --shadow:  0 4px 28px rgba(29,53,87,.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; overflow-x: hidden; }
+* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+@media print {
+  @page { margin: 0.3cm; }
+  body > *:not(#cow-print-only) { display: none !important; }
+  #cow-print-only { display: block !important; }
+}
+</style>
+</head>
+<body>
+<script>
+/* Safety net: a Supabase password-recovery link can land here instead of
+   /hub/reset-password.html if the project's Site URL falls back to the
+   site root. Forward the code/token on immediately so the reset form still
+   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
+(function () {
+  var search = window.location.search || "";
+  var hash = window.location.hash || "";
+  var params = new URLSearchParams(search);
+  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
+  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
+  if (hasAuthPayload || isRecovery) {
+    window.location.replace("/hub/reset-password.html" + search + hash);
+  }
+})();
+</script>
+<div id="hubGate" style="position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1D3557 0%,#0f1e3a 100%);display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:380px;width:100%;text-align:center;">
+    <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid #C9A84C;display:flex;align-items:center;justify-content:center;font-size:20px;color:#C9A84C;margin:0 auto 24px;">&#10022;</div>
+    <p style="font-family:'Playfair Display',serif;font-size:24px;color:#F7F4ED;margin-bottom:10px;">Client Hub</p>
+    <p style="font-size:13px;color:rgba(247,244,237,.55);margin-bottom:28px;line-height:1.7;">This area is for TEI clients. Enter the password you were given to continue.</p>
+    <input type="password" id="hubGatePw" placeholder="Password" style="width:100%;padding:13px 16px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#F7F4ED;font-size:14px;font-family:'Inter',sans-serif;text-align:center;margin-bottom:14px;outline:none;">
+    <button onclick="hubGateCheck()" style="width:100%;padding:13px;border-radius:8px;border:none;background:#C9A84C;color:#1D3557;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Enter</button>
+    <p id="hubGateError" style="font-size:12px;color:#e07a6f;margin-top:14px;display:none;">That password isn't right. Try again.</p>
+  </div>
+</div>
+<script>
+(function() {
+  var HUB_PASSWORD = "TEI";
+  if (sessionStorage.getItem("hubUnlocked") === "yes") {
+    var gate = document.getElementById("hubGate");
+    if (gate) gate.style.display = "none";
+  }
+})();
+function hubGateCheck() {
+  var input = document.getElementById("hubGatePw");
+  var error = document.getElementById("hubGateError");
+  if (input.value === "TEI") {
+    sessionStorage.setItem("hubUnlocked", "yes");
+    document.getElementById("hubGate").style.display = "none";
+  } else {
+    error.style.display = "block";
+    input.value = "";
+    input.focus();
+  }
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var input = document.getElementById("hubGatePw");
+  if (input) {
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") hubGateCheck();
+    });
+  }
+});
+</script>
+<a href="/hub/guides.html" style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;background:#1D3557;color:#F7F4ED;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px 16px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.2);">&#8592; Back to Guides &amp; Tools</a>
+
+<div style="max-width:720px;margin:0 auto;padding:40px 20px;">
+      <div id="cow-container" style="background:var(--white);border-radius:var(--radius);overflow:hidden;">
+        <style>
+
+#cow-container{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);line-height:1.7}
+#cow-container .calc-wrapper{max-width:700px;margin:0 auto;padding:0 20px 40px}
+
+/* HEADER */
+#cow-container .calc-header{background:var(--navy);border-radius:var(--radius) var(--radius) 0 0;padding:32px 36px 28px;position:relative;overflow:hidden}
+#cow-container .calc-header::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.12) 0%,transparent 70%);pointer-events:none}
+#cow-container .calc-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+#cow-container .calc-title{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,30px);color:var(--cream);line-height:1.2;margin-bottom:8px}
+#cow-container .calc-sub{font-size:14px;color:rgba(247,244,237,.55);line-height:1.7}
+
+/* INPUTS */
+#cow-container .calc-body{background:var(--white);border-left:1px solid var(--cream-dk);border-right:1px solid var(--cream-dk);padding:28px 36px}
+#cow-container .input-section-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lt);margin-bottom:12px;display:block}
+#cow-container .inputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+#cow-container .input-group{display:flex;flex-direction:column;gap:6px}
+#cow-container .input-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--lt)}
+#cow-container .input-field{width:100%;padding:12px 14px;border:1.5px solid var(--cream-dk);border-radius:8px;font-size:16px;font-weight:600;color:var(--navy);font-family:'Inter',sans-serif;background:var(--cream);transition:border-color .2s;-moz-appearance:textfield}
+#cow-container .input-field::-webkit-outer-spin-button,
+#cow-container .input-field::-webkit-inner-spin-button{-webkit-appearance:none}
+#cow-container .input-field:focus{outline:none;border-color:var(--gold);background:var(--white)}
+#cow-container .input-hint{font-size:11px;color:var(--lt)}
+
+/* RISK PROFILES */
+#cow-container .risk-profiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+#cow-container .risk-btn{padding:10px 8px;border-radius:8px;border:1.5px solid var(--cream-dk);background:var(--white);cursor:pointer;text-align:center;transition:all .2s;font-family:'Inter',sans-serif}
+#cow-container .risk-btn:hover{border-color:var(--navy)}
+#cow-container .risk-btn.active{border-color:var(--navy);background:var(--navy)}
+#cow-container .risk-btn-name{font-size:12px;font-weight:700;color:var(--navy);display:block;margin-bottom:2px}
+#cow-container .risk-btn.active .risk-btn-name{color:var(--cream)}
+#cow-container .risk-btn-return{font-size:11px;color:var(--lt);display:block}
+#cow-container .risk-btn.active .risk-btn-return{color:var(--gold)}
+#cow-container .risk-btn-desc{font-size:10px;color:var(--lt);display:block;margin-top:2px;line-height:1.3}
+#cow-container .risk-btn.active .risk-btn-desc{color:rgba(247,244,237,.5)}
+
+/* RETURN SLIDER */
+#cow-container .slider-row{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+#cow-container .slider{-webkit-appearance:none;flex:1;height:4px;border-radius:2px;background:var(--cream-dk);outline:none;cursor:pointer}
+#cow-container .slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:2px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
+#cow-container .slider-val{font-size:15px;font-weight:700;color:var(--navy);min-width:42px;text-align:right}
+#cow-container .slider-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--lt);margin-bottom:20px}
+
+/* GOAL DROPDOWN */
+#cow-container .goal-select{width:100%;padding:12px 14px;border:1.5px solid var(--cream-dk);border-radius:8px;font-size:14px;color:var(--navy);font-family:'Inter',sans-serif;background:var(--cream);cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23718096' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+#cow-container .goal-select:focus{outline:none;border-color:var(--gold)}
+
+/* CALC BUTTON */
+#cow-container .calc-btn{width:100%;padding:16px;background:var(--navy);color:var(--cream);border:none;border-radius:8px;font-size:15px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;letter-spacing:.04em;transition:background .2s;margin-top:4px}
+#cow-container .calc-btn:hover{background:#162942}
+
+/* PARTIAL RESULT */
+#cow-container .partial-result{display:none;background:var(--navy);padding:36px;text-align:center;border-left:1px solid var(--cream-dk);border-right:1px solid var(--cream-dk)}
+#cow-container .partial-result.show{display:block}
+#cow-container .partial-label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,244,237,.45);margin-bottom:8px}
+#cow-container .partial-number{font-family:'Playfair Display',serif;font-size:clamp(52px,10vw,80px);font-weight:700;color:var(--gold);line-height:1;margin-bottom:8px}
+#cow-container .partial-desc{font-size:14px;color:rgba(247,244,237,.55);line-height:1.7;margin-bottom:8px;max-width:420px;margin-left:auto;margin-right:auto}
+#cow-container .partial-daily{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:28px}
+#cow-container .partial-blur-preview{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;filter:blur(6px);opacity:.4;pointer-events:none;user-select:none}
+#cow-container .blur-card{background:rgba(255,255,255,.08);border-radius:8px;padding:16px;text-align:center}
+#cow-container .blur-card p{color:var(--cream);font-size:13px}
+#cow-container .blur-card strong{display:block;font-size:28px;font-family:'Playfair Display',serif;color:var(--gold)}
+#cow-container .unlock-label{font-size:13px;color:rgba(247,244,237,.6);margin-bottom:16px}
+
+/* GATE */
+#cow-container .gate{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:24px;max-width:400px;margin:0 auto}
+#cow-container .gate-title{font-size:15px;font-weight:600;color:var(--cream);margin-bottom:16px}
+#cow-container .contact-options{display:flex;gap:8px;margin-bottom:16px;justify-content:center}
+#cow-container .contact-opt{padding:7px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.2);background:transparent;color:rgba(247,244,237,.6);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
+#cow-container .contact-opt.selected{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+#cow-container .contact-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:8px;color:var(--cream);font-size:14px;font-family:'Inter',sans-serif;transition:border-color .2s;margin-bottom:12px}
+#cow-container .contact-input:focus{outline:none;border-color:var(--gold)}
+#cow-container .contact-input::placeholder{color:rgba(247,244,237,.3)}
+#cow-container .unlock-btn{width:100%;padding:14px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s}
+#cow-container .unlock-btn:hover{background:var(--gold-dk)}
+#cow-container .gate-disc{font-size:10px;color:rgba(247,244,237,.25);text-align:center;margin-top:10px;line-height:1.5}
+
+/* FULL RESULT */
+#cow-container .full-result{display:none;background:var(--white);border-left:1px solid var(--cream-dk);border-right:1px solid var(--cream-dk);padding:32px 36px}
+#cow-container .full-result.show{display:block}
+
+/* Procrastination tabs */
+#cow-container .proc-tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--cream);border-radius:8px;padding:4px}
+#cow-container .proc-tab{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:6px;font-size:12px;font-weight:600;color:var(--lt);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-align:center}
+#cow-container .proc-tab.active{background:var(--navy);color:var(--cream)}
+#cow-container .proc-tab-label{display:block;font-size:10px;opacity:.6;margin-top:1px}
+
+/* Result cards */
+#cow-container .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+#cow-container .result-card{border-radius:10px;padding:20px;text-align:center}
+#cow-container .result-card.now{background:rgba(45,125,82,.08);border:1.5px solid rgba(45,125,82,.25)}
+#cow-container .result-card.wait{background:var(--red-lt);border:1.5px solid rgba(192,57,43,.2)}
+#cow-container .result-card-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+#cow-container .result-card.now .result-card-label{color:var(--green)}
+#cow-container .result-card.wait .result-card-label{color:var(--red)}
+#cow-container .result-card-amount{font-family:'Playfair Display',serif;font-size:clamp(24px,3.5vw,32px);font-weight:700;margin-bottom:4px}
+#cow-container .result-card.now .result-card-amount{color:var(--navy)}
+#cow-container .result-card.wait .result-card-amount{color:var(--red)}
+#cow-container .result-card-sub{font-size:11px;color:var(--lt)}
+
+/* Diff block */
+#cow-container .diff-block{background:var(--navy);border-radius:10px;padding:22px 28px;margin-bottom:16px}
+#cow-container .diff-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+#cow-container .diff-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(247,244,237,.4);margin-bottom:4px}
+#cow-container .diff-number{font-family:'Playfair Display',serif;font-size:clamp(30px,4.5vw,42px);font-weight:700;color:var(--gold);line-height:1}
+#cow-container .diff-right{text-align:right}
+#cow-container .diff-context{font-size:13px;color:rgba(247,244,237,.55);line-height:1.6}
+
+/* Quick stats */
+#cow-container .quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+#cow-container .stat-card{background:var(--cream);border-radius:8px;padding:14px;text-align:center;border:1px solid var(--cream-dk)}
+#cow-container .stat-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--lt);margin-bottom:4px;display:block}
+#cow-container .stat-value{font-family:'Playfair Display',serif;font-size:20px;color:var(--navy);font-weight:700}
+#cow-container .stat-sub{font-size:10px;color:var(--lt);margin-top:2px;display:block}
+
+/* Inflation & already lost */
+#cow-container .info-block{border-radius:10px;padding:16px 20px;display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+#cow-container .info-block.red{background:var(--red-lt);border:1px solid rgba(192,57,43,.2)}
+#cow-container .info-block.gold{background:var(--gold-lt);border:1px solid rgba(201,168,76,.25)}
+#cow-container .info-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+#cow-container .info-text{font-size:13px;color:var(--text);line-height:1.65}
+#cow-container .info-text strong{color:var(--red)}
+#cow-container .info-block.gold .info-text strong{color:#8B6914}
+
+/* Chart */
+#cow-container .chart-wrap{margin-bottom:20px}
+#cow-container .chart-label{font-size:11px;font-weight:600;color:var(--lt);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+#cow-container canvas{width:100%;border-radius:8px;display:block}
+
+/* Goal output */
+#cow-container .goal-output{background:var(--gold-lt);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:18px 22px;margin-bottom:20px;font-size:14px;color:var(--navy);line-height:1.7;font-style:italic}
+
+/* FOOTER */
+#cow-container .calc-footer{background:var(--navy);border-radius:0 0 var(--radius) var(--radius);padding:28px 36px;text-align:center}
+#cow-container .calc-footer h3{font-family:'Playfair Display',serif;font-size:20px;color:var(--cream);margin-bottom:8px}
+#cow-container .calc-footer p{font-size:13px;color:rgba(247,244,237,.55);margin-bottom:20px;line-height:1.7}
+#cow-container .footer-cta{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);text-decoration:none;font-size:13px;font-weight:700;padding:14px 28px;border-radius:8px;transition:background .2s}
+#cow-container .footer-cta:hover{background:var(--gold-dk)}
+
+@media(max-width:580px){
+  #cow-container .calc-body,
+#cow-container .full-result,
+#cow-container .calc-footer,
+#cow-container .partial-result{padding-left:16px;padding-right:16px}
+  #cow-container .calc-header{padding:20px 16px}
+  #cow-container .calc-title{font-size:22px}
+  #cow-container .inputs-grid{grid-template-columns:1fr}
+  #cow-container .risk-profiles{grid-template-columns:1fr 1fr;gap:6px}
+  #cow-container .risk-btn{padding:10px 6px}
+  #cow-container .risk-btn-name{font-size:11px}
+  #cow-container .risk-btn-return{font-size:10px}
+  #cow-container .risk-btn-desc{display:none}
+  #cow-container .result-grid{grid-template-columns:1fr}
+  #cow-container .quick-stats{grid-template-columns:1fr 1fr}
+  #cow-container .stat-card{padding:12px 10px}
+  #cow-container .diff-block{padding:16px}
+  #cow-container .diff-number{font-size:28px}
+  #cow-container .diff-right{text-align:left}
+  #cow-container .proc-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
+  #cow-container .proc-tab{min-width:70px;font-size:11px;padding:7px 6px;white-space:nowrap}
+  #cow-container .input-field{font-size:16px;padding:14px}
+  #cow-container .calc-btn{padding:16px;font-size:15px}
+  #cow-container .unlock-btn{padding:16px;font-size:15px}
+  #cow-container .contact-options{gap:6px}
+  #cow-container .contact-opt{padding:8px 12px;font-size:12px}
+  #cow-container .gate{padding:20px 16px}
+  #cow-container .big-number{font-size:48px}
+  #cow-container .partial-number{font-size:48px}
+  #cow-container .info-block{padding:14px 16px}
+  #cow-container .info-text{font-size:12px}
+  #cow-container .goal-output{font-size:13px;padding:14px 16px}
+}
+
+</style>
+        
+<div class="calc-wrapper">
+
+<!-- HEADER -->
+<div class="calc-header">
+  <div class="calc-eyebrow">The Everyday Investor</div>
+  <h2 class="calc-title">The Cost of Waiting Calculator</h2>
+  <p class="calc-sub">Find out exactly what every month of inaction is costing you -- in pounds, by retirement.</p>
+</div>
+
+<!-- INPUTS -->
+<div class="calc-body">
+  <span class="input-section-label">Your situation</span>
+  <div class="inputs-grid">
+    <div class="input-group">
+      <label class="input-label">Monthly contribution</label>
+      <input class="input-field" type="number" id="cow-monthly" value="300" min="50" max="10000">
+      <span class="input-hint">What you could invest each month</span>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Your current age</label>
+      <input class="input-field" type="number" id="cow-age" value="28" min="18" max="55">
+      <span class="input-hint">Retirement modelled at age 60</span>
+    </div>
+  </div>
+
+  <div class="input-group" style="margin-bottom:20px;">
+    <label class="input-label" style="margin-bottom:8px;">What are you saving toward?</label>
+    <select class="goal-select" id="cow-goal">
+      <option value="independence">Financial independence</option>
+      <option value="retirement">Early retirement</option>
+      <option value="children">Children's future</option>
+      <option value="wealth">General wealth building</option>
+    </select>
+  </div>
+
+  <span class="input-section-label">Your risk profile</span>
+  <div class="risk-profiles">
+    <button class="risk-btn" id="cow-risk-cautious" onclick="setRisk('cautious',4.5)">
+      <span class="risk-btn-name">Cautious</span>
+      <span class="risk-btn-return">4.5% p.a.</span>
+      <span class="risk-btn-desc">Capital preservation, mostly bonds</span>
+    </button>
+    <button class="risk-btn active" id="cow-risk-balanced" onclick="setRisk('balanced',7)">
+      <span class="risk-btn-name">Balanced</span>
+      <span class="risk-btn-return">7% p.a.</span>
+      <span class="risk-btn-desc">Mixed growth and stability</span>
+    </button>
+    <button class="risk-btn" id="cow-risk-growth" onclick="setRisk('growth',9.5)">
+      <span class="risk-btn-name">Growth</span>
+      <span class="risk-btn-return">9.5% p.a.</span>
+      <span class="risk-btn-desc">Equity-focused, some volatility</span>
+    </button>
+    <button class="risk-btn" id="cow-risk-aggressive" onclick="setRisk('aggressive',12)">
+      <span class="risk-btn-name">Aggressive</span>
+      <span class="risk-btn-return">12% p.a.</span>
+      <span class="risk-btn-desc">High conviction, concentrated</span>
+    </button>
+  </div>
+
+  <div class="input-group" style="margin-bottom:8px;">
+    <label class="input-label">Fine-tune assumed return</label>
+    <div class="slider-row">
+      <input class="slider" type="range" id="cow-return-slider" min="3" max="15" value="7" step="0.5"
+             oninput="onSliderChange(this.value)">
+      <span class="slider-val" id="cow-slider-display">7%</span>
+    </div>
+    <div class="slider-labels"><span>3%</span><span>Conservative</span><span>15%</span></div>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">Show me the cost of waiting →</button>
+  <button class="calc-btn" onclick="resetCalculator()" style="background:transparent;border:1.5px solid rgba(29,53,87,.15);color:var(--mid);margin-top:10px;box-shadow:none;">Reset</button>
+</div>
+
+<!-- PARTIAL RESULT + GATE -->
+<div class="partial-result" id="cow-partial-result">
+  <div class="partial-label">The cost of waiting one year</div>
+  <div class="partial-number" id="cow-diff-num">£0</div>
+  <p class="partial-desc" id="cow-diff-desc">That's what you give up by waiting just 12 months to start.</p>
+  <p class="partial-daily" id="cow-diff-daily">That's £0 every single day.</p>
+
+  <div class="partial-blur-preview">
+    <div class="blur-card"><p>Start now</p><strong>£???k</strong><p>by age 60</p></div>
+    <div class="blur-card"><p>Wait one year</p><strong>£???k</strong><p>by age 60</p></div>
+  </div>
+  <p class="unlock-label">Unlock the full breakdown -- free.</p>
+
+  <div class="gate">
+    <div class="gate-title">How would you like your results sent?</div>
+    <div class="contact-options">
+      <button class="contact-opt selected" id="cow-opt-email" onclick="selectContact('email')">📧 Email</button>
+      <button class="contact-opt" id="cow-opt-phone" onclick="selectContact('phone')">📱 Phone</button>
+      <button class="contact-opt" id="cow-opt-instagram" onclick="selectContact('instagram')">📸 Instagram</button>
+    </div>
+    <input class="contact-input" type="email" id="cow-contact-val" placeholder="Enter your email address">
+    <button class="unlock-btn" onclick="unlock()">Unlock my full results →</button>
+    <p class="gate-disc">No spam. No cold calls. We'll send your results and one follow-up. Unsubscribe any time.</p>
+  </div>
+</div>
+
+<!-- FULL RESULT -->
+<div class="full-result" id="cow-full-result">
+
+  <!-- Goal framing -->
+  <div class="goal-output" id="cow-goal-output"></div>
+
+  <!-- Procrastination year tabs -->
+  <div style="margin-bottom:8px;">
+    <span class="input-section-label">Years of delay to model</span>
+  </div>
+  <div class="proc-tabs" id="cow-proc-tabs">
+    <button class="proc-tab active" onclick="setDelay(1,this)">1 year<span class="proc-tab-label">baseline</span></button>
+    <button class="proc-tab" onclick="setDelay(2,this)">2 years</button>
+    <button class="proc-tab" onclick="setDelay(3,this)">3 years</button>
+    <button class="proc-tab" onclick="setDelay(4,this)">4 years</button>
+    <button class="proc-tab" onclick="setDelay(5,this)">5 years<span class="proc-tab-label">the real cost</span></button>
+  </div>
+
+  <!-- Pots -->
+  <div class="result-grid">
+    <div class="result-card now">
+      <div class="result-card-label">Start today</div>
+      <div class="result-card-amount" id="cow-now-amt">-</div>
+      <div class="result-card-sub">projected by age 60</div>
+    </div>
+    <div class="result-card wait">
+      <div class="result-card-label" id="cow-wait-label">Wait 1 year</div>
+      <div class="result-card-amount" id="cow-wait-amt">-</div>
+      <div class="result-card-sub">projected by age 60</div>
+    </div>
+  </div>
+
+  <!-- Difference -->
+  <div class="diff-block">
+    <div class="diff-row">
+      <div>
+        <div class="diff-label" id="cow-diff-block-label">The cost of waiting 1 year</div>
+        <div class="diff-number" id="cow-diff-big">-</div>
+      </div>
+      <div class="diff-right">
+        <div class="diff-context" id="cow-diff-context">-</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick stats -->
+  <div class="quick-stats">
+    <div class="stat-card">
+      <span class="stat-label">Monthly cost</span>
+      <div class="stat-value" id="cow-stat-monthly">-</div>
+      <span class="stat-sub">per month of waiting</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Daily cost</span>
+      <div class="stat-value" id="cow-stat-daily">-</div>
+      <span class="stat-sub">thrown away per day</span>
+    </div>
+    <div class="stat-card" id="cow-stat-lost-card">
+      <span class="stat-label">Already lost</span>
+      <div class="stat-value" id="cow-stat-lost">-</div>
+      <span class="stat-sub">vs starting at 25</span>
+    </div>
+  </div>
+
+  <!-- Inflation erosion -->
+  <div class="info-block red">
+    <div class="info-icon">📉</div>
+    <div class="info-text" id="cow-inflation-text">-</div>
+  </div>
+
+  <!-- Already lost context -->
+  <div class="info-block gold" id="cow-already-lost-block">
+    <div class="info-icon">⏳</div>
+    <div class="info-text" id="cow-already-lost-text">-</div>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-wrap">
+    <div class="chart-label">Growth trajectory comparison</div>
+    <canvas id="cow-chart" height="220"></canvas>
+  </div>
+
+</div>
+
+<div id="cow-print-only" style="display:none;">
+  <div style="padding:28px 44px;font-family:'Inter',sans-serif;color:#1a1a2e;background:#ffffff;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <div style="width:26px;height:26px;border-radius:50%;background:#1D3557;border:1.5px solid #C9A84C;display:flex;align-items:center;justify-content:center;font-size:12px;color:#C9A84C;">&#10022;</div>
+      <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#C9A84C;font-weight:800;">The Everyday Investor</span>
+    </div>
+    <h1 style="font-family:'Playfair Display',serif;font-size:25px;color:#1D3557;margin:9px 0 3px;font-weight:700;">Your Cost of Waiting Summary</h1>
+    <p id="cow-print-date" style="font-size:11px;color:#718096;margin-bottom:11px;"></p>
+
+    <div style="background:#1D3557;border-radius:8px;padding:8px 20px;margin-bottom:11px;">
+      <p style="font-size:10.5px;color:#F7F4ED;line-height:1.6;margin:0;white-space:nowrap;">
+        Monthly Contribution: <strong style="color:#C9A84C;" id="cow-print-monthly">-</strong>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+        Age: <strong style="color:#C9A84C;" id="cow-print-age">-</strong>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+        Risk Profile: <strong style="color:#C9A84C;" id="cow-print-risk">-</strong>&nbsp;&nbsp;&middot;&nbsp;&nbsp;
+        Goal: <strong style="color:#C9A84C;" id="cow-print-goal">-</strong>
+      </p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:11px;">
+      <div style="background:#E7F3EC;border:1.5px solid #2D7D52;border-radius:8px;padding:15px 18px;">
+        <p style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#2D7D52;font-weight:800;margin-bottom:5px;">Start today</p>
+        <p id="cow-print-now" style="font-family:'Playfair Display',serif;font-size:23px;font-weight:700;color:#1D5C3A;margin:0;">-</p>
+        <p style="font-size:10px;color:#4a7a5e;margin-top:3px;">projected by age 60</p>
+      </div>
+      <div style="background:#FBEAE8;border:1.5px solid #C0392B;border-radius:8px;padding:15px 18px;">
+        <p id="cow-print-waitlabel" style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#C0392B;font-weight:800;margin-bottom:5px;">Wait</p>
+        <p id="cow-print-wait" style="font-family:'Playfair Display',serif;font-size:23px;font-weight:700;color:#8B2318;margin:0;">-</p>
+        <p style="font-size:10px;color:#a15b52;margin-top:3px;">projected by age 60</p>
+      </div>
+    </div>
+
+    <div style="background:#1D3557;border-radius:10px;padding:15px 26px;margin-bottom:11px;">
+      <p id="cow-print-difflabel" style="font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#C9A84C;font-weight:800;margin-bottom:6px;">-</p>
+      <p id="cow-print-diffbig" style="font-family:'Playfair Display',serif;font-size:38px;font-weight:700;color:#ffffff;margin:0 0 6px;line-height:1;">-</p>
+      <p id="cow-print-diffcontext" style="font-size:12px;color:#C9D3E0;margin:0;">-</p>
+    </div>
+
+    <div style="margin-bottom:11px;">
+      <p style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#718096;font-weight:800;margin-bottom:6px;">The cost keeps growing</p>
+      <div id="cow-print-escalation" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+      </div>
+    </div>
+
+    <div id="cow-print-statsgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:11px;">
+      <div style="background:#FBF4E0;border:1.5px solid #C9A84C;border-radius:8px;padding:10px 16px;">
+        <p style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8B6914;font-weight:800;margin-bottom:4px;">Monthly cost</p>
+        <p id="cow-print-monthlycost" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1D3557;margin:0;">-</p>
+        <p style="font-size:9px;color:#8B6914;margin-top:2px;">per month of waiting</p>
+      </div>
+      <div style="background:#FBF4E0;border:1.5px solid #C9A84C;border-radius:8px;padding:10px 16px;">
+        <p style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8B6914;font-weight:800;margin-bottom:4px;">Daily cost</p>
+        <p id="cow-print-dailycost" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1D3557;margin:0;">-</p>
+        <p style="font-size:9px;color:#8B6914;margin-top:2px;">thrown away per day</p>
+      </div>
+      <div id="cow-print-lostcard" style="background:#FBF4E0;border:1.5px solid #C9A84C;border-radius:8px;padding:10px 16px;display:none;">
+        <p style="font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#8B6914;font-weight:800;margin-bottom:4px;">Already lost</p>
+        <p id="cow-print-lost" style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1D3557;margin:0;">-</p>
+        <p style="font-size:9px;color:#8B6914;margin-top:2px;">vs starting at 25</p>
+      </div>
+    </div>
+
+    <div style="background:#FBEAE8;border-left:4px solid #C0392B;border-radius:0 8px 8px 0;padding:10px 18px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:15px;flex-shrink:0;line-height:1.4;">&#128201;</span>
+      <p id="cow-print-inflation" style="font-size:11.5px;color:#7a2e26;line-height:1.55;margin:0;font-weight:500;">-</p>
+    </div>
+
+    <div id="cow-print-alreadyblock" style="background:#FBF4E0;border-left:4px solid #C9A84C;border-radius:0 8px 8px 0;padding:10px 18px;margin-bottom:11px;display:none;align-items:flex-start;gap:10px;">
+      <span style="font-size:15px;flex-shrink:0;line-height:1.4;">&#8987;</span>
+      <p id="cow-print-alreadytext" style="font-size:11.5px;color:#7a5c1e;line-height:1.55;margin:0;font-weight:500;">-</p>
+    </div>
+
+    <div style="background:#1D3557;border-radius:8px;padding:11px 20px;margin-bottom:8px;">
+      <p id="cow-print-goalquote" style="font-family:'Playfair Display',serif;font-style:italic;font-size:14px;font-weight:600;color:#F7F4ED;margin:0;line-height:1.45;">-</p>
+    </div>
+
+    <p style="font-size:9.5px;color:#718096;line-height:1.55;border-top:1px solid #EDE8DA;padding-top:6px;">Projections are illustrative only, based on compound growth at the assumed annual return rate. Not financial advice. Generated by the TEI Cost of Waiting Calculator -- theeverydayinvestor.co.uk</p>
+  </div>
+</div>
+
+<div style="text-align:center;margin-bottom:16px;">
+<button class="calc-btn" id="cow-print-btn" onclick="printCowSummary()" style="background:var(--gold);color:var(--navy);margin-top:10px;box-shadow:none;">Print / Save as PDF</button>
+</div>
+
+
+
+</div>
+
+<script>
+var selectedContact = "email";
+var currentReturn = 7;
+var currentDelay = 1;
+var results = null;
+
+var profiles = {
+  cautious:   { rate: 4.5  },
+  balanced:   { rate: 7    },
+  growth:     { rate: 9.5  },
+  aggressive: { rate: 12   }
+};
+
+function setRisk(name, rate) {
+  currentReturn = rate;
+  Object.keys(profiles).forEach(function(k) {
+    var el = document.getElementById("risk-" + k);
+    if (el) el.classList.toggle("active", k === name);
+  });
+  document.getElementById("return-slider").value = rate;
+  document.getElementById("slider-display").textContent = rate + "%";
+}
+
+function onSliderChange(val) {
+  currentReturn = parseFloat(val);
+  document.getElementById("slider-display").textContent = val + "%";
+  Object.keys(profiles).forEach(function(k) {
+    var el = document.getElementById("risk-" + k);
+    if (el) el.classList.remove("active");
+  });
+}
+
+function calcPot(monthly, years, rate) {
+  var r = rate / 100 / 12;
+  if (r === 0) return monthly * years * 12;
+  return monthly * ((Math.pow(1 + r, years * 12) - 1) / r);
+}
+
+function fmt(n) {
+  if (n >= 1000000) return "£" + (n/1000000).toFixed(2) + "M";
+  if (n >= 1000) return "£" + Math.round(n/1000) + "k";
+  return "£" + Math.round(n);
+}
+
+function fmtFull(n) {
+  return "£" + Math.round(n).toLocaleString();
+}
+
+var goalText = {
+  independence: function(diff, delay) {
+    return "Every year you wait pushes financial independence further away. With your numbers, waiting " + delay + " year" + (delay>1?"s":"") + " costs you " + fmtFull(diff) + " -- real freedom, delayed.";
+  },
+  retirement: function(diff, delay) {
+    return "Waiting " + delay + " year" + (delay>1?"s":"") + " costs you " + fmtFull(diff) + " by retirement. The difference between retiring when you choose -- and when you have to.";
+  },
+  children: function(diff, delay) {
+    return "Building wealth for your children costs time as much as money. Every year of delay costs " + fmtFull(diff) + " -- school fees, a head start, a gift they will never forget.";
+  },
+  wealth: function(diff, delay) {
+    return "Building long-term wealth is about consistency and time. Waiting " + delay + " year" + (delay>1?"s":"") + " quietly costs you " + fmtFull(diff) + ". The best time to start was last year. The next best time is now.";
+  }
+};
+
+function calculate() {
+  var monthly = parseFloat(document.getElementById("monthly").value) || 300;
+  var age     = parseInt(document.getElementById("age").value) || 28;
+  var rate    = currentReturn;
+  var years   = Math.max(2, 60 - age);
+
+  results = { monthly: monthly, age: age, rate: rate, years: years };
+
+  var nowPot    = calcPot(monthly, years, rate);
+  var waitPot   = calcPot(monthly, years - 1, rate);
+  var diff      = nowPot - waitPot;
+  var dailyCost = diff / 365;
+
+  document.getElementById("diff-num").textContent   = fmtFull(diff);
+  document.getElementById("diff-desc").textContent  = "That is what you give up by waiting 12 months -- at £" + monthly + "/month.";
+  document.getElementById("diff-daily").textContent = "That is " + fmtFull(dailyCost) + " every single day.";
+  document.getElementById("partial-result").classList.add("show");
+  document.getElementById("partial-result").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function selectContact(type) {
+  selectedContact = type;
+  ["email","phone","instagram"].forEach(function(t) {
+    var el = document.getElementById("cow-opt-" + t);
+    if (el) el.classList.toggle("selected", t === type);
+  });
+  var input = document.getElementById("cow-contact-val");
+  if (!input) return;
+  if (type === "email") {
+    input.type = "email";
+    input.placeholder = "Enter your email address";
+  } else if (type === "phone") {
+    input.type = "tel";
+    input.placeholder = "Enter your phone number";
+  } else {
+    input.type = "text";
+    input.placeholder = "@yourinstagram";
+  }
+}
+
+function unlock() {
+  var val = document.getElementById("contact-val").value.trim();
+  if (!val) {
+    var inp = document.getElementById("contact-val");
+    inp.style.borderColor = "#C0392B";
+    setTimeout(function() { inp.style.borderColor = ""; }, 1500);
+    return;
+  }
+  console.log("Lead captured:", selectedContact, val);
+  document.getElementById("partial-result").style.display = "none";
+  document.getElementById("full-result").classList.add("show");
+  document.getElementById("calc-footer").style.display = "block";
+  showFullResult(1);
+  document.getElementById("full-result").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function setDelay(years, btn) {
+  currentDelay = years;
+  document.querySelectorAll(".proc-tab").forEach(function(b) { b.classList.remove("active"); });
+  btn.classList.add("active");
+  showFullResult(years);
+}
+
+function showFullResult(delayYears) {
+  if (!results) return;
+  var r = results;
+  var nowPot  = calcPot(r.monthly, r.years, r.rate);
+  var waitPot = calcPot(r.monthly, Math.max(0, r.years - delayYears), r.rate);
+  var diff    = nowPot - waitPot;
+  var monthlyCost   = diff / (delayYears * 12);
+  var dailyCost     = diff / 365;
+  var inflationLoss = Math.round(r.monthly * 0.03 * delayYears);
+
+  var alreadyLostYears = Math.max(0, r.age - 25);
+  var couldHaveHad     = calcPot(r.monthly, r.years + alreadyLostYears, r.rate);
+  var alreadyLost      = couldHaveHad - nowPot;
+
+  document.getElementById("now-amt").textContent   = fmtFull(nowPot);
+  document.getElementById("wait-amt").textContent  = fmtFull(waitPot);
+  document.getElementById("wait-label").textContent = "Wait " + delayYears + " year" + (delayYears>1?"s":"");
+  document.getElementById("diff-block-label").textContent = "The cost of waiting " + delayYears + " year" + (delayYears>1?"s":"");
+  document.getElementById("diff-big").textContent  = fmtFull(diff);
+  document.getElementById("diff-context").textContent = r.years + " years of compounding vs " + (r.years - delayYears) + ". Same contribution. " + (delayYears > 1 ? delayYears + " years of inaction." : "One year of inaction.");
+
+  document.getElementById("stat-monthly").textContent = fmtFull(monthlyCost);
+  document.getElementById("stat-daily").textContent   = fmtFull(dailyCost);
+  document.getElementById("stat-lost").textContent    = alreadyLostYears > 0 ? fmtFull(alreadyLost) : "N/A";
+
+  document.getElementById("inflation-text").innerHTML =
+    "Over " + delayYears + " year" + (delayYears>1?"s":"") + " of waiting, £" + r.monthly.toLocaleString() +
+    "/month in a bank account loses <strong>approx £" + inflationLoss.toLocaleString() +
+    "</strong> in purchasing power to inflation. Your starting pot is already shrinking.";
+
+  if (alreadyLostYears > 0) {
+    document.getElementById("already-lost-text").innerHTML =
+      "If you had started investing at 25, you would have an estimated <strong style='color:#8B6914'>" + fmtFull(alreadyLost) +
+      " more</strong> by retirement. That is the compounding already left on the table. Do not leave the next " +
+      delayYears + " year" + (delayYears>1?"s":"") + " on the table too.";
+  } else {
+    document.getElementById("already-lost-text").textContent =
+      "You are at a great age to start. Every year you act on this gives compounding more time to work. Do not give those years away.";
+  }
+
+  var goal = document.getElementById("goal").value;
+  var fn   = goalText[goal];
+  document.getElementById("goal-output").textContent = fn ? fn(diff, delayYears) : "";
+
+  drawChart(nowPot, waitPot, r.years, delayYears, r.monthly, r.rate);
+}
+
+function drawChart(nowPot, waitPot, years, delayYears, monthly, rate) {
+  var canvas = document.getElementById("chart");
+  var ctx    = canvas.getContext("2d");
+  var W = canvas.parentElement.offsetWidth || 620;
+  var H = 220;
+  canvas.width  = W;
+  canvas.height = H;
+
+  var pad = {t:20, r:16, b:36, l:60};
+  var cW = W - pad.l - pad.r;
+  var cH = H - pad.t - pad.b;
+
+  var nowPoints = [], waitPoints = [];
+  for (var yr = 0; yr <= years; yr++) {
+    nowPoints.push(calcPot(monthly, yr, rate));
+    waitPoints.push(calcPot(monthly, Math.max(0, yr - delayYears), rate));
+  }
+
+  var maxVal = Math.max(nowPot, waitPot) * 1.08;
+  function xp(i) { return pad.l + (i / years) * cW; }
+  function yp(v) { return pad.t + cH - (v / maxVal) * cH; }
+
+  ctx.clearRect(0, 0, W, H);
+
+  for (var g = 0; g <= 4; g++) {
+    var gy = pad.t + (g / 4) * cH;
+    ctx.strokeStyle = "rgba(29,53,87,.06)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(pad.l + cW, gy); ctx.stroke();
+    ctx.fillStyle = "rgba(113,128,150,.5)";
+    ctx.font = "10px Inter";
+    ctx.textAlign = "right";
+    ctx.fillText(fmt(maxVal * (1 - g/4)), pad.l - 6, gy + 3);
+  }
+
+  ctx.beginPath();
+  nowPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  ctx.lineTo(xp(years), pad.t + cH);
+  ctx.lineTo(pad.l, pad.t + cH);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(45,125,82,.08)";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#2D7D52"; ctx.lineWidth = 2.5; ctx.lineJoin = "round";
+  nowPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#C0392B"; ctx.lineWidth = 2; ctx.setLineDash([5,4]);
+  waitPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.beginPath();
+  nowPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  for (var i2 = years; i2 >= 0; i2--) { ctx.lineTo(xp(i2), yp(waitPoints[i2])); }
+  ctx.closePath();
+  ctx.fillStyle = "rgba(201,168,76,.06)";
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(113,128,150,.6)"; ctx.font = "10px Inter"; ctx.textAlign = "center";
+  [0, Math.floor(years/2), years].forEach(function(i) {
+    ctx.fillText("Age " + (60 - years + i), xp(i), H - 8);
+  });
+
+  ctx.font = "11px Inter"; ctx.textAlign = "left";
+  ctx.strokeStyle = "#2D7D52"; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(pad.l, 12); ctx.lineTo(pad.l+18, 12); ctx.stroke();
+  ctx.fillStyle = "#2D7D52"; ctx.fillText("Start now", pad.l+22, 16);
+  ctx.strokeStyle = "#C0392B"; ctx.lineWidth = 2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l+95, 12); ctx.lineTo(pad.l+113, 12); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "#C0392B"; ctx.fillText("Wait " + delayYears + " yr" + (delayYears>1?"s":""), pad.l+117, 16);
+}
+
+function showOpenVersion() {
+  document.getElementById("partial-result").style.display = "none";
+  window.calculate = function() {
+    var monthly = parseFloat(document.getElementById("monthly").value) || 300;
+    var age     = parseInt(document.getElementById("age").value) || 28;
+    var rate    = currentReturn;
+    var years   = Math.max(2, 60 - age);
+    results = { monthly: monthly, age: age, rate: rate, years: years };
+    document.getElementById("full-result").classList.add("show");
+    document.getElementById("calc-footer").style.display = "block";
+    showFullResult(1);
+    document.getElementById("full-result").scrollIntoView({behavior:"smooth", block:"start"});
+  };
+}
+</script>
+
+        <script>
+var selectedContact = "email";
+var currentReturn = 7;
+var currentDelay = 1;
+var results = null;
+
+var profiles = {
+  cautious:   { rate: 4.5  },
+  balanced:   { rate: 7    },
+  growth:     { rate: 9.5  },
+  aggressive: { rate: 12   }
+};
+
+function setRisk(name, rate) {
+  currentReturn = rate;
+  Object.keys(profiles).forEach(function(k) {
+    var el = document.getElementById("cow-risk-" + k);
+    if (el) el.classList.toggle("active", k === name);
+  });
+  document.getElementById("cow-return-slider").value = rate;
+  document.getElementById("cow-slider-display").textContent = rate + "%";
+}
+
+function onSliderChange(val) {
+  currentReturn = parseFloat(val);
+  document.getElementById("cow-slider-display").textContent = val + "%";
+  Object.keys(profiles).forEach(function(k) {
+    var el = document.getElementById("cow-risk-" + k);
+    if (el) el.classList.remove("active");
+  });
+}
+
+function calcPot(monthly, years, rate) {
+  var r = rate / 100 / 12;
+  if (r === 0) return monthly * years * 12;
+  return monthly * ((Math.pow(1 + r, years * 12) - 1) / r);
+}
+
+function fmt(n) {
+  if (n >= 1000000) return "£" + (n/1000000).toFixed(2) + "M";
+  if (n >= 1000) return "£" + Math.round(n/1000) + "k";
+  return "£" + Math.round(n);
+}
+
+function fmtFull(n) {
+  return "£" + Math.round(n).toLocaleString();
+}
+
+var goalText = {
+  independence: function(diff, delay) {
+    return "Every year you wait pushes financial independence further away. With your numbers, waiting " + delay + " year" + (delay>1?"s":"") + " costs you " + fmtFull(diff) + " -- real freedom, delayed.";
+  },
+  retirement: function(diff, delay) {
+    return "Waiting " + delay + " year" + (delay>1?"s":"") + " costs you " + fmtFull(diff) + " by retirement. The difference between retiring when you choose -- and when you have to.";
+  },
+  children: function(diff, delay) {
+    return "Building wealth for your children costs time as much as money. Every year of delay costs " + fmtFull(diff) + " -- school fees, a head start, a gift they will never forget.";
+  },
+  wealth: function(diff, delay) {
+    return "Building long-term wealth is about consistency and time. Waiting " + delay + " year" + (delay>1?"s":"") + " quietly costs you " + fmtFull(diff) + ". The best time to start was last year. The next best time is now.";
+  }
+};
+
+function calculate() {
+  var monthly = parseFloat(document.getElementById("cow-monthly").value) || 300;
+  var age     = parseInt(document.getElementById("cow-age").value) || 28;
+  var rate    = currentReturn;
+  var years   = Math.max(2, 60 - age);
+
+  results = { monthly: monthly, age: age, rate: rate, years: years };
+
+  var nowPot    = calcPot(monthly, years, rate);
+  var waitPot   = calcPot(monthly, years - 1, rate);
+  var diff      = nowPot - waitPot;
+  var dailyCost = diff / 365;
+
+  document.getElementById("cow-diff-num").textContent   = fmtFull(diff);
+  document.getElementById("cow-diff-desc").textContent  = "That is what you give up by waiting 12 months -- at £" + monthly + "/month.";
+  document.getElementById("cow-diff-daily").textContent = "That is " + fmtFull(dailyCost) + " every single day.";
+  document.getElementById("cow-partial-result").classList.add("show");
+  document.getElementById("cow-partial-result").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function selectContact(type) {
+  selectedContact = type;
+  ["email","phone","insta"].forEach(function(t) {
+    var el = document.getElementById("cow-opt-" + t);
+    if (el) el.classList.toggle("selected", t === type);
+  });
+  var input = document.getElementById("cow-contact-val");
+  if (!input) return;
+  if (type === "email") {
+    input.type = "email";
+    input.placeholder = "Enter your email address";
+  } else if (type === "phone") {
+    input.type = "tel";
+    input.placeholder = "Enter your phone number";
+  } else {
+    input.type = "text";
+    input.placeholder = "@yourinstagram";
+  }
+}
+
+function unlock() {
+  var val = document.getElementById("cow-contact-val").value.trim();
+  if (!val) {
+    var inp = document.getElementById("cow-contact-val");
+    inp.style.borderColor = "#C0392B";
+    setTimeout(function() { inp.style.borderColor = ""; }, 1500);
+    return;
+  }
+  console.log("Lead captured:", selectedContact, val);
+  document.getElementById("cow-partial-result").style.display = "none";
+  document.getElementById("cow-full-result").classList.add("show");
+  showFullResult(1);
+  document.getElementById("cow-full-result").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function setDelay(years, btn) {
+  currentDelay = years;
+  document.querySelectorAll(".proc-tab").forEach(function(b) { b.classList.remove("active"); });
+  btn.classList.add("active");
+  showFullResult(years);
+}
+
+function showFullResult(delayYears) {
+  if (!results) return;
+  var r = results;
+  var nowPot  = calcPot(r.monthly, r.years, r.rate);
+  var waitPot = calcPot(r.monthly, Math.max(0, r.years - delayYears), r.rate);
+  var diff    = nowPot - waitPot;
+  var monthlyCost   = diff / (delayYears * 12);
+  var dailyCost     = diff / 365;
+  var inflationLoss = Math.round(r.monthly * 0.03 * delayYears);
+
+  var alreadyLostYears = Math.max(0, r.age - 25);
+  var couldHaveHad     = calcPot(r.monthly, r.years + alreadyLostYears, r.rate);
+  var alreadyLost      = couldHaveHad - nowPot;
+
+  document.getElementById("cow-now-amt").textContent   = fmtFull(nowPot);
+  document.getElementById("cow-wait-amt").textContent  = fmtFull(waitPot);
+  document.getElementById("cow-wait-label").textContent = "Wait " + delayYears + " year" + (delayYears>1?"s":"");
+  document.getElementById("cow-diff-block-label").textContent = "The cost of waiting " + delayYears + " year" + (delayYears>1?"s":"");
+  document.getElementById("cow-diff-big").textContent  = fmtFull(diff);
+  document.getElementById("cow-diff-context").textContent = r.years + " years of compounding vs " + (r.years - delayYears) + ". Same contribution. " + (delayYears > 1 ? delayYears + " years of inaction." : "One year of inaction.");
+
+  document.getElementById("cow-stat-monthly").textContent = fmtFull(monthlyCost);
+  document.getElementById("cow-stat-daily").textContent   = fmtFull(dailyCost);
+  var lostCard = document.getElementById("cow-stat-lost-card");
+  if (lostCard) lostCard.style.display = alreadyLostYears > 0 ? "" : "none";
+  document.getElementById("cow-stat-lost").textContent    = alreadyLostYears > 0 ? fmtFull(alreadyLost) : "N/A";
+
+  var cumulative12mo = Math.round(r.monthly * 12 * 0.03 * 1);
+  var cumulativePeriod = Math.round(r.monthly * 12 * 0.03 * delayYears);
+  var periodLabel = delayYears > 1 ? ("full " + delayYears + " years") : "full year";
+  document.getElementById("cow-inflation-text").innerHTML =
+    "Over " + delayYears + " year" + (delayYears>1?"s":"") + " of waiting, each £" + r.monthly.toLocaleString() +
+    " monthly contribution loses approximately <strong>£" + inflationLoss.toLocaleString() +
+    "</strong> in purchasing power by the time it's invested." +
+    "<br><br>Keep contributing monthly and it adds up: <strong>£" + cumulative12mo.toLocaleString() +
+    "</strong> lost over the next 12 months, rising to <strong>£" + cumulativePeriod.toLocaleString() +
+    "</strong> across the " + periodLabel + " of waiting.";
+
+  var alreadyBlock = document.getElementById("cow-already-lost-block");
+  if (alreadyBlock) alreadyBlock.style.display = alreadyLostYears > 0 ? "" : "none";
+  if (alreadyLostYears > 0) {
+    document.getElementById("cow-already-lost-text").innerHTML =
+      "If you had started investing at 25, you would have an estimated <strong style='color:#8B6914'>" + fmtFull(alreadyLost) +
+      " more</strong> by retirement. That is the compounding already left on the table. Do not leave the next " +
+      delayYears + " year" + (delayYears>1?"s":"") + " on the table too.";
+  } else {
+    document.getElementById("cow-already-lost-text").textContent =
+      "You are at a great age to start. Every year you act on this gives compounding more time to work. Do not give those years away.";
+  }
+
+  var goal = document.getElementById("cow-goal").value;
+  var fn   = goalText[goal];
+  document.getElementById("cow-goal-output").textContent = fn ? fn(diff, delayYears) : "";
+
+  drawChart(nowPot, waitPot, r.years, delayYears, r.monthly, r.rate);
+}
+
+function drawChart(nowPot, waitPot, years, delayYears, monthly, rate) {
+  var canvas = document.getElementById("cow-chart");
+  var ctx    = canvas.getContext("2d");
+  var W = canvas.parentElement.offsetWidth || 620;
+  var H = 220;
+  canvas.width  = W;
+  canvas.height = H;
+
+  var pad = {t:20, r:16, b:36, l:60};
+  var cW = W - pad.l - pad.r;
+  var cH = H - pad.t - pad.b;
+
+  var nowPoints = [], waitPoints = [];
+  for (var yr = 0; yr <= years; yr++) {
+    nowPoints.push(calcPot(monthly, yr, rate));
+    waitPoints.push(calcPot(monthly, Math.max(0, yr - delayYears), rate));
+  }
+
+  var maxVal = Math.max(nowPot, waitPot) * 1.08;
+  function xp(i) { return pad.l + (i / years) * cW; }
+  function yp(v) { return pad.t + cH - (v / maxVal) * cH; }
+
+  ctx.clearRect(0, 0, W, H);
+
+  for (var g = 0; g <= 4; g++) {
+    var gy = pad.t + (g / 4) * cH;
+    ctx.strokeStyle = "rgba(29,53,87,.06)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, gy); ctx.lineTo(pad.l + cW, gy); ctx.stroke();
+    ctx.fillStyle = "rgba(113,128,150,.5)";
+    ctx.font = "10px Inter";
+    ctx.textAlign = "right";
+    ctx.fillText(fmt(maxVal * (1 - g/4)), pad.l - 6, gy + 3);
+  }
+
+  ctx.beginPath();
+  nowPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  ctx.lineTo(xp(years), pad.t + cH);
+  ctx.lineTo(pad.l, pad.t + cH);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(45,125,82,.08)";
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#2D7D52"; ctx.lineWidth = 2.5; ctx.lineJoin = "round";
+  nowPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.strokeStyle = "#C0392B"; ctx.lineWidth = 2; ctx.setLineDash([5,4]);
+  waitPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.beginPath();
+  nowPoints.forEach(function(v, i) { i===0 ? ctx.moveTo(xp(i),yp(v)) : ctx.lineTo(xp(i),yp(v)); });
+  for (var i2 = years; i2 >= 0; i2--) { ctx.lineTo(xp(i2), yp(waitPoints[i2])); }
+  ctx.closePath();
+  ctx.fillStyle = "rgba(201,168,76,.06)";
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(113,128,150,.6)"; ctx.font = "10px Inter"; ctx.textAlign = "center";
+  [0, Math.floor(years/2), years].forEach(function(i) {
+    ctx.fillText("Age " + (60 - years + i), xp(i), H - 8);
+  });
+
+  ctx.font = "11px Inter"; ctx.textAlign = "left";
+  ctx.strokeStyle = "#2D7D52"; ctx.lineWidth = 2.5; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(pad.l, 12); ctx.lineTo(pad.l+18, 12); ctx.stroke();
+  ctx.fillStyle = "#2D7D52"; ctx.fillText("Start now", pad.l+22, 16);
+  ctx.strokeStyle = "#C0392B"; ctx.lineWidth = 2; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(pad.l+95, 12); ctx.lineTo(pad.l+113, 12); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "#C0392B"; ctx.fillText("Wait " + delayYears + " yr" + (delayYears>1?"s":""), pad.l+117, 16);
+}
+
+function showOpenVersion() {
+  document.getElementById("cow-partial-result").style.display = "none";
+  window.calculate = function() {
+    var monthly = parseFloat(document.getElementById("cow-monthly").value) || 300;
+    var age     = parseInt(document.getElementById("cow-age").value) || 28;
+    var rate    = currentReturn;
+    var years   = Math.max(2, 60 - age);
+    results = { monthly: monthly, age: age, rate: rate, years: years };
+    document.getElementById("cow-full-result").classList.add("show");
+    showFullResult(1);
+    document.getElementById("cow-full-result").scrollIntoView({behavior:"smooth", block:"start"});
+  };
+}
+
+function printCowSummary() {
+  var printEl = document.getElementById('cow-print-only');
+  if (printEl && printEl.parentElement !== document.body) {
+    document.body.appendChild(printEl);
+  }
+
+  var txt = function(id) {
+    var el = document.getElementById(id);
+    return el ? el.textContent : '-';
+  };
+  var isVisible = function(id) {
+    var el = document.getElementById(id);
+    if (!el) return false;
+    return window.getComputedStyle(el).display !== 'none';
+  };
+
+  document.getElementById('cow-print-date').textContent = 'Generated ' + new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
+  document.getElementById('cow-print-monthly').textContent = '\u00a3' + (document.getElementById('cow-monthly').value || '-') + '/month';
+  document.getElementById('cow-print-age').textContent = document.getElementById('cow-age').value || '-';
+  var goalSelect = document.getElementById('cow-goal');
+  document.getElementById('cow-print-goal').textContent = goalSelect ? goalSelect.options[goalSelect.selectedIndex].text : '-';
+  var activeRisk = document.querySelector('.risk-btn.active .risk-btn-name');
+  document.getElementById('cow-print-risk').textContent = activeRisk ? activeRisk.textContent : '-';
+
+  document.getElementById('cow-print-difflabel').textContent = txt('cow-diff-block-label');
+  document.getElementById('cow-print-diffbig').textContent = txt('cow-diff-big');
+  document.getElementById('cow-print-diffcontext').textContent = txt('cow-diff-context');
+  var escGrid = document.getElementById('cow-print-escalation');
+  if (escGrid && typeof results !== 'undefined' && results) {
+    escGrid.innerHTML = '';
+    var r = results;
+    var nowPot = calcPot(r.monthly, r.years, r.rate);
+    var currentDelayVal = (typeof currentDelay !== 'undefined') ? currentDelay : 1;
+    for (var yr = 1; yr <= 5; yr++) {
+      var waitPot = calcPot(r.monthly, Math.max(0, r.years - yr), r.rate);
+      var cost = nowPot - waitPot;
+      var isCurrent = (yr === currentDelayVal);
+      var cell = document.createElement('div');
+      cell.style.cssText = 'background:' + (isCurrent ? '#1D3557' : '#F7F4ED') + ';border-radius:6px;padding:8px 5px;text-align:center;';
+      var yrLabel = document.createElement('div');
+      yrLabel.style.cssText = 'font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:' + (isCurrent ? '#C9A84C' : '#718096') + ';font-weight:700;margin-bottom:4px;';
+      yrLabel.textContent = yr + (yr === 1 ? ' yr' : ' yrs');
+      var costLabel = document.createElement('div');
+      costLabel.style.cssText = 'font-family:\'Playfair Display\',serif;font-size:13px;font-weight:700;color:' + (isCurrent ? '#ffffff' : '#1D3557') + ';';
+      costLabel.textContent = fmt(cost);
+      cell.appendChild(yrLabel);
+      cell.appendChild(costLabel);
+      escGrid.appendChild(cell);
+    }
+  }
+
+  document.getElementById('cow-print-now').textContent = txt('cow-now-amt');
+  document.getElementById('cow-print-wait').textContent = txt('cow-wait-amt');
+  document.getElementById('cow-print-waitlabel').textContent = txt('cow-wait-label');
+  document.getElementById('cow-print-monthlycost').textContent = txt('cow-stat-monthly');
+  document.getElementById('cow-print-dailycost').textContent = txt('cow-stat-daily');
+  document.getElementById('cow-print-inflation').textContent = txt('cow-inflation-text');
+  document.getElementById('cow-print-goalquote').textContent = txt('cow-goal-output');
+
+  var lostCard = document.getElementById('cow-print-lostcard');
+  if (isVisible('cow-stat-lost-card')) {
+    document.getElementById('cow-print-lost').textContent = txt('cow-stat-lost');
+    lostCard.style.display = 'block';
+  } else {
+    lostCard.style.display = 'none';
+  }
+
+  var alreadyBlock = document.getElementById('cow-print-alreadyblock');
+  if (isVisible('cow-already-lost-block')) {
+    document.getElementById('cow-print-alreadytext').textContent = txt('cow-already-lost-text');
+    alreadyBlock.style.display = 'flex';
+  } else {
+    alreadyBlock.style.display = 'none';
+  }
+
+  var statsGrid = document.getElementById('cow-print-statsgrid');
+  if (statsGrid) {
+    statsGrid.style.gridTemplateColumns = isVisible('cow-stat-lost-card') ? '1fr 1fr 1fr' : '1fr 1fr';
+  }
+
+  window.print();
+}
+
+function resetCalculator() {
+  document.getElementById("cow-monthly").value = "300";
+  document.getElementById("cow-age").value = "28";
+  document.getElementById("cow-goal").selectedIndex = 0;
+  setRisk("balanced", 7);
+  document.getElementById("cow-return-slider").value = 7;
+  onSliderChange(7);
+  var fullResult = document.getElementById("cow-full-result");
+  if (fullResult) fullResult.classList.remove("show");
+  var footer = document.getElementById("cow-calc-footer");
+  if (footer) footer.style.display = "none";
+}
+
+showOpenVersion();
+</script>
+      </div>
+
+      <p style="font-size:11px;color:rgba(247,244,237,.25);text-align:center;margin-top:16px;line-height:1.6;">Not financial advice.</p>
+</div>
+</body>
+</html>
