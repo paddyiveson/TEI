@@ -97,6 +97,30 @@ h1,h2,h3,.num{font-family:'Playfair Display',serif;}
 #clientApp .delta-pill.up{border:1px solid var(--pill-up-border);}
 #clientApp .delta-pill.down{border:1px solid var(--pill-down-border);}
 .wrap{max-width:1440px; margin:0 auto; padding-left:32px; padding-right:32px;}
+/* Client-facing dashboard only (Home/Wealth/Goals/Portfolio/...) -- capped
+   at 1440px like every other .wrap consumer (Adviser Workspace, the
+   client list), which left large empty margins either side on anything
+   wider than a laptop screen. Scoped to #clientApp specifically rather
+   than raising the base .wrap rule, so Adviser Workspace and the client
+   list (out of scope for this pass -- see the client list's own redesign
+   above) keep their existing width. */
+#clientApp .wrap{max-width:1680px;}
+/* Re-flow to 4-per-row (from 3) on very wide screens -- scoped to the
+   handful of grids that are genuinely repeating collections of same-size
+   cards (goal cards, priority actions, completed goals, learning cards),
+   never the fixed dashboard layouts elsewhere (span-6/span-8 pairings
+   that mean something about position, not just "more cards fit"). Those
+   would need a page-by-page look at what's actually being paired before
+   touching -- this is the safe subset. */
+@media (min-width:1600px){
+  /* NOT #priorityGrid: always exactly 3 fixed, meaningful cards (Current
+     priority / Needs attention-or-On track / Long-term goal) -- already
+     fills the row exactly at 3-per-row, so reflowing to 4 would open up
+     a gap rather than close one. */
+  #clientApp #completedGoalsGrid.dgrid .span-4,
+  #clientApp #learningGrid.dgrid .span-4{ grid-column:span 3; } /* 3-per-row -> 4 */
+  #clientApp #goalCardsGrid.dgrid .span-6{ grid-column:span 4; } /* 2-per-row -> 3 */
+}
 a{color:inherit;}
 :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
 @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
