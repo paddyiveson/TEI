@@ -1863,25 +1863,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
 <section class="wrap">
   <div class="dgrid">
-    <div class="span-6">
-      <div class="dcard" style="height:100%;">
-        <div class="k" id="topHoldingsHeading">Top holdings</div>
-        <div class="line" id="topHoldingsSubline">Your 10 largest positions, across every account.</div>
-        <div style="overflow-x:auto;"><table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Value</th><th style="text-align:right;">%</th><th>Account</th></tr></thead><tbody id="topHoldingsBody"></tbody></table></div>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard" style="height:100%;">
-        <div class="k" id="driversHeading">Performance drivers</div>
-        <div class="line">Unrealised gain or loss vs. cost basis — not a time-windowed return.</div>
-        <div id="driversContent" style="margin-top:8px;"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="dgrid">
     <div class="span-12">
       <a href="#" class="navlink dcard update-nudge" data-page="update" style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
         <div>
@@ -6220,16 +6201,9 @@ TEI.render = TEI.render || {};
     const scopeId = analysisScopeAccountId;
     const suffix = acctHeadingSuffix(client, scopeId);
     document.getElementById('analysisCompaniesHeading').textContent = 'Companies' + suffix;
-    document.getElementById('topHoldingsHeading').textContent = 'Top holdings' + suffix;
-    document.getElementById('topHoldingsSubline').textContent = scopeId
-      ? 'Your 10 largest positions in this account.'
-      : 'Your 10 largest positions, across every account.';
-    document.getElementById('driversHeading').textContent = 'Performance drivers' + suffix;
     document.getElementById('portfolioInsightsHeading').textContent = 'Portfolio insights' + suffix;
     const scoped = scopedClientView(client, scopeId);
     renderAnalysisCompanies(scoped);
-    renderTopHoldings(scoped);
-    renderDrivers(scoped);
     renderInsights(client, scopeId);
     renderPortfolioCoach(client, scopeId);
   }
@@ -6256,48 +6230,6 @@ TEI.render = TEI.render || {};
       });
     });
     applyAnalysisScope(client);
-  }
-
-  function renderTopHoldings(client){
-    const body = document.getElementById('topHoldingsBody');
-    if(!client.holdings.length){
-      body.innerHTML = `<tr><td colspan="4"><div class="line">No holdings logged yet. Add what's inside each account in Adviser Workspace &rarr; Portfolio.</div></td></tr>`;
-      return;
-    }
-    const grouped = TEI.calc.groupedHoldings(client);
-    const total = grouped.reduce((s,g)=>s+g.value,0);
-    const top10 = [...grouped].sort((a,b)=>b.value-a.value).slice(0,10);
-    body.innerHTML = top10.map(g=>{
-      const pct = total ? g.value/total*100 : 0;
-      return `<tr><td>${g.name}</td><td style="text-align:right;">${fmtGBP(g.value)}</td><td style="text-align:right;">${pct.toFixed(1)}%</td><td>${g.accountNames.join(', ')}</td></tr>`;
-    }).join('');
-  }
-
-  function renderDrivers(client){
-    const el = document.getElementById('driversContent');
-    const withCost = client.holdings.filter(h=> h.costBasis!=null && h.costBasis>0);
-    if(!withCost.length){
-      // Cost basis comes from two different places depending on the
-      // holding: a manual "Cost basis £" entry for tickerless holdings, or
-      // avgOpen + a live-price refresh for ticker'd ones (the manual field
-      // is hidden for those -- see updateHoldingFormForTicker). Point at
-      // whichever actually applies rather than a single blanket message.
-      const hasTickerHoldings = client.holdings.some(h=>h.ticker);
-      const hasTickerlessHoldings = client.holdings.some(h=>!h.ticker);
-      const tips = [];
-      if(hasTickerHoldings) tips.push('for a ticker\'d holding, add an Avg open price in Adviser Workspace and hit Refresh price');
-      if(hasTickerlessHoldings) tips.push('for others, add a Cost basis in Adviser Workspace');
-      el.innerHTML = `<div class="line">Add cost basis to your holdings to see performance drivers — ${tips.join(', or ')}.</div>`;
-      return;
-    }
-    const withGain = withCost.map(h=>({h, gain: h.value - h.costBasis}));
-    const positive = withGain.filter(x=>x.gain>0).sort((a,b)=>b.gain-a.gain).slice(0,5);
-    const negative = withGain.filter(x=>x.gain<0).sort((a,b)=>a.gain-b.gain).slice(0,5);
-    let html = '<div class="k" style="margin-bottom:6px;">Largest positive contributors</div>';
-    html += positive.length ? positive.map(x=>`<div class="k-driver-row"><span>${x.h.name}</span><span class="dr-val up">+${fmtGBP(x.gain)}</span></div>`).join('') : `<div class="sub2">None yet.</div>`;
-    html += '<div class="k" style="margin:14px 0 6px;">Largest negative contributors</div>';
-    html += negative.length ? negative.map(x=>`<div class="k-driver-row"><span>${x.h.name}</span><span class="dr-val down">${fmtGBP(x.gain)}</span></div>`).join('') : `<div class="sub2">None yet.</div>`;
-    el.innerHTML = html;
   }
 
   /* ---------- Dividend income ---------- */
