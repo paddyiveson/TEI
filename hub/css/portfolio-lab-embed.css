@@ -211,7 +211,13 @@
   text-align:left;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;
   color:var(--ink-soft);padding:0 10px 10px 10px;border-bottom:1px solid var(--line);
 }
-#portfolioLabRoot td{padding:11px 10px;border-bottom:1px solid var(--line);}
+/* hub/wealth-os.html declares a bare, unscoped td{color:var(--cream)} for
+   its own (dark-card) tables elsewhere in the app -- a declared rule
+   always wins over an inherited value no matter how weak its specificity,
+   so #portfolioLabRoot's own inherited --ink color loses to that cream
+   text on this card's white background unless color is declared here
+   explicitly. Same reasoning applies to th below. */
+#portfolioLabRoot td{padding:11px 10px;border-bottom:1px solid var(--line);color:var(--ink);}
 #portfolioLabRoot tr:last-child td{border-bottom:none;}
 #portfolioLabRoot th.num-col,#portfolioLabRoot td.num-col{text-align:right;}
 
