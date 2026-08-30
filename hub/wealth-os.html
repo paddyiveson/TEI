@@ -1857,15 +1857,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </section>
 
 <section class="wrap">
+  <div class="k-section-label">Portfolio Optimisation Lab</div>
   <div class="dgrid">
     <div class="span-12">
-      <a href="/portfolio-optimisation-lab/wealth-os.html" class="dcard advisory" style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
-        <div>
-          <div class="k">Portfolio Optimisation Lab</div>
-          <div class="line">Model rebalancing, target allocations and cash moves against your real holdings — it calculates the mechanics, never a recommendation.</div>
-        </div>
-        <span class="btn-primary" style="pointer-events:none; white-space:nowrap;">Open the Lab →</span>
-      </a>
+      <div id="portfolioLabRoot"></div>
     </div>
   </div>
 </section>
@@ -3220,11 +3215,18 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </div>
 <!-- Chart.js v4.4.0 UMD build, loaded from CDN (matches the pattern already used in hub/guides/portfolio.html elsewhere in this repo) rather than inlined -- avoids embedding ~150KB of minified library source by hand. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<!-- d3 -- only for the Portfolio Optimisation Lab's treemap (drawTreemap in portfolio-lab-embed.js below). -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 
 <!-- Supabase auth (config/client/hub-auth) -- same three tags used across the rest of the hub (see hub/index.html), loaded before TEI.wealthOS / TEI.app so window.teiSupabase, TeiAuth and TeiHubAuth exist by the time those scripts run. -->
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-auth.js"></script>
+
+<!-- Portfolio Optimisation Lab, embedded live in the Portfolio page's #portfolioLabRoot -- see
+     that file's header comment for how it avoids colliding with this page's own globals/CSS. -->
+<link rel="stylesheet" href="/hub/css/portfolio-lab-embed.css">
+<script src="/hub/js/portfolio-lab-embed.js"></script>
 <script>
 /* TEI Wealth Dashboard v2 — Data layer
    No ES modules (house rule) — everything hangs off window.TEI.
@@ -6490,6 +6492,7 @@ TEI.render = TEI.render || {};
     wireDivToggle(client);
     renderStage(client);
     renderHoldingsUpdateSummary(client);
+    if (TEI.render.portfolioLab) TEI.render.portfolioLab(client); // hub/js/portfolio-lab-embed.js
   };
 })();
 
