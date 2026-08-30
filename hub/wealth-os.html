@@ -739,12 +739,25 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .queue-item .qi-actions button.approve{background:var(--sage-bg); color:var(--sage); border-color:transparent;}
 .queue-item .qi-actions button.reject{background:var(--oxblood-bg); color:#D68992; border-color:transparent;}
 
-.client-list-row{display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid rgba(247,244,237,0.1);}
-.client-list-row:last-child{border-bottom:none;}
-.client-list-row .cl-avatar{width:38px; height:38px; border-radius:50%; background:var(--gold-bg); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; flex:none;}
-.client-list-row .cl-name{color:var(--cream); font-weight:600; font-size:16px;}
-.client-list-row .cl-meta{color:var(--cream-soft2); font-size:13.5px; margin-top:2px;}
-.client-list-row .cl-action{margin-left:auto;}
+/* Client list v2 (2026-08-29) -- was a flat column of plain text rows,
+   reported as "flat/boring", hard to scan once there are more than a
+   handful of clients, and household pairs easy to miss. Cards in a grid
+   (same visual language as .entity-pill elsewhere), an avatar initial to
+   anchor each one, a search box above the grid since a grid trades list
+   density for visual clarity, and the household badge pulled out of the
+   name line into its own clearly-coloured row instead of a small inline
+   tag-pill. (.client-list-row/.cl-* below this used to be dead CSS --
+   defined but never actually used by renderClientListRows -- repurposed
+   here rather than left orphaned.) */
+.client-pill-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:12px;}
+.client-pill{background:var(--card-dark2); border:1px solid rgba(247,244,237,0.14); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column;}
+.client-pill .cl-top{display:flex; align-items:center; gap:10px;}
+.cl-avatar{width:36px; height:36px; border-radius:50%; background:var(--gold-bg); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex:none; font-family:'Playfair Display',serif;}
+.client-pill .cl-name{color:var(--cream); font-weight:600; font-size:15px; min-width:0; overflow-wrap:anywhere;}
+.client-pill .cl-meta{color:var(--cream-soft2); font-size:12.5px; margin-top:8px;}
+.client-pill .cl-household{display:flex; align-items:center; gap:6px; background:rgba(201,168,76,0.14); color:var(--gold); font-size:12px; font-weight:600; border-radius:8px; padding:6px 10px; margin-top:9px;}
+.client-pill .cl-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid rgba(247,244,237,0.1);}
+.client-pill .cl-actions button{padding:5px 12px; font-size:11px;}
 
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
@@ -811,6 +824,9 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .holdings-group.open .hg-chev{transform:rotate(90deg);}
 .holdings-group .hg-body{display:none; padding:0 15px 15px;}
 .holdings-group.open .hg-body{display:block;}
+
+#clientListSearch::placeholder{color:var(--cream-soft2);}
+#clientListSearch:focus{outline:none; border-color:var(--gold);}
 textarea{background:#fff; border:1px solid var(--line); border-radius:6px; padding:8px 10px; color:var(--ink); font-family:'Inter',sans-serif; font-size:15.5px; width:100%; resize:vertical;}
 
 @media (max-width:860px){
@@ -1290,6 +1306,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
 
     <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
+        <input type="text" id="clientListSearch" placeholder="Search clients…" style="flex:1; min-width:180px; max-width:320px; background:var(--card-dark2); border:1px solid rgba(247,244,237,0.2); border-radius:var(--radius-pill); padding:8px 16px; color:var(--cream); font-family:'Inter',sans-serif; font-size:13.5px;">
+        <span class="note" id="clientListCount" style="margin:0;"></span>
+      </div>
       <div id="clientListRows"></div>
     </div>
   </div>
@@ -12684,20 +12704,43 @@ window.TEI = window.TEI || {};
      not persisted, reset by any full list re-render. */
   function renderClientListRows(clients){
     const wrap = document.getElementById('clientListRows');
+    const countEl = document.getElementById('clientListCount');
+    const searchEl = document.getElementById('clientListSearch');
     if(!clients.length){
       wrap.innerHTML = `<div class="empty-state"><div class="big">No clients yet</div><div class="small">Add your first client to get started.</div></div>`;
+      if(countEl) countEl.textContent = '';
+      if(searchEl) searchEl.style.display = 'none';
       return;
     }
+    if(searchEl){
+      searchEl.style.display = '';
+      if(!searchEl.dataset.wired){
+        // Reads state.adviserClients at fire time, not the `clients` param
+        // closed over here -- that param is a fresh array reference every
+        // time showClientListPage() reloads, so a listener wired on an
+        // earlier render would otherwise keep filtering last session's list.
+        searchEl.addEventListener('input', ()=> renderClientListRows(state.adviserClients));
+        searchEl.dataset.wired = '1';
+      }
+    }
     const lastViewed = TEI.wealthOS.lastViewedClientId();
-    const clientsById = {};
-    clients.forEach(c=>{ clientsById[c.id] = c; });
     const nameOf = c => [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || ('Client ' + String(c.id).slice(0,8));
-    wrap.innerHTML = clients.map(c=>{
+    const query = (searchEl && searchEl.value || '').trim().toLowerCase();
+    const visible = query ? clients.filter(c=> nameOf(c).toLowerCase().includes(query)) : clients;
+    if(countEl) countEl.textContent = visible.length + (visible.length===1?' client':' clients') + (query && visible.length!==clients.length ? ` of ${clients.length}` : '');
+    if(!visible.length){
+      wrap.className = '';
+      wrap.innerHTML = `<div class="empty-state"><div class="small">No clients match "${searchEl.value.trim()}".</div></div>`;
+      return;
+    }
+    wrap.className = 'client-pill-grid';
+    wrap.innerHTML = visible.map(c=>{
       const name = nameOf(c);
+      const initial = (c.first_name||name||'?').trim().charAt(0).toUpperCase() || '?';
       const updated = c.last_updated ? new Date(c.last_updated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No activity yet';
       const householdMates = c.household_id ? clients.filter(o=>o.id!==c.id && o.household_id===c.household_id) : [];
       const householdBadge = c.household_id
-        ? ` <span class="tag-pill" title="Household">🏠 ${householdMates.length ? householdMates.map(nameOf).join(', ') : 'Household'}</span>`
+        ? `<div class="cl-household" title="Linked household">🏠 ${householdMates.length ? householdMates.map(nameOf).join(', ') : 'Household'}</div>`
         : '';
       const isLinking = state.linkingClientId === c.id;
       // "Link household" only ever shows for a client with no household_id
@@ -12711,12 +12754,19 @@ window.TEI = window.TEI || {};
              <button type="button" class="btn-ghost" data-cancel-link="${c.id}" style="padding:6px 14px; font-size:12px;">Cancel</button>
            </div>`
         : '';
-      return `<div class="list-row">
-        <div class="lr-main"><b>${name}</b>${c.id===lastViewed ? ' <span class="tag-pill">Last viewed</span>' : ''}${householdBadge}<div class="lr-meta">Last updated ${updated}</div>${picker}</div>
-        <div class="lr-actions">
+      return `<div class="client-pill">
+        <div class="cl-top">
+          <div class="cl-avatar">${initial}</div>
+          <span class="cl-name">${name}</span>
+          ${c.id===lastViewed ? ' <span class="tag-pill" style="margin-left:auto;">Last viewed</span>' : ''}
+        </div>
+        ${householdBadge}
+        <div class="cl-meta">Last updated ${updated}</div>
+        ${picker}
+        <div class="cl-actions">
           ${c.household_id
-            ? `<button type="button" class="btn-ghost" data-unlink-household="${c.id}" style="padding:6px 14px; font-size:12px;">Unlink</button>`
-            : `<button type="button" class="btn-ghost" data-link-household="${c.id}" style="padding:6px 14px; font-size:12px;">Link household</button>`}
+            ? `<button type="button" class="btn-ghost" data-unlink-household="${c.id}">Unlink</button>`
+            : `<button type="button" class="btn-ghost" data-link-household="${c.id}">Link household</button>`}
           <button type="button" class="btn-ghost" data-open-client="${c.id}">Open →</button>
         </div>
       </div>`;
