@@ -121,8 +121,15 @@
 #portfolioLabRoot .view-desc{color:var(--ink-soft);font-size:14.5px;max-width:660px;}
 
 /* ---------- generic building blocks ---------- */
+/* hub/wealth-os.html has its own bare, unscoped .card{...color:var(--cream)}
+   for its dark navy cards -- the single biggest contrast leak into this
+   file, since almost every panel in the Lab is a .card. Confirmed by
+   diffing every class this stylesheet defines against wealth-os.html's
+   own global rules (not just spot-checking) -- .card was the only one of
+   ~150 missing an explicit color where the host also declares one. */
 #portfolioLabRoot .card{
   background:var(--white);
+  color:var(--ink);
   border:1px solid var(--line);
   border-radius:var(--radius-l);
   box-shadow:var(--shadow-1);

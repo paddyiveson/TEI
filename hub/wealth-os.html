@@ -4399,6 +4399,32 @@ window.TEI = window.TEI || {};
       const accName = acc ? TEI.data.acctLabel(acc) : 'Unknown account';
       if(!groups[key].accountNames.includes(accName)) groups[key].accountNames.push(accName);
     });
+
+    // A holding entered without a ticker groups by name alone above --
+    // fine on its own, but a real bug the moment the *same* security also
+    // has ticker'd rows elsewhere (someone logged one purchase with the
+    // ticker and a later one without, say): those become two separate
+    // groups with the same name instead of one, i.e. a fake duplicate
+    // holding with the value split across both. Fold any name-only group
+    // into a ticker'd group of the same name (case-insensitive) rather
+    // than leave both to display as separate lines. Only ever merges a
+    // *tickerless* group into an *existing ticker'd* one -- two distinct
+    // ticker'd groups are never merged just because their names match.
+    const byName = {};
+    Object.values(groups).forEach(g=>{
+      if(g.ticker && !byName[g.name.trim().toLowerCase()]) byName[g.name.trim().toLowerCase()] = g;
+    });
+    Object.keys(groups).forEach(key=>{
+      if(!key.startsWith('name:')) return;
+      const g = groups[key];
+      const target = byName[g.name.trim().toLowerCase()];
+      if(!target || target===g) return;
+      target.value += g.value;
+      g.accountIds.forEach(id=>target.accountIds.push(id));
+      g.accountNames.forEach(n=>{ if(!target.accountNames.includes(n)) target.accountNames.push(n); });
+      delete groups[key];
+    });
+
     return Object.values(groups);
   }
 
