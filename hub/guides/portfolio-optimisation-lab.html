@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!-- TEI Portfolio Optimisation Lab — CLIENT HUB VERSION. Gated behind hubGate, same as the other hub/guides/*.html tools. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio Optimisation Lab — The Everyday Investor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=Spectral:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="/portfolio-optimisation-lab/css/lab.css">
+<style>
+/* Back-to-guides pill sits above the Lab's own sticky topbar */
+.back-to-guides{position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;background:#0F1E33;color:#F7F4ED;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px 16px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.2);}
+</style>
+</head>
+<body>
+<script>
+/* Safety net: a Supabase password-recovery link can land here instead of
+   /hub/reset-password.html if the project's Site URL falls back to the
+   site root. Forward the code/token on immediately so the reset form still
+   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
+(function () {
+  var search = window.location.search || "";
+  var hash = window.location.hash || "";
+  var params = new URLSearchParams(search);
+  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
+  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
+  if (hasAuthPayload || isRecovery) {
+    window.location.replace("/hub/reset-password.html" + search + hash);
+  }
+})();
+</script>
+<div id="hubGate" style="position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1D3557 0%,#0f1e3a 100%);display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:380px;width:100%;text-align:center;">
+    <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid #C9A84C;display:flex;align-items:center;justify-content:center;font-size:20px;color:#C9A84C;margin:0 auto 24px;">&#10022;</div>
+    <p style="font-family:'Playfair Display',serif;font-size:24px;color:#F7F4ED;margin-bottom:10px;">Client Hub</p>
+    <p style="font-size:13px;color:rgba(247,244,237,.55);margin-bottom:28px;line-height:1.7;">This area is for TEI clients. Enter the password you were given to continue.</p>
+    <input type="password" id="hubGatePw" placeholder="Password" style="width:100%;padding:13px 16px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#F7F4ED;font-size:14px;font-family:'Inter',sans-serif;text-align:center;margin-bottom:14px;outline:none;">
+    <button onclick="hubGateCheck()" style="width:100%;padding:13px;border-radius:8px;border:none;background:#C9A84C;color:#1D3557;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Enter</button>
+    <p id="hubGateError" style="font-size:12px;color:#e07a6f;margin-top:14px;display:none;">That password isn't right. Try again.</p>
+  </div>
+</div>
+<script>
+(function() {
+  var HUB_PASSWORD = "TEI";
+  if (sessionStorage.getItem("hubUnlocked") === "yes") {
+    var gate = document.getElementById("hubGate");
+    if (gate) gate.style.display = "none";
+  }
+})();
+function hubGateCheck() {
+  var input = document.getElementById("hubGatePw");
+  var error = document.getElementById("hubGateError");
+  if (input.value === "TEI") {
+    sessionStorage.setItem("hubUnlocked", "yes");
+    document.getElementById("hubGate").style.display = "none";
+  } else {
+    error.style.display = "block";
+    input.value = "";
+    input.focus();
+  }
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var input = document.getElementById("hubGatePw");
+  if (input) {
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") hubGateCheck();
+    });
+  }
+});
+</script>
+<a href="/hub/guides.html" class="back-to-guides">&#8592; Back to Guides &amp; Tools</a>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="brand-row">
+        <div class="brand">
+          <span class="mark">TEI</span>
+          <div>
+            <h1>Portfolio Optimisation Lab</h1>
+          </div>
+        </div>
+        <div id="portfolio-pill" class="portfolio-pill"></div>
+      </div>
+      <nav class="stage-nav" id="stage-nav"></nav>
+    </div>
+  </div>
+  <main id="view-root"></main>
+</div>
+
+<script src="/portfolio-optimisation-lab/js/state.js"></script>
+<script src="/portfolio-optimisation-lab/js/calc-engine.js"></script>
+<script src="/portfolio-optimisation-lab/js/components.js"></script>
+<script src="/portfolio-optimisation-lab/js/conversation.js"></script>
+<script src="/portfolio-optimisation-lab/js/render-portfolio.js"></script>
+<script src="/portfolio-optimisation-lab/js/render-analyse.js"></script>
+<script src="/portfolio-optimisation-lab/js/render-optimise.js"></script>
+<script src="/portfolio-optimisation-lab/js/render-compare.js"></script>
+<script src="/portfolio-optimisation-lab/js/render-implement.js"></script>
+<script src="/portfolio-optimisation-lab/js/render-results.js"></script>
+<script src="/portfolio-optimisation-lab/js/app.js"></script>
+</body>
+</html>
