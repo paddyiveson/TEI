@@ -828,6 +828,9 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .entity-pill .ep-ticker{display:block; font-size:11px; color:var(--cream-soft2); font-family:'Inter',sans-serif; letter-spacing:.03em; margin-top:1px;}
 .entity-pill .ep-icon-btn{flex:none; width:26px; height:26px; border-radius:50%; border:1px solid rgba(247,244,237,0.2); background:transparent; color:var(--cream-soft); font-size:13px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;}
 .entity-pill .ep-icon-btn:hover{border-color:var(--gold); color:var(--gold);}
+.entity-pill .ep-price{display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--sage); font-weight:700; margin-top:9px;}
+.entity-pill .ep-price-dot{width:6px; height:6px; border-radius:50%; background:var(--sage); flex:none;}
+.entity-pill .ep-price-as-of{color:var(--cream-soft2); font-weight:400;}
 .entity-pill .ep-value{font-family:'Playfair Display',serif; font-size:21px; font-weight:700; color:var(--cream); margin-top:10px; line-height:1.1;}
 .entity-pill .ep-meta{color:var(--cream-soft2); font-size:12.5px; margin-top:4px; line-height:1.5;}
 .entity-pill .ep-tags{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px;}
@@ -8987,6 +8990,24 @@ window.TEI = window.TEI || {};
   }
 
   /* ================= HOLDINGS ================= */
+  /* Live price row -- h.lastPrice is the raw per-share figure Twelve Data
+     returned at the last refresh (native currency, USD for every ticker
+     this app prices), separate from h.value (the position's total, in
+     GBP). Was previously discarded right after being used to compute
+     value; now persisted (see applyLivePriceToHolding, wealth_os_phase21)
+     specifically so a card can show what a share is actually worth, not
+     just the position total. Only ever set for ticker'd holdings that
+     have actually been refreshed at least once -- a brand new ticker'd
+     holding, or one added before this existed, shows nothing here until
+     its next refresh. */
+  function holdingPriceRowHtml(h){
+    if(h.lastPrice == null) return '';
+    const asOf = h.lastPricedAt ? new Date(h.lastPricedAt).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    // Supabase can return a numeric column as a string -- Number() first
+    // since .toFixed() (unlike fmtGBP, which already does this) would
+    // throw on one instead of just formatting it.
+    return `<div class="ep-price"><span class="ep-price-dot"></span>$${Number(h.lastPrice).toFixed(2)}${asOf?` <span class="ep-price-as-of">as of ${asOf}</span>`:''}</div>`;
+  }
   function holdingPillHtml(h){
     const canLivePrice = h.ticker && h.units!=null;
     return `
@@ -8998,6 +9019,7 @@ window.TEI = window.TEI || {};
           </div>
           ${canLivePrice ? `<button type="button" class="ep-icon-btn" data-refresh-holding="${h.id}" title="Refresh live price" aria-label="Refresh live price">⟳</button>` : ''}
         </div>
+        ${holdingPriceRowHtml(h)}
         <div class="ep-value">${fmtGBP(h.value)}</div>
         <div class="ep-meta">${h.units!=null?h.units+' units'+(h.ticker?' (live-priced)':''):''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
         ${(h.theme&&h.theme.length)?`<div class="ep-tags">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.85;">${t}</span>`).join('')}</div>`:''}
@@ -9245,7 +9267,7 @@ window.TEI = window.TEI || {};
   async function applyLivePriceToHolding(h, price, usdGbpRate){
     try{
       const value = price * usdGbpRate * h.units;
-      const patch = { value, lastPricedAt: new Date().toISOString() };
+      const patch = { value, lastPrice: price, lastPricedAt: new Date().toISOString() };
       if(h.avgOpen != null) patch.costBasis = h.avgOpen * usdGbpRate * h.units;
       const merged = Object.assign({}, h, patch);
       TEI.calc.stampEdit(merged, 'adviser');
@@ -11861,7 +11883,7 @@ window.TEI = window.TEI || {};
       holdings: (bundle.holdings||[]).map(h=>({
         id: h.id, accountId: h.account_id, name: h.name, ticker: h.ticker, units: h.units,
         avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, theme: h.theme || [], value: h.value,
-        lastPricedAt: h.last_priced_at,
+        lastPrice: h.last_price, lastPricedAt: h.last_priced_at,
         lastEditedBy: h.last_edited_by, lastEditedAt: h.last_edited_at
       })),
 
@@ -12162,13 +12184,20 @@ window.TEI = window.TEI || {};
       value: h.value,
       sector: h.sector || null,
       theme: (h.theme && h.theme.length) ? h.theme : null,
-      last_priced_at: h.lastPricedAt || null
+      last_priced_at: h.lastPricedAt || null,
+      last_price: h.lastPrice != null ? h.lastPrice : null
     };
     // holdings has no last_edited_by/last_edited_at column (confirmed via
     // information_schema) -- deliberately omitted. last_priced_at is
     // different: a dedicated "when was this last live-priced" timestamp
     // added specifically for the "skip holdings priced in the last hour"
-    // refresh option, only ever set by applyLivePriceToHolding().
+    // refresh option, only ever set by applyLivePriceToHolding(). last_price
+    // is the raw per-share figure Twelve Data returned at that same
+    // moment, native currency (USD for every ticker this app prices --
+    // see the USD->GBP conversion note elsewhere), same source, not
+    // derived from value/units -- added specifically so the Holdings
+    // card can show "what a share is actually worth" rather than only
+    // the position's total value.
   }
 
   function goalToRow(clientId, g){
