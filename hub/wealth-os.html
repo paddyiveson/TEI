@@ -2198,6 +2198,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <button type="button" data-wp-view="plan" class="active">Your plan</button>
             <button type="button" data-wp-view="hypothetical">Hypothetical</button>
             <button type="button" data-wp-view="sequence">Order of returns</button>
+            <button type="button" data-wp-view="decision">Decision impact</button>
           </div>
         </div>
 
@@ -2232,7 +2233,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
               <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Retirement age scenarios</div>
               <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Career progression</div>
               <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Life event modelling</div>
-              <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Major financial decisions</div>
+              <a href="#" class="lritem" id="lrDecisionImpact" style="text-decoration:none; cursor:pointer;">Major financial decisions &rarr;</a>
             </div>
           </div>
         </div>
@@ -2255,6 +2256,60 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <div class="k-chart-box" style="height:260px;"><canvas id="chartSequence"></canvas></div>
           <div class="k-rowstats" id="sorStats"></div>
           <div class="k-insight-note" id="sorContext"></div>
+        </div>
+
+        <div id="wpDecision" style="display:none;">
+          <div class="line" style="margin-top:12px;">Model a one-off lump-sum withdrawal or deposit against your real portfolio and see how it plays out.</div>
+
+          <div class="k-pill-toggle" id="diModeToggle" style="margin-top:10px;">
+            <button type="button" data-di-mode="withdrawal" class="active">One-off withdrawal</button>
+            <button type="button" data-di-mode="deposit">One-off deposit</button>
+          </div>
+
+          <div class="k-form-grid cols-4">
+            <label class="k-form-field"><span id="diAmountLabel">Withdrawal amount £</span><input type="number" id="diAmount" value="5000" step="100"></label>
+            <label class="k-form-field"><span>Growth rate %</span><input type="number" id="diRate" value="8" step="0.1"></label>
+            <label class="k-form-field">
+              <span>Account (non-functional)</span>
+              <select id="diAccountScope" disabled><option value="">All accounts</option></select>
+            </label>
+          </div>
+
+          <div class="k-chart-box" style="height:260px; margin-top:14px;"><canvas id="chartDecisionImpact"></canvas></div>
+
+          <div class="k-rowstats" id="diRecoveryRow">
+            <div class="rs">Recovery time<b class="down" id="diRecoveryStat">–</b></div>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+            <div class="k-boxed-stat">
+              <div class="rs" style="font-size:10.5px;">Balance today</div>
+              <b id="diStatToday" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
+            </div>
+            <div class="k-boxed-stat">
+              <div class="rs" style="font-size:10.5px;">After the change</div>
+              <b id="diStatAfter" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
+            </div>
+            <div class="k-boxed-stat">
+              <div class="rs" style="font-size:10.5px;" id="diStatWithoutLabel">Without this change</div>
+              <b class="gold" id="diStatWithout" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
+            </div>
+            <div class="k-boxed-stat">
+              <div class="rs" style="font-size:10.5px;" id="diStatWithLabel">With this change</div>
+              <b class="up" id="diStatWith" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap;">
+            <span class="sub2" style="margin:0;">Horizon:</span>
+            <div class="k-pill-toggle" id="diHorizonToggle">
+              <button type="button" data-di-horizon="5">5y</button>
+              <button type="button" data-di-horizon="10" class="active">10y</button>
+              <button type="button" data-di-horizon="20">20y</button>
+            </div>
+          </div>
+
+          <div class="k-insight-note" id="diInterpretation"></div>
         </div>
 
       </div>
@@ -8740,6 +8795,16 @@ TEI.render = TEI.render || {};
     {key:'base', label:'Expected (8%)', rate:0.08},
     {key:'optimistic', label:'Strong-return (15%)', rate:0.15},
   ];
+  // Projects a starting value forward `years` annual steps at a fixed rate,
+  // with a constant annual addition. Used by both "Your plan" and
+  // "Decision impact" so there's exactly one compounding formula on the page.
+  function projectSeries(startValue, annualDelta, rate, years){
+    const series = [startValue];
+    for(let i=1; i<=years; i++){
+      series.push(series[i-1]*(1+rate) + annualDelta);
+    }
+    return series;
+  }
   function leverAdjustedMonthly(client){
     const extraContrib = parseFloat(document.getElementById('scContrib').value)||0;
     const spendChange = parseFloat(document.getElementById('scSpend').value)||0;
@@ -8771,15 +8836,13 @@ TEI.render = TEI.render || {};
     const years = []; for(let y=startYear; y<=startYear+20; y++) years.push(y);
     const {GOLD, makeChart, currentInkSoft, currentGrid, currentRateColor} = TEI.charts;
 
-    const actualSeries = [latestTotal];
-    for(let i=1;i<years.length;i++){ actualSeries.push(actualSeries[i-1]*(1+EXPECTED_RATE) + actualAnnualContribution); }
+    const actualSeries = projectSeries(latestTotal, actualAnnualContribution, EXPECTED_RATE, 20);
     const datasets = [{label:'Actual, today\'s plan', data:actualSeries, borderColor:GOLD, borderDash:[5,4], pointRadius:0, borderWidth:2, fill:false, order:1}];
 
     let firstScenario = true;
     RATE_DEFS.forEach(r=>{
       if(!client.monteCarlo[r.key]) return;
-      const series = [latestTotal];
-      for(let i=1;i<years.length;i++){ series.push(series[i-1]*(1+r.rate) + leverAnnualContribution); }
+      const series = projectSeries(latestTotal, leverAnnualContribution, r.rate, 20);
       const label = leversActive ? r.label + ' + your scenario' : r.label;
       // Shade the gap against Actual only for the first checked line, so multiple
       // checked rates don't stack overlapping fills into a muddy block.
@@ -8945,15 +9008,136 @@ TEI.render = TEI.render || {};
       : 'During withdrawal years, early market falls can have a larger impact because withdrawals reduce recovery capacity.';
   }
 
+  /* ---------- Wealth projection: Decision impact ----------
+     Models a one-off lump-sum withdrawal or deposit against the client's
+     real portfolio, separate from the recurring monthly levers in "Your
+     plan" above. Shares projectSeries() with that tab but nothing else --
+     no shared state var, own chart, own stat IDs. */
+  let diMode = 'withdrawal';   // 'withdrawal' | 'deposit'
+  let diHorizonYears = 10;     // 5 | 10 | 20 -- drives the two horizon-based stat cards and the deposit headline; independent of the recovery calc below, which always reports its own precise month/year.
+
+  // Display-only: how many whole months of continued contributions it takes
+  // a post-withdrawal balance to climb back to today's level. Never feeds
+  // back into projectSeries or the plotted series -- only the stat-card
+  // number, the interpretation copy, and the recovery marker's x-position.
+  function recoveryMonthsPrecise(startBalance, eventAmount, monthlyContribution, annualRate){
+    const r = Math.pow(1+annualRate, 1/12) - 1;
+    const target = startBalance;
+    let bal = startBalance + eventAmount;
+    if(bal >= target) return {months:0, complete:true};
+    for(let m=1; m<=240; m++){
+      bal = bal*(1+r) + monthlyContribution;
+      if(bal >= target) return {months:m, complete:true};
+    }
+    return {months:null, complete:false};
+  }
+
+  function renderDecisionImpact(client){
+    const latestTotal = TEI.calc.latestNetWorth(client);
+    const actualAnnualContribution = TEI.calc.totalMonthlyContribution(client)*12;
+    const monthlyContribution = TEI.calc.totalMonthlyContribution(client);
+    const amount = Math.abs(parseFloat(document.getElementById('diAmount').value)||0);
+    const rate = (parseFloat(document.getElementById('diRate').value)||0)/100;
+    const eventAmount = diMode==='withdrawal' ? -amount : amount;
+    const startYear = new Date().getFullYear();
+
+    const baselineSeries = projectSeries(latestTotal, actualAnnualContribution, rate, 20);
+    const scenarioSeries = projectSeries(latestTotal + eventAmount, actualAnnualContribution, rate, 20);
+
+    const {OXBLOOD, GOLD, NAVY, makeChart, currentInk, currentInkSoft, currentGrid} = TEI.charts;
+
+    const datasets = [
+      {label:'Baseline, no change', data: baselineSeries.map((v,i)=>({x:i, y:v})), borderColor:GOLD, borderDash:[5,4], pointRadius:0, borderWidth:2, fill:false, order:1},
+      {label: diMode==='withdrawal' ? 'After withdrawal' : 'After deposit', data: scenarioSeries.map((v,i)=>({x:i, y:v})), borderColor:NAVY, pointRadius:0, borderWidth:2.5, tension:0.15, fill:false, order:2},
+    ];
+
+    let recovery = {months:0, complete:true};
+    if(diMode==='withdrawal'){
+      datasets.push({label:"Today's balance", data:[{x:0,y:latestTotal},{x:20,y:latestTotal}], borderColor:OXBLOOD, borderDash:[3,3], pointRadius:0, borderWidth:1.5, fill:false, order:3});
+      recovery = recoveryMonthsPrecise(latestTotal, eventAmount, monthlyContribution, rate);
+      if(recovery.complete && recovery.months>0){
+        datasets.push({label:'Recovery point', data:[{x:recovery.months/12, y:latestTotal}], borderColor:OXBLOOD, backgroundColor:OXBLOOD, pointRadius:5, pointHoverRadius:6, showLine:false, order:4});
+      }
+    }
+
+    makeChart('chartDecisionImpact', {
+      type:'line', data:{datasets},
+      options:{maintainAspectRatio:false,
+        plugins:{
+          legend:{display:true, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:currentInk()}},
+          tooltip:{callbacks:{
+            title:items=>startYear + Math.round(items[0].parsed.x),
+            label:c=>c.dataset.label+': '+fmtGBP(c.parsed.y)
+          }}
+        },
+        scales:{
+          y:{ticks:{callback:v=>'£'+(v/1000)+'k', color:currentInkSoft()}, grid:{color:currentGrid()}},
+          // DELIBERATE EXCEPTION: linear (numeric) x-axis, not the category axis
+          // chartWealthPlan uses, so the recovery marker can sit at its exact
+          // fractional-year position (months/12) instead of snapping to a whole
+          // year. Tick callback converts back to a calendar-year label.
+          x:{type:'linear', min:0, max:20,
+             ticks:{stepSize:5, color:currentInkSoft(), callback:v=>startYear+Math.round(v)},
+             grid:{display:false}}
+        }
+      }
+    });
+
+    document.getElementById('diStatToday').textContent = fmtGBP(latestTotal);
+    document.getElementById('diStatAfter').textContent = fmtGBP(latestTotal + eventAmount);
+    document.getElementById('diStatWithout').textContent = fmtGBP(baselineSeries[diHorizonYears]);
+    document.getElementById('diStatWith').textContent = fmtGBP(scenarioSeries[diHorizonYears]);
+    const horizonYear = startYear + diHorizonYears;
+    document.getElementById('diStatWithoutLabel').textContent = `Without this change (at ${horizonYear})`;
+    document.getElementById('diStatWithLabel').textContent = `With this change (at ${horizonYear})`;
+
+    const note = document.getElementById('diInterpretation');
+    const recoveryStat = document.getElementById('diRecoveryStat');
+    if(diMode==='withdrawal'){
+      if(recovery.complete){
+        if(recovery.months===0){
+          note.textContent = "This withdrawal does not take the balance below today's level, so there's no recovery period.";
+          recoveryStat.textContent = '—';
+        } else {
+          const d = new Date(); d.setMonth(d.getMonth()+recovery.months);
+          note.textContent = `Balance returns to today's level by ${d.toLocaleString('en-GB',{month:'long'})} ${d.getFullYear()}.`;
+          const y = Math.floor(recovery.months/12), m = recovery.months%12;
+          recoveryStat.textContent = y>0 ? `${y}y ${m}m to recover` : `${m}m to recover`;
+        }
+      } else {
+        note.textContent = "Doesn't return to today's level within 20 years at this growth rate.";
+        recoveryStat.textContent = '20y+';
+      }
+    } else {
+      note.textContent = `Adds ${fmtGBP(amount)} today, worth an estimated ${fmtGBP(scenarioSeries[diHorizonYears])} by ${horizonYear}.`;
+      recoveryStat.textContent = '—';
+    }
+
+    document.querySelectorAll('#diModeToggle button').forEach(btn=>btn.classList.toggle('active', btn.dataset.diMode===diMode));
+    document.querySelectorAll('#diHorizonToggle button').forEach(btn=>btn.classList.toggle('active', Number(btn.dataset.diHorizon)===diHorizonYears));
+    document.getElementById('diAmountLabel').textContent = diMode==='withdrawal' ? 'Withdrawal amount £' : 'Deposit amount £';
+    document.getElementById('diRecoveryRow').style.display = diMode==='withdrawal' ? 'flex' : 'none';
+
+    // Account-scope select is a non-functional stub for v1 (real filtering is
+    // a follow-up) -- populated once so it looks realistic, never read from.
+    const scopeSel = document.getElementById('diAccountScope');
+    if(scopeSel.children.length===1){
+      client.accounts.forEach(a=>{ const opt=document.createElement('option'); opt.value=a.id; opt.textContent=a.name; scopeSel.appendChild(opt); });
+    }
+  }
+
   /* ---------- Wealth projection pill toggle ---------- */
   function wireWPToggle(){
     const toggle = document.getElementById('wpToggle');
     if(toggle.dataset.wired) return;
+    // Derived from the DOM rather than hardcoded, so adding another pill only
+    // needs a new button + matching div id, no change here.
+    const views = Array.from(toggle.querySelectorAll('[data-wp-view]')).map(b=>b.dataset.wpView);
     toggle.querySelectorAll('[data-wp-view]').forEach(btn=>{
       btn.addEventListener('click', function(){
         toggle.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
         this.classList.add('active');
-        ['plan','hypothetical','sequence'].forEach(v=>{
+        views.forEach(v=>{
           document.getElementById('wp'+v.charAt(0).toUpperCase()+v.slice(1)).style.display = (v===this.dataset.wpView) ? 'block' : 'none';
         });
       });
@@ -9039,6 +9223,7 @@ TEI.render = TEI.render || {};
     renderScenario(client);
     renderCompoundGrowth();
     renderSequenceOfReturns(client);
+    renderDecisionImpact(client);
     renderThingsToKnow(client);
     renderNextSteps();
     renderLearningHub();
@@ -9070,6 +9255,27 @@ TEI.render = TEI.render || {};
       el.dataset.wired = '1';
     });
     wire(['cgStart','cgMonthly','cgRate','cgYears'], renderCompoundGrowth);
+
+    wire(['diAmount','diRate'], ()=>renderDecisionImpact(client));
+    document.querySelectorAll('#diModeToggle button').forEach(btn=>{
+      if(btn.dataset.wired) return;
+      btn.addEventListener('click', function(){ diMode = this.dataset.diMode; renderDecisionImpact(client); });
+      btn.dataset.wired = '1';
+    });
+    document.querySelectorAll('#diHorizonToggle button').forEach(btn=>{
+      if(btn.dataset.wired) return;
+      btn.addEventListener('click', function(){ diHorizonYears = Number(this.dataset.diHorizon); renderDecisionImpact(client); });
+      btn.dataset.wired = '1';
+    });
+    const lrDecision = document.getElementById('lrDecisionImpact');
+    if(!lrDecision.dataset.wired){
+      lrDecision.addEventListener('click', function(e){
+        e.preventDefault();
+        document.querySelector('#wpToggle [data-wp-view="decision"]').click();
+        document.getElementById('wpDecision').scrollIntoView({behavior:'smooth', block:'start'});
+      });
+      lrDecision.dataset.wired = '1';
+    }
   };
 })();
 
