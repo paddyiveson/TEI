@@ -1214,11 +1214,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-table tr:last-child td{border-bottom:none;}
 .k-table td.num{text-align:right; font-family:var(--font-display); font-weight:600;}
 
-.k-driver-row{display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--k-row-border); font-size:14px; color:var(--k-ink);}
-.k-driver-row:last-child{border-bottom:none;}
-.k-driver-row .dr-val.up{color:var(--k-up-ink); font-weight:700;}
-.k-driver-row .dr-val.down{color:var(--k-down-ink); font-weight:700;}
-
 .k-insight-item{display:flex; gap:8px; font-size:14.5px; line-height:1.55; margin-bottom:9px; color:var(--k-ink);}
 .k-insight-item:last-child{margin-bottom:0;}
 .k-insight-item .dot{width:5px; height:5px; border-radius:50%; background:var(--k-ink-softer); flex:none; margin-top:6px;}
@@ -1280,6 +1275,25 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .lab-holding-cell b{font-weight:700; color:var(--k-ink);}
 .lab-holding-cell .hc-name{color:var(--k-ink-softer); font-size:11.5px; margin-left:4px;}
 .lab-move-figure{font-size:14.5px; font-weight:700; color:var(--k-ink);}
+
+/* Performance drivers, folded into the Analyse stage -- was its own standalone card
+   (a plain two-list layout), redesigned here as a shared-scale diverging bar list so
+   the size of a gain/loss reads visually, same idiom as the weight bars above it. */
+.lab-drivers-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:4px;}
+@media(max-width:700px){.lab-drivers-grid{grid-template-columns:1fr;}}
+.lab-drivers-col-label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px;}
+.lab-drivers-col-label.up{color:var(--k-up-ink);}
+.lab-drivers-col-label.down{color:var(--k-down-ink);}
+.lab-driver-row{display:flex; align-items:center; gap:10px; padding:6px 0;}
+.lab-driver-name{flex:1; font-size:12.5px; font-weight:600; color:var(--k-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.lab-driver-bar-track{width:70px; height:6px; background:var(--k-track-bg); border-radius:3px; overflow:hidden; flex:none;}
+.lab-driver-bar-fill{display:block; height:100%; border-radius:3px;}
+.lab-driver-bar-fill.up{background:var(--k-up-ink);}
+.lab-driver-bar-fill.down{background:var(--k-down-ink);}
+.lab-driver-amt{width:80px; text-align:right; font-variant-numeric:tabular-nums; font-size:12.5px; font-weight:700; flex:none;}
+.lab-driver-amt.up{color:var(--k-up-ink);}
+.lab-driver-amt.down{color:var(--k-down-ink);}
+.lab-driver-empty{font-size:12px; color:var(--k-ink-softer);}
 
 .lab-detail-table{width:100%; border-collapse:collapse; margin-top:10px; font-size:12.5px;}
 .lab-detail-table th{text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:.03em; color:var(--k-ink-softer); font-weight:700; padding:10px 12px; border-bottom:1px solid var(--k-row-border); white-space:nowrap;}
@@ -2038,18 +2052,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <div class="lab-stepper" id="labStepper"></div>
           <div id="labStageBody"></div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard">
-        <div class="k" id="driversHeading">Performance drivers</div>
-        <div class="line">Unrealised gain or loss vs. cost basis — not a time-windowed return.</div>
-        <div id="driversContent" style="margin-top:8px;"></div>
       </div>
     </div>
   </div>
@@ -6318,11 +6320,8 @@ TEI.render = TEI.render || {};
   function applyAnalysisScope(client){
     const scopeId = analysisScopeAccountId;
     const suffix = acctHeadingSuffix(client, scopeId);
-    document.getElementById('driversHeading').textContent = 'Performance drivers' + suffix;
     document.getElementById('portfolioInsightsHeading').textContent = 'Portfolio insights' + suffix;
-    const scoped = scopedClientView(client, scopeId);
-    if(TEI.render.portfolioLab) TEI.render.portfolioLab(client, scopeId); // Portfolio Analysis & Optimisation -- reads scope itself (needs both the full client, for groupedHoldings, and scopeId, to pick ungrouped-per-account holdings)
-    renderDrivers(scoped);
+    if(TEI.render.portfolioLab) TEI.render.portfolioLab(client, scopeId); // Portfolio Analysis & Optimisation -- reads scope itself (needs both the full client, for groupedHoldings, and scopeId, to pick ungrouped-per-account holdings); Performance Drivers now lives inside its Analyse stage, see that file section
     renderInsights(client, scopeId);
     renderPortfolioCoach(client, scopeId);
   }
@@ -6355,33 +6354,6 @@ TEI.render = TEI.render || {};
       });
     });
     applyAnalysisScope(client);
-  }
-
-  function renderDrivers(client){
-    const el = document.getElementById('driversContent');
-    const withCost = client.holdings.filter(h=> h.costBasis!=null && h.costBasis>0);
-    if(!withCost.length){
-      // Cost basis comes from two different places depending on the
-      // holding: a manual "Cost basis £" entry for tickerless holdings, or
-      // avgOpen + a live-price refresh for ticker'd ones (the manual field
-      // is hidden for those -- see updateHoldingFormForTicker). Point at
-      // whichever actually applies rather than a single blanket message.
-      const hasTickerHoldings = client.holdings.some(h=>h.ticker);
-      const hasTickerlessHoldings = client.holdings.some(h=>!h.ticker);
-      const tips = [];
-      if(hasTickerHoldings) tips.push('for a ticker\'d holding, add an Avg open price in Adviser Workspace and hit Refresh price');
-      if(hasTickerlessHoldings) tips.push('for others, add a Cost basis in Adviser Workspace');
-      el.innerHTML = `<div class="line">Add cost basis to your holdings to see performance drivers — ${tips.join(', or ')}.</div>`;
-      return;
-    }
-    const withGain = withCost.map(h=>({h, gain: h.value - h.costBasis}));
-    const positive = withGain.filter(x=>x.gain>0).sort((a,b)=>b.gain-a.gain).slice(0,5);
-    const negative = withGain.filter(x=>x.gain<0).sort((a,b)=>a.gain-b.gain).slice(0,5);
-    let html = '<div class="k" style="margin-bottom:6px;">Largest positive contributors</div>';
-    html += positive.length ? positive.map(x=>`<div class="k-driver-row"><span>${x.h.name}</span><span class="dr-val up">+${fmtGBP(x.gain)}</span></div>`).join('') : `<div class="sub2">None yet.</div>`;
-    html += '<div class="k" style="margin:14px 0 6px;">Largest negative contributors</div>';
-    html += negative.length ? negative.map(x=>`<div class="k-driver-row"><span>${x.h.name}</span><span class="dr-val down">${fmtGBP(x.gain)}</span></div>`).join('') : `<div class="sub2">None yet.</div>`;
-    el.innerHTML = html;
   }
 
   /* ---------- Dividend income ---------- */
@@ -6693,6 +6665,8 @@ TEI.render = TEI.render || {};
 
   const state = {
     holdings: [],       // this render's scoped holdings -- {id,ticker,name,value,account,accountPension,vol}
+    driverRows: [],     // Performance-drivers rows -- {name,gain}, only holdings with a cost basis
+    driverEmptyNote: '',
     scopeKey: undefined, // tracks the last scopeId rendered, so a genuine scope switch resets scenario state
     expanded:false, stage:'analyse',
     scenarioActive:false, presetType:null,
@@ -6741,6 +6715,42 @@ TEI.render = TEI.render || {};
         accountPension:anyPension, vol: illustrativeVolFor(g)
       };
     });
+  }
+
+  // Performance drivers -- unrealised gain/loss vs. cost basis. Genuinely different
+  // from the concentration/weight figures above it (this is P&L, not exposure), so
+  // folded into Analyse rather than dropped when its old standalone card came out --
+  // redesigned as a shared-scale diverging bar list, not a straight port of that
+  // card's plain two-column text layout. Same aggregation rule as buildLabHoldings:
+  // "All accounts" sums both value and cost basis per ticker/name group, a specific
+  // account uses its own holdings' cost basis individually.
+  function buildDriverRows(client, scopeId){
+    if(scopeId){
+      return client.holdings
+        .filter(h=>h.accountId===scopeId && h.costBasis!=null && h.costBasis>0)
+        .map(h=>({name:h.name, gain:(Number(h.value)||0) - Number(h.costBasis)}));
+    }
+    const groups = {};
+    client.holdings.forEach(h=>{
+      if(h.costBasis==null || h.costBasis<=0) return;
+      const key = (h.ticker && h.ticker.trim()) ? h.ticker.trim().toUpperCase() : 'name:'+h.name.trim().toLowerCase();
+      if(!groups[key]) groups[key] = {name:h.name, value:0, costBasis:0};
+      groups[key].value += Number(h.value)||0;
+      groups[key].costBasis += Number(h.costBasis)||0;
+    });
+    return Object.values(groups).map(g=>({name:g.name, gain:g.value-g.costBasis}));
+  }
+  // Cost basis comes from two different places depending on the holding: a manual
+  // "Cost basis £" entry for tickerless holdings, or avgOpen + a live-price refresh
+  // for ticker'd ones (the manual field is hidden for those). Point at whichever
+  // actually applies rather than a single blanket message -- same distinction the
+  // old standalone card's empty-state copy made.
+  function driverEmptyNote(client, scopeId){
+    const holdings = scopeId ? client.holdings.filter(h=>h.accountId===scopeId) : client.holdings;
+    const tips = [];
+    if(holdings.some(h=>h.ticker)) tips.push("for a ticker'd holding, add an Avg open price in Adviser Workspace and hit Refresh price");
+    if(holdings.some(h=>!h.ticker)) tips.push('for others, add a Cost basis in Adviser Workspace');
+    return `Add cost basis to your holdings to see performance drivers${tips.length?' — '+tips.join(', or '):''}.`;
   }
 
   /* ---------------------------- calculation engine ---------------------------- */
@@ -7099,6 +7109,41 @@ TEI.render = TEI.render || {};
   }
 
   /* ---- Stage I: Analyse ---- */
+  function driversSectionHTML(){
+    if(!state.driverRows.length){
+      return `
+        <div class="lab-subhead">Performance drivers</div>
+        <div class="lab-subhead-note">${state.driverEmptyNote}</div>
+      `;
+    }
+    const positive = state.driverRows.filter(x=>x.gain>0).sort((a,b)=>b.gain-a.gain).slice(0,5);
+    const negative = state.driverRows.filter(x=>x.gain<0).sort((a,b)=>a.gain-b.gain).slice(0,5);
+    const maxAbsGain = Math.max(...positive.map(x=>x.gain), ...negative.map(x=>-x.gain), 1);
+    const row = x => {
+      const isUp = x.gain>0;
+      const barWidth = Math.min(100, Math.abs(x.gain)/maxAbsGain*100);
+      return `<div class="lab-driver-row">
+        <span class="lab-driver-name">${x.name}</span>
+        <span class="lab-driver-bar-track"><span class="lab-driver-bar-fill ${isUp?'up':'down'}" style="width:${barWidth}%"></span></span>
+        <span class="lab-driver-amt ${isUp?'up':'down'}">${isUp?'+':''}${fmtGBP(x.gain)}</span>
+      </div>`;
+    };
+    return `
+      <div class="lab-subhead">Performance drivers</div>
+      <div class="lab-subhead-note">Unrealised gain or loss vs. cost basis — not a time-windowed return.</div>
+      <div class="lab-drivers-grid">
+        <div>
+          <div class="lab-drivers-col-label up">Largest positive contributors</div>
+          ${positive.length ? positive.map(row).join('') : `<div class="lab-driver-empty">None yet.</div>`}
+        </div>
+        <div>
+          <div class="lab-drivers-col-label down">Largest negative contributors</div>
+          ${negative.length ? negative.map(row).join('') : `<div class="lab-driver-empty">None yet.</div>`}
+        </div>
+      </div>
+    `;
+  }
+
   function analyseHTML(){
     const weighted = withWeights(state.holdings);
     const conc = concentrationSummary(weighted);
@@ -7134,6 +7179,7 @@ TEI.render = TEI.render || {};
         </tbody>
       </table>
       </div>
+      ${driversSectionHTML()}
       <div class="lab-stage-actions">
         <div></div>
         <button type="button" class="btn-primary" data-goto="optimise">Optimise →</button>
@@ -7828,6 +7874,8 @@ TEI.render = TEI.render || {};
     if(state.scopeKey !== scopeKey) resetScenarioState();
     state.scopeKey = scopeKey;
     state.holdings = buildLabHoldings(client, scopeId);
+    state.driverRows = buildDriverRows(client, scopeId);
+    state.driverEmptyNote = driverEmptyNote(client, scopeId);
     if(state.expanded){
       const cta = document.getElementById('labCta');
       if(cta) cta.textContent = 'Hide the Lab ←';
