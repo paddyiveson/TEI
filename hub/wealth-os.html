@@ -1428,9 +1428,10 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-chart-legend .lg{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--k-ink-softer);}
 .k-chart-legend .sw{width:9px; height:9px; border-radius:2px; flex:none;}
 
-.k-pill-toggle{display:inline-flex; background:var(--k-track-bg); border-radius:20px; padding:3px; gap:2px;}
+.k-pill-toggle{display:inline-flex; background:var(--k-track-bg); border-radius:20px; padding:3px; gap:2px; flex-wrap:wrap;}
 .k-pill-toggle button{border:none; background:transparent; padding:6px 14px; border-radius:16px; font-size:12.5px; font-weight:600; color:var(--k-ink-softer); cursor:pointer; font-family:var(--font-body);}
 .k-pill-toggle button.active{background:var(--k-card-bg); color:var(--k-ink); box-shadow:0 1px 2px rgba(0,0,0,0.08);}
+.k-pill-toggle button .n{font-weight:400; opacity:0.7; margin-left:3px;}
 .k-toggle-switch{display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:13.5px; font-weight:600; color:var(--k-ink-softer); user-select:none;}
 .k-toggle-switch input{position:absolute; opacity:0; width:0; height:0;}
 .k-toggle-switch .track{position:relative; width:34px; height:18px; border-radius:10px; background:var(--k-track-bg); transition:background .15s; flex:none;}
@@ -1996,18 +1997,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 
-  <!-- Only shown once >=2 accounts have holdings (see TEI.render.portfolio) --
-       lets the adviser scope Coach's Corner, the Companies chart, Top
-       Holdings, Performance Drivers and Portfolio Insights below to a
-       single account instead of the whole portfolio. Portfolio Overview
-       above (poTotal/perf stats/acctPillGrid) is deliberately NOT scoped --
-       it already shows one pill per account with its own figures. -->
-  <div class="dgrid" id="analysisScopeRow" style="display:none; margin-top:12px;">
-    <div class="span-12">
-      <div class="k-pill-toggle" id="analysisScopeToggle"></div>
-    </div>
-  </div>
-
   <div class="dgrid" style="margin-top:12px;">
     <div class="span-12">
       <div class="dcard advisory">
@@ -2024,6 +2013,18 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="dgrid">
     <div class="span-12">
       <div class="dcard">
+        <!-- Only shown once >=2 accounts have holdings (see TEI.render.portfolio) --
+             scopes this whole Lab (treemap + all 5 stages) plus Coach's Corner,
+             Performance Drivers and Portfolio Insights elsewhere on the page to a
+             single account instead of the whole portfolio. Lives here, not up near
+             Coach's Corner where it used to sit, since this is the card it's really
+             for -- Portfolio Overview above (poTotal/perf stats/acctPillGrid) is
+             deliberately NOT scoped, it already shows one pill per account. -->
+        <div class="dgrid" id="analysisScopeRow" style="display:none; margin-bottom:12px;">
+          <div class="span-12">
+            <div class="k-pill-toggle" id="analysisScopeToggle"></div>
+          </div>
+        </div>
         <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
           <button type="button" class="btn-primary lab-cta" id="labCta">Model a change in the Lab →</button>
         </div>
@@ -6337,8 +6338,14 @@ TEI.render = TEI.render || {};
       return;
     }
     row.style.display = '';
-    toggle.innerHTML = `<button type="button" data-scope-account="" class="active">All Portfolio</button>` +
-      eligible.map(a=>`<button type="button" data-scope-account="${a.id}">${TEI.data.acctLabel(a)}</button>`).join('');
+    // Same holdings sum each pill's total scope will actually show once selected --
+    // matches how the Lab itself totals a scope, not the account's own balance field
+    // (which can include cash beyond what's in a priced holding).
+    const holdingsTotal = accountId => client.holdings
+      .filter(h=>!accountId || h.accountId===accountId)
+      .reduce((s,h)=>s+(Number(h.value)||0), 0);
+    toggle.innerHTML = `<button type="button" data-scope-account="" class="active">All Portfolio <span class="n">${fmtGBP(holdingsTotal())}</span></button>` +
+      eligible.map(a=>`<button type="button" data-scope-account="${a.id}">${TEI.data.acctLabel(a)} <span class="n">${fmtGBP(holdingsTotal(a.id))}</span></button>`).join('');
     toggle.querySelectorAll('[data-scope-account]').forEach(btn=>{
       btn.addEventListener('click', function(){
         toggle.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
