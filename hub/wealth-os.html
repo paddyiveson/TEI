@@ -1116,7 +1116,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-range-toggle button{border:none; background:transparent; padding:6px 14px; border-radius:16px; font-size:12.5px; font-weight:600; color:rgba(247,244,237,0.6); cursor:pointer; font-family:var(--font-body);}
 .k-range-toggle button.active{background:var(--gold); color:#16293F; font-weight:700;}
 
-.k-boxed-stat{flex:1; min-width:140px; background:rgba(247,244,237,0.08); border-radius:8px; padding:12px 14px;}
+.k-boxed-stat{flex:1; min-width:140px; background:var(--k-track-bg); border-radius:8px; padding:12px 14px;}
 
 .k-comp-bar{display:flex; height:10px; border-radius:5px; overflow:hidden; margin-top:10px;}
 .k-comp-bar span{height:100%;}
@@ -1463,7 +1463,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-form-grid.cols-4{grid-template-columns:repeat(4,1fr);}
 .k-form-field{display:flex; flex-direction:column; gap:5px;}
 .k-form-field span{font-size:12.5px; color:var(--k-ink-softer); font-weight:600;}
-.k-form-field input{background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:6px; padding:8px 10px; color:var(--k-ink); font-family:var(--font-body); font-size:14.5px;}
+.k-form-field input, .k-form-field select{background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:6px; padding:8px 10px; color:var(--k-ink); font-family:var(--font-body); font-size:14.5px;}
 
 .k-mc-toggles{display:flex; gap:16px; margin-top:14px; flex-wrap:wrap;}
 .k-mc-toggle{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--k-ink-softer); cursor:pointer;}
@@ -2270,8 +2270,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <label class="k-form-field"><span id="diAmountLabel">Withdrawal amount £</span><input type="number" id="diAmount" value="5000" step="100"></label>
             <label class="k-form-field"><span>Growth rate %</span><input type="number" id="diRate" value="8" step="0.1"></label>
             <label class="k-form-field">
-              <span>Account (non-functional)</span>
-              <select id="diAccountScope" disabled><option value="">All accounts</option></select>
+              <span>Account</span>
+              <select id="diAccountScope"><option value="">All accounts</option></select>
             </label>
           </div>
 
@@ -9033,9 +9033,21 @@ TEI.render = TEI.render || {};
   }
 
   function renderDecisionImpact(client){
-    const latestTotal = TEI.calc.latestNetWorth(client);
-    const actualAnnualContribution = TEI.calc.totalMonthlyContribution(client)*12;
-    const monthlyContribution = TEI.calc.totalMonthlyContribution(client);
+    // Account scope: an empty value means "All accounts" (today's existing
+    // whole-portfolio behaviour); a specific account id scopes the balance
+    // and contribution the calculation runs against to just that account.
+    const scopeId = document.getElementById('diAccountScope').value || null;
+    const scopeAccount = scopeId ? client.accounts.find(a=>a.id===scopeId) : null;
+    let latestTotal, monthlyContribution;
+    if(scopeAccount){
+      const breakdown = TEI.calc.latestBreakdown(TEI.calc.buildMergedMonths(client));
+      latestTotal = breakdown[scopeId]!=null ? breakdown[scopeId] : (Number(scopeAccount.value)||0);
+      monthlyContribution = TEI.calc.acctContribTotal(scopeAccount);
+    } else {
+      latestTotal = TEI.calc.latestNetWorth(client);
+      monthlyContribution = TEI.calc.totalMonthlyContribution(client);
+    }
+    const actualAnnualContribution = monthlyContribution*12;
     const amount = Math.abs(parseFloat(document.getElementById('diAmount').value)||0);
     const rate = (parseFloat(document.getElementById('diRate').value)||0)/100;
     const eventAmount = diMode==='withdrawal' ? -amount : amount;
@@ -9053,7 +9065,7 @@ TEI.render = TEI.render || {};
 
     let recovery = {months:0, complete:true};
     if(diMode==='withdrawal'){
-      datasets.push({label:"Today's balance", data:[{x:0,y:latestTotal},{x:20,y:latestTotal}], borderColor:OXBLOOD, borderDash:[3,3], pointRadius:0, borderWidth:1.5, fill:false, order:3});
+      datasets.push({label:"Target: back to today's balance", data:[{x:0,y:latestTotal},{x:20,y:latestTotal}], borderColor:OXBLOOD, borderDash:[3,3], pointRadius:0, borderWidth:1.5, fill:false, order:3});
       recovery = recoveryMonthsPrecise(latestTotal, eventAmount, monthlyContribution, rate);
       if(recovery.complete && recovery.months>0){
         datasets.push({label:'Recovery point', data:[{x:recovery.months/12, y:latestTotal}], borderColor:OXBLOOD, backgroundColor:OXBLOOD, pointRadius:5, pointHoverRadius:6, showLine:false, order:4});
@@ -9118,8 +9130,8 @@ TEI.render = TEI.render || {};
     document.getElementById('diAmountLabel').textContent = diMode==='withdrawal' ? 'Withdrawal amount £' : 'Deposit amount £';
     document.getElementById('diRecoveryRow').style.display = diMode==='withdrawal' ? 'flex' : 'none';
 
-    // Account-scope select is a non-functional stub for v1 (real filtering is
-    // a follow-up) -- populated once so it looks realistic, never read from.
+    // Populated once with the client's real accounts; reading its value is
+    // what drives the scopeId/scopeAccount branch at the top of this function.
     const scopeSel = document.getElementById('diAccountScope');
     if(scopeSel.children.length===1){
       client.accounts.forEach(a=>{ const opt=document.createElement('option'); opt.value=a.id; opt.textContent=a.name; scopeSel.appendChild(opt); });
@@ -9256,7 +9268,7 @@ TEI.render = TEI.render || {};
     });
     wire(['cgStart','cgMonthly','cgRate','cgYears'], renderCompoundGrowth);
 
-    wire(['diAmount','diRate'], ()=>renderDecisionImpact(client));
+    wire(['diAmount','diRate','diAccountScope'], ()=>renderDecisionImpact(client));
     document.querySelectorAll('#diModeToggle button').forEach(btn=>{
       if(btn.dataset.wired) return;
       btn.addEventListener('click', function(){ diMode = this.dataset.diMode; renderDecisionImpact(client); });
