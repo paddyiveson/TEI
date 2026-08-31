@@ -1223,6 +1223,201 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-insight-item:last-child{margin-bottom:0;}
 .k-insight-item .dot{width:5px; height:5px; border-radius:50%; background:var(--k-ink-softer); flex:none; margin-top:6px;}
 
+/* ================================================================
+   Portfolio Analysis & Optimisation ("the Lab") -- native to
+   wealth-os.html, not a separate scoped stylesheet: every rule below
+   sits in the same global cascade as the rest of the app, so every
+   class is prefixed .lab- specifically to avoid repeating the exact
+   contrast bug the earlier standalone-embed version of this hit twice
+   (an unscoped bare .card{color:...} elsewhere in this file winning
+   over a same-named but under-specified rule here). All colours come
+   from the existing --k-* theme tokens, so this follows the dark/light
+   toggle for free rather than carrying its own fixed palette.
+   ================================================================ */
+.lab-cta{border-radius:999px;}
+.lab-treemap-host{width:100%; height:340px; position:relative; border-radius:8px; overflow:hidden; background:var(--k-chart-panel-bg);}
+.lab-tm-tooltip{position:absolute; background:var(--k-accent-ink); color:var(--k-ink); border-radius:8px; padding:9px 12px; font-size:11.5px; line-height:1.6; pointer-events:none; opacity:0; transition:opacity .1s; z-index:20; max-width:210px; box-shadow:0 6px 16px rgba(0,0,0,0.28);}
+#clientApp[data-theme="dark"] .lab-tm-tooltip{background:#0F1E33; color:var(--k-ink);}
+.lab-tm-tooltip b{color:var(--gold); display:block; margin-bottom:3px; font-size:11px; text-transform:uppercase; letter-spacing:.03em;}
+.lab-tm-tooltip .row{display:flex; justify-content:space-between; gap:10px;}
+.lab-tm-legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:12px; font-size:11.5px; color:var(--k-ink-softer);}
+.lab-tm-legend .lg{display:flex; align-items:center; gap:5px;}
+.lab-tm-legend .sw{width:9px; height:9px; border-radius:2px; flex:none;}
+
+.lab-stepper-wrap{display:none; border-top:1px solid var(--k-row-border); margin-top:18px; padding-top:18px;}
+.lab-stepper-wrap.open{display:block;}
+.lab-stepper{display:flex; align-items:center; gap:0; margin-bottom:18px; border-bottom:1px solid var(--k-row-border); padding-bottom:0; flex-wrap:wrap;}
+.lab-step{display:flex; align-items:center; gap:7px; padding:0 14px 10px 0; cursor:pointer;}
+.lab-step:not(:last-child)::after{content:''; width:20px; height:1px; background:var(--k-row-border); margin-left:10px;}
+.lab-step-num{width:20px; height:20px; border-radius:50%; background:var(--k-track-bg); color:var(--k-ink-softer); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none;}
+.lab-step.done .lab-step-num{background:var(--k-accent); color:var(--k-accent-ink);}
+.lab-step.active .lab-step-num{background:var(--gold); color:var(--k-accent-ink);}
+.lab-step-label{font-size:12.5px; font-weight:600; color:var(--k-ink-softer);}
+.lab-step.done .lab-step-label{color:var(--k-ink);}
+.lab-step.active .lab-step-label{color:var(--k-ink); font-weight:700;}
+
+.lab-eyebrow{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--gold); font-weight:700; margin-bottom:4px;}
+.lab-stage-title{font-size:16px; font-weight:700; margin:0 0 4px; font-family:var(--font-display);}
+.lab-stage-desc{font-size:12.5px; color:var(--k-ink-softer); margin-bottom:16px; max-width:560px;}
+.lab-subhead{font-size:12.5px; font-weight:700; color:var(--k-ink); margin:18px 0 4px;}
+.lab-subhead-note{font-size:11.5px; color:var(--k-ink-softer); margin-bottom:10px;}
+
+.lab-stat-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-bottom:18px;}
+.lab-stat-card{background:var(--k-track-bg); border-radius:8px; padding:10px; text-align:center;}
+.lab-stat-card .v{font-size:18px; font-weight:700; font-family:var(--font-display); color:var(--k-ink);}
+.lab-stat-card .l{font-size:9.5px; text-transform:uppercase; letter-spacing:.03em; color:var(--k-ink-softer); margin-top:2px;}
+@media(max-width:760px){.lab-stat-grid{grid-template-columns:repeat(2,1fr);}}
+
+.lab-bar-row{display:flex; align-items:center; gap:10px; padding:6px 0; font-size:12.5px;}
+.lab-bar-name{width:170px; font-weight:600; flex:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--k-ink);}
+.lab-bar-track{flex:1; height:8px; background:var(--k-track-bg); border-radius:4px; overflow:hidden;}
+.lab-bar-fill{height:100%; background:var(--k-accent); border-radius:4px;}
+.lab-bar-pct{width:48px; text-align:right; font-variant-numeric:tabular-nums; color:var(--k-ink-softer);}
+.lab-approx-flag{font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--k-badge-ink); background:transparent; border:1px solid var(--k-badge-ink); opacity:0.85; padding:3px 10px; border-radius:12px; margin-left:8px; vertical-align:middle;}
+.lab-wt-mini{display:inline-flex; align-items:center; gap:9px; justify-content:flex-end; width:100%;}
+.lab-wt-mini-track{width:64px; height:4px; background:var(--k-track-bg); border-radius:2px; overflow:hidden; flex:none;}
+.lab-wt-mini-fill{display:block; height:100%; background:var(--gold); border-radius:2px;}
+.lab-holding-cell b{font-weight:700; color:var(--k-ink);}
+.lab-holding-cell .hc-name{color:var(--k-ink-softer); font-size:11.5px; margin-left:4px;}
+.lab-move-figure{font-size:14.5px; font-weight:700; color:var(--k-ink);}
+
+.lab-detail-table{width:100%; border-collapse:collapse; margin-top:10px; font-size:12.5px;}
+.lab-detail-table th{text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:.03em; color:var(--k-ink-softer); font-weight:700; padding:10px 12px; border-bottom:1px solid var(--k-row-border); white-space:nowrap;}
+.lab-detail-table th:first-child{text-align:left;}
+.lab-detail-table td{padding:11px 12px; border-bottom:1px solid var(--k-row-border); vertical-align:middle; text-align:right; color:var(--k-ink);}
+.lab-detail-table td:first-child{text-align:left; font-weight:600;}
+.lab-detail-table tbody tr:last-child td{border-bottom:none;}
+.lab-detail-table .strike{text-decoration:line-through; color:var(--k-ink-softer);}
+.lab-ba-pair{display:inline-flex; align-items:center; gap:7px; font-variant-numeric:tabular-nums; white-space:nowrap;}
+.lab-ba-pair .before{color:var(--k-ink-softer); font-weight:400;}
+.lab-ba-pair .arrow{color:var(--k-ink-softer); font-size:11px;}
+.lab-ba-pair .after{color:var(--k-ink); font-weight:700;}
+
+.lab-preset-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:4px;}
+@media(max-width:900px){.lab-preset-grid{grid-template-columns:repeat(2,1fr);}}
+.lab-preset-card{background:var(--k-track-bg); border:1px solid var(--k-card-border); border-radius:8px; padding:10px; text-align:left; cursor:pointer;}
+.lab-preset-card.selected{border-color:var(--gold); background:var(--k-badge-bg);}
+.lab-preset-card .pt{font-size:12px; font-weight:700; color:var(--k-ink); margin-bottom:2px;}
+.lab-preset-card .pd{font-size:10.5px; color:var(--k-ink-softer); line-height:1.4;}
+
+.lab-scenario-tabs{display:flex; gap:6px; margin:16px 0 12px; border-bottom:1px solid var(--k-row-border); padding-bottom:10px; flex-wrap:wrap;}
+.lab-sc-chip{font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:16px; border:1px solid var(--k-card-border); color:var(--k-ink-softer); background:var(--k-card-bg); cursor:pointer;}
+.lab-sc-chip.active{background:var(--k-badge-bg); border-color:var(--gold); color:var(--k-badge-ink);}
+
+.lab-slider-row{display:flex; align-items:center; gap:12px; background:var(--k-track-bg); border-radius:8px; padding:12px 14px; margin-bottom:16px;}
+.lab-slider-row label{font-size:12.5px; font-weight:600; flex:none; width:150px; color:var(--k-ink);}
+.lab-slider-row input[type=range]{flex:1; accent-color:var(--gold);}
+.lab-slider-row .out{font-size:14px; font-weight:700; font-family:var(--font-display); width:80px; text-align:right; color:var(--k-ink);}
+
+.lab-sc-stats{display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px;}
+@media(max-width:700px){.lab-sc-stats{grid-template-columns:repeat(2,1fr);}}
+.lab-sc-stat{background:var(--k-track-bg); border-radius:8px; padding:9px 10px;}
+.lab-sc-stat .v{font-size:16px; font-weight:700; font-family:var(--font-display); color:var(--k-ink);}
+.lab-sc-stat .v.pos{color:var(--k-up-ink);}
+.lab-sc-stat .l{font-size:10px; text-transform:uppercase; letter-spacing:.04em; color:var(--k-ink-softer); margin-top:2px;}
+
+.lab-ledger-row{display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border:1px solid var(--k-card-border); border-radius:7px; margin-bottom:6px; font-size:12.5px; color:var(--k-ink);}
+.lab-ledger-row.clickable{cursor:pointer;}
+.lab-ledger-badge{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:2px 7px; border-radius:10px; margin-right:8px; white-space:nowrap;}
+.lab-badge-realloc{background:var(--k-track-bg); color:var(--k-ink-soft);}
+.lab-badge-cross{background:var(--k-badge-bg); color:var(--k-badge-ink);}
+.lab-badge-pending{background:var(--k-track-bg); color:var(--k-ink-softer);}
+.lab-badge-cash{background:var(--k-up-bg); color:var(--k-up-ink);}
+.lab-badge-withdrawn{background:var(--k-down-bg); color:var(--k-down-ink);}
+.lab-ledger-amt{font-weight:700; font-variant-numeric:tabular-nums; flex:none; margin-left:8px;}
+.lab-ledger-chev{color:var(--k-ink-softer); font-size:11px; margin-left:6px;}
+.lab-ledger-breakdown{border:1px solid var(--k-card-border); border-top:none; border-radius:0 0 7px 7px; margin:-8px 0 6px; padding:8px 12px; font-size:12px; color:var(--k-ink-softer);}
+.lab-ledger-breakdown .br{display:flex; justify-content:space-between; padding:3px 0;}
+
+.lab-dest-toggle, .lab-unit-toggle{display:flex; gap:6px; margin-bottom:10px;}
+.lab-dest-toggle button, .lab-unit-toggle button{font-size:12px; font-weight:600; padding:7px 13px; border-radius:16px; border:1px solid var(--k-card-border); background:var(--k-card-bg); color:var(--k-ink-softer); cursor:pointer;}
+.lab-dest-toggle button.active, .lab-unit-toggle button.active{background:var(--k-accent); color:var(--k-accent-ink); border-color:var(--k-accent);}
+
+.lab-checklist-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;}
+.lab-checklist-tools{display:flex; gap:10px;}
+.lab-checklist-tools button{font-size:11.5px; font-weight:600; color:var(--k-ink-softer); background:none; border:none; cursor:pointer; text-decoration:underline;}
+.lab-checklist{border:1px solid var(--k-card-border); border-radius:8px; overflow:hidden; margin-bottom:16px;}
+.lab-checklist-row{display:flex; align-items:center; gap:10px; padding:9px 12px; font-size:12.5px; border-bottom:1px solid var(--k-row-border); cursor:pointer; color:var(--k-ink);}
+.lab-checklist-row:last-child{border-bottom:none;}
+.lab-checklist-row input{flex:none; width:15px; height:15px; accent-color:var(--gold);}
+.lab-checklist-row .cl-name{flex:1; font-weight:600;}
+.lab-checklist-row .cl-meta{color:var(--k-ink-softer); font-size:11.5px;}
+.lab-checklist-row .amt-input{width:76px; padding:5px 7px; border:1px solid var(--k-card-border); border-radius:5px; font-size:12px; text-align:right; font-family:var(--font-body); margin-left:auto; background:var(--k-card-bg); color:var(--k-ink);}
+.lab-checklist-empty-note{font-size:11.5px; color:var(--k-badge-ink); background:var(--k-badge-bg); padding:8px 12px; border-radius:0 0 8px 8px; margin-top:-16px; margin-bottom:16px;}
+.lab-no-match-note{background:var(--k-badge-bg); color:var(--k-badge-ink); border-radius:8px; padding:12px 14px; font-size:12.5px; margin-bottom:16px;}
+.lab-auto-note, .lab-raised-note{background:var(--k-track-bg); border-radius:8px; padding:10px 14px; font-size:12.5px; color:var(--k-ink); margin-bottom:16px; line-height:1.6;}
+.lab-raised-note{display:flex; justify-content:space-between; align-items:center;}
+.lab-raised-note b{font-family:var(--font-display); font-size:15px;}
+.lab-alloc-total-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid var(--k-row-border); margin-top:2px; margin-bottom:16px; font-size:12.5px; font-weight:700; color:var(--k-ink);}
+.lab-alloc-total-row.warn{color:var(--k-badge-ink);}
+.lab-alloc-total-row.ok{color:var(--k-up-ink);}
+
+.lab-amount-row{background:var(--k-track-bg); border-radius:8px; padding:12px 14px; margin-bottom:16px;}
+.lab-amount-row label{font-size:12.5px; font-weight:600; display:block; margin-bottom:8px; color:var(--k-ink);}
+.lab-amount-row .amt-inline{display:flex; align-items:center; gap:12px;}
+.lab-amount-row input[type=range]{flex:1; accent-color:var(--gold);}
+.lab-amount-row .out{font-size:14px; font-weight:700; font-family:var(--font-display); width:80px; text-align:right; color:var(--k-ink);}
+
+.lab-field-row{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;}
+.lab-field-label{font-size:11px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; color:var(--k-ink-softer); margin-bottom:6px; display:block;}
+.lab-num-input{width:100%; padding:9px 12px; border:1px solid var(--k-card-border); border-radius:8px; font-size:13px; font-family:var(--font-body); color:var(--k-ink); background:var(--k-card-bg);}
+.lab-target-row, .lab-tw-row{display:flex; align-items:center; gap:10px; padding:6px 0; font-size:12.5px; color:var(--k-ink);}
+.lab-target-row .tg-name, .lab-tw-row .tw-name{flex:1; font-weight:600;}
+.lab-target-row .tg-cur, .lab-tw-row .tw-cur{color:var(--k-ink-softer); width:52px; text-align:right;}
+.lab-target-row .tg-arrow, .lab-tw-row .tw-arrow{color:var(--k-ink-softer);}
+.lab-target-input{width:64px; padding:5px 7px; border:1px solid var(--k-card-border); border-radius:5px; font-size:12.5px; text-align:right; font-family:var(--font-body); background:var(--k-card-bg); color:var(--k-ink);}
+.lab-target-total-row{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-top:1px solid var(--k-row-border); margin-top:6px; font-size:12.5px; font-weight:700; color:var(--k-ink);}
+.lab-target-total-row.warn{color:var(--k-badge-ink);}
+.lab-target-total-row.ok{color:var(--k-up-ink);}
+.lab-tw-val{width:52px; text-align:right; font-weight:700; color:var(--k-ink);}
+
+.lab-compare-cols{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+@media(max-width:700px){.lab-compare-cols{grid-template-columns:1fr;}}
+.lab-compare-col{border:1px solid var(--k-card-border); border-radius:9px; overflow:hidden;}
+.lab-compare-head{padding:10px 14px; background:var(--k-track-bg); display:flex; justify-content:space-between; align-items:center;}
+.lab-compare-head.is-scenario{background:var(--k-badge-bg);}
+.lab-compare-head .name{font-size:12.5px; font-weight:700; color:var(--k-ink);}
+.lab-compare-head .total{font-size:14px; font-weight:700; font-family:var(--font-display); color:var(--k-ink);}
+.lab-compare-body{padding:12px 14px;}
+.lab-mini-tm{width:100%; height:130px; margin-bottom:10px; border-radius:6px; overflow:hidden; background:var(--k-chart-panel-bg);}
+.lab-compare-stats{display:grid; grid-template-columns:repeat(3,1fr); gap:6px;}
+.lab-compare-stat{background:var(--k-track-bg); border-radius:6px; padding:7px 4px; text-align:center;}
+.lab-compare-stat .v{font-size:14px; font-weight:700; font-family:var(--font-display); color:var(--k-ink);}
+.lab-compare-stat .l{font-size:8.5px; text-transform:uppercase; color:var(--k-ink-softer); margin-top:1px;}
+
+.lab-move-row{display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--k-card-border); border-radius:8px; margin-bottom:8px;}
+.lab-move-row.clickable{cursor:pointer;}
+.lab-move-icon{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; flex:none;}
+.lab-move-icon.sell{background:var(--k-down-bg); color:var(--k-down-ink);}
+.lab-move-icon.buy{background:var(--k-up-bg); color:var(--k-up-ink);}
+.lab-move-text{flex:1; font-size:13px; color:var(--k-ink);}
+.lab-move-text b{font-weight:700;}
+.lab-move-amt{font-weight:700; font-variant-numeric:tabular-nums; margin-left:8px; color:var(--k-ink);}
+.lab-cross-flag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; color:var(--k-badge-ink); background:var(--k-badge-bg); padding:5px 10px; border-radius:12px; margin-top:10px; margin-bottom:8px;}
+
+.lab-results-narrative{margin:0 0 16px; padding-left:18px; font-size:13px; color:var(--k-ink); line-height:1.7;}
+.lab-results-narrative li{margin-bottom:4px;}
+.lab-ba-legend{display:flex; gap:16px; align-items:center; font-size:11.5px; color:var(--k-ink-softer); margin:0 0 14px;}
+.lab-ba-legend span{display:inline-flex; align-items:center; gap:6px;}
+.lab-ba-legend i{width:9px; height:9px; border-radius:2px; display:inline-block;}
+.lab-ba-legend .ba-before-i{background:var(--k-ink-softer); opacity:0.5;}
+.lab-ba-legend .ba-after-i{background:var(--gold);}
+.lab-ba-stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px;}
+.lab-ba-stat-grid.two{grid-template-columns:repeat(2,1fr);}
+@media(max-width:700px){.lab-ba-stat-grid, .lab-ba-stat-grid.two{grid-template-columns:1fr;}}
+.lab-ba-stat{background:var(--k-track-bg); border-radius:8px; padding:12px 14px;}
+.lab-ba-stat .l{font-size:11px; color:var(--k-ink-softer); margin-top:8px;}
+.lab-ba-bars{display:flex; flex-direction:column; gap:5px;}
+.lab-ba-bar-track{background:var(--k-card-border); border-radius:3px; height:7px; overflow:hidden;}
+.lab-ba-bar-fill{height:100%; border-radius:3px;}
+.lab-ba-bar-fill.ba-before{background:var(--k-ink-softer); opacity:0.5;}
+.lab-ba-bar-fill.ba-after{background:var(--gold);}
+.lab-ba-nums{display:flex; justify-content:space-between; font-size:12px; color:var(--k-ink-softer); margin-top:3px;}
+.lab-ba-nums .after-n{color:var(--k-ink); font-weight:700;}
+
+.lab-stage-actions{display:flex; justify-content:space-between; align-items:center; margin-top:18px; padding-top:14px; border-top:1px solid var(--k-row-border);}
+.lab-mock-flag{font-size:10.5px; color:var(--k-ink-softer); font-style:italic; margin-top:6px;}
+
 .k-stage-badge{display:inline-block; font-size:12px; font-weight:700; padding:4px 12px; border-radius:14px; background:var(--k-badge-bg); color:var(--k-badge-ink); margin-bottom:8px;}
 .k-stage-note{font-size:12.5px; color:var(--k-ink-softer); line-height:1.5;}
 .k-stage-list{list-style:none; margin:8px 0 12px; padding:0;}
@@ -1825,57 +2020,32 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </section>
 
 <section class="wrap">
-  <div class="k-section-label">Portfolio analysis</div>
+  <div class="k-section-label" id="labSectionLabel">Portfolio Analysis &amp; Optimisation</div>
   <div class="dgrid">
     <div class="span-12">
       <div class="dcard">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-          <div class="k" id="analysisCompaniesHeading">Companies</div>
-          <div class="k-pill-toggle" id="analysisToggle">
-            <button type="button" data-analysis-view="companies" class="active">Companies</button>
-            <button type="button" data-analysis-view="more">More insights <span class="k-badge-soon">Soon</span></button>
-          </div>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+          <button type="button" class="btn-primary lab-cta" id="labCta">Model a change in the Lab →</button>
         </div>
-        <div id="analysisCompanies">
-          <div class="k-chart-box" style="height:280px; max-width:340px; margin:0 auto;"><canvas id="chartAnalysisCompanies"></canvas></div>
-          <div class="k-chart-legend" id="analysisCompaniesLegend"></div>
-          <div id="analysisCompaniesEmpty"></div>
+        <div id="labTreemapEmpty"></div>
+        <div id="labTreemapHost" class="lab-treemap-host">
+          <div class="lab-tm-tooltip" id="labTmTooltip"></div>
         </div>
-        <div id="analysisMore" style="display:none;">
-          <div class="line" style="margin-bottom:8px;">Once your holdings are fully tagged, you'll see exposure across sectors, themes, geography and asset type.</div>
-          <ul class="k-locked-list">
-            <li><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Sector exposure</li>
-            <li><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Investment themes</li>
-            <li><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Geographic exposure</li>
-            <li><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Asset type breakdown</li>
-            <li><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Portfolio health analysis</li>
-          </ul>
+        <div class="lab-tm-legend" id="labTmLegend"></div>
+
+        <div class="lab-stepper-wrap" id="labStepperWrap">
+          <div class="lab-stepper" id="labStepper"></div>
+          <div id="labStageBody"></div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label">Portfolio Optimisation Lab</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div id="portfolioLabRoot"></div>
     </div>
   </div>
 </section>
 
 <section class="wrap">
   <div class="dgrid">
-    <div class="span-6">
-      <div class="dcard" style="height:100%;">
-        <div class="k" id="topHoldingsHeading">Top holdings</div>
-        <div class="line" id="topHoldingsSubline">Your 10 largest positions, across every account.</div>
-        <div style="overflow-x:auto;"><table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Value</th><th style="text-align:right;">%</th><th>Account</th></tr></thead><tbody id="topHoldingsBody"></tbody></table></div>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard" style="height:100%;">
+    <div class="span-12">
+      <div class="dcard">
         <div class="k" id="driversHeading">Performance drivers</div>
         <div class="line">Unrealised gain or loss vs. cost basis — not a time-windowed return.</div>
         <div id="driversContent" style="margin-top:8px;"></div>
@@ -3215,18 +3385,11 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </div>
 <!-- Chart.js v4.4.0 UMD build, loaded from CDN (matches the pattern already used in hub/guides/portfolio.html elsewhere in this repo) rather than inlined -- avoids embedding ~150KB of minified library source by hand. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<!-- d3 -- only for the Portfolio Optimisation Lab's treemap (drawTreemap in portfolio-lab-embed.js below). -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
 
 <!-- Supabase auth (config/client/hub-auth) -- same three tags used across the rest of the hub (see hub/index.html), loaded before TEI.wealthOS / TEI.app so window.teiSupabase, TeiAuth and TeiHubAuth exist by the time those scripts run. -->
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-auth.js"></script>
-
-<!-- Portfolio Optimisation Lab, embedded live in the Portfolio page's #portfolioLabRoot -- see
-     that file's header comment for how it avoids colliding with this page's own globals/CSS. -->
-<link rel="stylesheet" href="/hub/css/portfolio-lab-embed.css">
-<script src="/hub/js/portfolio-lab-embed.js"></script>
 <script>
 /* TEI Wealth Dashboard v2 — Data layer
    No ES modules (house rule) — everything hangs off window.TEI.
@@ -6146,52 +6309,6 @@ TEI.render = TEI.render || {};
     }).join('');
   }
 
-  const ANALYSIS_PALETTE = ['#4A7A96','#C9A84C','#6B9A78','#B5525F','#C97B4C','#A8A08C'];
-  function renderAnalysisCompanies(client){
-    const emptyEl = document.getElementById('analysisCompaniesEmpty');
-    const legendEl = document.getElementById('analysisCompaniesLegend');
-    const {makeChart} = TEI.charts;
-    if(!client.holdings.length){
-      emptyEl.innerHTML = `<div class="line" style="text-align:center;">No holdings logged yet.</div>`;
-      legendEl.innerHTML = '';
-      makeChart('chartAnalysisCompanies', {type:'pie', data:{labels:[],datasets:[{data:[]}]}, options:{maintainAspectRatio:false}});
-      return;
-    }
-    emptyEl.innerHTML = '';
-    const grouped = TEI.calc.groupedHoldings(client);
-    const total = grouped.reduce((s,g)=>s+g.value,0);
-    const top10 = [...grouped].sort((a,b)=>b.value-a.value).slice(0,10);
-    const colors = top10.map((h,i)=>ANALYSIS_PALETTE[i%ANALYSIS_PALETTE.length]);
-    const theme = document.getElementById('clientApp').getAttribute('data-theme');
-    const segBorder = theme==='light' ? '#F7F4ED' : '#20344E';
-    makeChart('chartAnalysisCompanies', {
-      type:'pie',
-      data:{labels:top10.map(h=>h.name), datasets:[{data:top10.map(h=>h.value), backgroundColor:colors, borderColor:segBorder, borderWidth:2}]},
-      options:{maintainAspectRatio:false,
-        plugins:{
-          legend:{display:false},
-          tooltip:{callbacks:{label:c=>c.label+': '+fmtGBP(c.raw)+' ('+(total?(c.raw/total*100).toFixed(1):0)+'%)'}}
-        }
-      }
-    });
-    legendEl.innerHTML = top10.map((h,i)=>`<div class="lg"><span class="sw" style="background:${colors[i]};"></span>${h.name}</div>`).join('');
-  }
-
-  function wireAnalysisToggle(client){
-    const toggle = document.getElementById('analysisToggle');
-    if(toggle.dataset.wired) return;
-    toggle.querySelectorAll('[data-analysis-view]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        toggle.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-        this.classList.add('active');
-        ['companies','more'].forEach(v=>{
-          document.getElementById('analysis'+v.charAt(0).toUpperCase()+v.slice(1)).style.display = (v===this.dataset.analysisView) ? 'block' : 'none';
-        });
-      });
-    });
-    toggle.dataset.wired = '1';
-  }
-
   /* Re-renders every account-scopable card for the current
      analysisScopeAccountId. Deliberately NOT renderOverview or the
      dividend-income section -- see the header comment on
@@ -6200,16 +6317,10 @@ TEI.render = TEI.render || {};
   function applyAnalysisScope(client){
     const scopeId = analysisScopeAccountId;
     const suffix = acctHeadingSuffix(client, scopeId);
-    document.getElementById('analysisCompaniesHeading').textContent = 'Companies' + suffix;
-    document.getElementById('topHoldingsHeading').textContent = 'Top holdings' + suffix;
-    document.getElementById('topHoldingsSubline').textContent = scopeId
-      ? 'Your 10 largest positions in this account.'
-      : 'Your 10 largest positions, across every account.';
     document.getElementById('driversHeading').textContent = 'Performance drivers' + suffix;
     document.getElementById('portfolioInsightsHeading').textContent = 'Portfolio insights' + suffix;
     const scoped = scopedClientView(client, scopeId);
-    renderAnalysisCompanies(scoped);
-    renderTopHoldings(scoped);
+    if(TEI.render.portfolioLab) TEI.render.portfolioLab(client, scopeId); // Portfolio Analysis & Optimisation -- reads scope itself (needs both the full client, for groupedHoldings, and scopeId, to pick ungrouped-per-account holdings)
     renderDrivers(scoped);
     renderInsights(client, scopeId);
     renderPortfolioCoach(client, scopeId);
@@ -6237,21 +6348,6 @@ TEI.render = TEI.render || {};
       });
     });
     applyAnalysisScope(client);
-  }
-
-  function renderTopHoldings(client){
-    const body = document.getElementById('topHoldingsBody');
-    if(!client.holdings.length){
-      body.innerHTML = `<tr><td colspan="4"><div class="line">No holdings logged yet. Add what's inside each account in Adviser Workspace &rarr; Portfolio.</div></td></tr>`;
-      return;
-    }
-    const grouped = TEI.calc.groupedHoldings(client);
-    const total = grouped.reduce((s,g)=>s+g.value,0);
-    const top10 = [...grouped].sort((a,b)=>b.value-a.value).slice(0,10);
-    body.innerHTML = top10.map(g=>{
-      const pct = total ? g.value/total*100 : 0;
-      return `<tr><td>${g.name}</td><td style="text-align:right;">${fmtGBP(g.value)}</td><td style="text-align:right;">${pct.toFixed(1)}%</td><td>${g.accountNames.join(', ')}</td></tr>`;
-    }).join('');
   }
 
   function renderDrivers(client){
@@ -6510,15 +6606,1235 @@ TEI.render = TEI.render || {};
 
   TEI.render.portfolio = function(client){
     renderOverview(client);
-    wireAnalysisToggle(client);
-    wireAnalysisScope(client); // also renders Companies/Top Holdings/Performance Drivers/Insights/Coach's Corner, scoped or not
+    wireAnalysisScope(client); // also renders the Portfolio Analysis & Optimisation Lab/Performance Drivers/Insights/Coach's Corner, scoped or not
     renderDivStats(client);
     renderDivIncomeChart(client, false);
     renderDivContributors(client);
     wireDivToggle(client);
     renderStage(client);
     renderHoldingsUpdateSummary(client);
-    if (TEI.render.portfolioLab) TEI.render.portfolioLab(client); // hub/js/portfolio-lab-embed.js
+  };
+})();
+
+/* ================= PORTFOLIO ANALYSIS & OPTIMISATION ("the Lab") =================
+   Native rebuild of the standalone Portfolio Optimisation Lab, scaled down and wired
+   directly into the Portfolio page -- see Portfolio_Lab_OS_Version.md and
+   BUILD_HANDOFF.md (design docs, not shipped) for the full spec this follows, and
+   wealth_os_lab_full_mockup.html for the clickable reference it was ported from.
+   Deliberate departures from that reference, each noted inline where it matters:
+     - Its own mutable `state` + template-string rendering DOES carry over here (the
+       reference explicitly said not to copy its *code structure*, but this file's own
+       established convention for every other page -- renderX(client) functions mutating
+       a module-local object, re-rendering via innerHTML -- is the same shape already, so
+       following that house convention already satisfies the spirit of that instruction).
+     - Scope pills aren't rebuilt separately -- this reuses the Portfolio page's existing
+       analysisScopeToggle/analysisScopeAccountId mechanism (already scopes Coach's
+       Corner, Performance Drivers and Portfolio Insights), called via
+       TEI.render.portfolioLab(client, scopeId) from applyAnalysisScope above. That also
+       means "All accounts" is TEI.calc.groupedHoldings(client) (ticker-merged) and a
+       specific account is that account's own ungrouped holdings, exactly the
+       aggregated-vs-per-account distinction flagged as outstanding when this was still
+       the standalone Lab.
+     - `vol` (illustrative volatility) doesn't exist in the schema -- reuses the same
+       cash/fund/stock heuristic the standalone Lab's calc engine used, rather than
+       adding a column for a figure that's labelled "Illustrative" everywhere it's shown.
+     - No persistence ("Save scenario for review" is explicitly out of scope per the
+       design docs) -- scenario state lives in memory only and resets on scope switch,
+       same as the reference build.
+     - SIPP-access detection uses each account's real `type` (checked against 'pension'),
+       not a hardcoded 'SIPP' string match against the display label the way the
+       reference mock did -- this app's account labels are formatted provider+type
+       (e.g. "AJ Bell LISA"), which a literal 'SIPP' string would never match. */
+window.TEI = window.TEI || {};
+TEI.render = TEI.render || {};
+(function(){
+  const {fmtGBP} = TEI.data;
+  function fmtPct(v){ return v==null ? '—' : v.toFixed(1)+'%'; }
+  function showToast(msg){
+    const el = document.getElementById('toast');
+    if(!el) return;
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'), 2600);
+  }
+
+  const OTHER_THRESHOLD = 3; // % -- below this, a holding folds into the treemap's "Other" tile
+  const PALETTE = ['#1D3557','#274674','#C9A84C','#8FA0C2','#B4923A'];
+  const OTHER_COLOR = '#A8A08C';
+  const CASH_TICKER = 'CASH';
+
+  // Illustrative-volatility heuristic -- ports the standalone Lab's calc-engine assumption
+  // (cash ~0%, fund/ETF ~12%, single stock ~28%) rather than a real risk model. Always
+  // shown with an "Illustrative" label wherever it appears.
+  const KNOWN_FUND_TICKERS = new Set(['VWRL','VUSA','VOO','SPY','QQQ','VWCE','VEVE','VMID','VUKE','JEPQ','JEPI','SGLN','IUSA','ISF','VHYL','VGOV','AGGH','IVV']);
+  const ILLUSTRATIVE_VOL_BY_TYPE = {cash:0.5, fund:12, stock:28};
+  function illustrativeVolFor(h){
+    const ticker = (h.ticker||'').toUpperCase();
+    const name = (h.name||'').toLowerCase();
+    if(ticker===CASH_TICKER || name==='cash') return ILLUSTRATIVE_VOL_BY_TYPE.cash;
+    if(KNOWN_FUND_TICKERS.has(ticker) || /\b(etf|fund|trust|index|tracker)\b/.test(name)) return ILLUSTRATIVE_VOL_BY_TYPE.fund;
+    return ILLUSTRATIVE_VOL_BY_TYPE.stock;
+  }
+
+  const STAGES = [
+    {id:'analyse', label:'Analyse'},
+    {id:'optimise', label:'Optimise'},
+    {id:'compare', label:'Compare'},
+    {id:'implement', label:'Implement'},
+    {id:'results', label:'Results'}
+  ];
+  function stageIndex(id){ return STAGES.findIndex(s=>s.id===id); }
+
+  const state = {
+    holdings: [],       // this render's scoped holdings -- {id,ticker,name,value,account,accountPension,vol}
+    scopeKey: undefined, // tracks the last scopeId rendered, so a genuine scope switch resets scenario state
+    expanded:false, stage:'analyse',
+    scenarioActive:false, presetType:null,
+    capPct:20,
+    moveUnit:'£', moveSourceIds:new Set(), moveSourceAmounts:{}, moveDestMode:'prorata', moveDestIds:new Set(), moveDestAmounts:{},
+    cashAmount:10000, raiseCashTargetPct:10,
+    selectedIds:new Set(), consolidateTargetId:null,
+    targetWeights:{},
+    ledgerOpen:false, implementOpen:false
+  };
+
+  function resetScenarioState(){
+    state.expanded = false; state.stage = 'analyse';
+    state.scenarioActive = false; state.presetType = null;
+    state.capPct = 20; state.moveUnit = '£';
+    state.moveSourceIds = new Set(); state.moveSourceAmounts = {};
+    state.moveDestMode = 'prorata'; state.moveDestIds = new Set(); state.moveDestAmounts = {};
+    state.cashAmount = 10000; state.raiseCashTargetPct = 10;
+    state.selectedIds = new Set(); state.consolidateTargetId = null;
+    state.targetWeights = {}; state.ledgerOpen = false; state.implementOpen = false;
+  }
+
+  /* All accounts -> TEI.calc.groupedHoldings(client), ticker-merged (a holding split
+     across an ISA and a GIA is one line, summed) -- accountPension is true if ANY
+     contributing account is a pension, since a merged holding can span several wrappers.
+     A specific account -> that account's own holdings, ungrouped (each is already a
+     distinct position; account is trivially that one account's own label throughout, so
+     cross-wrapper detection correctly never fires within a single-account scope). */
+  function buildLabHoldings(client, scopeId){
+    if(scopeId){
+      const acc = client.accounts.find(a=>a.id===scopeId);
+      const label = acc ? TEI.data.acctLabel(acc) : 'This account';
+      const isPension = !!(acc && acc.type==='pension');
+      return client.holdings.filter(h=>h.accountId===scopeId).map(h=>({
+        id:h.id, ticker:(h.ticker||'').toUpperCase(), name:h.name, value:Number(h.value)||0,
+        account:label, accountPension:isPension, vol: illustrativeVolFor(h)
+      }));
+    }
+    const grouped = TEI.calc.groupedHoldings(client);
+    return grouped.map(g=>{
+      const involved = (g.accountIds||[]).map(id=>client.accounts.find(a=>a.id===id)).filter(Boolean);
+      const anyPension = involved.some(a=>a.type==='pension');
+      return {
+        id:g.key, ticker:(g.ticker||'').toUpperCase(), name:g.name, value:g.value,
+        account: (g.accountNames||[]).length>1 ? `${g.accountNames.length} accounts` : ((g.accountNames||[])[0]||'—'),
+        accountPension:anyPension, vol: illustrativeVolFor(g)
+      };
+    });
+  }
+
+  /* ---------------------------- calculation engine ---------------------------- */
+  function grandTotal(){ return state.holdings.reduce((s,h)=>s+h.value,0); }
+  function withWeights(list){
+    const total = list.reduce((s,h)=>s+h.value,0);
+    return list.map(h=>({...h, weight: total? h.value/total*100 : 0})).sort((a,b)=>b.value-a.value);
+  }
+  function foldOther(weighted){
+    const main = weighted.filter(h=>h.weight>=OTHER_THRESHOLD);
+    const folded = weighted.filter(h=>h.weight<OTHER_THRESHOLD);
+    const out = [...main];
+    if(folded.length){
+      const otherValue = folded.reduce((s,h)=>s+h.value,0);
+      const total = weighted.reduce((s,h)=>s+h.value,0);
+      out.push({ticker:'Other', name:`${folded.length} smaller holdings`, value:otherValue, weight: total? otherValue/total*100:0, isOther:true, members:folded});
+    }
+    return out;
+  }
+  function concentrationSummary(weighted){
+    const sorted=[...weighted].sort((a,b)=>b.weight-a.weight);
+    const top=n=>sorted.slice(0,n).reduce((s,h)=>s+h.weight,0);
+    return {top1:top(1), top3:top(3), top5:top(5)};
+  }
+  function effectiveHoldings(weighted){
+    const s = weighted.reduce((s,h)=> s+Math.pow(h.weight/100,2), 0);
+    return s>0 ? 1/s : 0;
+  }
+  function illustrativeVol(weighted){
+    return weighted.reduce((s,h)=> s+(h.weight/100)*(h.vol||0), 0);
+  }
+  // The approximate single-holding move (all else equal) required to shift total portfolio
+  // value by 1% -- smaller for larger holdings, i.e. "how small a wobble in this one thing
+  // moves my whole portfolio."
+  function moveNeededFor1Pct(weightPct){
+    if(!weightPct || weightPct===0) return null;
+    return 1/(weightPct/100);
+  }
+
+  /* ---------------------------- scenario engine ---------------------------- */
+  function findCash(){ return state.holdings.find(h=>h.ticker===CASH_TICKER); }
+
+  function moveSourceGBP(h){
+    const raw = Number(state.moveSourceAmounts[h.id])||0;
+    if(state.moveUnit==='£') return Math.min(raw, h.value);
+    return Math.min(raw,100)/100 * h.value;
+  }
+  function moveTotalRaised(){
+    return [...state.moveSourceIds].reduce((s,id)=>{
+      const h = state.holdings.find(x=>x.id===id); return h ? s+moveSourceGBP(h) : s;
+    },0);
+  }
+  function moveDestGBP(h, totalRaised){
+    const raw = Number(state.moveDestAmounts[h.id])||0;
+    if(state.moveUnit==='£') return raw;
+    return raw/100 * totalRaised;
+  }
+  function moveAllocatedTotal(){
+    const totalRaised = moveTotalRaised();
+    return [...state.moveDestIds].reduce((s,id)=>{
+      const h = state.holdings.find(x=>x.id===id); return h ? s+moveDestGBP(h, totalRaised) : s;
+    },0);
+  }
+
+  function scenarioPool(){
+    const base = state.holdings;
+    if(state.presetType==='cap'){
+      const total = base.reduce((s,h)=>s+h.value,0);
+      const capValue = total * state.capPct/100;
+      return base.filter(h=>h.value <= capValue);
+    }
+    if(state.presetType==='raisecash') return base.filter(h=>h.ticker!==CASH_TICKER);
+    return base;
+  }
+  function moveSourcePool(){ return state.holdings.filter(h=>!state.moveDestIds.has(h.id)); }
+  function moveDestPool(){ return state.holdings.filter(h=>!state.moveSourceIds.has(h.id)); }
+
+  function scenarioCanProceed(){
+    if(!state.scenarioActive) return false;
+    const base = state.holdings;
+    if(state.presetType==='equal') return true;
+    if(state.presetType==='cap'){
+      const total = base.reduce((s,h)=>s+h.value,0);
+      const capValue = total * state.capPct/100;
+      const overCap = base.filter(h=>h.value > capValue);
+      if(overCap.length===0) return false;
+      return scenarioPool().filter(h=>state.selectedIds.has(h.id)).length > 0;
+    }
+    if(state.presetType==='move'){
+      const totalRaised = moveTotalRaised();
+      const sourcesOk = state.moveSourceIds.size>0 && totalRaised>0.5;
+      let destOk = state.moveDestIds.size>0;
+      if(destOk && state.moveDestMode==='manual') destOk = Math.abs(moveAllocatedTotal()-totalRaised) < 0.5;
+      return sourcesOk && destOk;
+    }
+    if(state.presetType==='freshcash') return scenarioPool().filter(h=>state.selectedIds.has(h.id)).length > 0;
+    if(state.presetType==='raisecash'){
+      const cash = findCash();
+      const total = base.reduce((s,h)=>s+h.value,0);
+      const targetVal = total * state.raiseCashTargetPct/100;
+      const currentCash = cash ? cash.value : 0;
+      if(targetVal <= currentCash) return false;
+      return scenarioPool().filter(h=>state.selectedIds.has(h.id)).length > 0;
+    }
+    if(state.presetType==='target'){
+      const sum = base.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
+      return Math.abs(sum-100) < 0.5;
+    }
+    if(state.presetType==='consolidate') return state.selectedIds.size>0 && !!state.consolidateTargetId;
+    return false;
+  }
+
+  // Every preset's only job: produce a scenario holdings array in the same shape as
+  // state.holdings, just with different values. Implement/Results/the move-needed table
+  // derive everything else generically from the before/after diff -- see scenarioMoves().
+  function getScenarioHoldings(){
+    const base = state.holdings;
+    if(!state.scenarioActive) return base;
+    const scopeTotal = base.reduce((s,h)=>s+h.value,0);
+
+    if(state.presetType==='equal'){
+      const per = scopeTotal / base.length;
+      return base.map(h=>({...h, value: per}));
+    }
+    if(state.presetType==='cap'){
+      const capValue = scopeTotal * state.capPct/100;
+      const overCap = base.filter(h=>h.value > capValue);
+      const excess = overCap.reduce((s,h)=>s+(h.value-capValue),0);
+      const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
+      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
+      const out = base.map(h=>{
+        if(overCap.find(o=>o.id===h.id)) return {...h, value: capValue};
+        if(selected.find(s=>s.id===h.id)){
+          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
+          return {...h, value: h.value + excess*share};
+        }
+        return h;
+      });
+      if(selected.length===0 && overCap.length>0) out.push({id:'_pending', ticker:'Pending', name:'Uncommitted — pick where the excess lands', value:excess, account:'—', accountPension:false, vol:0, isPending:true});
+      return out;
+    }
+    if(state.presetType==='move'){
+      const totalRaised = moveTotalRaised();
+      let out = base.map(h=> state.moveSourceIds.has(h.id) ? {...h, value: Math.max(0, h.value - moveSourceGBP(h))} : h);
+      if(state.moveDestMode==='prorata'){
+        const destPoolBase = base.filter(h=>state.moveDestIds.has(h.id));
+        const selectedTotal = destPoolBase.reduce((s,h)=>s+h.value,0);
+        if(destPoolBase.length===0){
+          if(totalRaised>0.5) out.push({id:'_pending', ticker:'Pending', name:'Unallocated proceeds', value:totalRaised, account:'—', accountPension:false, vol:0, isPending:true});
+        } else {
+          out = out.map(h=>{
+            if(state.moveDestIds.has(h.id)){
+              const share = selectedTotal>0 ? h.value/selectedTotal : 1/destPoolBase.length;
+              return {...h, value: h.value + totalRaised*share};
+            }
+            return h;
+          });
+        }
+      } else {
+        out = out.map(h=> state.moveDestIds.has(h.id) ? {...h, value: h.value + moveDestGBP(h, totalRaised)} : h);
+        const allocated = moveAllocatedTotal();
+        if(allocated < totalRaised - 0.5) out.push({id:'_pending', ticker:'Pending', name:'Unallocated proceeds', value:totalRaised-allocated, account:'—', accountPension:false, vol:0, isPending:true});
+      }
+      return out;
+    }
+    if(state.presetType==='freshcash'){
+      const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
+      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
+      const out = base.map(h=>{
+        if(selected.find(s=>s.id===h.id)){
+          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
+          return {...h, value: h.value + state.cashAmount*share};
+        }
+        return h;
+      });
+      if(selected.length===0) out.push({id:'_pending', ticker:'Pending', name:'Uncommitted new cash — pick where it lands', value:state.cashAmount, account:'—', accountPension:false, vol:0, isPending:true});
+      return out;
+    }
+    if(state.presetType==='raisecash'){
+      const cash = findCash();
+      const targetVal = scopeTotal * state.raiseCashTargetPct/100;
+      const currentCash = cash ? cash.value : 0;
+      const amount = Math.max(0, targetVal - currentCash);
+      const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
+      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
+      return base.map(h=>{
+        if(h.ticker===CASH_TICKER) return {...h, value: targetVal};
+        if(selected.find(s=>s.id===h.id)){
+          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
+          return {...h, value: Math.max(0, h.value - amount*share)};
+        }
+        return h;
+      });
+    }
+    if(state.presetType==='target'){
+      return base.map(h=>({...h, value: scopeTotal * (Number(state.targetWeights[h.id])||0)/100}));
+    }
+    if(state.presetType==='consolidate'){
+      const sources = base.filter(h=>state.selectedIds.has(h.id));
+      const sumSources = sources.reduce((s,h)=>s+h.value,0);
+      return base.map(h=>{
+        if(state.selectedIds.has(h.id)) return {...h, value:0};
+        if(h.id===state.consolidateTargetId) return {...h, value: h.value+sumSources};
+        return h;
+      });
+    }
+    return base;
+  }
+
+  // Works identically for all 7 presets -- a holding that shrinks is a sell, one that
+  // grows is a buy. No preset-specific listing logic (see BUILD_HANDOFF.md's warning
+  // about why that's the mistake to avoid if a new preset gets added later).
+  function scenarioMoves(){
+    const base = state.holdings;
+    const scenario = getScenarioHoldings().filter(h=>!h.isPending);
+    const sells = [], buys = [];
+    base.forEach(b=>{
+      const after = scenario.find(h=>h.id===b.id);
+      if(!after) return;
+      const diff = after.value - b.value;
+      if(diff < -0.5) sells.push({name:b.name, account:b.account, accountPension:b.accountPension, amount:-diff});
+      else if(diff > 0.5) buys.push({name:b.name, account:b.account, accountPension:b.accountPension, amount:diff});
+    });
+    const baseTotal = base.reduce((s,h)=>s+h.value,0);
+    const scenarioTotal = scenario.reduce((s,h)=>s+h.value,0);
+    return {sells, buys, netFlow: scenarioTotal - baseTotal};
+  }
+  // Nets sells against buys *per account*, not "did this account get any buy at all" --
+  // a £5,060 sale from a GIA holding that funds £4,807 back into another GIA holding plus
+  // £253 into an ISA is still a cross-wrapper move for that £253; checking "did GIA get
+  // any buy" would miss it.
+  function crossWrapperFlags(sells, buys){
+    const net = {}, pensionByAccount = {};
+    sells.forEach(s=>{ net[s.account]=(net[s.account]||0)-s.amount; pensionByAccount[s.account]=pensionByAccount[s.account]||s.accountPension; });
+    buys.forEach(b=>{ net[b.account]=(net[b.account]||0)+b.amount; pensionByAccount[b.account]=pensionByAccount[b.account]||b.accountPension; });
+    const leftWrapper = Object.keys(net).filter(a=> net[a] < -0.5);
+    return {leftWrapper, sippLeft: leftWrapper.some(a=>pensionByAccount[a])};
+  }
+
+  /* ---------------------------- treemap (plain SVG, no chart library) ---------------------------- */
+  function layoutTreemap(items, x0,y0,x1,y1){
+    const w=x1-x0, h=y1-y0;
+    if(items.length===0) return [];
+    if(items.length===1) return [{...items[0], x0,y0,x1,y1}];
+    const total = items.reduce((s,d)=>s+d.value,0);
+    let acc=0, splitIdx=1;
+    for(let i=0;i<items.length;i++){ acc+=items[i].value; if(acc>=total/2){ splitIdx=Math.max(1,i+1); break; } }
+    const groupA=items.slice(0,splitIdx), groupB=items.slice(splitIdx);
+    const valA=groupA.reduce((s,d)=>s+d.value,0);
+    const frac = total? valA/total : 0.5;
+    let out=[];
+    if(w>=h){ const xm=x0+w*frac; out=out.concat(layoutTreemap(groupA,x0,y0,xm,y1)).concat(layoutTreemap(groupB,xm,y0,x1,y1)); }
+    else { const ym=y0+h*frac; out=out.concat(layoutTreemap(groupA,x0,y0,x1,ym)).concat(layoutTreemap(groupB,x0,ym,x1,y1)); }
+    return out;
+  }
+  function renderTreemapInto(hostEl, tooltipEl, weighted, opts={}){
+    if(!hostEl) return [];
+    hostEl.querySelectorAll('svg').forEach(s=>s.remove());
+    const width = hostEl.clientWidth || 300, height = opts.height || hostEl.clientHeight || 200;
+    const folded = foldOther(weighted);
+    const laidOut = layoutTreemap([...folded].sort((a,b)=>b.value-a.value), 0,0,width,height);
+    const svgNS='http://www.w3.org/2000/svg';
+    const svg=document.createElementNS(svgNS,'svg');
+    svg.setAttribute('viewBox',`0 0 ${width} ${height}`); svg.setAttribute('width','100%'); svg.setAttribute('height',height);
+    hostEl.insertBefore(svg, hostEl.firstChild);
+    const small = opts.small;
+    laidOut.forEach((d,i)=>{
+      const pad=small?1:2;
+      const rx=d.x0+pad, ry=d.y0+pad, rw=Math.max(0,(d.x1-d.x0)-pad*2), rh=Math.max(0,(d.y1-d.y0)-pad*2);
+      const g=document.createElementNS(svgNS,'g');
+      const rect=document.createElementNS(svgNS,'rect');
+      rect.setAttribute('x',rx); rect.setAttribute('y',ry); rect.setAttribute('width',rw); rect.setAttribute('height',rh);
+      rect.setAttribute('rx',small?3:4); rect.setAttribute('fill', d.isOther?OTHER_COLOR:PALETTE[i%PALETTE.length]);
+      g.appendChild(rect);
+      const minLabelW = small?24:34, minLabelH = small?18:24;
+      if(rw>=minLabelW && rh>=minLabelH){
+        const t1=document.createElementNS(svgNS,'text');
+        t1.setAttribute('x',rx+(small?5:10)); t1.setAttribute('y', ry+(small?13:22));
+        t1.setAttribute('fill','#F7F4ED'); t1.setAttribute('font-weight','700');
+        t1.setAttribute('font-size', (small? Math.min(10,rw/6) : Math.min(16,rw/6))+'px'); t1.setAttribute('font-family','Inter,sans-serif');
+        t1.textContent = d.ticker;
+        g.appendChild(t1);
+        if(!small && rh>44){
+          const t2=document.createElementNS(svgNS,'text');
+          t2.setAttribute('x',rx+10); t2.setAttribute('y',ry+42);
+          t2.setAttribute('fill','rgba(247,244,237,0.85)'); t2.setAttribute('font-size','11.5px'); t2.setAttribute('font-family','Inter,sans-serif');
+          t2.textContent = fmtPct(d.weight);
+          g.appendChild(t2);
+        }
+        if(small && rh>=30){
+          const t2=document.createElementNS(svgNS,'text');
+          t2.setAttribute('x',rx+5); t2.setAttribute('y',ry+25);
+          t2.setAttribute('fill','rgba(247,244,237,0.85)'); t2.setAttribute('font-size','9px'); t2.setAttribute('font-family','Inter,sans-serif');
+          t2.textContent = fmtPct(d.weight);
+          g.appendChild(t2);
+        }
+      }
+      if(tooltipEl){
+        g.addEventListener('mousemove',(e)=>{
+          const hostRect = hostEl.getBoundingClientRect();
+          tooltipEl.style.opacity=1;
+          tooltipEl.style.left=(e.clientX-hostRect.left+14)+'px';
+          tooltipEl.style.top=(e.clientY-hostRect.top+10)+'px';
+          tooltipEl.innerHTML = d.isOther
+            ? `<b>Other · ${fmtPct(d.weight)}</b>` + d.members.map(m=>`<div class="row"><span>${m.name}</span><span>${fmtPct(m.weight)}</span></div>`).join('')
+            : `<b>${d.ticker}</b><div class="row"><span>${d.name}</span></div><div class="row"><span>${d.account||''}</span><span>${fmtPct(d.weight)}</span></div>`;
+        });
+        g.addEventListener('mouseleave',()=>{ tooltipEl.style.opacity=0; });
+      }
+      svg.appendChild(g);
+    });
+    return folded;
+  }
+
+  /* ---------------------------- top-level render ---------------------------- */
+  function renderTreemapSection(){
+    const host = document.getElementById('labTreemapHost');
+    const tooltip = document.getElementById('labTmTooltip');
+    const legendEl = document.getElementById('labTmLegend');
+    const emptyEl = document.getElementById('labTreemapEmpty');
+    if(!host) return;
+    if(!state.holdings.length){
+      host.style.display = 'none';
+      legendEl.innerHTML = '';
+      emptyEl.innerHTML = `<div class="line" style="text-align:center; padding:24px 0;">No holdings logged yet.</div>`;
+      document.getElementById('labCta').style.display = 'none';
+      return;
+    }
+    host.style.display = '';
+    document.getElementById('labCta').style.display = '';
+    emptyEl.innerHTML = '';
+    const weighted = withWeights(state.holdings);
+    const folded = renderTreemapInto(host, tooltip, weighted);
+    legendEl.innerHTML = folded.map((d,i)=>`<div class="lg"><span class="sw" style="background:${d.isOther?OTHER_COLOR:PALETTE[i%PALETTE.length]}"></span>${d.isOther?`Other (${d.members.length})`:d.name} · ${fmtPct(d.weight)}</div>`).join('');
+  }
+
+  function renderStepper(){
+    const el = document.getElementById('labStepper');
+    const curIdx = stageIndex(state.stage);
+    el.innerHTML = STAGES.map((s,i)=>{
+      const cls = i<curIdx ? 'done' : (i===curIdx ? 'active' : '');
+      const num = i<curIdx ? '✓' : (i+1);
+      return `<div class="lab-step ${cls}" data-stage="${s.id}"><div class="lab-step-num">${num}</div><div class="lab-step-label">${s.label}</div></div>`;
+    }).join('');
+    el.querySelectorAll('.lab-step').forEach(st=>st.addEventListener('click', ()=>{ goStage(st.dataset.stage); }));
+  }
+  function goStage(id){ state.stage=id; renderStageBody(); renderStepper(); }
+  function renderStageBody(){
+    const el = document.getElementById('labStageBody');
+    if(state.stage==='analyse') el.innerHTML = analyseHTML();
+    else if(state.stage==='optimise') el.innerHTML = optimiseHTML();
+    else if(state.stage==='compare') el.innerHTML = compareHTML();
+    else if(state.stage==='implement') el.innerHTML = implementHTML();
+    else if(state.stage==='results') el.innerHTML = resultsHTML();
+    wireStageEvents();
+  }
+
+  /* ---- Stage I: Analyse ---- */
+  function analyseHTML(){
+    const weighted = withWeights(state.holdings);
+    const conc = concentrationSummary(weighted);
+    const eff = effectiveHoldings(weighted);
+    const vol = illustrativeVol(weighted);
+    const maxWeight = Math.max(...weighted.map(x=>x.weight), 1);
+    return `
+      <div class="lab-eyebrow">Stage I</div>
+      <h4 class="lab-stage-title">Analyse</h4>
+      <div class="lab-stage-desc">A closer look at concentration and risk shape than the treemap above shows on its own.</div>
+      <div class="lab-stat-grid">
+        <div class="lab-stat-card"><div class="v">${fmtPct(conc.top1)}</div><div class="l">Top 1</div></div>
+        <div class="lab-stat-card"><div class="v">${fmtPct(conc.top3)}</div><div class="l">Top 3</div></div>
+        <div class="lab-stat-card"><div class="v">${fmtPct(conc.top5)}</div><div class="l">Top 5</div></div>
+        <div class="lab-stat-card"><div class="v">${eff.toFixed(1)}</div><div class="l">Eff. holdings</div></div>
+        <div class="lab-stat-card"><div class="v">${fmtPct(vol)}</div><div class="l">Illustrative vol</div></div>
+      </div>
+      <div class="lab-subhead">Move needed for 1% portfolio impact<span class="lab-approx-flag">Approximate</span></div>
+      <div class="lab-subhead-note">The approximate single-holding move (all else equal) required to shift total portfolio value by 1%.</div>
+      <div style="overflow-x:auto;">
+      <table class="k-table">
+        <thead><tr><th>Holding</th><th style="text-align:right;">Weight</th><th style="text-align:right;">Move for 1% impact</th></tr></thead>
+        <tbody>
+          ${weighted.map(h=>{
+            const move = moveNeededFor1Pct(h.weight);
+            const barWidth = maxWeight>0 ? (h.weight/maxWeight*100) : 0;
+            return `<tr>
+              <td class="lab-holding-cell"><b>${h.ticker||h.name}</b><span class="hc-name">· ${h.name} (${h.account})</span></td>
+              <td class="num"><span class="lab-wt-mini"><span class="lab-wt-mini-track"><span class="lab-wt-mini-fill" style="width:${barWidth}%"></span></span>${fmtPct(h.weight)}</span></td>
+              <td class="num lab-move-figure">${move!==null?fmtPct(move):'—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+      <div class="lab-stage-actions">
+        <div></div>
+        <button type="button" class="btn-primary" data-goto="optimise">Optimise →</button>
+      </div>
+    `;
+  }
+
+  /* ---- Stage II: Optimise ---- */
+  const PRESET_META = {
+    equal: {label:'Equal weight', badge:'Rebalanced', badgeClass:'lab-badge-realloc'},
+    cap: {label:'Maximum holding size', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
+    move: {label:'Move value between holdings', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
+    freshcash: {label:'Allocate fresh cash', badge:'Fresh cash', badgeClass:'lab-badge-cash'},
+    raisecash: {label:'Raise cash to X%', badge:'Withdrawn', badgeClass:'lab-badge-withdrawn'},
+    target: {label:'Target allocation', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
+    consolidate: {label:'Consolidate holdings', badge:'Consolidated', badgeClass:'lab-badge-realloc'}
+  };
+  const PRESET_LIST = [
+    {id:'equal', title:'Equal weight', desc:'Rebalance so every holding carries the same weight.'},
+    {id:'cap', title:'Maximum holding size', desc:'Cap a holding at a chosen %, redistributing the excess.'},
+    {id:'move', title:'Move value between holdings', desc:'Move a £ amount or % — from one or more holdings into one or more others.'},
+    {id:'freshcash', title:'Allocate fresh cash', desc:'Model new capital being added to one or more holdings.'},
+    {id:'raisecash', title:'Raise cash to X%', desc:'Withdraw proportionally from holdings until cash reaches a target %.'},
+    {id:'target', title:'Target allocation', desc:'Enter target weights directly and see the trades required.'},
+    {id:'consolidate', title:'Consolidate holdings', desc:'Merge selected holdings into a single chosen holding.'}
+  ];
+
+  function amountChecklistHTML(pool, selectedIds, amounts, idPrefix, headline, note, placeholderFor){
+    const allSelected = pool.length>0 && pool.every(h=>selectedIds.has(h.id));
+    const noneSelected = pool.every(h=>!selectedIds.has(h.id));
+    return `
+      ${headline?`<div class="lab-subhead">${headline}</div>`:''}
+      <div class="lab-subhead-note">${note}</div>
+      <div class="lab-checklist-head">
+        <span></span>
+        <div class="lab-checklist-tools">
+          <button type="button" data-amtcheckall="${idPrefix}:1" ${allSelected?'disabled':''}>Select all</button>
+          <button type="button" data-amtcheckall="${idPrefix}:0" ${noneSelected?'disabled':''}>Clear all</button>
+        </div>
+      </div>
+      <div class="lab-checklist">
+        ${pool.map(h=>`
+          <label class="lab-checklist-row">
+            <input type="checkbox" data-amtcheck="${idPrefix}:${h.id}" ${selectedIds.has(h.id)?'checked':''}>
+            <span class="cl-name">${h.name}</span>
+            <span class="cl-meta">${h.account}</span>
+            ${selectedIds.has(h.id) ? `<input type="number" class="amt-input" data-amtval="${idPrefix}:${h.id}" value="${amounts[h.id]!==undefined?amounts[h.id]:''}" placeholder="${placeholderFor(h)}" min="0" ${state.moveUnit==='%'?'max="100"':''} step="${state.moveUnit==='£'?'50':'1'}" onclick="event.stopPropagation()">` : ''}
+          </label>
+        `).join('')}
+      </div>
+      ${pool.length===0 ? `<div class="lab-checklist-empty-note">No eligible holdings — check the other side isn't using all of them.</div>` :
+        noneSelected ? `<div class="lab-checklist-empty-note">Select at least one holding to continue — nothing is chosen automatically.</div>` : ''}
+    `;
+  }
+  function checklistHTML(headline, note){
+    const pool = scenarioPool();
+    const allSelected = pool.every(h=>state.selectedIds.has(h.id));
+    const noneSelected = pool.every(h=>!state.selectedIds.has(h.id));
+    return `
+      <div class="lab-subhead">${headline}</div>
+      <div class="lab-subhead-note">${note}</div>
+      <div class="lab-checklist-head">
+        <span></span>
+        <div class="lab-checklist-tools">
+          <button type="button" data-checkall="1" ${allSelected?'disabled':''}>Select all</button>
+          <button type="button" data-checkall="0" ${noneSelected?'disabled':''}>Clear all</button>
+        </div>
+      </div>
+      <div class="lab-checklist">
+        ${pool.map(h=>`
+          <label class="lab-checklist-row">
+            <input type="checkbox" data-checkid="${h.id}" ${state.selectedIds.has(h.id)?'checked':''}>
+            <span class="cl-name">${h.name}</span>
+            <span class="cl-meta">${h.account}</span>
+          </label>
+        `).join('')}
+      </div>
+      ${pool.length===0 ? `<div class="lab-checklist-empty-note">No eligible holdings for this preset in the current scope.</div>` :
+        noneSelected ? `<div class="lab-checklist-empty-note">Select at least one holding to continue — nothing is chosen automatically.</div>` : ''}
+    `;
+  }
+  function moveDestChecklistHTML(){
+    const pool = moveDestPool();
+    const allSelected = pool.length>0 && pool.every(h=>state.moveDestIds.has(h.id));
+    const noneSelected = pool.every(h=>!state.moveDestIds.has(h.id));
+    return `
+      <div class="lab-checklist-head">
+        <span></span>
+        <div class="lab-checklist-tools">
+          <button type="button" data-movedestcheckall="1" ${allSelected?'disabled':''}>Select all</button>
+          <button type="button" data-movedestcheckall="0" ${noneSelected?'disabled':''}>Clear all</button>
+        </div>
+      </div>
+      <div class="lab-checklist">
+        ${pool.map(h=>`
+          <label class="lab-checklist-row">
+            <input type="checkbox" data-movedestcheck="${h.id}" ${state.moveDestIds.has(h.id)?'checked':''}>
+            <span class="cl-name">${h.name}</span>
+            <span class="cl-meta">${h.account}</span>
+          </label>
+        `).join('')}
+      </div>
+      ${pool.length===0 ? `<div class="lab-checklist-empty-note">No eligible holdings — check the source side isn't using all of them.</div>` :
+        noneSelected ? `<div class="lab-checklist-empty-note">Select at least one holding to continue — nothing is chosen automatically.</div>` : ''}
+    `;
+  }
+
+  function targetWeightsTable(scenarioHoldings, base){
+    if(state.presetType==='target'){
+      return base.map(h=>`<div class="lab-tw-row"><span class="tw-name">${h.name}</span><span class="tw-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tw-arrow">→</span><span class="lab-tw-val">${fmtPct(Number(state.targetWeights[h.id])||0)}</span></div>`).join('');
+    }
+    const weighted = withWeights(scenarioHoldings);
+    return `
+      ${weighted.filter(h=>!h.isPending).map(h=>{
+        const isZero = h.value===0 && state.presetType==='consolidate' && state.selectedIds.has(h.id);
+        return `<div class="lab-tw-row"><span class="tw-name" style="${isZero?'color:var(--k-ink-softer);text-decoration:line-through;':''}">${h.name}</span><span class="tw-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tw-arrow">→</span><span class="lab-tw-val" style="${isZero?'color:var(--k-ink-softer);':''}">${fmtPct(h.weight)}</span></div>`;
+      }).join('')}
+      ${weighted.find(h=>h.isPending) ? `<div class="lab-tw-row"><span class="tw-name" style="color:var(--k-ink-softer);">Uncommitted</span><span class="tw-cur"></span><span class="tw-arrow"></span><span class="lab-tw-val" style="color:var(--k-ink-softer);">${fmtPct(weighted.find(h=>h.isPending).weight)}</span></div>` : ''}
+    `;
+  }
+
+  function ledgerHTML(){
+    const meta = PRESET_META[state.presetType];
+    const base = state.holdings;
+    const scopeTotal = base.reduce((s,h)=>s+h.value,0);
+
+    if(state.presetType==='equal'){
+      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>All ${base.length} holdings — ${fmtPct(100/base.length)} each</span><span class="lab-ledger-amt">—</span></div>`;
+    }
+    if(state.presetType==='cap'){
+      const capValue = scopeTotal * state.capPct/100;
+      const overCap = base.filter(h=>h.value > capValue);
+      const excess = overCap.reduce((s,h)=>s+(h.value-capValue),0);
+      if(overCap.length===0) return `<div class="lab-no-match-note">No holdings currently exceed ${state.capPct}% — nothing to cap.</div>`;
+      const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
+      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
+      const sourceLabel = overCap.length===1 ? overCap[0].name : `${overCap.length} holdings over ${state.capPct}%`;
+      if(selected.length===0){
+        return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Uncommitted</span>${sourceLabel} — select holdings below</span><span class="lab-ledger-amt">${fmtGBP(excess)}</span></div>`;
+      }
+      const destLabel = selected.length===1 ? `${selected[0].name} (${selected[0].account})` : `spread across ${selected.length} holdings (pro-rata)`;
+      const crossAccounts = [...new Set(overCap.flatMap(o=>selected.filter(h=>h.account!==o.account).map(h=>h.account)))];
+      return `
+        <div class="lab-ledger-row clickable" id="labLedgerToggle">
+          <span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>${sourceLabel} → ${destLabel}${crossAccounts.length?`<span class="lab-ledger-badge lab-badge-cross">Cross-wrapper</span>`:''}${selected.length>1?`<span class="lab-ledger-chev">${state.ledgerOpen?'▲':'▼'}</span>`:''}</span>
+          <span class="lab-ledger-amt">${fmtGBP(excess)}</span>
+        </div>
+        ${state.ledgerOpen && selected.length>1 ? `<div class="lab-ledger-breakdown">${selected.map(h=>{
+          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
+          return `<div class="br"><span>${h.name} (${h.account})</span><span>+${fmtGBP(excess*share)}</span></div>`;
+        }).join('')}</div>` : ''}
+      `;
+    }
+    if(state.presetType==='move'){
+      const totalRaised = moveTotalRaised();
+      const sources = base.filter(h=>state.moveSourceIds.has(h.id));
+      const dests = base.filter(h=>state.moveDestIds.has(h.id));
+      if(sources.length===0 || dests.length===0 || totalRaised<0.5){
+        return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Uncommitted</span>Choose sources and destinations above</span><span class="lab-ledger-amt">${totalRaised>0.5?fmtGBP(totalRaised):'—'}</span></div>`;
+      }
+      const allocated = moveAllocatedTotal();
+      const unbalanced = state.moveDestMode==='manual' && Math.abs(allocated-totalRaised)>=0.5;
+      const sourceLabel = sources.length===1 ? `${sources[0].name} (${sources[0].account})` : `${sources.length} holdings`;
+      const destLabel = dests.length===1 ? `${dests[0].name} (${dests[0].account})` : (state.moveDestMode==='prorata' ? `spread across ${dests.length} holdings (pro-rata)` : `${dests.length} holdings (custom split)`);
+      const crossAccounts = [...new Set(sources.flatMap(s=>dests.filter(d=>d.account!==s.account).map(d=>d.account)))];
+      return `
+        <div class="lab-ledger-row clickable" id="labLedgerToggle">
+          <span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>${sourceLabel} → ${destLabel}${crossAccounts.length?`<span class="lab-ledger-badge lab-badge-cross">Cross-wrapper</span>`:''}${unbalanced?`<span class="lab-ledger-badge lab-badge-pending">Not fully allocated</span>`:''}<span class="lab-ledger-chev">${state.ledgerOpen?'▲':'▼'}</span></span>
+          <span class="lab-ledger-amt">${fmtGBP(totalRaised)}</span>
+        </div>
+        ${state.ledgerOpen ? `<div class="lab-ledger-breakdown">
+          <div style="font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--k-ink-softer);margin-bottom:4px;">From</div>
+          ${sources.map(h=>`<div class="br"><span>${h.name} (${h.account})</span><span>−${fmtGBP(moveSourceGBP(h))}</span></div>`).join('')}
+          <div style="font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--k-ink-softer);margin:8px 0 4px;">Into</div>
+          ${dests.map(h=>{
+            const amt = state.moveDestMode==='prorata' ? totalRaised*(h.value/(dests.reduce((s,x)=>s+x.value,0)||1)) : moveDestGBP(h, totalRaised);
+            return `<div class="br"><span>${h.name} (${h.account})</span><span>+${fmtGBP(amt)}</span></div>`;
+          }).join('')}
+        </div>` : ''}
+      `;
+    }
+    if(state.presetType==='freshcash'){
+      const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
+      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
+      if(selected.length===0){
+        return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Uncommitted</span>New cash — select holdings below</span><span class="lab-ledger-amt">${fmtGBP(state.cashAmount)}</span></div>`;
+      }
+      const destLabel = selected.length===1 ? `${selected[0].name} (${selected[0].account})` : `spread across ${selected.length} holdings (pro-rata)`;
+      return `
+        <div class="lab-ledger-row clickable" id="labLedgerToggle">
+          <span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>New cash → ${destLabel}${selected.length>1?`<span class="lab-ledger-chev">${state.ledgerOpen?'▲':'▼'}</span>`:''}</span>
+          <span class="lab-ledger-amt">${fmtGBP(state.cashAmount)}</span>
+        </div>
+        ${state.ledgerOpen && selected.length>1 ? `<div class="lab-ledger-breakdown">${selected.map(h=>{
+          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
+          return `<div class="br"><span>${h.name} (${h.account})</span><span>+${fmtGBP(state.cashAmount*share)}</span></div>`;
+        }).join('')}</div>` : ''}
+      `;
+    }
+    if(state.presetType==='raisecash'){
+      const cash = findCash();
+      const targetVal = scopeTotal * state.raiseCashTargetPct/100;
+      const currentCash = cash ? cash.value : 0;
+      const amount = targetVal - currentCash;
+      if(amount <= 0) return `<div class="lab-no-match-note">Cash is already at or above ${state.raiseCashTargetPct}% — nothing to raise.</div>`;
+      const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
+      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
+      if(selected.length===0){
+        return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Uncommitted</span>Withdrawal — select source holdings below</span><span class="lab-ledger-amt">${fmtGBP(amount)}</span></div>`;
+      }
+      const sourceLabel = selected.length===1 ? `${selected[0].name} (${selected[0].account})` : `spread across ${selected.length} holdings (pro-rata)`;
+      const sipp = selected.some(h=>h.accountPension);
+      return `
+        <div class="lab-ledger-row clickable" id="labLedgerToggle">
+          <span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>${sourceLabel} → Cash${sipp?`<span class="lab-ledger-badge lab-badge-cross">SIPP access rules</span>`:''}${selected.length>1?`<span class="lab-ledger-chev">${state.ledgerOpen?'▲':'▼'}</span>`:''}</span>
+          <span class="lab-ledger-amt">${fmtGBP(amount)}</span>
+        </div>
+        ${state.ledgerOpen && selected.length>1 ? `<div class="lab-ledger-breakdown">${selected.map(h=>{
+          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
+          return `<div class="br"><span>${h.name} (${h.account})</span><span>−${fmtGBP(amount*share)}</span></div>`;
+        }).join('')}</div>` : ''}
+      `;
+    }
+    if(state.presetType==='target'){
+      const sum = base.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
+      const ok = Math.abs(sum-100)<0.5;
+      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>Every holding moves to the weight entered below</span><span class="lab-ledger-amt">${ok?'Balanced':'Unbalanced'}</span></div>`;
+    }
+    if(state.presetType==='consolidate'){
+      const sources = base.filter(h=>state.selectedIds.has(h.id));
+      const target = base.find(h=>h.id===state.consolidateTargetId);
+      const sumSources = sources.reduce((s,h)=>s+h.value,0);
+      if(sources.length===0 || !target){
+        return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Uncommitted</span>Choose holdings to merge and a destination below</span><span class="lab-ledger-amt">—</span></div>`;
+      }
+      const sourceLabel = sources.length===1 ? sources[0].name : `${sources.length} holdings`;
+      const crossAccounts = [...new Set(sources.filter(h=>h.account!==target.account).map(h=>h.account))];
+      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>${sourceLabel} → ${target.name} (${target.account})${crossAccounts.length?`<span class="lab-ledger-badge lab-badge-cross">Cross-wrapper</span>`:''}</span><span class="lab-ledger-amt">${fmtGBP(sumSources)}</span></div>`;
+    }
+    return '';
+  }
+
+  function presetControlsHTML(){
+    const base = state.holdings;
+    const scopeTotal = base.reduce((s,h)=>s+h.value,0);
+
+    if(state.presetType==='equal'){
+      return `<div class="lab-auto-note">Rebalances all ${base.length} holdings in scope to an equal weight (${fmtPct(100/base.length)} each). No further input needed.</div>`;
+    }
+    if(state.presetType==='cap'){
+      return `
+        <div class="lab-field-row">
+          <div>
+            <span class="lab-field-label">Maximum weight per holding</span>
+            <input type="number" class="lab-num-input" id="labCapInput" value="${state.capPct}" min="1" max="100">
+          </div>
+        </div>
+        ${checklistHTML('Where does the excess go?', 'Tick as many holdings as you like — the excess splits proportionally across whatever is checked. Holdings already over the cap aren’t eligible destinations.')}
+      `;
+    }
+    if(state.presetType==='move'){
+      const totalRaised = moveTotalRaised();
+      const allocated = moveAllocatedTotal();
+      const allocOk = Math.abs(allocated-totalRaised) < 0.5;
+      return `
+        <div class="lab-unit-toggle">
+          <button type="button" data-moveunit="£" class="${state.moveUnit==='£'?'active':''}">£ amount</button>
+          <button type="button" data-moveunit="%" class="${state.moveUnit==='%'?'active':''}">% of holding</button>
+        </div>
+        ${amountChecklistHTML(moveSourcePool(), state.moveSourceIds, state.moveSourceAmounts, 'src', 'Sell from', state.moveUnit==='£' ? 'Tick one or more holdings and enter how much to sell from each.' : 'Tick one or more holdings and enter what % of each to sell.', h=>state.moveUnit==='£'?'£0':'0%')}
+        <div class="lab-raised-note">Total raised<b>${fmtGBP(totalRaised)}</b></div>
+        <div class="lab-subhead">Invest proceeds into</div>
+        <div class="lab-dest-toggle">
+          <button type="button" data-movedestmode="prorata" class="${state.moveDestMode==='prorata'?'active':''}">Split pro-rata</button>
+          <button type="button" data-movedestmode="manual" class="${state.moveDestMode==='manual'?'active':''}">Set amounts individually</button>
+        </div>
+        ${state.moveDestMode==='prorata' ? moveDestChecklistHTML() : amountChecklistHTML(moveDestPool(), state.moveDestIds, state.moveDestAmounts, 'dst', '', state.moveUnit==='£' ? 'Enter how much of the proceeds goes to each holding.' : 'Enter what % of total proceeds goes to each holding.', h=>state.moveUnit==='£'?'£0':'0%')}
+        ${state.moveDestMode==='manual' ? `<div class="lab-alloc-total-row ${allocOk?'ok':'warn'}"><span>Allocated</span><span>${fmtGBP(allocated)} of ${fmtGBP(totalRaised)}${allocOk?' ✓':''}</span></div>` : ''}
+      `;
+    }
+    if(state.presetType==='freshcash'){
+      return `
+        <div class="lab-amount-row">
+          <label>Amount to add</label>
+          <div class="amt-inline"><input type="range" min="1000" max="40000" step="500" value="${state.cashAmount}" id="labCashSlider"><div class="out">${fmtGBP(state.cashAmount)}</div></div>
+        </div>
+        ${checklistHTML('Where does the new cash go?', 'Tick as many holdings as you like — new money splits proportionally across whatever is checked.')}
+      `;
+    }
+    if(state.presetType==='raisecash'){
+      const cash = findCash();
+      return `
+        <div class="lab-amount-row">
+          <label>Target cash %</label>
+          <div class="amt-inline"><input type="range" min="0" max="40" step="1" value="${state.raiseCashTargetPct}" id="labRaiseCashSlider"><div class="out">${state.raiseCashTargetPct}%</div></div>
+        </div>
+        <div class="lab-auto-note">Current cash: ${cash?fmtPct(cash.value/scopeTotal*100):'0.0%'} of scope. Withdraws proportionally from non-cash holdings until cash reaches the target above.</div>
+        ${checklistHTML('Which holdings does this come from?', 'Tick as many holdings as you like — the withdrawal draws proportionally from whatever is checked. Cash itself isn’t an eligible source.')}
+      `;
+    }
+    if(state.presetType==='target'){
+      const sum = base.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
+      const ok = Math.abs(sum-100)<0.5;
+      return `
+        <div class="lab-subhead">Enter target weights</div>
+        <div class="lab-subhead-note">Type a % for each holding — the Lab shows the trades required, it doesn't suggest the split.</div>
+        ${base.map(h=>`<div class="lab-target-row"><span class="tg-name">${h.name}</span><span class="tg-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tg-arrow">→</span><input type="number" class="lab-target-input" data-targetid="${h.id}" value="${state.targetWeights[h.id]!==undefined?state.targetWeights[h.id]:''}" min="0" max="100" step="0.5" placeholder="0.0"></div>`).join('')}
+        <div class="lab-target-total-row ${ok?'ok':'warn'}"><span>Total allocated</span><span>${fmtPct(sum)}${ok?' ✓':' — must total 100%'}</span></div>
+      `;
+    }
+    if(state.presetType==='consolidate'){
+      const targetOpts = base.map(h=>`<option value="${h.id}" ${state.consolidateTargetId===h.id?'selected':''}>${h.name} (${h.account})</option>`).join('');
+      return `
+        ${checklistHTML('Holdings to consolidate', 'Tick every holding you want fully merged into the destination below.')}
+        <div class="lab-field-row">
+          <div><span class="lab-field-label">Into holding</span><select class="lab-num-input" id="labConsolidateTarget"><option value="">Select…</option>${targetOpts}</select></div>
+        </div>
+      `;
+    }
+    return '';
+  }
+
+  function statsRowHTML(){
+    const base = state.holdings;
+    const scopeTotal = base.reduce((s,h)=>s+h.value,0);
+    let netNew=0, netRealloc=0, withdrawn=0, resulting=scopeTotal;
+    if(state.presetType==='freshcash'){ netNew = state.cashAmount; resulting = scopeTotal+state.cashAmount; }
+    else if(state.presetType==='raisecash'){
+      const cash = findCash(); const targetVal = scopeTotal*state.raiseCashTargetPct/100;
+      withdrawn = Math.max(0, targetVal-(cash?cash.value:0)); resulting = scopeTotal;
+    }
+    else if(state.presetType==='cap'){
+      const capValue = scopeTotal*state.capPct/100;
+      netRealloc = base.filter(h=>h.value>capValue).reduce((s,h)=>s+(h.value-capValue),0);
+    }
+    else if(state.presetType==='move'){ netRealloc = moveTotalRaised(); }
+    else if(state.presetType==='consolidate'){ netRealloc = base.filter(h=>state.selectedIds.has(h.id)).reduce((s,h)=>s+h.value,0); }
+    return `
+      <div class="lab-sc-stats">
+        <div class="lab-sc-stat"><div class="v pos">${fmtGBP(netNew)}</div><div class="l">Net new cash</div></div>
+        <div class="lab-sc-stat"><div class="v">${fmtGBP(netRealloc)}</div><div class="l">Net reallocated</div></div>
+        <div class="lab-sc-stat"><div class="v">${fmtGBP(withdrawn)}</div><div class="l">Withdrawn</div></div>
+        <div class="lab-sc-stat"><div class="v">${fmtGBP(resulting)}</div><div class="l">Resulting total</div></div>
+      </div>
+    `;
+  }
+
+  function scenarioLabel(){
+    const meta = PRESET_LIST.find(p=>p.id===state.presetType);
+    if(!meta) return 'Scenario';
+    if(state.presetType==='equal') return 'Equal weight';
+    if(state.presetType==='cap') return `Cap at ${state.capPct}%`;
+    if(state.presetType==='move'){ const t=moveTotalRaised(); return t>0.5 ? `Move ${fmtGBP(t)}` : 'Move value'; }
+    if(state.presetType==='freshcash') return `Add ${fmtGBP(state.cashAmount)}`;
+    if(state.presetType==='raisecash') return `Raise cash to ${state.raiseCashTargetPct}%`;
+    if(state.presetType==='target') return 'Target allocation';
+    if(state.presetType==='consolidate'){
+      const target = state.holdings.find(h=>h.id===state.consolidateTargetId);
+      return target ? `Consolidate into ${target.name}` : 'Consolidate holdings';
+    }
+    return meta.title;
+  }
+
+  function optimiseHTML(){
+    const base = state.holdings;
+    const canProceed = scenarioCanProceed();
+    const presetGrid = `
+      <div class="lab-preset-grid">
+        ${PRESET_LIST.map(p=>`<div class="lab-preset-card ${state.presetType===p.id?'selected':''}" data-preset="${p.id}"><div class="pt">${p.title}</div><div class="pd">${p.desc}</div></div>`).join('')}
+      </div>
+    `;
+    let scenarioSection = '';
+    if(state.scenarioActive){
+      const showLedger = state.presetType!=='target';
+      scenarioSection = `
+        <div class="lab-scenario-tabs">
+          <div class="lab-sc-chip" data-goscenario="0">Current portfolio</div>
+          <div class="lab-sc-chip active">${scenarioLabel()}</div>
+        </div>
+        ${presetControlsHTML()}
+        ${statsRowHTML()}
+        ${showLedger ? `<div class="lab-subhead">Scenario recipe</div>${ledgerHTML()}` : ''}
+        <div class="lab-subhead">Target weights</div>
+        <div class="lab-subhead-note">Pure arithmetic — the Lab shows the shortfall, it doesn't solve around it.</div>
+        ${targetWeightsTable(getScenarioHoldings(), base)}
+      `;
+    }
+    return `
+      <div class="lab-eyebrow">Stage II</div>
+      <h4 class="lab-stage-title">Optimise</h4>
+      <div class="lab-stage-desc">You choose the objective. The Lab calculates and models what it takes to get there — it never tells you what to do.</div>
+      <div class="lab-subhead">Start from a preset</div>
+      <div class="lab-subhead-note">Each preset is a mechanism, not a recommendation.</div>
+      ${presetGrid}
+      ${scenarioSection}
+      <div class="lab-stage-actions">
+        <button type="button" class="btn-ghost" data-goto="analyse">← Analyse</button>
+        <button type="button" class="btn-primary" data-goto="compare" ${canProceed?'':'disabled'}>Compare scenario →</button>
+      </div>
+    `;
+  }
+
+  /* ---- Stage III: Compare ---- */
+  function compareHTML(){
+    const base = withWeights(state.holdings);
+    const scenario = withWeights(getScenarioHoldings());
+    const col = (label, weighted, isScenario) => {
+      const conc = concentrationSummary(weighted);
+      const eff = effectiveHoldings(weighted);
+      const vol = illustrativeVol(weighted);
+      const total = weighted.reduce((s,h)=>s+h.value,0);
+      return `
+        <div class="lab-compare-col">
+          <div class="lab-compare-head ${isScenario?'is-scenario':''}"><span class="name">${label}</span><span class="total">${fmtGBP(total)}</span></div>
+          <div class="lab-compare-body">
+            <div class="lab-mini-tm" data-mini="${isScenario?'scenario':'base'}"></div>
+            <div class="lab-compare-stats">
+              <div class="lab-compare-stat"><div class="v">${fmtPct(conc.top1)}</div><div class="l">Top 1</div></div>
+              <div class="lab-compare-stat"><div class="v">${eff.toFixed(1)}</div><div class="l">Eff. hold.</div></div>
+              <div class="lab-compare-stat"><div class="v">${fmtPct(vol)}</div><div class="l">Ill. vol</div></div>
+            </div>
+          </div>
+        </div>`;
+    };
+    return `
+      <div class="lab-eyebrow">Stage III</div>
+      <h4 class="lab-stage-title">Compare</h4>
+      <div class="lab-stage-desc">Current portfolio and the active scenario, side by side.</div>
+      <div class="lab-compare-cols">
+        ${col('Current portfolio', base, false)}
+        ${state.scenarioActive ? col(scenarioLabel(), scenario, true) : `<div class="line">No scenario active — build one in Optimise first.</div>`}
+      </div>
+      <div class="lab-stage-actions">
+        <button type="button" class="btn-ghost" data-goto="optimise">← Optimise</button>
+        <button type="button" class="btn-primary" data-goto="implement" ${scenarioCanProceed()?'':'disabled'}>Implement →</button>
+      </div>
+    `;
+  }
+
+  /* ---- Stage IV: Implement ---- */
+  function implementHTML(){
+    const {sells, buys, netFlow} = scenarioMoves();
+    const {leftWrapper, sippLeft} = crossWrapperFlags(sells, buys);
+    const moveRow = (icon, verb, name, acct, amt) => `
+      <div class="lab-move-row">
+        <div class="lab-move-icon ${icon}">${icon==='sell'?'−':'+'}</div>
+        <div class="lab-move-text">${verb} <b>${fmtGBP(amt)}</b> of ${name} <span style="color:var(--k-ink-softer);">(${acct})</span></div>
+      </div>`;
+    const groupRows = (list, icon, verb, toggleId, open) => list.length===1
+      ? moveRow(icon, verb, list[0].name, list[0].account, list[0].amount)
+      : `
+        <div class="lab-move-row clickable" id="${toggleId}">
+          <div class="lab-move-icon ${icon}">${icon==='sell'?'−':'+'}</div>
+          <div class="lab-move-text">${verb} across <b>${list.length} holdings</b> <span class="lab-ledger-chev">${open?'▲':'▼'}</span></div>
+          <div class="lab-move-amt">${fmtGBP(list.reduce((s,x)=>s+x.amount,0))}</div>
+        </div>
+        ${open ? `<div class="lab-ledger-breakdown" style="margin-bottom:8px;">${list.map(x=>`<div class="br"><span>${x.name} (${x.account})</span><span>${icon==='sell'?'−':'+'}${fmtGBP(x.amount)}</span></div>`).join('')}</div>` : ''}
+      `;
+    let sellRows = sells.length ? groupRows(sells, 'sell', 'Sell', 'labImplementToggleSell', state.implementOpen) : '';
+    let buyRows = buys.length ? groupRows(buys, 'buy', 'Buy', 'labImplementToggleBuy', state.implementOpen) : '';
+    if(netFlow > 0.5 && sells.length===0){
+      sellRows = `<div class="lab-move-row"><div class="lab-move-icon buy">£</div><div class="lab-move-text">New cash into the portfolio <span style="color:var(--k-ink-softer);">(not from an existing holding)</span></div></div>`;
+    }
+    if(netFlow < -0.5 && buys.length===0){
+      buyRows = `<div class="lab-move-row"><div class="lab-move-icon sell">£</div><div class="lab-move-text">Cash leaves the portfolio <span style="color:var(--k-ink-softer);">(not reinvested)</span></div></div>`;
+    }
+    let crossFlag = '';
+    if(leftWrapper.length) crossFlag += `<div class="lab-cross-flag">⚠ Includes cross-wrapper moves out of ${leftWrapper.join(', ')} — each disposal may have its own tax and allowance consequences. Shown here for illustration only.</div>`;
+    if(sippLeft) crossFlag += `<div class="lab-cross-flag">⚠ Includes a withdrawal from a pension — access rules and tax treatment apply. Shown here for illustration only.</div>`;
+    return `
+      <div class="lab-eyebrow">Stage IV</div>
+      <h4 class="lab-stage-title">Implement</h4>
+      <div class="lab-stage-desc">What the scenario means in practice, described as moves — nothing here places a trade.</div>
+      ${sellRows}
+      ${buyRows}
+      ${crossFlag}
+      <div class="lab-stage-actions">
+        <button type="button" class="btn-ghost" data-goto="compare">← Compare</button>
+        <button type="button" class="btn-primary" data-goto="results">Results →</button>
+      </div>
+    `;
+  }
+
+  function beforeAfterBars(beforeVal, afterVal, scale, beforeLabel, afterLabel){
+    const bW = Math.max(0, Math.min(100, (beforeVal/scale)*100));
+    const aW = Math.max(0, Math.min(100, (afterVal/scale)*100));
+    return `<div class="lab-ba-bars">
+      <div class="lab-ba-bar-track"><div class="lab-ba-bar-fill ba-before" style="width:${bW}%"></div></div>
+      <div class="lab-ba-bar-track"><div class="lab-ba-bar-fill ba-after" style="width:${aW}%"></div></div>
+    </div>
+    <div class="lab-ba-nums"><span>${beforeLabel}</span><span class="after-n">${afterLabel}</span></div>`;
+  }
+
+  /* ---- Stage V: Results ---- */
+  function resultsHTML(){
+    const base = withWeights(state.holdings);
+    const scenario = withWeights(getScenarioHoldings());
+    const concBefore = concentrationSummary(base);
+    const concAfter = concentrationSummary(scenario);
+    const effBefore = effectiveHoldings(base);
+    const effAfter = effectiveHoldings(scenario);
+    const volBefore = illustrativeVol(base);
+    const volAfter = illustrativeVol(scenario);
+    const effScale = Math.max(effBefore, effAfter, 1) * 1.15;
+    const {sells, buys, netFlow} = scenarioMoves();
+    const {leftWrapper, sippLeft} = crossWrapperFlags(sells, buys);
+    const totalMoved = Math.max(sells.reduce((s,x)=>s+x.amount,0), buys.reduce((s,x)=>s+x.amount,0), Math.abs(netFlow));
+
+    let narrative = [];
+    if(state.presetType==='equal'){
+      narrative = [`Every holding in scope moves to an equal weight of ${fmtPct(100/state.holdings.length)}.`, `Implementing this requires ${sells.length} sells and ${buys.length} buys.`];
+    } else if(state.presetType==='cap'){
+      narrative = [`Holdings over ${state.capPct}% are trimmed back to the cap.`, `The excess spreads across ${buys.length} holding${buys.length===1?'':'s'}.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and ${buys.length} buy${buys.length===1?'':'s'} totalling ${fmtGBP(totalMoved)}.`];
+    } else if(state.presetType==='move'){
+      narrative = [`${fmtGBP(totalMoved)} moves from ${sells.length} holding${sells.length===1?'':'s'} into ${buys.length} holding${buys.length===1?'':'s'}.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and ${buys.length} buy${buys.length===1?'':'s'} totalling ${fmtGBP(totalMoved)}.`];
+    } else if(state.presetType==='freshcash'){
+      narrative = [`${fmtGBP(state.cashAmount)} of new cash is added to the portfolio.`, `It lands in ${buys.length} holding${buys.length===1?'':'s'}.`, `Implementing this requires ${buys.length} buy${buys.length===1?'':'s'} totalling ${fmtGBP(state.cashAmount)}.`];
+    } else if(state.presetType==='raisecash'){
+      narrative = [`${fmtGBP(totalMoved)} is withdrawn from ${sells.length} holding${sells.length===1?'':'s'} to bring cash to ${state.raiseCashTargetPct}%.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} totalling ${fmtGBP(totalMoved)}.`];
+    } else if(state.presetType==='target'){
+      narrative = [`Every holding moves to the weight entered in Optimise.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and ${buys.length} buy${buys.length===1?'':'s'}.`];
+    } else if(state.presetType==='consolidate'){
+      narrative = [`${sells.length} holding${sells.length===1?'':'s'} fully liquidate into one destination.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and 1 buy totalling ${fmtGBP(totalMoved)}.`];
+    }
+    let crossFlag = '';
+    if(leftWrapper.length) crossFlag += `<div class="lab-cross-flag" style="margin-bottom:10px;">⚠ Includes cross-wrapper moves out of ${leftWrapper.join(', ')} — their own tax and allowance consequences aren't reflected here.</div>`;
+    if(sippLeft) crossFlag += `<div class="lab-cross-flag" style="margin-bottom:10px;">⚠ Includes a withdrawal from a pension — access rules aren't reflected here.</div>`;
+
+    return `
+      <div class="lab-eyebrow">Stage V</div>
+      <h4 class="lab-stage-title">Results</h4>
+      <div class="lab-stage-desc">A plain-English summary of what this scenario changes.</div>
+      <ul class="lab-results-narrative">${narrative.map(l=>`<li>${l}</li>`).join('')}</ul>
+      ${crossFlag}
+      <div class="lab-ba-legend"><span><i class="ba-before-i"></i>Current</span><span><i class="ba-after-i"></i>${scenarioLabel()}</span></div>
+      <div class="lab-ba-stat-grid">
+        <div class="lab-ba-stat">${beforeAfterBars(concBefore.top1, concAfter.top1, 100, fmtPct(concBefore.top1), fmtPct(concAfter.top1))}<div class="l">Top 1 concentration</div></div>
+        <div class="lab-ba-stat">${beforeAfterBars(concBefore.top3, concAfter.top3, 100, fmtPct(concBefore.top3), fmtPct(concAfter.top3))}<div class="l">Top 3 concentration</div></div>
+        <div class="lab-ba-stat">${beforeAfterBars(concBefore.top5, concAfter.top5, 100, fmtPct(concBefore.top5), fmtPct(concAfter.top5))}<div class="l">Top 5 concentration</div></div>
+      </div>
+      <div class="lab-ba-stat-grid two">
+        <div class="lab-ba-stat">${beforeAfterBars(effBefore, effAfter, effScale, effBefore.toFixed(1), effAfter.toFixed(1))}<div class="l">Effective number of holdings</div></div>
+        <div class="lab-ba-stat">${beforeAfterBars(volBefore, volAfter, 100, fmtPct(volBefore), fmtPct(volAfter))}<div class="l">Illustrative volatility</div></div>
+      </div>
+      <div class="lab-subhead">Move needed for 1% portfolio impact — before / after<span class="lab-approx-flag">Approximate</span></div>
+      <div class="lab-subhead-note">The approximate single-holding move required to shift total portfolio value by 1%, before and after this scenario.</div>
+      <div style="overflow-x:auto;">
+      <table class="lab-detail-table">
+        <thead><tr><th>Holding</th><th>Value</th><th>Weight</th><th>Move for 1%</th></tr></thead>
+        <tbody>
+          ${[...base].sort((a,b)=>b.weight-a.weight).map(b=>{
+            const after = scenario.find(x=>x.id===b.id);
+            const afterVal = after ? after.value : 0;
+            const afterWeight = after ? after.weight : 0;
+            const moveBefore = moveNeededFor1Pct(b.weight);
+            const moveAfter = afterWeight>0 ? moveNeededFor1Pct(afterWeight) : null;
+            const isZero = afterWeight===0 && b.weight>0;
+            return `<tr>
+              <td>${b.name}</td>
+              <td><span class="lab-ba-pair"><span class="before">${fmtGBP(b.value)}</span><span class="arrow">→</span><span class="after ${isZero?'strike':''}">${fmtGBP(afterVal)}</span></span></td>
+              <td><span class="lab-ba-pair"><span class="before">${fmtPct(b.weight)}</span><span class="arrow">→</span><span class="after">${fmtPct(afterWeight)}</span></span></td>
+              <td><span class="lab-ba-pair"><span class="before">${moveBefore!==null?fmtPct(moveBefore):'—'}</span><span class="arrow">→</span><span class="after lab-move-figure">${moveAfter!==null?fmtPct(moveAfter):'—'}</span></span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>
+      <div class="lab-stage-actions">
+        <button type="button" class="btn-ghost" data-goto="implement">← Implement</button>
+        <button type="button" class="btn-primary" id="labSaveScenarioBtn">Save scenario for review →</button>
+      </div>
+    `;
+  }
+
+  /* ---------------------------- events ---------------------------- */
+  function wireStageEvents(){
+    document.querySelectorAll('#labStageBody [data-goto]').forEach(b=>b.addEventListener('click', ()=>{ if(!b.disabled) goStage(b.dataset.goto); }));
+    document.querySelectorAll('#labStageBody [data-preset]').forEach(b=>b.addEventListener('click', ()=>{
+      const preset = b.dataset.preset;
+      state.scenarioActive = true;
+      state.presetType = preset;
+      state.capPct = 20;
+      state.moveUnit = '£';
+      state.moveSourceIds = new Set(); state.moveSourceAmounts = {};
+      state.moveDestMode = 'prorata'; state.moveDestIds = new Set(); state.moveDestAmounts = {};
+      state.cashAmount = 10000; state.raiseCashTargetPct = 10;
+      state.consolidateTargetId = null;
+      state.ledgerOpen = false; state.implementOpen = false;
+      state.selectedIds = new Set(scenarioPool().map(h=>h.id));
+      if(preset==='target'){
+        const w = withWeights(state.holdings);
+        state.targetWeights = {};
+        state.holdings.forEach(h=> state.targetWeights[h.id] = Number(w.find(x=>x.id===h.id).weight.toFixed(1)));
+      } else state.targetWeights = {};
+      if(preset==='consolidate') state.selectedIds = new Set();
+      renderStageBody();
+    }));
+    const capInput = document.getElementById('labCapInput');
+    if(capInput) capInput.addEventListener('input', (e)=>{
+      state.capPct = Number(e.target.value)||0;
+      state.selectedIds = new Set(scenarioPool().map(h=>h.id));
+      renderStageBody();
+    });
+    document.querySelectorAll('#labStageBody [data-moveunit]').forEach(b=>b.addEventListener('click', ()=>{
+      state.moveUnit = b.dataset.moveunit; state.moveSourceAmounts = {}; state.moveDestAmounts = {}; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-movedestmode]').forEach(b=>b.addEventListener('click', ()=>{
+      state.moveDestMode = b.dataset.movedestmode; state.ledgerOpen = false; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-amtcheck^="src:"]').forEach(cb=>cb.addEventListener('change', (e)=>{
+      const id = cb.dataset.amtcheck.split(':')[1];
+      if(e.target.checked) state.moveSourceIds.add(id); else { state.moveSourceIds.delete(id); delete state.moveSourceAmounts[id]; }
+      state.ledgerOpen = false; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-amtval^="src:"]').forEach(inp=>inp.addEventListener('input', (e)=>{
+      state.moveSourceAmounts[inp.dataset.amtval.split(':')[1]] = e.target.value; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-amtcheckall^="src:"]').forEach(b=>b.addEventListener('click', ()=>{
+      state.moveSourceIds = b.dataset.amtcheckall.split(':')[1]==='1' ? new Set(moveSourcePool().map(h=>h.id)) : new Set();
+      renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-amtcheck^="dst:"]').forEach(cb=>cb.addEventListener('change', (e)=>{
+      const id = cb.dataset.amtcheck.split(':')[1];
+      if(e.target.checked) state.moveDestIds.add(id); else { state.moveDestIds.delete(id); delete state.moveDestAmounts[id]; }
+      state.ledgerOpen = false; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-amtval^="dst:"]').forEach(inp=>inp.addEventListener('input', (e)=>{
+      state.moveDestAmounts[inp.dataset.amtval.split(':')[1]] = e.target.value; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-amtcheckall^="dst:"]').forEach(b=>b.addEventListener('click', ()=>{
+      state.moveDestIds = b.dataset.amtcheckall.split(':')[1]==='1' ? new Set(moveDestPool().map(h=>h.id)) : new Set();
+      renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-movedestcheck]').forEach(cb=>cb.addEventListener('change', (e)=>{
+      const id = cb.dataset.movedestcheck;
+      if(e.target.checked) state.moveDestIds.add(id); else state.moveDestIds.delete(id);
+      state.ledgerOpen = false; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-movedestcheckall]').forEach(b=>b.addEventListener('click', ()=>{
+      state.moveDestIds = b.dataset.movedestcheckall==='1' ? new Set(moveDestPool().map(h=>h.id)) : new Set();
+      renderStageBody();
+    }));
+    const cashSlider = document.getElementById('labCashSlider');
+    if(cashSlider) cashSlider.addEventListener('input', (e)=>{ state.cashAmount = Number(e.target.value); renderStageBody(); });
+    const raiseCashSlider = document.getElementById('labRaiseCashSlider');
+    if(raiseCashSlider) raiseCashSlider.addEventListener('input', (e)=>{ state.raiseCashTargetPct = Number(e.target.value); renderStageBody(); });
+    document.querySelectorAll('#labStageBody [data-targetid]').forEach(inp=>inp.addEventListener('input', (e)=>{
+      state.targetWeights[inp.dataset.targetid] = e.target.value; renderStageBody();
+    }));
+    const consolidateTarget = document.getElementById('labConsolidateTarget');
+    if(consolidateTarget) consolidateTarget.addEventListener('change', (e)=>{ state.consolidateTargetId = e.target.value||null; renderStageBody(); });
+    document.querySelectorAll('#labStageBody [data-checkid]').forEach(cb=>cb.addEventListener('change', (e)=>{
+      const id = cb.dataset.checkid;
+      if(e.target.checked) state.selectedIds.add(id); else state.selectedIds.delete(id);
+      state.ledgerOpen = false; renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-checkall]').forEach(b=>b.addEventListener('click', ()=>{
+      const pool = scenarioPool();
+      state.selectedIds = b.dataset.checkall==='1' ? new Set(pool.map(h=>h.id)) : new Set();
+      state.ledgerOpen = false; renderStageBody();
+    }));
+    const ledgerToggle = document.getElementById('labLedgerToggle');
+    if(ledgerToggle) ledgerToggle.addEventListener('click', ()=>{ state.ledgerOpen = !state.ledgerOpen; renderStageBody(); });
+    const implToggleSell = document.getElementById('labImplementToggleSell');
+    if(implToggleSell) implToggleSell.addEventListener('click', ()=>{ state.implementOpen = !state.implementOpen; renderStageBody(); });
+    const implToggleBuy = document.getElementById('labImplementToggleBuy');
+    if(implToggleBuy) implToggleBuy.addEventListener('click', ()=>{ state.implementOpen = !state.implementOpen; renderStageBody(); });
+    const saveBtn = document.getElementById('labSaveScenarioBtn');
+    if(saveBtn) saveBtn.addEventListener('click', ()=> showToast('Saving a scenario for review is coming soon.'));
+
+    const base = withWeights(state.holdings);
+    const scenario = withWeights(getScenarioHoldings());
+    document.querySelectorAll('#labStageBody [data-mini="base"]').forEach(el=> renderTreemapInto(el, null, base, {small:true, height:130}));
+    document.querySelectorAll('#labStageBody [data-mini="scenario"]').forEach(el=> renderTreemapInto(el, null, scenario, {small:true, height:130}));
+  }
+
+  function renderLabAll(){
+    renderTreemapSection();
+    const wrap = document.getElementById('labStepperWrap');
+    if(!wrap) return;
+    wrap.classList.toggle('open', state.expanded);
+    if(state.expanded){ renderStepper(); renderStageBody(); }
+  }
+
+  /* ---------------------------- mount ---------------------------- */
+  // Called from applyAnalysisScope on every full render and every scope-pill switch.
+  // A genuine scope change resets in-progress scenario state (same as the reference
+  // build's own scope-switch behaviour); re-rendering the *same* scope (e.g. after a
+  // live-price refresh) keeps whatever stage/scenario was already in progress.
+  TEI.render.portfolioLab = function(client, scopeId){
+    const scopeKey = scopeId || 'all';
+    if(state.scopeKey !== scopeKey) resetScenarioState();
+    state.scopeKey = scopeKey;
+    state.holdings = buildLabHoldings(client, scopeId);
+    if(state.expanded){
+      const cta = document.getElementById('labCta');
+      if(cta) cta.textContent = 'Hide the Lab ←';
+    }
+    renderLabAll();
+    const cta = document.getElementById('labCta');
+    if(cta && !cta.dataset.wired){
+      cta.addEventListener('click', ()=>{
+        state.expanded = !state.expanded;
+        cta.textContent = state.expanded ? 'Hide the Lab ←' : 'Model a change in the Lab →';
+        renderLabAll();
+      });
+      cta.dataset.wired = '1';
+    }
   };
 })();
 
