@@ -9056,19 +9056,25 @@ TEI.render = TEI.render || {};
     const baselineSeries = projectSeries(latestTotal, actualAnnualContribution, rate, 20);
     const scenarioSeries = projectSeries(latestTotal + eventAmount, actualAnnualContribution, rate, 20);
 
-    const {OXBLOOD, GOLD, NAVY, makeChart, currentInk, currentInkSoft, currentGrid} = TEI.charts;
+    const {GOLD, makeChart, currentInk, currentInkSoft, currentGrid, currentRateColor} = TEI.charts;
+    // NAVY/OXBLOOD are dark-mode-tuned pastels (see currentRateColor's own
+    // comment above) that go low-contrast on light mode's white/cream chart
+    // background -- reuse currentRateColor's existing light/dark swap
+    // (its 'base'/'conservative' colors) instead of the raw constants.
+    const scenarioColor = currentRateColor('base');
+    const targetColor = currentRateColor('conservative');
 
     const datasets = [
       {label:'Baseline, no change', data: baselineSeries.map((v,i)=>({x:i, y:v})), borderColor:GOLD, borderDash:[5,4], pointRadius:0, borderWidth:2, fill:false, order:1},
-      {label: diMode==='withdrawal' ? 'After withdrawal' : 'After deposit', data: scenarioSeries.map((v,i)=>({x:i, y:v})), borderColor:NAVY, pointRadius:0, borderWidth:2.5, tension:0.15, fill:false, order:2},
+      {label: diMode==='withdrawal' ? 'After withdrawal' : 'After deposit', data: scenarioSeries.map((v,i)=>({x:i, y:v})), borderColor:scenarioColor, pointRadius:0, borderWidth:2.5, tension:0.15, fill:false, order:2},
     ];
 
     let recovery = {months:0, complete:true};
     if(diMode==='withdrawal'){
-      datasets.push({label:"Target: back to today's balance", data:[{x:0,y:latestTotal},{x:20,y:latestTotal}], borderColor:OXBLOOD, borderDash:[3,3], pointRadius:0, borderWidth:1.5, fill:false, order:3});
+      datasets.push({label:"Target: back to today's balance", data:[{x:0,y:latestTotal},{x:20,y:latestTotal}], borderColor:targetColor, borderDash:[3,3], pointRadius:0, borderWidth:1.5, fill:false, order:3});
       recovery = recoveryMonthsPrecise(latestTotal, eventAmount, monthlyContribution, rate);
       if(recovery.complete && recovery.months>0){
-        datasets.push({label:'Recovery point', data:[{x:recovery.months/12, y:latestTotal}], borderColor:OXBLOOD, backgroundColor:OXBLOOD, pointRadius:5, pointHoverRadius:6, showLine:false, order:4});
+        datasets.push({label:'Recovery point', data:[{x:recovery.months/12, y:latestTotal}], borderColor:targetColor, backgroundColor:targetColor, pointRadius:5, pointHoverRadius:6, showLine:false, order:4});
       }
     }
 
