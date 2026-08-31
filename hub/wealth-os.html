@@ -1469,6 +1469,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-mc-toggle{display:flex; align-items:center; gap:6px; font-size:13.5px; color:var(--k-ink-softer); cursor:pointer;}
 .k-mc-toggle input{accent-color:var(--gold);}
 .k-mc-toggle .sw{width:9px; height:9px; border-radius:2px; flex:none;}
+.k-mc-static{cursor:default;}
+.k-mc-toggle .sw-dash{width:14px; height:0; border-radius:0; border-top:2px dashed var(--gold); background:none;}
 
 .k-insight-note{font-size:13.5px; color:var(--k-ink-soft); line-height:1.55; background:var(--k-track-bg); border-radius:7px; padding:10px 12px; margin-top:12px;}
 
@@ -2210,15 +2212,17 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <button type="button" class="btn-ghost on-light" id="scResetBtn">Reset</button>
           </div>
           <div class="k-mc-toggles">
-            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="conservative"><span class="sw" style="background:#4A7A96;"></span>Lower-return (5%)</label>
-            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="base" checked><span class="sw" style="background:#C9A84C;"></span>Expected (8%)</label>
-            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="optimistic"><span class="sw" style="background:#6B9A78;"></span>Strong-return (15%)</label>
+            <div class="k-mc-toggle k-mc-static"><span class="sw sw-dash" id="swActual"></span>Actual, today's plan</div>
+            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="conservative"><span class="sw" id="swConservative"></span>Lower-return (5%)</label>
+            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="base" checked><span class="sw" id="swBase"></span>Expected (8%)</label>
+            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="optimistic"><span class="sw" id="swOptimistic"></span>Strong-return (15%)</label>
           </div>
           <div class="k-chart-box" style="height:260px;"><canvas id="chartWealthPlan"></canvas></div>
           <div class="k-rowstats">
-            <div class="rs">Actual, today's plan<b id="scBeforeStat">–</b></div>
-            <div class="rs">With this scenario<b class="gold" id="scAfterStat">–</b></div>
+            <div class="rs">Pot needed, today's plan<b id="scBeforeStat">–</b></div>
+            <div class="rs">Pot needed, with this scenario<b class="gold" id="scAfterStat">–</b></div>
           </div>
+          <div class="sub2" style="margin-top:4px;">These figures are the pot you'd need to sustain that level of spending forever, and the date you'd reach it — not how much wealth you'd have. A bigger number can mean a bigger commitment, not a better outcome.</div>
           <div class="k-insight-note" id="scInterpretation"></div>
 
           <div class="k-future-scenario">
@@ -8801,6 +8805,13 @@ TEI.render = TEI.render || {};
       }
     });
     document.querySelectorAll('[data-mc-toggle]').forEach(el=>{ el.checked = client.monteCarlo[el.dataset.mcToggle]; });
+    // Swatches were previously hardcoded to a fixed palette that didn't match
+    // the actual line colors (which are theme-aware via currentRateColor and
+    // don't correspond 1:1 with the swatch hex values) -- set them from the
+    // same function the lines themselves use so legend and chart always agree.
+    document.getElementById('swConservative').style.background = currentRateColor('conservative');
+    document.getElementById('swBase').style.background = currentRateColor('base');
+    document.getElementById('swOptimistic').style.background = currentRateColor('optimistic');
   }
   function renderScenario(client){
     renderWealthPlanChart(client);
@@ -8821,9 +8832,27 @@ TEI.render = TEI.render || {};
     } else if(before.yrs!=null && after.yrs!=null){
       const diff = before.yrs-after.yrs;
       const suffix = ' Every ticked return rate above now reflects this scenario, compared against your actual, unchanged plan.';
-      if(diff>0) note.textContent = `This change could bring your FI year forward by roughly ${diff} year${diff===1?'':'s'} — from ${beforeYear} to ${afterYear}. Additional contributions have more impact the earlier they start, because they have longer to compound.` + suffix;
-      else if(diff<0) note.textContent = `This change pushes your FI year back by roughly ${Math.abs(diff)} year${Math.abs(diff)===1?'':'s'} — from ${beforeYear} to ${afterYear}.` + suffix;
-      else note.textContent = 'This change has limited impact on your FI timeline based on current assumptions.' + suffix;
+      let timelineText;
+      if(diff>0) timelineText = `This change could bring your FI year forward by roughly ${diff} year${diff===1?'':'s'} — from ${beforeYear} to ${afterYear}.` + (extraContrib!==0 ? ' Additional contributions have more impact the earlier they start, because they have longer to compound.' : '');
+      else if(diff<0) timelineText = `This change pushes your FI year back by roughly ${Math.abs(diff)} year${Math.abs(diff)===1?'':'s'} — from ${beforeYear} to ${afterYear}.`;
+      else timelineText = 'This change has limited impact on your FI timeline based on current assumptions.';
+
+      // Only a change in spending moves the target itself (a permanently higher
+      // or lower spend changes the size of pot needed to sustain it forever).
+      // Contributions and extra income only change how fast you get there, so
+      // make that distinction explicit -- otherwise an income-only tweak that
+      // leaves the pot figure unchanged reads as if nothing happened.
+      let targetText = '';
+      const targetDiff = Math.round(after.fiTarget - before.fiTarget);
+      if(spendChange!==0 && Math.abs(targetDiff)>=1){
+        targetText = targetDiff>0
+          ? ` Spending £${Math.abs(spendChange)}/mo more permanently also means a bigger pot is needed to sustain it — the target itself has grown from ${fmtGBP(before.fiTarget)} to ${fmtGBP(after.fiTarget)}, on top of the later date.`
+          : ` Spending £${Math.abs(spendChange)}/mo less permanently also shrinks the pot needed — the target itself has fallen from ${fmtGBP(before.fiTarget)} to ${fmtGBP(after.fiTarget)}, on top of the earlier date.`;
+      } else if(extraContrib!==0 || extraIncome!==0){
+        targetText = ' Your target pot itself is unchanged — extra contributions and income change how fast you get there, not how much you need.';
+      }
+
+      note.textContent = timelineText + targetText + suffix;
     } else {
       note.textContent = 'Set a budget in Cashflow to see how this scenario affects your financial independence timeline.';
     }
