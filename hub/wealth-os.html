@@ -151,6 +151,14 @@ a{color:inherit;}
 .sidebar-nav a.navlink.nav-active .ic{opacity:1;}
 
 .sidebar-spacer{flex:1;}
+/* Deliberately its own class, not .navlink -- wireNav() below binds a plain
+   `document.querySelectorAll('.navlink')` click handler that e.preventDefault()s
+   every match and routes it through showPage(el.dataset.page); giving this
+   link class="navlink" (no data-page) meant every click got swallowed and
+   went nowhere. Styled to match .sidebar-nav a.navlink's look regardless. */
+.sidebar-external-link{display:flex; align-items:center; gap:11px; color:rgba(247,244,237,0.4); text-decoration:none; font-size:12.5px; font-weight:600; cursor:pointer; padding:9px 12px; border-radius:8px; transition:background .15s, color .15s;}
+.sidebar-external-link .ic{width:16px; text-align:center; font-size:14px; opacity:0.8; flex:none;}
+.sidebar-external-link:hover{background:rgba(247,244,237,0.06); color:rgba(247,244,237,0.7);}
 .sidebar-divider{height:1px; background:rgba(247,244,237,0.1); margin:12px 4px;}
 .sidebar-foot{display:flex; align-items:center; gap:9px; padding:6px 4px;}
 .sidebar-who{min-width:0; flex:1;}
@@ -163,7 +171,12 @@ a{color:inherit;}
 .nav-icon-btn .notif-dot{position:absolute; top:5px; right:6px; width:7px; height:7px; border-radius:50%; background:var(--oxblood); border:1.5px solid var(--card-dark);}
 .nav-avatar{width:30px; height:30px; border-radius:50%; background:var(--gold); color:var(--card-dark); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; cursor:pointer; font-family:var(--font-body); border:none; flex:none; letter-spacing:0.02em;}
 
-.nav-dropdown{position:absolute; top:44px; right:0; background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 14px 34px rgba(29,53,87,0.16); min-width:212px; padding:8px; display:none; z-index:80;}
+/* background:#fff used to be hardcoded here -- invisible in
+   #clientApp[data-theme="dark"], where --ink (this panel's text colour)
+   flips to near-white, giving near-white text on a white box. Same
+   --card-light-bg/--card-light-border theme-adaptive pair already used by
+   .feedback-panel (see that rule's comment) for exactly this reason. */
+.nav-dropdown{position:absolute; top:44px; right:0; background:var(--card-light-bg); border:1px solid var(--card-light-border, var(--line)); border-radius:12px; box-shadow:0 14px 34px rgba(29,53,87,0.16); min-width:212px; padding:8px; display:none; z-index:80;}
 .nav-dropdown.nav-dropdown-up{top:auto; bottom:40px; left:0; right:auto;}
 .nav-dropdown.open{display:block;}
 .nav-dropdown .dd-head{padding:10px 12px 9px; border-bottom:1px solid var(--line); margin-bottom:6px;}
@@ -1627,6 +1640,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <a href="#" class="navlink" data-page="documents"><span class="ic">▢</span>Documents</a>
     </nav>
     <div class="sidebar-spacer"></div>
+    <a href="/" class="sidebar-external-link"><span class="ic">↗</span>Visit Website</a>
     <div class="sidebar-divider"></div>
     <div class="sidebar-foot">
       <div class="nav-menu-wrap">
@@ -8024,6 +8038,7 @@ TEI.render = TEI.render || {};
       return;
     }
     const existing = (client.months && client.months[balancesMonthKey]) || {};
+    const meta = (client.monthsMeta && client.monthsMeta[balancesMonthKey]) || {};
     const isCurrent = balancesMonthKey === TEI.data.currentMonthKey();
     wrap.innerHTML = accounts.map(acc=>{
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
@@ -8033,7 +8048,11 @@ TEI.render = TEI.render || {};
           <input type="text" disabled value="${fmtGBP(total)}" style="opacity:0.6;" title="Calculated from logged holdings">
           <span class="note" style="margin-top:2px;">From holdings — edit below</span></label>`;
       }
-      const hint = hasHoldings ? `<span class="note" style="margin-top:2px;">Historical value — the current month is calculated from holdings instead</span>` : '';
+      // Phase 22: this figure was written automatically (carried forward
+      // from the last logged/confirmed value) rather than typed in -- flag
+      // it so it doesn't read as a confirmed balance.
+      const autoNote = meta[acc.id] ? `<span class="note" style="margin-top:2px; color:var(--gold);">Carried forward automatically — confirm or correct if it's changed</span>` : '';
+      const hint = hasHoldings ? `<span class="note" style="margin-top:2px;">Historical value — the current month is calculated from holdings instead</span>` : autoNote;
       return `<label class="form-field on-light"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-balances-month-field="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00">${hint}</label>`;
     }).join('');
     renderBalancesMonthlyHistory(client);
@@ -8059,12 +8078,19 @@ TEI.render = TEI.render || {};
     btn.disabled = false;
     client.months = client.months || {};
     const entry = client.months[key] ? Object.assign({}, client.months[key]) : {};
+    // A manual save always supersedes an auto-carried-forward figure --
+    // clear the flag locally so the "carried forward" note drops immediately
+    // rather than waiting on a reload from Supabase.
+    client.monthsMeta = client.monthsMeta || {};
+    const metaEntry = client.monthsMeta[key] ? Object.assign({}, client.monthsMeta[key]) : {};
     toSave.forEach(item=>{
       entry[item.id] = item.v;
+      metaEntry[item.id] = false;
       const acc = client.accounts.find(a=>a.id===item.id);
       if(acc) TEI.calc.stampEdit(acc, client.meta.role);
     });
     client.months[key] = entry;
+    client.monthsMeta[key] = metaEntry;
     renderBalancesMonthlyWidget(client);
     TEI.app.showToast('Saved ' + key);
   }
@@ -8107,10 +8133,14 @@ TEI.render = TEI.render || {};
       return;
     }
     const existing = (client.holdingsMonths && client.holdingsMonths[holdingsMonthKey]) || {};
+    const meta = (client.holdingsMonthsMeta && client.holdingsMonthsMeta[holdingsMonthKey]) || {};
     const isCurrent = holdingsMonthKey === TEI.data.currentMonthKey();
     wrap.innerHTML = holdings.map(h=>{
       const fallback = existing[h.id]!=null ? existing[h.id] : (isCurrent && h.value!=null ? h.value : '');
-      return `<label class="form-field on-light"><span>${h.name}</span><input type="number" step="0.01" data-holdings-month-field="${h.id}" value="${fallback}" placeholder="0.00"></label>`;
+      // Phase 22: flag values the monthly auto-snapshot carried forward
+      // rather than something logged or refreshed from a live price.
+      const autoNote = meta[h.id] ? `<span class="note" style="margin-top:2px; color:var(--gold);">Carried forward automatically — refresh live prices or confirm if it's changed</span>` : '';
+      return `<label class="form-field on-light"><span>${h.name}</span><input type="number" step="0.01" data-holdings-month-field="${h.id}" value="${fallback}" placeholder="0.00">${autoNote}</label>`;
     }).join('');
     renderHoldingsMonthlyHistory(client);
   }
@@ -8136,8 +8166,13 @@ TEI.render = TEI.render || {};
     btn.disabled = false;
     client.holdingsMonths = client.holdingsMonths || {};
     const entry = client.holdingsMonths[key] ? Object.assign({}, client.holdingsMonths[key]) : {};
+    // Same "manual save clears the auto-carried-forward flag immediately"
+    // reasoning as saveBalancesMonthly above.
+    client.holdingsMonthsMeta = client.holdingsMonthsMeta || {};
+    const metaEntry = client.holdingsMonthsMeta[key] ? Object.assign({}, client.holdingsMonthsMeta[key]) : {};
     toSave.forEach(item=>{
       entry[item.id] = item.v;
+      metaEntry[item.id] = false;
       const h = client.holdings.find(x=>x.id===item.id);
       if(h){
         // Only the current month should move the holding's live/displayed
@@ -8147,6 +8182,7 @@ TEI.render = TEI.render || {};
       }
     });
     client.holdingsMonths[key] = entry;
+    client.holdingsMonthsMeta[key] = metaEntry;
     renderHoldingsMonthlyWidget(client);
     TEI.app.showToast('Saved ' + key);
   }
@@ -10184,6 +10220,7 @@ window.TEI = window.TEI || {};
     const wrap = document.getElementById('monthlyBalanceFields');
     if(!client.accounts.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add accounts first.</div></div>`; renderMonthHistory('accounts'); return; }
     const existing = client.months[key] || {};
+    const meta = (client.monthsMeta && client.monthsMeta[key]) || {};
     // Holdings-linked accounts stay locked to the live holdings total only
     // for the CURRENT month (that's the one figure other pages/net-worth
     // read as "now", so it can't silently diverge from the holdings list).
@@ -10198,7 +10235,10 @@ window.TEI = window.TEI || {};
           <input type="text" disabled value="${fmtGBP(total)}" style="opacity:0.6;" title="Calculated from logged holdings">
           <span class="note" style="margin-top:2px;">From holdings — edit in Portfolio</span></label>`;
       }
-      const hint = hasHoldings ? `<span class="note" style="margin-top:2px;">Historical value — the current month is calculated from holdings instead</span>` : '';
+      // Phase 22: auto-carried-forward by the monthly snapshot job, not
+      // typed in or confirmed -- same flag as the client-facing Update page.
+      const autoNote = meta[acc.id] ? `<span class="note" style="margin-top:2px; color:var(--gold);">Carried forward automatically — confirm or correct if it's changed</span>` : '';
+      const hint = hasHoldings ? `<span class="note" style="margin-top:2px;">Historical value — the current month is calculated from holdings instead</span>` : autoNote;
       return `<label class="form-field"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-month-acct="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00">${hint}</label>`;
     }).join('');
     renderMonthHistory('accounts');
@@ -10221,12 +10261,16 @@ window.TEI = window.TEI || {};
     }
     btn.disabled = false;
     const entry = client.months[key] ? Object.assign({}, client.months[key]) : {};
+    client.monthsMeta = client.monthsMeta || {};
+    const metaEntry = client.monthsMeta[key] ? Object.assign({}, client.monthsMeta[key]) : {};
     toSave.forEach(item=>{
       entry[item.id] = item.v;
+      metaEntry[item.id] = false;
       const acc = client.accounts.find(a=>a.id===item.id);
       if(acc) TEI.calc.stampEdit(acc, 'adviser');
     });
     client.months[key] = entry;
+    client.monthsMeta[key] = metaEntry;
     renderMonthHistory('accounts');
     showToast('Saved ' + key);
   }
@@ -10239,10 +10283,12 @@ window.TEI = window.TEI || {};
     const wrap = document.getElementById('monthlyHoldingFields');
     if(!client.holdings.length){ wrap.innerHTML = `<div class="empty-state" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add holdings first.</div></div>`; renderMonthHistory('holdings'); return; }
     const existing = client.holdingsMonths[key] || {};
+    const meta = (client.holdingsMonthsMeta && client.holdingsMonthsMeta[key]) || {};
     const isCurrent = key === currentMonthKey();
     wrap.innerHTML = client.holdings.map(h=>{
       const fallback = existing[h.id]!=null ? existing[h.id] : (isCurrent && h.value!=null ? h.value : '');
-      return `<label class="form-field"><span>${h.name}</span><input type="number" step="0.01" data-month-holding="${h.id}" value="${fallback}" placeholder="0.00"></label>`;
+      const autoNote = meta[h.id] ? `<span class="note" style="margin-top:2px; color:var(--gold);">Carried forward automatically — refresh live prices or confirm if it's changed</span>` : '';
+      return `<label class="form-field"><span>${h.name}</span><input type="number" step="0.01" data-month-holding="${h.id}" value="${fallback}" placeholder="0.00">${autoNote}</label>`;
     }).join('');
     renderMonthHistory('holdings');
   }
@@ -10265,8 +10311,11 @@ window.TEI = window.TEI || {};
     }
     btn.disabled = false;
     const entry = client.holdingsMonths[key] ? Object.assign({}, client.holdingsMonths[key]) : {};
+    client.holdingsMonthsMeta = client.holdingsMonthsMeta || {};
+    const metaEntry = client.holdingsMonthsMeta[key] ? Object.assign({}, client.holdingsMonthsMeta[key]) : {};
     toSave.forEach(item=>{
       entry[item.id] = item.v;
+      metaEntry[item.id] = false;
       const h = client.holdings.find(x=>x.id===item.id);
       if(h){
         // Only the current month should move the holding's live/displayed
@@ -10277,6 +10326,7 @@ window.TEI = window.TEI || {};
       }
     });
     client.holdingsMonths[key] = entry;
+    client.holdingsMonthsMeta[key] = metaEntry;
     renderHoldings();
     renderMonthHistory('holdings');
     showToast('Saved ' + key);
@@ -13490,6 +13540,14 @@ window.TEI = window.TEI || {};
     const months = groupMonths(bundle.accountMonths, 'account_id');
     const holdingsMonths = groupMonths(bundle.holdingMonths, 'holding_id');
     const goalsMonths = groupMonths(bundle.goalMonths, 'goal_id');
+    // Same shape as months/holdingsMonths but holding carried_forward
+    // instead of value -- Phase 22's monthly auto-snapshot flags any row it
+    // wrote itself so the Update page can tell "carried forward" apart from
+    // "someone actually confirmed this figure" (see wealth_os_phase22_auto_
+    // monthly_snapshot.sql). Passes through mergeDefaults untouched since
+    // it isn't one of the keys that function explicitly overwrites.
+    const monthsMeta = groupMonths(bundle.accountMonths, 'account_id', 'carried_forward');
+    const holdingsMonthsMeta = groupMonths(bundle.holdingMonths, 'holding_id', 'carried_forward');
     // contribLog needs three figures per account per month (personal
     // amount, sacrifice portion, relief), not the single value the other
     // monthly tables use -- grouped separately rather than through
@@ -13619,7 +13677,7 @@ window.TEI = window.TEI || {};
       journeyOverrides: c.journey_overrides, wealthInsights: c.wealth_insights, wealthNextSteps: c.wealth_next_steps,
       dividendHistory: c.dividend_history, investorStage: c.investor_stage, northStar: c.north_star,
 
-      months, holdingsMonths, goalsMonths, contribLog, cashflowMonths
+      months, holdingsMonths, goalsMonths, contribLog, cashflowMonths, monthsMeta, holdingsMonthsMeta
     };
 
     const merged = TEI.data.mergeDefaults(loaded);
@@ -14337,19 +14395,22 @@ window.TEI = window.TEI || {};
     });
     document.addEventListener('click', ()=> closeAllDropdowns());
 
-    /* Sign Out now calls the shared TeiHubAuth helper (already wired up
-       elsewhere in the hub) so this same login guard is actually testable —
-       every other avatar-menu action stays a "not available" placeholder,
-       unchanged from the preview build. */
+    /* Sign Out calls the shared TeiHubAuth helper (already wired up
+       elsewhere in the hub). The other four each route to a real, already-
+       existing surface rather than opening anything new -- Profile to the
+       actual profile editor, Notifications/Preferences/Help to the same
+       controls already sitting in the sidebar footer (bell/theme toggle) or
+       feedback FAB, just reached from the avatar menu too. */
     document.querySelectorAll('[data-avatar-action]').forEach(el=>{
       el.addEventListener('click', (e)=>{
         e.preventDefault();
+        const action = el.dataset.avatarAction;
         closeAllDropdowns();
-        if(el.dataset.avatarAction === 'signout' && window.TeiHubAuth){
-          TeiHubAuth.signOut();
-          return;
-        }
-        showToast('Not available in this preview');
+        if(action === 'signout' && window.TeiHubAuth){ TeiHubAuth.signOut(); return; }
+        if(action === 'profile'){ showPage('mydetails'); return; }
+        if(action === 'notifications'){ document.getElementById('notifBtn')?.click(); return; }
+        if(action === 'preferences'){ document.getElementById('themeToggleBtn')?.click(); return; }
+        if(action === 'help'){ document.getElementById('feedbackFabBtn')?.click(); return; }
       });
     });
   }
