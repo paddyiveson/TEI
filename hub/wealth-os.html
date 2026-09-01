@@ -1190,6 +1190,18 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-completed-date{font-size:12.5px; color:var(--k-ink-softer);}
 
 .k-rowstats{display:flex; gap:22px; margin-top:10px; flex-wrap:wrap;}
+/* .k-boxed-stat's own background (--k-track-bg) flips per theme like an
+   ordinary .dcard's does -- but every .dcard.emphasis text-colour override
+   below (rgba(247,244,237,...) creams) assumes the surrounding card stays
+   dark navy in both themes, same as --k-emphasis-bg itself (fixed, doesn't
+   flip -- see .dcard.emphasis above). Nested inside an emphasis card in
+   LIGHT theme, that left a boxed-stat with light theme's pale tan
+   background but still cream-on-dark text -- near-invisible pale text on a
+   pale box (reported live, Wealth page's Last year performance/Annualised/
+   Return stats). Pin it to the dark-theme value whenever nested in an
+   emphasis card, so it stays a translucent panel on navy regardless of app
+   theme, matching the text colours it's already paired with. */
+.dcard.emphasis .k-boxed-stat{background:rgba(247,244,237,0.14);}
 .k-rowstats .rs, .k-boxed-stat .rs{font-size:13px; color:var(--k-ink-softer);}
 .dcard.emphasis .k-rowstats .rs, .dcard.emphasis .k-boxed-stat .rs{color:rgba(247,244,237,0.7);}
 .k-rowstats .rs b, .k-boxed-stat .rs b, .k-boxed-stat > b{display:block; font-family:var(--font-display); font-size:18px; color:var(--k-ink); margin-top:4px; font-weight:700;}
@@ -1799,13 +1811,17 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <span class="k-pill neutral" id="whMonthChange" style="margin-left:6px;">–</span>
             <div class="sub2" id="whUpdated">–</div>
           </div>
-          <div class="k-range-toggle" id="timelineRangeToggle">
-            <button type="button" data-range="1y">1Y</button>
-            <button type="button" data-range="3y">3Y</button>
-            <button type="button" data-range="5y">5Y</button>
-            <button type="button" data-range="all">All</button>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+            <div class="k-range-toggle" id="timelineRangeToggle">
+              <button type="button" data-range="1y">1Y</button>
+              <button type="button" data-range="3y">3Y</button>
+              <button type="button" data-range="5y">5Y</button>
+              <button type="button" data-range="all">All</button>
+            </div>
+            <button type="button" class="btn-ghost" id="whRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
           </div>
         </div>
+        <div class="sub2" id="whPricesStatus" style="margin:0 0 6px; text-align:right;"></div>
         <div class="k-chart-box" style="height:220px;"><canvas id="chartWealthTimeline"></canvas></div>
         <div class="empty-state" id="timelineEmpty" style="display:none;"><div class="big">No history logged yet</div><div class="small">Net worth history will appear here once monthly balances are logged below.</div></div>
         <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
@@ -2011,7 +2027,11 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
     <div class="span-8">
       <div class="dcard emphasis" style="height:100%;">
-        <div class="k">Portfolio overview</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <div class="k">Portfolio overview</div>
+          <button type="button" class="btn-ghost" id="poRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+        </div>
+        <div class="sub2" id="poPricesStatus" style="margin:2px 0 0;"></div>
         <div class="v big" id="poTotal">£0</div>
         <div class="k-rowstats">
           <div class="rs">YTD return<b class="up" id="poPerfYtd">–</b></div>
@@ -5578,6 +5598,25 @@ TEI.render = TEI.render || {};
     wrap.dataset.wired = '1';
   }
 
+  /* Reuses Adviser Workspace's own fetch+apply+pacing logic (TEI.adviser.
+     refreshLivePrices, see its own comment) against this page's own button/
+     status elements instead of duplicating the Twelve Data chunking/rate-
+     limit handling here. skipRecent:true since this page has no "skip
+     recently priced" checkbox of its own -- always skips holdings priced in
+     the last hour rather than re-spending API credits on a double-click. */
+  function wireWealthRefreshPrices(){
+    const btn = document.getElementById('whRefreshPricesBtn');
+    if(!btn || btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', ()=>{
+      if(!TEI.adviser || !TEI.adviser.refreshLivePrices) return;
+      TEI.adviser.refreshLivePrices({
+        btn, skipRecent: true,
+        status: document.getElementById('whPricesStatus')
+      });
+    });
+  }
+
   /* ---------------- 4. Wealth Composition (assets + liabilities, merged) & Accounts ----------------
      Palette follows the data-viz rule: no navy in categorical segments (it's the app's own
      surface color and reads flat/invisible against navy cards).
@@ -5763,6 +5802,7 @@ TEI.render = TEI.render || {};
   TEI.render.progress = function(client){
     renderOverview(client);
     wireTimelineToggle(client);
+    wireWealthRefreshPrices();
     renderTimeline(client);
     renderComposition(client);
     renderWealthInsights(client);
@@ -6657,8 +6697,25 @@ TEI.render = TEI.render || {};
       : 'Not logged yet';
   }
 
+  /* Same reuse pattern as the Wealth page's wireWealthRefreshPrices --
+     calls into Adviser Workspace's TEI.adviser.refreshLivePrices against
+     this page's own button/status rather than duplicating the fetch logic. */
+  function wirePortfolioRefreshPrices(){
+    const btn = document.getElementById('poRefreshPricesBtn');
+    if(!btn || btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', ()=>{
+      if(!TEI.adviser || !TEI.adviser.refreshLivePrices) return;
+      TEI.adviser.refreshLivePrices({
+        btn, skipRecent: true,
+        status: document.getElementById('poPricesStatus')
+      });
+    });
+  }
+
   TEI.render.portfolio = function(client){
     renderOverview(client);
+    wirePortfolioRefreshPrices();
     wireAnalysisScope(client); // also renders the Portfolio Analysis & Optimisation Lab/Performance Drivers/Insights/Coach's Corner, scoped or not
     renderDivStats(client);
     renderDivIncomeChart(client, false);
@@ -10988,7 +11045,11 @@ window.TEI = window.TEI || {};
       const patch = { value, lastPrice: price, lastPricedAt: new Date().toISOString() };
       if(h.avgOpen != null) patch.costBasis = h.avgOpen * usdGbpRate * h.units;
       const merged = Object.assign({}, h, patch);
-      TEI.calc.stampEdit(merged, 'adviser');
+      // Was hardcoded 'adviser' -- correct while this button only lived in
+      // Adviser Workspace, wrong now that the Wealth/Portfolio pages let a
+      // client trigger the exact same refresh themselves (see
+      // wireWealthRefreshPrices/wirePortfolioRefreshPrices).
+      TEI.calc.stampEdit(merged, (client.meta && client.meta.role) || 'adviser');
       await TEI.wealthOS.saveHolding(h.accountId, h.id, merged);
       Object.assign(h, merged);
       TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
@@ -11020,11 +11081,21 @@ window.TEI = window.TEI || {};
      case this is actually needed for, just slower for a big portfolio. The
      "skip recently priced" checkbox and the per-row refresh button (see
      refreshOneHolding) exist specifically to avoid needing this at all
-     while tagging one new ticker at a time during setup. */
-  async function refreshLivePrices(){
-    const btn = document.getElementById('refreshLivePricesBtn');
-    const status = document.getElementById('livePricesStatus');
-    const skipRecent = document.getElementById('skipRecentlyPricedCheckbox').checked;
+     while tagging one new ticker at a time during setup.
+
+     Exposed on TEI.adviser (below) so the client-facing Wealth/Portfolio
+     pages can trigger the exact same fetch+apply logic against their own
+     button/status elements instead of Adviser Workspace's, since neither
+     page has (or needs) a "skip recently priced" checkbox of its own --
+     opts.skipRecent lets a caller pass that in directly. Called with no
+     args (the original wiring, `addEventListener('click', refreshLivePrices)`)
+     opts is the raw click Event, whose irrelevant fields all fall through to
+     the Adviser Workspace defaults below exactly as before. */
+  async function refreshLivePrices(opts){
+    opts = opts && typeof opts === 'object' ? opts : {};
+    const btn = opts.btn || document.getElementById('refreshLivePricesBtn');
+    const status = opts.status || document.getElementById('livePricesStatus');
+    const skipRecent = opts.skipRecent != null ? opts.skipRecent : !!document.getElementById('skipRecentlyPricedCheckbox')?.checked;
     let priceable = client.holdings.filter(h=>h.ticker && h.units!=null);
     if(skipRecent) priceable = priceable.filter(h=>!pricedRecently(h));
     if(!priceable.length){
@@ -11080,14 +11151,15 @@ window.TEI = window.TEI || {};
         (failed.length ? ` — couldn't price ${failed.join(', ')}` : '') +
         ` · ${new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
       renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
-      // Portfolio Overview (poTotal/acctPillGrid) lives on a different page
-      // than this Update-page refresh button -- its DOM stays in the
-      // document (just class-hidden) so it's safe, and necessary, to
-      // re-render it here too. Without this the pills kept showing
-      // whatever manual figure was on screen the last time the Portfolio
-      // page itself was rendered, until the adviser happened to navigate
-      // away and back (which re-renders it fresh from the now-synced data).
+      // Portfolio Overview (poTotal/acctPillGrid) and Wealth's net worth
+      // figure both live on pages other than wherever this refresh was
+      // triggered from -- their DOM stays in the document (just class-
+      // hidden) so it's safe, and necessary, to re-render both here too.
+      // Without this the pills/net-worth kept showing whatever manual
+      // figure was on screen the last time that page itself was rendered,
+      // until someone happened to navigate away and back.
       if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
+      if(typeof TEI.render.progress === 'function') TEI.render.progress(client);
       showToast(updated ? `Refreshed ${updated} live price${updated===1?'':'s'}` : "Couldn't refresh prices");
     } catch(err){
       console.error('Wealth OS: failed to refresh live prices', err);
@@ -12303,7 +12375,7 @@ window.TEI = window.TEI || {};
     enhanceMobileCollapse();
   }
 
-  TEI.adviser = { init, refresh };
+  TEI.adviser = { init, refresh, refreshLivePrices };
 })();
 
 </script>
