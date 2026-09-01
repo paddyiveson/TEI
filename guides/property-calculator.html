@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<!-- TEI Property Investment Calculator — PUBLIC VERSION. Soft gate on Exit Scenarios & Stress Test tabs. Hard CTA. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Property Investment Calculator - The Everyday Investor</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+:root {
+  --navy:#1D3557; --cream:#F7F4ED; --cream-dk:#EDE8DA; --gold:#C9A84C;
+  --gold-lt:#FBF4E0; --gold-dk:#b8922d; --gold-txt:#8B6914; --text:#1a1a2e; --mid:#4a5568;
+  --lt:#718096; --white:#ffffff; --green:#2D7D52; --green-lt:#E8F3EC; --red:#C0392B; --red-lt:#FEF0F0;
+  --radius:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);line-height:1.7}
+.calc-wrapper{max-width:800px;margin:0 auto;padding:0 20px 40px}
+
+/* HEADER */
+.calc-header{background:var(--navy);border-radius:var(--radius) var(--radius) 0 0;padding:32px 36px 28px;position:relative;overflow:hidden}
+.calc-header::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,.12) 0%,transparent 70%);pointer-events:none}
+.calc-eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+.calc-title{font-family:'Playfair Display',serif;font-size:clamp(22px,3vw,30px);color:var(--cream);line-height:1.2;margin-bottom:8px}
+.calc-sub{font-size:14px;color:rgba(247,244,237,.55);line-height:1.7}
+
+/* WARNING BANNER */
+.warn-banner{background:var(--red-lt);border-left:4px solid var(--red);border-radius:0;padding:14px 36px;font-size:12.5px;color:var(--text);line-height:1.6;display:flex;gap:10px;align-items:flex-start}
+.warn-banner .wb-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.warn-banner strong{color:var(--red)}
+
+/* BODY / CARDS */
+.calc-body{background:var(--white);border-left:1px solid var(--cream-dk);border-right:1px solid var(--cream-dk);padding:28px 36px}
+.calc-body.alt{background:var(--cream)}
+.input-section-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--lt);margin-bottom:12px;display:block}
+.input-section-label .opt{font-weight:400;text-transform:none;letter-spacing:0}
+.inputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+.inputs-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.input-group{display:flex;flex-direction:column;gap:6px}
+.input-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--lt)}
+.input-field{width:100%;padding:12px 14px;border:1.5px solid var(--cream-dk);border-radius:8px;font-size:16px;font-weight:600;color:var(--navy);font-family:'Inter',sans-serif;background:var(--cream);transition:border-color .2s;-moz-appearance:textfield}
+.input-field::-webkit-outer-spin-button,.input-field::-webkit-inner-spin-button{-webkit-appearance:none}
+.input-field:focus{outline:none;border-color:var(--gold);background:var(--white)}
+.input-hint{font-size:11px;color:var(--lt)}
+
+/* TOGGLE BUTTONS */
+.toggle-row{display:grid;gap:8px;margin-bottom:14px}
+.toggle-2{grid-template-columns:1fr 1fr}
+.toggle-btn{padding:12px 10px;border-radius:8px;border:1.5px solid var(--cream-dk);background:var(--white);cursor:pointer;text-align:center;transition:all .2s;font-family:'Inter',sans-serif}
+.toggle-btn:hover{border-color:var(--navy)}
+.toggle-btn.active{border-color:var(--navy);background:var(--navy)}
+.toggle-btn-name{font-size:13px;font-weight:700;color:var(--navy);display:block;margin-bottom:2px}
+.toggle-btn.active .toggle-btn-name{color:var(--cream)}
+.toggle-btn-desc{font-size:10px;color:var(--lt);display:block;margin-top:2px;line-height:1.3}
+.toggle-btn.active .toggle-btn-desc{color:rgba(247,244,237,.5)}
+.toggle-sm{padding:9px 8px}
+.toggle-sm .toggle-btn-name{font-size:12px}
+
+/* SLIDERS */
+.slider-row{display:flex;align-items:center;gap:14px;margin-bottom:6px}
+.slider{-webkit-appearance:none;flex:1;height:4px;border-radius:2px;background:var(--cream-dk);outline:none;cursor:pointer}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);border:2px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
+.slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--gold);border:2px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
+.slider-val{font-size:14px;font-weight:700;color:var(--navy);min-width:64px;text-align:right}
+.slider-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--lt);margin-bottom:18px}
+.slider-group-label{font-size:13px;color:var(--mid);margin-bottom:2px;display:flex;justify-content:space-between}
+
+/* LTV BAR */
+.ltv-wrap{margin-top:14px}
+.ltv-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--lt);margin-bottom:4px}
+.ltv-bar{height:8px;background:var(--cream-dk);border-radius:4px;overflow:hidden;margin:4px 0}
+.ltv-fill{height:100%;border-radius:4px;transition:width .3s ease,background .3s ease}
+.ltv-note{font-size:12px;color:var(--lt);margin-top:10px;line-height:1.6}
+.warn{font-size:12px;color:var(--red);background:var(--red-lt);border:1px solid rgba(192,57,43,.2);border-radius:6px;padding:.6rem .9rem;margin-top:10px;display:none}
+.inline-note{font-size:11.5px;color:var(--gold-txt);background:var(--gold-lt);border:1px solid rgba(201,168,76,.3);border-radius:6px;padding:8px 12px;margin-top:8px;margin-bottom:4px;line-height:1.5}
+.inline-note.red{color:var(--red);background:var(--red-lt);border-color:rgba(192,57,43,.2)}
+
+/* PAYMENT STRIP */
+.pay-strip{background:var(--cream-dk);border:1.5px solid var(--navy);border-radius:8px;padding:16px 18px;margin-top:14px;display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr;gap:8px;align-items:center}
+.ps-item{text-align:center;padding:0 4px}
+.ps-divider{background:rgba(29,53,87,.2);height:36px}
+.ps-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--lt);margin-bottom:4px}
+.ps-value{font-family:'Inter',sans-serif;font-size:19px;font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.ps-value.green{color:var(--green)}
+.ps-sub{font-size:10px;color:var(--lt);margin-top:2px}
+
+/* TABS */
+.proc-tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--cream);border-radius:8px;padding:4px}
+.proc-tab{flex:1;padding:10px 6px;border:none;background:transparent;border-radius:6px;font-size:13px;font-weight:600;color:var(--lt);cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-align:center}
+.proc-tab.active{background:var(--navy);color:var(--cream)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* METRIC GRIDS */
+.metrics-5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.metric-card{background:var(--cream);border-radius:8px;padding:14px 12px;text-align:center;border:1px solid var(--cream-dk)}
+.metric-label{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--lt);margin-bottom:5px;display:block}
+.metric-value{font-family:'Playfair Display',serif;font-size:18px;color:var(--navy);font-weight:700;line-height:1.1}
+.metric-value.red{color:var(--red)}
+.metric-value.gold{color:var(--gold-txt)}
+.metric-sub{font-size:10px;color:var(--lt);margin-top:4px;display:block}
+/* PUNCHY (headline) variant */
+.metric-card.punchy{background:var(--navy);border:none}
+.metric-card.punchy .metric-label{color:var(--gold)}
+.metric-card.punchy .metric-value{color:var(--cream);font-size:20px}
+.metric-card.punchy .metric-sub{color:rgba(247,244,237,.55)}
+
+/* INFO BLOCKS */
+.info-block{border-radius:10px;padding:16px 20px;display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.info-block.gold{background:var(--gold-lt);border:1px solid rgba(201,168,76,.25)}
+.info-block.red{background:var(--red-lt);border:1px solid rgba(192,57,43,.2)}
+.info-block.navy{background:rgba(29,53,87,.05);border:1px solid rgba(29,53,87,.12)}
+.info-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.info-text{font-size:13px;color:var(--text);line-height:1.65}
+.info-text strong{color:var(--gold-txt)}
+.info-block.red .info-text strong{color:var(--red)}
+.info-block.navy .info-text strong{color:var(--navy)}
+
+/* EQUITY STACK */
+.eq-stack{display:flex;height:22px;border-radius:5px;overflow:hidden;margin:10px 0 8px;border:1px solid var(--cream-dk)}
+.eq-stack-seg{height:100%;transition:width .4s ease}
+.eq-stack-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:var(--mid);margin-top:6px}
+.eq-stack-legend span{display:flex;align-items:center;gap:5px}
+.eq-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+
+/* EQUITY METER */
+.eq-meter-bar{height:14px;background:var(--red-lt);border-radius:7px;overflow:hidden;position:relative;border:1px solid var(--cream-dk);margin:10px 0 4px}
+.eq-meter-fill{height:100%;border-radius:7px;transition:width .3s ease}
+.eq-meter-line{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--lt);opacity:.4}
+
+/* CHARTS */
+.chart-wrap{margin-bottom:20px}
+.chart-label{font-size:11px;font-weight:600;color:var(--lt);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+canvas{width:100%;border-radius:8px;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;font-size:12px;color:var(--mid)}
+.legend span{display:flex;align-items:center;gap:5px}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* MONEY TABLE */
+.money-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.money-table td{padding:7px 4px;border-bottom:1px solid var(--cream-dk);color:var(--text)}
+.money-table td:last-child{text-align:right;font-weight:700;white-space:nowrap;font-family:'Inter',sans-serif}
+.money-table tr:last-child td{border-bottom:none}
+.money-table tr.sh td{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--lt);padding-top:13px;padding-bottom:4px;border-bottom:none}
+.money-table tr.sub td{border-top:1.5px solid var(--cream-dk);padding-top:9px}
+.money-table tr.gone td:last-child{color:var(--red)}
+.money-table tr.back td:last-child{color:var(--green)}
+.money-table tr.muted td{color:var(--lt);font-size:11.5px}
+
+/* SCENARIO CARDS */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.scen-title{font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:10px;line-height:1.4}
+.pill{display:inline-block;font-size:8.5px;font-weight:700;letter-spacing:.04em;padding:3px 7px;border-radius:20px;text-transform:uppercase;margin-top:4px}
+.pill-g{background:rgba(45,125,82,.12);color:var(--green)}
+.pill-w{background:var(--gold-lt);color:var(--gold-txt)}
+.pill-r{background:var(--red-lt);color:var(--red)}
+.scen-card{border-radius:10px;padding:16px 16px;border:1.5px solid var(--cream-dk)}
+.scen-card.green{border-color:rgba(45,125,82,.25);background:rgba(45,125,82,.03)}
+.scen-card.gold{border-color:rgba(201,168,76,.3);background:var(--gold-lt)}
+.scen-card.red{border-color:rgba(192,57,43,.25);background:rgba(192,57,43,.03)}
+
+/* PROFIT BOX — punchy (headline) treatment for every scenario */
+.profit-box{background:var(--navy);border-radius:8px;padding:14px 16px;margin-top:12px}
+.profit-label{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.profit-value{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--cream);line-height:1}
+.profit-sub{font-size:11px;color:rgba(247,244,237,.6);margin-top:6px}
+
+/* STRESS TEST */
+.stress-controls{display:grid;grid-template-columns:1fr;gap:2px;margin-bottom:22px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.result-card{border-radius:10px;padding:20px;text-align:center}
+.result-card.now{background:rgba(45,125,82,.08);border:1.5px solid rgba(45,125,82,.25)}
+.result-card.wait{background:var(--red-lt);border:1.5px solid rgba(192,57,43,.2)}
+.result-card-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.result-card.now .result-card-label{color:var(--green)}
+.result-card.wait .result-card-label{color:var(--red)}
+.result-card-amount{font-family:'Playfair Display',serif;font-size:clamp(20px,3vw,26px);font-weight:700;margin-bottom:4px}
+.result-card.now .result-card-amount{color:var(--navy)}
+.result-card.wait .result-card-amount{color:var(--red)}
+.result-card-sub{font-size:11px;color:var(--lt)}
+.diff-block{background:var(--navy);border-radius:10px;padding:20px 24px;margin-bottom:24px}
+.diff-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,244,237,.45);margin-bottom:6px}
+.diff-text{font-size:13px;color:rgba(247,244,237,.75);line-height:1.7}
+.diff-text strong{color:var(--gold)}
+
+hr.div{border:none;border-top:1px solid var(--cream-dk);margin:1.75rem 0}
+
+/* FOOTER */
+.calc-footer{background:var(--navy);border-radius:0 0 var(--radius) var(--radius);padding:28px 36px;text-align:center}
+.calc-footer h3{font-family:'Playfair Display',serif;font-size:20px;color:var(--cream);margin-bottom:8px}
+.calc-footer p{font-size:13px;color:rgba(247,244,237,.55);margin-bottom:20px;line-height:1.7}
+.footer-cta{display:inline-flex;align-items:center;gap:8px;background:var(--gold);color:var(--navy);text-decoration:none;font-size:13px;font-weight:700;padding:14px 28px;border-radius:8px;transition:background .2s}
+.footer-cta:hover{background:var(--gold-dk)}
+
+/* FOOTNOTE */
+.footnote{font-size:11px;color:var(--lt);border-top:1px solid var(--cream-dk);padding-top:16px;margin-top:20px;line-height:1.9}
+.footnote strong{color:var(--mid)}
+
+@media(max-width:640px){
+  .calc-body,.calc-footer{padding-left:20px;padding-right:20px}
+  .warn-banner{padding-left:20px;padding-right:20px}
+  .calc-header{padding:24px 20px}
+  .inputs-grid,.inputs-grid-3,.result-grid,.two-col{grid-template-columns:1fr}
+  .metrics-5{grid-template-columns:1fr 1fr}
+  .pay-strip{grid-template-columns:1fr}
+  .ps-divider{display:none}
+  .proc-tab{font-size:11px;padding:9px 4px}
+}
+@media(max-width:400px){
+  .calc-header,.calc-body,.calc-footer{padding-left:16px;padding-right:16px}
+  .warn-banner{padding-left:16px;padding-right:16px}
+  .toggle-btn{padding:10px 6px}
+  .toggle-btn-name{font-size:12px}
+  .money-table{font-size:11.5px}
+  .metric-value{font-size:16px}
+  .metric-card.punchy .metric-value{font-size:18px}
+}
+/* GATE */
+.gated-wrap{position:relative}
+.gated-blur{filter:blur(5px);opacity:.5;pointer-events:none;user-select:none;transition:filter .3s ease,opacity .3s ease}
+.gate-overlay{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:40px;z-index:5}
+.gate-card{background:var(--white);border:1.5px solid var(--gold);border-radius:12px;padding:28px 26px;max-width:380px;width:calc(100% - 24px);text-align:center;box-shadow:0 10px 34px rgba(29,53,87,.18)}
+.gate-icon{font-size:26px;margin-bottom:10px}
+.gate-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--navy);margin-bottom:8px;line-height:1.3}
+.gate-sub{font-size:12.5px;color:var(--mid);line-height:1.6;margin-bottom:18px}
+.gate-form{display:flex;flex-direction:column;gap:10px}
+.gate-input{width:100%;padding:11px 14px;border:1.5px solid var(--cream-dk);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;color:var(--navy);background:var(--cream)}
+.gate-input:focus{outline:none;border-color:var(--gold);background:var(--white)}
+.gate-btn{width:100%;padding:13px;border:none;border-radius:8px;background:var(--gold);color:var(--navy);font-weight:700;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;margin-top:2px}
+.gate-btn:hover{background:var(--gold-dk)}
+.gate-note{font-size:10.5px;color:var(--lt);margin-top:12px;line-height:1.5}
+.gate-contact-options{display:flex;gap:6px;justify-content:center}
+.gate-contact-opt{padding:6px 10px;border-radius:16px;border:1.5px solid var(--cream-dk);background:var(--cream);color:var(--mid);font-size:11px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
+.gate-contact-opt.selected{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="calc-wrapper">
+
+<!-- HEADER -->
+<div class="calc-header">
+  <div class="calc-eyebrow" id="eyebrow">Property purchase</div>
+  <h2 class="calc-title">Property Investment — The Numbers</h2>
+  <p class="calc-sub">See how a property purchase actually works — the mortgage, the equity, the tax, and what could go wrong. Edit any figure to match a scenario you're weighing up.</p>
+</div>
+
+<!-- WARNING BANNER -->
+<div class="warn-banner">
+  <span class="wb-icon">⚠️</span>
+  <span><strong>This is illustrative, not personal advice.</strong> Stamp duty, Capital Gains Tax and mortgage products all depend on your exact circumstances, and rates change. Check current HMRC and lender figures — or speak to a professional — before acting on any number shown here.</span>
+</div>
+
+<!-- ——— INPUTS ——— -->
+<div class="calc-body">
+
+  <span class="input-section-label">Who's buying</span>
+  <div class="toggle-row toggle-2">
+    <button class="toggle-btn active" id="own-solo" onclick="setOwnership('solo')">
+      <span class="toggle-btn-name">Solo</span>
+      <span class="toggle-btn-desc">One buyer, one mortgage</span>
+    </button>
+    <button class="toggle-btn" id="own-joint" onclick="setOwnership('joint')">
+      <span class="toggle-btn-name">Joint</span>
+      <span class="toggle-btn-desc">Two buyers, one mortgage</span>
+    </button>
+  </div>
+
+  <div id="splitBlock" style="display:none">
+    <div class="slider-group-label"><span>Your ownership share</span><span id="splitLabel" style="font-weight:700;color:var(--navy)">50% / 50%</span></div>
+    <div class="slider-row">
+      <input class="slider" type="range" id="splitS" min="10" max="90" step="5" value="50">
+    </div>
+    <p class="input-hint" style="margin-bottom:18px">Deposit, costs, mortgage payments and equity are assumed to be split in this ratio. Adjust if you're not splitting 50/50.</p>
+  </div>
+
+  <div class="toggle-row toggle-2" id="ftbBlock">
+    <button class="toggle-btn active" id="own-ftb-yes" onclick="setFtb(true)">
+      <span class="toggle-btn-name" id="ftbYesLabel">First-time buyer</span>
+      <span class="toggle-btn-desc">SDLT relief up to £300k</span>
+    </button>
+    <button class="toggle-btn" id="own-ftb-no" onclick="setFtb(false)">
+      <span class="toggle-btn-name">Not a first-time buyer</span>
+      <span class="toggle-btn-desc">Standard SDLT rates apply</span>
+    </button>
+  </div>
+  <p class="input-hint" id="ftbHint" style="margin-bottom:18px">First-time buyer relief applies to both scenarios below, since neither involves owning another property.</p>
+
+  <span class="input-section-label">Property &amp; mortgage</span>
+  <div class="inputs-grid-3">
+    <div class="input-group">
+      <label class="input-label">Purchase price (£)</label>
+      <input class="input-field" type="number" id="houseVal" value="250000" min="10000" max="2000000" step="1000">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Deposit (£)</label>
+      <input class="input-field" type="number" id="depositAmt" value="50000" min="0" max="1000000" step="500">
+    </div>
+    <div class="input-group">
+      <label class="input-label">Loan amount (£)</label>
+      <input class="input-field" type="number" id="loanAmt" value="200000" min="1000" max="1800000" step="1000">
+    </div>
+  </div>
+
+  <div class="ltv-wrap">
+    <div class="ltv-labels">
+      <span>Loan-to-value: <strong id="ltv_pct" style="color:var(--navy)">80.0%</strong></span>
+      <span id="ltv_warn_label" style="color:var(--lt)"></span>
+    </div>
+    <div class="ltv-bar"><div class="ltv-fill" id="ltv_bar" style="width:80%;background:var(--navy)"></div></div>
+    <div class="ltv-labels"><span>0%</span><span>75% (best rate tier)</span><span>100%</span></div>
+    <div id="ltv_warn" class="warn">⚠️ Deposit + loan doesn't match the purchase price — check your figures. Loan cannot exceed price minus deposit.</div>
+    <p class="ltv-note">Deposit is <strong id="dep_pct">20.0%</strong> of the purchase price · your share of the deposit: <strong id="dep_each">£25,000</strong></p>
+  </div>
+
+  <hr class="div">
+
+  <span class="input-section-label">Buying costs &amp; renovation</span>
+  <div class="inputs-grid-3">
+    <div class="input-group">
+      <label class="input-label">Legal fees &amp; survey (£)</label>
+      <input class="input-field" type="number" id="otherCosts" value="1500" min="0" max="50000" step="100">
+      <span class="input-hint">Excludes stamp duty — calculated below</span>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Renovation spend (£)</label>
+      <input class="input-field" type="number" id="renoSpend" value="0" min="0" max="500000" step="500">
+      <span class="input-hint">What you spend on the works</span>
+    </div>
+    <div class="input-group">
+      <label class="input-label">Value added (£)</label>
+      <input class="input-field" type="number" id="renoValue" value="0" min="0" max="500000" step="500">
+      <span class="input-hint">Uplift in property value</span>
+    </div>
+  </div>
+  <p class="input-hint" style="margin-bottom:8px">Stamp duty at your FTB status: <strong id="sdlt_disp" style="color:var(--navy)">£0</strong></p>
+
+  <hr class="div">
+
+  <span class="input-section-label">Assumptions</span>
+  <div class="slider-group-label"><span>Interest rate</span><span class="slider-val" id="rO">4.5%</span></div>
+  <div class="slider-row"><input class="slider" type="range" id="rS" min="3" max="8" step="0.1" value="4.5"></div>
+
+  <div class="slider-group-label"><span>Mortgage term</span><span class="slider-val" id="tO">25 yrs</span></div>
+  <div class="slider-row"><input class="slider" type="range" id="tS" min="10" max="35" step="1" value="25"></div>
+
+  <div class="slider-group-label"><span>Hold period before sale</span><span class="slider-val" id="hO">5 yrs</span></div>
+  <div class="slider-row"><input class="slider" type="range" id="hS" min="1" max="15" step="1" value="5"></div>
+
+  <div class="slider-group-label"><span>Annual growth assumption</span><span class="slider-val" id="gO">3.0%</span></div>
+  <div class="slider-row"><input class="slider" type="range" id="gS" min="0" max="8" step="0.5" value="3"></div>
+
+  <div class="slider-group-label"><span>Overpayment (combined, monthly)</span><span class="slider-val" id="opO">£0</span></div>
+  <div class="slider-row"><input class="slider" type="range" id="opS" min="0" max="800" step="10" value="0"></div>
+
+  <div class="pay-strip">
+    <div class="ps-item">
+      <div class="ps-label">Required payment</div>
+      <div class="ps-value" id="ps_std">£0/mo</div>
+      <div class="ps-sub">total, standard terms</div>
+    </div>
+    <div class="ps-divider"></div>
+    <div class="ps-item">
+      <div class="ps-label">Total paid</div>
+      <div class="ps-value green" id="ps_total">£0/mo</div>
+      <div class="ps-sub" id="ps_total_sub">standard only</div>
+    </div>
+    <div class="ps-divider"></div>
+    <div class="ps-item">
+      <div class="ps-label">Your payment</div>
+      <div class="ps-value" id="ps_each">£0/mo</div>
+      <div class="ps-sub" id="ps_each_sub">your share</div>
+    </div>
+  </div>
+</div>
+
+<!-- ——— TABBED RESULTS ——— -->
+<div class="calc-body alt">
+
+  <div class="proc-tabs">
+    <button class="proc-tab active" id="tabbtn-numbers" onclick="setTab('numbers')">Your numbers</button>
+    <button class="proc-tab" id="tabbtn-exit" onclick="setTab('exit')">Exit scenarios</button>
+    <button class="proc-tab" id="tabbtn-stress" onclick="setTab('stress')">Stress test</button>
+  </div>
+
+  <!-- ——— TAB 1: YOUR NUMBERS ——— -->
+  <div class="tab-panel active" id="panel-numbers">
+
+    <span class="input-section-label">Key numbers at exit <span class="opt">(Live in, then sell basis)</span></span>
+    <div class="metrics-5">
+      <div class="metric-card">
+        <span class="metric-label">Sale price</span>
+        <div class="metric-value" id="k_sale">—</div>
+        <span class="metric-sub" id="k_sub">—</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Mortgage left</span>
+        <div class="metric-value" id="k_mort">—</div>
+        <span class="metric-sub" id="k_ltv_exit">LTV at exit: —</span>
+      </div>
+      <div class="metric-card punchy">
+        <span class="metric-label">Your equity</span>
+        <div class="metric-value" id="k_equity">—</div>
+        <span class="metric-sub" id="k_equity_sub">your share</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Interest paid</span>
+        <div class="metric-value red" id="k_int">—</div>
+        <span class="metric-sub" id="k_int_sub">your share, sunk cost</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Inflection point</span>
+        <div class="metric-value gold" id="k_infl">—</div>
+        <span class="metric-sub" id="k_infl_sub">—</span>
+      </div>
+    </div>
+
+    <div class="info-block gold">
+      <div class="info-icon">💡</div>
+      <div class="info-text">
+        <strong>Why the inflection point matters.</strong> Early in any repayment mortgage, most of each payment is interest — the cost of borrowing — not equity. The inflection point is the month that flips: more than half of each payment starts reducing what you owe, rather than disappearing as interest. Before it, you're mostly renting the bank's money. After it, you're mostly building an asset. This matters most if you're planning to sell within a few years, because it directly shapes how much of what you've paid in comes back to you as equity versus how much is gone for good. Overpaying — even a modest amount — brings this point forward, which is why it's shown here rather than left as a footnote.
+      </div>
+    </div>
+
+    <span class="input-section-label">How your equity is built — sources (your share)</span>
+    <div class="eq-stack" id="eqStack">
+      <div class="eq-stack-seg" id="eq_deposit_seg" style="background:#1D3557"></div>
+      <div class="eq-stack-seg" id="eq_reno_seg" style="background:#C9A84C"></div>
+      <div class="eq-stack-seg" id="eq_growth_seg" style="background:#2D7D52"></div>
+      <div class="eq-stack-seg" id="eq_prin_seg" style="background:#7cc4ac"></div>
+    </div>
+    <div class="eq-stack-legend">
+      <span><span class="eq-dot" style="background:#1D3557"></span>Deposit returned: <strong id="eq_deposit_val">£0</strong></span>
+      <span><span class="eq-dot" style="background:#C9A84C"></span>Renovation uplift: <strong id="eq_reno_val">£0</strong></span>
+      <span><span class="eq-dot" style="background:#2D7D52"></span>Market growth: <strong id="eq_growth_val">£0</strong></span>
+      <span><span class="eq-dot" style="background:#7cc4ac"></span>Principal repaid: <strong id="eq_prin_val">£0</strong></span>
+    </div>
+    <p style="font-size:12px;color:var(--lt);margin:10px 0 20px;line-height:1.6">
+      Total equity in the property: <strong id="eq_total_prop" style="color:var(--text)">£0</strong> · Your share: <strong id="eq_your_share" style="color:var(--green)">£0</strong>
+    </p>
+
+    <span class="input-section-label">Where your payment goes — month 1 of the hold</span>
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:2px">
+      <span style="color:var(--red)">Interest: <strong id="m1_int">—</strong></span>
+      <span style="color:var(--green)">Principal: <strong id="m1_prin">—</strong></span>
+    </div>
+    <div class="eq-meter-bar">
+      <div class="eq-meter-fill" id="m1_bar" style="background:var(--red);width:50%"></div>
+      <div class="eq-meter-line"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--lt);margin-bottom:16px">
+      <span>0% equity</span><span>50% threshold</span><span>100% equity</span>
+    </div>
+    <p style="font-size:13px;color:var(--mid);margin-bottom:20px">
+      Month 1: <strong style="color:var(--green)" id="m1_pct">—</strong> of your payment builds equity. By the end of your hold (yr <span id="holdYrLabel">5</span>): <strong style="color:var(--green)" id="holdEnd_pct">—</strong> goes to equity.
+    </p>
+
+    <div class="chart-wrap">
+      <div class="chart-label">% of each payment building equity, over your hold</div>
+      <div style="position:relative;width:100%;height:200px"><canvas id="eqChart"></canvas></div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#2D7D52"></span>With overpayment</span>
+        <span><span class="legend-dot" style="background:#b0b0b0"></span>Standard payment only</span>
+        <span><span class="legend-dot" style="background:#C9A84C"></span>50% threshold</span>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-label">Mortgage balance over the hold period</div>
+      <div style="position:relative;width:100%;height:180px"><canvas id="balChart"></canvas></div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#2D7D52"></span>With overpayment</span>
+        <span><span class="legend-dot" style="background:#b0b0b0"></span>Standard payment only</span>
+      </div>
+    </div>
+
+    <span class="input-section-label">What happens to your money</span>
+    <table class="money-table">
+      <tr class="sh"><td colspan="2">Comes back at sale — not a real cost</td></tr>
+      <tr class="back"><td>Deposit (your share)</td><td id="r_dep">£0</td></tr>
+      <tr class="back"><td>Renovation spend (your share)</td><td id="r_reno">£0</td></tr>
+      <tr class="back"><td>Principal repaid over hold (your share)</td><td id="r_prin">—</td></tr>
+      <tr class="sh"><td colspan="2">Gone for good — true sunk cost</td></tr>
+      <tr class="gone"><td>Stamp duty + buying costs (your share)</td><td id="r_buy">£0</td></tr>
+      <tr class="gone"><td>Interest paid over hold (your share)</td><td id="r_int">—</td></tr>
+      <tr class="sub gone"><td>Total true sunk cost, your share</td><td id="r_sunk">—</td></tr>
+    </table>
+  </div>
+
+  <!-- ——— TAB 2: EXIT SCENARIOS ——— -->
+  <div class="tab-panel" id="panel-exit">
+  <div class="gated-wrap">
+  <div class="gated-blur" id="blur-exit">
+
+    <div class="info-block navy">
+      <div class="info-icon">🏠</div>
+      <div class="info-text">Two ways this purchase could play out — living in it, or becoming an accidental landlord by letting it out instead. Each has a different tax treatment. This isn't personal tax advice — <strong>Capital Gains Tax depends on your full circumstances</strong>, and rates change. Check current HMRC figures or speak to an accountant before relying on these numbers.</div>
+    </div>
+
+    <div class="input-group" style="margin-bottom:18px;max-width:260px">
+      <label class="input-label">Monthly rent, if let out (£)</label>
+      <input class="input-field" type="number" id="rentAmt" value="1200" min="0" max="20000" step="50">
+    </div>
+
+    <span class="input-section-label">Capital Gains Tax band <span class="opt">(applies to Let out — never to Live in)</span></span>
+    <div class="toggle-row toggle-2" style="margin-bottom:8px">
+      <button class="toggle-btn active" id="cgt-basic" onclick="setCgt('basic')">
+        <span class="toggle-btn-name">Basic rate</span>
+        <span class="toggle-btn-desc">18% on residential gains</span>
+      </button>
+      <button class="toggle-btn" id="cgt-higher" onclick="setCgt('higher')">
+        <span class="toggle-btn-name">Higher rate</span>
+        <span class="toggle-btn-desc">24% on residential gains</span>
+      </button>
+    </div>
+    <p class="input-hint" style="margin-bottom:22px">Your rate depends on your total income for the year — many landlords with rental profit sit in the higher band. Uses the 2025/26 annual exempt amount of £3,000 per person; check the current figure before relying on this.</p>
+
+    <div class="two-col">
+      <div>
+        <div class="scen-title">Live in, then sell<br><span class="pill pill-g">No CGT</span></div>
+        <div class="scen-card green">
+          <table class="money-table">
+            <tr class="sh"><td colspan="2">At completion</td></tr>
+            <tr><td>Sale price</td><td id="aA_sale">—</td></tr>
+            <tr class="gone"><td>Mortgage cleared</td><td id="aA_mort">—</td></tr>
+            <tr class="gone"><td>Sale costs</td><td id="aA_saleCosts">—</td></tr>
+            <tr class="sh"><td colspan="2">Your P&amp;L</td></tr>
+            <tr class="back"><td>Equity received</td><td id="aA_receive">—</td></tr>
+            <tr class="gone"><td>Less: sunk cost</td><td id="aA_sunk">—</td></tr>
+          </table>
+          <div class="profit-box">
+            <div class="profit-label">Net position</div>
+            <div class="profit-value" id="aA_profit">—</div>
+            <div class="profit-sub" id="aA_roi">—</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="scen-title">Let out, then sell<br><span class="pill pill-w">CGT applies</span></div>
+        <div class="scen-card gold">
+          <table class="money-table">
+            <tr class="sh"><td colspan="2">Rental over hold</td></tr>
+            <tr><td>Monthly surplus</td><td id="aC_surplus">—</td></tr>
+            <tr class="back sub"><td>Total surplus</td><td id="aC_rental">—</td></tr>
+            <tr class="sh"><td colspan="2">Then sell</td></tr>
+            <tr class="back"><td>Sale position</td><td id="aC_saleprofit">—</td></tr>
+            <tr class="gone"><td>CGT (estimate)</td><td id="aC_cgt">—</td></tr>
+          </table>
+          <div class="profit-box">
+            <div class="profit-label">Net position</div>
+            <div class="profit-value" id="aC_profit">—</div>
+            <div class="profit-sub" id="aC_roi">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-wrap">
+      <div class="chart-label">Net position — with vs without overpayment</div>
+      <div style="position:relative;width:100%;height:180px"><canvas id="profChart"></canvas></div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#2D7D52"></span>With overpayment</span>
+        <span><span class="legend-dot" style="background:#cbb98a"></span>Standard payments only</span>
+      </div>
+    </div>
+  </div>
+  <div class="gate-overlay" id="gate-exit">
+    <div class="gate-card">
+      <div class="gate-icon">🔓</div>
+      <div class="gate-title">See your full exit numbers</div>
+      <div class="gate-sub">Unlock the Let out scenario, the CGT estimate and the Stress Test — free, takes ten seconds.</div>
+      <form class="gate-form" onsubmit="unlockGate(event,'exit')">
+        <input class="gate-input" type="text" id="gateName" placeholder="First name" required>
+        <div class="gate-contact-options" id="contactOpts-exit">
+          <button type="button" class="gate-contact-opt selected" id="opt-exit-email" onclick="selectContact('exit','email')">📧 Email</button>
+          <button type="button" class="gate-contact-opt" id="opt-exit-phone" onclick="selectContact('exit','phone')">📱 Phone</button>
+          <button type="button" class="gate-contact-opt" id="opt-exit-instagram" onclick="selectContact('exit','instagram')">📸 Instagram</button>
+        </div>
+        <input class="gate-input" type="email" id="gateContact" placeholder="Email address" required>
+        <button class="gate-btn" type="submit">Unlock my numbers</button>
+      </form>
+      <div class="gate-note">We'll only use this to follow up on your enquiry — no spam, unsubscribe any time.</div>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <!-- ——— TAB 3: STRESS TEST ——— -->
+  <div class="tab-panel" id="panel-stress">
+  <div class="gated-wrap">
+  <div class="gated-blur" id="blur-stress">
+
+    <div class="info-block red">
+      <div class="info-icon">⚠️</div>
+      <div class="info-text">Every number so far has assumed things go roughly to plan. They often don't. This tab shows both scenarios under pressure — a rate rise, an empty property, a fall in price — shown together as a genuine bear case, not a footnote. If a scenario only looks acceptable when everything goes right, that's worth knowing before you commit.</div>
+    </div>
+
+    <div class="stress-controls">
+      <div class="slider-group-label"><span>Rate rises by</span><span class="slider-val" id="stRateO">+2.0%</span></div>
+      <div class="slider-row"><input class="slider" type="range" id="stRateS" min="0" max="5" step="0.25" value="2"></div>
+
+      <div class="slider-group-label"><span>Void period (no rent, rental scenarios only)</span><span class="slider-val" id="stVoidO">2 mo</span></div>
+      <div class="slider-row"><input class="slider" type="range" id="stVoidS" min="0" max="12" step="1" value="2"></div>
+
+      <div class="slider-group-label"><span>Price falls by, at sale</span><span class="slider-val" id="stFallO">10%</span></div>
+      <div class="slider-row"><input class="slider" type="range" id="stFallS" min="0" max="30" step="1" value="10"></div>
+    </div>
+
+    <p class="input-hint" style="margin-bottom:20px">The stressed case also assumes overpayments stop — a squeezed budget is the point of a stress test.</p>
+
+    <span class="input-section-label">Live in, then sell</span>
+    <div class="result-grid">
+      <div class="result-card now">
+        <div class="result-card-label">Base case</div>
+        <div class="result-card-amount" id="stA_base">—</div>
+        <div class="result-card-sub">your equity at exit</div>
+      </div>
+      <div class="result-card wait">
+        <div class="result-card-label">Stressed</div>
+        <div class="result-card-amount" id="stA_stress">—</div>
+        <div class="result-card-sub">your equity at exit</div>
+      </div>
+    </div>
+    <div class="diff-block">
+      <div class="diff-label">What changes</div>
+      <div class="diff-text" id="stA_text">—</div>
+    </div>
+
+    <span class="input-section-label">Let out, then sell</span>
+    <div class="result-grid">
+      <div class="result-card now">
+        <div class="result-card-label">Base case</div>
+        <div class="result-card-amount" id="stC_base">—</div>
+        <div class="result-card-sub">net position</div>
+      </div>
+      <div class="result-card wait">
+        <div class="result-card-label">Stressed</div>
+        <div class="result-card-amount" id="stC_stress">—</div>
+        <div class="result-card-sub">net position</div>
+      </div>
+    </div>
+    <div class="diff-block">
+      <div class="diff-label">What changes</div>
+      <div class="diff-text" id="stC_text">—</div>
+    </div>
+
+  </div>
+  <div class="gate-overlay" id="gate-stress">
+    <div class="gate-card">
+      <div class="gate-icon">🔓</div>
+      <div class="gate-title">See the bear case</div>
+      <div class="gate-sub">Unlock the rate-rise, void-period and price-fall stress test — same details as above, only need to enter them once.</div>
+      <form class="gate-form" onsubmit="unlockGate(event,'stress')">
+        <input class="gate-input" type="text" id="gateName2" placeholder="First name" required>
+        <div class="gate-contact-options" id="contactOpts-stress">
+          <button type="button" class="gate-contact-opt selected" id="opt-stress-email" onclick="selectContact('stress','email')">📧 Email</button>
+          <button type="button" class="gate-contact-opt" id="opt-stress-phone" onclick="selectContact('stress','phone')">📱 Phone</button>
+          <button type="button" class="gate-contact-opt" id="opt-stress-instagram" onclick="selectContact('stress','instagram')">📸 Instagram</button>
+        </div>
+        <input class="gate-input" type="email" id="gateContact2" placeholder="Email address" required>
+        <button class="gate-btn" type="submit">Unlock my numbers</button>
+      </form>
+      <div class="gate-note">We'll only use this to follow up on your enquiry — no spam, unsubscribe any time.</div>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <div class="footnote">
+    <strong>How this is built:</strong> one mortgage · figures split by your ownership share, editable above · loan auto-syncs when deposit changes · SDLT calculated on current England &amp; Northern Ireland rates from 1 April 2025 (0%/2%/5%/10%/12% bands; FTB relief 0% to £300k then 5% to £500k, no relief above £500k) — Scotland (LBTT) and Wales (LTT) are not modelled here and use different bands · renovation spend is treated as adding directly to property value at purchase, then growth compounds from that new base · inflection point = the month the principal portion of your actual payment first exceeds the interest portion · overpayments reduce balance directly (assumes no early repayment charge — check with your lender) · Live in assumes the property is your main residence throughout, so Private Residence Relief applies and no CGT is due · Let out assumes it's never your main residence, so the full gain is taxable, less your annual exempt amount, at the band selected · sale costs assumed at £3,000 combined · this tool is for illustration only, is not personalised financial or tax advice, and real transactions involve costs and rules not modelled here in full.
+  </div>
+</div>
+
+<!-- FOOTER CTA -->
+<div class="calc-footer">
+  <h3>Ready to see what this means for your situation?</h3>
+  <p>These numbers show how the mechanics work in general. A free discovery call is the fastest way to work out what they mean for your actual budget, timeline and goals.</p>
+  <a class="footer-cta" href="https://wa.me/447843868245?text=Hi%2C%20I%27ve%20been%20using%20the%20Property%20Investment%20calculator%20on%20The%20Everyday%20Investor%20site%20and%20I%27d%20like%20to%20book%20a%20free%20discovery%20call." target="_blank" style="font-size:14.5px;padding:16px 32px">💬 Book your free discovery call</a>
+</div>
+
+</div>
+
+<script>
+let ownership='solo', yourSharePct=50, cgtBand='basic', ftbStatus=true;
+
+function setOwnership(mode){
+  ownership=mode;
+  document.getElementById('own-solo').classList.toggle('active', mode==='solo');
+  document.getElementById('own-joint').classList.toggle('active', mode==='joint');
+  document.getElementById('splitBlock').style.display = mode==='joint' ? 'block' : 'none';
+  document.getElementById('ftbYesLabel').textContent = mode==='solo' ? 'First-time buyer' : 'Both first-time buyers';
+  document.getElementById('ftbHint').textContent = mode==='solo'
+    ? 'First-time buyer relief applies to both scenarios below, since neither involves owning another property.'
+    : 'Real FTB relief requires BOTH buyers to be first-time buyers — if either of you has owned before, select "Not a first-time buyer".';
+  updateEyebrow();
+  update();
+}
+document.getElementById('splitS').addEventListener('input', e=>{
+  yourSharePct=parseInt(e.target.value);
+  document.getElementById('splitLabel').textContent=yourSharePct+'% / '+(100-yourSharePct)+'%';
+  updateEyebrow();
+  update();
+});
+function updateEyebrow(){
+  document.getElementById('eyebrow').textContent = ownership==='solo'
+    ? 'Solo purchase · one mortgage'
+    : 'Joint purchase · '+yourSharePct+'/'+(100-yourSharePct)+' split · one mortgage';
+}
+
+function setFtb(val){
+  ftbStatus=val;
+  document.getElementById('own-ftb-yes').classList.toggle('active', val);
+  document.getElementById('own-ftb-no').classList.toggle('active', !val);
+  update();
+}
+
+function setCgt(band){
+  cgtBand=band;
+  document.getElementById('cgt-basic').classList.toggle('active', band==='basic');
+  document.getElementById('cgt-higher').classList.toggle('active', band==='higher');
+  update();
+}
+
+/* ---------- Supabase lead capture ----------
+   Same table and mechanism as the Cost of Waiting Calculator. This key
+   is the public "anon" key — it is meant to be visible in client-side
+   code. Safety comes from the table's row-level security policy, which
+   only allows INSERT from anonymous callers, never read/update/delete. */
+var SUPABASE_CONFIG = {
+  url: "https://ztyqijiiayrengvxsqkw.supabase.co",
+  anonKey: "sb_publishable_-ufG5z9acIv49A_TSU0YiQ_D2XNDl92"
+};
+
+function submitLead(type, value, name){
+  fetch(SUPABASE_CONFIG.url + "/rest/v1/leads", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_CONFIG.anonKey,
+      "Authorization": "Bearer " + SUPABASE_CONFIG.anonKey,
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify({
+      name: name || null,
+      contact_method: type,
+      contact_value: value,
+      source: "property_calculator"
+    })
+  }).catch(function(err){
+    console.warn("Lead capture failed:", err);
+  });
+}
+
+function isValidContact(type, value){
+  if (type === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  if (type === "phone") return /^[\d\s()+-]{7,}$/.test(value);
+  if (type === "instagram") return /^@?[a-zA-Z0-9._]{2,30}$/.test(value);
+  return false;
+}
+
+var gateContactType = { exit: "email", stress: "email" };
+
+function selectContact(gateKey, type){
+  gateContactType[gateKey] = type;
+  ["email","phone","instagram"].forEach(function(t){
+    var el = document.getElementById("opt-" + gateKey + "-" + t);
+    if (el) el.classList.toggle("selected", t === type);
+  });
+  var input = document.getElementById(gateKey === "exit" ? "gateContact" : "gateContact2");
+  if (!input) return;
+  if (type === "email") { input.type = "email"; input.placeholder = "Email address"; }
+  else if (type === "phone") { input.type = "tel"; input.placeholder = "Phone number"; }
+  else { input.type = "text"; input.placeholder = "@yourinstagram"; }
+}
+
+function unlockGate(event, gateKey){
+  event.preventDefault();
+  var nameEl = document.getElementById(gateKey === "exit" ? "gateName" : "gateName2");
+  var contactEl = document.getElementById(gateKey === "exit" ? "gateContact" : "gateContact2");
+  var type = gateContactType[gateKey] || "email";
+  var value = contactEl.value.trim();
+
+  if (!isValidContact(type, value)){
+    contactEl.style.borderColor = "#C0392B";
+    setTimeout(function(){ contactEl.style.borderColor = ""; }, 1500);
+    return false;
+  }
+
+  submitLead(type, value, nameEl.value.trim());
+  document.querySelectorAll('.gated-blur').forEach(el=>el.classList.remove('gated-blur'));
+  document.querySelectorAll('.gate-overlay').forEach(el=>el.style.display='none');
+  return false;
+}
+
+function setTab(name){
+  ['numbers','exit','stress'].forEach(t=>{
+    document.getElementById('tabbtn-'+t).classList.toggle('active', t===name);
+    document.getElementById('panel-'+t).classList.toggle('active', t===name);
+  });
+}
+
+let houseVal=250000, depositAmt=50000, loanAmt=200000;
+let rate=4.5, term=25, hold=5, growth=3, overpay=0;
+const ANNUAL_EXEMPT=3000;
+
+function calcSDLT(price, type){
+  if(type==='ftb' && price<=500000){
+    let tax=0;
+    if(price>300000) tax += (Math.min(price,500000)-300000)*0.05;
+    return tax;
+  }
+  const bands=[[0,125000,0],[125000,250000,0.02],[250000,925000,0.05],[925000,1500000,0.10],[1500000,Infinity,0.12]];
+  const surcharge = type==='btl' ? 0.05 : 0;
+  let tax=0;
+  for(const [lo,hi,r] of bands){
+    if(price>lo) tax += (Math.min(price,hi)-lo)*(r+surcharge);
+  }
+  return tax;
+}
+
+function calcStd(p,r,y){
+  const mr=r/100/12, n=y*12;
+  if(mr===0) return p/n;
+  return p*mr*Math.pow(1+mr,n)/(Math.pow(1+mr,n)-1);
+}
+
+function simulate(principal, annualRate, years, totalPayment){
+  const mr=annualRate/100/12;
+  let bal=principal;
+  const bals=[bal], eqPcts=[];
+  let inflectionMonth=null, totalInterest=0, totalPrincipal=0;
+  for(let m=1;m<=years*12;m++){
+    if(bal<=0){bals.push(0);eqPcts.push(100);break;}
+    const interest=bal*mr;
+    const payment=Math.min(totalPayment,bal+interest);
+    const prin=payment-interest;
+    const eqPct=(prin/payment)*100;
+    if(inflectionMonth===null && prin>=interest) inflectionMonth=m;
+    totalInterest+=interest; totalPrincipal+=prin;
+    bal=Math.max(0,bal-prin);
+    bals.push(bal); eqPcts.push(eqPct);
+  }
+  return{bals,eqPcts,totalInterest,totalPrincipal,inflectionMonth};
+}
+
+function holdTotals(principal, annualRate, years, totalPayment){
+  const mr=annualRate/100/12, months=years*12;
+  let bal=principal,totalInt=0,totalPrin=0;
+  for(let m=0;m<months;m++){
+    if(bal<=0)break;
+    const i=bal*mr,pmt=Math.min(totalPayment,bal+i),p=pmt-i;
+    totalInt+=i;totalPrin+=p;bal=Math.max(0,bal-p);
+  }
+  return{balAtExit:bal,totalInt,totalPrin};
+}
+
+function calcExitScenario(sdltType, hasPRR, hasRent, interestOnly, ctx, overrides){
+  overrides = overrides || {};
+  const rateUse = overrides.rate!==undefined ? overrides.rate : ctx.rate;
+  const salePriceUse = overrides.salePrice!==undefined ? overrides.salePrice : ctx.salePrice;
+  const overpayUse = overrides.overpay!==undefined ? overrides.overpay : ctx.overpay;
+  const voidMonths = overrides.voidMonths || 0;
+
+  const stdPmt = interestOnly ? ctx.loanAmt*(rateUse/100/12) : calcStd(ctx.loanAmt,rateUse,ctx.term);
+  const totalPmt = stdPmt+overpayUse;
+  const yourPmt = totalPmt*ctx.share;
+  const buyCosts = calcSDLT(ctx.houseVal,sdltType)+ctx.otherCosts;
+  const yourBuyCosts = buyCosts*ctx.share;
+  const ht = holdTotals(ctx.loanAmt,rateUse,ctx.hold,totalPmt);
+  const intEach = ht.totalInt*ctx.share;
+  const sunk = yourBuyCosts+intEach;
+  const yourHalf = salePriceUse*ctx.share;
+  const yourSaleCosts = ctx.saleCostsTotal*ctx.share;
+  const receive = yourHalf - ht.balAtExit*ctx.share - yourSaleCosts;
+  let profit = receive-sunk;
+  let rentalTotal=0, cgt=0;
+  if(hasRent){
+    const moSurplus=(ctx.rentAmt-totalPmt)*ctx.share;
+    rentalTotal = moSurplus*ctx.holdMonths - voidMonths*ctx.rentAmt*ctx.share;
+    profit += rentalTotal;
+  }
+  if(!hasPRR){
+    const grossGain=Math.max(0,salePriceUse-ctx.saleCostsTotal-(ctx.houseVal+ctx.renoSpend+buyCosts));
+    const yourGain=grossGain*ctx.share;
+    const taxable=Math.max(0,yourGain-ANNUAL_EXEMPT);
+    cgt=taxable*ctx.cgtRate;
+    profit-=cgt;
+  }
+  return {stdPmt,totalPmt,yourPmt,buyCosts,yourBuyCosts,intEach,sunk,receive,profit,rentalTotal,cgt,balAtExit:ht.balAtExit,totalInt:ht.totalInt,totalPrin:ht.totalPrin};
+}
+
+function f(n){return(n<0?'-£':'£')+Math.abs(Math.round(n)).toLocaleString('en-GB');}
+function fmo(n){return(n>=0?'+£':'-£')+Math.abs(Math.round(n)).toLocaleString('en-GB')+'/mo';}
+function pct(n){return n.toFixed(1)+'%';}
+
+const eqChart=new Chart(document.getElementById('eqChart'),{
+  type:'line',
+  data:{labels:[],datasets:[
+    {label:'With overpay',data:[],borderColor:'#2D7D52',backgroundColor:'rgba(45,125,82,.1)',fill:true,borderWidth:2.5,pointRadius:0,tension:0.3},
+    {label:'Standard',data:[],borderColor:'#b0b0b0',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,borderDash:[5,4],tension:0.3},
+    {label:'50%',data:[],borderColor:'#C9A84C',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,borderDash:[3,3]}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y.toFixed(1)+'% to equity'}}},
+    scales:{
+      x:{ticks:{font:{size:11,family:'Inter'},color:'#718096',maxTicksLimit:10}},
+      y:{min:0,max:100,ticks:{font:{size:11,family:'Inter'},color:'#718096',callback:v=>v+'%'},grid:{color:'rgba(29,53,87,.06)'}}
+    }}
+});
+
+const balChart=new Chart(document.getElementById('balChart'),{
+  type:'line',
+  data:{labels:[],datasets:[
+    {label:'With overpay',data:[],borderColor:'#2D7D52',backgroundColor:'transparent',borderWidth:2.5,pointRadius:0,tension:0.3},
+    {label:'Standard',data:[],borderColor:'#b0b0b0',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,borderDash:[5,4],tension:0.3}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'£'+Math.round(ctx.parsed.y).toLocaleString('en-GB')}}},
+    scales:{
+      x:{ticks:{font:{size:11,family:'Inter'},color:'#718096',maxTicksLimit:10}},
+      y:{ticks:{font:{size:11,family:'Inter'},color:'#718096',callback:v=>'£'+Math.round(v/1000)+'k'},grid:{color:'rgba(29,53,87,.06)'}}
+    }}
+});
+
+const profChart=new Chart(document.getElementById('profChart'),{
+  type:'bar',
+  data:{labels:['Live in, sell','Let out, sell'],
+    datasets:[
+      {label:'With overpayment',data:[],backgroundColor:['#2D7D52','#C9A84C'],borderWidth:0,borderRadius:4},
+      {label:'Standard',data:[],backgroundColor:['#a9cdb9','#e3d6b0'],borderWidth:0,borderRadius:4}
+    ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{font:{size:11,family:'Inter'},color:'#718096'}},
+      y:{ticks:{font:{size:11,family:'Inter'},color:'#718096',callback:v=>'£'+Math.round(v).toLocaleString('en-GB')},grid:{color:'rgba(29,53,87,.06)'}}
+    }}
+});
+
+function monthLabel(m){
+  const yr=Math.floor((m-1)/12)+1,mo=((m-1)%12)+1;
+  if(mo===1) return 'Yr '+yr;
+  return '';
+}
+
+function updateLTV(){
+  const ltv = loanAmt/houseVal*100;
+  const depPct = depositAmt/houseVal*100;
+  const ltvEl = document.getElementById('ltv_pct');
+  const barEl = document.getElementById('ltv_bar');
+  const warnLabel = document.getElementById('ltv_warn_label');
+
+  ltvEl.textContent = pct(ltv);
+  barEl.style.width = Math.min(100,ltv).toFixed(1)+'%';
+
+  if(ltv > 95){ barEl.style.background='var(--red)'; ltvEl.style.color='var(--red)'; warnLabel.textContent='Above 95% — unlikely to get a mortgage'; }
+  else if(ltv > 85){ barEl.style.background='var(--gold-dk)'; ltvEl.style.color='var(--gold-dk)'; warnLabel.textContent='Higher rate tier'; }
+  else if(ltv > 75){ barEl.style.background='var(--navy)'; ltvEl.style.color='var(--navy)'; warnLabel.textContent='Standard rates'; }
+  else { barEl.style.background='var(--green)'; ltvEl.style.color='var(--green)'; warnLabel.textContent='Best rate tier'; }
+
+  document.getElementById('ltv_warn').style.display = (loanAmt > houseVal - depositAmt || loanAmt <= 0) ? 'block' : 'none';
+  document.getElementById('dep_pct').textContent = pct(depPct);
+  document.getElementById('dep_each').textContent = f(depositAmt*yourShare());
+}
+
+function yourShare(){ return (ownership==='joint' ? yourSharePct : 100)/100; }
+
+function update(){
+  updateLTV();
+  const share=yourShare();
+
+  document.getElementById('rO').textContent = rate.toFixed(1)+'%';
+  document.getElementById('tO').textContent = term+' yrs';
+  document.getElementById('hO').textContent = hold+' yr'+(hold>1?'s':'');
+  document.getElementById('gO').textContent = growth.toFixed(1)+'%';
+  document.getElementById('opO').textContent = overpay>0 ? '+£'+overpay : '£0';
+
+  if(loanAmt<=0 || loanAmt>houseVal) return;
+
+  const otherCosts=parseFloat(document.getElementById('otherCosts').value)||0;
+  const renoSpend=parseFloat(document.getElementById('renoSpend').value)||0;
+  const renoValue=parseFloat(document.getElementById('renoValue').value)||0;
+  const rentAmt=parseFloat(document.getElementById('rentAmt').value)||0;
+  const saleCostsTotal=3000;
+
+  const ftbType = ftbStatus ? 'ftb' : 'standard';
+  document.getElementById('sdlt_disp').textContent = f(calcSDLT(houseVal,ftbType));
+
+  const holdMonths=hold*12;
+  const std=calcStd(loanAmt,rate,term);
+  const totalPmt=std+overpay;
+  const yourPmt=totalPmt*share;
+  const renoBase=houseVal+renoValue;
+  const salePrice=renoBase*Math.pow(1+growth/100,hold);
+
+  document.getElementById('ps_std').textContent='£'+Math.round(std).toLocaleString('en-GB')+'/mo';
+  document.getElementById('ps_total').textContent='£'+Math.round(totalPmt).toLocaleString('en-GB')+'/mo';
+  document.getElementById('ps_total_sub').textContent=overpay>0?'+£'+overpay+' overpayment':'standard only';
+  document.getElementById('ps_each').textContent='£'+Math.round(yourPmt).toLocaleString('en-GB')+'/mo';
+  document.getElementById('ps_each_sub').textContent=overpay>0?'(£'+Math.round(std*share).toLocaleString('en-GB')+' req + £'+Math.round(overpay*share).toLocaleString('en-GB')+' extra)':'your share';
+
+  const ctx = {loanAmt,rate,term,hold,holdMonths,overpay,share,houseVal,otherCosts,renoSpend,renoValue,rentAmt,saleCostsTotal,cgtRate:cgtBand==='basic'?0.18:0.24,salePrice};
+
+  const scen1 = calcExitScenario(ftbType, true, false, false, ctx);
+  const scen2 = calcExitScenario(ftbType, false, true, false, ctx);
+
+  const simWith=simulate(loanAmt,rate,term,totalPmt);
+  const simNone=simulate(loanAmt,rate,term,std);
+
+  const balAtExit=scen1.balAtExit, intEachFinal=scen1.intEach, prinEachFinal=scen1.totalPrin*share;
+  const sunk=scen1.sunk;
+  const stdHold=holdTotals(loanAmt,rate,hold,std);
+  const intEachStd=stdHold.totalInt*share;
+  const intSaving=intEachStd-intEachFinal;
+  const ltvExit=balAtExit/salePrice*100;
+  const totalEquityProp=salePrice-balAtExit;
+  const yourEquity=totalEquityProp*share;
+
+  const depEach=depositAmt*share;
+  const renoEach=renoValue*share;
+  const growthEach=(salePrice-renoBase)*share;
+  const prinEach=prinEachFinal;
+  const totalEquityEach=depEach+renoEach+growthEach+prinEach;
+  const stackTotal=totalEquityEach||1;
+
+  document.getElementById('eq_deposit_seg').style.width=(Math.max(0,depEach)/stackTotal*100).toFixed(1)+'%';
+  document.getElementById('eq_reno_seg').style.width=(Math.max(0,renoEach)/stackTotal*100).toFixed(1)+'%';
+  document.getElementById('eq_growth_seg').style.width=(Math.max(0,growthEach)/stackTotal*100).toFixed(1)+'%';
+  document.getElementById('eq_prin_seg').style.width=(Math.max(0,prinEach)/stackTotal*100).toFixed(1)+'%';
+  document.getElementById('eq_deposit_val').textContent=f(depEach);
+  document.getElementById('eq_reno_val').textContent=f(renoEach);
+  document.getElementById('eq_growth_val').textContent=f(growthEach);
+  document.getElementById('eq_prin_val').textContent=f(prinEach);
+  document.getElementById('eq_total_prop').textContent=f(totalEquityProp);
+  document.getElementById('eq_your_share').textContent=f(yourEquity);
+
+  document.getElementById('k_sale').textContent='£'+Math.round(salePrice/1000)+'k';
+  document.getElementById('k_sub').textContent=hold+'yr'+(hold>1?'s':'')+' @ '+growth.toFixed(1)+'%';
+  document.getElementById('k_mort').textContent=f(balAtExit);
+  document.getElementById('k_ltv_exit').textContent='LTV at exit: '+pct(ltvExit);
+  document.getElementById('k_equity').textContent=f(yourEquity);
+  document.getElementById('k_equity_sub').textContent='of £'+Math.round(totalEquityProp/1000)+'k total equity';
+  document.getElementById('k_int').textContent=f(intEachFinal);
+  document.getElementById('k_int_sub').textContent=intSaving>50?'saves £'+Math.round(intSaving).toLocaleString('en-GB')+' vs no overpay':'your share, sunk cost';
+
+  const infl=simWith.inflectionMonth;
+  if(infl){
+    const withinHold=infl<=holdMonths;
+    document.getElementById('k_infl').textContent='Mo. '+infl;
+    document.getElementById('k_infl_sub').textContent=(withinHold?'within hold · ':'beyond hold · ')+'yr '+(infl/12).toFixed(1);
+  } else {
+    document.getElementById('k_infl').textContent='N/A';
+    document.getElementById('k_infl_sub').textContent='not reached in term';
+  }
+
+  const mr=rate/100/12;
+  const m1i=loanAmt*mr, m1p=totalPmt-m1i, m1pct=(m1p/totalPmt)*100;
+  document.getElementById('m1_int').textContent='£'+Math.round(m1i).toLocaleString('en-GB');
+  document.getElementById('m1_prin').textContent='£'+Math.round(m1p).toLocaleString('en-GB');
+  document.getElementById('m1_pct').textContent=m1pct.toFixed(1)+'%';
+  document.getElementById('m1_bar').style.width=Math.min(100,m1pct).toFixed(1)+'%';
+  document.getElementById('m1_bar').style.background=m1pct>=50?'var(--green)':'var(--red)';
+  document.getElementById('holdYrLabel').textContent=hold;
+  const holdEndPct=simWith.eqPcts[holdMonths-1]||0;
+  document.getElementById('holdEnd_pct').textContent=holdEndPct.toFixed(1)+'%';
+
+  document.getElementById('r_dep').textContent=f(depEach);
+  document.getElementById('r_reno').textContent=f(renoSpend*share);
+  document.getElementById('r_prin').textContent=f(prinEachFinal);
+  document.getElementById('r_buy').textContent=f(scen1.yourBuyCosts);
+  document.getElementById('r_int').textContent=f(intEachFinal);
+  document.getElementById('r_sunk').textContent=f(sunk);
+
+  document.getElementById('aA_sale').textContent=f(salePrice);
+  document.getElementById('aA_mort').textContent='-'+f(scen1.balAtExit);
+  document.getElementById('aA_saleCosts').textContent='-'+f(saleCostsTotal*share);
+  document.getElementById('aA_receive').textContent=f(scen1.receive);
+  document.getElementById('aA_sunk').textContent='-'+f(scen1.sunk);
+  document.getElementById('aA_profit').textContent=f(scen1.profit);
+  document.getElementById('aA_roi').textContent=scen1.sunk>0?Math.round((scen1.profit/scen1.sunk)*100)+'% return on true cost':'—';
+
+  document.getElementById('aC_surplus').textContent=fmo((rentAmt-scen2.totalPmt)*share);
+  document.getElementById('aC_rental').textContent=(scen2.rentalTotal>=0?'+':'')+f(scen2.rentalTotal);
+  document.getElementById('aC_saleprofit').textContent=f(scen1.profit);
+  document.getElementById('aC_cgt').textContent='-'+f(scen2.cgt);
+  document.getElementById('aC_profit').textContent=f(scen2.profit);
+  document.getElementById('aC_roi').textContent=(scen2.profit>=scen1.profit?'+':'')+f(scen2.profit-scen1.profit)+' vs Live in';
+
+  const lbls=[],eqW=[],eqN=[],eq50=[];
+  for(let m=0;m<holdMonths;m++){
+    lbls.push(monthLabel(m+1));
+    eqW.push(+(simWith.eqPcts[m]||0).toFixed(2));
+    eqN.push(+(simNone.eqPcts[m]||0).toFixed(2));
+    eq50.push(50);
+  }
+  eqChart.data.labels=lbls; eqChart.data.datasets[0].data=eqW; eqChart.data.datasets[1].data=eqN; eqChart.data.datasets[2].data=eq50; eqChart.update();
+
+  const bLbls=[],bWith=[],bStd=[];
+  for(let m=0;m<=holdMonths;m++){
+    bLbls.push(monthLabel(m+1));
+    bWith.push(+(simWith.bals[m]||0).toFixed(0));
+    bStd.push(+(simNone.bals[m]||0).toFixed(0));
+  }
+  balChart.data.labels=bLbls; balChart.data.datasets[0].data=bWith; balChart.data.datasets[1].data=bStd; balChart.update();
+
+  const scen1Std = calcExitScenario(ftbType, true, false, false, ctx, {overpay:0});
+  const scen2Std = calcExitScenario(ftbType, false, true, false, ctx, {overpay:0});
+  profChart.data.datasets[0].data=[Math.round(scen1.profit),Math.round(scen2.profit)];
+  profChart.data.datasets[1].data=[Math.round(scen1Std.profit),Math.round(scen2Std.profit)];
+  profChart.update();
+
+  const rateStress=parseFloat(document.getElementById('stRateS').value);
+  const voidMonths=parseInt(document.getElementById('stVoidS').value);
+  const fallPct=parseFloat(document.getElementById('stFallS').value);
+  document.getElementById('stRateO').textContent='+'+rateStress.toFixed(2)+'%';
+  document.getElementById('stVoidO').textContent=voidMonths+' mo';
+  document.getElementById('stFallO').textContent=fallPct+'%';
+  const stressedRate=rate+rateStress;
+  const stressedSalePrice=salePrice*(1-fallPct/100);
+  const stressOverrides={rate:stressedRate,salePrice:stressedSalePrice,overpay:0,voidMonths:voidMonths};
+
+  const scen1Stress = calcExitScenario(ftbType, true, false, false, ctx, {rate:stressedRate,salePrice:stressedSalePrice,overpay:0});
+  const scen2Stress = calcExitScenario(ftbType, false, true, false, ctx, stressOverrides);
+
+  const baseEquity1 = salePrice*share - scen1.balAtExit*share;
+  const stressEquity1 = stressedSalePrice*share - scen1Stress.balAtExit*share;
+  document.getElementById('stA_base').textContent=f(baseEquity1);
+  document.getElementById('stA_stress').textContent=f(stressEquity1);
+  document.getElementById('stA_text').innerHTML='A '+rateStress.toFixed(2)+'-point rate rise (overpayments stopped) and a '+fallPct+'% price fall together take <strong>'+f(baseEquity1-stressEquity1)+'</strong> off your equity at exit.';
+
+  document.getElementById('stC_base').textContent=f(scen2.profit);
+  document.getElementById('stC_stress').textContent=f(scen2Stress.profit);
+  document.getElementById('stC_text').innerHTML='Add a '+voidMonths+'-month void on top of the rate rise and price fall, and the net position falls by <strong>'+f(scen2.profit-scen2Stress.profit)+'</strong>.';
+}
+
+document.getElementById('houseVal').addEventListener('input',e=>{
+  houseVal=parseInt(e.target.value)||10000;
+  loanAmt=houseVal-depositAmt;
+  document.getElementById('loanAmt').value=Math.max(0,loanAmt);
+  loanAmt=Math.max(0,loanAmt);
+  update();
+});
+document.getElementById('depositAmt').addEventListener('input',e=>{
+  depositAmt=parseInt(e.target.value)||0;
+  loanAmt=houseVal-depositAmt;
+  document.getElementById('loanAmt').value=Math.max(0,loanAmt);
+  loanAmt=Math.max(0,loanAmt);
+  update();
+});
+document.getElementById('loanAmt').addEventListener('input',e=>{
+  loanAmt=parseInt(e.target.value)||0;
+  depositAmt=houseVal-loanAmt;
+  document.getElementById('depositAmt').value=Math.max(0,depositAmt);
+  depositAmt=Math.max(0,depositAmt);
+  update();
+});
+
+['otherCosts','renoSpend','renoValue','rentAmt'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',update);
+});
+
+document.getElementById('rS').addEventListener('input',e=>{rate=parseFloat(e.target.value);update();});
+document.getElementById('tS').addEventListener('input',e=>{term=parseInt(e.target.value);update();});
+document.getElementById('hS').addEventListener('input',e=>{hold=parseInt(e.target.value);update();});
+document.getElementById('gS').addEventListener('input',e=>{growth=parseFloat(e.target.value);update();});
+document.getElementById('opS').addEventListener('input',e=>{overpay=parseInt(e.target.value);update();});
+document.getElementById('stRateS').addEventListener('input',update);
+document.getElementById('stVoidS').addEventListener('input',update);
+document.getElementById('stFallS').addEventListener('input',update);
+
+update();
+</script>
+</body>
+</html>

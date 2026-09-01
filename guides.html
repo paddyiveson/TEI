@@ -295,6 +295,17 @@ footer {
         </div>
       </div>
 
+      <div style="background:var(--white);border-radius:var(--radius);border:1px solid rgba(29,53,87,.07);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;">
+        <div style="height:6px;background:var(--navy);"></div>
+        <div style="padding:28px 26px;display:flex;flex-direction:column;flex:1;">
+          <span style="font-size:30px;margin-bottom:14px;display:block;">&#127968;</span>
+          <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;">Property investing</span>
+          <h3 style="font-family:'Playfair Display',serif;font-size:19px;color:var(--navy);margin-bottom:10px;">Property Investment Calculator</h3>
+          <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:22px;flex:1;">See how a property purchase actually works: the mortgage, the equity, the tax, and what could go wrong. Model your own numbers, then stress-test them against a rate rise or a price fall.</p>
+          <a href="/guides/property-calculator.html" style="width:100%;padding:13px;background:var(--navy);color:var(--cream);border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;;display:block;text-decoration:none;text-align:center;box-sizing:border-box;">Try the calculator &#8594;</a>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -449,37 +460,14 @@ footer {
 #cow-container .footer-cta:hover{background:var(--gold-dk)}
 
 @media(max-width:580px){
-  #cow-container .calc-body,
-#cow-container .full-result,
-#cow-container .calc-footer,
-#cow-container .partial-result{padding-left:16px;padding-right:16px}
-  #cow-container .calc-header{padding:20px 16px}
-  #cow-container .calc-title{font-size:22px}
+  #cow-container .calc-body,#cow-container .full-result,#cow-container .calc-footer,#cow-container .partial-result{padding-left:20px;padding-right:20px}
+  #cow-container .calc-header{padding:24px 20px}
   #cow-container .inputs-grid{grid-template-columns:1fr}
-  #cow-container .risk-profiles{grid-template-columns:1fr 1fr;gap:6px}
-  #cow-container .risk-btn{padding:10px 6px}
-  #cow-container .risk-btn-name{font-size:11px}
-  #cow-container .risk-btn-return{font-size:10px}
-  #cow-container .risk-btn-desc{display:none}
-  #cow-container .result-grid{grid-template-columns:1fr}
-  #cow-container .quick-stats{grid-template-columns:1fr 1fr}
-  #cow-container .stat-card{padding:12px 10px}
-  #cow-container .diff-block{padding:16px}
-  #cow-container .diff-number{font-size:28px}
+  #cow-container .risk-profiles{grid-template-columns:1fr 1fr}
+  #cow-container .result-grid,#cow-container .quick-stats{grid-template-columns:1fr}
   #cow-container .diff-right{text-align:left}
-  #cow-container .proc-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}
-  #cow-container .proc-tab{min-width:70px;font-size:11px;padding:7px 6px;white-space:nowrap}
-  #cow-container .input-field{font-size:16px;padding:14px}
-  #cow-container .calc-btn{padding:16px;font-size:15px}
-  #cow-container .unlock-btn{padding:16px;font-size:15px}
-  #cow-container .contact-options{gap:6px}
-  #cow-container .contact-opt{padding:8px 12px;font-size:12px}
-  #cow-container .gate{padding:20px 16px}
-  #cow-container .big-number{font-size:48px}
-  #cow-container .partial-number{font-size:48px}
-  #cow-container .info-block{padding:14px 16px}
-  #cow-container .info-text{font-size:12px}
-  #cow-container .goal-output{font-size:13px;padding:14px 16px}
+  #cow-container .proc-tabs{flex-wrap:wrap}
+  #cow-container .proc-tab{min-width:calc(33% - 4px)}
 }
 
 </style>
@@ -1209,15 +1197,57 @@ function selectContact(type) {
   }
 }
 
+/* ---------- Supabase lead capture ----------
+   Writes straight into the public.leads table. This key is the public
+   "anon" key -- it is meant to be visible in client-side code. Safety
+   comes from the table's row-level security policy, which only allows
+   INSERT from anonymous callers, never read/update/delete. */
+var SUPABASE_CONFIG = {
+  url: "https://ztyqijiiayrengvxsqkw.supabase.co",
+  anonKey: "sb_publishable_-ufG5z9acIv49A_TSU0YiQ_D2XNDl92"
+};
+
+function submitLead(type, value) {
+  fetch(SUPABASE_CONFIG.url + "/rest/v1/leads", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_CONFIG.anonKey,
+      "Authorization": "Bearer " + SUPABASE_CONFIG.anonKey,
+      "Prefer": "return=minimal"
+    },
+    body: JSON.stringify({
+      contact_method: type,
+      contact_value: value,
+      source: "cost_of_waiting_calculator"
+    })
+  }).catch(function(err) {
+    console.warn("Lead capture failed:", err);
+  });
+}
+
+function isValidContact(type, value) {
+  if (type === "email") {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+  if (type === "phone") {
+    return /^[\d\s()+-]{7,}$/.test(value);
+  }
+  if (type === "instagram") {
+    return /^@?[a-zA-Z0-9._]{2,30}$/.test(value);
+  }
+  return false;
+}
+
 function unlock() {
-  var val = document.getElementById("cow-contact-val").value.trim();
-  if (!val) {
-    var inp = document.getElementById("cow-contact-val");
+  var inp = document.getElementById("cow-contact-val");
+  var val = inp.value.trim();
+  if (!val || !isValidContact(selectedContact, val)) {
     inp.style.borderColor = "#C0392B";
     setTimeout(function() { inp.style.borderColor = ""; }, 1500);
     return;
   }
-  console.log("Lead captured:", selectedContact, val);
+  submitLead(selectedContact, val);
   document.getElementById("cow-partial-result").style.display = "none";
   document.getElementById("cow-full-result").classList.add("show");
   document.getElementById("cow-calc-footer").style.display = "block";
