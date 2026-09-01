@@ -1190,6 +1190,18 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-completed-date{font-size:12.5px; color:var(--k-ink-softer);}
 
 .k-rowstats{display:flex; gap:22px; margin-top:10px; flex-wrap:wrap;}
+/* .k-boxed-stat's own background (--k-track-bg) flips per theme like an
+   ordinary .dcard's does -- but every .dcard.emphasis text-colour override
+   below (rgba(247,244,237,...) creams) assumes the surrounding card stays
+   dark navy in both themes, same as --k-emphasis-bg itself (fixed, doesn't
+   flip -- see .dcard.emphasis above). Nested inside an emphasis card in
+   LIGHT theme, that left a boxed-stat with light theme's pale tan
+   background but still cream-on-dark text -- near-invisible pale text on a
+   pale box (reported live, Wealth page's Last year performance/Annualised/
+   Return stats). Pin it to the dark-theme value whenever nested in an
+   emphasis card, so it stays a translucent panel on navy regardless of app
+   theme, matching the text colours it's already paired with. */
+.dcard.emphasis .k-boxed-stat{background:rgba(247,244,237,0.14);}
 .k-rowstats .rs, .k-boxed-stat .rs{font-size:13px; color:var(--k-ink-softer);}
 .dcard.emphasis .k-rowstats .rs, .dcard.emphasis .k-boxed-stat .rs{color:rgba(247,244,237,0.7);}
 .k-rowstats .rs b, .k-boxed-stat .rs b, .k-boxed-stat > b{display:block; font-family:var(--font-display); font-size:18px; color:var(--k-ink); margin-top:4px; font-weight:700;}
