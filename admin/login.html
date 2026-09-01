@@ -32,11 +32,13 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
   margin-top: 4px;
 }
 .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.pw-wrap { position: relative; }
-.pw-wrap .login-field { padding-right: 44px; }
+/* Grid overlay, not position:absolute+transform -- see hub/login.html's
+   copy of this comment for why. */
+.pw-wrap { display: grid; align-items: center; }
+.pw-wrap .login-field { grid-area: 1/1; padding-right: 44px; }
 .pw-toggle {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  width: 28px; height: 28px; margin: 0; background: none; border: none;
+  grid-area: 1/1; justify-self: end; margin-right: 8px;
+  width: 28px; height: 28px; background: none; border: none;
   color: rgba(247,244,237,.5); cursor: pointer; padding: 0; line-height: 0;
   display: flex; align-items: center; justify-content: center;
   appearance: none; -webkit-appearance: none;

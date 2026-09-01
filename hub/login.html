@@ -32,11 +32,20 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
   margin-top: 4px;
 }
 .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.pw-wrap { position: relative; }
-.pw-wrap .login-field { padding-right: 44px; }
+/* Overlay the toggle on the field with CSS Grid (both share grid-area 1/1,
+   align-items:center centers each within the shared row) rather than
+   position:absolute + top:50%/translateY(-50%) -- functionally equivalent
+   in theory, but the absolute+transform version kept rendering with visibly
+   more space above the icon than below (reported live, on a confirmed-
+   fresh deploy -- not a caching issue). Grid overlay is the more robust,
+   more commonly-used pattern for exactly this "icon inside a field" case,
+   so switching to it rather than continuing to guess at the transform
+   approach's cause. */
+.pw-wrap { display: grid; align-items: center; }
+.pw-wrap .login-field { grid-area: 1/1; padding-right: 44px; }
 .pw-toggle {
-  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-  width: 28px; height: 28px; margin: 0; background: none; border: none;
+  grid-area: 1/1; justify-self: end; margin-right: 8px;
+  width: 28px; height: 28px; background: none; border: none;
   color: rgba(247,244,237,.5); cursor: pointer; padding: 0; line-height: 0;
   display: flex; align-items: center; justify-content: center;
   appearance: none; -webkit-appearance: none;
