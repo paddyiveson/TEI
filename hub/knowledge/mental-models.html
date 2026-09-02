@@ -11,6 +11,7 @@
   --cream: #F7F4ED; --cream-dk: #EDE8DA;
   --gold: #C9A84C; --gold-dk: #b8922d; --gold-lt: #FBF4E0;
   --wine: #7A2E3A; --wine-dk: #5c2029; --wine-lt: #F5E6E8;
+  --slate: #C4CEE0; --slate-dk: #6B7FA3;
   --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
   --radius: 10px; --shadow: 0 4px 28px rgba(29,53,87,.10);
 }
@@ -56,20 +57,24 @@ select { border: 1px solid rgba(29,53,87,.15); border-radius: 7px; padding: 10px
 /* ---------- model list (rich accordion pattern) ---------- */
 .kl-body { max-width: 900px; margin: 0 auto; padding: 10px 24px 60px; }
 .model-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
-.model-row { background: var(--white); border: 1px solid rgba(29,53,87,.08); border-radius: var(--radius); box-shadow: var(--shadow); scroll-margin-top: 90px; overflow: hidden; }
+.model-row { background: var(--white); border: 1px solid rgba(29,53,87,.08); border-left: 4px solid var(--type-color, var(--gold)); border-radius: var(--radius); box-shadow: var(--shadow); scroll-margin-top: 90px; overflow: hidden; }
 .model-row.highlight { outline: 2px solid var(--wine); outline-offset: 2px; }
 .model-summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; cursor: pointer; }
-.model-summary-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.model-summary-top { display: flex; align-items: baseline; gap: 10px; }
+.model-summary-left { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.model-summary-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .model-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(29,53,87,.32); flex-shrink: 0; }
 .model-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 16.5px; color: var(--navy); }
-.model-teaser { font-size: 12.5px; color: var(--mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.model-type { display: inline-flex; align-items: center; gap: 5px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--type-color, var(--gold-dk)); }
+.model-type-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--type-color, var(--gold)); flex-shrink: 0; }
+.model-teaser { font-family: 'Playfair Display', serif; font-style: italic; font-size: 13.5px; color: var(--mid); line-height: 1.4; }
+.model-teaser::before, .model-teaser::after { content: '"'; color: var(--type-color, var(--wine)); }
 .model-chevron { font-size: 11px; color: var(--wine); flex-shrink: 0; transition: transform .2s; }
 .model-row.open .model-chevron { transform: rotate(180deg); }
 .model-panel { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
 .model-panel-inner { padding: 4px 20px 20px; border-top: 1px dashed rgba(29,53,87,.12); margin: 0 20px; }
 .model-field { margin-top: 14px; }
-.model-field-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--wine-dk); font-weight: 700; margin-bottom: 4px; }
+.model-field-label { display: flex; align-items: center; gap: 6px; font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--wine-dk); font-weight: 700; margin-bottom: 4px; }
+.model-field-label svg { color: var(--type-color, var(--wine-dk)); flex-shrink: 0; }
 .model-field-body { font-size: 13px; color: var(--text); line-height: 1.55; }
 .model-tags { margin-top: 14px; display: flex; gap: 6px; flex-wrap: wrap; }
 .tag { font-size: 9.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; cursor: pointer; border: none; font-family: inherit; }
@@ -85,7 +90,6 @@ select { border: 1px solid rgba(29,53,87,.15); border-radius: 7px; padding: 10px
 @media(max-width: 700px) {
   nav { padding: 0 20px; } .nav-links { display:none; }
   .kl-body { padding: 10px 16px 48px; }
-  .model-teaser { display: none; }
 }
 </style>
 </head>
@@ -216,17 +220,33 @@ function relatedLink(id){
   return `<a onclick="event.stopPropagation();openAndScroll('${id}')">${esc(label)}</a>`;
 }
 
+const TYPES = {
+  reasoning: { label: "Reasoning & Judgment", color: "var(--gold-dk)" },
+  risk:      { label: "Risk & Valuation",      color: "var(--wine)" },
+  bias:      { label: "Behavioural Bias",      color: "var(--navy-md)" },
+  structure: { label: "Business & Market Structure", color: "var(--slate-dk)" }
+};
+
+const ICONS = {
+  origin: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>',
+  framework: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="4" height="4" rx="1"/><rect x="3" y="10" width="4" height="4" rx="1"/><rect x="3" y="16" width="4" height="4" rx="1"/><path d="M10 6h11M10 12h11M10 18h11"/></svg>',
+  application: '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r=".6" fill="currentColor" stroke="none"/></svg>',
+  related: '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M11 5l1-1a3 3 0 014 4l-1 1"/><path d="M13 19l-1 1a3 3 0 01-4-4l1-1"/></svg>'
+};
+
 function renderRow(d){
   const modTags = [d.mp, d.ms].filter(Boolean).map((m,i)=>moduleTag(m, i===0?d.fit:'soft')).join('');
   const themeTags = (d.t||[]).slice(0,4).map(t=>`<button class="tag tag-theme" onclick="event.stopPropagation();filterByTheme('${esc(t)}')">${esc(t)}</button>`).join('');
   const open = d.id === openId;
   const fwex = d.framework + (d.example ? ' ' + d.example : '');
-  return `<div class="model-row ${open?'open':''}" id="${d.id}">
+  const type = TYPES[d.type] || TYPES.reasoning;
+  return `<div class="model-row ${open?'open':''}" id="${d.id}" style="--type-color:${type.color}">
     <div class="model-summary" onclick="toggleModel('${d.id}')">
       <div class="model-summary-left">
         <div class="model-summary-top">
           <span class="model-num">${String(d.num).padStart(2,'0')}</span>
           <span class="model-name">${esc(d.name)}</span>
+          <span class="model-type"><span class="model-type-dot"></span>${esc(type.label)}</span>
         </div>
         <span class="model-teaser">${esc(d.principle)}</span>
       </div>
@@ -234,12 +254,11 @@ function renderRow(d){
     </div>
     <div class="model-panel" style="${open?'max-height:2000px;':''}">
       <div class="model-panel-inner">
-        <div class="model-field"><div class="model-field-label">Origin</div><div class="model-field-body">${esc(d.origin)}</div></div>
-        <div class="model-field"><div class="model-field-label">Principle</div><div class="model-field-body">${esc(d.principle)}</div></div>
-        <div class="model-field"><div class="model-field-label">Framework</div><div class="model-field-body">${esc(fwex)}</div></div>
-        <div class="model-field"><div class="model-field-label">Investor Application</div><div class="model-field-body">${esc(d.application)}</div></div>
+        <div class="model-field"><div class="model-field-label">${ICONS.origin}Origin</div><div class="model-field-body">${esc(d.origin)}</div></div>
+        <div class="model-field"><div class="model-field-label">${ICONS.framework}Framework</div><div class="model-field-body">${esc(fwex)}</div></div>
+        <div class="model-field"><div class="model-field-label">${ICONS.application}Investor Application</div><div class="model-field-body">${esc(d.application)}</div></div>
         <div class="model-tags">${modTags}${themeTags}</div>
-        ${d.related && d.related.length ? `<div class="model-related">Related models: ${d.related.map(relatedLink).join('')}</div>` : ''}
+        ${d.related && d.related.length ? `<div class="model-related">${ICONS.related} Related models: ${d.related.map(relatedLink).join('')}</div>` : ''}
         <button class="link-btn" onclick="event.stopPropagation();copyLink('${d.id}')">Copy link to this model</button>
       </div>
     </div>
@@ -297,11 +316,11 @@ document.getElementById('themeFilter').addEventListener('change', applyFilters);
 /* PREVIEW SAMPLE -- 5 of 50 confirmed Mental Models (source: V7.0 Category 01-05).
    Remaining ~45 follow the same schema once this sample is approved. */
 DATA = [
-{"id":"circle-of-competence","num":1,"name":"Circle of Competence","origin":"Warren Buffett and Charlie Munger","principle":"You do not need to understand everything. You need to understand what matters and recognise what you do not understand.","framework":"Before investing, ask: Can I explain how this business makes money? Do I understand the industry? Can I identify the key risks? Do I know what would make me wrong?","example":"","application":"This model helps investors avoid investing in unfamiliar industries, following trends blindly, and confusing confidence with competence.","related":["margin-of-safety","inversion"],"mp":"2.1","ms":"5.2","fit":"strong","t":["Circle of Competence"]},
-{"id":"margin-of-safety","num":2,"name":"Margin of Safety","origin":"Benjamin Graham","principle":"Because the future is uncertain, investments should be purchased with a gap between price and estimated value.","framework":"If a business is worth £100 and it is purchased for £60, the margin of safety is 40 percent.","example":"","application":"Ask what could go wrong, what assumptions must be true, and whether you are paying for perfection.","related":["circle-of-competence"],"mp":"5.1","ms":"2.5","fit":"strong","t":["Margin Of Safety"]},
-{"id":"first-principles-thinking","num":3,"name":"First Principles Thinking","origin":"Aristotle, with a modern application by Elon Musk","principle":"Avoid accepting assumptions simply because they are common.","framework":"Instead of asking how everyone else does this, ask what must be true.","example":"A traditional assumption might be that cars must be expensive to manufacture. First principles thinking asks what the raw materials and actual costs really are.","application":"Used for understanding industries, finding disruption, and challenging narratives.","related":["second-order-thinking"],"mp":"5.2","ms":"3.2","fit":"strong","t":["Critical Thinking"]},
-{"id":"second-order-thinking","num":4,"name":"Second-Order Thinking","origin":"Howard Marks","principle":"Most people think about what happens next. Great investors think about what happens after that.","framework":"First order: interest rates are falling. Second order: everyone expects lower rates. Third order: assets may already reflect that optimism.","example":"","application":"Ask what happens next, then ask what happens after that.","related":["first-principles-thinking","inversion"],"mp":"3.4","ms":"4.1","fit":"strong","t":["Second-Level Effects","Decision Making"]},
-{"id":"inversion","num":5,"name":"Inversion","origin":"Charlie Munger","principle":"Avoiding failure is often easier than predicting success.","framework":"Instead of asking how to succeed, ask how to guarantee failure.","example":"Common causes of failure include excessive debt, poor management, overpaying, and no competitive advantage. Avoid these first.","application":"Solving problems backwards surfaces risks that a forward-looking plan can miss.","related":["margin-of-safety","second-order-thinking"],"mp":"2.5","ms":"3.4","fit":"strong","t":["Avoiding Mistakes","Risk"]}
+{"id":"circle-of-competence","num":1,"type":"reasoning","name":"Circle of Competence","origin":"Warren Buffett and Charlie Munger","principle":"You do not need to understand everything. You need to understand what matters and recognise what you do not understand.","framework":"Before investing, ask: Can I explain how this business makes money? Do I understand the industry? Can I identify the key risks? Do I know what would make me wrong?","example":"","application":"This model helps investors avoid investing in unfamiliar industries, following trends blindly, and confusing confidence with competence.","related":["margin-of-safety","inversion"],"mp":"2.1","ms":"5.2","fit":"strong","t":["Circle of Competence"]},
+{"id":"margin-of-safety","num":2,"type":"risk","name":"Margin of Safety","origin":"Benjamin Graham","principle":"Because the future is uncertain, investments should be purchased with a gap between price and estimated value.","framework":"If a business is worth £100 and it is purchased for £60, the margin of safety is 40 percent.","example":"","application":"Ask what could go wrong, what assumptions must be true, and whether you are paying for perfection.","related":["circle-of-competence"],"mp":"5.1","ms":"2.5","fit":"strong","t":["Margin Of Safety"]},
+{"id":"first-principles-thinking","num":3,"type":"reasoning","name":"First Principles Thinking","origin":"Aristotle, with a modern application by Elon Musk","principle":"Avoid accepting assumptions simply because they are common.","framework":"Instead of asking how everyone else does this, ask what must be true.","example":"A traditional assumption might be that cars must be expensive to manufacture. First principles thinking asks what the raw materials and actual costs really are.","application":"Used for understanding industries, finding disruption, and challenging narratives.","related":["second-order-thinking"],"mp":"5.2","ms":"3.2","fit":"strong","t":["Critical Thinking"]},
+{"id":"second-order-thinking","num":4,"type":"structure","name":"Second-Order Thinking","origin":"Howard Marks","principle":"Most people think about what happens next. Great investors think about what happens after that.","framework":"First order: interest rates are falling. Second order: everyone expects lower rates. Third order: assets may already reflect that optimism.","example":"","application":"Ask what happens next, then ask what happens after that.","related":["first-principles-thinking","inversion"],"mp":"3.4","ms":"4.1","fit":"strong","t":["Second-Level Effects","Decision Making"]},
+{"id":"inversion","num":5,"type":"risk","name":"Inversion","origin":"Charlie Munger","principle":"Avoiding failure is often easier than predicting success.","framework":"Instead of asking how to succeed, ask how to guarantee failure.","example":"Common causes of failure include excessive debt, poor management, overpaying, and no competitive advantage. Avoid these first.","application":"Solving problems backwards surfaces risks that a forward-looking plan can miss.","related":["margin-of-safety","second-order-thinking"],"mp":"2.5","ms":"3.4","fit":"strong","t":["Avoiding Mistakes","Risk"]}
 ];
 
 populateFilters();
