@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mental Models -- Knowledge Library -- The Everyday Investor</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
+:root {
+  --navy: #1D3557; --navy-dk: #0f1e3a; --navy-md: #2B4C7E;
+  --cream: #F7F4ED; --cream-dk: #EDE8DA;
+  --gold: #C9A84C; --gold-dk: #b8922d; --gold-lt: #FBF4E0;
+  --wine: #7A2E3A; --wine-dk: #5c2029; --wine-lt: #F5E6E8;
+  --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
+  --radius: 10px; --shadow: 0 4px 28px rgba(29,53,87,.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.6; }
+
+/* ---------- password gate (reused from Client Hub) ---------- */
+#hubGate { position:fixed; inset:0; z-index:5000; background:linear-gradient(160deg,#1D3557 0%,#0f1e3a 100%); display:flex; align-items:center; justify-content:center; padding:24px; }
+#hubGate .box { max-width:380px; width:100%; text-align:center; }
+#hubGate .mark { width:44px; height:44px; border-radius:50%; border:1.5px solid #C9A84C; display:flex; align-items:center; justify-content:center; font-size:20px; color:#C9A84C; margin:0 auto 24px; }
+#hubGate h2 { font-family:'Playfair Display',serif; font-size:24px; color:#F7F4ED; margin-bottom:10px; }
+#hubGate p { font-size:13px; color:rgba(247,244,237,.55); margin-bottom:28px; line-height:1.7; }
+#hubGate input { width:100%; padding:13px 16px; border-radius:8px; border:1.5px solid rgba(255,255,255,.15); background:rgba(255,255,255,.06); color:#F7F4ED; font-size:14px; font-family:'Inter',sans-serif; text-align:center; margin-bottom:14px; outline:none; }
+#hubGate button { width:100%; padding:13px; border-radius:8px; border:none; background:#C9A84C; color:#1D3557; font-size:14px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer; }
+#hubGate .err { font-size:12px; color:#e07a6f; margin-top:14px; display:none; }
+
+/* ---------- nav ---------- */
+nav { background: var(--navy); width: 100%; height: 68px; display: flex; align-items: center; justify-content: space-between; padding: 0 48px; position: sticky; top: 0; z-index: 200; box-shadow: 0 2px 16px rgba(0,0,0,.2); }
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
+.nav-logo-text { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; line-height: 1.35; }
+.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+.nav-links a { color: rgba(247,244,237,.65); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .03em; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+.crumb { color: rgba(247,244,237,.35); font-size: 12px; }
+
+/* ---------- hero / sub-identity band ---------- */
+.kl-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 44px 40px 36px; text-align: center; position: relative; overflow: hidden; }
+.kl-eyebrow { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 12px; }
+.kl-title { font-family: 'Playfair Display', serif; font-size: clamp(26px, 3.6vw, 38px); color: var(--cream); margin-bottom: 8px; }
+.kl-sub { font-size: 13.5px; color: rgba(247,244,237,.55); max-width: 560px; margin: 0 auto; }
+
+/* ---------- controls bar ---------- */
+.controls { max-width: 900px; margin: 0 auto; padding: 22px 24px 0; }
+.controls-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; background: var(--white); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+#searchInput { flex: 1 1 220px; border: 1px solid rgba(29,53,87,.15); border-radius: 7px; padding: 10px 14px; font-size: 13.5px; font-family:'Inter',sans-serif; outline: none; }
+#searchInput:focus { border-color: var(--wine); }
+select { border: 1px solid rgba(29,53,87,.15); border-radius: 7px; padding: 10px 12px; font-size: 12.5px; font-family:'Inter',sans-serif; background: var(--white); color: var(--navy); outline: none; cursor: pointer; }
+.result-count { font-size: 11.5px; color: var(--lt); padding: 10px 20px 4px; }
+.clear-btn { font-size: 11.5px; color: var(--wine); background:none; border:1px solid var(--wine); border-radius: 7px; padding: 9px 12px; cursor:pointer; font-weight:600; }
+.clear-btn:hover { background: var(--wine-lt); }
+
+/* ---------- model list (rich accordion pattern) ---------- */
+.kl-body { max-width: 900px; margin: 0 auto; padding: 10px 24px 60px; }
+.model-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+.model-row { background: var(--white); border: 1px solid rgba(29,53,87,.08); border-radius: var(--radius); box-shadow: var(--shadow); scroll-margin-top: 90px; overflow: hidden; }
+.model-row.highlight { outline: 2px solid var(--wine); outline-offset: 2px; }
+.model-summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; cursor: pointer; }
+.model-summary-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.model-summary-top { display: flex; align-items: baseline; gap: 10px; }
+.model-num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(29,53,87,.32); flex-shrink: 0; }
+.model-name { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 16.5px; color: var(--navy); }
+.model-teaser { font-size: 12.5px; color: var(--mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.model-chevron { font-size: 11px; color: var(--wine); flex-shrink: 0; transition: transform .2s; }
+.model-row.open .model-chevron { transform: rotate(180deg); }
+.model-panel { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+.model-panel-inner { padding: 4px 20px 20px; border-top: 1px dashed rgba(29,53,87,.12); margin: 0 20px; }
+.model-field { margin-top: 14px; }
+.model-field-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--wine-dk); font-weight: 700; margin-bottom: 4px; }
+.model-field-body { font-size: 13px; color: var(--text); line-height: 1.55; }
+.model-tags { margin-top: 14px; display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 9.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; cursor: pointer; border: none; font-family: inherit; }
+.tag-module { background: var(--wine-lt); color: var(--wine-dk); font-family:'IBM Plex Mono',monospace; }
+.tag-module.soft { opacity: .55; border: 1px dashed var(--wine); background: transparent; }
+.tag-theme { background: var(--cream-dk); color: var(--navy-md); }
+.model-related { margin-top: 14px; font-size: 12px; color: var(--mid); }
+.model-related a { color: var(--wine); text-decoration: underline; cursor: pointer; margin-right: 10px; }
+.link-btn { font-size: 10px; color: var(--wine); background:none; border:none; cursor:pointer; text-decoration: underline; padding:0; margin-top: 14px; display: inline-block; }
+
+.empty-state { text-align:center; padding: 60px 20px; color: var(--lt); font-size: 13.5px; }
+
+@media(max-width: 700px) {
+  nav { padding: 0 20px; } .nav-links { display:none; }
+  .kl-body { padding: 10px 16px 48px; }
+  .model-teaser { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div id="hubGate">
+  <div class="box">
+    <div class="mark">&#10022;</div>
+    <h2>Client Hub</h2>
+    <p>This area is for TEI clients. Enter the password you were given to continue.</p>
+    <input type="password" id="hubGatePw" placeholder="Password">
+    <button onclick="hubGateCheck()">Enter</button>
+    <p class="err" id="hubGateError">That password isn't right. Try again.</p>
+  </div>
+</div>
+
+<nav>
+  <a class="nav-logo" href="../index.html">
+    <div class="nav-logo-mark">&#10022;</div>
+    <span class="nav-logo-text">The Everyday<br>Investor</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="../index.html">Dashboard</a></li>
+    <li><a href="../suite.html">Investment Suite</a></li>
+    <li><a href="../education/index.html">Learn</a></li>
+    <li><a href="index.html">Knowledge Library</a></li>
+    <li class="crumb">/ Mental Models</li>
+  </ul>
+</nav>
+
+<div class="kl-hero">
+  <p class="kl-eyebrow">Knowledge Library — 03 — PREVIEW SAMPLE</p>
+  <h1 class="kl-title">Mental Models</h1>
+  <p class="kl-sub">Investor thinking frameworks, mapped to the real TEI curriculum. Search, filter by module or theme, and expand any model for the full framework. This preview holds 5 of the 50 models confirmed in the source material -- the rest are built once this structure is approved.</p>
+</div>
+
+<div class="controls">
+  <div class="controls-row">
+    <input type="text" id="searchInput" placeholder="Search models, principles, themes...">
+    <select id="moduleFilter"><option value="">All Modules</option></select>
+    <select id="themeFilter"><option value="">All Themes</option></select>
+    <button class="clear-btn" onclick="clearFilters()">Clear</button>
+  </div>
+  <div class="result-count" id="resultCount"></div>
+</div>
+
+<div class="kl-body">
+  <div class="model-list" id="modelList"></div>
+</div>
+
+<script>
+const MODULE_NAMES = {
+  "1.1":"1.1 Financial Foundations","1.2":"1.2 Investor Mindset",
+  "2.1":"2.1 Investing Fundamentals","2.2":"2.2 UK Investment Wrappers","2.3":"2.3 How Markets Work","2.4":"2.4 Businesses Create Value","2.5":"2.5 Risk, Time & Diversification",
+  "3.1":"3.1 Understanding Investment Approaches","3.2":"3.2 How Investors Think About Businesses","3.3":"3.3 Reading Financial Information","3.4":"3.4 Decision-Making Frameworks","3.5":"3.5 Portfolio Principles",
+  "4.1":"4.1 Investment Psychology & Behavioural Discipline","4.2":"4.2 Market History Through Volatility",
+  "5.1":"5.1 Valuation Concepts","5.2":"5.2 Business Analysis at Depth","5.3":"5.3 Investment Analysis Frameworks","5.4":"5.4 Portfolio Construction Theory","5.5":"5.5 Explaining Your Own Investment Thinking"
+};
+
+let DATA = [];
+let filtered = [];
+let openId = null;
+
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+function populateFilters(){
+  const modSel = document.getElementById('moduleFilter');
+  const usedModules = [...new Set(DATA.map(d=>d.mp).filter(Boolean))].sort();
+  usedModules.forEach(m=>{
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = MODULE_NAMES[m] || m;
+    modSel.appendChild(opt);
+  });
+  const themeCounts = {};
+  DATA.forEach(d => (d.t||[]).forEach(th => themeCounts[th] = (themeCounts[th]||0)+1));
+  const themeSel = document.getElementById('themeFilter');
+  Object.keys(themeCounts).sort((a,b)=>themeCounts[b]-themeCounts[a]).forEach(th=>{
+    const opt = document.createElement('option');
+    opt.value = th; opt.textContent = `${th} (${themeCounts[th]})`;
+    themeSel.appendChild(opt);
+  });
+}
+
+function applyFilters(){
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const mod = document.getElementById('moduleFilter').value;
+  const theme = document.getElementById('themeFilter').value;
+  filtered = DATA.filter(d=>{
+    if (mod && d.mp !== mod && d.ms !== mod) return false;
+    if (theme && !(d.t||[]).includes(theme)) return false;
+    if (q){
+      const hay = (d.name+' '+d.principle+' '+d.framework+' '+d.application+' '+(d.t||[]).join(' ')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  filtered.sort((a,b)=>a.num-b.num);
+  render();
+}
+
+function clearFilters(){
+  document.getElementById('searchInput').value='';
+  document.getElementById('moduleFilter').value='';
+  document.getElementById('themeFilter').value='';
+  applyFilters();
+}
+
+function moduleTag(id, fit){
+  if (!id) return '';
+  const cls = fit==='soft' ? 'tag tag-module soft' : 'tag tag-module';
+  return `<button class="${cls}" onclick="event.stopPropagation();filterByModule('${id}')">${id}</button>`;
+}
+
+function filterByModule(id){
+  document.getElementById('moduleFilter').value = id;
+  applyFilters();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function filterByTheme(t){
+  document.getElementById('themeFilter').value = t;
+  applyFilters();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function relatedLink(id){
+  const d = DATA.find(x=>x.id===id);
+  const label = d ? d.name : id;
+  return `<a onclick="event.stopPropagation();openAndScroll('${id}')">${esc(label)}</a>`;
+}
+
+function renderRow(d){
+  const modTags = [d.mp, d.ms].filter(Boolean).map((m,i)=>moduleTag(m, i===0?d.fit:'soft')).join('');
+  const themeTags = (d.t||[]).slice(0,4).map(t=>`<button class="tag tag-theme" onclick="event.stopPropagation();filterByTheme('${esc(t)}')">${esc(t)}</button>`).join('');
+  const open = d.id === openId;
+  const fwex = d.framework + (d.example ? ' ' + d.example : '');
+  return `<div class="model-row ${open?'open':''}" id="${d.id}">
+    <div class="model-summary" onclick="toggleModel('${d.id}')">
+      <div class="model-summary-left">
+        <div class="model-summary-top">
+          <span class="model-num">${String(d.num).padStart(2,'0')}</span>
+          <span class="model-name">${esc(d.name)}</span>
+        </div>
+        <span class="model-teaser">${esc(d.principle)}</span>
+      </div>
+      <span class="model-chevron">&#9660;</span>
+    </div>
+    <div class="model-panel" style="${open?'max-height:2000px;':''}">
+      <div class="model-panel-inner">
+        <div class="model-field"><div class="model-field-label">Origin</div><div class="model-field-body">${esc(d.origin)}</div></div>
+        <div class="model-field"><div class="model-field-label">Principle</div><div class="model-field-body">${esc(d.principle)}</div></div>
+        <div class="model-field"><div class="model-field-label">Framework</div><div class="model-field-body">${esc(fwex)}</div></div>
+        <div class="model-field"><div class="model-field-label">Investor Application</div><div class="model-field-body">${esc(d.application)}</div></div>
+        <div class="model-tags">${modTags}${themeTags}</div>
+        ${d.related && d.related.length ? `<div class="model-related">Related models: ${d.related.map(relatedLink).join('')}</div>` : ''}
+        <button class="link-btn" onclick="event.stopPropagation();copyLink('${d.id}')">Copy link to this model</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function copyLink(id){
+  const url = window.location.origin + window.location.pathname + '#' + id;
+  navigator.clipboard && navigator.clipboard.writeText(url);
+}
+
+function toggleModel(id){
+  openId = (openId === id) ? null : id;
+  render();
+}
+
+function openAndScroll(id){
+  openId = id;
+  render();
+  setTimeout(()=>{
+    const el = document.getElementById(id);
+    if (el){ el.scrollIntoView({behavior:'smooth', block:'center'}); }
+  }, 60);
+}
+
+function render(){
+  const list = document.getElementById('modelList');
+  const total = filtered.length;
+  document.getElementById('resultCount').textContent = total ? `${total} model${total!==1?'s':''}` : '';
+  if (!total){
+    list.innerHTML = '<div class="empty-state">No models match those filters. Try clearing one.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(renderRow).join('');
+}
+
+function handleDeepLink(){
+  const hash = window.location.hash.replace('#','');
+  if (!hash) return;
+  const d = filtered.find(x=>x.id===hash);
+  if (!d) return;
+  openId = hash;
+  render();
+  setTimeout(()=>{
+    const el = document.getElementById(hash);
+    if (el){ el.scrollIntoView({behavior:'smooth', block:'center'}); el.classList.add('highlight'); }
+  }, 60);
+}
+
+document.getElementById('searchInput').addEventListener('input', applyFilters);
+document.getElementById('moduleFilter').addEventListener('change', applyFilters);
+document.getElementById('themeFilter').addEventListener('change', applyFilters);
+
+/* ===== DATA ===== */
+/* PREVIEW SAMPLE -- 5 of 50 confirmed Mental Models (source: V7.0 Category 01-05).
+   Remaining ~45 follow the same schema once this sample is approved. */
+DATA = [
+{"id":"circle-of-competence","num":1,"name":"Circle of Competence","origin":"Warren Buffett and Charlie Munger","principle":"You do not need to understand everything. You need to understand what matters and recognise what you do not understand.","framework":"Before investing, ask: Can I explain how this business makes money? Do I understand the industry? Can I identify the key risks? Do I know what would make me wrong?","example":"","application":"This model helps investors avoid investing in unfamiliar industries, following trends blindly, and confusing confidence with competence.","related":["margin-of-safety","inversion"],"mp":"2.1","ms":"5.2","fit":"strong","t":["Circle of Competence"]},
+{"id":"margin-of-safety","num":2,"name":"Margin of Safety","origin":"Benjamin Graham","principle":"Because the future is uncertain, investments should be purchased with a gap between price and estimated value.","framework":"If a business is worth £100 and it is purchased for £60, the margin of safety is 40 percent.","example":"","application":"Ask what could go wrong, what assumptions must be true, and whether you are paying for perfection.","related":["circle-of-competence"],"mp":"5.1","ms":"2.5","fit":"strong","t":["Margin Of Safety"]},
+{"id":"first-principles-thinking","num":3,"name":"First Principles Thinking","origin":"Aristotle, with a modern application by Elon Musk","principle":"Avoid accepting assumptions simply because they are common.","framework":"Instead of asking how everyone else does this, ask what must be true.","example":"A traditional assumption might be that cars must be expensive to manufacture. First principles thinking asks what the raw materials and actual costs really are.","application":"Used for understanding industries, finding disruption, and challenging narratives.","related":["second-order-thinking"],"mp":"5.2","ms":"3.2","fit":"strong","t":["Critical Thinking"]},
+{"id":"second-order-thinking","num":4,"name":"Second-Order Thinking","origin":"Howard Marks","principle":"Most people think about what happens next. Great investors think about what happens after that.","framework":"First order: interest rates are falling. Second order: everyone expects lower rates. Third order: assets may already reflect that optimism.","example":"","application":"Ask what happens next, then ask what happens after that.","related":["first-principles-thinking","inversion"],"mp":"3.4","ms":"4.1","fit":"strong","t":["Second-Level Effects","Decision Making"]},
+{"id":"inversion","num":5,"name":"Inversion","origin":"Charlie Munger","principle":"Avoiding failure is often easier than predicting success.","framework":"Instead of asking how to succeed, ask how to guarantee failure.","example":"Common causes of failure include excessive debt, poor management, overpaying, and no competitive advantage. Avoid these first.","application":"Solving problems backwards surfaces risks that a forward-looking plan can miss.","related":["margin-of-safety","second-order-thinking"],"mp":"2.5","ms":"3.4","fit":"strong","t":["Avoiding Mistakes","Risk"]}
+];
+
+populateFilters();
+applyFilters();
+handleDeepLink();
+
+/* ---------- password gate logic ---------- */
+(function() {
+  if (sessionStorage.getItem("hubUnlocked") === "yes") {
+    document.getElementById("hubGate").style.display = "none";
+  }
+})();
+function hubGateCheck() {
+  const input = document.getElementById("hubGatePw");
+  const error = document.getElementById("hubGateError");
+  if (input.value === "TEI") {
+    sessionStorage.setItem("hubUnlocked", "yes");
+    document.getElementById("hubGate").style.display = "none";
+  } else {
+    error.style.display = "block";
+    input.value = "";
+    input.focus();
+  }
+}
+document.getElementById('hubGatePw').addEventListener('keydown', e=>{ if(e.key==='Enter') hubGateCheck(); });
+</script>
+</body>
+</html>
