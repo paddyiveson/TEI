@@ -7231,12 +7231,44 @@ TEI.render = TEI.render || {};
   function goStage(id){ state.stage=id; renderStageBody(); renderStepper(); }
   function renderStageBody(){
     const el = document.getElementById('labStageBody');
+    if(!el) return;
+
+    // Every amount/target/cap field re-renders this whole section on each keystroke
+    // (the derived totals below it need to react live), which recreates every <input>
+    // including the one being typed into -- dropping focus and the cursor position.
+    // Left alone, the browser's default response to a focused element vanishing mid-
+    // layout is to fall back to scrolling the page to the top, which is what "jumps to
+    // the top after one character" was: not a page reload, a focus loss. Capture the
+    // active field (and its cursor, where the input type supports it) and the scroll
+    // position before the rebuild, then restore both after re-wiring events. Number
+    // inputs don't support selectionStart/selectionEnd in every browser, hence the guard.
+    const active = document.activeElement;
+    let refocusSelector = null, selStart = null, selEnd = null;
+    if(active && el.contains(active)){
+      if(active.dataset && active.dataset.amtval) refocusSelector = `[data-amtval="${CSS.escape(active.dataset.amtval)}"]`;
+      else if(active.dataset && active.dataset.targetid) refocusSelector = `[data-targetid="${CSS.escape(active.dataset.targetid)}"]`;
+      else if(active.id) refocusSelector = '#'+CSS.escape(active.id);
+      if(refocusSelector){
+        try { selStart = active.selectionStart; selEnd = active.selectionEnd; } catch(e){ /* type=number: no selection API */ }
+      }
+    }
+    const scrollY = window.scrollY;
+
     if(state.stage==='analyse') el.innerHTML = analyseHTML();
     else if(state.stage==='optimise') el.innerHTML = optimiseHTML();
     else if(state.stage==='compare') el.innerHTML = compareHTML();
     else if(state.stage==='implement') el.innerHTML = implementHTML();
     else if(state.stage==='results') el.innerHTML = resultsHTML();
     wireStageEvents();
+
+    if(refocusSelector){
+      const toFocus = el.querySelector(refocusSelector);
+      if(toFocus){
+        toFocus.focus({preventScroll:true});
+        if(selStart!=null){ try { toFocus.setSelectionRange(selStart, selEnd); } catch(e){} }
+      }
+    }
+    window.scrollTo({top:scrollY, behavior:'auto'});
   }
 
   /* ---- Stage I: Analyse ---- */
