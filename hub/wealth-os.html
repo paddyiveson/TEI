@@ -7231,12 +7231,44 @@ TEI.render = TEI.render || {};
   function goStage(id){ state.stage=id; renderStageBody(); renderStepper(); }
   function renderStageBody(){
     const el = document.getElementById('labStageBody');
+    if(!el) return;
+
+    // Every amount/target/cap field re-renders this whole section on each keystroke
+    // (the derived totals below it need to react live), which recreates every <input>
+    // including the one being typed into -- dropping focus and the cursor position.
+    // Left alone, the browser's default response to a focused element vanishing mid-
+    // layout is to fall back to scrolling the page to the top, which is what "jumps to
+    // the top after one character" was: not a page reload, a focus loss. Capture the
+    // active field (and its cursor, where the input type supports it) and the scroll
+    // position before the rebuild, then restore both after re-wiring events. Number
+    // inputs don't support selectionStart/selectionEnd in every browser, hence the guard.
+    const active = document.activeElement;
+    let refocusSelector = null, selStart = null, selEnd = null;
+    if(active && el.contains(active)){
+      if(active.dataset && active.dataset.amtval) refocusSelector = `[data-amtval="${CSS.escape(active.dataset.amtval)}"]`;
+      else if(active.dataset && active.dataset.targetid) refocusSelector = `[data-targetid="${CSS.escape(active.dataset.targetid)}"]`;
+      else if(active.id) refocusSelector = '#'+CSS.escape(active.id);
+      if(refocusSelector){
+        try { selStart = active.selectionStart; selEnd = active.selectionEnd; } catch(e){ /* type=number: no selection API */ }
+      }
+    }
+    const scrollY = window.scrollY;
+
     if(state.stage==='analyse') el.innerHTML = analyseHTML();
     else if(state.stage==='optimise') el.innerHTML = optimiseHTML();
     else if(state.stage==='compare') el.innerHTML = compareHTML();
     else if(state.stage==='implement') el.innerHTML = implementHTML();
     else if(state.stage==='results') el.innerHTML = resultsHTML();
     wireStageEvents();
+
+    if(refocusSelector){
+      const toFocus = el.querySelector(refocusSelector);
+      if(toFocus){
+        toFocus.focus({preventScroll:true});
+        if(selStart!=null){ try { toFocus.setSelectionRange(selStart, selEnd); } catch(e){} }
+      }
+    }
+    window.scrollTo({top:scrollY, behavior:'auto'});
   }
 
   /* ---- Stage I: Analyse ---- */
@@ -7357,7 +7389,7 @@ TEI.render = TEI.render || {};
             <input type="checkbox" data-amtcheck="${idPrefix}:${h.id}" ${selectedIds.has(h.id)?'checked':''}>
             <span class="cl-name">${h.name}</span>
             <span class="cl-meta">${h.account}</span>
-            ${selectedIds.has(h.id) ? `<input type="number" class="amt-input" data-amtval="${idPrefix}:${h.id}" value="${amounts[h.id]!==undefined?amounts[h.id]:''}" placeholder="${placeholderFor(h)}" min="0" ${state.moveUnit==='%'?'max="100"':''} step="${state.moveUnit==='£'?'50':'1'}" onclick="event.stopPropagation()">` : ''}
+            ${selectedIds.has(h.id) ? `<input type="text" inputmode="decimal" class="amt-input" data-amtval="${idPrefix}:${h.id}" value="${amounts[h.id]!==undefined?amounts[h.id]:''}" placeholder="${placeholderFor(h)}" onclick="event.stopPropagation()">` : ''}
           </label>
         `).join('')}
       </div>
@@ -7565,7 +7597,7 @@ TEI.render = TEI.render || {};
         <div class="lab-field-row">
           <div>
             <span class="lab-field-label">Maximum weight per holding</span>
-            <input type="number" class="lab-num-input" id="labCapInput" value="${state.capPct}" min="1" max="100">
+            <input type="text" inputmode="decimal" class="lab-num-input" id="labCapInput" value="${state.capPct}">
           </div>
         </div>
         ${checklistHTML('Where does the excess go?', 'Tick as many holdings as you like — the excess splits proportionally across whatever is checked. Holdings already over the cap aren’t eligible destinations.')}
@@ -7617,7 +7649,7 @@ TEI.render = TEI.render || {};
       return `
         <div class="lab-subhead">Enter target weights</div>
         <div class="lab-subhead-note">Type a % for each holding — the Lab shows the trades required, it doesn't suggest the split.</div>
-        ${base.map(h=>`<div class="lab-target-row"><span class="tg-name">${h.name}</span><span class="tg-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tg-arrow">→</span><input type="number" class="lab-target-input" data-targetid="${h.id}" value="${state.targetWeights[h.id]!==undefined?state.targetWeights[h.id]:''}" min="0" max="100" step="0.5" placeholder="0.0"></div>`).join('')}
+        ${base.map(h=>`<div class="lab-target-row"><span class="tg-name">${h.name}</span><span class="tg-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tg-arrow">→</span><input type="text" inputmode="decimal" class="lab-target-input" data-targetid="${h.id}" value="${state.targetWeights[h.id]!==undefined?state.targetWeights[h.id]:''}" placeholder="0.0"></div>`).join('')}
         <div class="lab-target-total-row ${ok?'ok':'warn'}"><span>Total allocated</span><span>${fmtPct(sum)}${ok?' ✓':' — must total 100%'}</span></div>
       `;
     }
@@ -7886,6 +7918,19 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------------------- events ---------------------------- */
+  // The amount/cap/target fields are type="text" (not type="number") specifically so the
+  // cursor can be preserved across renderStageBody()'s per-keystroke re-render above --
+  // Chrome throws on selectionStart/setSelectionRange for type="number", which otherwise
+  // resets the caret to 0 on every character and reverses whatever's typed. Since a plain
+  // text field accepts any character, strip anything that isn't part of a number here,
+  // fixing the cursor to the end of the field on the (rare) occasion a stray character
+  // needed removing rather than trying to track exactly where it was deleted from.
+  function sanitizeNumericInput(e){
+    const raw = e.target.value;
+    const cleaned = raw.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+    if(cleaned !== raw){ e.target.value = cleaned; e.target.setSelectionRange(cleaned.length, cleaned.length); }
+    return cleaned;
+  }
   function wireStageEvents(){
     document.querySelectorAll('#labStageBody [data-goto]').forEach(b=>b.addEventListener('click', ()=>{ if(!b.disabled) goStage(b.dataset.goto); }));
     document.querySelectorAll('#labStageBody [data-preset]').forEach(b=>b.addEventListener('click', ()=>{
@@ -7910,7 +7955,7 @@ TEI.render = TEI.render || {};
     }));
     const capInput = document.getElementById('labCapInput');
     if(capInput) capInput.addEventListener('input', (e)=>{
-      state.capPct = Number(e.target.value)||0;
+      state.capPct = Number(sanitizeNumericInput(e))||0;
       state.selectedIds = new Set(scenarioPool().map(h=>h.id));
       renderStageBody();
     });
@@ -7926,7 +7971,7 @@ TEI.render = TEI.render || {};
       state.ledgerOpen = false; renderStageBody();
     }));
     document.querySelectorAll('#labStageBody [data-amtval^="src:"]').forEach(inp=>inp.addEventListener('input', (e)=>{
-      state.moveSourceAmounts[inp.dataset.amtval.split(':')[1]] = e.target.value; renderStageBody();
+      state.moveSourceAmounts[inp.dataset.amtval.split(':')[1]] = sanitizeNumericInput(e); renderStageBody();
     }));
     document.querySelectorAll('#labStageBody [data-amtcheckall^="src:"]').forEach(b=>b.addEventListener('click', ()=>{
       state.moveSourceIds = b.dataset.amtcheckall.split(':')[1]==='1' ? new Set(moveSourcePool().map(h=>h.id)) : new Set();
@@ -7938,7 +7983,7 @@ TEI.render = TEI.render || {};
       state.ledgerOpen = false; renderStageBody();
     }));
     document.querySelectorAll('#labStageBody [data-amtval^="dst:"]').forEach(inp=>inp.addEventListener('input', (e)=>{
-      state.moveDestAmounts[inp.dataset.amtval.split(':')[1]] = e.target.value; renderStageBody();
+      state.moveDestAmounts[inp.dataset.amtval.split(':')[1]] = sanitizeNumericInput(e); renderStageBody();
     }));
     document.querySelectorAll('#labStageBody [data-amtcheckall^="dst:"]').forEach(b=>b.addEventListener('click', ()=>{
       state.moveDestIds = b.dataset.amtcheckall.split(':')[1]==='1' ? new Set(moveDestPool().map(h=>h.id)) : new Set();
@@ -7958,7 +8003,7 @@ TEI.render = TEI.render || {};
     const raiseCashSlider = document.getElementById('labRaiseCashSlider');
     if(raiseCashSlider) raiseCashSlider.addEventListener('input', (e)=>{ state.raiseCashTargetPct = Number(e.target.value); renderStageBody(); });
     document.querySelectorAll('#labStageBody [data-targetid]').forEach(inp=>inp.addEventListener('input', (e)=>{
-      state.targetWeights[inp.dataset.targetid] = e.target.value; renderStageBody();
+      state.targetWeights[inp.dataset.targetid] = sanitizeNumericInput(e); renderStageBody();
     }));
     const consolidateTarget = document.getElementById('labConsolidateTarget');
     if(consolidateTarget) consolidateTarget.addEventListener('change', (e)=>{ state.consolidateTargetId = e.target.value||null; renderStageBody(); });
