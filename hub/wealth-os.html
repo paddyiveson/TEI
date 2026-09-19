@@ -198,18 +198,8 @@ a{color:inherit;}
    one. */
 .main-inner{max-width:1680px; margin:0 auto;}
 
-/* Mobile-only sidebar drawer trigger/close (mirrors hub/suite.html's pattern).
-   The trigger lives in a proper fixed top bar (.mobile-topbar), not floating
-   loose over page content: it used to be position:sticky as the very first
-   child of <main>, which pins it to the same top-left 54px spot for the
-   entire scroll of every page -- since it sits above normal content in its
-   own stacking context (z-index), whatever heading/card/pill happened to be
-   scrolled to that spot rendered partly behind it. A full-width bar plus
-   matching padding-top on .main-inner (below) reserves that space instead,
-   so nothing ever renders underneath it. */
-.mobile-topbar{display:none; position:fixed; top:0; left:0; right:0; height:54px; z-index:70; background:var(--card-dark); align-items:center; gap:10px; padding:0 16px; box-shadow:0 2px 14px rgba(0,0,0,0.22); border-bottom:1px solid rgba(247,244,237,0.1);}
-.mobile-topbar .mt-brand{display:flex; align-items:center; gap:8px; min-width:0; overflow:hidden;}
-.menu-btn{display:flex; background:rgba(247,244,237,0.08); color:var(--cream); border:1px solid rgba(247,244,237,0.14); border-radius:8px; width:36px; height:36px; align-items:center; justify-content:center; font-size:17px; cursor:pointer; flex:none; -webkit-tap-highlight-color:transparent;}
+/* Mobile-only sidebar drawer trigger/close (mirrors hub/suite.html's pattern) */
+.menu-btn{display:none; position:sticky; top:16px; left:16px; margin:12px 0 0 16px; background:var(--card-dark); color:var(--cream); border:1px solid rgba(247,244,237,0.14); border-radius:8px; width:38px; height:38px; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:60; -webkit-tap-highlight-color:transparent;}
 .sidebar-close{display:none; position:absolute; top:14px; right:12px; background:rgba(247,244,237,0.08); border:1px solid rgba(247,244,237,0.14); border-radius:6px; width:30px; height:30px; align-items:center; justify-content:center; font-size:18px; line-height:1; color:rgba(247,244,237,0.7); cursor:pointer;}
 .scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:90; opacity:0; transition:opacity .3s; pointer-events:none;}
 .scrim.visible{opacity:1; pointer-events:auto;}
@@ -217,8 +207,7 @@ a{color:inherit;}
 @media(max-width:900px){
   .sidebar{position:fixed; top:0; left:0; bottom:0; transform:translateX(-100%); transition:transform .3s ease; box-shadow:4px 0 24px rgba(0,0,0,.4); z-index:100;}
   .sidebar.open{transform:translateX(0);}
-  .mobile-topbar{display:flex;}
-  .main-inner{padding-top:54px;}
+  .menu-btn{display:flex;}
   .sidebar-close{display:flex;}
   .scrim{display:block;}
   .wrap{padding-left:18px; padding-right:18px;}
@@ -1482,20 +1471,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-pill-toggle button{border:none; background:transparent; padding:6px 14px; border-radius:16px; font-size:12.5px; font-weight:600; color:var(--k-ink-softer); cursor:pointer; font-family:var(--font-body);}
 .k-pill-toggle button.active{background:var(--k-card-bg); color:var(--k-ink); box-shadow:0 1px 2px rgba(0,0,0,0.08);}
 .k-pill-toggle button .n{font-weight:400; opacity:0.7; margin-left:3px;}
-/* #analysisScopeToggle (the Lab's "All Portfolio / per-account" switch, see
-   wireAnalysisScope) is the one .k-pill-toggle whose button labels are
-   arbitrary account names + balances rather than short fixed copy, so on a
-   phone it's the one instance long enough to wrap onto several ragged lines
-   instead of reading as a single control. Scoped to its id rather than
-   changing .k-pill-toggle generally, since every other toggle on this page
-   (timeframe, scenario, etc.) already fits one row fine and shouldn't switch
-   to scrolling just because this one needs to. */
-@media(max-width:700px){
-  #analysisScopeRow{min-width:0; max-width:100%;}
-  #analysisScopeToggle{flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; min-width:0; max-width:100%;}
-  #analysisScopeToggle::-webkit-scrollbar{display:none;}
-  #analysisScopeToggle button{white-space:nowrap; flex:none;}
-}
 .k-toggle-switch{display:inline-flex; align-items:center; gap:8px; cursor:pointer; font-size:13.5px; font-weight:600; color:var(--k-ink-softer); user-select:none;}
 .k-toggle-switch input{position:absolute; opacity:0; width:0; height:0;}
 .k-toggle-switch .track{position:relative; width:34px; height:18px; border-radius:10px; background:var(--k-track-bg); transition:background .15s; flex:none;}
@@ -1708,10 +1683,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   </aside>
 
   <main class="main">
-    <div class="mobile-topbar">
-      <button type="button" class="menu-btn" id="sidebarMenuBtn" aria-label="Open menu">&#9776;</button>
-      <div class="mt-brand"><span class="nb-mark">TEI</span><span class="nb-divider"></span><span class="nb-sub">Wealth OS</span></div>
-    </div>
+    <button type="button" class="menu-btn" id="sidebarMenuBtn" aria-label="Open menu">&#9776;</button>
     <div class="main-inner">
 
 <div id="loadError" style="display:none; background:var(--oxblood-bg); color:#D68992; text-align:center; padding:16px 20px; font-size:13px;">
@@ -7174,14 +7146,6 @@ TEI.render = TEI.render || {};
     const svgNS='http://www.w3.org/2000/svg';
     const svg=document.createElementNS(svgNS,'svg');
     svg.setAttribute('viewBox',`0 0 ${width} ${height}`); svg.setAttribute('width','100%'); svg.setAttribute('height',height);
-    // Long holding/fund names (e.g. "Emerging Markets") routinely run wider than their
-    // tile, especially on a narrow mobile treemap -- with no clip they'd either bleed
-    // into a neighbouring tile or, for a tile flush against the right edge, get chopped
-    // off hard by the SVG's own viewport boundary. One <clipPath> per tile, reused for
-    // both its text lines, keeps any overrun invisible instead of looking like a bug.
-    const defs=document.createElementNS(svgNS,'defs');
-    svg.appendChild(defs);
-    const clipPrefix = 'tmClip'+Math.random().toString(36).slice(2,8);
     hostEl.insertBefore(svg, hostEl.firstChild);
     const small = opts.small;
     laidOut.forEach((d,i)=>{
@@ -7194,35 +7158,25 @@ TEI.render = TEI.render || {};
       g.appendChild(rect);
       const minLabelW = small?24:34, minLabelH = small?18:24;
       if(rw>=minLabelW && rh>=minLabelH){
-        const clipId = `${clipPrefix}-${i}`;
-        const clipPath=document.createElementNS(svgNS,'clipPath');
-        clipPath.setAttribute('id',clipId);
-        const clipRect=document.createElementNS(svgNS,'rect');
-        clipRect.setAttribute('x',rx); clipRect.setAttribute('y',ry); clipRect.setAttribute('width',rw); clipRect.setAttribute('height',rh);
-        clipPath.appendChild(clipRect);
-        defs.appendChild(clipPath);
-        const labelGroup=document.createElementNS(svgNS,'g');
-        labelGroup.setAttribute('clip-path',`url(#${clipId})`);
-        g.appendChild(labelGroup);
         const t1=document.createElementNS(svgNS,'text');
         t1.setAttribute('x',rx+(small?5:10)); t1.setAttribute('y', ry+(small?13:22));
         t1.setAttribute('fill','#F7F4ED'); t1.setAttribute('font-weight','700');
         t1.setAttribute('font-size', (small? Math.min(10,rw/6) : Math.min(16,rw/6))+'px'); t1.setAttribute('font-family','Inter,sans-serif');
         t1.textContent = d.ticker || d.name; // some holdings genuinely have no ticker on file -- fall back to name rather than a blank tile
-        labelGroup.appendChild(t1);
+        g.appendChild(t1);
         if(!small && rh>44){
           const t2=document.createElementNS(svgNS,'text');
           t2.setAttribute('x',rx+10); t2.setAttribute('y',ry+42);
           t2.setAttribute('fill','rgba(247,244,237,0.85)'); t2.setAttribute('font-size','11.5px'); t2.setAttribute('font-family','Inter,sans-serif');
           t2.textContent = fmtPct(d.weight);
-          labelGroup.appendChild(t2);
+          g.appendChild(t2);
         }
         if(small && rh>=30){
           const t2=document.createElementNS(svgNS,'text');
           t2.setAttribute('x',rx+5); t2.setAttribute('y',ry+25);
           t2.setAttribute('fill','rgba(247,244,237,0.85)'); t2.setAttribute('font-size','9px'); t2.setAttribute('font-family','Inter,sans-serif');
           t2.textContent = fmtPct(d.weight);
-          labelGroup.appendChild(t2);
+          g.appendChild(t2);
         }
       }
       if(tooltipEl){
