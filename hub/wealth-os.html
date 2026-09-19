@@ -1551,6 +1551,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 #clientApp .m-tabs{display:none;}
 /* Mobile-only Home additions: hidden by default so desktop is unchanged. */
 #clientApp .m-ns-pill, #clientApp .m-ns-bar{display:none;}
+/* Mobile-only Wealth additions (segmented switch, ranked lists, Journey stage host). */
+#clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
    the mobile layout can restyle it. Values are identical, so desktop is too. */
 .home-wins{margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);}
@@ -1669,6 +1671,99 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #page-home .home-wins, #page-home [data-m-acc].dcard{margin:0; padding:11px 13px; border-top:0; background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; height:auto !important;}
   #page-home .m-split .home-wins{width:100%;}
   #page-home #monthlyWinsGrid, #page-home #journeyRail{margin-top:8px !important; font-size:13.5px;}
+
+  /* ================= Merged tabs: segmented switch (Wealth now; Plan, Library later) ================= */
+  #clientApp .m-seg{display:flex; order:0; background:var(--k-track-bg); border-radius:10px; padding:3px; gap:2px; margin:0;}
+  #clientApp .m-seg button{flex:1; min-height:36px; margin:0; padding:0 6px; background:none; border:0; border-radius:8px; color:var(--k-ink-softer); font:inherit; font-size:13px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  #clientApp .m-seg button.on{background:var(--k-card-bg); color:var(--k-ink); box-shadow:0 1px 2px rgba(0,0,0,0.12);}
+  #clientApp .m-seg button:focus-visible{outline:2px solid var(--gold); outline-offset:-2px;}
+  #clientApp [data-m-acc].dcard{height:auto !important; padding:11px 13px;}
+
+  /* -- Wealth pages become a flex column so sections can be re-ordered and
+        filtered per view. display:contents lets nested wrappers step aside
+        without moving any DOM. -- */
+  #clientApp[data-mview] #page-progress.active, #clientApp[data-mview] #page-portfolio.active{display:flex; flex-direction:column; gap:8px; padding:12px 14px 0;}
+  #clientApp[data-mview] #page-progress > header.hero, #clientApp[data-mview] #page-portfolio > header.hero{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; padding:0;}
+  #page-progress .k-section-label, #page-portfolio .k-section-label{display:none;}
+  #page-progress > section, #page-progress > section > .dgrid, #page-progress > section > .dgrid > div:not([data-m="hide"]),
+  #page-portfolio > section, #page-portfolio > section > .dgrid, #page-portfolio > section > .dgrid > div:not([data-m="hide"]){display:contents;}
+
+  /* -- Wealth > Overview / Journey (page: progress) -- */
+  #page-progress > section:nth-of-type(2){display:none;}              /* "Keep your balances current" nudge (Menu has Update) */
+  #page-progress .dcard.emphasis{order:10; padding:12px 13px;}
+  #wealthInsightsCard{order:20;}
+  #wealthCompCard{order:30;}
+  #wealthJourneyCard{order:10;}
+  #clientApp #mJourneyStageHost{display:block; order:20;}
+  #clientApp[data-mview="overview"] #wealthJourneyCard, #clientApp[data-mview="overview"] #mJourneyStageHost,
+  #clientApp[data-mview="journey"] #page-progress .dcard.emphasis, #clientApp[data-mview="journey"] #wealthInsightsCard, #clientApp[data-mview="journey"] #wealthCompCard{display:none;}
+  /* The Journey and Insights cards carry an inline display:flex, so the view filters need !important. */
+  #clientApp[data-mview="overview"] #wealthJourneyCard, #clientApp[data-mview="journey"] #wealthInsightsCard{display:none !important;}
+
+  /* Net worth card: figure + pills, period selector row, ~150px chart, 3 chips. */
+  #page-progress .dcard.emphasis > div:first-child{gap:6px !important;}
+  #page-progress .dcard.emphasis > div:first-child > div:last-child{flex-direction:row !important; width:100%; justify-content:space-between; align-items:center !important;}
+  #page-progress .dcard.emphasis .v.big{font-size:30px; line-height:1.1; margin:2px 0 0;}
+  #page-progress .dcard.emphasis .k-chart-box{height:150px !important; margin-top:6px; padding:8px 4px 2px;}
+  #page-progress #whChips{flex-wrap:nowrap !important; gap:6px !important; margin-top:8px !important;}
+  #page-progress .k-boxed-stat{flex:1 1 0; min-width:0 !important; padding:8px 6px; text-align:center;}
+  #page-progress .k-boxed-stat .k{font-size:9.5px; letter-spacing:0.04em;}
+  #page-progress .k-boxed-stat .v{font-size:15px !important;}
+  #page-progress .k-boxed-stat .sub2{display:none;}
+  #page-progress #timelineMilestones{display:none;}
+
+  /* Insights: gold bulb icon instead of a dot. */
+  #wealthInsightsCard .k-insight-item{gap:10px; font-size:13.5px; margin-bottom:8px;}
+  #wealthInsightsCard .k-insight-item .dot{width:16px; height:16px; margin-top:2px; border-radius:0; background:var(--gold);
+    -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7'/%3E%3Cpath d='M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3'/%3E%3Cpath d='M9.7 17l4.6 0'/%3E%3C/svg%3E") center/contain no-repeat;
+    mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7'/%3E%3Cpath d='M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3'/%3E%3Cpath d='M9.7 17l4.6 0'/%3E%3C/svg%3E") center/contain no-repeat;}
+
+  /* Composition: bar + legend on top, account breakdown two-across. */
+  #wealthCompCard{padding:11px 13px;}
+  #wealthCompCard > .line, #compNote{display:none;}
+  #compAccountsGrid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:10px !important;}
+  #compAccountsGrid > .span-4{grid-column:auto;}
+  #wealthCompCard .k-comp-legend{gap:6px 12px;}
+
+  /* Journey: 2x2 stat cards, Milestones card, then the Investor stage card. */
+  #clientApp #wealthJourneyCard{display:flex !important; flex-direction:column; gap:8px; height:auto !important; background:none; border:0; padding:0;}
+  #wealthJourneyCard > .k{display:none;}
+  #wealthJourneyCard > .dgrid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:0 !important;}
+  #wealthJourneyCard > .dgrid > .span-6{grid-column:auto; background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; padding:10px 12px;}
+  #wealthJourneyCard > div:last-child{margin:0 !important; padding:11px 13px !important; border-top:0 !important; background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px;}
+
+  /* -- Wealth > Portfolio (page: portfolio) -- */
+  #page-portfolio > section:nth-of-type(3){display:none;}             /* "Keep your holdings current" nudge */
+  #page-portfolio > section:nth-of-type(2) > .dgrid > div > .dcard{display:contents;}
+  #clientApp #labTopRow{display:contents !important;}                  /* has an inline display:flex */
+  #page-portfolio > section:nth-of-type(4) > .dgrid:nth-of-type(2){display:none;}   /* dividend income chart card (contributors stay, as an accordion) */
+  #page-portfolio > section:nth-of-type(5) > .dgrid > div:nth-child(2){display:none;} /* Investor stage: moved to Wealth > Journey */
+
+  /* Account selector: two-column card grid, "All portfolio" full width on top. */
+  #clientApp #analysisScopeRow{order:10; width:100%;}
+  #clientApp #analysisScopeToggle{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; width:100%; background:none; padding:0; border-radius:0;}
+  #clientApp #analysisScopeToggle button{display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-width:0; padding:10px 12px; border-radius:12px; background:var(--k-card-bg); border:1px solid var(--k-card-border); text-align:left; font-size:12px; line-height:1.3; color:var(--k-ink-softer); box-shadow:none;}
+  #clientApp #analysisScopeToggle button:first-child{grid-column:1 / -1;}
+  #clientApp #analysisScopeToggle button .n{margin:0; font-size:15px; font-weight:600; opacity:1; color:var(--k-ink);}
+  #clientApp #analysisScopeToggle button.active{background:var(--k-track-bg); border-color:var(--gold); box-shadow:none;}
+
+  /* Treemap hero, CTA under it, then the ranked lists, coach, accordions; Lab stepper last. */
+  #clientApp #labTreemapEmpty, #clientApp #labTreemapHost{order:20;}
+  #clientApp #labTreemapHost{height:300px; margin:0;}
+  #clientApp #labTmLegend{display:none;}
+  #clientApp #labCta{order:30; width:100%; margin:0 !important; padding:12px 16px; font-size:14px;}
+  #clientApp #mTopHoldings{display:block; order:40;}
+  #pfcCard{order:50;}
+  #clientApp #mCompaniesAcc{display:block; order:60;}
+  #page-portfolio > section:nth-of-type(4) > .dgrid:nth-of-type(3) > div > .dcard{order:70;}
+  #page-portfolio > section:nth-of-type(5) > .dgrid > div:first-child > .dcard{order:80;}
+  #clientApp #labStepperWrap.open{order:90; background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; padding:12px; margin:0; overflow-x:auto;}
+  #pfcCard{padding:11px 13px;}
+  #pfcMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
+  #pfcActionBtn{width:100%; box-sizing:border-box; text-align:center; text-decoration:none; margin-top:8px !important; padding:9px 14px; font-size:13px;}
+  #mTopHoldings, #mCompaniesAcc{padding:11px 13px;}
+  #mTopList, #mCompaniesList{margin-top:6px;}
+  #mCompaniesList{margin-top:8px;}
 }
 </style>
 </head>
@@ -1988,7 +2083,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div class="sub2" id="whPricesStatus" style="margin:0 0 6px; text-align:right;"></div>
         <div class="k-chart-box" style="height:220px;"><canvas id="chartWealthTimeline"></canvas></div>
         <div class="empty-state" id="timelineEmpty" style="display:none;"><div class="big">No history logged yet</div><div class="small">Net worth history will appear here once monthly balances are logged below.</div></div>
-        <div style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
+        <div id="whChips" style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
           <div class="k-boxed-stat">
             <div class="k">Last year performance</div>
             <div class="v" style="font-size:21px;" id="whLastYearValue">–</div>
@@ -2029,7 +2124,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label">Composition</div>
   <div class="dgrid">
     <div class="span-12">
-      <div class="dcard">
+      <div class="dcard" id="wealthCompCard">
         <div class="k">Wealth composition<span class="k-debtfree-pill" id="compDebtFreePill" style="display:none; margin-left:8px;">Debt free</span></div>
         <div class="line">What you own and what you owe, together. Ready to connect to Open Banking, pensions and investment platforms as those integrations come online — manually entered for now.</div>
         <div class="k-comp-bar" id="compBar"></div>
@@ -2046,7 +2141,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label">Insights &amp; journey</div>
   <div class="dgrid">
     <div class="span-6">
-      <div class="dcard advisory" style="height:100%; display:flex; flex-direction:column;">
+      <div class="dcard advisory" id="wealthInsightsCard" style="height:100%; display:flex; flex-direction:column;">
         <div class="k">Insights</div>
         <div id="wealthInsightsList" style="margin-top:10px;"></div>
       </div>
@@ -2068,6 +2163,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 </section>
+<!-- Mobile only (empty and hidden above 860px): the Investor stage card is moved in here for the Wealth > Journey view. See placeStageCard(). -->
+<div id="mJourneyStageHost"></div>
 </div>
 
 
@@ -2178,7 +2275,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
 <section class="wrap" style="padding-top:var(--space-lg);">
   <div class="dgrid">
-    <div class="span-4">
+    <div class="span-4" data-m="hide">
       <div class="dcard" style="height:100%;">
         <div class="k">Portfolio health<span class="k-badge-soon">Coming soon</span></div>
         <div class="line">A smarter way to understand the strength, diversification and resilience of your portfolio.</div>
@@ -2189,7 +2286,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         </ul>
       </div>
     </div>
-    <div class="span-8">
+    <div class="span-8" data-m="hide">
       <div class="dcard emphasis" style="height:100%;">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
           <div class="k">Portfolio overview</div>
@@ -2213,7 +2310,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
   <div class="dgrid" style="margin-top:12px;">
     <div class="span-12">
-      <div class="dcard advisory">
+      <div class="dcard advisory" id="pfcCard">
         <div class="k" id="pfcHeading">Portfolio coach's corner</div>
         <div class="line" id="pfcMessage">–</div>
         <a href="#" class="btn-primary cc-action" id="pfcActionBtn" style="display:none; margin-top:10px;">–</a>
@@ -2227,7 +2324,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="dgrid">
     <div class="span-12">
       <div class="dcard">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
+        <div id="labTopRow" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
           <!-- Only shown once >=2 accounts have holdings (see TEI.render.portfolio) --
                scopes this whole Lab (treemap + all 5 stages) plus Coach's Corner,
                Performance Drivers and Portfolio Insights elsewhere on the page to a
@@ -2294,8 +2391,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   </div>
   <div class="dgrid" style="margin-top:12px;">
     <div class="span-12">
-      <div class="dcard">
-        <div class="k">Dividend contributors</div>
+      <div class="dcard" data-m-acc>
+        <div class="k" data-m-acc-h>Dividend contributors</div>
         <div style="overflow-x:auto;"><table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Annual dividend</th><th style="text-align:right;">% of income</th></tr></thead><tbody id="divContributorsBody"></tbody></table></div>
       </div>
     </div>
@@ -2305,8 +2402,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 <section class="wrap" style="padding-bottom:var(--space-2xl);">
   <div class="dgrid">
     <div class="span-6">
-      <div class="dcard advisory k-insights-tint" style="height:100%;">
-        <div class="k" id="portfolioInsightsHeading">Portfolio insights</div>
+      <div class="dcard advisory k-insights-tint" style="height:100%;" data-m-acc>
+        <div class="k" id="portfolioInsightsHeading" data-m-acc-h>Portfolio insights</div>
         <div class="line" style="margin-bottom:8px;">What your portfolio tells you.</div>
         <div id="portfolioInsightsList"></div>
       </div>
@@ -2323,6 +2420,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 </section>
+<!-- Mobile only (hidden above 860px): ranked lists built from the same holdings as the treemap. See renderMobileHoldings(). -->
+<div class="dcard" id="mTopHoldings"><div class="k">Top holdings</div><div id="mTopList"></div></div>
+<div class="dcard" id="mCompaniesAcc" data-m-acc><div class="k" data-m-acc-h>Companies</div><div id="mCompaniesList"></div></div>
 </div>
 <!-- ============================= PLANNING TOOLS ============================= -->
 <div id="page-planning" class="page">
@@ -6869,6 +6969,9 @@ TEI.render = TEI.render || {};
     const link = document.getElementById('stageLearnLink');
     link.onclick = function(e){ e.preventDefault(); if(TEI.app) TEI.app.showPage('learning'); };
   }
+  // Exposed so the mobile Wealth > Journey view can fill the Investor stage card
+  // (moved into the Wealth page on mobile) without rendering the whole Portfolio page.
+  TEI.render.investorStage = renderStage;
 
   function renderPortfolioCoach(client, scopeAccountId){
     document.getElementById('pfcHeading').textContent = 'Portfolio coach\'s corner' + acctHeadingSuffix(client, scopeAccountId);
@@ -7101,9 +7204,11 @@ TEI.render = TEI.render || {};
     const total = list.reduce((s,h)=>s+h.value,0);
     return list.map(h=>({...h, weight: total? h.value/total*100 : 0})).sort((a,b)=>b.value-a.value);
   }
-  function foldOther(weighted){
-    const main = weighted.filter(h=>h.weight>=OTHER_THRESHOLD);
-    const folded = weighted.filter(h=>h.weight<OTHER_THRESHOLD);
+  function foldOther(weighted, threshold){
+    // `threshold` is only passed by the mobile treemap (5%); everything else keeps OTHER_THRESHOLD.
+    const thr = threshold == null ? OTHER_THRESHOLD : threshold;
+    const main = weighted.filter(h=>h.weight>=thr);
+    const folded = weighted.filter(h=>h.weight<thr);
     const out = [...main];
     if(folded.length){
       const otherValue = folded.reduce((s,h)=>s+h.value,0);
@@ -7352,7 +7457,7 @@ TEI.render = TEI.render || {};
     if(!hostEl) return [];
     hostEl.querySelectorAll('svg').forEach(s=>s.remove());
     const width = hostEl.clientWidth || 300, height = opts.height || hostEl.clientHeight || 200;
-    const folded = foldOther(weighted);
+    const folded = foldOther(weighted, opts.otherThreshold);
     const laidOut = layoutTreemap([...folded].sort((a,b)=>b.value-a.value), 0,0,width,height);
     const svgNS='http://www.w3.org/2000/svg';
     const svg=document.createElementNS(svgNS,'svg');
@@ -7372,8 +7477,16 @@ TEI.render = TEI.render || {};
         const t1=document.createElementNS(svgNS,'text');
         t1.setAttribute('x',rx+(small?5:10)); t1.setAttribute('y', ry+(small?13:22));
         t1.setAttribute('fill','#F7F4ED'); t1.setAttribute('font-weight','700');
-        t1.setAttribute('font-size', (small? Math.min(10,rw/6) : Math.min(16,rw/6))+'px'); t1.setAttribute('font-family','Inter,sans-serif');
-        t1.textContent = d.ticker || d.name; // some holdings genuinely have no ticker on file -- fall back to name rather than a blank tile
+        const t1Size = small? Math.min(10,rw/6) : Math.min(16,rw/6);
+        t1.setAttribute('font-size', t1Size+'px'); t1.setAttribute('font-family','Inter,sans-serif');
+        let t1Text = d.ticker || d.name; // some holdings genuinely have no ticker on file -- fall back to name rather than a blank tile
+        if(opts.mobileTiles){
+          // Mobile treemap only: "Other (n)", and shorten any label that would overrun its tile with an ellipsis.
+          if(d.isOther) t1Text = `Other (${d.members.length})`;
+          const maxChars = Math.floor((rw-12)/(t1Size*0.6));
+          if(t1Text.length > maxChars) t1Text = t1Text.slice(0, Math.max(1, maxChars-1)) + '…';
+        }
+        t1.textContent = t1Text;
         g.appendChild(t1);
         if(!small && rh>44){
           const t2=document.createElementNS(svgNS,'text');
@@ -7425,8 +7538,31 @@ TEI.render = TEI.render || {};
     document.getElementById('labCta').style.display = '';
     emptyEl.innerHTML = '';
     const weighted = withWeights(state.holdings);
-    const folded = renderTreemapInto(host, tooltip, weighted);
+    // Mobile only: group anything under 5% into "Other (n)" (desktop keeps its 3%).
+    const folded = renderTreemapInto(host, tooltip, weighted, isMobileWidth() ? {otherThreshold:5, mobileTiles:true} : {});
     legendEl.innerHTML = folded.map((d,i)=>`<div class="lg"><span class="sw" style="background:${d.isOther?OTHER_COLOR:PALETTE[i%PALETTE.length]}"></span>${d.isOther?`Other (${d.members.length})`:d.name} · ${fmtPct(d.weight)}</div>`).join('');
+  }
+
+  function isMobileWidth(){ return !!(window.matchMedia && window.matchMedia('(max-width:860px)').matches); }
+
+  /* Mobile-only ranked lists under the treemap (Top holdings, and the Companies
+     accordion). Built from the same state.holdings the treemap uses, so they
+     follow the account selector; both containers are hidden above 860px. */
+  function renderMobileHoldings(){
+    const topEl = document.getElementById('mTopList');
+    const allEl = document.getElementById('mCompaniesList');
+    if(!topEl || !allEl) return;
+    const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    if(!state.holdings.length){
+      topEl.innerHTML = allEl.innerHTML = `<div class="line">No holdings logged yet.</div>`;
+      return;
+    }
+    const weighted = withWeights(state.holdings);
+    topEl.innerHTML = weighted.slice(0,5).map(h=>
+      `<div class="k-js-row"><span class="jk">${esc(h.name||h.ticker)}</span><span class="jv">${fmtPct(h.weight)}</span></div>`).join('');
+    allEl.innerHTML = weighted.map(h=>
+      `<div class="k-js-row"><span class="jk">${esc(h.name||h.ticker)}<br><span style="font-size:11px; opacity:0.8;">${esc([h.ticker,h.account].filter(Boolean).join(' · '))}</span></span>` +
+      `<span class="jv" style="text-align:right;">${TEI.data.fmtGBP(h.value)}<br><span style="font-weight:400; font-size:11px; opacity:0.8;">${fmtPct(h.weight)}</span></span></div>`).join('');
   }
 
   function renderStepper(){
@@ -8245,6 +8381,7 @@ TEI.render = TEI.render || {};
 
   function renderLabAll(){
     renderTreemapSection();
+    renderMobileHoldings();
     const wrap = document.getElementById('labStepperWrap');
     if(!wrap) return;
     wrap.classList.toggle('open', state.expanded);
@@ -14693,6 +14830,26 @@ window.TEI = window.TEI || {};
   const M_TAB_OF = {home:'home', progress:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', update:'menu', mydetails:'menu', menu:'menu'};
   const M_TAB_TARGET = {home:'home', wealth:'progress', plan:'goals', library:'documents', menu:'menu'};
 
+  /* Merged tabs: a segmented switch over views of the EXISTING pages (no data
+     logic is duplicated). A view names the page that renders it; the switch is
+     shown on every page that carries one, and #clientApp[data-mview] tells the
+     mobile CSS which sections of that page to show. Wealth now; Plan and
+     Library follow in later stages. */
+  const M_VIEWS = {
+    wealth: [
+      {id:'overview',  label:'Overview',  page:'progress'},
+      {id:'portfolio', label:'Portfolio', page:'portfolio'},
+      {id:'journey',   label:'Journey',   page:'progress'}
+    ]
+  };
+  const mLastView = {};      // tab -> last view used, so tapping a tab returns to it
+  let mPendingView = null;   // set by setMobileView() just before it calls showPage()
+
+  function defaultMobileView(tab, pageId){
+    if(tab === 'wealth') return pageId === 'portfolio' ? 'portfolio' : 'overview';
+    return null;
+  }
+
   function syncMobileTabs(pageId){
     const tab = M_TAB_OF[pageId] || 'home';
     document.querySelectorAll('#mTabs .m-tab').forEach(b=>{
@@ -14700,6 +14857,71 @@ window.TEI = window.TEI || {};
       b.classList.toggle('on', on);
       if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
     });
+    const app = document.getElementById('clientApp');
+    const view = M_VIEWS[tab] ? (mPendingView || defaultMobileView(tab, pageId)) : null;
+    mPendingView = null;
+    if(view){
+      app.setAttribute('data-mview', view);
+      mLastView[tab] = view;
+      document.querySelectorAll('.m-seg[data-mtab="'+tab+'"] button').forEach(b=>{
+        const on = b.dataset.mview === view;
+        b.classList.toggle('on', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if(view === 'journey' && state.client && TEI.render.investorStage) TEI.render.investorStage(state.client);
+    } else {
+      app.removeAttribute('data-mview');
+    }
+  }
+
+  function setMobileView(tab, viewId){
+    const v = (M_VIEWS[tab] || []).find(x=>x.id === viewId);
+    if(!v) return;
+    mPendingView = viewId;
+    if(state.currentPage === v.page){
+      // Same page (e.g. Overview <-> Journey): just switch the view, no re-render.
+      syncMobileTabs(v.page);
+      window.scrollTo({top:0, behavior:'auto'});
+    } else {
+      showPage(v.page);
+    }
+  }
+
+  function buildMobileSegs(){
+    Object.keys(M_VIEWS).forEach(tab=>{
+      const pages = Array.from(new Set(M_VIEWS[tab].map(v=>v.page)));
+      pages.forEach(pid=>{
+        const page = document.getElementById('page-'+pid);
+        if(!page || page.querySelector('.m-seg[data-mtab="'+tab+'"]')) return;
+        const seg = document.createElement('div');
+        seg.className = 'm-seg';
+        seg.dataset.mtab = tab;
+        seg.setAttribute('role', 'group');
+        seg.setAttribute('aria-label', tab.charAt(0).toUpperCase() + tab.slice(1) + ' views');
+        seg.innerHTML = M_VIEWS[tab].map(v=>`<button type="button" data-mview="${v.id}" aria-pressed="false">${v.label}</button>`).join('');
+        seg.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=> setMobileView(tab, b.dataset.mview)));
+        page.appendChild(seg); // appended (not first): visual order comes from CSS `order`
+      });
+    });
+  }
+
+  /* The Investor stage card lives on the Portfolio page on desktop. On mobile
+     it belongs to Wealth > Journey, so move the node into #mJourneyStageHost
+     (and back above 860px). It keeps its ids, so its renderer still fills it. */
+  let mStageHome = null;
+  function placeStageCard(mobile){
+    const badge = document.getElementById('stageBadge');
+    const host = document.getElementById('mJourneyStageHost');
+    const card = badge && badge.closest('.dcard');
+    if(!card || !host) return;
+    if(mobile){
+      if(card.parentNode !== host){
+        if(!mStageHome) mStageHome = {parent:card.parentNode, next:card.nextSibling};
+        host.appendChild(card);
+      }
+    } else if(mStageHome && card.parentNode === host){
+      mStageHome.parent.insertBefore(card, mStageHome.next);
+    }
   }
 
   function renderMenu(){
@@ -14711,8 +14933,13 @@ window.TEI = window.TEI || {};
 
   function wireMobileTabs(){
     document.querySelectorAll('#mTabs .m-tab').forEach(b=>{
-      b.addEventListener('click', ()=> showPage(M_TAB_TARGET[b.dataset.mtab]));
+      b.addEventListener('click', ()=>{
+        const tab = b.dataset.mtab;
+        if(M_VIEWS[tab]) setMobileView(tab, mLastView[tab] || M_VIEWS[tab][0].id);
+        else showPage(M_TAB_TARGET[tab]);
+      });
     });
+    buildMobileSegs();
     document.querySelectorAll('#page-menu [data-mgo]').forEach(b=>{
       b.addEventListener('click', ()=> showPage(b.dataset.mgo));
     });
@@ -14729,9 +14956,11 @@ window.TEI = window.TEI || {};
     // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
     const onChange = ()=>{
       if(!mq.matches && state.currentPage === 'menu') showPage('home');
+      placeStageCard(mq.matches);
       applyMobileA11y(mq);
     };
     if(mq.addEventListener) mq.addEventListener('change', onChange); else if(mq.addListener) mq.addListener(onChange);
+    placeStageCard(mq.matches);
     applyMobileA11y(mq);
   }
 
