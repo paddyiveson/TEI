@@ -1,0 +1,66 @@
+/* TEI public site -- mobile bottom navigation.
+   Everything visible lives inside the single mobile breakpoint below (860px,
+   same value the Wealth OS portal uses). Outside it the injected elements are
+   display:none, so desktop layout and paint are untouched. Markup is built by
+   assets/mobile-nav.js. */
+
+.tei-mbar { display: none; }
+
+@media (max-width: 860px) {
+
+  :root {
+    --tei-mbar-h: 56px;
+    --tei-mbar-total: calc(var(--tei-mbar-h) + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Old mobile menu: the hamburger and its dropdown are replaced by the bar. */
+  .nav-mobile-toggle,
+  .nav-mobile-menu { display: none !important; }
+
+  /* -- Bottom bar -- */
+  .tei-mbar {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 1000; /* above page content, below the Hub password gate (5000) */
+    box-sizing: border-box;
+    padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    background: var(--navy, #1D3557);
+    border-top: 1px solid rgba(201, 168, 76, .28);
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, .22);
+    font-family: 'Inter', sans-serif;
+  }
+  .tei-mbar-item {
+    -webkit-appearance: none; appearance: none;
+    box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px;
+    min-height: var(--tei-mbar-h);
+    margin: 0;
+    padding: 6px 8px 5px; /* 8px side padding keeps labels clear of rounded screen corners */
+    background: none; border: 0; border-radius: 0;
+    color: rgba(247, 244, 237, .88);
+    font: inherit; font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: .01em;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tei-mbar-item svg {
+    display: block; flex: none;
+    width: 24px; height: 24px;
+    fill: none; stroke: currentColor; stroke-width: 1.7;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .tei-mbar-label { display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tei-mbar-item[aria-current="page"] { color: var(--gold, #C9A84C); font-weight: 600; }
+  .tei-mbar-item:focus-visible { outline: 2px solid var(--gold, #C9A84C); outline-offset: -3px; border-radius: 6px; }
+
+  /* -- Clearance so nothing sits behind the bar -- */
+  body > footer { padding-bottom: calc(28px + var(--tei-mbar-total)) !important; }
+  html.tei-mbar-nofooter body { padding-bottom: var(--tei-mbar-total); }
+}
+
+@media (max-width: 860px) and (prefers-reduced-motion: no-preference) {
+  .tei-mbar-item { transition: color .15s ease; }
+}
