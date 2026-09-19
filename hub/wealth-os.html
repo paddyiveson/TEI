@@ -1553,6 +1553,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 #clientApp .m-ns-pill, #clientApp .m-ns-bar{display:none;}
 /* Mobile-only Wealth additions (segmented switch, ranked lists, Journey stage host). */
 #clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
+/* Mobile-only Plan additions (merged next-steps card, hosts for moved blocks, conversion legend, accordion title). */
+#clientApp .m-nextsteps, #clientApp #mGoalsFFHost, #clientApp #mProjection, #clientApp #wcdLegend, #clientApp .m-acc-title{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
    the mobile layout can restyle it. Values are identical, so desktop is too. */
 .home-wins{margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);}
@@ -1764,6 +1766,101 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #mTopHoldings, #mCompaniesAcc{padding:11px 13px;}
   #mTopList, #mCompaniesList{margin-top:6px;}
   #mCompaniesList{margin-top:8px;}
+
+  /* ================= Plan tab: merged Next best steps + Goals | Forecast | Cashflow ================= */
+  #clientApp[data-mview] #page-goals.active, #clientApp[data-mview] #page-planning.active, #clientApp[data-mview] #page-cashflow.active{display:flex; flex-direction:column; gap:8px; padding:12px 14px 0;}
+  #clientApp[data-mview] #page-goals > header.hero, #clientApp[data-mview] #page-planning > header.hero, #clientApp[data-mview] #page-cashflow > header.hero{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; padding:0;}
+  #page-goals .k-section-label, #page-planning .k-section-label, #page-cashflow .k-section-label{display:none;}
+  #page-goals .dcard, #page-planning .dcard, #page-cashflow .dcard{height:auto !important; padding:11px 13px;}
+  #clientApp{--m-bulb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7'/%3E%3Cpath d='M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3'/%3E%3Cpath d='M9.7 17l4.6 0'/%3E%3C/svg%3E");}
+
+  /* Shared "Next best steps" card, above the switch on all three Plan views. */
+  #clientApp .m-nextsteps{display:block; order:-1;}
+  .m-nextsteps .k-simple-list{margin:6px 0 0; gap:6px;}
+  .m-nextsteps .k-simple-list li{font-size:13.5px; line-height:1.4;}
+  .m-nextsteps .k-simple-list li .dot{background:var(--gold);}
+
+  /* Coach's corner cards (Forecast, Cashflow): 2 lines + full-width action. */
+  #fcMessage, #cfcMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
+  #fcActionBtn, #cfcActionBtn{align-self:stretch !important; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; margin-top:8px !important; padding:9px 14px; font-size:13px;}
+
+  /* -- Plan > Goals (page: goals) -- */
+  #page-goals > section:not(#goalsEmptyState), #goalsContent{display:contents;}
+  #page-goals > section:nth-of-type(1):not(#goalsEmptyState){display:none;}   /* "Add, edit or remove a goal" nudge */
+  #goalsOverviewSection{display:contents;}
+  #clientApp #goalsEmptyState{order:15; padding-left:0; padding-right:0;}
+  /* The host is a .dcard only so the moved block keeps its card-scoped text styles; it draws no card of its own. */
+  #clientApp #mGoalsFFHost{display:block; order:10; background:none; border:0; padding:0 !important;}
+  #mGoalsFFHost .k-stat-split{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0 !important;}
+  #mGoalsFFHost .k-stat-split .divider{display:none;}
+  #mGoalsFFHost .k-stat-split .sp, #goalsOverviewSection .k-stat-split .sp, #goalsOverviewSection .dgrid > div:last-child > .dcard{background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; padding:9px 11px; min-width:0;}
+  #mGoalsFFHost .k-stat-split .v{font-size:17px !important;}
+  /* Three stat chips: progress, on track, next achievement (the "Active goals" count is dropped). */
+  #goalsOverviewSection > .dgrid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; order:20;}
+  #goalsOverviewSection .dgrid > div, #goalsOverviewSection .dgrid > div:first-child > .dcard, #goalsOverviewSection .k-stat-split{display:contents;}
+  #goalsOverviewSection .k-stat-split > .sp:first-child, #goalsOverviewSection .k-stat-split > .divider{display:none;}
+  #goalsOverviewSection .dgrid > div:last-child > .dcard{display:block; grid-column:auto;}
+  #goalsOverviewSection .k{font-size:9.5px; letter-spacing:0.04em;}
+  #goalsOverviewSection .v{font-size:15px !important;}
+  #goalsOverviewSection .sub2{font-size:10.5px; margin-top:2px;}
+  #goalsOverviewSection .sp .k-bar{max-width:none !important; margin-top:6px;}
+  /* Active goals: compact single-column cards. */
+  #goalsContent > section:nth-of-type(2){display:contents;}
+  #clientApp #goalCardsGrid.dgrid{display:grid; grid-template-columns:minmax(0,1fr); gap:8px; order:30;}
+  #goalCardsGrid > div, #completedGoalsGrid > div{grid-column:auto !important;}
+  #goalCardsGrid .dcard.emphasis{padding:10px 12px;}
+  #goalCardsGrid .k-goal-header{margin-bottom:6px;}
+  /* Timeline, Goal insights, Your goal journey: accordions. */
+  #goalsContent > section:nth-of-type(3), #goalsContent > section:nth-of-type(3) > .dgrid, #goalsContent > section:nth-of-type(3) > .dgrid > div,
+  #goalsContent > section:nth-of-type(5), #goalsContent > section:nth-of-type(5) > .dgrid, #goalsContent > section:nth-of-type(5) > .dgrid > div{display:contents;}
+  #goalsContent > section:nth-of-type(3) .dcard{order:40;}
+  #goalsContent > section:nth-of-type(5) > .dgrid > div:nth-child(1) > .dcard{order:50;}
+  #goalsContent > section:nth-of-type(5) > .dgrid > div:nth-child(2) > .dcard{order:60;}
+  #goalsContent > section:nth-of-type(4){display:none;}               /* "Where to put your attention" (the Next best steps card replaces it) */
+  #clientApp #completedGoalsSection{order:70; padding:0 !important; max-width:100%;}
+  #completedGoalsGrid.dgrid{grid-template-columns:minmax(0,1fr); gap:8px;}
+
+  /* -- Plan > Forecast (page: planning) -- */
+  #page-planning > section, #page-planning > section > .dgrid, #page-planning > section > .dgrid > div:not([data-m="hide"]){display:contents;}
+  #page-planning > section:nth-of-type(3){display:none;}              /* "Bringing it together": next steps are merged above, Learning hub lives in Library */
+  #page-planning .dcard.emphasis{order:10;}
+  #clientApp #mProjection{display:block; order:20; padding:11px 13px;}
+  #fcCard{order:30;}
+  #fcKnowCard{order:40;}
+  #page-planning [data-m-open]{order:50;}
+  #wpCard{order:60;}
+  #page-planning .dcard.emphasis .k-stat-split{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px;}
+  #page-planning .dcard.emphasis .k-stat-split .divider{display:none;}
+  #page-planning .dcard.emphasis .k-stat-split .sp{background:rgba(247,244,237,0.12); border-radius:8px; padding:8px 6px; text-align:center; min-width:0;}
+  #page-planning .dcard.emphasis .k-stat-split .k{font-size:9.5px; letter-spacing:0.04em;}
+  #page-planning .dcard.emphasis .k-stat-split .v{font-size:15px !important;}
+  #page-planning .dcard.emphasis .k-stat-split .sub2{font-size:10px; margin-top:2px;}
+  #mProjection .k-chart-box{height:150px !important; margin-top:8px; padding:8px 4px 2px;}
+  #mProjection .k-mc-toggles{gap:6px 12px; margin-top:8px;}
+  #mProjection .k-mc-toggle{font-size:12px;}
+  #fcKnowCard .k-simple-list li{font-size:13.5px; gap:10px;}
+  #fcKnowCard .k-simple-list li .dot{width:16px; height:16px; margin-top:2px; border-radius:0; background:var(--gold); -webkit-mask:var(--m-bulb) center/contain no-repeat; mask:var(--m-bulb) center/contain no-repeat;}
+  #page-planning .k-assump-row{gap:8px;}
+  #page-planning .k-assump-row .a{min-width:calc(50% - 8px);}
+
+  /* -- Plan > Cashflow (page: cashflow) -- */
+  #page-cashflow > section, #page-cashflow > section > .dgrid, #page-cashflow > section > .dgrid > div:not([data-m="hide"]){display:contents;}
+  #page-cashflow > section:nth-of-type(1), #page-cashflow > section:nth-of-type(6){display:none;}  /* update nudge; "Coming soon" */
+  #cfHealthCard{order:10;}
+  #cfGlanceCard{order:20;}
+  #page-cashflow .dcard.emphasis{order:30;}
+  #efCard{order:40;}
+  #cfSavingsCard{order:50;}
+  #cfCoachCard{order:60;}
+  #cfBehaviourCard{order:70;}
+  #cfScenarioCard{order:80;}
+  #cfHealthCard > .sub2{display:none;}
+  #cfHealthCard .k-rowstats{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
+  #cfGlanceCard .k-chart-box{height:150px !important; margin-top:8px;}
+  #clientApp #wcdLegend{display:flex; margin-top:10px;}
+  #page-cashflow .dcard.emphasis .k-comp-legend .lg{color:rgba(247,244,237,0.8);}
+  #efCard #efNote, #efCard > div[style*="height:1px"]{display:none;}
+  #cfCoachCard > div:last-child{margin-top:12px !important; padding-top:10px !important;}
 }
 </style>
 </head>
@@ -2226,8 +2323,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label">How today connects to what's ahead</div>
   <div class="dgrid">
     <div class="span-12">
-      <div class="dcard">
-        <div class="k">Timeline</div>
+      <div class="dcard" data-m-acc data-m-rerender>
+        <div class="k" data-m-acc-h>Timeline</div>
         <div class="k-tl-track" id="goalTimeline"></div>
       </div>
     </div>
@@ -2243,14 +2340,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label">Goal guidance</div>
   <div class="dgrid">
     <div class="span-6">
-      <div class="dcard" style="height:100%;">
-        <div class="k">Goal insights</div>
+      <div class="dcard" style="height:100%;" data-m-acc>
+        <div class="k" data-m-acc-h>Goal insights</div>
         <div id="goalInsightsList" style="margin-top:10px;"></div>
       </div>
     </div>
     <div class="span-6">
-      <div class="dcard" style="height:100%;">
-        <div class="k">Your goal journey</div>
+      <div class="dcard" style="height:100%;" data-m-acc>
+        <div class="k" data-m-acc-h>Your goal journey</div>
         <div style="margin-top:8px;">
           <div class="k-js-row"><span class="jk">Completed</span><span class="jv" id="gjCompleted">–</span></div>
           <div class="k-js-row"><span class="jk">Current focus</span><span class="jv" id="gjFocus">–</span></div>
@@ -2267,6 +2364,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div style="text-align:center; margin-top:14px;"><button type="button" class="btn-ghost" id="completedGoalsToggle" style="display:none;">View all completed goals</button></div>
 </section>
 </div>
+<!-- Mobile only (empty and hidden above 860px): Home's Financial freedom / Next milestone block is moved in here for Plan > Goals. See M_MOVES. -->
+<div class="dcard" id="mGoalsFFHost"></div>
 
 </div>
 <!-- ============================= PORTFOLIO ============================= -->
@@ -2451,8 +2550,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       </div>
     </div>
     <div class="span-6">
-      <div class="dcard" style="height:100%;">
-        <div class="k">What's behind this number <span class="k-tag">Estimate</span></div>
+      <div class="dcard" style="height:100%;" data-m-acc data-m-open>
+        <div class="k" data-m-acc-h>What's behind this number <span class="k-tag">Estimate</span></div>
         <div class="k-assump-row">
           <div class="a"><div class="sub2">Investment growth</div><b id="ffoAssumpGrowth" style="color:var(--k-up-ink);">–</b></div>
           <div class="a"><div class="sub2">Inflation</div><b id="ffoAssumpInflation" style="color:var(--gold);">–</b></div>
@@ -2467,14 +2566,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
   <div class="dgrid" style="margin-top:12px;">
     <div class="span-6">
-      <div class="dcard advisory" style="height:100%;">
+      <div class="dcard advisory" id="fcCard" style="height:100%;">
         <div class="k">Forecast coach's corner</div>
         <div class="line" id="fcMessage">–</div>
         <a href="#" class="btn-primary cc-action" id="fcActionBtn" style="display:none; align-self:flex-start; margin-top:10px;">–</a>
       </div>
     </div>
     <div class="span-6">
-      <div class="dcard" style="height:100%;">
+      <div class="dcard" id="fcKnowCard" style="height:100%;">
         <div class="k">Things to know right now</div>
         <ul class="k-simple-list" id="thingsToKnowList" style="margin-top:10px;"></ul>
       </div>
@@ -2486,7 +2585,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label strong" style="margin-top:26px;">Explore</div>
   <div class="dgrid">
     <div class="span-12">
-      <div class="dcard">
+      <div class="dcard" id="wpCard" data-m-acc>
+        <!-- Mobile only (hidden above 860px): accordion header for this card. -->
+        <div class="k m-acc-title" data-m-acc-h>Scenario planning</div>
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
           <div>
             <div class="k" style="font-size:16px; text-transform:none; letter-spacing:0; font-family:var(--font-display); font-weight:600; color:var(--k-ink);">Wealth projection</div>
@@ -2510,13 +2611,13 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
             <button type="button" class="btn-ghost on-light" id="scCoastBtn">Try: stop contributing</button>
             <button type="button" class="btn-ghost on-light" id="scResetBtn">Reset</button>
           </div>
-          <div class="k-mc-toggles">
+          <div class="k-mc-toggles" id="wpMcToggles">
             <div class="k-mc-toggle k-mc-static"><span class="sw sw-dash" id="swActual"></span>Actual, today's plan</div>
             <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="conservative"><span class="sw" id="swConservative"></span>Lower-return (5%)</label>
             <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="base" checked><span class="sw" id="swBase"></span>Expected (8%)</label>
             <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="optimistic"><span class="sw" id="swOptimistic"></span>Strong-return (15%)</label>
           </div>
-          <div class="k-chart-box" style="height:260px;"><canvas id="chartWealthPlan"></canvas></div>
+          <div class="k-chart-box" id="wpPlanChartBox" style="height:260px;"><canvas id="chartWealthPlan"></canvas></div>
           <div class="k-rowstats">
             <div class="rs">Pot needed, today's plan<b id="scBeforeStat">–</b></div>
             <div class="rs">Pot needed, with this scenario<b class="gold" id="scAfterStat">–</b></div>
@@ -2632,6 +2733,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 </section>
+<!-- Mobile only (hidden above 860px): the projection chart and its scenario toggles are moved in here on mobile. See M_MOVES. -->
+<div class="dcard" id="mProjection"><div class="k">Projection</div></div>
 </div>
 <!-- ============================= CASHFLOW ============================= -->
 <div id="page-cashflow" class="page">
@@ -2654,7 +2757,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 <section class="wrap" style="padding-top:var(--space-lg);">
   <div class="dgrid">
     <div class="span-6">
-      <div class="dcard" style="height:100%;">
+      <div class="dcard" id="cfHealthCard" style="height:100%;">
         <div class="k">Cashflow health</div>
         <div class="k-pill-toggle" id="scenarioToggle" style="margin-top:10px;">
           <button type="button" data-scenario="best">Best case</button>
@@ -2675,7 +2778,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       </div>
     </div>
     <div class="span-6">
-      <div class="dcard advisory" style="height:100%; display:flex; flex-direction:column;">
+      <div class="dcard advisory" id="cfCoachCard" style="height:100%; display:flex; flex-direction:column;">
         <div class="k">Cashflow coach's corner</div>
         <div class="line" id="cfcMessage" style="flex:1;">–</div>
         <a href="#" class="btn-primary cc-action" id="cfcActionBtn" style="display:none; align-self:flex-start; margin-top:10px;">–</a>
@@ -2693,11 +2796,11 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label strong">Snapshot</div>
   <div class="dgrid">
     <div class="span-12">
-      <div class="dcard">
+      <div class="dcard" id="cfGlanceCard">
         <div class="k">This month, at a glance</div>
         <div class="k-chart-box" style="height:200px;"><canvas id="chartIncomeSpend"></canvas></div>
         <div class="sub2">"Disposable income" is what's left after living costs and your calculated saving &amp; investing commitment — money with no destination yet.</div>
-        <div class="line"><span class="k-badge-soon">Coming soon</span> A full trend timeline (income, expenses, disposable income and contributions over time) once monthly cashflow logging is in place.</div>
+        <div class="line" data-m="hide"><span class="k-badge-soon">Coming soon</span> A full trend timeline (income, expenses, disposable income and contributions over time) once monthly cashflow logging is in place.</div>
       </div>
     </div>
   </div>
@@ -2708,6 +2811,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div class="k">Wealth conversion dashboard <span style="font-size:9px; opacity:0.7; text-transform:none; letter-spacing:0; font-weight:600;">&middot; signature metric</span></div>
         <div class="line">Every £1 you earn, split by where it goes.</div>
         <div class="k-chart-box" style="height:70px; margin-top:12px;"><canvas id="chartWealthConv"></canvas></div>
+        <!-- Mobile only (hidden above 860px): legend for the stacked bar, filled from the same buckets as the chart. -->
+        <div class="k-comp-legend" id="wcdLegend"></div>
         <div class="k-rowstats">
           <div class="rs">Target rate<b class="gold" id="wcdTarget">–</b></div>
           <div class="rs">Actual rate<b class="up" id="wcdActual">–</b></div>
@@ -2722,14 +2827,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label strong">Interpretation</div>
   <div class="dgrid">
     <div class="span-4">
-      <div class="dcard" style="height:100%;">
+      <div class="dcard" id="cfBehaviourCard" style="height:100%;">
         <div class="k">Behaviour of the month</div>
         <div class="k-stage-badge" id="cfBehaviourBadge">–</div>
         <div class="k-insight-note" id="cfBehaviourText"></div>
       </div>
     </div>
     <div class="span-4">
-      <div class="dcard" style="height:100%;">
+      <div class="dcard" id="efCard" style="height:100%;">
         <div class="k">Emergency fund</div>
         <div class="k-bar"><div class="fill" id="efBar" style="width:0%;"></div></div>
         <div class="k-rowstats">
@@ -2746,7 +2851,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       </div>
     </div>
     <div class="span-4">
-      <div class="dcard" style="height:100%;">
+      <div class="dcard" id="cfNextStepsCard" style="height:100%;" data-m="hide">
         <div class="k">Your next best steps</div>
         <ul class="k-simple-list clickable" id="cfNextStepsList"></ul>
       </div>
@@ -2758,14 +2863,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label strong">What if?</div>
   <div class="dgrid">
     <div class="span-6">
-      <div class="dcard" style="height:100%;">
+      <div class="dcard" id="cfSavingsCard" style="height:100%;">
         <div class="k">Savings goals</div>
         <div id="cfSavingsGoalsList" style="margin-top:10px;"></div>
         <div class="k-rowstats" id="cfSavingsGoalImpactStats" style="margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);"></div>
       </div>
     </div>
     <div class="span-6">
-      <div class="dcard" style="height:100%; display:flex; flex-direction:column;">
+      <div class="dcard" id="cfScenarioCard" style="height:100%; display:flex; flex-direction:column;">
         <div class="k">Scenario corner</div>
         <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:14px; margin:6px 0;">
           <label class="k-form-field" style="max-width:100%;"><span style="font-size:11.5px;">Increase monthly investing by £</span><input type="number" id="scnExtra" value="100" step="10" style="padding:12px 14px; font-size:16px;"></label>
@@ -5377,6 +5482,14 @@ TEI.render = TEI.render || {};
       changeEl.className = 'k-pill neutral';
     }
     renderNetWorthSpark(client);
+    renderFinancialGoalsSummary(client);
+  }
+
+  /* Financial freedom + Next milestone. Split out of renderHero (unchanged
+     logic) so the mobile Plan > Goals view can fill them without rendering
+     the whole of Home -- see TEI.render.financialGoalsSummary below. */
+  function renderFinancialGoalsSummary(client){
+    const investableNW = TEI.calc.latestNetWorth(client); // accounts only — used for FI/milestone progress
 
     const ffPct = financialFreedomPct(client);
     const budgetFi = TEI.calc.computeBudgetAndFI(client);
@@ -5396,6 +5509,7 @@ TEI.render = TEI.render || {};
       ? `${milestonePct.toFixed(0)}% there · ${estimateCompletionText(remaining, monthlyContrib)}`
       : 'Target reached';
   }
+  TEI.render.financialGoalsSummary = renderFinancialGoalsSummary;
 
   /* ---------------- North Star ----------------
      override: client.northStar.goalLabel / .status / .focusOverride */
@@ -9684,12 +9798,15 @@ TEI.render = TEI.render || {};
     list.innerHTML = lines.slice(0,3).map(l=>`<li><div class="dot"></div>${l}</li>`).join('');
   }
 
+  const FORECAST_NEXT_STEPS = [
+    {text:'Test what happens if you increase your investment contributions.', page:'planning'},
+    {text:'Understand the impact of sequence of returns on long-term outcomes.', page:'learning'},
+    {text:'Review your current financial independence pathway.', page:'planning'},
+  ];
+  // Shared with the mobile Plan tab's merged "Next best steps" card (see buildMobilePlanExtras).
+  TEI.planNextSteps = Object.assign(TEI.planNextSteps || {}, {forecast: FORECAST_NEXT_STEPS});
   function renderNextSteps(){
-    const steps = [
-      {text:'Test what happens if you increase your investment contributions.', page:'planning'},
-      {text:'Understand the impact of sequence of returns on long-term outcomes.', page:'learning'},
-      {text:'Review your current financial independence pathway.', page:'planning'},
-    ];
+    const steps = FORECAST_NEXT_STEPS;
     const list = document.getElementById('nextStepsList');
     list.innerHTML = steps.map((s,i)=>`<li data-step-idx="${i}"><div class="dot"></div>${s.text}</li>`).join('');
     list.querySelectorAll('[data-step-idx]').forEach(li=>{
@@ -9894,6 +10011,11 @@ TEI.render = TEI.render || {};
         scales:{x:{stacked:true, display:false, max:100}, y:{stacked:true, display:false}}
       }
     });
+    // Legend for the bar (shown on mobile only): same buckets and colours as the chart.
+    const wcdLegend = document.getElementById('wcdLegend');
+    if(wcdLegend){
+      wcdLegend.innerHTML = buckets.map(b=>`<div class="lg"><span class="sw" style="background:${b.color};"></span>${b.label} · ${b.pct.toFixed(0)}%</div>`).join('');
+    }
     const wcr = wealthConversionRate(client);
     const target = client.preferences.wealthConversionTarget||20;
     document.getElementById('wcdTarget').textContent = target+'%';
@@ -10070,13 +10192,15 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------- Next best steps ---------- */
+  const CF_NEXT_STEPS = [
+    {text:'Increase your monthly investments.', page:'planning'},
+    {text:'Understand lifestyle inflation, and why it quietly erodes disposable income.', page:'learning'},
+    {text:'Building an emergency fund, step by step.', page:'guides'},
+    {text:'Model a full scenario in the Forecast planner.', page:'planning'},
+  ];
+  TEI.planNextSteps = Object.assign(TEI.planNextSteps || {}, {cashflow: CF_NEXT_STEPS});
   function renderCfNextSteps(){
-    const steps = [
-      {text:'Increase your monthly investments.', page:'planning'},
-      {text:'Understand lifestyle inflation, and why it quietly erodes disposable income.', page:'learning'},
-      {text:'Building an emergency fund, step by step.', page:'guides'},
-      {text:'Model a full scenario in the Forecast planner.', page:'planning'},
-    ];
+    const steps = CF_NEXT_STEPS;
     const list = document.getElementById('cfNextStepsList');
     list.innerHTML = steps.map((s,i)=>`<li data-cf-step-idx="${i}"><div class="dot"></div>${s.text}</li>`).join('');
     list.querySelectorAll('[data-cf-step-idx]').forEach(li=>{
@@ -14840,14 +14964,20 @@ window.TEI = window.TEI || {};
       {id:'overview',  label:'Overview',  page:'progress'},
       {id:'portfolio', label:'Portfolio', page:'portfolio'},
       {id:'journey',   label:'Journey',   page:'progress'}
+    ],
+    plan: [
+      {id:'goals',    label:'Goals',    page:'goals'},
+      {id:'forecast', label:'Forecast', page:'planning'},
+      {id:'cashflow', label:'Cashflow', page:'cashflow'}
     ]
   };
   const mLastView = {};      // tab -> last view used, so tapping a tab returns to it
   let mPendingView = null;   // set by setMobileView() just before it calls showPage()
 
+  // The view a plain showPage(pageId) lands on: the first view that renders that page.
   function defaultMobileView(tab, pageId){
-    if(tab === 'wealth') return pageId === 'portfolio' ? 'portfolio' : 'overview';
-    return null;
+    const v = (M_VIEWS[tab] || []).find(x=> x.page === pageId);
+    return v ? v.id : null;
   }
 
   function syncMobileTabs(pageId){
@@ -14868,7 +14998,9 @@ window.TEI = window.TEI || {};
         b.classList.toggle('on', on);
         b.setAttribute('aria-pressed', on ? 'true' : 'false');
       });
+      // Views that show a block belonging to another page fill it from that page's own renderer.
       if(view === 'journey' && state.client && TEI.render.investorStage) TEI.render.investorStage(state.client);
+      if(view === 'goals' && state.client && TEI.render.financialGoalsSummary) TEI.render.financialGoalsSummary(state.client);
     } else {
       app.removeAttribute('data-mview');
     }
@@ -14908,20 +15040,54 @@ window.TEI = window.TEI || {};
   /* The Investor stage card lives on the Portfolio page on desktop. On mobile
      it belongs to Wealth > Journey, so move the node into #mJourneyStageHost
      (and back above 860px). It keeps its ids, so its renderer still fills it. */
-  let mStageHome = null;
-  function placeStageCard(mobile){
-    const badge = document.getElementById('stageBadge');
-    const host = document.getElementById('mJourneyStageHost');
-    const card = badge && badge.closest('.dcard');
-    if(!card || !host) return;
-    if(mobile){
-      if(card.parentNode !== host){
-        if(!mStageHome) mStageHome = {parent:card.parentNode, next:card.nextSibling};
-        host.appendChild(card);
+  /* Blocks that belong to a different page on desktop but to a merged view on
+     mobile are moved (not copied) into a host element: `find` locates the node
+     (it keeps its ids, so its own renderer still fills it), `host` is where it
+     goes on mobile. They go back, in reverse order, above 860px. */
+  const M_MOVES = [
+    {find:()=> closestOf('stageBadge', '.dcard'), host:'mJourneyStageHost'},     // Investor stage -> Wealth > Journey
+    {find:()=> closestOf('hcFFPct', '.k-stat-split'), host:'mGoalsFFHost'},      // Financial freedom / Next milestone -> Plan > Goals
+    {find:()=> document.getElementById('wpMcToggles'), host:'mProjection'},      // projection scenario toggles -> Plan > Forecast
+    {find:()=> document.getElementById('wpPlanChartBox'), host:'mProjection'}    // projection chart -> Plan > Forecast
+  ];
+  function closestOf(id, sel){ const el = document.getElementById(id); return el ? el.closest(sel) : null; }
+  function placeMoves(mobile){
+    const list = mobile ? M_MOVES : M_MOVES.slice().reverse();
+    list.forEach(m=>{
+      const node = m.find();
+      const host = document.getElementById(m.host);
+      if(!node || !host) return;
+      if(mobile){
+        if(node.parentNode !== host){
+          if(!m.home) m.home = {parent:node.parentNode, next:node.nextSibling};
+          host.appendChild(node);
+        }
+      } else if(m.home && node.parentNode === host){
+        m.home.parent.insertBefore(node, m.home.next);
       }
-    } else if(mStageHome && card.parentNode === host){
-      mStageHome.parent.insertBefore(card, mStageHome.next);
-    }
+    });
+  }
+
+  /* Plan tab: one merged "Next best steps" card above the segmented switch,
+     built from the two existing lists (Forecast's and Cashflow's) -- top 2.
+     Built once per Plan page (no ids, so three copies are fine). */
+  function buildMobilePlanExtras(){
+    const ns = TEI.planNextSteps || {};
+    const f = ns.forecast || [], c = ns.cashflow || [];
+    // Forecast's first step, then Cashflow's lifestyle-inflation step: one from each page, no overlap.
+    const steps = [f[0], c[1]].filter(Boolean);
+    ['goals','planning','cashflow'].forEach(pid=>{
+      const page = document.getElementById('page-'+pid);
+      if(!page || page.querySelector('.m-nextsteps')) return;
+      const card = document.createElement('div');
+      card.className = 'dcard m-nextsteps';
+      card.innerHTML = `<div class="k">Next best steps</div><ul class="k-simple-list clickable">` +
+        steps.map((s,i)=>`<li data-step-idx="${i}"><div class="dot"></div>${s.text}</li>`).join('') + `</ul>`;
+      card.querySelectorAll('[data-step-idx]').forEach(li=>{
+        li.addEventListener('click', ()=>{ const s = steps[li.dataset.stepIdx]; if(s) showPage(s.page); });
+      });
+      page.appendChild(card);
+    });
   }
 
   function renderMenu(){
@@ -14940,6 +15106,7 @@ window.TEI = window.TEI || {};
       });
     });
     buildMobileSegs();
+    buildMobilePlanExtras();
     document.querySelectorAll('#page-menu [data-mgo]').forEach(b=>{
       b.addEventListener('click', ()=> showPage(b.dataset.mgo));
     });
@@ -14956,11 +15123,11 @@ window.TEI = window.TEI || {};
     // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
     const onChange = ()=>{
       if(!mq.matches && state.currentPage === 'menu') showPage('home');
-      placeStageCard(mq.matches);
+      placeMoves(mq.matches);
       applyMobileA11y(mq);
     };
     if(mq.addEventListener) mq.addEventListener('change', onChange); else if(mq.addListener) mq.addListener(onChange);
-    placeStageCard(mq.matches);
+    placeMoves(mq.matches);
     applyMobileA11y(mq);
   }
 
@@ -14972,10 +15139,14 @@ window.TEI = window.TEI || {};
     document.querySelectorAll('[data-m-acc]').forEach(box=>{
       const head = box.querySelector(':scope > [data-m-acc-h]');
       if(!head) return;
+      if(box.hasAttribute('data-m-open')) box.classList.add('m-open'); // open by default on mobile
       const toggle = ()=>{
         if(!mq.matches) return;
         const open = box.classList.toggle('m-open');
         head.setAttribute('aria-expanded', open ? 'true' : 'false');
+        // Content that measures itself when rendered (the goal timeline) can't do so while
+        // hidden, so re-render the page once it is visible.
+        if(open && box.hasAttribute('data-m-rerender')) rerenderCurrentPage();
       };
       head.addEventListener('click', toggle);
       head.addEventListener('keydown', e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); } });
