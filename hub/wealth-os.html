@@ -1549,6 +1549,11 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
    dark both work.
    ================================================================ */
 #clientApp .m-tabs{display:none;}
+/* Mobile-only Home additions: hidden by default so desktop is unchanged. */
+#clientApp .m-ns-pill, #clientApp .m-ns-bar{display:none;}
+/* Was an inline style on the Home "Monthly wins" block; moved to a class so
+   the mobile layout can restyle it. Values are identical, so desktop is too. */
+.home-wins{margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);}
 @media (max-width:860px){
   #clientApp{--m-bar-h:60px; --m-bar-total:calc(var(--m-bar-h) + env(safe-area-inset-bottom, 0px));}
 
@@ -1607,6 +1612,63 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #clientApp .m-row:focus-visible{outline:2px solid var(--gold); outline-offset:-2px; border-radius:6px;}
   #clientApp .m-row.m-danger{color:#C88F96; justify-content:center; font-weight:700;}
   #clientApp[data-theme="light"] .m-row.m-danger{color:#9C4F56;}
+
+  /* -- Shared: things hidden on mobile, and accordions (JS toggles .m-open) -- */
+  #clientApp [data-m="hide"]{display:none;}
+  #clientApp [data-m-acc] > [data-m-acc-h]{display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:26px; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  #clientApp [data-m-acc] > [data-m-acc-h]::after{content:""; flex:none; width:7px; height:7px; margin:-3px 2px 0 0; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); transition:transform .15s;}
+  #clientApp [data-m-acc].m-open > [data-m-acc-h]::after{transform:rotate(-135deg); margin-top:3px;}
+  #clientApp [data-m-acc]:not(.m-open) > *:not([data-m-acc-h]){display:none;}
+  #clientApp [data-m-acc] > [data-m-acc-h]:focus-visible{outline:2px solid var(--gold); outline-offset:3px; border-radius:4px;}
+
+  /* -- Adviser banner: one slim row (was two) -- */
+  #clientApp .mode-bar{flex-wrap:nowrap; justify-content:flex-start; gap:6px; padding:7px 14px;}
+  #clientApp .mode-bar span{font-size:11px; margin:0 auto 0 0; white-space:nowrap;}
+  #clientApp .mode-bar button{padding:5px 11px; font-size:11.5px; white-space:nowrap;}
+  /* "Manage this client →" shortens to "Manage →" so the banner fits one row
+     (text hidden via font-size:0; the second content value is alt text so
+     screen readers still hear only the original label). */
+  #clientApp #openAdviserWorkspaceBtn{font-size:0;}
+  #clientApp #openAdviserWorkspaceBtn::after{content:"Manage →"; content:"Manage →" / ""; font-size:11.5px;}
+
+  /* -- Home -- */
+  #page-home .wrap{padding-left:14px; padding-right:14px;}
+  #clientApp #page-home header.hero.k-greeting{padding-top:12px;}
+  #clientApp #page-home header.hero.k-greeting h1{font-size:21px; line-height:1.25;}
+  #clientApp #page-home header.hero.k-greeting .sub{font-size:12px;}
+  #page-home #wealthSnapshotSection{padding-top:10px !important;}
+  #page-home .dgrid{gap:8px;}
+
+  /* Net worth: figure + yearly change pill on one row, short sparkline below; tap opens Wealth. */
+  #page-home .dcard.emphasis{display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; column-gap:8px; cursor:pointer;}
+  #page-home .dcard.emphasis > .k, #page-home .dcard.emphasis > .k-chart-box{grid-column:1 / -1;}
+  #page-home .dcard.emphasis .v.big{font-size:30px; line-height:1.1; margin:2px 0 0;}
+  #page-home .dcard.emphasis .k-pill{margin-top:2px; white-space:nowrap;}
+  #page-home .dcard.emphasis .k-chart-box{height:52px; margin-top:6px; padding:4px 2px 0;}
+
+  /* North star: one slim card -- goal + merged status pill, progress bar, ETA. */
+  #page-home .northstar{display:grid !important; grid-template-columns:minmax(0,1fr) auto; align-items:center; column-gap:8px; height:auto !important;}
+  #page-home .northstar > .k, #page-home .northstar > .m-ns-bar, #page-home .northstar > #nsEta{grid-column:1 / -1;}
+  #page-home .northstar > .k-stat-split{display:none;}
+  #page-home .northstar #nsGoal{margin-top:4px !important; font-size:16px !important;}
+  #clientApp #page-home .m-ns-pill{display:inline-flex; margin:4px 0 0; white-space:nowrap;}
+  #clientApp #page-home .m-ns-bar{display:block; margin-top:8px;}
+  #page-home .northstar #nsEta{margin-top:6px !important; font-size:12px;}
+
+  /* Coach's corner: 1-2 lines, full-width action button. */
+  #page-home #ccMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
+  #page-home #ccActionBtn{align-self:stretch !important; text-align:center; text-decoration:none; margin-top:8px !important; padding:9px 14px; font-size:13px;}
+  #page-home .span-6 > .dcard{height:auto !important;}
+
+  /* This week's focus (top 3) and two accordion cards: Monthly wins, Your journey. */
+  #page-home .m-split{background:none; border:0; padding:0; gap:8px; height:auto !important;}
+  #page-home .m-focus-card{background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; padding:11px 13px;}
+  #page-home #weeklyFocusList{margin-top:4px !important;}
+  #page-home #weeklyFocusList .k-js-row:nth-child(n+4){display:none;}
+  #page-home #weeklyFocusList .k-js-row{padding:8px 0; gap:10px;}
+  #page-home .home-wins, #page-home [data-m-acc].dcard{margin:0; padding:11px 13px; border-top:0; background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; height:auto !important;}
+  #page-home .m-split .home-wins{width:100%;}
+  #page-home #monthlyWinsGrid, #page-home #journeyRail{margin-top:8px !important; font-size:13.5px;}
 }
 </style>
 </head>
@@ -1810,7 +1872,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
     <!-- Net worth — sole emphasis card, full width (Section 11) -->
     <div class="span-12">
-      <div class="dcard emphasis">
+      <div class="dcard emphasis" id="hcNetWorthCard">
         <div class="k">Net worth</div>
         <div class="v big" id="hcNetWorth">£0</div>
         <span class="k-pill neutral" id="hcNetWorthChange">–</span>
@@ -1823,6 +1885,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="dcard advisory northstar" style="height:100%; display:flex; flex-direction:column;">
         <div class="k">North star</div>
         <div class="v sm" id="nsGoal" style="font-size:17px; margin-top:8px;">–</div>
+        <!-- Mobile-only (hidden by CSS above 860px): Trajectory + Status merged into one pill, and a progress bar. Filled by renderNorthStar(). -->
+        <span class="k-pill m-ns-pill" id="nsPill">–</span>
+        <div class="k-bar m-ns-bar" id="nsBarWrap"><div class="fill" id="nsBar" style="width:0%;"></div></div>
         <div class="sub2" id="nsEta" style="margin-top:8px;">–</div>
         <div class="k-stat-split" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--k-row-border);">
           <div class="sp"><div class="k">Trajectory</div><div class="v traj-up" style="font-size:16px;" id="nsTrajectory">–</div></div>
@@ -1839,8 +1904,9 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       </div>
     </div>
 
-    <!-- Financial Goals (combined) + This Week's Focus -->
-    <div class="span-8">
+    <!-- Financial Goals (combined) + This Week's Focus
+         (data-m="hide": hidden on mobile -- Financial goals lives in the Plan tab there) -->
+    <div class="span-8" data-m="hide">
       <div class="dcard">
         <div class="k">Financial goals</div>
         <div class="k-stat-split" style="margin-top:10px;">
@@ -1863,24 +1929,27 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       </div>
     </div>
     <div class="span-4">
-      <div class="dcard" style="height:100%; display:flex; flex-direction:column;">
-        <div class="k">This week's focus</div>
-        <div id="weeklyFocusList" style="margin-top:8px;"></div>
-        <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);">
-          <div class="k">Monthly wins</div>
+      <div class="dcard m-split" style="height:100%; display:flex; flex-direction:column;">
+        <div class="m-focus-card">
+          <div class="k">This week's focus</div>
+          <div id="weeklyFocusList" style="margin-top:8px;"></div>
+        </div>
+        <!-- On mobile this block becomes its own accordion card (data-m-acc). -->
+        <div class="home-wins" data-m-acc>
+          <div class="k" data-m-acc-h>Monthly wins</div>
           <div class="line" id="monthlyWinsGrid" style="margin-top:6px;"></div>
         </div>
       </div>
     </div>
 
-    <!-- Your Journey + Quick Access -->
+    <!-- Your Journey + Quick Access (Quick access hidden on mobile: the bottom bar replaces it) -->
     <div class="span-6">
-      <div class="dcard" style="height:100%;">
-        <div class="k">Your journey</div>
+      <div class="dcard" style="height:100%;" data-m-acc>
+        <div class="k" data-m-acc-h>Your journey</div>
         <div id="journeyRail" style="margin-top:8px;"></div>
       </div>
     </div>
-    <div class="span-6">
+    <div class="span-6" data-m="hide">
       <div class="dcard" style="height:100%;">
         <div class="k">Quick access</div>
         <div class="k-qa-grid" id="quickNavGrid"></div>
@@ -5258,8 +5327,10 @@ TEI.render = TEI.render || {};
     document.getElementById('nsGoal').textContent = `"${goalLabel}"`;
 
     const etaEl = document.getElementById('nsEta');
+    let nsBarPct = 0; // feeds the mobile-only progress bar (#nsBar)
     if(goalRef){
       const gp = TEI.calc.goalProgress(client, goalRef);
+      nsBarPct = gp.target ? Math.max(0, Math.min(100, gp.pct)) : (gp.isComplete ? 100 : 0);
       if(gp.target){
         etaEl.textContent = gp.pct.toFixed(0) + '% there · ' + estimateCompletionText(Math.max(0, gp.target-gp.current), monthlyContrib);
       } else {
@@ -5277,6 +5348,17 @@ TEI.render = TEI.render || {};
     const statusEl = document.getElementById('nsStatus');
     statusEl.textContent = status==='ahead' ? 'Ahead' : status==='behind' ? 'Needs attention' : 'On track';
     statusEl.className = 'v ns-status ' + status;
+
+    /* Mobile-only extras (both elements are display:none above 860px):
+       Trajectory + Status merged into one pill, plus the goal progress bar. */
+    const SHORT_TRAJ = {'Growing steadily':'Growing', 'Holding steady':'Steady', 'Slowed this month':'Slowed', 'Just getting started':'Getting started'};
+    const nsPill = document.getElementById('nsPill');
+    if(nsPill){
+      nsPill.textContent = (SHORT_TRAJ[trajEl.textContent] || trajEl.textContent) + ' · ' + statusEl.textContent;
+      nsPill.className = 'k-pill m-ns-pill ' + (status==='behind' ? 'down' : 'up');
+    }
+    const nsBar = document.getElementById('nsBar');
+    if(nsBar) nsBar.style.width = nsBarPct.toFixed(0) + '%';
   }
 
   /* ---------------- Coach's Corner ----------------
@@ -14642,10 +14724,57 @@ window.TEI = window.TEI || {};
         else if(act === 'signout' && window.TeiHubAuth){ TeiHubAuth.signOut(); }
       });
     });
-    // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
     const mq = window.matchMedia('(max-width:860px)');
-    const onChange = ()=>{ if(!mq.matches && state.currentPage === 'menu') showPage('home'); };
+    wireMobileHome(mq);
+    // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
+    const onChange = ()=>{
+      if(!mq.matches && state.currentPage === 'menu') showPage('home');
+      applyMobileA11y(mq);
+    };
     if(mq.addEventListener) mq.addEventListener('change', onChange); else if(mq.addListener) mq.addListener(onChange);
+    applyMobileA11y(mq);
+  }
+
+  /* Mobile-only interactions on Home (and any later page that uses the same
+     data attributes): accordions ([data-m-acc] with a [data-m-acc-h] header
+     toggle .m-open) and the net worth card, which opens Wealth on tap. Every
+     handler returns straight away above 860px, so desktop behaves as before. */
+  function wireMobileHome(mq){
+    document.querySelectorAll('[data-m-acc]').forEach(box=>{
+      const head = box.querySelector(':scope > [data-m-acc-h]');
+      if(!head) return;
+      const toggle = ()=>{
+        if(!mq.matches) return;
+        const open = box.classList.toggle('m-open');
+        head.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
+      head.addEventListener('click', toggle);
+      head.addEventListener('keydown', e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); } });
+    });
+    const nwCard = document.getElementById('hcNetWorthCard');
+    if(nwCard){
+      const open = ()=>{ if(mq.matches) showPage('progress'); };
+      nwCard.addEventListener('click', open);
+      nwCard.addEventListener('keydown', e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); open(); } });
+    }
+  }
+
+  // Keyboard / screen-reader semantics for those mobile-only controls, added
+  // on mobile and removed again on desktop so the desktop DOM is unchanged.
+  function applyMobileA11y(mq){
+    document.querySelectorAll('[data-m-acc] > [data-m-acc-h]').forEach(head=>{
+      if(mq.matches){
+        head.setAttribute('role', 'button'); head.setAttribute('tabindex', '0');
+        head.setAttribute('aria-expanded', head.parentNode.classList.contains('m-open') ? 'true' : 'false');
+      } else {
+        head.removeAttribute('role'); head.removeAttribute('tabindex'); head.removeAttribute('aria-expanded');
+      }
+    });
+    const nwCard = document.getElementById('hcNetWorthCard');
+    if(nwCard){
+      if(mq.matches){ nwCard.setAttribute('role', 'link'); nwCard.setAttribute('tabindex', '0'); }
+      else { nwCard.removeAttribute('role'); nwCard.removeAttribute('tabindex'); }
+    }
   }
 
   function openSidebar(){
