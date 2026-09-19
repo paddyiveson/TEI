@@ -1538,6 +1538,76 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .mode-bar button{background:transparent; border:1px solid rgba(247,244,237,0.25); color:var(--cream-soft); padding:7px 16px; border-radius:var(--radius-pill); font-size:13px; font-weight:600; cursor:pointer; font-family:'Inter',sans-serif;}
 .mode-bar button.active{background:var(--gold); color:var(--card-dark); border-color:var(--gold);}
 
+/* ================================================================
+   MOBILE APP SHELL -- the client dashboard on a phone (<=860px).
+   Bottom tab bar (Home / Wealth / Plan / Library / Menu) replaces the
+   sidebar drawer + hamburger. ONE breakpoint (860px, same as the JS check
+   in enhanceMobileCollapse and the public-site mobile nav); every rule
+   below sits inside it and is scoped to #clientApp, so desktop, the
+   Adviser Workspace and Onboarding are untouched. The 861-900px band keeps
+   the existing drawer. Colours come from the theme variables, so light and
+   dark both work.
+   ================================================================ */
+#clientApp .m-tabs{display:none;}
+@media (max-width:860px){
+  #clientApp{--m-bar-h:60px; --m-bar-total:calc(var(--m-bar-h) + env(safe-area-inset-bottom, 0px));}
+
+  /* Sidebar, hamburger and drawer scrim: replaced by the bottom bar. */
+  #clientApp .sidebar, #clientApp .menu-btn, #clientApp #sidebarScrim{display:none;}
+
+  /* Nothing sits behind the bar. */
+  #clientApp .main-inner{padding-bottom:var(--m-bar-total);}
+
+  /* Feedback button, its panel and toasts float above the bar. */
+  #clientApp .feedback-fab{right:16px; bottom:calc(var(--m-bar-total) + 14px);}
+  #clientApp .feedback-panel{right:16px; bottom:calc(var(--m-bar-total) + 78px);}
+  #clientApp .toast{bottom:calc(var(--m-bar-total) + 14px);}
+
+  /* -- Bottom bar -- */
+  #clientApp .m-tabs{
+    display:grid; grid-template-columns:repeat(5,minmax(0,1fr));
+    position:fixed; left:0; right:0; bottom:0; z-index:80; /* under the feedback button (95) and toast (100) */
+    background:var(--card-dark); border-top:1px solid var(--cream-line);
+    box-shadow:0 -2px 16px rgba(0,0,0,0.22);
+    padding:0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+    font-family:var(--font-body);
+  }
+  #clientApp .m-tab{
+    -webkit-appearance:none; appearance:none; box-sizing:border-box;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    min-height:var(--m-bar-h); margin:0; padding:6px 4px 5px;
+    background:none; border:0; border-radius:0;
+    color:rgba(247,244,237,0.88);
+    font:inherit; font-size:11px; font-weight:600; line-height:14px; letter-spacing:0.01em;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #clientApp .m-tab svg{display:block; flex:none; width:24px; height:24px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  #clientApp .m-tab span{display:block; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  #clientApp .m-tab.on{color:var(--gold);}
+  #clientApp .m-tab:focus-visible{outline:2px solid var(--gold); outline-offset:-3px; border-radius:6px;}
+
+  /* -- Menu page (Stage 1 shell; the full Menu arrives in Stage 6) -- */
+  #clientApp .m-sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
+  #clientApp .m-menu{padding-top:var(--space-lg); padding-bottom:var(--space-lg);}
+  #clientApp .m-card{background:var(--card-light-bg); border:1px solid var(--card-light-border, var(--line)); border-radius:var(--radius); padding:4px 14px; margin:0 0 10px; color:var(--ink);}
+  #clientApp .m-card.m-profile{display:flex; align-items:center; gap:12px; padding:12px 14px;}
+  #clientApp .m-avatar{flex:none; width:42px; height:42px; border-radius:50%; background:var(--gold); color:var(--card-dark); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;}
+  #clientApp .m-profile-name{font-weight:700; font-size:16px; line-height:1.2;}
+  #clientApp .m-profile-role{font-size:12.5px; color:var(--ink-soft);}
+  #clientApp .m-label{font-size:11px; letter-spacing:0.07em; text-transform:uppercase; font-weight:700; color:var(--ink-soft); margin:14px 2px 6px;}
+  #clientApp .m-row{
+    -webkit-appearance:none; appearance:none; box-sizing:border-box; width:100%;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    min-height:48px; margin:0; padding:10px 0; background:none; border:0; border-bottom:1px solid var(--line);
+    color:var(--ink); font:inherit; font-size:15px; text-align:left; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  #clientApp .m-card > .m-row:last-child{border-bottom:0;}
+  #clientApp .m-row .m-val{font-size:12.5px; color:var(--ink-soft);}
+  #clientApp .m-row .m-chev{flex:none; color:var(--ink-soft2); font-size:18px; line-height:1;}
+  #clientApp .m-row:focus-visible{outline:2px solid var(--gold); outline-offset:-2px; border-radius:6px;}
+  #clientApp .m-row.m-danger{color:#C88F96; justify-content:center; font-weight:700;}
+  #clientApp[data-theme="light"] .m-row.m-danger{color:#9C4F56;}
+}
 </style>
 </head>
 <body>
@@ -1631,6 +1701,31 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <button type="button" class="btn-primary" id="feedbackSubmitBtn" style="width:100%;">Send</button>
   </div>
   <div class="fp-history" id="feedbackHistory"></div>
+</div>
+
+<!-- Mobile-only bottom tab bar (<=860px; hidden above that by CSS). Wired in
+     wireMobileTabs(); active tab follows showPage() via syncMobileTabs(). -->
+<div class="m-tabs" id="mTabs" role="navigation" aria-label="Primary">
+  <button type="button" class="m-tab on" data-mtab="home">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>
+    <span>Home</span>
+  </button>
+  <button type="button" class="m-tab" data-mtab="wealth">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19l16 0"/><path d="M4 15l4 -6l4 2l4 -5l4 4"/></svg>
+    <span>Wealth</span>
+  </button>
+  <button type="button" class="m-tab" data-mtab="plan">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 7a5 5 0 1 0 5 5"/><path d="M13 3.055a9 9 0 1 0 7.941 7.945"/><path d="M15 6v3h3l3 -3h-3v-3z"/><path d="M15 9l-3 3"/></svg>
+    <span>Plan</span>
+  </button>
+  <button type="button" class="m-tab" data-mtab="library">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"/><path d="M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"/><path d="M5 8h4"/><path d="M9 16h4"/><path d="M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z"/><path d="M14 9l4 -1"/><path d="M16 16l3.923 -.98"/></svg>
+    <span>Library</span>
+  </button>
+  <button type="button" class="m-tab" data-mtab="menu">
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg>
+    <span>Menu</span>
+  </button>
 </div>
 
 <div class="app-shell">
@@ -2696,6 +2791,40 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
     <div class="span-12" id="mydetailsHost"></div>
   </div>
+</section>
+</div>
+
+<!-- ============================= MENU (mobile only) =============================
+     Reached from the bottom bar's Menu tab; no sidebar link points here, and
+     showPage('home') is forced if the window widens past 860px while it is open. -->
+<div id="page-menu" class="page">
+<section class="wrap m-menu">
+  <h1 class="m-sr">Menu</h1>
+  <div class="m-card m-profile">
+    <div class="m-avatar" id="mMenuAvatar" aria-hidden="true">–</div>
+    <div><div class="m-profile-name" id="mMenuName">–</div><div class="m-profile-role">TEI Client</div></div>
+  </div>
+
+  <!-- Stage 1 scaffold: keeps every page reachable while the tabs are built
+       out. Removed once Stages 2-6 give each of these a home. -->
+  <div class="m-label">More pages</div>
+  <div class="m-card">
+    <button type="button" class="m-row" data-mgo="update"><span>Update monthly figures</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" data-mgo="mydetails"><span>My Details</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" data-mgo="portfolio"><span>Portfolio</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" data-mgo="planning"><span>Forecast</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" data-mgo="cashflow"><span>Cashflow</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" data-mgo="learning"><span>Learn</span><span class="m-chev" aria-hidden="true">›</span></button>
+  </div>
+
+  <div class="m-label">Account</div>
+  <div class="m-card">
+    <div class="m-row" role="presentation" style="cursor:default;"><span>Notifications</span><span class="m-val">None new</span></div>
+    <button type="button" class="m-row" data-mgo="mydetails"><span>Profile</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" data-mact="theme"><span>Light / dark</span><span class="m-val" id="mMenuThemeVal">–</span></button>
+    <button type="button" class="m-row" data-mact="help"><span>Help &amp; support</span><span class="m-chev" aria-hidden="true">›</span></button>
+  </div>
+  <div class="m-card"><button type="button" class="m-row m-danger" data-mact="signout">Sign out</button></div>
 </section>
 </div>
 
@@ -14444,7 +14573,7 @@ window.TEI = window.TEI || {};
 window.TEI = window.TEI || {};
 
 (function(){
-  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails'];
+  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails','menu'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -14466,12 +14595,58 @@ window.TEI = window.TEI || {};
     state.currentPage = pageId;
     document.querySelectorAll('.page').forEach(el=> el.classList.toggle('active', el.id === 'page-'+pageId));
     document.querySelectorAll('.navlink').forEach(el=> el.classList.toggle('nav-active', el.dataset.page === pageId));
+    syncMobileTabs(pageId);
     document.getElementById('clientApp').scrollTo ? null : null;
     window.scrollTo({top:0, behavior:'auto'});
     renderPage(pageId);
   }
 
   function rerenderCurrentPage(){ renderPage(state.currentPage); }
+
+  /* ================= MOBILE TAB BAR (<=860px) =================
+     The bottom bar (#mTabs) is hidden by CSS above 860px, so none of this
+     is visible on desktop. Pages, renderers and showPage() are unchanged:
+     a tab just opens one of the existing pages. Stage 1 = one page per tab;
+     later stages add the segmented switches inside Wealth / Plan / Library. */
+  const M_TAB_OF = {home:'home', progress:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', update:'menu', mydetails:'menu', menu:'menu'};
+  const M_TAB_TARGET = {home:'home', wealth:'progress', plan:'goals', library:'documents', menu:'menu'};
+
+  function syncMobileTabs(pageId){
+    const tab = M_TAB_OF[pageId] || 'home';
+    document.querySelectorAll('#mTabs .m-tab').forEach(b=>{
+      const on = b.dataset.mtab === tab;
+      b.classList.toggle('on', on);
+      if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+    });
+  }
+
+  function renderMenu(){
+    const theme = document.getElementById('clientApp').getAttribute('data-theme');
+    const val = document.getElementById('mMenuThemeVal');
+    if(val) val.textContent = theme === 'dark' ? 'Dark' : 'Light';
+  }
+  TEI.render.menu = renderMenu;
+
+  function wireMobileTabs(){
+    document.querySelectorAll('#mTabs .m-tab').forEach(b=>{
+      b.addEventListener('click', ()=> showPage(M_TAB_TARGET[b.dataset.mtab]));
+    });
+    document.querySelectorAll('#page-menu [data-mgo]').forEach(b=>{
+      b.addEventListener('click', ()=> showPage(b.dataset.mgo));
+    });
+    document.querySelectorAll('#page-menu [data-mact]').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const act = b.dataset.mact;
+        if(act === 'theme'){ document.getElementById('themeToggleBtn')?.click(); renderMenu(); }
+        else if(act === 'help'){ document.getElementById('feedbackFabBtn')?.click(); }
+        else if(act === 'signout' && window.TeiHubAuth){ TeiHubAuth.signOut(); }
+      });
+    });
+    // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
+    const mq = window.matchMedia('(max-width:860px)');
+    const onChange = ()=>{ if(!mq.matches && state.currentPage === 'menu') showPage('home'); };
+    if(mq.addEventListener) mq.addEventListener('change', onChange); else if(mq.addListener) mq.addListener(onChange);
+  }
 
   function openSidebar(){
     const sidebar = document.getElementById('sidebar');
@@ -14552,6 +14727,10 @@ window.TEI = window.TEI || {};
     if(btn) btn.textContent = getInitials(name);
     if(ddName) ddName.textContent = name;
     if(sidebarWho) sidebarWho.textContent = name;
+    const mAvatar = document.getElementById('mMenuAvatar');
+    const mName = document.getElementById('mMenuName');
+    if(mAvatar) mAvatar.textContent = getInitials(name);
+    if(mName) mName.textContent = name;
   }
 
   function setMode(mode){
@@ -14911,6 +15090,7 @@ window.TEI = window.TEI || {};
      client-shaped renders until they open or add a client from there. */
   async function init(){
     wireNav();
+    wireMobileTabs();
     wireModeSwitch();
     wireClientListPage();
     wireTheme();
