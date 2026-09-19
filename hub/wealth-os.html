@@ -1555,6 +1555,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 #clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
 /* Mobile-only Plan additions (merged next-steps card, hosts for moved blocks, conversion legend, accordion title). */
 #clientApp .m-nextsteps, #clientApp #mGoalsFFHost, #clientApp #wcdLegend, #clientApp .m-explain, #clientApp .m-step{display:none;}
+/* Mobile-only Library additions (Learn cards, Meeting notes filter). */
+#clientApp #mLearnHost, #clientApp .m-chips, #clientApp .m-docs-empty{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
    the mobile layout can restyle it. Values are identical, so desktop is too. */
 .home-wins{margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);}
@@ -1675,7 +1677,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #page-home #monthlyWinsGrid, #page-home #journeyRail{margin-top:8px !important; font-size:13.5px;}
 
   /* ================= Merged tabs: segmented switch (Wealth now; Plan, Library later) ================= */
-  #clientApp .m-seg{display:flex; order:0; background:var(--k-track-bg); border-radius:10px; padding:3px; gap:2px; margin:0;}
+  #clientApp .m-seg{display:flex; order:-2; background:var(--k-track-bg); border-radius:10px; padding:3px; gap:2px; margin:0;}
   #clientApp .m-seg button{flex:1; min-height:36px; margin:0; padding:0 6px; background:none; border:0; border-radius:8px; color:var(--k-ink-softer); font:inherit; font-size:13px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent;}
   #clientApp .m-seg button.on{background:var(--k-card-bg); color:var(--k-ink); box-shadow:0 1px 2px rgba(0,0,0,0.12);}
   #clientApp .m-seg button:focus-visible{outline:2px solid var(--gold); outline-offset:-2px;}
@@ -1876,6 +1878,37 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #wpPlan .form-actions button{min-height:44px; margin:0; padding:0 10px; font-size:13px;}
 
   /* Explainer text: collapsed behind a small toggle in every view. */
+  /* ================= Library: Plan | Learn | Meeting notes ================= */
+  #clientApp[data-mview] #page-libplan.active, #clientApp[data-mview] #page-learning.active, #clientApp[data-mview] #page-documents.active{display:flex; flex-direction:column; gap:8px; padding:12px 14px 0;}
+  #clientApp[data-mview] #page-learning > header.hero, #clientApp[data-mview] #page-documents > header.hero{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; padding:0;}
+  #page-libplan .dcard, #page-learning .dcard, #page-documents .dcard{padding:11px 13px;}
+
+  /* Plan */
+  #page-libplan .lp-title{font-family:var(--font-display); font-size:19px; font-weight:600; line-height:1.25; margin-top:6px; color:var(--k-ink);}
+  #page-libplan #lpAlloc .k-comp-bar{margin-top:8px;}
+  #page-libplan #lpAlloc .k-comp-legend{gap:6px 12px;}
+
+  /* Learn: the three mobile cards replace the desktop "Recommended for you" grid. */
+  #page-learning > section{display:none;}
+  #clientApp #mLearnHost{display:flex; flex-direction:column; gap:8px; order:10;}
+  #mLearnHost a.k-js-row{text-decoration:none; color:inherit; gap:12px; min-height:44px;}
+  #mLearnHost a.k-js-row .jk{color:var(--k-ink); font-weight:500;}
+  #mLearnHost .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(--k-ink-softer); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  #mLearnHost .btn-primary{padding:11px 16px;}
+
+  /* Meeting notes: filter chips, then the list. Notes first; "All documents" shows everything. */
+  #page-documents > section, #page-documents > section > .dgrid, #page-documents > section > .dgrid > div{display:contents;}
+  #clientApp .m-chips{display:flex; gap:6px; order:5;}
+  #clientApp .m-chips button{-webkit-appearance:none; appearance:none; min-height:36px; margin:0; padding:0 14px; background:none; border:1px solid var(--k-card-border, var(--line)); border-radius:999px; color:var(--k-ink-softer); font:inherit; font-size:13px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  #clientApp .m-chips button.on{background:var(--gold); border-color:var(--gold); color:var(--card-dark);}
+  #clientApp .m-chips button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  #clientApp .m-chips .n{font-weight:400; opacity:0.85;}
+  #page-documents #documentsList{order:20;}
+  #clientApp .m-docs-empty{display:block; order:20;}
+  #clientApp .m-docs-empty[hidden]{display:none;}
+  #page-documents:not(.m-docs-all) .k-doc-row:not([data-doctype="note"]){display:none;}
+  #page-documents .k-doc-name{font-size:14.5px;}
+
   #clientApp .m-explain{display:flex; align-items:center; gap:6px; min-height:40px; margin:6px 0 0; padding:0; background:none; border:0; color:var(--gold); font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-align:left; -webkit-tap-highlight-color:transparent;}
   #clientApp .m-explain::after{content:""; width:7px; height:7px; margin:-3px 0 0 2px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); transition:transform .15s;}
   #clientApp .m-explain-open > .m-explain::after{transform:rotate(-135deg); margin-top:3px;}
@@ -2962,6 +2995,26 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label strong">Recommended for you</div>
   <div class="dgrid" id="learningGrid"></div>
 </section>
+<!-- Mobile only (hidden above 860px): Library > Learn. Guides are the four public TEI guides; Articles is the
+     site's own "being written" wording; Lessons links to the Education Platform. -->
+<div id="mLearnHost">
+  <div class="dcard">
+    <div class="k">Guides</div>
+    <a class="k-js-row" href="/guides/principles.html" target="_blank" rel="noopener"><span class="jk">TEI Principles</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+    <a class="k-js-row" href="/guides/stages.html" target="_blank" rel="noopener"><span class="jk">Five Stages to the Seasoned Investor</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+    <a class="k-js-row" href="/guides/tax.html" target="_blank" rel="noopener"><span class="jk">The Tax Wrapper Guide</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+    <a class="k-js-row" href="/guides/property-calculator.html" target="_blank" rel="noopener"><span class="jk">Property Investment Calculator</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+  </div>
+  <div class="dcard">
+    <div class="k">Articles</div>
+    <div class="line" style="margin-top:6px;"><b>Being written.</b> Real analysis, market commentary, and the thinking behind TEI's approach are coming soon.</div>
+  </div>
+  <div class="dcard">
+    <div class="k">Lessons</div>
+    <div class="line" style="margin-top:6px;">30 lessons across Financial Foundations and Investor Understanding, at your own pace.</div>
+    <a class="btn-primary" href="/hub/education/index.html" style="display:block; text-align:center; text-decoration:none; margin-top:10px;">Open the Education Platform →</a>
+  </div>
+</div>
 </div>
 
 <!-- ============================= UPDATE ============================= -->
@@ -3084,6 +3137,19 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 </section>
+</div>
+
+<!-- ============================= LIBRARY > PLAN (mobile only) =============================
+     Reached from the Library tab's Plan view; no sidebar link points here (desktop never
+     shows it). Filled by renderLibPlan() from the client's ACTIVE investment plan
+     (wealth_os.investment_plans / plan_investments / plan_investment_accounts). -->
+<div id="page-libplan" class="page">
+  <h1 class="m-sr">Investment plan</h1>
+  <div class="dcard" id="lpHead"></div>
+  <div class="dcard" id="lpAlloc" hidden></div>
+  <div class="dcard" id="lpRoles" data-m-acc hidden><div class="k" data-m-acc-h>Investment roles</div><div id="lpRolesBody"></div></div>
+  <div class="dcard" id="lpWhy" data-m-acc hidden><div class="k" data-m-acc-h>Why this plan</div><div id="lpWhyBody"></div></div>
+  <div class="dcard" id="lpHistory" data-m-acc hidden><div class="k" data-m-acc-h>Review dates and history</div><div id="lpHistoryBody"></div></div>
 </div>
 
 <!-- ============================= MY DETAILS ============================= -->
@@ -10337,7 +10403,7 @@ TEI.render = TEI.render || {};
       return;
     }
     list.innerHTML = client.documents.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(d=>`
-      <div class="k-doc-row">
+      <div class="k-doc-row" data-doctype="${d.type||''}">
         <div class="k-doc-icon">${DOC_TYPE_LABEL[d.type]||'DOC'}</div>
         <div class="k-doc-info"><div class="k-doc-name">${d.name}</div><div class="k-doc-meta">${d.date||''}</div></div>
         <a class="k-doc-open" href="${d.url||'#'}" target="_blank" rel="noopener">Open</a>
@@ -14957,7 +15023,7 @@ window.TEI = window.TEI || {};
 window.TEI = window.TEI || {};
 
 (function(){
-  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails','menu'];
+  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails','menu','libplan'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -14992,7 +15058,7 @@ window.TEI = window.TEI || {};
      is visible on desktop. Pages, renderers and showPage() are unchanged:
      a tab just opens one of the existing pages. Stage 1 = one page per tab;
      later stages add the segmented switches inside Wealth / Plan / Library. */
-  const M_TAB_OF = {home:'home', progress:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', update:'menu', mydetails:'menu', menu:'menu'};
+  const M_TAB_OF = {home:'home', progress:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', libplan:'library', update:'menu', mydetails:'menu', menu:'menu'};
   const M_TAB_TARGET = {home:'home', wealth:'progress', plan:'goals', library:'documents', menu:'menu'};
 
   /* Merged tabs: a segmented switch over views of the EXISTING pages (no data
@@ -15010,6 +15076,11 @@ window.TEI = window.TEI || {};
       {id:'goals',    label:'Goals',    page:'goals'},
       {id:'forecast', label:'Forecast', page:'planning'},
       {id:'cashflow', label:'Cashflow', page:'cashflow'}
+    ],
+    library: [
+      {id:'plan',  label:'Plan',          page:'libplan'},
+      {id:'learn', label:'Learn',         page:'learning'},
+      {id:'notes', label:'Meeting notes', page:'documents'}
     ]
   };
   const mLastView = {};      // tab -> last view used, so tapping a tab returns to it
@@ -15160,6 +15231,184 @@ window.TEI = window.TEI || {};
     });
   }
 
+  /* ================= LIBRARY > PLAN (mobile only) =================
+     The client's ACTIVE investment plan, read straight from wealth_os
+     (investment_plans -> plan_investments -> plan_investment_accounts). RLS lets
+     a client read only their own rows (or an adviser read any), but it does not
+     filter by status, so drafts/archived plans are excluded here; that is a
+     display rule, not a security boundary. Only the fields the screen shows are
+     selected: adviser working notes (plan_investments.notes etc.) are not
+     fetched. Fetched when the view opens, not with the main client bundle, so
+     nothing changes for desktop. */
+  const PLAN_ASSET = {
+    equity:{label:'Equity', color:'#C9A84C'}, bonds:{label:'Bonds', color:'#4A7A96'},
+    cash:{label:'Cash', color:'#A8A08C'}, other:{label:'Other', color:'#B5525F'}
+  };
+  let mPlanReq = 0;
+  const lpEsc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const lpDate = iso => { if(!iso) return '—'; const d = new Date(iso); return isNaN(d) ? '—' : d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}); };
+
+  async function fetchInvestmentPlan(clientId){
+    const sb = window.teiSupabase;
+    if(!sb) throw new Error('Not connected');
+    const w = sb.schema('wealth_os');
+    const plansRes = await w.from('investment_plans')
+      .select('id,title,status,target_equity_pct,target_bonds_pct,target_cash_pct,target_other_pct,allocation_notes,review_date,created_at,updated_at')
+      .eq('client_id', clientId).in('status', ['active','superseded']).order('created_at', {ascending:true});
+    if(plansRes.error) throw plansRes.error;
+    const history = plansRes.data || [];
+    const plan = history.filter(p=> p.status === 'active').pop() || null;
+    if(!plan) return {plan:null, investments:[], history};
+    const invRes = await w.from('plan_investments')
+      .select('id,plan_id,name,ticker,asset_class,target_weight_pct,created_at').eq('plan_id', plan.id).order('created_at', {ascending:true});
+    if(invRes.error) throw invRes.error;
+    const invs = invRes.data || [];
+    let accs = [];
+    if(invs.length){
+      const accRes = await w.from('plan_investment_accounts')
+        .select('plan_investment_id,account_id,allocation_pct').in('plan_investment_id', invs.map(i=>i.id));
+      if(accRes.error) throw accRes.error;
+      accs = accRes.data || [];
+    }
+    return {plan, history, investments: invs.map(i=>({...i, accounts: accs.filter(a=> a.plan_investment_id === i.id)}))};
+  }
+
+  function drawLibPlan(res, client){
+    const $ = id => document.getElementById(id);
+    const show = (id, on) => { const e = $(id); if(e) e.hidden = !on; };
+    const head = $('lpHead');
+    if(!res.plan){
+      head.innerHTML = `<div class="k">Your investment plan</div><div class="line" style="margin-top:6px;">Your adviser hasn't shared an investment plan yet. It will appear here once one has been agreed.</div>`;
+      ['lpAlloc','lpRoles','lpWhy','lpHistory'].forEach(id=> show(id, false));
+      return;
+    }
+    const p = res.plan;
+    const version = res.history.findIndex(x=> x.id === p.id) + 1;
+    head.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; gap:8px;"><div class="k">Your investment plan</div><span class="k-pill neutral" style="margin:0;">Version ${version}</span></div>` +
+      `<div class="lp-title">${lpEsc(p.title)}</div><div class="sub2" style="margin-top:2px;">Updated ${lpDate(p.updated_at)}</div>`;
+
+    // Target allocation: stacked bar + legend, only for classes that have a target.
+    const parts = ['equity','bonds','cash','other'].map(k=> ({key:k, pct: Number(p['target_'+k+'_pct']) || 0})).filter(x=> x.pct > 0);
+    const alloc = $('lpAlloc');
+    if(parts.length){
+      const total = parts.reduce((s,x)=> s + x.pct, 0) || 1;
+      alloc.innerHTML = `<div class="k">Target allocation</div>` +
+        `<div class="k-comp-bar">${parts.map(x=>`<span style="width:${x.pct/total*100}%; background:${PLAN_ASSET[x.key].color};"></span>`).join('')}</div>` +
+        `<div class="k-comp-legend">${parts.map(x=>`<div class="lg"><span class="sw" style="background:${PLAN_ASSET[x.key].color};"></span>${PLAN_ASSET[x.key].label} · ${x.pct.toFixed(x.pct % 1 ? 1 : 0)}%</div>`).join('')}</div>`;
+      show('lpAlloc', true);
+    } else { show('lpAlloc', false); }
+
+    // Investment roles.
+    const acctName = id => { const a = (client.accounts||[]).find(x=> x.id === id); return a ? TEI.data.acctLabel(a) : 'Account'; };
+    $('lpRolesBody').innerHTML = res.investments.length ? res.investments.map(i=>{
+      const cls = PLAN_ASSET[i.asset_class] ? PLAN_ASSET[i.asset_class].label : '';
+      const where = (i.accounts||[]).map(a=> `${lpEsc(acctName(a.account_id))}${a.allocation_pct != null ? ' ' + Number(a.allocation_pct) + '%' : ''}`).join(', ');
+      const sub = [cls, where].filter(Boolean).join(' · ');
+      return `<div class="k-js-row"><span class="jk">${lpEsc(i.name)}${i.ticker ? ' · ' + lpEsc(i.ticker) : ''}${sub ? `<br><span style="font-size:11px; opacity:0.8;">${sub}</span>` : ''}</span>` +
+             `<span class="jv">${i.target_weight_pct != null ? Number(i.target_weight_pct) + '%' : '—'}</span></div>`;
+    }).join('') : `<div class="line">No investments have been added to this plan yet.</div>`;
+    show('lpRoles', true);
+
+    // Why this plan: the plan's allocation notes.
+    $('lpWhyBody').innerHTML = p.allocation_notes ? `<div class="line" style="white-space:pre-line;">${lpEsc(p.allocation_notes)}</div>` : `<div class="line">No notes have been added to this plan yet.</div>`;
+    show('lpWhy', true);
+
+    // Review dates and history (current plan first).
+    const rows = res.history.slice().reverse().map(x=>
+      `<div class="k-js-row"><span class="jk">${lpEsc(x.title)}<br><span style="font-size:11px; opacity:0.8;">${x.status === 'active' ? 'Current' : 'Superseded'} · created ${lpDate(x.created_at)}</span></span><span class="jv"></span></div>`).join('');
+    $('lpHistoryBody').innerHTML = `<div class="k-js-row"><span class="jk">Next review</span><span class="jv">${p.review_date ? lpDate(p.review_date) : 'Not set'}</span></div>` + rows;
+    show('lpHistory', true);
+  }
+
+  function renderLibPlan(client){
+    const clientId = client && client.meta && client.meta.clientId;
+    const head = document.getElementById('lpHead');
+    if(!head) return;
+    if(!clientId){ head.innerHTML = `<div class="line">Your plan isn't available right now.</div>`; return; }
+    head.innerHTML = `<div class="k">Your investment plan</div><div class="line" style="margin-top:6px;">Loading…</div>`;
+    ['lpAlloc','lpRoles','lpWhy','lpHistory'].forEach(id=>{ const e = document.getElementById(id); if(e) e.hidden = true; });
+    const req = ++mPlanReq;
+    fetchInvestmentPlan(clientId).then(res=>{
+      if(req !== mPlanReq) return; // a newer open superseded this one
+      drawLibPlan(res, client);
+    }).catch(err=>{
+      if(req !== mPlanReq) return;
+      console.error('Wealth OS: could not load the investment plan', err);
+      head.innerHTML = `<div class="k">Your investment plan</div><div class="line" style="margin-top:6px;">We couldn't load your plan just now. Please try again in a moment.</div>`;
+    });
+  }
+  TEI.render.libplan = renderLibPlan;
+
+  /* ================= LIBRARY > MEETING NOTES (mobile only) =================
+     The existing Documents page, with a filter: note-type documents first, and
+     an "All documents" chip so statements and reports stay reachable. Document
+     rows store a Storage path (not a URL), so on mobile "Open" asks Storage for
+     a short-lived signed URL. Desktop keeps its existing link untouched. */
+  function wireDocsMobile(mq){
+    const page = document.getElementById('page-documents');
+    const list = document.getElementById('documentsList');
+    if(!page || !list || page.querySelector('.m-chips')) return;
+    const chips = document.createElement('div');
+    chips.className = 'm-chips';
+    chips.setAttribute('role', 'group');
+    chips.setAttribute('aria-label', 'Filter documents');
+    chips.innerHTML = `<button type="button" class="on" data-docs="notes" aria-pressed="true">Meeting notes <span class="n"></span></button>` +
+                      `<button type="button" data-docs="all" aria-pressed="false">All documents <span class="n"></span></button>`;
+    const empty = document.createElement('div');
+    empty.className = 'dcard m-docs-empty';
+    empty.hidden = true;
+    page.appendChild(chips);
+    page.appendChild(empty);
+    chips.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=>{
+      const all = b.dataset.docs === 'all';
+      page.classList.toggle('m-docs-all', all);
+      chips.querySelectorAll('button').forEach(x=>{ const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+      updateDocsMobile(state.client);
+    }));
+
+    list.addEventListener('click', e=>{
+      const a = e.target.closest && e.target.closest('a.k-doc-open');
+      if(!a || !mq.matches) return;
+      const path = a.getAttribute('href') || '';
+      if(/^https?:/i.test(path)) return;      // already a real URL: let the link work
+      e.preventDefault();
+      if(path && path !== '#') openStoredDocument(path);
+    });
+
+    const base = TEI.render.documents;
+    TEI.render.documents = function(client){ base(client); updateDocsMobile(client); };
+  }
+
+  function updateDocsMobile(client){
+    const page = document.getElementById('page-documents');
+    if(!page || !client) return;
+    const docs = client.documents || [];
+    const notes = docs.filter(d=> d.type === 'note').length;
+    const nums = page.querySelectorAll('.m-chips .n');
+    if(nums[0]) nums[0].textContent = '(' + notes + ')';
+    if(nums[1]) nums[1].textContent = '(' + docs.length + ')';
+    const empty = page.querySelector('.m-docs-empty');
+    if(empty){
+      const showEmpty = !page.classList.contains('m-docs-all') && notes === 0 && docs.length > 0;
+      empty.hidden = !showEmpty;
+      empty.innerHTML = `<div class="line">No meeting notes yet. Statements and reports are under <b>All documents</b>.</div>`;
+    }
+  }
+
+  async function openStoredDocument(path){
+    const win = window.open('', '_blank'); // opened synchronously from the tap so pop-up blockers allow it
+    try{
+      const clean = path.replace(/^\/+/, '').replace(/^client-documents\//, '');
+      const res = await window.teiSupabase.storage.from('client-documents').createSignedUrl(clean, 300);
+      if(res.error || !res.data || !res.data.signedUrl) throw (res.error || new Error('No URL'));
+      if(win) win.location.href = res.data.signedUrl; else window.location.href = res.data.signedUrl;
+    } catch(err){
+      if(win) win.close();
+      console.error('Wealth OS: could not open document', err);
+      showToast("Couldn't open this document.");
+    }
+  }
+
   /* Plan tab: one merged "Next best steps" card above the segmented switch,
      built from the two existing lists (Forecast's and Cashflow's) -- top 2.
      Built once per Plan page (no ids, so three copies are fine). */
@@ -15213,9 +15462,10 @@ window.TEI = window.TEI || {};
     });
     const mq = window.matchMedia('(max-width:860px)');
     wireMobileHome(mq);
+    wireDocsMobile(mq);
     // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
     const onChange = ()=>{
-      if(!mq.matches && state.currentPage === 'menu') showPage('home');
+      if(!mq.matches && (state.currentPage === 'menu' || state.currentPage === 'libplan')) showPage('home');
       placeMoves(mq.matches);
       applyMobileA11y(mq);
     };
