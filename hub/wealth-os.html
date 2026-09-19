@@ -1554,7 +1554,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 /* Mobile-only Wealth additions (segmented switch, ranked lists, Journey stage host). */
 #clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
 /* Mobile-only Plan additions (merged next-steps card, hosts for moved blocks, conversion legend, accordion title). */
-#clientApp .m-nextsteps, #clientApp #mGoalsFFHost, #clientApp #wcdLegend{display:none;}
+#clientApp .m-nextsteps, #clientApp #mGoalsFFHost, #clientApp #wcdLegend, #clientApp .m-explain, #clientApp .m-step{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
    the mobile layout can restyle it. Values are identical, so desktop is too. */
 .home-wins{margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);}
@@ -1853,13 +1853,36 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   /* "Your plan" view: chart and its return toggles first, then the numbers, then the inputs.
      (The view containers show/hide with an inline display, so only flex the visible one.) */
   #wpCard #wpPlan:not([style*="none"]){display:flex !important; flex-direction:column;}
+  /* Inputs sit directly above the results they drive, so an edit shows its effect straight away. */
   #wpPlan > #wpPlanChartBox{order:1;}
   #wpPlan > #wpMcToggles{order:2;}
-  #wpPlan > .k-rowstats{order:3;}
-  #wpPlan > #scInterpretation{order:4;}
-  #wpPlan > .k-form-grid{order:5; margin-top:12px;}
-  #wpPlan > .form-actions{order:6;}
+  #wpPlan > .k-form-grid{order:3; margin-top:14px;}
+  #wpPlan > .form-actions{order:4;}
+  #wpPlan > .k-rowstats{order:5;}
+  #clientApp #wpPlan > .m-explain{order:6;}
   #wpPlan > .sub2{order:7;}
+  #wpPlan > #scInterpretation{order:8;}
+
+  /* Scenario inputs: full-width rows, big touch targets, 16px text (stops iOS zooming in), -/+ steppers. */
+  #wpCard input[type="number"], #wpCard select{height:48px; font-size:16px;}
+  #wpPlan > .k-form-grid{grid-template-columns:minmax(0,1fr); gap:14px;}
+  #wpPlan .k-form-field{display:grid; grid-template-columns:48px minmax(0,1fr) 48px; gap:8px; align-items:center;}
+  #wpPlan .k-form-field > span{grid-column:1 / -1; font-size:13px;}
+  #wpPlan .k-form-field input{text-align:center; font-weight:600;}
+  #clientApp .m-step{display:flex; align-items:center; justify-content:center; width:48px; height:48px; margin:0; padding:0; background:var(--k-track-bg); border:1px solid var(--k-card-border); border-radius:12px; color:var(--k-ink); font-family:inherit; font-size:24px; line-height:1; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  #clientApp .m-step:active{background:var(--gold); color:var(--card-dark);}
+  #clientApp .m-step:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  #wpPlan .form-actions{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px !important;}
+  #wpPlan .form-actions button{min-height:44px; margin:0; padding:0 10px; font-size:13px;}
+
+  /* Explainer text: collapsed behind a small toggle in every view. */
+  #clientApp .m-explain{display:flex; align-items:center; gap:6px; min-height:40px; margin:6px 0 0; padding:0; background:none; border:0; color:var(--gold); font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-align:left; -webkit-tap-highlight-color:transparent;}
+  #clientApp .m-explain::after{content:""; width:7px; height:7px; margin:-3px 0 0 2px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); transition:transform .15s;}
+  #clientApp .m-explain-open > .m-explain::after{transform:rotate(-135deg); margin-top:3px;}
+  #clientApp[data-theme="light"] .m-explain{color:var(--hero-pill-gold-ink);}   /* darker gold: plain gold is too pale on cream */
+  #clientApp .m-explain:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:4px;}
+  #wpCard [data-m-explain-body]{display:none;}
+  #wpCard .m-explain-open > [data-m-explain-body]{display:block;}
   #fcKnowCard .k-simple-list li{font-size:13.5px; gap:10px;}
   #fcKnowCard .k-simple-list li .dot{width:16px; height:16px; margin-top:2px; border-radius:0; background:var(--gold); -webkit-mask:var(--m-bulb) center/contain no-repeat; mask:var(--m-bulb) center/contain no-repeat;}
   #page-planning .k-assump-row{gap:8px;}
@@ -15084,6 +15107,59 @@ window.TEI = window.TEI || {};
     });
   }
 
+  /* Forecast > Wealth projection, mobile only:
+     - the long static explanation in each view collapses behind a small toggle;
+     - the three "Your plan" scenario inputs get -/+ buttons (the phone number
+       pad has no minus sign, and typing on a phone is fiddly). The buttons
+       change the value and fire the input's own `input` event, so the existing
+       recalculation runs unchanged. Both sets of controls are hidden above 860px. */
+  const SCENARIO_STEP = {scContrib:50, scSpend:50, scIncome:50};
+  function wireForecastControls(){
+    const views = [
+      {id:'wpPlan', explain:v=> v.querySelector(':scope > .sub2')},
+      {id:'wpHypothetical', explain:v=> v.querySelector(':scope > .line')},
+      {id:'wpSequence', explain:v=> v.querySelector(':scope > .line')},
+      {id:'wpDecision', explain:v=> v.querySelector(':scope > .line')}
+    ];
+    views.forEach(v=>{
+      const box = document.getElementById(v.id);
+      const text = box && v.explain(box);
+      if(!box || !text || box.querySelector(':scope > .m-explain')) return;
+      text.setAttribute('data-m-explain-body', '');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'm-explain';
+      btn.setAttribute('aria-expanded', 'false');
+      btn.textContent = 'What does this show?';
+      btn.addEventListener('click', ()=>{
+        const open = box.classList.toggle('m-explain-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      box.insertBefore(btn, text); // before the text it reveals (the "Your plan" view re-orders visually with CSS)
+    });
+
+    Object.keys(SCENARIO_STEP).forEach(id=>{
+      const input = document.getElementById(id);
+      if(!input || input.parentNode.querySelector('.m-step')) return;
+      const mk = (dir, label, aria)=>{
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'm-step m-step-' + (dir < 0 ? 'dec' : 'inc');
+        b.setAttribute('aria-label', aria);
+        b.textContent = label;
+        b.addEventListener('click', ()=>{
+          const next = Math.round(((Number(input.value) || 0) + dir * SCENARIO_STEP[id]) * 100) / 100;
+          input.value = String(next);
+          input.dispatchEvent(new Event('input', {bubbles:true}));
+        });
+        return b;
+      };
+      const name = (input.parentNode.querySelector('span') || {}).textContent || 'value';
+      input.parentNode.insertBefore(mk(-1, '−', 'Decrease ' + name.replace(/\s*£\s*$/, '')), input);
+      input.parentNode.appendChild(mk(1, '+', 'Increase ' + name.replace(/\s*£\s*$/, '')));
+    });
+  }
+
   /* Plan tab: one merged "Next best steps" card above the segmented switch,
      built from the two existing lists (Forecast's and Cashflow's) -- top 2.
      Built once per Plan page (no ids, so three copies are fine). */
@@ -15123,6 +15199,7 @@ window.TEI = window.TEI || {};
     });
     buildMobileSegs();
     buildMobilePlanExtras();
+    wireForecastControls();
     document.querySelectorAll('#page-menu [data-mgo]').forEach(b=>{
       b.addEventListener('click', ()=> showPage(b.dataset.mgo));
     });
