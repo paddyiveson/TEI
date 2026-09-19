@@ -1554,7 +1554,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 /* Mobile-only Wealth additions (segmented switch, ranked lists, Journey stage host). */
 #clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
 /* Mobile-only Plan additions (merged next-steps card, hosts for moved blocks, conversion legend, accordion title). */
-#clientApp .m-nextsteps, #clientApp #mGoalsFFHost, #clientApp #mProjection, #clientApp #wcdLegend, #clientApp .m-acc-title{display:none;}
+#clientApp .m-nextsteps, #clientApp #mGoalsFFHost, #clientApp #wcdLegend{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
    the mobile layout can restyle it. Values are identical, so desktop is too. */
 .home-wins{margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);}
@@ -1776,6 +1776,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
   /* Shared "Next best steps" card, above the switch on all three Plan views. */
   #clientApp .m-nextsteps{display:block; order:-1;}
+  /* The switch sits at the very top of every Plan view (as on Wealth); Next best steps sits directly under it. */
+  #page-goals > .m-seg, #page-planning > .m-seg, #page-cashflow > .m-seg{order:-2;}
   .m-nextsteps .k-simple-list{margin:6px 0 0; gap:6px;}
   .m-nextsteps .k-simple-list li{font-size:13.5px; line-height:1.4;}
   .m-nextsteps .k-simple-list li .dot{background:var(--gold);}
@@ -1824,20 +1826,40 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #page-planning > section, #page-planning > section > .dgrid, #page-planning > section > .dgrid > div:not([data-m="hide"]){display:contents;}
   #page-planning > section:nth-of-type(3){display:none;}              /* "Bringing it together": next steps are merged above, Learning hub lives in Library */
   #page-planning .dcard.emphasis{order:10;}
-  #clientApp #mProjection{display:block; order:20; padding:11px 13px;}
+  #wpCard{order:20;}
   #fcCard{order:30;}
   #fcKnowCard{order:40;}
   #page-planning [data-m-open]{order:50;}
-  #wpCard{order:60;}
   #page-planning .dcard.emphasis .k-stat-split{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px;}
   #page-planning .dcard.emphasis .k-stat-split .divider{display:none;}
   #page-planning .dcard.emphasis .k-stat-split .sp{background:rgba(247,244,237,0.12); border-radius:8px; padding:8px 6px; text-align:center; min-width:0;}
   #page-planning .dcard.emphasis .k-stat-split .k{font-size:9.5px; letter-spacing:0.04em;}
   #page-planning .dcard.emphasis .k-stat-split .v{font-size:15px !important;}
   #page-planning .dcard.emphasis .k-stat-split .sub2{font-size:10px; margin-top:2px;}
-  #mProjection .k-chart-box{height:150px !important; margin-top:8px; padding:8px 4px 2px;}
-  #mProjection .k-mc-toggles{gap:6px 12px; margin-top:8px;}
-  #mProjection .k-mc-toggle{font-size:12px;}
+  /* Wealth projection: ONE card. The view switch (Your plan / Hypothetical /
+     Order of returns / Decision impact) sits at the top, and the chart for the
+     selected view directly under it, so the control and what it changes stay together. */
+  #wpCard > div:first-child{flex-direction:column; align-items:stretch !important; gap:8px !important; margin-bottom:2px;}
+  #wpCard > div:first-child .sub2{display:none;}
+  #wpCard #wpToggle{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; border-radius:12px; gap:2px;}
+  #wpCard #wpToggle button{padding:8px 6px; font-size:12.5px; border-radius:10px;}
+  #wpCard .k-chart-box{height:170px !important; margin-top:8px; padding:8px 4px 2px;}
+  #wpCard .k-future-scenario{display:none;}                            /* "Future scenario planning: coming soon" */
+  #wpCard .k-form-grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
+  #wpCard .k-form-field{min-width:0;}
+  #wpCard .k-form-field input, #wpCard .k-form-field select{min-width:0; width:100%; box-sizing:border-box;}
+  #wpCard .k-mc-toggles{gap:6px 12px; margin-top:8px;}
+  #wpCard .k-mc-toggle{font-size:12px;}
+  /* "Your plan" view: chart and its return toggles first, then the numbers, then the inputs.
+     (The view containers show/hide with an inline display, so only flex the visible one.) */
+  #wpCard #wpPlan:not([style*="none"]){display:flex !important; flex-direction:column;}
+  #wpPlan > #wpPlanChartBox{order:1;}
+  #wpPlan > #wpMcToggles{order:2;}
+  #wpPlan > .k-rowstats{order:3;}
+  #wpPlan > #scInterpretation{order:4;}
+  #wpPlan > .k-form-grid{order:5; margin-top:12px;}
+  #wpPlan > .form-actions{order:6;}
+  #wpPlan > .sub2{order:7;}
   #fcKnowCard .k-simple-list li{font-size:13.5px; gap:10px;}
   #fcKnowCard .k-simple-list li .dot{width:16px; height:16px; margin-top:2px; border-radius:0; background:var(--gold); -webkit-mask:var(--m-bulb) center/contain no-repeat; mask:var(--m-bulb) center/contain no-repeat;}
   #page-planning .k-assump-row{gap:8px;}
@@ -2585,9 +2607,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   <div class="k-section-label strong" style="margin-top:26px;">Explore</div>
   <div class="dgrid">
     <div class="span-12">
-      <div class="dcard" id="wpCard" data-m-acc>
-        <!-- Mobile only (hidden above 860px): accordion header for this card. -->
-        <div class="k m-acc-title" data-m-acc-h>Scenario planning</div>
+      <div class="dcard" id="wpCard">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
           <div>
             <div class="k" style="font-size:16px; text-transform:none; letter-spacing:0; font-family:var(--font-display); font-weight:600; color:var(--k-ink);">Wealth projection</div>
@@ -2733,8 +2753,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
   </div>
 </section>
-<!-- Mobile only (hidden above 860px): the projection chart and its scenario toggles are moved in here on mobile. See M_MOVES. -->
-<div class="dcard" id="mProjection"><div class="k">Projection</div></div>
 </div>
 <!-- ============================= CASHFLOW ============================= -->
 <div id="page-cashflow" class="page">
@@ -15046,9 +15064,7 @@ window.TEI = window.TEI || {};
      goes on mobile. They go back, in reverse order, above 860px. */
   const M_MOVES = [
     {find:()=> closestOf('stageBadge', '.dcard'), host:'mJourneyStageHost'},     // Investor stage -> Wealth > Journey
-    {find:()=> closestOf('hcFFPct', '.k-stat-split'), host:'mGoalsFFHost'},      // Financial freedom / Next milestone -> Plan > Goals
-    {find:()=> document.getElementById('wpMcToggles'), host:'mProjection'},      // projection scenario toggles -> Plan > Forecast
-    {find:()=> document.getElementById('wpPlanChartBox'), host:'mProjection'}    // projection chart -> Plan > Forecast
+    {find:()=> closestOf('hcFFPct', '.k-stat-split'), host:'mGoalsFFHost'}       // Financial freedom / Next milestone -> Plan > Goals
   ];
   function closestOf(id, sel){ const el = document.getElementById(id); return el ? el.closest(sel) : null; }
   function placeMoves(mobile){
