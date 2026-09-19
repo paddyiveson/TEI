@@ -1,29 +1,83 @@
-/* TEI public site -- mobile bottom navigation.
+/* TEI public site -- mobile navigation: header, bottom bar, full-screen menu.
    Everything visible lives inside the single mobile breakpoint below (860px,
    same value the Wealth OS portal uses). Outside it the injected elements are
    display:none, so desktop layout and paint are untouched. Markup is built by
    assets/mobile-nav.js. */
 
-.tei-mbar { display: none; }
+.tei-mhead, .tei-mbar, .tei-menu { display: none; }
 
 @media (max-width: 860px) {
 
   :root {
+    --tei-mhead-h: 56px;
     --tei-mbar-h: 56px;
     --tei-mbar-total: calc(var(--tei-mbar-h) + env(safe-area-inset-bottom, 0px));
   }
 
-  /* Old mobile menu: the hamburger and its dropdown are replaced by the bar. */
+  /* Old mobile chrome: replaced by the header, bar and menu below. */
+  body > nav,
   .nav-mobile-toggle,
   .nav-mobile-menu { display: none !important; }
+  /* Tool pages: their own top-left "Back" pill and tax.html's header bar. */
+  html.tei-mtool body > a[href="/guides.html"][style*="position:fixed"],
+  html.tei-mtool body > header { display: none !important; }
+
+  /* Anchor jumps should clear the sticky header. */
+  html:not(.tei-mtool) { scroll-padding-top: var(--tei-mhead-h); }
+
+  /* -- Header -- */
+  /* Fixed at the top, with the page pushed down by its height. Tool pages use
+     an absolutely positioned header instead, so it scrolls away and can't
+     collide with their own sticky in-page bars. */
+  html.tei-mnav body { padding-top: var(--tei-mhead-h); }
+  .tei-mhead {
+    display: flex; align-items: center; justify-content: space-between;
+    position: fixed; top: 0; left: 0; right: 0;
+    z-index: 200;
+    box-sizing: border-box;
+    height: var(--tei-mhead-h);
+    padding: 0 max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+    background: var(--navy, #1D3557);
+    box-shadow: 0 2px 16px rgba(0, 0, 0, .2);
+    font-family: 'Inter', sans-serif;
+  }
+  .tei-mhead--static { position: absolute; }
+  .tei-mhead-logo { display: flex; align-items: center; gap: 8px; min-height: 44px; text-decoration: none; }
+  .tei-mhead-mark {
+    display: flex; align-items: center; justify-content: center; flex: none;
+    width: 22px; height: 22px; box-sizing: border-box;
+    border: 1px solid var(--gold, #C9A84C); border-radius: 50%;
+    font-size: 10px; line-height: 1; color: var(--gold, #C9A84C);
+  }
+  .tei-mhead-text {
+    font-size: 11px; font-weight: 600; line-height: 1.35;
+    letter-spacing: .15em; text-transform: uppercase;
+    color: var(--gold, #C9A84C);
+  }
+  .tei-mhead-actions { display: flex; align-items: center; gap: 4px; }
+  .tei-mhead-cta { display: flex; align-items: center; min-height: 44px; padding: 0 4px; text-decoration: none; }
+  .tei-mhead-cta span {
+    display: block; box-sizing: border-box;
+    padding: 0 14px; height: 32px; line-height: 32px;
+    border-radius: 999px;
+    background: var(--gold, #C9A84C); color: var(--navy, #1D3557);
+    font-size: 12px; font-weight: 700; letter-spacing: .01em; white-space: nowrap;
+  }
+  .tei-mhead-hub {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; margin-right: -8px;
+    color: rgba(247, 244, 237, .92); text-decoration: none;
+  }
+  .tei-mhead-hub svg { display: block; width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .tei-mhead a:focus-visible { outline: 2px solid var(--gold, #C9A84C); outline-offset: 2px; border-radius: 6px; }
 
   /* -- Bottom bar -- */
   .tei-mbar {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     position: fixed;
     left: 0; right: 0; bottom: 0;
-    z-index: 1000; /* above page content, below the Hub password gate (5000) */
+    z-index: 1000; /* above page content, below the menu (1100) and the Hub password gate (5000) */
     box-sizing: border-box;
     padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     background: var(--navy, #1D3557);
@@ -38,7 +92,7 @@
     gap: 3px;
     min-height: var(--tei-mbar-h);
     margin: 0;
-    padding: 6px 8px 5px; /* 8px side padding keeps labels clear of rounded screen corners */
+    padding: 6px 4px 5px;
     background: none; border: 0; border-radius: 0;
     color: rgba(247, 244, 237, .88);
     font: inherit; font-size: 11px; font-weight: 500; line-height: 14px; letter-spacing: .01em;
@@ -59,8 +113,85 @@
   /* -- Clearance so nothing sits behind the bar -- */
   body > footer { padding-bottom: calc(28px + var(--tei-mbar-total)) !important; }
   html.tei-mbar-nofooter body { padding-bottom: var(--tei-mbar-total); }
+
+  /* -- Full-screen menu -- */
+  .tei-menu:not([hidden]) {
+    display: flex; flex-direction: column;
+    position: fixed; inset: 0;
+    z-index: 1100; /* above the bar, below the Hub password gate (5000) */
+    box-sizing: border-box;
+    background: var(--navy, #1D3557);
+    color: var(--cream, #F7F4ED);
+    font-family: 'Inter', sans-serif;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+  .tei-menu-top {
+    display: flex; align-items: center; justify-content: space-between; flex: none;
+    height: var(--tei-mhead-h);
+    padding: env(safe-area-inset-top, 0px) 8px 0 20px;
+    box-sizing: content-box;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+  }
+  .tei-menu-title {
+    margin: 0; padding: 0;
+    font-family: 'Playfair Display', Georgia, serif; font-size: 22px; font-weight: 600; line-height: 1.2;
+    color: var(--cream, #F7F4ED);
+  }
+  .tei-menu-close {
+    -webkit-appearance: none; appearance: none;
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; margin: 0; padding: 0;
+    background: none; border: 0; border-radius: 8px;
+    color: var(--cream, #F7F4ED); cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tei-menu-close svg,
+  .tei-menu-link svg { display: block; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .tei-menu-close svg { width: 24px; height: 24px; }
+
+  .tei-menu-body { flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 20px 20px 8px; }
+  .tei-menu-book {
+    display: flex; align-items: center; justify-content: center;
+    box-sizing: border-box; width: 100%; min-height: 52px; padding: 0 20px;
+    border-radius: 12px;
+    background: var(--gold, #C9A84C); color: var(--navy, #1D3557);
+    font-size: 16px; font-weight: 700; text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tei-menu-list { list-style: none; margin: 20px 0 0; padding: 0; }
+  .tei-menu-list li { margin: 0; padding: 0; }
+  .tei-menu-link {
+    display: flex; align-items: center; gap: 14px;
+    box-sizing: border-box; min-height: 58px; padding: 0 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
+    color: var(--cream, #F7F4ED); font-size: 16px; font-weight: 500; text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tei-menu-link-icon { display: flex; flex: none; color: var(--gold, #C9A84C); }
+  .tei-menu-link-icon svg { width: 24px; height: 24px; }
+  .tei-menu-link-label { flex: 1 1 auto; }
+  .tei-menu-link-chev { display: flex; flex: none; color: rgba(247, 244, 237, .55); }
+  .tei-menu-link-chev svg { width: 20px; height: 20px; }
+  .tei-menu-link[aria-current="page"] { color: var(--gold, #C9A84C); font-weight: 600; }
+
+  .tei-menu-foot { flex: none; padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px)); text-align: center; }
+  .tei-menu-foot a {
+    display: inline-block; padding: 10px 12px;
+    color: rgba(247, 244, 237, .75); font-size: 13px; text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  .tei-menu a:focus-visible,
+  .tei-menu button:focus-visible { outline: 2px solid var(--gold, #C9A84C); outline-offset: 2px; }
+  .tei-menu-book:focus-visible { outline-color: var(--cream, #F7F4ED); }
+
+  /* Scroll lock while the menu is open. JS sets body top to -scrollY. */
+  html.tei-menu-lock { overflow: hidden; }
+  html.tei-menu-lock body { position: fixed; left: 0; right: 0; width: 100%; overflow: hidden; }
 }
 
 @media (max-width: 860px) and (prefers-reduced-motion: no-preference) {
   .tei-mbar-item { transition: color .15s ease; }
+  .tei-menu:not([hidden]) { animation: tei-menu-in .18s ease-out; }
+  @keyframes tei-menu-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 }
