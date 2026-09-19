@@ -1619,6 +1619,26 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #clientApp .m-row.m-danger{color:#C88F96; justify-content:center; font-weight:700;}
   #clientApp[data-theme="light"] .m-row.m-danger{color:#9C4F56;}
 
+  /* Monthly update (prominent), Edit everything (progress + steps), inline dark-mode switch. */
+  #clientApp .m-card-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0 2px; font-size:15px;}
+  #clientApp .m-highlight{border:1px solid var(--gold); padding:4px 14px 14px;}
+  #clientApp .m-highlight .m-val{margin:4px 0 12px; font-size:13px; line-height:1.4;}
+  #clientApp .m-cta{-webkit-appearance:none; appearance:none; display:block; width:100%; min-height:48px; margin:0; padding:0 16px; border:0; border-radius:999px; background:var(--gold); color:var(--card-dark); font:inherit; font-size:15px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+  #clientApp .m-cta:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+  #clientApp .m-badge{flex:none; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; background:var(--hero-pill-gold-bg); color:var(--hero-pill-gold-ink); border:1px solid var(--hero-pill-gold-border);}
+  #clientApp .m-badge--ok{background:var(--hero-pill-neutral-bg); color:var(--hero-pill-neutral-ink); border-color:var(--hero-pill-neutral-border);}
+  #clientApp .m-bar{height:6px; border-radius:3px; background:var(--k-track-bg); margin:8px 0 4px; overflow:hidden;}
+  #clientApp .m-bar i{display:block; height:100%; background:var(--gold); border-radius:3px;}
+  #clientApp .m-step-row{gap:12px;}
+  #clientApp #mMenuSteps .m-row:last-child{border-bottom:0;}
+  #clientApp .m-step-label{flex:1;}
+  #clientApp .m-check{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--ink-soft2); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; line-height:1; color:transparent;}
+  #clientApp .m-step-row.done .m-check{background:var(--gold); border-color:var(--gold); color:var(--card-dark);}
+  #clientApp .m-switch{flex:none; position:relative; width:44px; height:26px; border-radius:13px; background:var(--k-track-bg); border:1px solid var(--line);}
+  #clientApp .m-switch i{position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:var(--ink-soft2); transition:transform .15s, background .15s;}
+  #clientApp [aria-checked="true"] .m-switch{background:var(--gold-bg); border-color:var(--gold);}
+  #clientApp [aria-checked="true"] .m-switch i{transform:translateX(18px); background:var(--gold);}
+
   /* -- Shared: things hidden on mobile, and accordions (JS toggles .m-open) -- */
   #clientApp [data-m="hide"]{display:none;}
   #clientApp [data-m-acc] > [data-m-acc-h]{display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:26px; cursor:pointer; -webkit-tap-highlight-color:transparent;}
@@ -3186,23 +3206,26 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     <div><div class="m-profile-name" id="mMenuName">–</div><div class="m-profile-role">TEI Client</div></div>
   </div>
 
-  <!-- Stage 1 scaffold: keeps every page reachable while the tabs are built
-       out. Removed once Stages 2-6 give each of these a home. -->
-  <div class="m-label">More pages</div>
-  <div class="m-card">
-    <button type="button" class="m-row" data-mgo="update"><span>Update monthly figures</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-mgo="mydetails"><span>My Details</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-mgo="portfolio"><span>Portfolio</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-mgo="planning"><span>Forecast</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-mgo="cashflow"><span>Cashflow</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-mgo="learning"><span>Learn</span><span class="m-chev" aria-hidden="true">›</span></button>
+  <!-- Monthly update: one prominent card, no balances shown. Opens the existing Update page. -->
+  <div class="m-card m-highlight" id="mMenuUpdate">
+    <div class="m-card-head"><b>Monthly update</b><span class="m-badge" id="mMenuUpdateBadge" hidden></span></div>
+    <div class="m-val" id="mMenuUpdateText">–</div>
+    <button type="button" class="m-cta" data-mgo="update">Update monthly figures</button>
   </div>
 
-  <div class="m-label">Account</div>
+  <!-- Edit everything: the My Details sections, each opening on its own. Rows and the
+       "% set up" bar are built by renderMenu() from the app's own completion() tracker. -->
+  <div class="m-card" id="mMenuSetup">
+    <div class="m-card-head"><b>Edit everything</b><span class="m-val" id="mMenuSetupPct"></span></div>
+    <div class="m-bar" aria-hidden="true"><i id="mMenuSetupBar" style="width:0%;"></i></div>
+    <div id="mMenuSteps"></div>
+  </div>
+
   <div class="m-card">
     <div class="m-row" role="presentation" style="cursor:default;"><span>Notifications</span><span class="m-val">None new</span></div>
-    <button type="button" class="m-row" data-mgo="mydetails"><span>Profile</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-mact="theme"><span>Light / dark</span><span class="m-val" id="mMenuThemeVal">–</span></button>
+    <button type="button" class="m-row" data-msub="cashflow"><span>Preferences</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" data-msub="profile"><span>Profile</span><span class="m-chev" aria-hidden="true">›</span></button>
+    <button type="button" class="m-row" id="mMenuThemeRow" role="switch" aria-checked="false" data-mact="theme"><span>Dark mode</span><span class="m-switch" aria-hidden="true"><i></i></span></button>
     <button type="button" class="m-row" data-mact="help"><span>Help &amp; support</span><span class="m-chev" aria-hidden="true">›</span></button>
   </div>
   <div class="m-card"><button type="button" class="m-row m-danger" data-mact="signout">Sign out</button></div>
@@ -15431,10 +15454,66 @@ window.TEI = window.TEI || {};
     });
   }
 
-  function renderMenu(){
+  /* ================= MENU (mobile) =================
+     - Monthly update: one card, no balances. Opens the existing Update page.
+       "Due" = the latest logged month is earlier than the current month.
+     - Edit everything: the My Details sections (the Manual Entry sub-tabs),
+       each opening on its own. Which ones are done, and the "% set up" figure,
+       come from the app's own completion() tracker (same ids as the sub-tabs). */
+  const M_SETUP_STEPS = [
+    {id:'profile',   label:'The basics'},
+    {id:'accounts',  label:'Accounts and balances'},
+    {id:'holdings',  label:'Holdings and dividends'},
+    {id:'wealth',    label:'What you own and owe'},
+    {id:'cashflow',  label:'Money in, money out'},
+    {id:'goals',     label:'Goals'},
+    {id:'documents', label:'Documents'}
+  ];
+
+  function openMyDetails(sub){
+    showPage('mydetails');   // mounts the Manual Entry panel (on its Profile section)
+    const btn = sub && document.querySelector('.adv-subtabs button[data-subtab="'+sub+'"]');
+    if(btn) btn.click();     // then switch to the requested section
+  }
+
+  function syncMenuTheme(){
+    const row = document.getElementById('mMenuThemeRow');
     const theme = document.getElementById('clientApp').getAttribute('data-theme');
-    const val = document.getElementById('mMenuThemeVal');
-    if(val) val.textContent = theme === 'dark' ? 'Dark' : 'Light';
+    if(row) row.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
+  }
+
+  function renderMenu(client){
+    syncMenuTheme();
+    if(!client) return;
+    const $ = id => document.getElementById(id);
+
+    // Monthly update card.
+    const keys = Object.keys(TEI.calc.buildMergedMonths(client)).sort();
+    const latest = keys[keys.length-1];
+    const badge = $('mMenuUpdateBadge'), text = $('mMenuUpdateText');
+    let label, msg, due = false;
+    if(!latest){ label = 'Not started'; msg = "Log your first month's figures to start tracking your progress."; due = true; }
+    else if(latest < TEI.data.currentMonthKey()){ label = 'Due'; msg = "It's time to update this month's figures."; due = true; }
+    else { label = 'Up to date'; msg = `You're up to date for ${TEI.data.monthLabel(latest)}. You can still log changes.`; }
+    if(badge){ badge.hidden = false; badge.textContent = label; badge.classList.toggle('m-badge--ok', !due); }
+    if(text) text.textContent = msg;
+    const card = $('mMenuUpdate');
+    if(card) card.classList.toggle('m-due', due);
+
+    // Edit everything: progress + one row per My Details section.
+    const c = TEI.calc.completion(client);
+    const missing = new Set(c.missing.map(m=> m.id));
+    const pct = $('mMenuSetupPct'), bar = $('mMenuSetupBar'), steps = $('mMenuSteps');
+    if(pct) pct.textContent = c.percent + '% set up';
+    if(bar) bar.style.width = c.percent + '%';
+    if(steps){
+      steps.innerHTML = M_SETUP_STEPS.map(s=>{
+        const done = !missing.has(s.id);
+        return `<button type="button" class="m-row m-step-row${done ? ' done' : ''}" data-msub="${s.id}">` +
+          `<span class="m-check" aria-hidden="true">${done ? '✓' : ''}</span><span class="m-step-label">${s.label}<span class="m-sr">${done ? ', done' : ', to do'}</span></span>` +
+          `<span class="m-chev" aria-hidden="true">›</span></button>`;
+      }).join('');
+    }
   }
   TEI.render.menu = renderMenu;
 
@@ -15449,13 +15528,18 @@ window.TEI = window.TEI || {};
     buildMobileSegs();
     buildMobilePlanExtras();
     wireForecastControls();
+    // Delegated: the "Edit everything" rows are rebuilt on every render, and Profile / Preferences open a My Details section too.
+    document.getElementById('page-menu').addEventListener('click', e=>{
+      const b = e.target.closest && e.target.closest('[data-msub]');
+      if(b) openMyDetails(b.dataset.msub);
+    });
     document.querySelectorAll('#page-menu [data-mgo]').forEach(b=>{
       b.addEventListener('click', ()=> showPage(b.dataset.mgo));
     });
     document.querySelectorAll('#page-menu [data-mact]').forEach(b=>{
       b.addEventListener('click', ()=>{
         const act = b.dataset.mact;
-        if(act === 'theme'){ document.getElementById('themeToggleBtn')?.click(); renderMenu(); }
+        if(act === 'theme'){ document.getElementById('themeToggleBtn')?.click(); syncMenuTheme(); }
         else if(act === 'help'){ document.getElementById('feedbackFabBtn')?.click(); }
         else if(act === 'signout' && window.TeiHubAuth){ TeiHubAuth.signOut(); }
       });
