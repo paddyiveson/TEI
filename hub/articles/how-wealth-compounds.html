@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Wealth Actually Compounds -- The Everyday Investor</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Spectral:wght@400;500;600&display=swap');
+
+:root {
+  --navy: #1D3557;
+  --navy-dk: #0f1e3a;
+  --navy-md: #2B4C7E;
+  --blue-grey: #5C7290;
+  --cream: #F7F4ED;
+  --cream-dk: #EDE8DA;
+  --gold: #C9A84C;
+  --gold-dk: #b8922d;
+  --gold-lt: #FBF4E0;
+  --text: #1a1a2e;
+  --mid: #4a5568;
+  --lt: #718096;
+  --white: #ffffff;
+  --radius: 10px;
+  --shadow: 0 4px 28px rgba(29,53,87,.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+/* -- HEADER BAR -- */
+nav {
+  background: var(--navy);
+  width: 100%;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo-mark {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--gold); flex-shrink: 0;
+}
+.nav-logo-text {
+  font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--gold); font-weight: 600; line-height: 1.35;
+}
+.nav-back {
+  color: rgba(247,244,237,.65); text-decoration: none;
+  font-size: 13px; font-weight: 500; letter-spacing: .03em;
+}
+.nav-back:hover { color: var(--gold); }
+
+/* -- ARTICLE HERO -- */
+.article-hero {
+  max-width: 760px; margin: 0 auto; padding: 56px 24px 32px;
+  text-align: left;
+}
+.eyebrow {
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dk);
+  margin-bottom: 18px;
+}
+.article-hero h1 {
+  font-family: 'Playfair Display', serif; font-weight: 700;
+  font-size: 42px; line-height: 1.15; color: var(--navy);
+  margin-bottom: 18px;
+}
+.article-hero .dek {
+  font-size: 19px; color: var(--mid); max-width: 640px; line-height: 1.55;
+  font-weight: 500;
+}
+.article-meta {
+  display: flex; gap: 18px; margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid var(--cream-dk);
+  font-size: 12.5px; color: var(--lt); letter-spacing: .02em;
+}
+
+/* -- BODY -- */
+.article-body { max-width: 700px; margin: 0 auto; padding: 0 24px 72px; }
+.article-body p { color: var(--text); margin-bottom: 18px; font-size: 16.5px; max-width: 640px; }
+.article-body p.close { color: var(--mid); font-size: 15.5px; }
+
+/* -- VISUAL BLOCKS -- */
+.visual-block {
+  background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 28px 28px 20px; margin: 28px 0 32px;
+}
+.visual-title {
+  font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px;
+  color: var(--navy); margin-bottom: 4px;
+}
+.visual-sub {
+  font-size: 13.5px; color: var(--lt); margin-bottom: 18px;
+}
+.chart-svg { width: 100%; height: auto; display: block; }
+.axis-label { font: 500 11px 'Inter', sans-serif; fill: var(--lt); }
+.data-label { font: 600 13px 'Spectral', serif; fill: var(--navy); }
+.annotation { font: 500 12px 'Inter', sans-serif; fill: var(--blue-grey); }
+.grid-line { stroke: var(--cream-dk); stroke-width: 1; }
+.curve-area { fill: var(--gold-lt); opacity: .8; }
+.curve-line { fill: none; stroke: var(--gold-dk); stroke-width: 3; stroke-linecap: round; }
+.curve-dot { fill: var(--navy); }
+.bar-rect { fill: var(--navy-md); rx: 4; }
+.bar-rect.first { fill: var(--gold-dk); }
+.bar-value { font: 600 15px 'Spectral', serif; fill: var(--navy); }
+.bar-age { font: 500 12px 'Inter', sans-serif; fill: var(--mid); }
+.visual-caption {
+  font-size: 12.5px; color: var(--lt); line-height: 1.6; margin-top: 14px;
+  padding-top: 14px; border-top: 1px solid var(--cream-dk);
+}
+
+.pull-quote {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 20px;
+  color: var(--navy-md); line-height: 1.5; margin: 8px 0 32px;
+  padding: 4px 0 4px 22px; border-left: 3px solid var(--blue-grey);
+  max-width: 600px;
+}
+.pull-quote cite {
+  display: block; font-family: 'Inter', sans-serif; font-style: normal;
+  font-size: 12.5px; font-weight: 600; color: var(--lt); margin-top: 8px;
+  letter-spacing: .02em;
+}
+
+/* -- PRINCIPLES -- */
+.principle-list { display: flex; flex-direction: column; gap: 14px; margin: 8px 0 28px; }
+.principle {
+  background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px 22px; border-left: 3px solid var(--gold);
+}
+.principle .num {
+  font-family: 'Spectral', serif; font-size: 14px; font-weight: 600;
+  color: var(--gold-dk); letter-spacing: .04em; margin-bottom: 4px; display: block;
+}
+.principle h3 {
+  font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16px;
+  color: var(--navy); margin-bottom: 5px; line-height: 1.35;
+}
+.principle p { margin-bottom: 0; font-size: 14.5px; color: var(--mid); max-width: none; }
+
+/* -- FOOTER / DISCLAIMER -- */
+footer {
+  background: var(--navy-dk); padding: 36px 24px; margin-top: 8px;
+}
+.footer-inner { max-width: 700px; margin: 0 auto; }
+.disclaimer {
+  font-size: 12.5px; color: rgba(247,244,237,.55); line-height: 1.8;
+  margin-bottom: 14px;
+}
+.sources {
+  font-size: 11.5px; color: rgba(247,244,237,.4); line-height: 1.8;
+}
+
+@media (max-width: 600px) {
+  nav { padding: 0 20px; }
+  .article-hero { padding: 40px 20px 24px; }
+  .article-hero h1 { font-size: 30px; }
+  .visual-block { padding: 20px 16px 16px; }
+}
+</style>
+</head>
+<body>
+<script>
+/* Safety net: a Supabase password-recovery link can land here instead of
+   /hub/reset-password.html if the project's Site URL falls back to the
+   site root. Forward the code/token on immediately so the reset form still
+   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
+(function () {
+  var search = window.location.search || "";
+  var hash = window.location.hash || "";
+  var params = new URLSearchParams(search);
+  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
+  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
+  if (hasAuthPayload || isRecovery) {
+    window.location.replace("/hub/reset-password.html" + search + hash);
+  }
+})();
+</script>
+<div id="hubGate" style="position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1D3557 0%,#0f1e3a 100%);display:flex;align-items:center;justify-content:center;padding:24px;">
+  <div style="max-width:380px;width:100%;text-align:center;">
+    <div style="width:44px;height:44px;border-radius:50%;border:1.5px solid #C9A84C;display:flex;align-items:center;justify-content:center;font-size:20px;color:#C9A84C;margin:0 auto 24px;">&#10022;</div>
+    <p style="font-family:'Playfair Display',serif;font-size:24px;color:#F7F4ED;margin-bottom:10px;">Client Hub</p>
+    <p style="font-size:13px;color:rgba(247,244,237,.55);margin-bottom:28px;line-height:1.7;">This area is for TEI clients. Enter the password you were given to continue.</p>
+    <div style="display:grid;align-items:center;margin-bottom:14px;">
+      <input type="password" id="hubGatePw" placeholder="Password" style="grid-area:1/1;width:100%;padding:13px 44px;border-radius:8px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#F7F4ED;font-size:14px;font-family:'Inter',sans-serif;text-align:center;outline:none;box-sizing:border-box;">
+      <button type="button" onclick="toggleHubGatePw(this)" aria-label="Show password" style="grid-area:1/1;justify-self:end;margin-right:8px;width:28px;height:28px;background:none;border:none;color:rgba(247,244,237,.5);cursor:pointer;padding:0;line-height:0;display:flex;align-items:center;justify-content:center;appearance:none;-webkit-appearance:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+    <button onclick="hubGateCheck()" style="width:100%;padding:13px;border-radius:8px;border:none;background:#C9A84C;color:#1D3557;font-size:14px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;">Enter</button>
+    <p id="hubGateError" style="font-size:12px;color:#e07a6f;margin-top:14px;display:none;">That password isn't right. Try again.</p>
+  </div>
+</div>
+<script>
+(function() {
+  var HUB_PASSWORD = "TEI";
+  if (sessionStorage.getItem("hubUnlocked") === "yes") {
+    var gate = document.getElementById("hubGate");
+    if (gate) gate.style.display = "none";
+  }
+})();
+var HUB_GATE_PW_EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var HUB_GATE_PW_EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.94 10.94 0 0 1 12 5c7 0 11 7 11 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 1 12s4 7 11 7a10.94 10.94 0 0 0 5.39-1.61"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+function toggleHubGatePw(btn) {
+  var input = document.getElementById("hubGatePw");
+  var showing = input.type === "text";
+  input.type = showing ? "password" : "text";
+  btn.innerHTML = showing ? HUB_GATE_PW_EYE : HUB_GATE_PW_EYE_OFF;
+  btn.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+}
+function hubGateCheck() {
+  var input = document.getElementById("hubGatePw");
+  var error = document.getElementById("hubGateError");
+  if (input.value === "TEI") {
+    sessionStorage.setItem("hubUnlocked", "yes");
+    document.getElementById("hubGate").style.display = "none";
+  } else {
+    error.style.display = "block";
+    input.value = "";
+    input.focus();
+  }
+}
+document.addEventListener("DOMContentLoaded", function() {
+  var input = document.getElementById("hubGatePw");
+  if (input) {
+    input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter") hubGateCheck();
+    });
+  }
+});
+</script>
+
+<nav>
+  <a href="/hub/index.html" class="nav-logo">
+    <span class="nav-logo-mark">E</span>
+    <span class="nav-logo-text">The Everyday<br>Investor</span>
+  </a>
+  <a href="/hub/articles.html" class="nav-back">&larr; Back to Articles</a>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <div class="eyebrow">Principles &amp; Foundations</div>
+    <h1>How Wealth Actually Compounds</h1>
+    <p class="dek">Compounding works like a snowball rolling down a hill: the bigger it gets, the faster it grows. That single fact is why the same rate of return turns into a curve instead of a straight line, and why money invested five years earlier ends up worth far more than five extra years of saving would suggest.</p>
+    <div class="article-meta">
+      <span>The Everyday Investor</span>
+      <span>Reading time: 3 minutes</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>Compounding works like a snowball rolling down a hill. The bigger it gets, the more snow it picks up with each turn, so it grows faster and faster without doing anything differently. Money does the same thing: growth on top of growth, again and again. Your pot is the snowball: everything you have invested so far, plus everything it has already earned.</p>
+
+    <p>Every year, the pot is a little bigger, so the same rate of growth adds a bigger number than the year before. Nothing else is happening. There is no trick, and no special skill involved.</p>
+
+    <div class="visual-block">
+      <div class="visual-title">The same 7%, every single year</div>
+      <div class="visual-sub">&pound;200 invested every month, growing at a steady 7% a year</div>
+      <svg class="chart-svg" viewBox="0 0 680 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Line chart showing a hypothetical 200 pounds invested monthly at 7 percent annual return, growing from 0 to about 525,000 pounds over 40 years, with the curve flat for the first 15 years and rising sharply after year 25">
+        <!-- gridlines -->
+        <line class="grid-line" x1="60" y1="260" x2="620" y2="260"/>
+        <line class="grid-line" x1="60" y1="216.4" x2="620" y2="216.4"/>
+        <line class="grid-line" x1="60" y1="172.7" x2="620" y2="172.7"/>
+        <line class="grid-line" x1="60" y1="129.1" x2="620" y2="129.1"/>
+        <line class="grid-line" x1="60" y1="85.5" x2="620" y2="85.5"/>
+        <line class="grid-line" x1="60" y1="41.8" x2="620" y2="41.8"/>
+        <text class="axis-label" x="14" y="264">&pound;0</text>
+        <text class="axis-label" x="4" y="220">&pound;100k</text>
+        <text class="axis-label" x="4" y="176">&pound;200k</text>
+        <text class="axis-label" x="4" y="133">&pound;300k</text>
+        <text class="axis-label" x="4" y="89">&pound;400k</text>
+        <text class="axis-label" x="4" y="46">&pound;500k</text>
+        <!-- x axis -->
+        <text class="axis-label" x="55" y="280">Yr 0</text>
+        <text class="axis-label" x="192" y="280">Yr 10</text>
+        <text class="axis-label" x="332" y="280">Yr 20</text>
+        <text class="axis-label" x="472" y="280">Yr 30</text>
+        <text class="axis-label" x="605" y="280">Yr 40</text>
+        <!-- area + curve -->
+        <path class="curve-area" d="M 60.0 260.0 Q 130.0 253.8 165.0 249.3 Q 200.0 244.9 235.0 238.6 Q 270.0 232.3 305.0 223.4 Q 340.0 214.5 375.0 201.9 Q 410.0 189.3 445.0 171.4 Q 480.0 153.5 515.0 128.2 Q 550.0 102.8 585.0 66.9 L 620.0 30.9 L 620.0 260 L 60.0 260 Z"/>
+        <path class="curve-line" d="M 60.0 260.0 Q 130.0 253.8 165.0 249.3 Q 200.0 244.9 235.0 238.6 Q 270.0 232.3 305.0 223.4 Q 340.0 214.5 375.0 201.9 Q 410.0 189.3 445.0 171.4 Q 480.0 153.5 515.0 128.2 Q 550.0 102.8 585.0 66.9 L 620.0 30.9"/>
+        <!-- data points -->
+        <circle class="curve-dot" cx="60" cy="260" r="4"/>
+        <circle class="curve-dot" cx="200" cy="244.9" r="4"/>
+        <circle class="curve-dot" cx="340" cy="214.5" r="4"/>
+        <circle class="curve-dot" cx="480" cy="153.5" r="4"/>
+        <circle class="curve-dot" cx="620" cy="30.9" r="4"/>
+        <text class="data-label" x="200" y="230" text-anchor="middle">&pound;35k</text>
+        <text class="data-label" x="340" y="200" text-anchor="middle">&pound;104k</text>
+        <text class="data-label" x="480" y="139" text-anchor="middle">&pound;244k</text>
+        <text class="data-label" x="573" y="20" text-anchor="middle">&pound;525k</text>
+        <!-- annotations -->
+        <text class="annotation" x="80" y="290">Same rate, smaller pot</text>
+        <text class="annotation" x="420" y="65">Same rate, larger pot</text>
+      </svg>
+      <div class="visual-caption">This is a hypothetical example, not a real result. It assumes &pound;200 invested every month, growing at a steady 7% a year, before tax, fees and charges, which would make the real number smaller. It is not a forecast, and it is not based on any real product.</div>
+    </div>
+
+    <p>Because each year's growth joins the pot, money invested early gets more years of growth on growth than money invested later, like a snowball let loose sooner down the same hill. The gap this creates has nothing to do with how much was put in. It is entirely about how many extra years that money had to keep growing.</p>
+
+    <div class="visual-block">
+      <div class="visual-title">Same &pound;200 a month. Same 7% return. Different start date.</div>
+      <div class="visual-sub">How much you would have at 65, depending on when you started</div>
+      <svg class="chart-svg" viewBox="0 0 590 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart showing that 200 pounds a month at 7 percent grows to 525,000 pounds by 65 if started at 25, but only 162,000 pounds if started at 40 -- a five-year delay between each bar costs far more than five years of contributions">
+        <line class="grid-line" x1="40" y1="240" x2="560" y2="240"/>
+        <rect class="bar-rect first" x="50" y="40.0" width="90" height="200.0" rx="4"/>
+        <rect class="bar-rect" x="180" y="102.8" width="90" height="137.2" rx="4"/>
+        <rect class="bar-rect" x="310" y="147.0" width="90" height="93.0" rx="4"/>
+        <rect class="bar-rect" x="440" y="178.3" width="90" height="61.7" rx="4"/>
+        <text class="bar-value" x="95" y="30" text-anchor="middle">&pound;525k</text>
+        <text class="bar-value" x="225" y="92.8" text-anchor="middle">&pound;360k</text>
+        <text class="bar-value" x="355" y="137.0" text-anchor="middle">&pound;244k</text>
+        <text class="bar-value" x="485" y="168.3" text-anchor="middle">&pound;162k</text>
+        <text class="bar-age" x="95" y="258" text-anchor="middle">Start 25</text>
+        <text class="bar-age" x="225" y="258" text-anchor="middle">Start 30</text>
+        <text class="bar-age" x="355" y="258" text-anchor="middle">Start 35</text>
+        <text class="bar-age" x="485" y="258" text-anchor="middle">Start 40</text>
+      </svg>
+      <div class="visual-caption">This is a hypothetical example. It assumes you retire at 65, save the same &pound;200 a month the whole time, and get a steady 7% a year. Waiting five years to start is not five years of missed saving. It is five years of missed growth on growth, and that adds up to a lot more money.</div>
+    </div>
+
+    <blockquote class="pull-quote">The first rule of compounding: never interrupt it unnecessarily.<cite>Charlie Munger</cite></blockquote>
+
+    <div class="principle-list">
+      <div class="principle">
+        <span class="num">01</span>
+        <h3>The same interest rate gives you a bigger number every year, not the same number.</h3>
+        <p>That is because your pot keeps growing, not because the interest rate went up.</p>
+      </div>
+      <div class="principle">
+        <span class="num">02</span>
+        <h3>Money invested early earns growth for longer than money invested later, even if it is the exact same amount.</h3>
+        <p>What matters is how many years that money spent growing, not how many pounds it started as.</p>
+      </div>
+      <div class="principle">
+        <span class="num">03</span>
+        <h3>A yearly fee shrinks your pot in exactly the way a return grows it.</h3>
+        <p>A fee that looks tiny in any one year is quietly working against you, every single year after that.</p>
+      </div>
+    </div>
+
+    <p class="close">This does not tell you what return you will actually get, or how much you should be saving each month. It shows why the same money grows faster the longer it is left alone, and why a fee you barely notice keeps costing you for as long as you pay it.</p>
+
+  </div>
+</article>
+
+<footer>
+  <div class="footer-inner">
+    <p class="disclaimer">The Everyday Investor provides financial coaching and education. We are coaches and educators, not regulated financial advisers, and nothing in this article constitutes personal financial advice or a recommendation to buy, hold, or sell any investment. Please consider your own circumstances, or speak to a regulated adviser, before making financial decisions.</p>
+    <p class="sources">Figures are a hypothetical example using a standard compound interest calculation, not real market data, and not a guide to what you would actually get. Quote: Charlie Munger, from Munger's speeches and interviews, via the TEI Quote Library.</p>
+  </div>
+</footer>
+
+</body>
+</html>
