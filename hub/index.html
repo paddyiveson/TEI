@@ -142,39 +142,56 @@ nav {
 (function () {
   var greeting = document.getElementById("hubHeroGreeting");
   if (!greeting) return;
+  var log = function () {
+    console.log.apply(console, ["[hub-greeting]"].concat(Array.prototype.slice.call(arguments)));
+  };
   var w = function () {
     return window.teiSupabase.schema("wealth_os");
   };
 
+  log("starting");
+
   TeiAuth.waitForReady()
     .then(function () {
+      log("supabase ready, calling getUser()");
       return TeiAuth.getUser();
     })
     .then(function (result) {
+      log("getUser() result", result);
       var user = result.data && result.data.user;
-      if (!user) return null;
+      if (!user) {
+        log("no signed-in user, stopping");
+        return null;
+      }
+      log("querying wealth_os.profiles for user_id", user.id);
       return w()
         .from("profiles")
         .select("first_name")
         .eq("user_id", user.id)
         .maybeSingle()
         .then(function (profileResult) {
+          log("profiles query result", profileResult);
           var profileName = profileResult.data && profileResult.data.first_name;
           if (profileName) return profileName;
+          log("no profile first_name, querying wealth_os.clients");
           return w()
             .from("clients")
             .select("first_name")
             .eq("user_id", user.id)
             .maybeSingle()
             .then(function (clientResult) {
+              log("clients query result", clientResult);
               return clientResult.data && clientResult.data.first_name;
             });
         });
     })
     .then(function (firstName) {
+      log("resolved firstName:", firstName);
       if (firstName) greeting.textContent = "Welcome back, " + firstName + ".";
     })
-    .catch(function () {});
+    .catch(function (err) {
+      console.error("[hub-greeting] failed:", err);
+    });
 })();
 </script>
 
