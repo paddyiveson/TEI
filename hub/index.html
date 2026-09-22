@@ -40,11 +40,8 @@ nav {
 .hub-auth-signout:hover, .hub-auth-signout-mobile:hover { color: var(--gold) !important; }
 
 /* ---------- Hero ---------- */
-.hub-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 60px 40px 40px; text-align: center; }
-.hub-hero p.eyebrow { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 16px; }
-.hub-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: clamp(26px, 3.4vw, 36px); color: var(--cream); margin-bottom: 14px; max-width: 620px; margin-left: auto; margin-right: auto; }
-.hub-hero p.sub { font-size: 14px; color: rgba(247,244,237,.55); max-width: 480px; margin: 0 auto; }
-.hub-mark { color: var(--gold); font-size: 13px; margin-top: 26px; letter-spacing: .3em; opacity: .55; }
+.hub-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 26px 40px; text-align: center; }
+.hub-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: clamp(19px, 2.1vw, 24px); color: var(--cream); margin: 0; }
 
 /* ---------- Featured suites (masthead band) ---------- */
 .hub-featured { background: var(--navy-dk); }
@@ -136,6 +133,35 @@ nav {
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
+<script>
+/* Personalises the hero heading with the signed-in client's first name.
+   wealth_os.clients is keyed by user_id (see hub/wealth-os.html's wo()
+   helper) -- advisers and clients without a clients row just keep the
+   plain "Welcome back." set in the markup. */
+(function () {
+  var greeting = document.getElementById("hubHeroGreeting");
+  if (!greeting) return;
+  TeiAuth.waitForReady()
+    .then(function () {
+      return TeiAuth.getUser();
+    })
+    .then(function (result) {
+      var user = result.data && result.data.user;
+      if (!user) return null;
+      return window.teiSupabase
+        .schema("wealth_os")
+        .from("clients")
+        .select("first_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+    })
+    .then(function (result) {
+      var firstName = result && result.data && result.data.first_name;
+      if (firstName) greeting.textContent = "Welcome back, " + firstName + ".";
+    })
+    .catch(function () {});
+})();
+</script>
 
 <nav>
   <a class="nav-logo" href="/hub/index.html">
@@ -168,9 +194,7 @@ nav {
 </div>
 
 <div class="hub-hero">
-  <p class="eyebrow">Welcome back</p>
-  <h1>Everything we've built together, in one place.</h1>
-  <p class="sub">Your research, guides, and tools -- worth coming back to whenever it's useful, not just once.</p>
+  <h1 id="hubHeroGreeting">Welcome back.</h1>
 </div>
 
 <div class="hub-featured">
@@ -240,7 +264,7 @@ nav {
   <a class="hub-library-banner" href="/hub/guides.html">
     <div class="hub-library-text">
       <p class="hub-library-eyebrow">The Full Library</p>
-      <p class="hub-library-title">Every guide, framework &amp; calculator we've built</p>
+      <p class="hub-library-title">Every guide, framework and calculator we've built</p>
       <p class="hub-library-desc">TEI Principles, the Five Stages framework, tax wrappers, portfolio strategy, and every tool in between -- all in one place.</p>
     </div>
     <span class="hub-library-cta">Browse Guides &amp; Tools <span class="arrow">&#8594;</span></span>
