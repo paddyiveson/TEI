@@ -134,13 +134,18 @@ nav {
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
 <script>
-/* Personalises the hero heading with the signed-in client's first name.
-   wealth_os.clients is keyed by user_id (see hub/wealth-os.html's wo()
-   helper) -- advisers and clients without a clients row just keep the
-   plain "Welcome back." set in the markup. */
+/* Personalises the hero heading with the signed-in user's first name.
+   Checks wealth_os.profiles.first_name first (covers advisers, who have
+   no wealth_os.clients row of their own -- see hub/wealth-os.html's wo()
+   helper), then falls back to wealth_os.clients.first_name for client
+   logins. Neither set keeps the plain "Welcome back." from the markup. */
 (function () {
   var greeting = document.getElementById("hubHeroGreeting");
   if (!greeting) return;
+  var w = function () {
+    return window.teiSupabase.schema("wealth_os");
+  };
+
   TeiAuth.waitForReady()
     .then(function () {
       return TeiAuth.getUser();
@@ -148,15 +153,25 @@ nav {
     .then(function (result) {
       var user = result.data && result.data.user;
       if (!user) return null;
-      return window.teiSupabase
-        .schema("wealth_os")
-        .from("clients")
+      return w()
+        .from("profiles")
         .select("first_name")
         .eq("user_id", user.id)
-        .maybeSingle();
+        .maybeSingle()
+        .then(function (profileResult) {
+          var profileName = profileResult.data && profileResult.data.first_name;
+          if (profileName) return profileName;
+          return w()
+            .from("clients")
+            .select("first_name")
+            .eq("user_id", user.id)
+            .maybeSingle()
+            .then(function (clientResult) {
+              return clientResult.data && clientResult.data.first_name;
+            });
+        });
     })
-    .then(function (result) {
-      var firstName = result && result.data && result.data.first_name;
+    .then(function (firstName) {
       if (firstName) greeting.textContent = "Welcome back, " + firstName + ".";
     })
     .catch(function () {});
