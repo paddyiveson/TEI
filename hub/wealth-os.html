@@ -3458,10 +3458,9 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 
     <div class="card-light">
       <h3 style="margin:0 0 4px; font-size:15px; font-family:'Playfair Display',serif;">Emergency fund</h3>
-      <div class="wizard-sub" style="margin-bottom:10px;">A cash buffer before anything else gets invested. Most people aim for 3–6 months of essential costs.</div>
-      <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="wizard-sub" style="margin-bottom:10px;">A cash buffer before anything else gets invested. Most people aim for 3–6 months of essential costs. Set your target here — once you've added a cash account (next), link it in Cashflow settings so "currently have" always matches its real balance.</div>
+      <div class="form-grid" style="grid-template-columns:1fr; max-width:260px;">
         <label class="form-field on-light"><span>Target £</span><input type="number" id="obEfTarget"></label>
-        <label class="form-field on-light"><span>Currently have £</span><input type="number" id="obEfCurrent"></label>
       </div>
     </div>
     <div class="wizard-sub" style="margin-top:16px; margin-bottom:0;">Your monthly saving &amp; investing rate is calculated automatically from the accounts you add next — no need to enter it separately.</div>
@@ -4012,7 +4011,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
       <div class="form-grid">
         <label class="form-field"><span>FI multiple</span><input type="number" id="cfFiMultiple" value="25"></label>
         <label class="form-field"><span>Emergency fund target £</span><input type="number" id="cfEfTarget"></label>
-        <label class="form-field"><span>Emergency fund current £</span><input type="number" id="cfEfCurrent"></label>
+        <label class="form-field"><span>Emergency fund account</span><select id="cfEfAccount"><option value="">Select a cash account…</option></select></label>
         <label class="form-field"><span>Wealth conversion target %</span><input type="number" id="cfWcTarget" value="20"></label>
       </div>
       <button type="button" class="btn-primary" id="saveCashflowBtn">Save cashflow</button>
@@ -4146,7 +4145,7 @@ window.TEI = window.TEI || {};
         income:[],                          // [{id, owner:'client'|'partner', type, amount, frequency}]
         expenses:{ fixed:[], variable:[] },  // each: [{id, label, amount}] (£/month)
         saving:{ monthlySavings:0, monthlyInvesting:0 },
-        emergencyFund:{ target:0, current:0 },
+        emergencyFund:{ target:0, current:0, accountId:null },
         scenario:'base', bestMult:0.85, worstMult:1.20, oneOffs:[], savingsGoals:[]
       },
       /* --- Client-adjustable settings, not facts and not derived — these are
@@ -4219,7 +4218,7 @@ window.TEI = window.TEI || {};
     merged.cashflow.expenses.fixed = Array.isArray(merged.cashflow.expenses.fixed) ? merged.cashflow.expenses.fixed : [];
     merged.cashflow.expenses.variable = Array.isArray(merged.cashflow.expenses.variable) ? merged.cashflow.expenses.variable : [];
     merged.cashflow.saving = Object.assign({monthlySavings:0, monthlyInvesting:0}, (loaded && loaded.cashflow && loaded.cashflow.saving) || {});
-    merged.cashflow.emergencyFund = Object.assign({target:0,current:0}, (loaded && loaded.cashflow && loaded.cashflow.emergencyFund) || {});
+    merged.cashflow.emergencyFund = Object.assign({target:0,current:0,accountId:null}, (loaded && loaded.cashflow && loaded.cashflow.emergencyFund) || {});
     // adaptClientBundle always sets these keys on loaded.cashflow (as
     // `undefined` when the client has no cashflow_settings row yet, e.g.
     // brand-new onboarding) -- the Object.assign above copies a present-but-
@@ -4267,6 +4266,13 @@ window.TEI = window.TEI || {};
     // just live edits made after this feature existed. See
     // syncAccountValueFromHoldings for why holdings always win.
     merged.accounts.forEach(a=> syncAccountValueFromHoldings(merged, a.id));
+    // Emergency fund "current" is derived from its linked account -- same
+    // reasoning as the holdings sync above: a hand-typed figure could drift
+    // from the real balance shown everywhere else (Accounts, Portfolio, Home).
+    // No linked account (not yet chosen, or the linked one was since deleted)
+    // leaves current at 0 rather than trusting a stale manual figure.
+    const efAcc = merged.accounts.find(a=> a.id === merged.cashflow.emergencyFund.accountId);
+    merged.cashflow.emergencyFund.current = efAcc ? (Number(efAcc.value)||0) : 0;
     return merged;
   }
 
@@ -4289,7 +4295,7 @@ window.TEI = window.TEI || {};
     holdings:[], dividendHoldings:[], goals:[],
     cashflow:{
       income:[], expenses:{ fixed:[], variable:[] }, saving:{ monthlySavings:0, monthlyInvesting:0 },
-      scenario:'base', bestMult:0.85, worstMult:1.20, oneOffs:[], savingsGoals:[], emergencyFund:{target:0,current:0}
+      scenario:'base', bestMult:0.85, worstMult:1.20, oneOffs:[], savingsGoals:[], emergencyFund:{target:0,current:0,accountId:null}
     },
     preferences:{ fiMultiple:25, fiOverride:null, wealthConversionTarget:20 },
     monteCarlo:{ conservative:true, base:true, optimistic:false },
@@ -10418,6 +10424,14 @@ TEI.render = TEI.render || {};
 
   function renderEmergencyFund(client){
     const ef = client.cashflow.emergencyFund || {target:0,current:0};
+    // Recomputed fresh here (not just trusted from mergeDefaults at load
+    // time) so an in-session balance change on the linked account --
+    // refreshing live prices, logging a balance, editing the account --
+    // shows up immediately on this, the most-visible emergency fund figure,
+    // same reasoning as syncAccountValueFromHoldings for holdings-derived
+    // account values.
+    const efAcc = client.accounts.find(a=> a.id === ef.accountId);
+    ef.current = efAcc ? (Number(efAcc.value)||0) : 0;
     const pct = ef.target ? Math.min(100, ef.current/ef.target*100) : 0;
     document.getElementById('efBar').style.width = pct + '%';
     document.getElementById('efCurrent').textContent = fmtGBP(ef.current);
@@ -12621,35 +12635,51 @@ window.TEI = window.TEI || {};
     fillCashflowForm();
   }
 
+  /* Cash / Cash ISA only -- an emergency fund is meant to be instantly
+     accessible, not invested. Shared by the dropdown here and saveCashflow's
+     validation below. */
+  function emergencyFundAccounts(){
+    return client.accounts.filter(a=> a.type==='cash' || a.type==='cash_isa');
+  }
   function fillCashflowForm(){
     document.getElementById('cfFiMultiple').value = client.preferences.fiMultiple||25;
     document.getElementById('cfEfTarget').value = (client.cashflow.emergencyFund||{}).target||0;
-    document.getElementById('cfEfCurrent').value = (client.cashflow.emergencyFund||{}).current||0;
+    const efAccountId = (client.cashflow.emergencyFund||{}).accountId || '';
+    const efSelect = document.getElementById('cfEfAccount');
+    efSelect.innerHTML = '<option value="">Select a cash account…</option>' +
+      emergencyFundAccounts().map(a=>`<option value="${a.id}">${TEI.data.acctLabel(a)}</option>`).join('');
+    efSelect.value = efAccountId;
     document.getElementById('cfWcTarget').value = client.preferences.wealthConversionTarget||20;
     renderCalculatedSavingStats();
   }
-  /* Monthly savings/investing used to be typed here and compared against
-     accounts via a separate "contribution reconciliation" check -- both
-     numbers were self-reported, so they could drift from accounts (and
-     from each other) with nothing to catch it. Now purely account-derived,
-     same source the rest of the app already treats as ground truth, so
-     there's nothing left to reconcile against -- just the calculated
-     figures themselves, read-only. */
+  /* Monthly savings/investing, and now emergency fund "current", used to be
+     typed here and compared against accounts via a separate "contribution
+     reconciliation" check -- all self-reported, so they could drift from
+     accounts (and from each other) with nothing to catch it. Now purely
+     account-derived, same source the rest of the app already treats as
+     ground truth, so there's nothing left to reconcile against -- just the
+     calculated figures themselves, read-only. */
   function renderCalculatedSavingStats(){
     const el = document.getElementById('cfCalculatedSavingStats');
     if(!el) return;
     const investing = TEI.calc.actualInvestmentMonthlyContribution(client);
     const savings = TEI.calc.actualCashMonthlyContribution(client);
+    const efAccountId = document.getElementById('cfEfAccount').value;
+    const efAcc = client.accounts.find(a=>a.id===efAccountId);
     el.innerHTML = `
       <div class="range-stat"><span class="rs-label">Monthly savings (cash accounts)</span><b>${fmtGBP(savings)}</b></div>
       <div class="range-stat"><span class="rs-label">Monthly investing (ISA/GIA/LISA/pension personal)</span><b>${fmtGBP(investing)}</b></div>
+      <div class="range-stat"><span class="rs-label">Emergency fund current (from linked account)</span><b>${efAcc ? fmtGBP(efAcc.value) : 'No account linked'}</b></div>
     `;
   }
   function saveCashflow(){
     client.preferences.fiMultiple = parseFloat(document.getElementById('cfFiMultiple').value)||25;
+    const efAccountId = document.getElementById('cfEfAccount').value || null;
+    const efAcc = client.accounts.find(a=>a.id===efAccountId);
     client.cashflow.emergencyFund = TEI.calc.stampEdit({
       target: parseFloat(document.getElementById('cfEfTarget').value)||0,
-      current: parseFloat(document.getElementById('cfEfCurrent').value)||0
+      accountId: efAccountId,
+      current: efAcc ? (Number(efAcc.value)||0) : 0
     }, 'adviser');
     client.preferences.wealthConversionTarget = parseFloat(document.getElementById('cfWcTarget').value)||20;
     renderCalculatedSavingStats();
@@ -13137,6 +13167,7 @@ window.TEI = window.TEI || {};
     document.getElementById('advAddVariableBtn').addEventListener('click', ()=>addAdvExpense('variable'));
     document.getElementById('advAddOneOffBtn').addEventListener('click', addAdvOneOff);
     document.getElementById('saveCashflowBtn').addEventListener('click', saveCashflow);
+    document.getElementById('cfEfAccount').addEventListener('change', renderCalculatedSavingStats);
     document.getElementById('addDocBtn').addEventListener('click', addDocument);
     document.getElementById('csvImportBtn').addEventListener('click', importHoldingsCsv);
     document.getElementById('exportBtn').addEventListener('click', exportClient);
@@ -13554,11 +13585,9 @@ window.TEI = window.TEI || {};
 
   function fillCashflowBasics(){
     document.getElementById('obEfTarget').value = (client.cashflow.emergencyFund||{}).target||'';
-    document.getElementById('obEfCurrent').value = (client.cashflow.emergencyFund||{}).current||'';
   }
   function wireCashflowBasics(){
     document.getElementById('obEfTarget').addEventListener('input', e=>{ client.cashflow.emergencyFund.target = parseFloat(e.target.value)||0; TEI.calc.stampEdit(client.cashflow.emergencyFund,'client'); });
-    document.getElementById('obEfCurrent').addEventListener('input', e=>{ client.cashflow.emergencyFund.current = parseFloat(e.target.value)||0; TEI.calc.stampEdit(client.cashflow.emergencyFund,'client'); });
   }
 
   /* ================= STEP 3: WEALTH FOUNDATION ================= */
@@ -14606,7 +14635,7 @@ window.TEI = window.TEI || {};
           variable: (bundle.expenses||[]).filter(e=>e.category==='variable').map(e=>({id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client'}))
         },
         saving:{ monthlySavings: cf.monthly_savings, monthlyInvesting: cf.monthly_investing },
-        emergencyFund:{ target: cf.emergency_fund_target, current: cf.emergency_fund_current },
+        emergencyFund:{ target: cf.emergency_fund_target, current: cf.emergency_fund_current, accountId: cf.emergency_fund_account_id },
         scenario: cf.scenario, bestMult: cf.best_mult, worstMult: cf.worst_mult,
         oneOffs: cf.one_offs, savingsGoals: cf.savings_goals
       },
@@ -14944,6 +14973,7 @@ window.TEI = window.TEI || {};
       monthly_investing: cf.saving ? cf.saving.monthlyInvesting : null,
       emergency_fund_target: cf.emergencyFund ? cf.emergencyFund.target : null,
       emergency_fund_current: cf.emergencyFund ? cf.emergencyFund.current : null,
+      emergency_fund_account_id: cf.emergencyFund ? cf.emergencyFund.accountId : null,
       scenario: cf.scenario != null ? cf.scenario : null,
       best_mult: cf.bestMult != null ? cf.bestMult : null,
       worst_mult: cf.worstMult != null ? cf.worstMult : null,
