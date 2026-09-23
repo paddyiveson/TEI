@@ -910,16 +910,19 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
    leading <h3> becomes tap-to-expand below the same 860px breakpoint the
    JS itself checks, so the workspace opens on headings instead of one
    long unbroken scroll. Cards with no <h3> (upload zone, some list
-   containers) are left untouched by the JS and so never get this class. */
-@media (max-width:860px){
-  .card.mcollapse{cursor:default;}
-  .card.mcollapse .mcollapse-header{cursor:pointer; display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:0 !important;}
-  .card.mcollapse .mcollapse-chevron{color:var(--gold); font-size:13px; flex:none; margin-left:auto; transition:transform .15s;}
-  .card.mcollapse.expanded .mcollapse-header{margin-bottom:14px !important;}
-  .card.mcollapse.expanded .mcollapse-chevron{transform:rotate(90deg);}
-  .card.mcollapse > .mcollapse-body{display:none;}
-  .card.mcollapse.expanded > .mcollapse-body{display:block;}
-}
+   containers) are left untouched by the JS and so never get this class.
+   Rules themselves apply at any width -- JS still only ever adds the
+   .mcollapse class at <=860px, except for cards opted in via
+   data-collapse-always (see enhanceMobileCollapse), which get it at any
+   width. Keeping the rules ungated means that opt-in doesn't need its own
+   duplicate stylesheet. */
+.card.mcollapse{cursor:default;}
+.card.mcollapse .mcollapse-header{cursor:pointer; display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:0 !important;}
+.card.mcollapse .mcollapse-chevron{color:var(--gold); font-size:13px; flex:none; margin-left:auto; transition:transform .15s;}
+.card.mcollapse.expanded .mcollapse-header{margin-bottom:14px !important;}
+.card.mcollapse.expanded .mcollapse-chevron{transform:rotate(90deg);}
+.card.mcollapse > .mcollapse-body{display:none;}
+.card.mcollapse.expanded > .mcollapse-body{display:block;}
 
 /* ================= ONBOARDING WIZARD ================= */
 .wizard-header{background:var(--card-dark); padding:20px 0;}
@@ -1094,8 +1097,14 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
    which is mobile-only) -- used to fold "What's behind this number" into
    the Financial future overview card instead of a separate always-open
    card next to it. */
-.k-dropdown-toggle{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent;}
+.k-dropdown-toggle{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent; color:var(--k-ink);}
 .k-dropdown-toggle .k-dropdown-chevron{flex:none; width:16px; height:16px; fill:none; stroke:var(--k-ink-softer); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:transform .15s;}
+/* .dcard.emphasis never flips with theme (fixed dark navy in both) -- see
+   the .dcard.emphasis text-colour comment above -- so its own descendants
+   need the emphasis-specific ink tokens, not the theme-flipping ones the
+   base rule above uses for this toggle in an ordinary (non-emphasis) card. */
+.dcard.emphasis .k-dropdown-toggle{color:var(--k-emphasis-ink);}
+.dcard.emphasis .k-dropdown-toggle .k-dropdown-chevron{stroke:var(--k-emphasis-softer);}
 .k-dropdown-toggle[aria-expanded="true"] .k-dropdown-chevron{transform:rotate(180deg);}
 .k-dropdown-toggle:focus-visible{outline:2px solid var(--gold); outline-offset:3px; border-radius:4px;}
 .k-dropdown-body{display:none;}
@@ -2527,7 +2536,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
           <div class="k">Portfolio overview</div>
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <button type="button" class="btn-ghost" id="poRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
-            <a href="#" class="btn-ghost navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
+            <a href="#" class="btn-primary navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
           </div>
         </div>
         <div class="sub2" id="poPricesStatus" style="margin:2px 0 0;"></div>
@@ -3852,7 +3861,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
       </div>
     </div>
 
-    <div class="card" style="margin-bottom:16px;">
+    <div class="card" style="margin-bottom:16px;" data-collapse-always>
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px;">
         <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log a month's holdings</h3>
         <label class="month-badge" style="gap:8px;">Logging for <input type="month" id="curMonthPickerHoldings" style="background:var(--card-dark2); border:1px solid rgba(247,244,237,0.25); border-radius:4px; color:var(--cream); font-family:'Inter',sans-serif; font-size:12px; padding:2px 6px; color-scheme:dark;"></label>
@@ -6210,7 +6219,7 @@ TEI.render = TEI.render || {};
   function renderTimeline(client){
     const series = totalNetWorthSeries(client);
     const allKeys = Object.keys(series).sort();
-    const {GRID, makeChart} = TEI.charts;
+    const {GRID, makeChart, currentInk} = TEI.charts;
 
     if(!currentRange) currentRange = defaultRange(allKeys);
     document.querySelectorAll('#timelineRangeToggle button').forEach(btn=> btn.classList.toggle('active', btn.dataset.range===currentRange));
@@ -10582,10 +10591,10 @@ TEI.render = TEI.render || {};
   const {fmtGBP} = TEI.data;
 
   const LEARNING_CARDS = [
-    {tag:'Concept', title:'Why wrappers exist', desc:'ISAs, pensions and GIAs are containers, not investments in themselves — understanding the container changes how you use it.', link:'../education/index.html'},
-    {tag:'Concept', title:'Risk and time horizon', desc:'The same portfolio can be right or wrong depending entirely on when the money is needed.', link:'../education/index.html'},
+    {tag:'Concept', title:'Why wrappers exist', desc:'ISAs, pensions and GIAs are containers, not investments in themselves — understanding the container changes how you use it.', link:'/hub/education/index.html'},
+    {tag:'Concept', title:'Risk and time horizon', desc:'The same portfolio can be right or wrong depending entirely on when the money is needed.', link:'/hub/education/index.html'},
     {tag:'Insight', title:'What compounding actually rewards', desc:'Time in the market does more work than timing it — see this play out with real numbers in Planning Tools.', link:'#', page:'planning'},
-    {tag:'Insight', title:'Behavioural biases worth knowing', desc:'Loss aversion, recency bias and herding shape more investment decisions than most people realise.', link:'../education/index.html'},
+    {tag:'Insight', title:'Behavioural biases worth knowing', desc:'Loss aversion, recency bias and herding shape more investment decisions than most people realise.', link:'/hub/education/index.html'},
   ];
 
   function renderLearning(){
@@ -13174,12 +13183,17 @@ window.TEI = window.TEI || {};
      ids/handlers inside. Only ever wraps a given card once
      (data-mcollapse-done guard) -- safe to call again on every re-render,
      since renderXxx() functions replace a specific list/field container's
-     innerHTML, never the static card shell itself. Desktop is untouched:
-     this only runs below the 860px breakpoint the CSS collapse rules use,
-     and simply does nothing above it. First card in each tab/subtab panel
-     opens expanded by default; the rest start collapsed. */
+     innerHTML, never the static card shell itself. Desktop is untouched
+     for most cards: this only wraps them below the 860px breakpoint the
+     CSS collapse rules use. The exception is a card marked
+     data-collapse-always (e.g. "Log a month's holdings") -- those get
+     wrapped and start collapsed at ANY width, since an always-open
+     history/log form buried mid-page was a request independent of screen
+     size. First card in each tab/subtab panel opens expanded by default
+     on mobile; the rest (and every data-collapse-always card, at any
+     width) start collapsed. */
   function enhanceMobileCollapse(){
-    if(window.innerWidth > 860) return;
+    const atMobile = window.innerWidth <= 860;
     // Deliberately document-wide, not scoped to #advBody: My Details (see
     // mountMyDetailsPanel in the client-app module) reparents #tab-manual
     // and its subtab-panels out of #advBody into the client page's own
@@ -13190,6 +13204,8 @@ window.TEI = window.TEI || {};
       let opened = false;
       panel.querySelectorAll(':scope > .card').forEach(card=>{
         if(card.dataset.mcollapseDone) return;
+        const alwaysCollapse = card.hasAttribute('data-collapse-always');
+        if(!atMobile && !alwaysCollapse) return; // desktop: only opted-in cards get wrapped
         // Most cards have a bare <h3> as their first child, but several
         // (anything with a month picker or extra controls next to the
         // title -- "Log a month's balances", "Holdings", ...) wrap the
@@ -13210,7 +13226,7 @@ window.TEI = window.TEI || {};
         let node = header.nextSibling;
         while(node){ const next = node.nextSibling; body.appendChild(node); node = next; }
         card.appendChild(body);
-        if(!opened){ card.classList.add('expanded'); opened = true; }
+        if(atMobile && !alwaysCollapse && !opened){ card.classList.add('expanded'); opened = true; }
         header.addEventListener('click', (e)=>{
           // A header row can contain a real control (month picker, etc.) --
           // let taps on those work normally instead of also toggling the card.
@@ -15950,7 +15966,10 @@ window.TEI = window.TEI || {};
       if(el) el.addEventListener('click', (e)=>{ e.preventDefault(); setMode('onboarding'); });
     });
     const backBtn = document.getElementById('backToClientListBtn');
-    if(backBtn) backBtn.addEventListener('click', showClientListPage);
+    if(backBtn) backBtn.addEventListener('click', ()=>{
+      history.pushState({}, '', location.pathname); // drop ?client= -- see openClient's pushState
+      showClientListPage();
+    });
     const workspaceBtn = document.getElementById('openAdviserWorkspaceBtn');
     if(workspaceBtn) workspaceBtn.addEventListener('click', ()=> setMode('adviser'));
   }
@@ -16200,6 +16219,9 @@ window.TEI = window.TEI || {};
     try{
       const loaded = await TEI.wealthOS.openClientAsAdviser(clientId);
       startClientView(loaded);
+      // Own history entry per client (see init()'s ?client= handling) --
+      // without this, Back from any external link lands on the client list.
+      history.pushState({client: clientId}, '', '?client=' + encodeURIComponent(clientId));
     } catch(err){
       console.error('Wealth OS: failed to open client', err);
       errEl.textContent = (err && err.message) || 'Could not open that client.';
@@ -16216,6 +16238,7 @@ window.TEI = window.TEI || {};
       const row = await TEI.wealthOS.createClient({});
       const loaded = await TEI.wealthOS.openClientAsAdviser(row.id);
       startClientView(loaded);
+      history.pushState({client: row.id}, '', '?client=' + encodeURIComponent(row.id));
       setMode('onboarding');
     } catch(err){
       console.error('Wealth OS: failed to create client', err);
@@ -16290,20 +16313,37 @@ window.TEI = window.TEI || {};
 
      Client-role logins go straight into startClientView(). Adviser logins
      land on the client-list page instead (showClientListPage) -- nothing
-     client-shaped renders until they open or add a client from there. */
+     client-shaped renders until they open or add a client from there,
+     UNLESS the URL already names one via ?client=<id> (see openClient's
+     pushState) -- otherwise following any full-page link out of a client's
+     Wealth OS (Education Platform, a guide, Visit Website, ...) and hitting
+     Back would reload this page with no memory of which client you were
+     viewing and dump you back on the client list. */
   async function init(){
     wireNav();
     wireMobileTabs();
     wireModeSwitch();
     wireClientListPage();
     wireTheme();
+    window.addEventListener('popstate', onWealthOSPopState);
 
     const result = await TEI.wealthOS.loadWealthOSClient();
     if(!result) return; // either redirected to login, or a load error is already shown
+    state.role = result.role;
 
     if(result.role === 'adviser' && !result.client){
       state.adviserClients = result.clients || [];
       state.adviserFeedback = result.feedback || [];
+      const urlClientId = new URLSearchParams(location.search).get('client');
+      if(urlClientId){
+        try{
+          startClientView(await TEI.wealthOS.openClientAsAdviser(urlClientId));
+          return;
+        } catch(err){
+          console.error('Wealth OS: failed to restore client from URL, falling back to client list', err);
+          // URL named a client we can't load (deleted, no access, bad id) -- fall through to the list below.
+        }
+      }
       renderClientListRows(state.adviserClients);
       renderFeedbackInbox();
       document.getElementById('clientListApp').style.display = 'block';
@@ -16311,6 +16351,22 @@ window.TEI = window.TEI || {};
     }
 
     startClientView(result.client);
+  }
+
+  /* Reconciles the visible view with the URL after a same-document Back/
+     Forward (a full-page reload instead lands back in init() above, which
+     handles ?client= the same way). Adviser-only: client-role sessions have
+     no list to navigate between, so there's nothing to reconcile for them. */
+  function onWealthOSPopState(){
+    if(state.role !== 'adviser') return;
+    const urlClientId = new URLSearchParams(location.search).get('client');
+    if(urlClientId){
+      TEI.wealthOS.openClientAsAdviser(urlClientId).then(startClientView).catch(err=>{
+        console.error('Wealth OS: failed to restore client on popstate', err);
+      });
+    } else {
+      showClientListPage();
+    }
   }
 
   TEI.app = { showPage, showToast, rerenderCurrentPage, setMode, PAGES, state, updateAvatar };
