@@ -4670,6 +4670,40 @@ window.TEI = window.TEI || {};
     return {pct, current:linkedTotal, target, isComplete: target>0 && linkedTotal>=target};
   }
 
+  /* Auto-completes any active goal whose own progress has reached its
+     target -- a "monetary" savings goal whose linked accounts now cover
+     targetAmount, or an "income" goal (e.g. "Scale Business") whose
+     tracked income now clears targetIncome. Uses goalProgress's own
+     isComplete flag, so a goal completes here exactly when its progress
+     bar would already read 100% -- no separate threshold to keep in sync.
+     completion-type goals are untouched: those are an inherently manual
+     "did this happen" call, not something a number crosses.
+     Called wherever a number that could complete a goal gets saved
+     (income, accounts, monthly balances) so completion is immediate --
+     see e.g. addAdvIncome -- and also on every Goals page render, so a
+     goal that crossed its line via some other path still surfaces
+     correctly next time Goals is opened. source:'auto' in statusHistory
+     distinguishes this from a person clicking Mark complete/Reopen.
+     Returns the goals just newly completed, for a caller to toast. */
+  async function checkGoalAutoComplete(client){
+    const justCompleted = [];
+    for(const g of (client.goals||[])){
+      if(g.status === 'completed' || g.progressType === 'completion') continue;
+      if(!goalProgress(client, g).isComplete) continue;
+      const nextHistory = (g.statusHistory||[]).concat([{date:new Date().toISOString(), status:'completed', source:'auto'}]);
+      const merged = Object.assign({}, g, {status:'completed', statusHistory:nextHistory});
+      stampEdit(merged, 'system');
+      try{
+        await TEI.wealthOS.saveGoal(client.meta.clientId, g.id, merged);
+        Object.assign(g, merged);
+        justCompleted.push(g);
+      } catch(err){
+        console.error('Wealth OS: failed to auto-complete goal', g.id, err);
+      }
+    }
+    return justCompleted;
+  }
+
   /* completion — progressive completion tracker for the Client Foundation.
      Deliberately loose ("has at least one entry") rather than exhaustive field
      checks — matches the spec's "don't block, just flag what's missing." */
@@ -5555,7 +5589,7 @@ window.TEI = window.TEI || {};
     financialFreedomPct, nextMilestone, computeJourney, JOURNEY_STAGES,
     /* Phase 1 — Client Foundation derived helpers */
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
-    netWorth, goalProgress, completion, householdTotals,
+    netWorth, goalProgress, completion, householdTotals, checkGoalAutoComplete,
     /* Operating Model Refinement — source tagging, monthly history, updates feed */
     stampEdit, seedMonthlyValue, collectClientUpdates,
     /* Contribution-vs-holdings reconciliation (Portfolio Overview flags +
@@ -6895,7 +6929,14 @@ TEI.render = TEI.render || {};
     el.textContent = count ? `${count} goal${count===1?'':'s'} set` : 'None set yet';
   }
 
-  TEI.render.goals = function(client){
+  TEI.render.goals = async function(client){
+    // Catches anything that crossed its target via a path that didn't
+    // already call checkGoalAutoComplete itself (e.g. data edited
+    // elsewhere in the session, or a fresh load) -- see its own comment.
+    // No-op fast (no await reached) when nothing needs completing.
+    const justCompleted = await TEI.calc.checkGoalAutoComplete(client);
+    justCompleted.forEach(g=> TEI.app.showToast(`🎉 "${g.name}" completed!`));
+
     renderGoalsUpdateSummary(client);
 
     const allGoals = client.goals || [];
@@ -11098,6 +11139,10 @@ window.TEI = window.TEI || {};
     // discrepancy check too, so it needs the same immediate cross-shell
     // re-render, not just on next visit to the client dashboard.
     if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
+    // A balance change can be exactly what completes a "monetary" goal
+    // linked to this account -- check right away, same reasoning as the
+    // income check in addAdvIncome.
+    (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
   }
 
   /* ================= MONTHLY BALANCES / HOLDINGS / GOALS ================
@@ -11223,6 +11268,9 @@ window.TEI = window.TEI || {};
     client.monthsMeta[key] = metaEntry;
     renderMonthHistory('accounts');
     showToast('Saved ' + key);
+    // A logged balance can be exactly what completes a "monetary" goal
+    // linked to this account -- same reasoning as addAccount's check.
+    (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
   }
 
   /* ---------- monthly holdings & goal progress — same pattern as accounts,
@@ -12087,6 +12135,9 @@ window.TEI = window.TEI || {};
       if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
       if(typeof TEI.render.progress === 'function') TEI.render.progress(client);
       showToast(updated ? `Refreshed ${updated} live price${updated===1?'':'s'}` : "Couldn't refresh prices");
+      // Market growth alone can complete a "monetary" goal linked to one of
+      // the accounts just repriced -- same reasoning as addAccount's check.
+      (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
     } catch(err){
       console.error('Wealth OS: failed to refresh live prices', err);
       status.textContent = "Couldn't fetch live prices — " + (err.message || 'try again');
@@ -12413,6 +12464,10 @@ window.TEI = window.TEI || {};
       showToast('Income added');
     }
     renderAdvIncomeList();
+    // An income change can be exactly what completes an "income"-type goal
+    // (e.g. a business-income target) -- check right away rather than
+    // waiting for the Goals page's own check on next visit.
+    (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
   }
   function renderAdvExpenseList(kind){
     const containerId = kind==='fixed' ? 'advFixedList' : 'advVariableList';
