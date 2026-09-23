@@ -136,7 +136,12 @@ a{color:inherit;}
 @media (max-width:860px){ h1{font-size:27px;} }
 /* ================= NAV ================= */
 .app-shell{display:flex; align-items:flex-start;}
-.sidebar{width:222px; flex:none; background:var(--card-dark); display:flex; flex-direction:column; padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+/* Fixed, not sticky -- sticky unsticks once its containing block (.app-shell,
+   which grows to whichever of sidebar/main is taller) runs out of room, e.g.
+   right at the bottom of a long page, which read as "the menu moves when you
+   scroll." Fixed removes it from flow entirely, so .main below carries a
+   matching margin-left to stop content sliding underneath it. */
+.sidebar{width:222px; flex:none; background:var(--card-dark); display:flex; flex-direction:column; padding:20px 14px; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:70;}
 .sidebar-brand{display:flex; align-items:center; gap:8px; text-decoration:none; padding:0 10px; margin-bottom:24px; cursor:pointer;}
 .sidebar-brand .nb-mark{font-family:var(--font-display); font-style:italic; font-weight:600; font-size:18px; color:var(--cream); letter-spacing:0.01em;}
 .sidebar-brand .nb-mark span{color:var(--gold);}
@@ -189,7 +194,7 @@ a{color:inherit;}
 .nav-dropdown.notif-panel{min-width:230px; padding:16px; text-align:center;}
 .nav-dropdown.notif-panel .nd-empty{font-size:13.5px; color:var(--ink-soft2);}
 
-.main{flex:1; min-width:0;}
+.main{flex:1; min-width:0; margin-left:222px;} /* reserves the space the now-fixed .sidebar no longer takes up in flow; reset to 0 under the 900px off-canvas breakpoint below */
 /* This -- not .wrap's own max-width -- was the actual binding constraint
    on every dashboard page's width (confirmed live: raising #clientApp
    .wrap's cap to 1680px, further up this stylesheet, changed nothing,
@@ -211,8 +216,9 @@ a{color:inherit;}
 .scrim.visible{opacity:1; pointer-events:auto;}
 
 @media(max-width:900px){
-  .sidebar{position:fixed; top:0; left:0; bottom:0; transform:translateX(-100%); transition:transform .3s ease; box-shadow:4px 0 24px rgba(0,0,0,.4); z-index:100;}
+  .sidebar{bottom:0; transform:translateX(-100%); transition:transform .3s ease; box-shadow:4px 0 24px rgba(0,0,0,.4); z-index:100;}
   .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;} /* sidebar is off-canvas here, not a permanent column -- see .main's base rule */
   .menu-btn{display:flex;}
   .sidebar-close{display:flex;}
   .scrim{display:block;}
@@ -6219,7 +6225,7 @@ TEI.render = TEI.render || {};
   function renderTimeline(client){
     const series = totalNetWorthSeries(client);
     const allKeys = Object.keys(series).sort();
-    const {GRID, makeChart, currentInk} = TEI.charts;
+    const {GRID, makeChart} = TEI.charts;
 
     if(!currentRange) currentRange = defaultRange(allKeys);
     document.querySelectorAll('#timelineRangeToggle button').forEach(btn=> btn.classList.toggle('active', btn.dataset.range===currentRange));
@@ -6249,7 +6255,12 @@ TEI.render = TEI.render || {};
       data:{labels:filteredKeys.map(k=>monthLabel(k)), datasets},
       options:{maintainAspectRatio:false,
         plugins:{
-          legend:{display:hasContributions, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:currentInk()}},
+          /* Fixed light-cream, not currentInk() -- this chart lives in a
+             .dcard.emphasis card, which stays dark navy in both themes (see
+             the .dcard.emphasis comment), so the theme-flipping ink token
+             was unreadable (dark-on-dark) in light theme. Matches the axis
+             ticks' own fixed rgba(247,244,237,...) a few lines below. */
+          legend:{display:hasContributions, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:'rgba(247,244,237,0.75)'}},
           tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}
         },
         scales:{
