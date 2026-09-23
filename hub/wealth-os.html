@@ -4307,6 +4307,19 @@ window.TEI = window.TEI || {};
     if(acc) acc.value = total; // keep the account's own display value (used in list rows) in step too
   }
 
+  /* Crypto has no live price feed, so a crypto account's value only ever
+     moves when a holding is manually added/edited/removed -- "last updated"
+     is stamped explicitly at those user-initiated call sites (not inside
+     syncAccountValueFromHoldings itself, which also runs on every load via
+     mergeDefaults to recompute the current month from holdings -- stamping
+     there would show today's date on every page view, not just on an
+     actual edit). No-op for any other account type. */
+  function stampCryptoAccountUpdated(client, accountId){
+    const acc = client.accounts.find(a=>a.id===accountId);
+    if(acc && acc.type === 'crypto') acc.lastUpdated = new Date().toISOString().slice(0,10);
+    return acc;
+  }
+
   /* ---------- Cash ISA / Current-Deposit interest accrual ----------
      Cash-flavoured accounts (type 'cash' or 'cash_isa') can carry an
      interest_rate (annual %, AER). Interest is recomputed fresh every time
@@ -4459,7 +4472,7 @@ window.TEI = window.TEI || {};
      This is the single source of truth for "actual" saving/investing figures
      across Cashflow — the wealth conversion rate, the cashflow health rate,
      and disposable income should all agree because they all call this. */
-  const INVESTMENT_ACCOUNT_TYPES = ['isa','gia','lisa','pension'];
+  const INVESTMENT_ACCOUNT_TYPES = ['isa','gia','lisa','pension','crypto'];
   function actualInvestmentMonthlyContribution(client){
     return client.accounts.filter(a=>INVESTMENT_ACCOUNT_TYPES.includes(a.type)).reduce((s,a)=>{
       if(a.type==='pension') return s + (Number(a.contributionPersonal)||0);
@@ -4947,7 +4960,7 @@ window.TEI = window.TEI || {};
            of the shared engine so it can be excluded/deduped like everything
            else on the page. */
         const portfolioMonthlyContrib = client.accounts
-          .filter(a=>['isa','gia','lisa','pension'].includes(a.type))
+          .filter(a=>['isa','gia','lisa','pension','crypto'].includes(a.type))
           .reduce((s,a)=>s+acctContribTotal(a),0);
         if(portfolioMonthlyContrib>0){
           push({id:'portfolio-monthly-contribution', domain:['portfolio'], severity:6, tier:'neutral',
@@ -5432,7 +5445,7 @@ window.TEI = window.TEI || {};
     trailingReturnPct, acctContribTotal, totalMonthlyContribution,
     pensionAccessAge, ageInYear, latestNonPensionNetWorth, nonPensionMonthlyContribution,
     actualInvestmentMonthlyContribution, actualCashMonthlyContribution, actualTotalSavingInvesting,
-    accountHasHoldings, holdingsTotalForAccount, syncAccountValueFromHoldings, accrueCashInterest, groupedHoldings,
+    accountHasHoldings, holdingsTotalForAccount, syncAccountValueFromHoldings, stampCryptoAccountUpdated, accrueCashInterest, groupedHoldings,
     computeSignals, pickTopSignal, pickSignals, computeNetWorthFact,
     computeBudgetAndFI, computeEoyProjection, computeGoalState, computeSDLT, computeNextBestAction,
     computePortfolioCoach,
@@ -5938,6 +5951,7 @@ TEI.render = TEI.render || {};
   function investTotal(client, b){ return client.accounts.filter(a=>['isa','gia','lisa'].includes(a.type)).reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function pensionTotal(client, b){ return client.accounts.filter(a=>a.type==='pension').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function cashAcctTotal(client, b){ return client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
+  function cryptoTotal(client, b){ return client.accounts.filter(a=>a.type==='crypto').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function otherAssetsTotal(client){ return (client.wealth.assets||[]).filter(a=>a.type!=='property').reduce((s,a)=>s+(Number(a.value)||0),0); }
   function propertyValue(client){ return (client.wealth.assets||[]).filter(a=>a.type==='property').reduce((s,a)=>s+(Number(a.value)||0),0); }
 
@@ -5955,7 +5969,7 @@ TEI.render = TEI.render || {};
     return g.mortgage.total + g.loan.total + g.credit.total + g.other.total;
   }
   function grossAssetsTotal(client, b){
-    return investTotal(client,b) + pensionTotal(client,b) + cashAcctTotal(client,b) + propertyValue(client) + otherAssetsTotal(client);
+    return investTotal(client,b) + pensionTotal(client,b) + cashAcctTotal(client,b) + cryptoTotal(client,b) + propertyValue(client) + otherAssetsTotal(client);
   }
 
   /* Total net worth for THIS page = investable net worth (accounts) + property + other assets
@@ -6195,7 +6209,7 @@ TEI.render = TEI.render || {};
      allowance nudges (isaAccounts, "Race to £100k" liquidTotal, INV_TYPES/CF_INV_TYPES) since
      those track Stocks & Shares ISA holdings specifically -- worth revisiting with the adviser
      if Cash ISA should also count toward the annual ISA allowance headline. */
-  const COMP_PALETTE = { property:'#4A7A96', investments:'#C9A84C', pension:'#6B9A78', cash:'#A8A08C', other:'#B5525F' };
+  const COMP_PALETTE = { property:'#4A7A96', investments:'#C9A84C', pension:'#6B9A78', cash:'#A8A08C', crypto:'#C97A4C', other:'#B5525F' };
   function renderComposition(client){
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);
@@ -6206,6 +6220,11 @@ TEI.render = TEI.render || {};
       {key:'investments', label:'Investments', value:investTotal(client,b), color:COMP_PALETTE.investments, accounts:client.accounts.filter(a=>['isa','gia','lisa'].includes(a.type))},
       {key:'pension', label:'Pension', value:pensionTotal(client,b), color:COMP_PALETTE.pension, accounts:client.accounts.filter(a=>a.type==='pension')},
       {key:'cash', label:'Cash', value:cashAcctTotal(client,b), color:COMP_PALETTE.cash, accounts:client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa')},
+      // Crypto is deliberately its own category, never folded into Investments or
+      // Other -- unlike GIA/ISA/LISA it isn't a tax wrapper around equities, and
+      // lumping it into "Other" (which is manually-declared assets, not accounts)
+      // would hide it from the accounts-driven composition entirely.
+      {key:'crypto', label:'Crypto', value:cryptoTotal(client,b), color:COMP_PALETTE.crypto, accounts:client.accounts.filter(a=>a.type==='crypto')},
       {key:'other', label:'Other', value:otherAssetsTotal(client), color:COMP_PALETTE.other, sub:otherLabels, accounts:[]},
     ].filter(c=>c.value>0);
 
@@ -10674,6 +10693,7 @@ window.TEI = window.TEI || {};
       const row = document.createElement('div');
       row.className = 'entity-pill';
       const isPension = acc.type === 'pension';
+      const isCrypto = acc.type === 'crypto';
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
       // Contribution-vs-holdings check, adviser-side: same math and same
       // "only the unaccounted-for direction counts" rule Portfolio Overview
@@ -10700,7 +10720,7 @@ window.TEI = window.TEI || {};
           <span class="tag-pill">${acc.type}</span>
         </div>
         <div class="ep-value">${fmtGBP(acc.value)}</div>
-        <div class="ep-meta">${acc.provider||'No provider set'}${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}</div>
+        <div class="ep-meta">${acc.provider||'No provider set'}${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}${isCrypto && acc.lastUpdated ? ' · Last updated '+new Date(acc.lastUpdated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : ''}</div>
         ${acctTags}
         ${discRow}
         <div class="ep-actions">
@@ -10848,6 +10868,10 @@ window.TEI = window.TEI || {};
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
       const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint};
+      // Crypto's value is normally holdings-driven (stamped in persistCryptoLastUpdated
+      // instead, see addHolding) -- this only covers a crypto account still being
+      // manually balanced before its first holding is logged.
+      if(type==='crypto' && !hasHoldings) patch.lastUpdated = new Date().toISOString().slice(0,10);
       if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
@@ -11481,7 +11505,11 @@ window.TEI = window.TEI || {};
     return `<div class="ep-price"><span class="ep-price-dot"></span>$${Number(h.lastPrice).toFixed(2)}${asOf?` <span class="ep-price-as-of">as of ${asOf}</span>`:''}</div>`;
   }
   function holdingPillHtml(h){
-    const canLivePrice = h.ticker && h.units!=null;
+    // Crypto is manual-valuation only (no price API) -- never offer the
+    // live-price refresh affordance for a holding under a crypto account,
+    // even if it happens to have a ticker + units set.
+    const acctForHolding = client.accounts.find(a=>a.id===h.accountId);
+    const canLivePrice = h.ticker && h.units!=null && (!acctForHolding || acctForHolding.type!=='crypto');
     return `
       <div class="entity-pill">
         <div class="ep-top">
@@ -11563,7 +11591,10 @@ window.TEI = window.TEI || {};
         }
         const removed = client.holdings.find(h=>h.id===id);
         client.holdings = client.holdings.filter(h=>h.id!==id);
-        if(removed) TEI.calc.syncAccountValueFromHoldings(client, removed.accountId);
+        if(removed){
+          TEI.calc.syncAccountValueFromHoldings(client, removed.accountId);
+          await persistCryptoLastUpdated(removed.accountId);
+        }
         if(editing.holding === id) cancelHoldingEdit();
         renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
       });
@@ -11645,6 +11676,22 @@ window.TEI = window.TEI || {};
     if(sectorField.value.trim()==='' && info.sector) sectorField.value = info.sector;
     if(themeField.value.trim()==='' && info.theme.length) themeField.value = info.theme.join(', ');
   }
+  /* Crypto accounts have no live price feed, so an account's own "last
+     updated" (accounts.last_updated) only ever moves when a holding under
+     it is added, edited or removed -- stamped in-memory by
+     TEI.calc.stampCryptoAccountUpdated, then explicitly persisted here
+     since the holdings save path otherwise never re-saves the account row
+     (unlike a manual account-level edit, which already goes through
+     saveAccount). No-op for any other account type. */
+  async function persistCryptoLastUpdated(accountId){
+    const acc = TEI.calc.stampCryptoAccountUpdated(client, accountId);
+    if(!acc) return;
+    try{
+      await TEI.wealthOS.saveAccount(client.meta.clientId, acc.id, acc);
+    } catch(err){
+      console.error('Wealth OS: failed to stamp crypto account last-updated', err);
+    }
+  }
   async function addHolding(){
     const accountId = document.getElementById('newHoldingAccount').value;
     const name = document.getElementById('newHoldingName').value.trim();
@@ -11696,6 +11743,8 @@ window.TEI = window.TEI || {};
       TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
       TEI.calc.syncAccountValueFromHoldings(client, oldAccountId);
       if(accountId !== oldAccountId) TEI.calc.syncAccountValueFromHoldings(client, accountId);
+      await persistCryptoLastUpdated(oldAccountId);
+      if(accountId !== oldAccountId) await persistCryptoLastUpdated(accountId);
       cancelHoldingEdit();
       showToast('Holding updated');
     } else {
@@ -11714,6 +11763,7 @@ window.TEI = window.TEI || {};
       client.holdings.push(h);
       TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
+      await persistCryptoLastUpdated(accountId);
       ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newHoldingSector').value = '';
       document.getElementById('newHoldingTheme').value = '';
@@ -11793,7 +11843,14 @@ window.TEI = window.TEI || {};
     const btn = opts.btn || document.getElementById('refreshLivePricesBtn');
     const status = opts.status || document.getElementById('livePricesStatus');
     const skipRecent = opts.skipRecent != null ? opts.skipRecent : !!document.getElementById('skipRecentlyPricedCheckbox')?.checked;
-    let priceable = client.holdings.filter(h=>h.ticker && h.units!=null);
+    // Crypto holdings are manual-valuation only (no price API) -- excluded
+    // from the batch sweep even if a ticker+units happen to be set, same
+    // guard as the per-holding refresh button (see holdingPillHtml).
+    let priceable = client.holdings.filter(h=>{
+      if(!(h.ticker && h.units!=null)) return false;
+      const acct = client.accounts.find(a=>a.id===h.accountId);
+      return !acct || acct.type!=='crypto';
+    });
     if(skipRecent) priceable = priceable.filter(h=>!pricedRecently(h));
     if(!priceable.length){
       status.textContent = skipRecent
