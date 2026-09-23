@@ -5073,22 +5073,38 @@ window.TEI = window.TEI || {};
     /* ---- Pension domain ----
        No employer-match-rate field exists in the data model, so these can't
        calculate a precise "leaving free money on the table" figure -- kept
-       deliberately conservative: flag the absence of a personal contribution
-       (the thing most likely to forfeit an employer match), not a specific
-       shortfall amount that isn't backed by real numbers. */
+       deliberately conservative: flag the absence of ANY logged
+       contribution (personal OR salary sacrifice -- the thing most likely
+       to forfeit an employer match), not a specific shortfall amount that
+       isn't backed by real numbers.
+       Checking contributionPersonal alone here used to false-positive for
+       anyone contributing entirely via salary sacrifice (contributionEmployer
+       in the Accounts form, contributionSacrifice in the data) -- a normal,
+       often more tax-efficient way to fund a pension, not a missing
+       contribution. Fixed 2026-09 to treat personal + sacrifice as one
+       combined "is anything going in" total, same as acctContribTotal()
+       already does for the account's own contribution display. The %-of-
+       income rate below still uses take-home pay as its denominator (see
+       actualInvestmentMonthlyContribution's comment on why sacrifice is
+       excluded from THAT calc) -- for someone contributing heavily via
+       sacrifice this will read a little generous relative to gross income,
+       but it's the same income figure used consistently everywhere else in
+       Cashflow, and still directionally correct at typical contribution
+       levels. */
     const pensionAccounts = client.accounts.filter(a=>a.type==='pension');
     if(pensionAccounts.length){
-      const noPersonalContrib = pensionAccounts.filter(a=>!(Number(a.contributionPersonal)>0));
-      if(noPersonalContrib.length){
-        push({id:'pension-no-personal-contribution', domain:['portfolio'], severity:48, tier:'warning',
-          message:`${noPersonalContrib.length>1?'Your pensions show':pensionAccounts.length>1?noPersonalContrib[0].name+' shows':'Your pension shows'} no personal contribution logged. If your employer offers to match contributions, a personal contribution is usually what unlocks it.`,
+      const pensionTotalContrib = a => (Number(a.contributionPersonal)||0) + (Number(a.contributionSacrifice)||0);
+      const noContrib = pensionAccounts.filter(a=>!(pensionTotalContrib(a)>0));
+      if(noContrib.length){
+        push({id:'pension-no-contribution', domain:['portfolio'], severity:48, tier:'warning',
+          message:`${noContrib.length>1?'Your pensions show':pensionAccounts.length>1?noContrib[0].name+' shows':'Your pension shows'} no monthly contribution logged (personal or salary sacrifice). If your employer offers to match contributions, a contribution is usually what unlocks it.`,
           actionLabel:'Review Pension', actionPage:'portfolio'});
       } else if(hasIncome){
-        const totalPersonal = pensionAccounts.reduce((s,a)=>s+(Number(a.contributionPersonal)||0),0);
-        const pensionRate = income ? (totalPersonal/income*100) : 0;
+        const totalContrib = pensionAccounts.reduce((s,a)=>s+pensionTotalContrib(a),0);
+        const pensionRate = income ? (totalContrib/income*100) : 0;
         if(pensionRate >= 5){
           push({id:'pension-contributing-well', domain:['portfolio'], severity:14, tier:'positive',
-            message:`You're personally contributing ${pensionRate.toFixed(0)}% of income to your pension, on top of any employer contribution — a strong long-term habit.`,
+            message:`You're contributing ${pensionRate.toFixed(0)}% of income to your pension (personal and/or salary sacrifice), on top of any further employer contribution — a strong long-term habit.`,
             actionLabel:'Review Pension', actionPage:'portfolio'});
         }
       }
