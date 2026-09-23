@@ -4670,38 +4670,56 @@ window.TEI = window.TEI || {};
     return {pct, current:linkedTotal, target, isComplete: target>0 && linkedTotal>=target};
   }
 
-  /* Auto-completes any active goal whose own progress has reached its
-     target -- a "monetary" savings goal whose linked accounts now cover
-     targetAmount, or an "income" goal (e.g. "Scale Business") whose
-     tracked income now clears targetIncome. Uses goalProgress's own
-     isComplete flag, so a goal completes here exactly when its progress
-     bar would already read 100% -- no separate threshold to keep in sync.
-     completion-type goals are untouched: those are an inherently manual
-     "did this happen" call, not something a number crosses.
-     Called wherever a number that could complete a goal gets saved
-     (income, accounts, monthly balances) so completion is immediate --
-     see e.g. addAdvIncome -- and also on every Goals page render, so a
-     goal that crossed its line via some other path still surfaces
-     correctly next time Goals is opened. source:'auto' in statusHistory
-     distinguishes this from a person clicking Mark complete/Reopen.
-     Returns the goals just newly completed, for a caller to toast. */
+  /* Keeps "monetary"/"income" goals' completion in step with their own
+     progress, in both directions:
+     - completes an active goal once its progress reaches target (a
+       savings goal whose linked accounts now cover targetAmount, or an
+       income goal like "Scale Business" whose tracked income clears
+       targetIncome) -- goalProgress's own isComplete flag decides this,
+       so a goal completes exactly when its progress bar would read 100%,
+       no separate threshold to keep in sync.
+     - reopens a goal the SYSTEM completed if its progress has since
+       dropped back below target (a linked account balance falling, an
+       income drop, ...) -- but only one the system completed. A goal a
+       person explicitly marked complete (the Mark complete button) stays
+       complete regardless of what the linked numbers do afterwards --
+       that was a deliberate human call, not a threshold, and a dip
+       shouldn't silently overrule it. Told apart by checking whether the
+       goal's own most recent statusHistory entry is a source:'auto'
+       completion; a manual Mark complete never sets that.
+     completion-type goals are untouched either way: those are an
+     inherently manual "did this happen" call, not something a number
+     crosses.
+     Called wherever a number that could move a goal across its target
+     gets saved (income, accounts, monthly balances, live prices) so this
+     is immediate -- see e.g. addAdvIncome -- and also on every Goals page
+     render, as a backstop for anything edited elsewhere in the session.
+     Returns {completed, reopened}, the goals just moved each way, for a
+     caller to toast. */
   async function checkGoalAutoComplete(client){
-    const justCompleted = [];
+    const completed = [], reopened = [];
     for(const g of (client.goals||[])){
-      if(g.status === 'completed' || g.progressType === 'completion') continue;
-      if(!goalProgress(client, g).isComplete) continue;
-      const nextHistory = (g.statusHistory||[]).concat([{date:new Date().toISOString(), status:'completed', source:'auto'}]);
-      const merged = Object.assign({}, g, {status:'completed', statusHistory:nextHistory});
+      if(g.progressType === 'completion') continue;
+      const isComplete = goalProgress(client, g).isComplete;
+      const history = g.statusHistory||[];
+      const lastEntry = history[history.length-1];
+      const wasAutoCompleted = g.status==='completed' && lastEntry && lastEntry.status==='completed' && lastEntry.source==='auto';
+      let nextStatus = null;
+      if(g.status !== 'completed' && isComplete) nextStatus = 'completed';
+      else if(wasAutoCompleted && !isComplete) nextStatus = 'active';
+      if(!nextStatus) continue;
+      const nextHistory = history.concat([{date:new Date().toISOString(), status:nextStatus, source:'auto'}]);
+      const merged = Object.assign({}, g, {status:nextStatus, statusHistory:nextHistory});
       stampEdit(merged, 'system');
       try{
         await TEI.wealthOS.saveGoal(client.meta.clientId, g.id, merged);
         Object.assign(g, merged);
-        justCompleted.push(g);
+        (nextStatus==='completed' ? completed : reopened).push(g);
       } catch(err){
-        console.error('Wealth OS: failed to auto-complete goal', g.id, err);
+        console.error('Wealth OS: failed to auto-update goal status', g.id, err);
       }
     }
-    return justCompleted;
+    return {completed, reopened};
   }
 
   /* completion — progressive completion tracker for the Client Foundation.
@@ -6930,12 +6948,13 @@ TEI.render = TEI.render || {};
   }
 
   TEI.render.goals = async function(client){
-    // Catches anything that crossed its target via a path that didn't
-    // already call checkGoalAutoComplete itself (e.g. data edited
-    // elsewhere in the session, or a fresh load) -- see its own comment.
-    // No-op fast (no await reached) when nothing needs completing.
-    const justCompleted = await TEI.calc.checkGoalAutoComplete(client);
-    justCompleted.forEach(g=> TEI.app.showToast(`🎉 "${g.name}" completed!`));
+    // Catches anything that crossed its target (either direction) via a
+    // path that didn't already call checkGoalAutoComplete itself (e.g.
+    // data edited elsewhere in the session, or a fresh load) -- see its
+    // own comment. No-op fast (no await reached) when nothing changed.
+    const goalStatusChanges = await TEI.calc.checkGoalAutoComplete(client);
+    goalStatusChanges.completed.forEach(g=> TEI.app.showToast(`🎉 "${g.name}" completed!`));
+    goalStatusChanges.reopened.forEach(g=> TEI.app.showToast(`"${g.name}" dropped back below target — reopened`));
 
     renderGoalsUpdateSummary(client);
 
@@ -11142,7 +11161,11 @@ window.TEI = window.TEI || {};
     // A balance change can be exactly what completes a "monetary" goal
     // linked to this account -- check right away, same reasoning as the
     // income check in addAdvIncome.
-    (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+    {
+      const r = await TEI.calc.checkGoalAutoComplete(client);
+      r.completed.forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+      r.reopened.forEach(g=> showToast(`"${g.name}" dropped back below target — reopened`));
+    }
   }
 
   /* ================= MONTHLY BALANCES / HOLDINGS / GOALS ================
@@ -11270,7 +11293,11 @@ window.TEI = window.TEI || {};
     showToast('Saved ' + key);
     // A logged balance can be exactly what completes a "monetary" goal
     // linked to this account -- same reasoning as addAccount's check.
-    (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+    {
+      const r = await TEI.calc.checkGoalAutoComplete(client);
+      r.completed.forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+      r.reopened.forEach(g=> showToast(`"${g.name}" dropped back below target — reopened`));
+    }
   }
 
   /* ---------- monthly holdings & goal progress — same pattern as accounts,
@@ -12137,7 +12164,11 @@ window.TEI = window.TEI || {};
       showToast(updated ? `Refreshed ${updated} live price${updated===1?'':'s'}` : "Couldn't refresh prices");
       // Market growth alone can complete a "monetary" goal linked to one of
       // the accounts just repriced -- same reasoning as addAccount's check.
-      (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+      {
+        const r = await TEI.calc.checkGoalAutoComplete(client);
+        r.completed.forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+        r.reopened.forEach(g=> showToast(`"${g.name}" dropped back below target — reopened`));
+      }
     } catch(err){
       console.error('Wealth OS: failed to refresh live prices', err);
       status.textContent = "Couldn't fetch live prices — " + (err.message || 'try again');
@@ -12467,7 +12498,11 @@ window.TEI = window.TEI || {};
     // An income change can be exactly what completes an "income"-type goal
     // (e.g. a business-income target) -- check right away rather than
     // waiting for the Goals page's own check on next visit.
-    (await TEI.calc.checkGoalAutoComplete(client)).forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+    {
+      const r = await TEI.calc.checkGoalAutoComplete(client);
+      r.completed.forEach(g=> showToast(`🎉 "${g.name}" completed!`));
+      r.reopened.forEach(g=> showToast(`"${g.name}" dropped back below target — reopened`));
+    }
   }
   function renderAdvExpenseList(kind){
     const containerId = kind==='fixed' ? 'advFixedList' : 'advVariableList';
