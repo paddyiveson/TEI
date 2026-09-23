@@ -136,7 +136,12 @@ a{color:inherit;}
 @media (max-width:860px){ h1{font-size:27px;} }
 /* ================= NAV ================= */
 .app-shell{display:flex; align-items:flex-start;}
-.sidebar{width:222px; flex:none; background:var(--card-dark); display:flex; flex-direction:column; padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto;}
+/* Fixed, not sticky -- sticky unsticks once its containing block (.app-shell,
+   which grows to whichever of sidebar/main is taller) runs out of room, e.g.
+   right at the bottom of a long page, which read as "the menu moves when you
+   scroll." Fixed removes it from flow entirely, so .main below carries a
+   matching margin-left to stop content sliding underneath it. */
+.sidebar{width:222px; flex:none; background:var(--card-dark); display:flex; flex-direction:column; padding:20px 14px; position:fixed; top:0; left:0; height:100vh; overflow-y:auto; z-index:70;}
 .sidebar-brand{display:flex; align-items:center; gap:8px; text-decoration:none; padding:0 10px; margin-bottom:24px; cursor:pointer;}
 .sidebar-brand .nb-mark{font-family:var(--font-display); font-style:italic; font-weight:600; font-size:18px; color:var(--cream); letter-spacing:0.01em;}
 .sidebar-brand .nb-mark span{color:var(--gold);}
@@ -146,6 +151,7 @@ a{color:inherit;}
 .sidebar-nav{display:flex; flex-direction:column; gap:2px;}
 .sidebar-nav a.navlink{display:flex; align-items:center; gap:11px; color:rgba(247,244,237,0.6); text-decoration:none; font-size:14px; font-weight:600; cursor:pointer; padding:9px 12px; border-radius:8px; border:1px solid transparent; transition:background .15s, color .15s;}
 .sidebar-nav a.navlink .ic{width:16px; text-align:center; font-size:14px; opacity:0.8; flex:none;}
+.sidebar-nav a.navlink .ic svg, .sidebar-external-link .ic svg{display:block; width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
 .sidebar-nav a.navlink:hover{background:rgba(247,244,237,0.06); color:rgba(247,244,237,0.9);}
 .sidebar-nav a.navlink.nav-active{color:var(--nav-active-ink); background:var(--nav-active-bg); border-color:var(--nav-active-border);}
 .sidebar-nav a.navlink.nav-active .ic{opacity:1;}
@@ -188,7 +194,7 @@ a{color:inherit;}
 .nav-dropdown.notif-panel{min-width:230px; padding:16px; text-align:center;}
 .nav-dropdown.notif-panel .nd-empty{font-size:13.5px; color:var(--ink-soft2);}
 
-.main{flex:1; min-width:0;}
+.main{flex:1; min-width:0; margin-left:222px;} /* reserves the space the now-fixed .sidebar no longer takes up in flow; reset to 0 under the 900px off-canvas breakpoint below */
 /* This -- not .wrap's own max-width -- was the actual binding constraint
    on every dashboard page's width (confirmed live: raising #clientApp
    .wrap's cap to 1680px, further up this stylesheet, changed nothing,
@@ -196,7 +202,12 @@ a{color:inherit;}
    always the tighter of the two). Raised in step with .wrap so that cap
    can finally take effect instead of being dead weight underneath this
    one. */
-.main-inner{max-width:1680px; margin:0 auto;}
+/* Flex column + the active page as the only growing item: on pages with
+   little content, this pushes the compliance disclaimer/footer down to
+   the bottom of the viewport instead of leaving them stranded mid-page
+   under a full-height sidebar. Pages taller than the viewport are
+   unaffected -- flex:1 only sets a minimum, content still pushes past it. */
+.main-inner{max-width:1680px; margin:0 auto; display:flex; flex-direction:column; min-height:100vh;}
 
 /* Mobile-only sidebar drawer trigger/close (mirrors hub/suite.html's pattern) */
 .menu-btn{display:none; position:sticky; top:16px; left:16px; margin:12px 0 0 16px; background:var(--card-dark); color:var(--cream); border:1px solid rgba(247,244,237,0.14); border-radius:8px; width:38px; height:38px; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:60; -webkit-tap-highlight-color:transparent;}
@@ -205,8 +216,9 @@ a{color:inherit;}
 .scrim.visible{opacity:1; pointer-events:auto;}
 
 @media(max-width:900px){
-  .sidebar{position:fixed; top:0; left:0; bottom:0; transform:translateX(-100%); transition:transform .3s ease; box-shadow:4px 0 24px rgba(0,0,0,.4); z-index:100;}
+  .sidebar{bottom:0; transform:translateX(-100%); transition:transform .3s ease; box-shadow:4px 0 24px rgba(0,0,0,.4); z-index:100;}
   .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;} /* sidebar is off-canvas here, not a permanent column -- see .main's base rule */
   .menu-btn{display:flex;}
   .sidebar-close{display:flex;}
   .scrim{display:block;}
@@ -240,7 +252,7 @@ h2{font-size:24px; color:var(--ink); margin:4px 0 6px;}
 
 /* ================= PAGES / ROUTER ================= */
 .page{display:none;}
-.page.active{display:block;}
+.page.active{display:block; flex:1 0 auto;}
 
 /* ================= HOME DASHBOARD ================= */
 .stat-card{background:var(--card-dark); border-radius:var(--radius); padding:18px 18px 16px; position:relative; overflow:hidden;}
@@ -904,16 +916,19 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
    leading <h3> becomes tap-to-expand below the same 860px breakpoint the
    JS itself checks, so the workspace opens on headings instead of one
    long unbroken scroll. Cards with no <h3> (upload zone, some list
-   containers) are left untouched by the JS and so never get this class. */
-@media (max-width:860px){
-  .card.mcollapse{cursor:default;}
-  .card.mcollapse .mcollapse-header{cursor:pointer; display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:0 !important;}
-  .card.mcollapse .mcollapse-chevron{color:var(--gold); font-size:13px; flex:none; margin-left:auto; transition:transform .15s;}
-  .card.mcollapse.expanded .mcollapse-header{margin-bottom:14px !important;}
-  .card.mcollapse.expanded .mcollapse-chevron{transform:rotate(90deg);}
-  .card.mcollapse > .mcollapse-body{display:none;}
-  .card.mcollapse.expanded > .mcollapse-body{display:block;}
-}
+   containers) are left untouched by the JS and so never get this class.
+   Rules themselves apply at any width -- JS still only ever adds the
+   .mcollapse class at <=860px, except for cards opted in via
+   data-collapse-always (see enhanceMobileCollapse), which get it at any
+   width. Keeping the rules ungated means that opt-in doesn't need its own
+   duplicate stylesheet. */
+.card.mcollapse{cursor:default;}
+.card.mcollapse .mcollapse-header{cursor:pointer; display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:0 !important;}
+.card.mcollapse .mcollapse-chevron{color:var(--gold); font-size:13px; flex:none; margin-left:auto; transition:transform .15s;}
+.card.mcollapse.expanded .mcollapse-header{margin-bottom:14px !important;}
+.card.mcollapse.expanded .mcollapse-chevron{transform:rotate(90deg);}
+.card.mcollapse > .mcollapse-body{display:none;}
+.card.mcollapse.expanded > .mcollapse-body{display:block;}
 
 /* ================= ONBOARDING WIZARD ================= */
 .wizard-header{background:var(--card-dark); padding:20px 0;}
@@ -1083,6 +1098,23 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-assump-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:8px;}
 .k-assump-row .a{flex:1; min-width:88px;}
 .k-assump-row .a b{display:block; font-family:var(--font-display); font-size:17px; color:var(--k-ink); margin-top:2px;}
+
+/* Collapsed-by-default dropdown, all breakpoints (unlike [data-m-acc],
+   which is mobile-only) -- used to fold "What's behind this number" into
+   the Financial future overview card instead of a separate always-open
+   card next to it. */
+.k-dropdown-toggle{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent; color:var(--k-ink);}
+.k-dropdown-toggle .k-dropdown-chevron{flex:none; width:16px; height:16px; fill:none; stroke:var(--k-ink-softer); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; transition:transform .15s;}
+/* .dcard.emphasis never flips with theme (fixed dark navy in both) -- see
+   the .dcard.emphasis text-colour comment above -- so its own descendants
+   need the emphasis-specific ink tokens, not the theme-flipping ones the
+   base rule above uses for this toggle in an ordinary (non-emphasis) card. */
+.dcard.emphasis .k-dropdown-toggle{color:var(--k-emphasis-ink);}
+.dcard.emphasis .k-dropdown-toggle .k-dropdown-chevron{stroke:var(--k-emphasis-softer);}
+.k-dropdown-toggle[aria-expanded="true"] .k-dropdown-chevron{transform:rotate(180deg);}
+.k-dropdown-toggle:focus-visible{outline:2px solid var(--gold); outline-offset:3px; border-radius:4px;}
+.k-dropdown-body{display:none;}
+.k-dropdown-body.open{display:block;}
 .k-tag{display:inline-block; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; color:var(--gold); background:rgba(201,168,76,0.14); border:1px solid rgba(201,168,76,0.3); border-radius:20px; padding:2px 8px; margin-left:6px; vertical-align:middle;}
 
 .k-js-row{display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--k-row-border); font-size:14px;}
@@ -1095,6 +1127,13 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 .k-js-row .jv.up{color:var(--k-up-ink);}
 .k-js-row .jv.down{color:var(--k-down-ink);}
 .k-js-row .jv.accent{color:var(--gold);}
+/* Desktop Learn page's Guides card -- same row shape as .k-js-row, but as a
+   plain link (not a stat row), so it needs its own text/icon treatment
+   rather than the .jk/.jv styling above. */
+a.k-guide-link{text-decoration:none; color:inherit; gap:12px;}
+a.k-guide-link .jk{color:var(--k-ink); font-weight:500;}
+a.k-guide-link:hover .jk{color:var(--gold);}
+a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(--k-ink-softer); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
 .js-stage-list{display:flex; flex-direction:column;}
 .js-stage-row{display:flex; align-items:flex-start; gap:10px; padding:5px 0;}
 .js-stage-dot{width:10px; height:10px; border-radius:50%; margin-top:3px; flex:none; background:transparent; border:2px solid var(--k-track-bg);}
@@ -1761,11 +1800,13 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #wealthJourneyCard > div:last-child{margin:0 !important; padding:11px 13px !important; border-top:0 !important; background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px;}
 
   /* -- Wealth > Portfolio (page: portfolio) -- */
-  #page-portfolio > section:nth-of-type(3){display:none;}             /* "Keep your holdings current" nudge */
+  /* "Keep your holdings current" nudge section removed -- the Update CTA now
+     lives inline in Portfolio overview next to Refresh live prices instead,
+     so the section-index rules below shifted down by one (was 4th/5th). */
   #page-portfolio > section:nth-of-type(2) > .dgrid > div > .dcard{display:contents;}
   #clientApp #labTopRow{display:contents !important;}                  /* has an inline display:flex */
-  #page-portfolio > section:nth-of-type(4) > .dgrid:nth-of-type(2){display:none;}   /* dividend income chart card (contributors stay, as an accordion) */
-  #page-portfolio > section:nth-of-type(5) > .dgrid > div:nth-child(2){display:none;} /* Investor stage: moved to Wealth > Journey */
+  #page-portfolio > section:nth-of-type(3) > .dgrid:nth-of-type(2){display:none;}   /* dividend income chart card (contributors stay, as an accordion) */
+  #page-portfolio > section:nth-of-type(4) > .dgrid > div:nth-child(2){display:none;} /* Investor stage: moved to Wealth > Journey */
 
   /* Account selector: two-column card grid, "All portfolio" full width on top. */
   #clientApp #analysisScopeRow{order:10; width:100%;}
@@ -1783,8 +1824,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
   #clientApp #mTopHoldings{display:block; order:40;}
   #pfcCard{order:50;}
   #clientApp #mCompaniesAcc{display:block; order:60;}
-  #page-portfolio > section:nth-of-type(4) > .dgrid:nth-of-type(3) > div > .dcard{order:70;}
-  #page-portfolio > section:nth-of-type(5) > .dgrid > div:first-child > .dcard{order:80;}
+  #page-portfolio > section:nth-of-type(3) > .dgrid:nth-of-type(3) > div > .dcard{order:70;}
+  #page-portfolio > section:nth-of-type(4) > .dgrid > div:first-child > .dcard{order:80;}
   /* The Lab is its own full-screen scope (not a card at the bottom of the page): it covers the
      page down to the tab bar, scrolls on its own, and has a Close button. */
   #clientApp #labStepperWrap.open{position:fixed; top:0; left:0; right:0; bottom:var(--m-bar-total); z-index:85; margin:0; border:0; border-radius:0; padding:0 14px 24px; background:var(--page-bg); overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;}
@@ -2099,19 +2140,19 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <span class="nb-mark">TEI</span><span class="nb-divider"></span><span class="nb-sub">Wealth OS</span>
     </a>
     <nav class="sidebar-nav">
-      <a href="#" class="navlink" data-page="home"><span class="ic">⌂</span>Home</a>
-      <a href="#" class="navlink" data-page="progress"><span class="ic">◈</span>Wealth</a>
-      <a href="#" class="navlink" data-page="goals"><span class="ic">◎</span>Goals</a>
-      <a href="#" class="navlink" data-page="portfolio"><span class="ic">⬤</span>Portfolio</a>
-      <a href="#" class="navlink" data-page="planning"><span class="ic">◆</span>Forecast</a>
-      <a href="#" class="navlink" data-page="cashflow"><span class="ic">↻</span>Cashflow</a>
-      <a href="#" class="navlink" data-page="update"><span class="ic">✎</span>Update</a>
-      <a href="#" class="navlink" data-page="mydetails"><span class="ic">◐</span>My Details</a>
-      <a href="#" class="navlink" data-page="learning"><span class="ic">◇</span>Learn</a>
-      <a href="#" class="navlink" data-page="documents"><span class="ic">▢</span>Documents</a>
+      <a href="#" class="navlink" data-page="home"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg></span>Home</a>
+      <a href="#" class="navlink" data-page="progress"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19l16 0"/><path d="M4 15l4 -6l4 2l4 -5l4 4"/></svg></span>Wealth</a>
+      <a href="#" class="navlink" data-page="goals"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/></svg></span>Goals</a>
+      <a href="#" class="navlink" data-page="portfolio"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"/><path d="M12 12l0 .01"/><path d="M3 13a20 20 0 0 0 18 0"/></svg></span>Portfolio</a>
+      <a href="#" class="navlink" data-page="planning"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6 -6l4 4l8 -8"/><path d="M14 7l7 0l0 7"/></svg></span>Forecast</a>
+      <a href="#" class="navlink" data-page="cashflow"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6l14 0"/><path d="M14 3l3 3l-3 3"/><path d="M20 18l-14 0"/><path d="M10 15l-3 3l3 3"/></svg></span>Cashflow</a>
+      <a href="#" class="navlink" data-page="update"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg></span>Update</a>
+      <a href="#" class="navlink" data-page="mydetails"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg></span>My Details</a>
+      <a href="#" class="navlink" data-page="learning"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 9l-10 -4l-10 4l10 4l10 -4v6"/><path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"/></svg></span>Learn</a>
+      <a href="#" class="navlink" data-page="documents"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/></svg></span>Documents</a>
     </nav>
     <div class="sidebar-spacer"></div>
-    <a href="/" class="sidebar-external-link"><span class="ic">↗</span>Visit Website</a>
+    <a href="/" class="sidebar-external-link"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span>Visit Website</a>
     <div class="sidebar-divider"></div>
     <div class="sidebar-foot">
       <div class="nav-menu-wrap">
@@ -2499,9 +2540,13 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="dcard emphasis" style="height:100%;">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
           <div class="k">Portfolio overview</div>
-          <button type="button" class="btn-ghost" id="poRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-ghost" id="poRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+            <a href="#" class="btn-primary navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
+          </div>
         </div>
         <div class="sub2" id="poPricesStatus" style="margin:2px 0 0;"></div>
+        <div class="sub2" id="holdingsUpdateSummary" style="margin:2px 0 0;">–</div>
         <div class="v big" id="poTotal">£0</div>
         <div class="k-rowstats">
           <div class="rs">YTD return<b class="up" id="poPerfYtd">–</b></div>
@@ -2561,20 +2606,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
           <div id="labStageBody"></div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="dgrid">
-    <div class="span-12">
-      <a href="#" class="navlink dcard update-nudge" data-page="update" style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
-        <div>
-          <div class="k">Keep your holdings current</div>
-          <div class="sub2" id="holdingsUpdateSummary">–</div>
-        </div>
-        <span class="btn-primary" style="pointer-events:none;">Update →</span>
-      </a>
     </div>
   </div>
 </section>
@@ -2640,8 +2671,8 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 
 <section class="wrap" style="padding-top:var(--space-lg);">
   <div class="dgrid" style="align-items:start;">
-    <div class="span-6">
-      <div class="dcard emphasis" style="height:100%;">
+    <div class="span-12">
+      <div class="dcard emphasis">
         <div class="k">Financial future overview</div>
         <div class="k-stat-split" style="margin-top:10px;">
           <div class="sp"><div class="k">FI year (expected)</div><div class="v sm gold" id="ffoFiYear">–</div></div>
@@ -2658,19 +2689,22 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <div class="sub2" id="ffoProgressSub" style="margin-top:5px;">–</div>
 
         <div class="sub2" style="margin-top:10px;" id="ffoPassiveLine">–</div>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard" style="height:100%;" data-m-acc data-m-open>
-        <div class="k" data-m-acc-h>What's behind this number <span class="k-tag">Estimate</span></div>
-        <div class="k-assump-row">
-          <div class="a"><div class="sub2">Investment growth</div><b id="ffoAssumpGrowth" style="color:var(--k-up-ink);">–</b></div>
-          <div class="a"><div class="sub2">Inflation</div><b id="ffoAssumpInflation" style="color:var(--gold);">–</b></div>
-          <div class="a"><div class="sub2">Spending increase</div><b id="ffoAssumpSpending" style="color:var(--k-down-ink);">–</b></div>
-          <div class="a"><div class="sub2">Pay rises on contributions</div><b id="ffoAssumpPayRise" style="color:var(--k-up-ink);">–</b></div>
+
+        <div style="height:1px; background:var(--k-emphasis-softer); opacity:0.25; margin:12px 0;"></div>
+
+        <div class="k-dropdown-toggle" id="ffoAssumpToggle" role="button" tabindex="0" aria-expanded="false">
+          <span>What's behind this number <span class="k-tag">Estimate</span></span>
+          <svg class="k-dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6l6 -6"/></svg>
         </div>
-        <div style="height:1px; background:var(--k-row-border); margin:12px 0;"></div>
-        <div class="line" id="ffoAssumpExplainer" style="margin-top:0;">–</div>
+        <div class="k-dropdown-body" id="ffoAssumpBody">
+          <div class="k-assump-row" style="margin-top:10px;">
+            <div class="a"><div class="sub2">Investment growth</div><b id="ffoAssumpGrowth" style="color:var(--k-up-ink);">–</b></div>
+            <div class="a"><div class="sub2">Inflation</div><b id="ffoAssumpInflation" style="color:var(--gold);">–</b></div>
+            <div class="a"><div class="sub2">Spending increase</div><b id="ffoAssumpSpending" style="color:var(--k-down-ink);">–</b></div>
+            <div class="a"><div class="sub2">Pay rises on contributions</div><b id="ffoAssumpPayRise" style="color:var(--k-up-ink);">–</b></div>
+          </div>
+          <div class="line" id="ffoAssumpExplainer" style="margin-top:10px;">–</div>
+        </div>
       </div>
     </div>
   </div>
@@ -2693,7 +2727,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 </section>
 
 <section class="wrap">
-  <div class="k-section-label strong" style="margin-top:26px;">Explore</div>
+  <div class="k-section-label strong">Explore</div>
   <div class="dgrid">
     <div class="span-12">
       <div class="dcard" id="wpCard">
@@ -3027,6 +3061,32 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
 <section class="wrap" style="padding-top:var(--space-lg); padding-bottom:var(--space-2xl);">
   <div class="k-section-label strong">Recommended for you</div>
   <div class="dgrid" id="learningGrid"></div>
+  <div class="k-section-label strong" style="margin-top:var(--space-xl);">Guides &amp; the wider site</div>
+  <div class="dgrid">
+    <div class="span-4">
+      <div class="dcard" style="height:100%;">
+        <div class="k">Guides</div>
+        <a class="k-js-row k-guide-link" href="/guides/principles.html" target="_blank" rel="noopener"><span class="jk">TEI Principles</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+        <a class="k-js-row k-guide-link" href="/guides/stages.html" target="_blank" rel="noopener"><span class="jk">Five Stages to the Seasoned Investor</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+        <a class="k-js-row k-guide-link" href="/guides/tax.html" target="_blank" rel="noopener"><span class="jk">The Tax Wrapper Guide</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+        <a class="k-js-row k-guide-link" href="/guides/property-calculator.html" target="_blank" rel="noopener"><span class="jk">Property Investment Calculator</span><svg class="m-ext" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></a>
+      </div>
+    </div>
+    <div class="span-4">
+      <div class="dcard" style="height:100%;">
+        <div class="k">Education Platform</div>
+        <div class="line" style="margin-top:6px;">30 lessons across Financial Foundations and Investor Understanding, at your own pace.</div>
+        <a class="btn-primary" href="/hub/education/index.html" style="display:block; text-align:center; text-decoration:none; margin-top:10px;">Open the Education Platform →</a>
+      </div>
+    </div>
+    <div class="span-4">
+      <div class="dcard" style="height:100%;">
+        <div class="k">The wider site</div>
+        <div class="line" style="margin-top:6px;">Articles, tools and everything else on the main TEI website.</div>
+        <a class="btn-primary" href="/" style="display:block; text-align:center; text-decoration:none; margin-top:10px;">Visit Website →</a>
+      </div>
+    </div>
+  </div>
 </section>
 <!-- Mobile only (hidden above 860px): Library > Learn. Guides are the four public TEI guides; Articles is the
      site's own "being written" wording; Lessons links to the Education Platform. -->
@@ -3763,7 +3823,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field" id="advAcctJointField" style="display:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="newAcctIsJoint" style="width:auto;"><span>Joint account</span></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Pension splits personal/salary-sacrifice. Total contributions to date = pre-existing lump sum, powers Investment return right away. Cash balance = uninvested cash, added on top of holdings so totals reconcile. Interest rate (Cash ISA/Deposit only) accrues monthly — Fixed + Maturity date stops it at term. Joint account appears once linked to a household; stays edited here, read-only elsewhere.</div>
+      <div class="note">Total contributions to date = pre-existing lump sum, powers Investment return right away. Cash balance = uninvested cash, added on top of holdings so totals reconcile. Interest rate (Cash ISA/Deposit only) accrues monthly — Fixed + Maturity date stops it at term. Joint account appears once linked to a household; stays edited here, read-only elsewhere. <span id="advAcctPensionNote" style="display:none;">Pension splits personal/salary-sacrifice.</span></div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -3778,17 +3838,6 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
     </div>
     </div>
     <div class="subtab-panel" id="subtab-holdings">
-    <div class="card" style="margin-bottom:16px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px;">
-        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log a month's holdings</h3>
-        <label class="month-badge" style="gap:8px;">Logging for <input type="month" id="curMonthPickerHoldings" style="background:var(--card-dark2); border:1px solid rgba(247,244,237,0.25); border-radius:4px; color:var(--cream); font-family:'Inter',sans-serif; font-size:12px; padding:2px 6px; color-scheme:dark;"></label>
-      </div>
-      <div class="note" style="margin-top:0;">Same monthly pattern as account balances, extended to individual holdings. Pick any month — past or present — to add or correct it.</div>
-      <div id="monthlyHoldingFields" class="form-grid"></div>
-      <button type="button" class="btn-primary" id="saveHoldingMonthBtn">Save this month</button>
-      <div id="monthlyHoldingHistory"></div>
-    </div>
-
     <div class="card" style="margin-bottom:16px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
         <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Holdings</h3>
@@ -3816,6 +3865,17 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
         <label class="form-field"><span>Theme (optional)</span><input type="text" id="newHoldingTheme" placeholder="e.g. AI Infrastructure, Semiconductors"></label>
         <button type="button" class="btn-primary" id="addHoldingBtn">Add holding</button>
       </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;" data-collapse-always>
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px;">
+        <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log a month's holdings</h3>
+        <label class="month-badge" style="gap:8px;">Logging for <input type="month" id="curMonthPickerHoldings" style="background:var(--card-dark2); border:1px solid rgba(247,244,237,0.25); border-radius:4px; color:var(--cream); font-family:'Inter',sans-serif; font-size:12px; padding:2px 6px; color-scheme:dark;"></label>
+      </div>
+      <div class="note" style="margin-top:0;">Same monthly pattern as account balances, extended to individual holdings. Pick any month — past or present — to add or correct it.</div>
+      <div id="monthlyHoldingFields" class="form-grid"></div>
+      <button type="button" class="btn-primary" id="saveHoldingMonthBtn">Save this month</button>
+      <div id="monthlyHoldingHistory"></div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -4403,6 +4463,27 @@ window.TEI = window.TEI || {};
     const highest = Math.max(...keys.map(k=>months[k].total));
     const isHighest = latestVal >= highest;
     return {monthCount, latestKey, prevKey, latestVal, prevVal, netWorthChange, isHighest};
+  }
+  /* Year-to-date change: latest logged total vs. the first logged total of
+     that same calendar year (not necessarily January -- if the client's
+     first-ever entry was mid-year, that's the YTD baseline). Wealth assets/
+     liabilities (property etc.) have no month-by-month history of their own,
+     so they're left out here and cancel out of any headline-total comparison
+     that assumes they've been flat since the baseline month -- this is the
+     one source of truth for "this year" figures (Home hero + Wealth Overview
+     pill), so they can no longer disagree the way netWorthChange/monthChange
+     briefly did when Home mislabelled a month-over-month figure as YTD. */
+  function computeYtdFact(client){
+    const months = buildMergedMonths(client);
+    const keys = Object.keys(months).sort();
+    if(!keys.length) return {latestKey:null, yearStartKey:null, ytdChange:null, hasFullYear:false};
+    const latestKey = keys[keys.length-1];
+    const yearPrefix = String(new Date(latestKey+'-01').getFullYear());
+    const yearKeys = keys.filter(k=>k.startsWith(yearPrefix));
+    const hasFullYear = yearKeys.length > 1;
+    const yearStartKey = yearKeys.length ? yearKeys[0] : latestKey;
+    const ytdChange = hasFullYear ? months[latestKey].total - months[yearStartKey].total : null;
+    return {latestKey, yearStartKey, ytdChange, hasFullYear};
   }
   function latestNetWorth(client){
     const months = buildMergedMonths(client);
@@ -5446,7 +5527,7 @@ window.TEI = window.TEI || {};
     pensionAccessAge, ageInYear, latestNonPensionNetWorth, nonPensionMonthlyContribution,
     actualInvestmentMonthlyContribution, actualCashMonthlyContribution, actualTotalSavingInvesting,
     accountHasHoldings, holdingsTotalForAccount, syncAccountValueFromHoldings, stampCryptoAccountUpdated, accrueCashInterest, groupedHoldings,
-    computeSignals, pickTopSignal, pickSignals, computeNetWorthFact,
+    computeSignals, pickTopSignal, pickSignals, computeNetWorthFact, computeYtdFact,
     computeBudgetAndFI, computeEoyProjection, computeGoalState, computeSDLT, computeNextBestAction,
     computePortfolioCoach,
     financialFreedomPct, nextMilestone, computeJourney, JOURNEY_STAGES,
@@ -5631,9 +5712,13 @@ TEI.render = TEI.render || {};
 
     document.getElementById('hcNetWorth').textContent = fmtGBP(totalNW);
     const changeEl = document.getElementById('hcNetWorthChange');
-    if(summary.netWorthChange!=null){
-      changeEl.textContent = (summary.netWorthChange>=0?'▲ ':'▼ ') + fmtGBP(Math.abs(summary.netWorthChange)) + ' this year';
-      changeEl.className = 'k-pill ' + (summary.netWorthChange>=0?'up':'down');
+    const ytd = TEI.calc.computeYtdFact(client);
+    if(ytd.ytdChange!=null){
+      changeEl.textContent = (ytd.ytdChange>=0?'▲ ':'▼ ') + fmtGBP(Math.abs(ytd.ytdChange)) + ' this year';
+      changeEl.className = 'k-pill ' + (ytd.ytdChange>=0?'up':'down');
+    } else if(summary.netWorthChange!=null){
+      changeEl.textContent = 'First year of history';
+      changeEl.className = 'k-pill neutral';
     } else {
       changeEl.textContent = 'Log a second month to see change';
       changeEl.className = 'k-pill neutral';
@@ -6054,12 +6139,9 @@ TEI.render = TEI.render || {};
       moEl.textContent = monthChange!=null ? (monthChange>=0?'▲ ':'▼ ')+fmtGBP(Math.abs(monthChange))+' this month' : 'First month logged';
       moEl.className = 'k-pill ' + (monthChange==null?'neutral':(monthChange>=0?'up':'down'));
 
-      const yearPrefix = String(new Date(latestKey+'-01').getFullYear());
-      const yearKeys = keys.filter(k=>k.startsWith(yearPrefix));
-      const yearStartKey = yearKeys.length ? yearKeys[0] : latestKey;
-      const ytdChange = months[latestKey].total - months[yearStartKey].total;
-      ytdEl.textContent = yearKeys.length>1 ? (ytdChange>=0?'▲ ':'▼ ')+fmtGBP(Math.abs(ytdChange))+' this year' : 'First year of history';
-      ytdEl.className = 'k-pill ' + (yearKeys.length<=1?'neutral':(ytdChange>=0?'up':'down'));
+      const ytd = TEI.calc.computeYtdFact(client);
+      ytdEl.textContent = ytd.hasFullYear ? (ytd.ytdChange>=0?'▲ ':'▼ ')+fmtGBP(Math.abs(ytd.ytdChange))+' this year' : 'First year of history';
+      ytdEl.className = 'k-pill ' + (!ytd.hasFullYear?'neutral':(ytd.ytdChange>=0?'up':'down'));
 
       updatedEl.textContent = 'Last updated ' + monthLabel(latestKey);
     }
@@ -6119,6 +6201,27 @@ TEI.render = TEI.render || {};
     return ((ly-sy)*12+(lm-sm)) >= 12 ? 'all' : '1y';
   }
 
+  /* Cumulative "new money in" line for the timeline chart -- lets the gap
+     between it and the Net worth line read as growth from performance
+     rather than fresh contributions. Built from client.contribLog (the
+     monthly Deposits log), summed running total in chronological order
+     across every month ever logged (not just the visible range) so a 3Y/1Y
+     view still starts from the right baseline. Deliberately excludes each
+     account's one-off openingContributions lump sum -- that predates
+     tracking and has no month to attach to on a timeline. */
+  function cumulativeContributionsSeries(client, allKeys){
+    const monthlyTotals = {};
+    Object.entries(client.contribLog||{}).forEach(([monthKey, entry])=>{
+      let total = 0;
+      Object.values(entry||{}).forEach(e=>{ total += (Number(e && e.amount)||0) + (Number(e && e.sacrificeAmount)||0); });
+      monthlyTotals[monthKey] = total;
+    });
+    let running = 0;
+    const out = {};
+    allKeys.forEach(k=>{ running += monthlyTotals[k]||0; out[k] = running; });
+    return out;
+  }
+
   function renderTimeline(client){
     const series = totalNetWorthSeries(client);
     const allKeys = Object.keys(series).sort();
@@ -6141,11 +6244,25 @@ TEI.render = TEI.render || {};
     document.getElementById('timelineEmpty').style.display = 'none';
 
     const filteredKeys = filterKeysByRange(allKeys, currentRange);
+    const contribSeries = cumulativeContributionsSeries(client, allKeys);
+    const hasContributions = allKeys.some(k=>contribSeries[k]>0);
+    const datasets = [{label:'Net worth', data:filteredKeys.map(k=>series[k]), borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.14)', fill:true, tension:0.3, pointRadius:0, borderWidth:2.5}];
+    if(hasContributions){
+      datasets.push({label:'Contributions', data:filteredKeys.map(k=>contribSeries[k]), borderColor:'rgba(247,244,237,0.55)', backgroundColor:'transparent', borderDash:[5,4], fill:false, tension:0.3, pointRadius:0, borderWidth:2});
+    }
     makeChart('chartWealthTimeline', {
       type:'line',
-      data:{labels:filteredKeys.map(k=>monthLabel(k)), datasets:[{label:'Net worth', data:filteredKeys.map(k=>series[k]), borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.14)', fill:true, tension:0.3, pointRadius:0, borderWidth:2.5}]},
+      data:{labels:filteredKeys.map(k=>monthLabel(k)), datasets},
       options:{maintainAspectRatio:false,
-        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>fmtGBP(c.raw)}}},
+        plugins:{
+          /* Fixed light-cream, not currentInk() -- this chart lives in a
+             .dcard.emphasis card, which stays dark navy in both themes (see
+             the .dcard.emphasis comment), so the theme-flipping ink token
+             was unreadable (dark-on-dark) in light theme. Matches the axis
+             ticks' own fixed rgba(247,244,237,...) a few lines below. */
+          legend:{display:hasContributions, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:'rgba(247,244,237,0.75)'}},
+          tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}
+        },
         scales:{
           y:{ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, callback:v=>'£'+(v/1000)+'k'}, grid:{color:'rgba(247,244,237,0.12)'}},
           x:{grid:{display:false}, ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, maxTicksLimit:10}}
@@ -9547,20 +9664,24 @@ TEI.render = TEI.render || {};
     document.getElementById('ffoAssumpInflation').textContent = (INFLATION_RATE*100).toFixed(1).replace('.0','')+'%/yr';
     document.getElementById('ffoAssumpSpending').textContent = (SPENDING_INCREASE_RATE*100).toFixed(1).replace('.0','')+'%/yr';
     document.getElementById('ffoAssumpPayRise').textContent = (PAY_RISE_RATE*100).toFixed(1).replace('.0','')+'%/yr';
+    /* Trimmed to ~1 sentence per case (2026-09 refinement) -- the full
+       reasoning previously lived here; caveats that change the actual
+       number (pension excluded, spending growth capped) stay, just shorter,
+       since those are decision-relevant, not just explanatory colour. */
     const pensionNote = excludedPension
-      ? ` Your pension is not counted toward this date -- it is not accessible until age ${accessAge}, which is later than when the rest of your money reaches the target, though it carries on growing in the background for later in life.`
+      ? ` (pension excluded -- not accessible until age ${accessAge})`
       : '';
     const taperNote = fi.taperYear!=null
-      ? ` From around ${thisYear+fi.taperYear}, this also assumes your spending stops rising faster than inflation -- by then it would be taking up ${(SUSTAINABLE_SPEND_RATIO*100).toFixed(0)}% of your income on these growth assumptions, which isn't a realistic pace to sustain indefinitely, so the model holds spending growth to inflation only from that point.`
+      ? ` Spending growth is capped to inflation from ~${thisYear+fi.taperYear} to stay sustainable.`
       : '';
     let explainerText;
     if(yrs!=null){
-      explainerText = `Your FI target grows each year by inflation and a separate allowance for spending naturally rising over time, and your contributions grow each year with a typical pay rise, so ${thisYear+yrs} reflects real purchasing power -- not just today's numbers run forward unchanged. This is a single expected-case estimate based on an ${(EXPECTED_RATE*100).toFixed(0)}% average return, which will not happen smoothly year to year.${pensionNote}${taperNote}`;
+      explainerText = `Single expected-case estimate at ${(EXPECTED_RATE*100).toFixed(0)}%/yr average growth, with your target and contributions both adjusted for inflation and pay rises over time${pensionNote}.${taperNote}`;
     } else if(budgetFi.fiTarget>0){
       const combinedTargetGrowth = ((1+INFLATION_RATE)*(1+SPENDING_INCREASE_RATE)-1)*100;
-      explainerText = `On these assumptions, your FI target is growing at roughly ${combinedTargetGrowth.toFixed(1)}%/yr (inflation and spending increase combined), close to the ${(EXPECTED_RATE*100).toFixed(0)}% investment growth rate -- so the model can't find a year where your money catches up within a 60-year horizon. This usually means contributions need to rise faster than they currently are, not that financial independence is actually out of reach.`;
+      explainerText = `Your target is growing almost as fast as your investments (~${combinedTargetGrowth.toFixed(1)}%/yr vs ${(EXPECTED_RATE*100).toFixed(0)}%/yr) -- contributions likely need to rise, not that FI is out of reach.`;
     } else {
-      explainerText = 'Set a budget in Cashflow to see your financial future overview. Once set, this figure will account for rising costs, rising contributions, and average investment growth over time.';
+      explainerText = 'Set a budget in Cashflow to see this — it accounts for rising costs, rising contributions and average investment growth.';
     }
     document.getElementById('ffoAssumpExplainer').textContent = explainerText;
 
@@ -9569,6 +9690,26 @@ TEI.render = TEI.render || {};
     document.getElementById('ffoPassiveLine').innerHTML = passiveTarget!=null
       ? `Passive income: <b style="color:var(--k-emphasis-ink); font-family:var(--font-display);">${fmtGBP(passiveNow)}/mo</b> now &rarr; <b style="color:var(--k-emphasis-ink); font-family:var(--font-display);">${fmtGBP(passiveTarget)}/mo</b> target`
       : `Passive income: <b style="color:var(--k-emphasis-ink); font-family:var(--font-display);">${fmtGBP(passiveNow)}/mo</b> now`;
+
+    wireFfoAssumpToggle();
+  }
+
+  /* Collapsed by default, all breakpoints -- see .k-dropdown-toggle. Wired
+     once (dataset.wired guard); renderOverview re-renders the fields inside
+     on every call but never recreates the toggle/body elements themselves. */
+  function wireFfoAssumpToggle(){
+    const toggle = document.getElementById('ffoAssumpToggle');
+    const body = document.getElementById('ffoAssumpBody');
+    if(!toggle || !body || toggle.dataset.wired) return;
+    toggle.dataset.wired = '1';
+    const open = ()=>{
+      const isOpen = body.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    };
+    toggle.addEventListener('click', open);
+    toggle.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); open(); }
+    });
   }
 
   /* ---------- Forecast Coach's Corner (own slot, separate from homepage) ---------- */
@@ -10461,10 +10602,10 @@ TEI.render = TEI.render || {};
   const {fmtGBP} = TEI.data;
 
   const LEARNING_CARDS = [
-    {tag:'Concept', title:'Why wrappers exist', desc:'ISAs, pensions and GIAs are containers, not investments in themselves — understanding the container changes how you use it.', link:'../education/index.html'},
-    {tag:'Concept', title:'Risk and time horizon', desc:'The same portfolio can be right or wrong depending entirely on when the money is needed.', link:'../education/index.html'},
+    {tag:'Concept', title:'Why wrappers exist', desc:'ISAs, pensions and GIAs are containers, not investments in themselves — understanding the container changes how you use it.', link:'/hub/education/index.html'},
+    {tag:'Concept', title:'Risk and time horizon', desc:'The same portfolio can be right or wrong depending entirely on when the money is needed.', link:'/hub/education/index.html'},
     {tag:'Insight', title:'What compounding actually rewards', desc:'Time in the market does more work than timing it — see this play out with real numbers in Planning Tools.', link:'#', page:'planning'},
-    {tag:'Insight', title:'Behavioural biases worth knowing', desc:'Loss aversion, recency bias and herding shape more investment decisions than most people realise.', link:'../education/index.html'},
+    {tag:'Insight', title:'Behavioural biases worth knowing', desc:'Loss aversion, recency bias and herding shape more investment decisions than most people realise.', link:'/hub/education/index.html'},
   ];
 
   function renderLearning(){
@@ -10828,6 +10969,7 @@ window.TEI = window.TEI || {};
     document.getElementById('advAcctContribField').style.display = isPension ? 'none' : 'flex';
     document.getElementById('advAcctContribPersonalField').style.display = isPension ? 'flex' : 'none';
     document.getElementById('advAcctContribEmployerField').style.display = isPension ? 'flex' : 'none';
+    document.getElementById('advAcctPensionNote').style.display = isPension ? 'inline' : 'none';
     const isCash = type === 'cash' || type === 'cash_isa';
     document.getElementById('advAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
@@ -13052,12 +13194,17 @@ window.TEI = window.TEI || {};
      ids/handlers inside. Only ever wraps a given card once
      (data-mcollapse-done guard) -- safe to call again on every re-render,
      since renderXxx() functions replace a specific list/field container's
-     innerHTML, never the static card shell itself. Desktop is untouched:
-     this only runs below the 860px breakpoint the CSS collapse rules use,
-     and simply does nothing above it. First card in each tab/subtab panel
-     opens expanded by default; the rest start collapsed. */
+     innerHTML, never the static card shell itself. Desktop is untouched
+     for most cards: this only wraps them below the 860px breakpoint the
+     CSS collapse rules use. The exception is a card marked
+     data-collapse-always (e.g. "Log a month's holdings") -- those get
+     wrapped and start collapsed at ANY width, since an always-open
+     history/log form buried mid-page was a request independent of screen
+     size. First card in each tab/subtab panel opens expanded by default
+     on mobile; the rest (and every data-collapse-always card, at any
+     width) start collapsed. */
   function enhanceMobileCollapse(){
-    if(window.innerWidth > 860) return;
+    const atMobile = window.innerWidth <= 860;
     // Deliberately document-wide, not scoped to #advBody: My Details (see
     // mountMyDetailsPanel in the client-app module) reparents #tab-manual
     // and its subtab-panels out of #advBody into the client page's own
@@ -13068,6 +13215,8 @@ window.TEI = window.TEI || {};
       let opened = false;
       panel.querySelectorAll(':scope > .card').forEach(card=>{
         if(card.dataset.mcollapseDone) return;
+        const alwaysCollapse = card.hasAttribute('data-collapse-always');
+        if(!atMobile && !alwaysCollapse) return; // desktop: only opted-in cards get wrapped
         // Most cards have a bare <h3> as their first child, but several
         // (anything with a month picker or extra controls next to the
         // title -- "Log a month's balances", "Holdings", ...) wrap the
@@ -13088,7 +13237,7 @@ window.TEI = window.TEI || {};
         let node = header.nextSibling;
         while(node){ const next = node.nextSibling; body.appendChild(node); node = next; }
         card.appendChild(body);
-        if(!opened){ card.classList.add('expanded'); opened = true; }
+        if(atMobile && !alwaysCollapse && !opened){ card.classList.add('expanded'); opened = true; }
         header.addEventListener('click', (e)=>{
           // A header row can contain a real control (month picker, etc.) --
           // let taps on those work normally instead of also toggling the card.
@@ -15828,7 +15977,10 @@ window.TEI = window.TEI || {};
       if(el) el.addEventListener('click', (e)=>{ e.preventDefault(); setMode('onboarding'); });
     });
     const backBtn = document.getElementById('backToClientListBtn');
-    if(backBtn) backBtn.addEventListener('click', showClientListPage);
+    if(backBtn) backBtn.addEventListener('click', ()=>{
+      history.pushState({}, '', location.pathname); // drop ?client= -- see openClient's pushState
+      showClientListPage();
+    });
     const workspaceBtn = document.getElementById('openAdviserWorkspaceBtn');
     if(workspaceBtn) workspaceBtn.addEventListener('click', ()=> setMode('adviser'));
   }
@@ -16078,6 +16230,9 @@ window.TEI = window.TEI || {};
     try{
       const loaded = await TEI.wealthOS.openClientAsAdviser(clientId);
       startClientView(loaded);
+      // Own history entry per client (see init()'s ?client= handling) --
+      // without this, Back from any external link lands on the client list.
+      history.pushState({client: clientId}, '', '?client=' + encodeURIComponent(clientId));
     } catch(err){
       console.error('Wealth OS: failed to open client', err);
       errEl.textContent = (err && err.message) || 'Could not open that client.';
@@ -16094,6 +16249,7 @@ window.TEI = window.TEI || {};
       const row = await TEI.wealthOS.createClient({});
       const loaded = await TEI.wealthOS.openClientAsAdviser(row.id);
       startClientView(loaded);
+      history.pushState({client: row.id}, '', '?client=' + encodeURIComponent(row.id));
       setMode('onboarding');
     } catch(err){
       console.error('Wealth OS: failed to create client', err);
@@ -16168,20 +16324,37 @@ window.TEI = window.TEI || {};
 
      Client-role logins go straight into startClientView(). Adviser logins
      land on the client-list page instead (showClientListPage) -- nothing
-     client-shaped renders until they open or add a client from there. */
+     client-shaped renders until they open or add a client from there,
+     UNLESS the URL already names one via ?client=<id> (see openClient's
+     pushState) -- otherwise following any full-page link out of a client's
+     Wealth OS (Education Platform, a guide, Visit Website, ...) and hitting
+     Back would reload this page with no memory of which client you were
+     viewing and dump you back on the client list. */
   async function init(){
     wireNav();
     wireMobileTabs();
     wireModeSwitch();
     wireClientListPage();
     wireTheme();
+    window.addEventListener('popstate', onWealthOSPopState);
 
     const result = await TEI.wealthOS.loadWealthOSClient();
     if(!result) return; // either redirected to login, or a load error is already shown
+    state.role = result.role;
 
     if(result.role === 'adviser' && !result.client){
       state.adviserClients = result.clients || [];
       state.adviserFeedback = result.feedback || [];
+      const urlClientId = new URLSearchParams(location.search).get('client');
+      if(urlClientId){
+        try{
+          startClientView(await TEI.wealthOS.openClientAsAdviser(urlClientId));
+          return;
+        } catch(err){
+          console.error('Wealth OS: failed to restore client from URL, falling back to client list', err);
+          // URL named a client we can't load (deleted, no access, bad id) -- fall through to the list below.
+        }
+      }
       renderClientListRows(state.adviserClients);
       renderFeedbackInbox();
       document.getElementById('clientListApp').style.display = 'block';
@@ -16189,6 +16362,22 @@ window.TEI = window.TEI || {};
     }
 
     startClientView(result.client);
+  }
+
+  /* Reconciles the visible view with the URL after a same-document Back/
+     Forward (a full-page reload instead lands back in init() above, which
+     handles ?client= the same way). Adviser-only: client-role sessions have
+     no list to navigate between, so there's nothing to reconcile for them. */
+  function onWealthOSPopState(){
+    if(state.role !== 'adviser') return;
+    const urlClientId = new URLSearchParams(location.search).get('client');
+    if(urlClientId){
+      TEI.wealthOS.openClientAsAdviser(urlClientId).then(startClientView).catch(err=>{
+        console.error('Wealth OS: failed to restore client on popstate', err);
+      });
+    } else {
+      showClientListPage();
+    }
   }
 
   TEI.app = { showPage, showToast, rerenderCurrentPage, setMode, PAGES, state, updateAvatar };
