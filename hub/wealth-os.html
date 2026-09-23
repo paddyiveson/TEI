@@ -3474,7 +3474,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="conditional-block" id="obAccountsBlock" style="margin-top:16px;">
         <div id="obAccountsList"></div>
         <div class="mini-form">
-          <label class="form-field on-light"><span>Wrapper type</span><select id="obNewAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="lisa">LISA</option><option value="pension">Pension</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="other">Other</option></select></label>
+          <label class="form-field on-light"><span>Wrapper type</span><select id="obNewAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="lisa">LISA</option><option value="pension">Pension</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="crypto">Crypto</option><option value="other">Other</option></select></label>
           <label class="form-field on-light"><span>Provider</span><input type="text" id="obNewAcctProvider" placeholder="e.g. Vanguard"></label>
           <label class="form-field on-light"><span>Current value £</span><input type="number" id="obNewAcctBalance" placeholder="0"></label>
           <label class="form-field on-light" id="obAcctContribField"><span>Add £/month, if any</span><input type="number" id="obNewAcctContrib" placeholder="0"></label>
@@ -3749,7 +3749,7 @@ textarea{background:#fff; border:1px solid var(--line); border-radius:6px; paddi
       <div class="note" style="margin-top:0;">ISA, GIA, pension, LISA, Cash ISA, current/deposit or other. Current value seeds this month's balance automatically — adjust it below for later months.</div>
       <div id="accountsList"></div>
       <div class="mini-form">
-        <label class="form-field"><span>Type</span><select id="newAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="pension">Pension</option><option value="lisa">LISA</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="other">Other</option></select></label>
+        <label class="form-field"><span>Type</span><select id="newAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="pension">Pension</option><option value="lisa">LISA</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="crypto">Crypto</option><option value="other">Other</option></select></label>
         <label class="form-field"><span>Current value £</span><input type="number" id="newAcctBalance" placeholder="0"></label>
         <label class="form-field" id="advAcctContribField"><span>Contribution £/mo</span><input type="number" id="newAcctContrib" placeholder="0"></label>
         <label class="form-field" id="advAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="newAcctContribPersonal" placeholder="0"></label>
@@ -5999,7 +5999,7 @@ TEI.render = TEI.render || {};
     return (parts[0][0] + (parts[1]?parts[1][0]:'')).toUpperCase();
   }
 
-  const ACCOUNT_TYPE_LABEL = {isa:'ISA', gia:'GIA', pension:'Pension', lisa:'LISA', cash:'Current / Deposit Account', cash_isa:'Cash ISA'};
+  const ACCOUNT_TYPE_LABEL = {isa:'ISA', gia:'GIA', pension:'Pension', lisa:'LISA', cash:'Current / Deposit Account', cash_isa:'Cash ISA', crypto:'Crypto'};
 
   /* Milestones: auto-detected round net-worth figures reached, plus adviser-added custom ones
      from client.insights.milestones (same field the previous build of this page used). Feeds
@@ -6776,8 +6776,8 @@ TEI.render = TEI.render || {};
 
 (function(){
   const {fmtGBP} = TEI.data;
-  const INV_TYPES = ['isa','gia','lisa','pension'];
-  const ACCT_TYPE_LABEL = {isa:'Stocks & Shares ISA', gia:'GIA', lisa:'LISA', pension:'Pension', cash:'Current / Deposit Account', cash_isa:'Cash ISA'};
+  const INV_TYPES = ['isa','gia','lisa','pension','crypto'];
+  const ACCT_TYPE_LABEL = {isa:'Stocks & Shares ISA', gia:'GIA', lisa:'LISA', pension:'Pension', cash:'Current / Deposit Account', cash_isa:'Cash ISA', crypto:'Crypto'};
 
   function investmentAccounts(client){ return client.accounts.filter(a=> INV_TYPES.includes(a.type)); }
 
@@ -10087,7 +10087,7 @@ TEI.render = TEI.render || {};
 
 (function(){
   const {fmtGBP, monthLabel, currentMonthKey, monthsBetweenInclusive} = TEI.data;
-  const CF_INV_TYPES = ['isa','gia','lisa','pension'];
+  const CF_INV_TYPES = ['isa','gia','lisa','pension','crypto'];
 
   // Thin aliases onto the canonical actual-accounts helpers in TEI.calc, so
   // every cashflow stat -- this rate, the wealth conversion rate, and
@@ -14180,7 +14180,6 @@ window.TEI = window.TEI || {};
 window.TEI = window.TEI || {};
 
 (function(){
-  const LAST_CLIENT_KEY = 'teiWealthOsLastClientId';
 
   /* Two possible error surfaces: #loadError inside #clientApp (client-role
      load failures, or an adviser's client dashboard failing to open), and
@@ -14456,18 +14455,6 @@ window.TEI = window.TEI || {};
     return merged;
   }
 
-  /* Which of an adviser's clients to highlight as "last viewed" on the
-     client-list landing page -- purely a UX nicety (bolding/pre-selecting a
-     row), not an auto-navigation like it used to be. No field in this schema
-     reliably tells apart "adviser's own dummy test client" from a real
-     client sharing the same name -- when both were set up under the same
-     login, even user_id matches on both -- so callers just show
-     first_name/last_name plainly; duplicate-looking rows get resolved by
-     renaming the dummy row's name in the database, not by guessing here. */
-  function lastViewedClientId(){
-    try{ return localStorage.getItem(LAST_CLIENT_KEY); }catch(e){ return null; }
-  }
-
   /* ---------- top-level orchestration ---------- */
   async function loadClientById(supabase, clientId, role){
     const bundle = await fetchClientBundle(supabase, clientId);
@@ -14492,9 +14479,16 @@ window.TEI = window.TEI || {};
   }
 
   /* Adviser opening a specific client from the client-list landing page --
-     also remembers it as "last viewed" for next time. */
+     stamps last_viewed_at so the list can sort by most-recently-viewed next
+     time it's shown. Only opening counts as a view (this only ever fires
+     from openClient()/the "Open" button), not hovering/scrolling. Stamped
+     before the (potentially slow) full bundle load so the write has landed
+     by the time the adviser navigates back, and awaited so a failure here
+     surfaces rather than silently leaving the list unsorted -- but it's
+     still non-fatal to the actual client load if it does fail. */
   async function openClientAsAdviser(clientId){
-    try{ localStorage.setItem(LAST_CLIENT_KEY, clientId); }catch(e){}
+    try{ await updateRow('clients', 'id', clientId, {last_viewed_at: new Date().toISOString()}); }
+    catch(e){ console.error('Wealth OS: failed to stamp last_viewed_at', e); }
     return await loadClientById(window.teiSupabase, clientId, 'adviser');
   }
 
@@ -14576,7 +14570,7 @@ window.TEI = window.TEI || {};
       }
 
       if(profile.role === 'adviser'){
-        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated, household_id').order('first_name', {ascending:true});
+        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated, household_id, last_viewed_at').order('first_name', {ascending:true});
         if(clientsErr) throw clientsErr;
         // Cross-client feedback inbox: RLS already grants advisers unrestricted
         // select on this table (see wealth_os_phase5_feedback.sql), so no
@@ -14987,7 +14981,7 @@ window.TEI = window.TEI || {};
   }
 
   TEI.wealthOS = {
-    loadWealthOSClient, loadClientById, openClientAsAdviser, createClient, lastViewedClientId,
+    loadWealthOSClient, loadClientById, openClientAsAdviser, createClient,
     linkHousehold, unlinkHousehold, loadHouseholdSummary,
     showLoadError, hideLoadError,
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
@@ -15786,13 +15780,29 @@ window.TEI = window.TEI || {};
   /* Household linking is additive to the existing flat, alphabetical list --
      linked clients still render as individual rows (so nothing about the
      unlinked majority changes), just with a household badge naming their
-     other member(s) and a swapped action (Unlink instead of Link). The list
-     itself stays alphabetical by first name rather than being regrouped by
-     household, so a client's position never jumps around as households are
-     formed/broken.
+     other member(s) and a swapped action (Unlink instead of Link).
+     Sort order: most-recently-viewed (last_viewed_at, stamped by
+     openClientAsAdviser) first, then never-viewed clients alphabetically
+     below all viewed ones. This re-runs on every render, and
+     showClientListPage() re-fetches clients from Supabase every time the
+     list is shown (including navigating back from a client), so the order
+     is always current without a page refresh.
      state.linkingClientId tracks which single row (if any) currently has
      its "pick a household partner" inline picker open -- local UI state,
      not persisted, reset by any full list re-render. */
+  function timeAgo(iso){
+    const ms = Date.now() - new Date(iso).getTime();
+    const mins = Math.floor(ms/60000);
+    if(mins < 1) return 'just now';
+    if(mins < 60) return mins + 'm ago';
+    const hours = Math.floor(mins/60);
+    if(hours < 24) return hours + 'h ago';
+    const days = Math.floor(hours/24);
+    if(days < 30) return days + 'd ago';
+    const months = Math.floor(days/30);
+    if(months < 12) return months + 'mo ago';
+    return Math.floor(months/12) + 'y ago';
+  }
   function renderClientListRows(clients){
     const wrap = document.getElementById('clientListRows');
     const countEl = document.getElementById('clientListCount');
@@ -15814,10 +15824,17 @@ window.TEI = window.TEI || {};
         searchEl.dataset.wired = '1';
       }
     }
-    const lastViewed = TEI.wealthOS.lastViewedClientId();
     const nameOf = c => [c.first_name, c.last_name].filter(Boolean).join(' ').trim() || ('Client ' + String(c.id).slice(0,8));
     const query = (searchEl && searchEl.value || '').trim().toLowerCase();
-    const visible = query ? clients.filter(c=> nameOf(c).toLowerCase().includes(query)) : clients;
+    const filtered = query ? clients.filter(c=> nameOf(c).toLowerCase().includes(query)) : clients;
+    // Most-recently-viewed first; never-viewed clients sort alphabetically
+    // below all viewed ones.
+    const visible = filtered.slice().sort((a,b)=>{
+      if(a.last_viewed_at && b.last_viewed_at) return b.last_viewed_at.localeCompare(a.last_viewed_at);
+      if(a.last_viewed_at) return -1;
+      if(b.last_viewed_at) return 1;
+      return nameOf(a).localeCompare(nameOf(b));
+    });
     if(countEl) countEl.textContent = visible.length + (visible.length===1?' client':' clients') + (query && visible.length!==clients.length ? ` of ${clients.length}` : '');
     if(!visible.length){
       wrap.className = '';
@@ -15829,6 +15846,7 @@ window.TEI = window.TEI || {};
       const name = nameOf(c);
       const initial = (c.first_name||name||'?').trim().charAt(0).toUpperCase() || '?';
       const updated = c.last_updated ? new Date(c.last_updated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'No activity yet';
+      const viewedLabel = c.last_viewed_at ? `Viewed ${timeAgo(c.last_viewed_at)}` : '';
       const householdMates = c.household_id ? clients.filter(o=>o.id!==c.id && o.household_id===c.household_id) : [];
       const householdBadge = c.household_id
         ? `<div class="cl-household" title="Linked household">🏠 ${householdMates.length ? householdMates.map(nameOf).join(', ') : 'Household'}</div>`
@@ -15849,8 +15867,8 @@ window.TEI = window.TEI || {};
         <div class="cl-top">
           <div class="cl-avatar">${initial}</div>
           <span class="cl-name">${name}</span>
-          ${c.id===lastViewed ? ' <span class="tag-pill" style="margin-left:auto;">Last viewed</span>' : ''}
         </div>
+        ${viewedLabel ? `<div class="cl-meta">${viewedLabel}</div>` : ''}
         ${householdBadge}
         <div class="cl-meta">Last updated ${updated}</div>
         ${picker}
