@@ -1756,7 +1756,8 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
   #page-portfolio > section, #page-portfolio > section > .dgrid, #page-portfolio > section > .dgrid > div:not([data-m="hide"]){display:contents;}
 
   /* -- Wealth > Overview / Journey (page: progress) -- */
-  #page-progress > section:nth-of-type(2){display:none;}              /* "Keep your balances current" nudge (Menu has Update) */
+  /* "Keep your balances current" nudge section removed -- the Update CTA now
+     lives inline in the Net worth card next to Refresh live prices instead. */
   #page-progress .dcard.emphasis{order:10; padding:12px 13px;}
   #wealthInsightsCard{order:20;}
   #wealthCompCard{order:30;}
@@ -2325,7 +2326,10 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
               <button type="button" data-range="5y">5Y</button>
               <button type="button" data-range="all">All</button>
             </div>
-            <button type="button" class="btn-ghost" id="whRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+              <button type="button" class="btn-ghost" id="whRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+              <a href="#" class="btn-primary navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
+            </div>
           </div>
         </div>
         <div class="sub2" id="whPricesStatus" style="margin:0 0 6px; text-align:right;"></div>
@@ -2350,20 +2354,6 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
         </div>
         <div class="timeline-milestones" id="timelineMilestones" style="margin-top:14px;"></div>
       </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="dgrid">
-    <div class="span-12">
-      <a href="#" class="navlink dcard update-nudge" data-page="update" style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
-        <div>
-          <div class="k">Keep your balances current</div>
-          <div class="sub2" id="balancesUpdateSummary">–</div>
-        </div>
-        <span class="btn-primary" style="pointer-events:none;">Update →</span>
-      </a>
     </div>
   </div>
 </section>
@@ -6567,17 +6557,6 @@ TEI.render = TEI.render || {};
     document.getElementById('wjMilestones').innerHTML = parts.join(' &middot; ');
   }
 
-  /* Compact "keep it current" nudge card -- the actual editor lives on the
-     Update page (TEI.render.update) now, not inline here. */
-  function renderBalancesUpdateSummary(client){
-    const el = document.getElementById('balancesUpdateSummary');
-    if(!el) return;
-    const keys = Object.keys(client.months||{}).sort();
-    el.textContent = keys.length
-      ? `Last logged for ${TEI.data.monthLabel(keys[keys.length-1])}`
-      : 'Not logged yet';
-  }
-
   TEI.render.progress = function(client){
     renderOverview(client);
     wireTimelineToggle(client);
@@ -6586,7 +6565,6 @@ TEI.render = TEI.render || {};
     renderComposition(client);
     renderWealthInsights(client);
     renderWealthJourney(client);
-    renderBalancesUpdateSummary(client);
   };
 })();
 
