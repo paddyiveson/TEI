@@ -7733,7 +7733,7 @@ TEI.render = TEI.render || {};
     clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove('show'), 2600);
   }
 
-  const OTHER_THRESHOLD = 3; // % -- below this, a holding folds into the treemap's "Other" tile
+  const OTHER_THRESHOLD = 3; // % -- below this, a holding folds into "Other" on the small Compare treemaps (the main one folds to fit)
   const PALETTE = ['#1D3557','#274674','#C9A84C','#8FA0C2','#B4923A'];
   const OTHER_COLOR = '#A8A08C';
   const CASH_TICKER = 'CASH';
@@ -7856,11 +7856,9 @@ TEI.render = TEI.render || {};
     const total = list.reduce((s,h)=>s+h.value,0);
     return list.map(h=>({...h, weight: total? h.value/total*100 : 0})).sort((a,b)=>b.value-a.value);
   }
-  function foldOther(weighted, threshold){
-    // `threshold` is only passed by the mobile treemap (5%); everything else keeps OTHER_THRESHOLD.
-    const thr = threshold == null ? OTHER_THRESHOLD : threshold;
-    const main = weighted.filter(h=>h.weight>=thr);
-    const folded = weighted.filter(h=>h.weight<thr);
+  function foldOther(weighted){
+    const main = weighted.filter(h=>h.weight>=OTHER_THRESHOLD);
+    const folded = weighted.filter(h=>h.weight<OTHER_THRESHOLD);
     const out = [...main];
     if(folded.length){
       const otherValue = folded.reduce((s,h)=>s+h.value,0);
@@ -8112,17 +8110,15 @@ TEI.render = TEI.render || {};
     else { const ym=y0+h*frac; out=out.concat(layoutTreemap(groupA,x0,y0,x1,ym)).concat(layoutTreemap(groupB,x0,ym,x1,y1)); }
     return out;
   }
-  /* Mobile treemap grouping. The plain 5% cut-off misbehaves on a single account: a dozen
-     equal 3% holdings all fold into one "Other (12)" block, and a scatter of small holdings
-     leaves tiles too small to label. Instead: always keep the top 5, fold the rest under 5%
-     into "Other", then keep folding the smallest tile until every named tile is big enough
-     to carry a readable label. */
-  function foldForMobile(weighted, width, height){
-    const MIN_W = 46, MIN_H = 30, TOP_KEEP = 5, THRESHOLD = 5;
+  /* Main treemap grouping (desktop and mobile). A fixed % cut-off hides too much on a single
+     account like an ISA: a dozen 2-4% holdings all fold into one big "Other" even when there's
+     room to show them. Instead: start with every holding on its own tile, then fold the
+     smallest into "Other" until every named tile is big enough to carry a readable label.
+     So a holding only goes into "Other" when it genuinely can't be labelled. */
+  function foldToFit(weighted, width, height, minW, minH){
     const sorted = [...weighted].sort((a,b)=>b.value-a.value);
     const total = sorted.reduce((s,h)=>s+h.value,0);
-    let keep = sorted.filter((h,i)=> i < TOP_KEEP || h.weight >= THRESHOLD);
-    let fold = sorted.filter(h=> !keep.includes(h));
+    let keep = sorted, fold = [];
     const build = ()=>{
       if(fold.length < 2) return [...keep, ...fold];
       const v = fold.reduce((s,h)=>s+h.value,0);
@@ -8132,10 +8128,10 @@ TEI.render = TEI.render || {};
       const items = build();
       if(items.length <= 2) break;
       const tiles = layoutTreemap(treemapOrder(items), 0,0,width,height);
-      const bad = tiles.filter(t=> !t.isOther && ((t.x1-t.x0) < MIN_W || (t.y1-t.y0) < MIN_H));
+      const bad = tiles.filter(t=> !t.isOther && ((t.x1-t.x0) < minW || (t.y1-t.y0) < minH));
       if(!bad.length || keep.length <= 2) break;
-      const smallest = keep.reduce((a,b)=> a.value <= b.value ? a : b);
-      keep = keep.filter(h=> h !== smallest);
+      const smallest = keep[keep.length-1];
+      keep = keep.slice(0,-1);
       fold = [...fold, smallest];
     }
     return build();
@@ -8144,7 +8140,11 @@ TEI.render = TEI.render || {};
     if(!hostEl) return [];
     hostEl.querySelectorAll('svg').forEach(s=>s.remove());
     const width = hostEl.clientWidth || 300, height = opts.height || hostEl.clientHeight || 200;
-    const folded = opts.mobileTiles ? foldForMobile(weighted, width, height) : foldOther(weighted, opts.otherThreshold);
+    // Main treemap folds to fit (min tile sizes are what each layout needs for a legible ticker);
+    // the small Compare-stage minis keep the plain OTHER_THRESHOLD cut-off.
+    const folded = opts.fitTiles
+      ? (opts.mobileTiles ? foldToFit(weighted, width, height, 46, 30) : foldToFit(weighted, width, height, 64, 34))
+      : foldOther(weighted);
     const laidOut = layoutTreemap(treemapOrder(folded), 0,0,width,height);
     const svgNS='http://www.w3.org/2000/svg';
     const svg=document.createElementNS(svgNS,'svg');
@@ -8225,8 +8225,8 @@ TEI.render = TEI.render || {};
     document.getElementById('labCta').style.display = '';
     emptyEl.innerHTML = '';
     const weighted = withWeights(state.holdings);
-    // Mobile only: group anything under 5% into "Other (n)" (desktop keeps its 3%).
-    const folded = renderTreemapInto(host, tooltip, weighted, isMobileWidth() ? {otherThreshold:5, mobileTiles:true} : {});
+    // Only holdings too small to label fold into "Other" (see foldToFit); mobile also gets "Other (n)" labels.
+    const folded = renderTreemapInto(host, tooltip, weighted, isMobileWidth() ? {fitTiles:true, mobileTiles:true} : {fitTiles:true});
     legendEl.innerHTML = folded.map((d,i)=>`<div class="lg"><span class="sw" style="background:${d.isOther?OTHER_COLOR:PALETTE[i%PALETTE.length]}"></span>${d.isOther?`Other (${d.members.length})`:d.name} · ${fmtPct(d.weight)}</div>`).join('');
   }
 
