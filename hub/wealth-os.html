@@ -8086,26 +8086,49 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------------------- treemap (plain SVG, no chart library) ---------------------------- */
-  /* Largest-first, but "Other" always goes last. layoutTreemap always puts the tail of the list
-     in the right/bottom half of each split, so the last item lands in the bottom-right corner. */
+  /* Largest-first, but "Other" always goes last. layoutTreemap fills from the top-left and
+     always leaves the remaining space in the bottom-right, so the last item lands in the
+     bottom-right corner. */
   function treemapOrder(items){
     const named = items.filter(d=>!d.isOther).sort((a,b)=>b.value-a.value);
     return [...named, ...items.filter(d=>d.isOther)];
   }
+  /* Squarified treemap (Bruls, Huizing & van Wijk): lays items out in rows along the
+     shorter side, adding to a row only while that keeps its tiles closer to square. The
+     old half-and-half split made long thin strips on a narrow phone screen, which then
+     failed foldToFit's minimum size and got pushed into "Other". Keeps the given order. */
   function layoutTreemap(items, x0,y0,x1,y1){
-    const w=x1-x0, h=y1-y0;
-    if(items.length===0) return [];
-    if(items.length===1) return [{...items[0], x0,y0,x1,y1}];
+    const out = [];
     const total = items.reduce((s,d)=>s+d.value,0);
-    let acc=0, splitIdx=1;
-    for(let i=0;i<items.length;i++){ acc+=items[i].value; if(acc>=total/2){ splitIdx=Math.max(1,i+1); break; } }
-    splitIdx = Math.min(splitIdx, items.length-1); // a big trailing "Other" must not leave groupB empty
-    const groupA=items.slice(0,splitIdx), groupB=items.slice(splitIdx);
-    const valA=groupA.reduce((s,d)=>s+d.value,0);
-    const frac = total? valA/total : 0.5;
-    let out=[];
-    if(w>=h){ const xm=x0+w*frac; out=out.concat(layoutTreemap(groupA,x0,y0,xm,y1)).concat(layoutTreemap(groupB,xm,y0,x1,y1)); }
-    else { const ym=y0+h*frac; out=out.concat(layoutTreemap(groupA,x0,y0,x1,ym)).concat(layoutTreemap(groupB,x0,ym,x1,y1)); }
+    if(!items.length) return out;
+    if(!(total>0)) return items.map(d=>({...d, x0,y0,x1:x0,y1:y0}));
+    const scale = (x1-x0)*(y1-y0)/total;
+    const worst = (row, side)=>{
+      const sum = row.reduce((s,d)=>s+d.value*scale,0);
+      let w = 0;
+      row.forEach(d=>{ const a = d.value*scale; if(a>0) w = Math.max(w, side*side*a/(sum*sum), sum*sum/(side*side*a)); });
+      return w;
+    };
+    let i = 0;
+    while(i < items.length){
+      const w = x1-x0, h = y1-y0, side = Math.min(w,h);
+      let row = [items[i++]];
+      while(i < items.length && worst([...row, items[i]], side) <= worst(row, side)) row.push(items[i++]);
+      const rowSum = row.reduce((s,d)=>s+d.value,0);
+      const remaining = items.slice(i).reduce((s,d)=>s+d.value,0);
+      const frac = (rowSum+remaining) ? rowSum/(rowSum+remaining) : 1;
+      if(w >= h){
+        const xm = i===items.length ? x1 : x0 + w*frac;
+        let y = y0;
+        row.forEach((d,k)=>{ const yEnd = k===row.length-1 ? y1 : y + h*(rowSum? d.value/rowSum : 1/row.length); out.push({...d, x0, y0:y, x1:xm, y1:yEnd}); y = yEnd; });
+        x0 = xm;
+      } else {
+        const ym = i===items.length ? y1 : y0 + h*frac;
+        let x = x0;
+        row.forEach((d,k)=>{ const xEnd = k===row.length-1 ? x1 : x + w*(rowSum? d.value/rowSum : 1/row.length); out.push({...d, x0:x, y0, x1:xEnd, y1:ym}); x = xEnd; });
+        y0 = ym;
+      }
+    }
     return out;
   }
   /* Main treemap grouping (desktop and mobile). A fixed % cut-off hides too much on a single
@@ -8126,7 +8149,7 @@ TEI.render = TEI.render || {};
       const items = build();
       if(items.length <= 2) break;
       const tiles = layoutTreemap(treemapOrder(items), 0,0,width,height);
-      const bad = tiles.filter(t=> !t.isOther && ((t.x1-t.x0) < minW || (t.y1-t.y0) < minH));
+      const bad = tiles.filter(t=> !t.isOther && ((t.x1-t.x0) < minW-0.5 || (t.y1-t.y0) < minH-0.5));
       if(!bad.length || keep.length <= 2) break;
       const smallest = keep[keep.length-1];
       keep = keep.slice(0,-1);
@@ -8141,7 +8164,7 @@ TEI.render = TEI.render || {};
     // Main treemap folds to fit (min tile sizes are what each layout needs for a legible ticker);
     // the small Compare-stage minis keep the plain OTHER_THRESHOLD cut-off.
     const folded = opts.fitTiles
-      ? (opts.mobileTiles ? foldToFit(weighted, width, height, 46, 30) : foldToFit(weighted, width, height, 64, 34))
+      ? (opts.mobileTiles ? foldToFit(weighted, width, height, 40, 30) : foldToFit(weighted, width, height, 64, 34))
       : foldOther(weighted);
     const laidOut = layoutTreemap(treemapOrder(folded), 0,0,width,height);
     const svgNS='http://www.w3.org/2000/svg';
