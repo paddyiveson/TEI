@@ -2065,7 +2065,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
   </div>
 </div>
 
-<div id="clientApp">
+<div id="clientApp" data-theme="dark">
 
 <!-- Adviser-only bar: real navigation (not the old role-blind "Preview"
      toggle) -- hidden entirely for client-role logins, so a client's
@@ -2182,7 +2182,6 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
           <div class="nd-empty">No new notifications</div>
         </div>
       </div>
-      <button type="button" class="nav-icon-btn" id="themeToggleBtn" aria-label="Toggle light/dark theme" title="Toggle light/dark theme">🌙</button>
     </div>
   </aside>
 
@@ -3293,7 +3292,6 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
     <div class="m-row" role="presentation" style="cursor:default;"><span>Notifications</span><span class="m-val">None new</span></div>
     <button type="button" class="m-row" data-msub="cashflow"><span>Preferences</span><span class="m-chev" aria-hidden="true">›</span></button>
     <button type="button" class="m-row" data-msub="profile"><span>Profile</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" id="mMenuThemeRow" role="switch" aria-checked="false" data-mact="theme"><span>Dark mode</span><span class="m-switch" aria-hidden="true"><i></i></span></button>
     <button type="button" class="m-row" data-mact="help"><span>Help &amp; support</span><span class="m-chev" aria-hidden="true">›</span></button>
   </div>
   <div class="m-card"><a href="/" class="m-row"><span>Visit Website</span><span class="m-chev" aria-hidden="true">↗</span></a></div>
@@ -16068,14 +16066,7 @@ window.TEI = window.TEI || {};
     if(btn) btn.click();     // then switch to the requested section
   }
 
-  function syncMenuTheme(){
-    const row = document.getElementById('mMenuThemeRow');
-    const theme = document.getElementById('clientApp').getAttribute('data-theme');
-    if(row) row.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
-  }
-
   function renderMenu(client){
-    syncMenuTheme();
     if(!client) return;
     const $ = id => document.getElementById(id);
 
@@ -16131,8 +16122,7 @@ window.TEI = window.TEI || {};
     document.querySelectorAll('#page-menu [data-mact]').forEach(b=>{
       b.addEventListener('click', ()=>{
         const act = b.dataset.mact;
-        if(act === 'theme'){ document.getElementById('themeToggleBtn')?.click(); syncMenuTheme(); }
-        else if(act === 'help'){ document.getElementById('feedbackFabBtn')?.click(); }
+        if(act === 'help'){ document.getElementById('feedbackFabBtn')?.click(); }
         else if(act === 'signout' && window.TeiHubAuth){ TeiHubAuth.signOut(); }
       });
     });
@@ -16249,7 +16239,7 @@ window.TEI = window.TEI || {};
         if(action === 'signout' && window.TeiHubAuth){ TeiHubAuth.signOut(); return; }
         if(action === 'profile'){ showPage('mydetails'); return; }
         if(action === 'notifications'){ document.getElementById('notifBtn')?.click(); return; }
-        if(action === 'preferences'){ document.getElementById('themeToggleBtn')?.click(); return; }
+        if(action === 'preferences'){ openMyDetails('cashflow'); return; } // same section the mobile menu's Preferences opens
         if(action === 'help'){ document.getElementById('feedbackFabBtn')?.click(); return; }
       });
     });
@@ -16637,23 +16627,11 @@ window.TEI = window.TEI || {};
     setMode('client');
   }
 
-  /* ================= THEME (light/dark) ================= */
-  function applyTheme(theme){
-    const app = document.getElementById('clientApp');
-    app.setAttribute('data-theme', theme);
-    const btn = document.getElementById('themeToggleBtn');
-    if(btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-    try{ localStorage.setItem('tei-theme', theme); }catch(e){}
-  }
-  function toggleTheme(){
-    const current = document.getElementById('clientApp').getAttribute('data-theme');
-    applyTheme(current === 'dark' ? 'light' : 'dark');
-  }
+  /* ================= THEME ================= */
+  /* Dark mode only: the light/dark toggle is gone, and any 'tei-theme' saved by the
+     old toggle is ignored. The light-theme CSS is left in place, just never applied. */
   function wireTheme(){
-    let saved = 'light';
-    try{ saved = localStorage.getItem('tei-theme') || 'light'; }catch(e){}
-    applyTheme(saved);
-    document.getElementById('themeToggleBtn').addEventListener('click', toggleTheme);
+    document.getElementById('clientApp').setAttribute('data-theme', 'dark');
   }
 
   /* ================= INIT ================= */
