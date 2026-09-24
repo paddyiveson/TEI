@@ -4904,7 +4904,8 @@ window.TEI = window.TEI || {};
     if(upcoming.length) return upcoming[0];
     const roundTargets = [100000,250000,500000,750000,1000000,1500000,2000000];
     const next = roundTargets.find(t=>t>nw) || (Math.ceil((nw+1)/500000)*500000);
-    return {label:'Next round number', target:next};
+    // Name the figure itself ("£100,000 net worth"), not the vague "Next round number".
+    return {label:'£'+next.toLocaleString('en-GB')+' net worth', target:next, isRound:true};
   }
 
   /* Your Journey — the client's whole relationship with TEI, not just onboarding.
@@ -5993,7 +5994,7 @@ TEI.render = TEI.render || {};
     const milestonePct = Math.min(100,(investableNW/milestone.target*100));
     document.getElementById('hcMilestoneLabel').textContent = milestone.label;
     document.getElementById('hcMilestoneSub').textContent = remaining>0
-      ? `${milestonePct.toFixed(0)}% there · ${estimateCompletionText(remaining, monthlyContrib)}`
+      ? `${milestonePct.toFixed(0)}% there · ${fmtGBP(remaining)} to go · ${estimateCompletionText(remaining, monthlyContrib)}`
       : 'Target reached';
   }
   TEI.render.financialGoalsSummary = renderFinancialGoalsSummary;
