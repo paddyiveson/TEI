@@ -7177,7 +7177,9 @@ TEI.render = TEI.render || {};
       return;
     }
     empty.style.display = 'none';
-    content.style.display = 'block';
+    // '' not 'block': an inline display:block beat the phone layout's display:contents, so the
+    // goal cards and accordions lost the page's 8px gap and sat flush against each other.
+    content.style.display = '';
 
     const active = allGoals.filter(g=>!isDone(g));
     const completed = allGoals.filter(g=>isDone(g));
