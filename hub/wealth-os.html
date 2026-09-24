@@ -5507,14 +5507,19 @@ window.TEI = window.TEI || {};
      reconciliation check, so both always agree. */
   function acctContributionBreakdown(client, accountId){
     const acct = (client.accounts||[]).find(a=>a.id===accountId);
-    const out = { opening: (acct && Number(acct.openingContributions))||0, paidIn:0, sacrifice:0, relief:0, total:0 };
+    // monthsLogged/recorded let callers tell "nothing entered yet" apart
+    // from a genuine £0 -- clients set up with only a lump sum, only
+    // monthly history, both, or neither all go through here.
+    const out = { opening: (acct && Number(acct.openingContributions))||0, paidIn:0, sacrifice:0, relief:0, total:0, monthsLogged:0, recorded:false };
     Object.values(client.contribLog||{}).forEach(monthEntry=>{
       const e = monthEntry && monthEntry[accountId];
       if(!e) return;
+      out.monthsLogged++;
       const p = depositParts(e);
       out.paidIn += p.paidIn; out.sacrifice += p.sacrifice; out.relief += p.relief;
     });
     out.total = out.opening + out.paidIn + out.sacrifice + out.relief;
+    out.recorded = out.opening !== 0 || out.monthsLogged > 0;
     return out;
   }
   function acctContributedTotal(client, accountId){
@@ -6296,10 +6301,13 @@ TEI.render = TEI.render || {};
      rather than fresh contributions. Built from client.contribLog (the
      monthly Deposits log), summed running total in chronological order
      across every month ever logged (not just the visible range) so a 3Y/1Y
-     view still starts from the right baseline. Deliberately excludes each
-     account's one-off openingContributions lump sum -- that predates
-     tracking and has no month to attach to on a timeline. */
+     view still starts from the right baseline. Each account's
+     openingContributions ("before tracking started") is the line's
+     starting baseline -- it predates every logged month by definition, and
+     without it a client set up with lump sums only (no monthly history)
+     would get no Contributions line at all. */
   function cumulativeContributionsSeries(client, allKeys){
+    const baseline = (client.accounts||[]).reduce((s,a)=> s + TEI.calc.acctContributionBreakdown(client, a.id).opening, 0);
     const monthlyTotals = {};
     Object.entries(client.contribLog||{}).forEach(([monthKey, entry])=>{
       let total = 0;
@@ -6310,7 +6318,7 @@ TEI.render = TEI.render || {};
     // months) -- a deposit logged in a month with no snapshot must still
     // land in the next point's running total, not silently drop out.
     const depositKeys = Object.keys(monthlyTotals).sort();
-    let running = 0, i = 0;
+    let running = baseline, i = 0;
     const out = {};
     allKeys.forEach(k=>{
       while(i < depositKeys.length && depositKeys[i] <= k){ running += monthlyTotals[depositKeys[i]]; i++; }
@@ -10969,8 +10977,12 @@ window.TEI = window.TEI || {};
         cbDetail = parts.join(' + ');
       } else if(cb.sacrifice){
         cbDetail = cbPaidIn ? fmtGBP(cbPaidIn)+' paid in + '+fmtGBP(cb.sacrifice)+' via salary sacrifice' : 'via salary sacrifice';
+      } else if(cb.opening && !cb.monthsLogged){
+        cbDetail = 'entered as a lump sum — no monthly history yet';
       }
-      const contribRow = `<div class="ep-contrib" data-acct-contrib-total="${acc.id}">Total contributions to date <strong>${cb.total<0?'-':''}${fmtGBP(Math.abs(cb.total))}</strong>${cbDetail ? `<div class="ep-contrib-sub">${cbDetail}</div>` : ''}</div>`;
+      const contribRow = cb.recorded
+        ? `<div class="ep-contrib" data-acct-contrib-total="${acc.id}">Total contributions to date <strong>${cb.total<0?'-':''}${fmtGBP(Math.abs(cb.total))}</strong>${cbDetail ? `<div class="ep-contrib-sub">${cbDetail}</div>` : ''}</div>`
+        : `<div class="ep-contrib" data-acct-contrib-total="${acc.id}">Total contributions to date <strong>not recorded yet</strong><div class="ep-contrib-sub">Log monthly deposits, or add contributions before tracking started</div></div>`;
       const acctTags = (hasHoldings || acc.isJoint) ? `<div class="ep-tags">${hasHoldings?'<span class="tag-pill" style="opacity:0.7;">from holdings</span>':''}${acc.isJoint?'<span class="tag-pill">Joint</span>':''}</div>` : '';
       row.innerHTML = `
         <div class="ep-top">
