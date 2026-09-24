@@ -858,6 +858,9 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .entity-pill .ep-price-as-of{color:var(--cream-soft2); font-weight:400;}
 .entity-pill .ep-value{font-family:'Playfair Display',serif; font-size:21px; font-weight:700; color:var(--cream); margin-top:10px; line-height:1.1;}
 .entity-pill .ep-meta{color:var(--cream-soft2); font-size:12.5px; margin-top:4px; line-height:1.5;}
+.entity-pill .ep-contrib{color:var(--cream-soft2); font-size:12.5px; margin-top:6px;}
+.entity-pill .ep-contrib strong{color:var(--cream); font-weight:600;}
+.entity-pill .ep-contrib-sub{font-size:11.5px; opacity:0.8; margin-top:1px;}
 .entity-pill .ep-tags{display:flex; flex-wrap:wrap; gap:5px; margin-top:9px;}
 .entity-pill .ep-warn{font-size:12px; margin-top:8px; padding-top:8px; border-top:1px solid rgba(247,244,237,0.1);}
 .entity-pill .ep-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid rgba(247,244,237,0.1);}
@@ -3804,7 +3807,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
         <label class="form-field" id="advAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="newAcctContribPersonal" placeholder="0"></label>
         <label class="form-field" id="advAcctContribEmployerField" style="display:none;"><span>Employer / salary sacrifice £/mo</span><input type="number" id="newAcctContribEmployer" placeholder="0"></label>
         <label class="form-field"><span>Provider</span><input type="text" id="newAcctProvider" placeholder="e.g. Vanguard"></label>
-        <label class="form-field"><span>Total contributions to date £ (optional)</span><input type="number" id="newAcctOpeningContrib" placeholder="0"></label>
+        <label class="form-field"><span>Contributions before tracking started £ (optional)</span><input type="number" id="newAcctOpeningContrib" placeholder="0"><small class="field-help" style="color:var(--cream-soft2); font-size:11px; line-height:1.4;">Only needed if monthly history doesn't go back to the start.</small></label>
         <label class="form-field"><span>Cash balance £ (optional)</span><input type="number" id="newAcctCashBalance" placeholder="0"></label>
         <label class="form-field" id="advAcctInterestRateField" style="display:none;"><span>Interest rate % AER</span><input type="number" step="0.01" id="newAcctInterestRate" placeholder="0.00"></label>
         <label class="form-field" id="advAcctRateTypeField" style="display:none;"><span>Rate type</span><select id="newAcctRateType"><option value="variable">Variable</option><option value="fixed">Fixed</option></select></label>
@@ -3812,7 +3815,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
         <label class="form-field" id="advAcctJointField" style="display:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="newAcctIsJoint" style="width:auto;"><span>Joint account</span></label>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
-      <div class="note">Total contributions to date = pre-existing lump sum, powers Investment return right away. Cash balance = uninvested cash, added on top of holdings so totals reconcile. Interest rate (Cash ISA/Deposit only) accrues monthly — Fixed + Maturity date stops it at term. Joint account appears once linked to a household; stays edited here, read-only elsewhere. <span id="advAcctPensionNote" style="display:none;">Pension splits personal/salary-sacrifice.</span></div>
+      <div class="note">Total contributions to date is calculated from monthly deposits plus any contributions before tracking started. Cash balance = uninvested cash, added on top of holdings so totals reconcile. Interest rate (Cash ISA/Deposit only) accrues monthly — Fixed + Maturity date stops it at term. Joint account appears once linked to a household; stays edited here, read-only elsewhere. <span id="advAcctPensionNote" style="display:none;">Pension splits personal/salary-sacrifice.</span></div>
     </div>
 
     <div class="card" style="margin-bottom:16px;">
@@ -5485,14 +5488,37 @@ window.TEI = window.TEI || {};
      nudge, not an alarm -- holdings with no cost-basis tracking at all are
      a normal, common case, not an error, so a discrepancy here is a
      prompt to check, not proof something's wrong. */
-  function acctContributedTotal(client, accountId){
-    const acct = client.accounts.find(a=>a.id===accountId);
-    let total = (acct && Number(acct.openingContributions))||0;
+  /* One logged deposit (client.contribLog[month][accountId]) split into its
+     parts, nulls as 0. The single place a deposit row gets summed -- the
+     Wealth page's Contributions line (paidIn + sacrifice) and every
+     per-account total below read through this so they can't drift. */
+  function depositParts(e){
+    return {
+      paidIn: Number(e && e.amount)||0,
+      sacrifice: Number(e && e.sacrificeAmount)||0,
+      relief: Number(e && e.reliefAmount)||0
+    };
+  }
+  /* Total contributions to date for one account = opening_contributions
+     (money in before monthly tracking started) + every logged deposit's
+     amount + sacrifice + relief (LISA bonus / pension tax relief is real
+     money in the account, so it counts toward what holdings should
+     reconcile against). Shown on Account Details and used by the
+     reconciliation check, so both always agree. */
+  function acctContributionBreakdown(client, accountId){
+    const acct = (client.accounts||[]).find(a=>a.id===accountId);
+    const out = { opening: (acct && Number(acct.openingContributions))||0, paidIn:0, sacrifice:0, relief:0, total:0 };
     Object.values(client.contribLog||{}).forEach(monthEntry=>{
       const e = monthEntry && monthEntry[accountId];
-      if(e) total += (Number(e.amount)||0) + (Number(e.sacrificeAmount)||0);
+      if(!e) return;
+      const p = depositParts(e);
+      out.paidIn += p.paidIn; out.sacrifice += p.sacrifice; out.relief += p.relief;
     });
-    return total;
+    out.total = out.opening + out.paidIn + out.sacrifice + out.relief;
+    return out;
+  }
+  function acctContributedTotal(client, accountId){
+    return acctContributionBreakdown(client, accountId).total;
   }
   function contributionDiscrepancy(client, accountIds){
     const idSet = accountIds ? new Set(accountIds) : null;
@@ -5602,7 +5628,7 @@ window.TEI = window.TEI || {};
     stampEdit, seedMonthlyValue, collectClientUpdates,
     /* Contribution-vs-holdings reconciliation (Portfolio Overview flags +
        Adviser Workspace "Mark reviewed") */
-    RECON_TOLERANCE, acctContributedTotal, contributionDiscrepancy, fmtDiscrepancy,
+    RECON_TOLERANCE, depositParts, acctContributionBreakdown, acctContributedTotal, contributionDiscrepancy, fmtDiscrepancy,
     isDiscrepancyFlaggable, isDiscrepancyDismissed
   };
 })();
@@ -6277,7 +6303,7 @@ TEI.render = TEI.render || {};
     const monthlyTotals = {};
     Object.entries(client.contribLog||{}).forEach(([monthKey, entry])=>{
       let total = 0;
-      Object.values(entry||{}).forEach(e=>{ total += (Number(e && e.amount)||0) + (Number(e && e.sacrificeAmount)||0); });
+      Object.values(entry||{}).forEach(e=>{ const p = TEI.calc.depositParts(e); total += p.paidIn + p.sacrifice; });
       monthlyTotals[monthKey] = total;
     });
     let running = 0;
@@ -10922,6 +10948,22 @@ window.TEI = window.TEI || {};
         discRow = `<div class="ep-warn" style="color:var(--cream-soft2);">Reviewed — accepting a ${fmtGBP(Math.abs(disc.diff))} gap as explained (as of ${new Date(acc.discrepancyDismissedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}).
           <button type="button" class="btn-ghost" data-clear-reviewed="${acc.id}" style="padding:2px 8px; font-size:10px; margin-left:6px;">Clear</button></div>`;
       }
+      // Calculated, not stored: opening_contributions + every logged
+      // deposit (TEI.calc.acctContributionBreakdown -- same total the
+      // reconciliation check above uses).
+      const cb = TEI.calc.acctContributionBreakdown(client, acc.id);
+      const cbPaidIn = cb.opening + cb.paidIn;
+      let cbDetail = '';
+      if(cb.relief > 0){
+        const parts = [];
+        if(cbPaidIn) parts.push(fmtGBP(cbPaidIn)+' paid in');
+        if(cb.sacrifice) parts.push(fmtGBP(cb.sacrifice)+' via salary sacrifice');
+        parts.push(fmtGBP(cb.relief)+(acc.type==='lisa' ? ' bonus' : ' tax relief'));
+        cbDetail = parts.join(' + ');
+      } else if(cb.sacrifice){
+        cbDetail = cbPaidIn ? fmtGBP(cbPaidIn)+' paid in + '+fmtGBP(cb.sacrifice)+' via salary sacrifice' : 'via salary sacrifice';
+      }
+      const contribRow = `<div class="ep-contrib" data-acct-contrib-total="${acc.id}">Total contributions to date <strong>${cb.total<0?'-':''}${fmtGBP(Math.abs(cb.total))}</strong>${cbDetail ? `<div class="ep-contrib-sub">${cbDetail}</div>` : ''}</div>`;
       const acctTags = (hasHoldings || acc.isJoint) ? `<div class="ep-tags">${hasHoldings?'<span class="tag-pill" style="opacity:0.7;">from holdings</span>':''}${acc.isJoint?'<span class="tag-pill">Joint</span>':''}</div>` : '';
       row.innerHTML = `
         <div class="ep-top">
@@ -10930,6 +10972,7 @@ window.TEI = window.TEI || {};
         </div>
         <div class="ep-value">${fmtGBP(acc.value)}</div>
         <div class="ep-meta">${acc.provider||'No provider set'}${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}${isCrypto && acc.lastUpdated ? ' · Last updated '+new Date(acc.lastUpdated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : ''}</div>
+        ${contribRow}
         ${acctTags}
         ${discRow}
         <div class="ep-actions">
