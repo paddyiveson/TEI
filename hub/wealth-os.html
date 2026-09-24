@@ -6306,9 +6306,16 @@ TEI.render = TEI.render || {};
       Object.values(entry||{}).forEach(e=>{ const p = TEI.calc.depositParts(e); total += p.paidIn + p.sacrifice; });
       monthlyTotals[monthKey] = total;
     });
-    let running = 0;
+    // Walk every deposit month, not just allKeys (net-worth snapshot
+    // months) -- a deposit logged in a month with no snapshot must still
+    // land in the next point's running total, not silently drop out.
+    const depositKeys = Object.keys(monthlyTotals).sort();
+    let running = 0, i = 0;
     const out = {};
-    allKeys.forEach(k=>{ running += monthlyTotals[k]||0; out[k] = running; });
+    allKeys.forEach(k=>{
+      while(i < depositKeys.length && depositKeys[i] <= k){ running += monthlyTotals[depositKeys[i]]; i++; }
+      out[k] = running;
+    });
     return out;
   }
 
