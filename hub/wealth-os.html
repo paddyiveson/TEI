@@ -8090,6 +8090,12 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------------------- treemap (plain SVG, no chart library) ---------------------------- */
+  /* Largest-first, but "Other" always goes last. layoutTreemap always puts the tail of the list
+     in the right/bottom half of each split, so the last item lands in the bottom-right corner. */
+  function treemapOrder(items){
+    const named = items.filter(d=>!d.isOther).sort((a,b)=>b.value-a.value);
+    return [...named, ...items.filter(d=>d.isOther)];
+  }
   function layoutTreemap(items, x0,y0,x1,y1){
     const w=x1-x0, h=y1-y0;
     if(items.length===0) return [];
@@ -8097,6 +8103,7 @@ TEI.render = TEI.render || {};
     const total = items.reduce((s,d)=>s+d.value,0);
     let acc=0, splitIdx=1;
     for(let i=0;i<items.length;i++){ acc+=items[i].value; if(acc>=total/2){ splitIdx=Math.max(1,i+1); break; } }
+    splitIdx = Math.min(splitIdx, items.length-1); // a big trailing "Other" must not leave groupB empty
     const groupA=items.slice(0,splitIdx), groupB=items.slice(splitIdx);
     const valA=groupA.reduce((s,d)=>s+d.value,0);
     const frac = total? valA/total : 0.5;
@@ -8124,7 +8131,7 @@ TEI.render = TEI.render || {};
     for(let guard=0; guard<sorted.length; guard++){
       const items = build();
       if(items.length <= 2) break;
-      const tiles = layoutTreemap([...items].sort((a,b)=>b.value-a.value), 0,0,width,height);
+      const tiles = layoutTreemap(treemapOrder(items), 0,0,width,height);
       const bad = tiles.filter(t=> !t.isOther && ((t.x1-t.x0) < MIN_W || (t.y1-t.y0) < MIN_H));
       if(!bad.length || keep.length <= 2) break;
       const smallest = keep.reduce((a,b)=> a.value <= b.value ? a : b);
@@ -8138,7 +8145,7 @@ TEI.render = TEI.render || {};
     hostEl.querySelectorAll('svg').forEach(s=>s.remove());
     const width = hostEl.clientWidth || 300, height = opts.height || hostEl.clientHeight || 200;
     const folded = opts.mobileTiles ? foldForMobile(weighted, width, height) : foldOther(weighted, opts.otherThreshold);
-    const laidOut = layoutTreemap([...folded].sort((a,b)=>b.value-a.value), 0,0,width,height);
+    const laidOut = layoutTreemap(treemapOrder(folded), 0,0,width,height);
     const svgNS='http://www.w3.org/2000/svg';
     const svg=document.createElementNS(svgNS,'svg');
     svg.setAttribute('viewBox',`0 0 ${width} ${height}`); svg.setAttribute('width','100%'); svg.setAttribute('height',height);
