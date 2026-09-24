@@ -1215,6 +1215,20 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 .k-tl-marker.has-icon::before{content:none;}
 .k-tl-marker.has-icon svg{width:14px; height:14px;}
 .k-tl-marker.has-icon.next{background:rgba(201,168,76,0.22); color:var(--gold);}
+/* Phone version of the goal timeline: a vertical list (icon, name, date, target) instead of the
+   horizontal track, which can't fit several goals' dates and amounts side by side on a phone. */
+.k-tl-list{display:none; margin-top:12px; position:relative;}
+.k-tl-list::before{content:''; position:absolute; left:15px; top:16px; bottom:16px; width:2px; background:var(--k-track-bg);}
+.k-tl-item{position:relative; display:flex; align-items:center; gap:12px; padding:7px 0;}
+.k-tl-item .ic{flex:none; width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; background:#26405F; color:var(--k-ink-softer);}
+.k-tl-item .ic svg{width:15px; height:15px;}
+.k-tl-item.next .ic{background:#4A4A3A; color:var(--gold);}
+.k-tl-item.now .ic::before{content:''; width:10px; height:10px; border-radius:50%; background:var(--k-up-ink);}
+.k-tl-item .tx{flex:1; min-width:0;}
+.k-tl-item .nm{font-size:14px; font-weight:600; color:var(--k-ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.k-tl-item .dt{font-size:12px; color:var(--k-ink-softer); margin-top:1px;}
+.k-tl-item .am{flex:none; font-size:13.5px; font-weight:700; color:var(--k-ink); text-align:right;}
+.k-tl-item.next .am, .k-tl-item.next .nm{color:var(--gold);}
 .k-priority-card{border-left:3px solid; border-radius:6px 9px 9px 6px;}
 .k-priority-card.warn{border-left-color:var(--k-down-ink);}
 .k-priority-card.ok{border-left-color:var(--k-up-ink);}
@@ -1910,6 +1924,9 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
   #goalsContent > section:nth-of-type(3), #goalsContent > section:nth-of-type(3) > .dgrid, #goalsContent > section:nth-of-type(3) > .dgrid > div,
   #goalsContent > section:nth-of-type(5), #goalsContent > section:nth-of-type(5) > .dgrid, #goalsContent > section:nth-of-type(5) > .dgrid > div{display:contents;}
   #goalsContent > section:nth-of-type(3) .dcard{order:40;}
+  #goalTimeline{display:none;}
+  #goalTimelineList{display:block;}
+  #completedGoalsGrid .k-completed-empty{display:none;}   /* empty "celebrated here" placeholder: just noise on a phone */
   #goalsContent > section:nth-of-type(5) > .dgrid > div:nth-child(1) > .dcard{order:50;}
   #goalsContent > section:nth-of-type(5) > .dgrid > div:nth-child(2) > .dcard{order:60;}
   #goalsContent > section:nth-of-type(4){display:none;}               /* "Where to put your attention" (the Next best steps card replaces it) */
@@ -2485,6 +2502,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
       <div class="dcard" data-m-acc data-m-rerender>
         <div class="k" data-m-acc-h>Timeline</div>
         <div class="k-tl-track" id="goalTimeline"></div>
+        <div class="k-tl-list" id="goalTimelineList"></div>
       </div>
     </div>
   </div>
@@ -6921,11 +6939,23 @@ TEI.render = TEI.render || {};
 
     if(!dated.length){
       el.innerHTML = '';
+      const listEl = document.getElementById('goalTimelineList');
+      if(listEl) listEl.innerHTML = '';
       el.insertAdjacentHTML('afterend', `<div class="line" id="goalTimelineEmptyNote">Timeline will appear once goals have regular contributions to estimate a date.</div>`);
       return;
     }
     const existingNote = document.getElementById('goalTimelineEmptyNote');
     if(existingNote) existingNote.remove();
+
+    // Phone list (CSS shows this instead of the track below 860px).
+    const listEl = document.getElementById('goalTimelineList');
+    if(listEl){
+      const esc = t => String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      listEl.innerHTML = `<div class="k-tl-item now"><div class="ic"></div><div class="tx"><div class="nm">Today</div></div></div>` +
+        dated.map((g,i)=>`<div class="k-tl-item ${i===0?'next':''}"><div class="ic">${goalIconSvg(g.name)}</div>`+
+          `<div class="tx"><div class="nm">${esc(g.name)}</div><div class="dt">${i===0?'Next up · ':''}est. ${esc(m[g.id].etaText)}</div></div>`+
+          `<div class="am">${esc(targetDisplay(g,m[g.id]))}</div></div>`).join('');
+    }
 
     const now = Date.now();
     const times = dated.map(g=> m[g.id].etaDate.getTime());
@@ -7088,7 +7118,7 @@ TEI.render = TEI.render || {};
       lines.push({color:'var(--k-up-ink)', html:`You've completed <b style="color:var(--k-up-ink);">${completed.length} goal${completed.length===1?'':'s'}</b> so far — nice work.`});
     }
     if(!lines.length) lines.push({color:'var(--k-ink-softer)', html:'Insights will appear once goals are progressing.'});
-    list.innerHTML = lines.map(l=>`<div style="display:flex; gap:8px; font-size:11.5px; line-height:1.5; margin-bottom:8px; color:var(--k-ink-soft);"><div style="width:5px; height:5px; border-radius:50%; background:${l.color}; flex:none; margin-top:6px;"></div>${l.html}</div>`).join('');
+    list.innerHTML = lines.map(l=>`<div style="display:flex; gap:8px; font-size:11.5px; line-height:1.5; margin-bottom:8px; color:var(--k-ink-soft);"><div style="width:5px; height:5px; border-radius:50%; background:${l.color}; flex:none; margin-top:6px;"></div><div style="flex:1; min-width:0;">${l.html}</div></div>`).join('');
   }
 
   function renderJourney(client, active, completed, m, current){
@@ -7105,7 +7135,7 @@ TEI.render = TEI.render || {};
     const grid = document.getElementById('completedGoalsGrid');
     const toggle = document.getElementById('completedGoalsToggle');
     if(!completed.length){
-      grid.innerHTML = `<div class="span-12"><div class="dcard"><div class="line">Completed goals will be celebrated here.</div></div></div>`;
+      grid.innerHTML = `<div class="span-12 k-completed-empty"><div class="dcard"><div class="line">Completed goals will be celebrated here.</div></div></div>`;
       toggle.style.display = 'none';
       return;
     }
