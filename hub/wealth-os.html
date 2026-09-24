@@ -2329,6 +2329,10 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
               <button type="button" data-range="5y">5Y</button>
               <button type="button" data-range="all">All</button>
             </div>
+            <div class="k-range-toggle" id="timelineViewToggle" style="display:none;" title="Investable = your accounts. Total adds property and other assets, less debts.">
+              <button type="button" data-view="investable">Investable</button>
+              <button type="button" data-view="total">Total</button>
+            </div>
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
               <button type="button" class="btn-ghost" id="whRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
               <a href="#" class="btn-primary navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
@@ -4497,20 +4501,23 @@ window.TEI = window.TEI || {};
     if(keys.length) return months[keys[keys.length-1]].total;
     return client.accounts.reduce((s,a)=>s+(Number(a.value)||0),0);
   }
-  /* Falls back to the 8% default until there's a year of history -- a
-     month or two extrapolated to a yearly rate (clamped at 60%) was driving
-     projections for newly onboarded clients. joined = joinedByMonth(), so
-     accounts added mid-history don't count as growth. */
-  function trailingReturnPct(unifiedTotals, joined){
-    const keys = Object.keys(unifiedTotals).sort();
+  /* Money-weighted annual return over the last 12 months of history, so
+     deposits (and accounts added mid-history) aren't mistaken for growth --
+     the projection adds contributions separately on top. Falls back to the
+     8% default until there's a year of history -- a month or two
+     extrapolated to a yearly rate (clamped at 60%) was driving projections
+     for newly onboarded clients. */
+  function trailingReturnPct(client, months){
+    months = months || buildMergedMonths(client);
+    const series = buildUnifiedTotals(months);
+    const keys = Object.keys(series).sort();
     const last13 = keys.slice(-13);
     if(last13.length < 2) return 8;
-    const monthsSpanned = monthsBetween(last13[0], last13[last13.length-1]);
-    if(monthsSpanned < MIN_ANNUALISED_MONTHS) return 8;
-    const total = chainedGrowthPct(unifiedTotals, joined, last13[0], last13[last13.length-1]);
-    if(total == null || total <= -100) return 8;
-    const annual = Math.pow(1 + total/100, 12/monthsSpanned) - 1;
-    return Math.max(-50, Math.min(60, annual*100));
+    const fromKey = last13[0], toKey = last13[last13.length-1];
+    if(monthsBetween(fromKey, toKey) < MIN_ANNUALISED_MONTHS) return 8;
+    const r = moneyWeightedReturn(series, moneyInByMonth(client, months), fromKey, toKey);
+    if(!r || r.annualPct == null) return 8;
+    return Math.max(-50, Math.min(60, r.annualPct));
   }
   function acctContribTotal(acc){
     return acc.type==='pension' ? (Number(acc.contributionPersonal)||0)+(Number(acc.contributionSacrifice)||0) : (Number(acc.contribution)||0);
@@ -4824,9 +4831,8 @@ window.TEI = window.TEI || {};
 
   function computeEoyProjection(client){
     const months = buildMergedMonths(client);
-    const unifiedTotals = buildUnifiedTotals(months);
     const b = latestBreakdown(months);
-    const trailing = trailingReturnPct(unifiedTotals, joinedByMonth(client, months));
+    const trailing = trailingReturnPct(client, months);
     const now = new Date();
     const endOfYear = new Date(now.getFullYear(), 11, 31);
     let monthsRemaining = (endOfYear.getFullYear()-now.getFullYear())*12 + (endOfYear.getMonth()-now.getMonth());
@@ -5616,37 +5622,72 @@ window.TEI = window.TEI || {};
     Object.entries(joined||{}).forEach(([k,v])=>{ if(k > fromKey && k <= toKey) change -= v; });
     return change;
   }
-  /* Month-by-month growth chained together with arriving balances taken
-     out of each month's step, so an account added mid-history neither
-     inflates growth nor forces older history to be thrown away. With no
-     arrivals this equals last/first - 1, i.e. the old point-to-point figure. */
-  function chainedGrowthPct(series, joined, fromKey, toKey){
-    const keys = Object.keys(series).sort().filter(k=> k >= fromKey && k <= toKey);
-    if(keys.length < 2) return null;
-    let factor = 1, any = false;
-    for(let i=1; i<keys.length; i++){
-      const prev = series[keys[i-1]];
-      if(!(prev > 0)) continue;
-      factor *= (series[keys[i]] - ((joined||{})[keys[i]]||0)) / prev;
-      any = true;
-    }
-    return any ? (factor-1)*100 : null;
-  }
   function monthsBetween(fromKey, toKey){
     const [fy,fm] = fromKey.split('-').map(Number), [ty,tm] = toKey.split('-').map(Number);
     return (ty-fy)*12 + (tm-fm);
   }
+
+  /* ---------- Money-weighted returns ----------
+     Returns measure what the money earned, not how much the total grew --
+     a regular saver's balance mostly grows from their own deposits, and a
+     point-to-point figure (the old approach) read that as return (e.g.
+     "+2,285% all-time" on £43k paid in). Money-weighted (the basis
+     platforms like HL/Trading 212 show) allows for when each pound went in,
+     and copes with messy monthly snapshots far better than time-weighted.
+
+     "Money in" per month, for the accounts in scope: logged deposits (incl.
+     bonus/relief) + pre-existing balances of accounts arriving mid-history
+     (joinedByMonth). An arriving account's own deposits up to its arrival
+     month are already inside that balance, so they're skipped. */
+  function moneyInByMonth(client, months, accountIds){
+    const idSet = new Set(accountIds || (client.accounts||[]).map(a=>a.id));
+    const out = Object.assign({}, joinedByMonth(client, months, accountIds));
+    const starts = accountStartingBalances(client, months);
+    Object.entries(client.contribLog||{}).forEach(([mk, entry])=>{
+      Object.entries(entry||{}).forEach(([id, e])=>{
+        if(!idSet.has(id)) return;
+        const s = starts[id];
+        if(s && s.preExisting && mk <= s.key) return;
+        const p = depositParts(e);
+        out[mk] = (out[mk]||0) + p.paidIn + p.sacrifice + p.relief;
+      });
+    });
+    return out;
+  }
+  /* Over [fromKey, toKey] of a {monthKey: total} series: the value at
+     fromKey counts as already invested, money in lands in its month
+     (end-of-month convention), measured against the value at toKey.
+       growth    = end - start - paidIn (what the money earned, £)
+       periodPct = Modified Dietz: growth / average capital employed
+       annualPct = the money-weighted annual rate (IRR), solved by bisection
+     Callers only show annualPct for 12+ months -- see MIN_ANNUALISED_MONTHS. */
+  function moneyWeightedReturn(series, moneyIn, fromKey, toKey){
+    if(!fromKey || !toKey || !(fromKey < toKey) || series[fromKey]==null || series[toKey]==null) return null;
+    const start = series[fromKey], end = series[toKey];
+    const span = monthsBetween(fromKey, toKey);
+    const flows = Object.entries(moneyIn||{})
+      .filter(([k])=> k > fromKey && k <= toKey)
+      .map(([k, v])=> ({ t: monthsBetween(k, toKey), v }));
+    const paidIn = flows.reduce((s,f)=> s + f.v, 0);
+    const growth = end - start - paidIn;
+    const avgCapital = start + flows.reduce((s,f)=> s + f.v * (f.t/span), 0);
+    const periodPct = avgCapital > 0 ? growth / avgCapital * 100 : null;
+    const fv = r => start*Math.pow(1+r, span/12) + flows.reduce((s,f)=> s + f.v*Math.pow(1+r, f.t/12), 0) - end;
+    let annualPct = null, lo = -0.99, hi = 10;
+    if(fv(lo) <= 0 && fv(hi) >= 0){
+      for(let i=0; i<100; i++){ const mid = (lo+hi)/2; if(fv(mid) > 0) hi = mid; else lo = mid; }
+      annualPct = (lo+hi)/2 * 100;
+    }
+    return { start, end, paidIn, growth, periodPct, annualPct, months: span };
+  }
   /* Annualised figures need a full year of history -- extrapolating one or
      two months to a yearly rate produces nonsense (e.g. 122 trillion %). */
   const MIN_ANNUALISED_MONTHS = 12;
-  function annualisedGrowthPct(series, joined){
+  function annualisedReturnPct(series, moneyIn){
     const keys = Object.keys(series).sort();
-    if(keys.length < 2) return null;
-    const span = monthsBetween(keys[0], keys[keys.length-1]);
-    if(span < MIN_ANNUALISED_MONTHS) return null;
-    const total = chainedGrowthPct(series, joined, keys[0], keys[keys.length-1]);
-    if(total == null || total <= -100) return null;
-    return (Math.pow(1 + total/100, 12/span) - 1) * 100;
+    if(keys.length < 2 || monthsBetween(keys[0], keys[keys.length-1]) < MIN_ANNUALISED_MONTHS) return null;
+    const r = moneyWeightedReturn(series, moneyIn, keys[0], keys[keys.length-1]);
+    return r ? r.annualPct : null;
   }
   function annualisedPendingText(series){
     const keys = Object.keys(series).sort();
@@ -5764,7 +5805,9 @@ window.TEI = window.TEI || {};
     RECON_TOLERANCE, depositParts, acctContributionBreakdown, acctContributedTotal, contributionDiscrepancy, fmtDiscrepancy,
     RELIEF_RATE, isReliefEligible, openingReliefFor,
     /* New money vs growth (accounts added mid-history, annualised minimums) */
-    accountStartingBalances, joinedByMonth, netChange, chainedGrowthPct, annualisedGrowthPct, annualisedPendingText, MIN_ANNUALISED_MONTHS,
+    accountStartingBalances, joinedByMonth, netChange, annualisedPendingText, MIN_ANNUALISED_MONTHS,
+    /* Money-weighted returns */
+    moneyInByMonth, moneyWeightedReturn, annualisedReturnPct, monthsBetween,
     isDiscrepancyFlaggable, isDiscrepancyDismissed
   };
 })();
@@ -6373,8 +6416,12 @@ TEI.render = TEI.render || {};
       updatedEl.textContent = 'Last updated ' + monthLabel(latestKey)
         + (nwFact.joinedThisMonth ? ' · plus '+fmtGBP(nwFact.joinedThisMonth)+' from accounts added this month (not counted as growth)' : '');
     }
+    // Performance stats are money-weighted on investable money (accounts
+    // only -- property/debts have no history, see renderTimeline): growth
+    // is what the money earned, with deposits and newly added accounts
+    // counted as money in rather than return (TEI.calc.moneyWeightedReturn).
     const series = TEI.calc.buildUnifiedTotals(months);
-    const joined = TEI.calc.joinedByMonth(client, months);
+    const moneyIn = TEI.calc.moneyInByMonth(client, months);
 
     const lastYearValueEl = document.getElementById('whLastYearValue');
     const lastYearSubEl = document.getElementById('whLastYearSub');
@@ -6388,31 +6435,30 @@ TEI.render = TEI.render || {};
       const yearAgo = new Date(now.getFullYear()-1, now.getMonth(), 1);
       const yearAgoKey = yearAgo.getFullYear()+'-'+String(yearAgo.getMonth()+1).padStart(2,'0');
       const baseKey = keys.find(k=>k>=yearAgoKey) || keys[0];
-      const change = TEI.calc.netChange(series, joined, baseKey, latestKey);
-      const pct = TEI.calc.chainedGrowthPct(series, joined, baseKey, latestKey);
-      lastYearValueEl.textContent = (change>=0?'+':'')+fmtGBP(change);
-      lastYearValueEl.className = 'v ' + (change>=0?'traj-up':'traj-down');
-      lastYearSubEl.textContent = (pct!=null ? (pct>=0?'+':'')+pct.toFixed(1)+'% · ' : '')+'since '+monthLabel(baseKey)+(baseKey===yearAgoKey?'':' (earliest logged)');
+      const r = TEI.calc.moneyWeightedReturn(series, moneyIn, baseKey, latestKey);
+      lastYearValueEl.textContent = (r.growth>=0?'+':'-')+fmtGBP(Math.abs(r.growth));
+      lastYearValueEl.className = 'v ' + (r.growth>=0?'traj-up':'traj-down');
+      lastYearSubEl.textContent = (r.periodPct!=null ? (r.periodPct>=0?'+':'')+r.periodPct.toFixed(1)+'% growth · ' : '')
+        + (Math.abs(r.paidIn)>=0.5 ? 'plus '+(r.paidIn<0?'-':'')+fmtGBP(Math.abs(r.paidIn))+' new money · ' : '')
+        + 'since '+monthLabel(baseKey)+(baseKey===yearAgoKey?'':' (earliest logged)');
     }
 
     const cagrValueEl = document.getElementById('whCagrValue');
     const cagrSubEl = document.getElementById('whCagrSub');
-    const cagr = TEI.calc.annualisedGrowthPct(series, joined);
+    const ann = TEI.calc.annualisedReturnPct(series, moneyIn);
+    const span = keys.length>1 ? TEI.calc.monthsBetween(keys[0], keys[keys.length-1]) : 0;
     if(keys.length<2){
       cagrValueEl.textContent = '—';
       cagrValueEl.className = 'v';
       cagrSubEl.textContent = 'Log at least two months to see this.';
-    } else if(cagr==null){
+    } else if(ann==null){
       cagrValueEl.textContent = '—';
       cagrValueEl.className = 'v';
-      cagrSubEl.textContent = TEI.calc.annualisedPendingText(series);
+      cagrSubEl.textContent = span < TEI.calc.MIN_ANNUALISED_MONTHS ? TEI.calc.annualisedPendingText(series) : "Can't be worked out from this history yet.";
     } else {
-      cagrValueEl.textContent = cagr.toFixed(1)+'%';
-      cagrValueEl.className = 'v ' + (cagr>=0?'traj-up':'traj-down');
-      const doubling = cagr>0 ? 72/cagr : null;
-      cagrSubEl.textContent = doubling
-        ? `Rule of 72: approx. ${doubling.toFixed(0)} years to double at this rate. Not investment return.`
-        : 'This is not investment return.';
+      cagrValueEl.textContent = ann.toFixed(1)+'% a year';
+      cagrValueEl.className = 'v ' + (ann>=0?'traj-up':'traj-down');
+      cagrSubEl.textContent = 'What your money has earned, allowing for when you paid it in (money-weighted).';
     }
   }
 
@@ -6466,10 +6512,25 @@ TEI.render = TEI.render || {};
     return { series, assumedCount };
   }
 
+  /* Investable (default) = accounts only, the like-for-like comparison
+     with the Contributions line. Total stacks property/other assets less
+     debts on top as its own band -- those have no monthly history, so
+     they're a flat offset and would otherwise make the gap between the
+     lines read as growth (e.g. £202k of house equity). Percentages are
+     always on investable money. */
+  let currentView = 'investable';
+
   function renderTimeline(client){
-    const series = totalNetWorthSeries(client);
+    const months = TEI.calc.buildMergedMonths(client);
+    const series = TEI.calc.buildUnifiedTotals(months);   // investable (accounts)
+    const totalSeries = totalNetWorthSeries(client);        // + property/other - debts
     const allKeys = Object.keys(series).sort();
     const {GRID, makeChart} = TEI.charts;
+    const hasOther = allKeys.some(k=> Math.abs(totalSeries[k] - series[k]) >= 0.5);
+    const view = hasOther ? currentView : 'investable';
+    const viewToggle = document.getElementById('timelineViewToggle');
+    viewToggle.style.display = hasOther ? '' : 'none';
+    viewToggle.querySelectorAll('button').forEach(btn=> btn.classList.toggle('active', btn.dataset.view===view));
 
     if(!currentRange) currentRange = defaultRange(allKeys);
     document.querySelectorAll('#timelineRangeToggle button').forEach(btn=> btn.classList.toggle('active', btn.dataset.range===currentRange));
@@ -6491,16 +6552,21 @@ TEI.render = TEI.render || {};
     const contrib = cumulativeContributionsSeries(client, allKeys);
     const contribSeries = contrib.series;
     const hasContributions = allKeys.some(k=>contribSeries[k]>0);
+    const showContrib = hasContributions && view === 'investable';
     const contribNoteEl = document.getElementById('whContribNote');
     if(contribNoteEl){
       const n = contrib.assumedCount;
-      contribNoteEl.style.display = (hasContributions && n) ? 'block' : 'none';
+      contribNoteEl.style.display = (showContrib && n) ? 'block' : 'none';
       contribNoteEl.textContent = n ? `Contributions include the starting balance of ${n} account${n===1?'':'s'} with no contribution data yet, so the gap shows growth since tracking began. Add their contributions before tracking started (My Details → Accounts) for the full picture.` : '';
     }
-    const datasets = [{label:'Net worth', data:filteredKeys.map(k=>series[k]), borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.14)', fill:true, tension:0.3, pointRadius:0, borderWidth:2.5}];
-    if(hasContributions){
+    const datasets = [{label: hasOther ? 'Investable' : 'Net worth', data:filteredKeys.map(k=>series[k]), borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.14)', fill:true, tension:0.3, pointRadius:0, borderWidth:2.5}];
+    if(view === 'total'){
+      datasets.push({label:'Total incl. property & debts', data:filteredKeys.map(k=>totalSeries[k]), borderColor:'rgba(247,244,237,0.6)', backgroundColor:'rgba(247,244,237,0.08)', fill:'-1', tension:0.3, pointRadius:0, borderWidth:2});
+    }
+    if(showContrib){
       datasets.push({label:'Contributions', data:filteredKeys.map(k=>contribSeries[k]), borderColor:'rgba(247,244,237,0.55)', backgroundColor:'transparent', borderDash:[5,4], fill:false, tension:0.3, pointRadius:0, borderWidth:2});
     }
+    const showLegend = datasets.length > 1;
     makeChart('chartWealthTimeline', {
       type:'line',
       data:{labels:filteredKeys.map(k=>monthLabel(k)), datasets},
@@ -6511,7 +6577,7 @@ TEI.render = TEI.render || {};
              the .dcard.emphasis comment), so the theme-flipping ink token
              was unreadable (dark-on-dark) in light theme. Matches the axis
              ticks' own fixed rgba(247,244,237,...) a few lines below. */
-          legend:{display:hasContributions, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:'rgba(247,244,237,0.75)'}},
+          legend:{display:showLegend, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:'rgba(247,244,237,0.75)'}},
           tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}
         },
         scales:{
@@ -6521,20 +6587,18 @@ TEI.render = TEI.render || {};
       }
     });
 
-    // Return for the selected period — computed live from this chart's own start/end, not hardcoded per range.
-    // Accounts added partway through the range are taken out (see
-    // TEI.calc.joinedByMonth) so they don't read as a return.
-    const seriesValues = filteredKeys.map(k=>series[k]);
-    if(seriesValues.length>1){
+    // Return for the selected period — computed live from this chart's own
+    // start/end, not hardcoded per range. Money-weighted on investable money
+    // in either view: deposits and newly added accounts are money in, not
+    // return (TEI.calc.moneyWeightedReturn).
+    if(filteredKeys.length>1){
       const startKey = filteredKeys[0], endKey = filteredKeys[filteredKeys.length-1];
-      const joined = TEI.calc.joinedByMonth(client, TEI.calc.buildMergedMonths(client));
-      const startV = series[startKey], endV = series[endKey];
-      const change = TEI.calc.netChange(series, joined, startKey, endKey);
-      const added = (endV - startV) - change;
-      const changePct = TEI.calc.chainedGrowthPct(series, joined, startKey, endKey) || 0;
-      periodValueEl.textContent = (changePct>=0?'+':'')+changePct.toFixed(1)+'%';
-      periodValueEl.className = 'v ' + (changePct>=0?'traj-up':'traj-down');
-      periodSubEl.textContent = `${fmtGBP(startV)} → ${fmtGBP(endV)} (${change>=0?'+':''}${fmtGBP(change)}${added>0.5 ? ' + '+fmtGBP(added)+' from accounts added' : ''})`;
+      const r = TEI.calc.moneyWeightedReturn(series, TEI.calc.moneyInByMonth(client, months), startKey, endKey);
+      const pct = r.periodPct || 0;
+      const signed = v => (v<0?'-':'+')+fmtGBP(Math.abs(v));
+      periodValueEl.textContent = (pct>=0?'+':'')+pct.toFixed(1)+'%';
+      periodValueEl.className = 'v ' + (pct>=0?'traj-up':'traj-down');
+      periodSubEl.textContent = `${fmtGBP(r.start)} → ${fmtGBP(r.end)}: ${signed(r.growth)} growth${Math.abs(r.paidIn)>=0.5 ? ', '+signed(r.paidIn)+' new money' : ''}`;
     } else {
       periodValueEl.textContent = '—'; periodValueEl.className = 'v';
       periodSubEl.textContent = 'Not enough history for this range yet.';
@@ -6550,6 +6614,9 @@ TEI.render = TEI.render || {};
     if(wrap.dataset.wired) return;
     wrap.querySelectorAll('button').forEach(btn=>{
       btn.addEventListener('click', ()=>{ currentRange = btn.dataset.range; renderTimeline(client); });
+    });
+    document.querySelectorAll('#timelineViewToggle button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{ currentView = btn.dataset.view; renderTimeline(client); });
     });
     wrap.dataset.wired = '1';
   }
@@ -6688,14 +6755,16 @@ TEI.render = TEI.render || {};
       const yearAgo = new Date(now.getFullYear()-1, now.getMonth(), 1);
       const yearAgoKey = yearAgo.getFullYear()+'-'+String(yearAgo.getMonth()+1).padStart(2,'0');
       const baseKey = keys.find(k=>k>=yearAgoKey) || keys[0];
+      // Same money-weighted split as the Wealth Overview stats.
       const series = TEI.calc.buildUnifiedTotals(months);
-      const joined = TEI.calc.joinedByMonth(client, months);
-      const change = TEI.calc.netChange(series, joined, baseKey, latestKey);
-      const addedNote = Object.keys(joined).some(k=> k > baseKey) ? ', not counting accounts added along the way' : '';
-      items.push(`Your net worth has changed by ${change>=0?'+':''}${fmtGBP(change)} ${baseKey===yearAgoKey ? 'over the last 12 months' : 'since '+monthLabel(baseKey)}${addedNote}.`);
+      const moneyIn = TEI.calc.moneyInByMonth(client, months);
+      const r = TEI.calc.moneyWeightedReturn(series, moneyIn, baseKey, latestKey);
+      const signed = v => (v<0?'-':'+')+fmtGBP(Math.abs(v));
+      const when = baseKey===yearAgoKey ? 'Over the last 12 months' : 'Since '+monthLabel(baseKey);
+      items.push(`${when} your accounts have changed by ${signed(r.end - r.start)}: ${signed(r.paidIn)} new money and ${signed(r.growth)} growth.`);
 
-      const cagr = TEI.calc.annualisedGrowthPct(series, joined);
-      if(cagr!=null) items.push(`Your annualised wealth growth rate is ${cagr.toFixed(1)}%.`);
+      const ann = TEI.calc.annualisedReturnPct(series, moneyIn);
+      if(ann!=null) items.push(`Your money has earned ${ann.toFixed(1)}% a year, allowing for when you paid it in.`);
     } else {
       items.push(`You've been tracking your wealth for ${keys.length} month${keys.length===1?'':'s'} so far — trends will appear here as more history builds up.`);
     }
@@ -7240,8 +7309,9 @@ TEI.render = TEI.render || {};
   }
 
   /* Investment return -- deliberately separate from the calendar-based
-     accountReturn()/YTD-Annualised-All-time above, which mixes new money in
-     with actual performance. Two possible bases, since neither alone covers
+     YTD/Annualised/All-time (money-weighted from monthly balances, see
+     renderOverview) and accountReturn() (per-account, still mixes new money
+     in): this one is a holdings-level check. Two possible bases, since neither alone covers
      everything: cost basis only exists for priced/cost-tracked holdings;
      deposits works for any account but only as accurate as what's actually
      been logged (opening lump sum + monthly Deposits widget). Resolved down
@@ -7309,27 +7379,31 @@ TEI.render = TEI.render || {};
 
     const series = investmentSeries(client, months, invAccts);
     const keys = Object.keys(series).sort();
-    // Chained with arriving balances taken out (TEI.calc.chainedGrowthPct),
-    // so an investment account added mid-history isn't read as return; and
-    // Annualised stays blank until there's a year of history rather than
-    // falling back to the all-time figure under an "Annualised" label.
-    const joined = TEI.calc.joinedByMonth(client, months, invAccts.map(a=>a.id));
+    // Money-weighted (TEI.calc.moneyWeightedReturn): deposits and investment
+    // accounts added mid-history are money in, not return -- a regular
+    // saver's All-time used to read as thousands of %. Annualised stays
+    // blank until there's a year of history rather than falling back to the
+    // all-time figure under an "Annualised" label.
+    const moneyIn = TEI.calc.moneyInByMonth(client, months, invAccts.map(a=>a.id));
     let ytd = null, ann = null, all = null;
     if(keys.length >= 2){
       const firstKey = keys[0], lastKey = keys[keys.length-1];
-      all = TEI.calc.chainedGrowthPct(series, joined, firstKey, lastKey);
-      ann = TEI.calc.annualisedGrowthPct(series, joined);
+      const allR = TEI.calc.moneyWeightedReturn(series, moneyIn, firstKey, lastKey);
+      all = allR ? allR.periodPct : null;
+      ann = TEI.calc.annualisedReturnPct(series, moneyIn);
       const yearStart = keys.find(k=> k.startsWith(lastKey.slice(0,4)));
-      if(yearStart && yearStart!==lastKey) ytd = TEI.calc.chainedGrowthPct(series, joined, yearStart, lastKey);
+      if(yearStart && yearStart!==lastKey){ const ytdR = TEI.calc.moneyWeightedReturn(series, moneyIn, yearStart, lastKey); ytd = ytdR ? ytdR.periodPct : null; }
     }
     const ytdEl = document.getElementById('poPerfYtd'); ytdEl.textContent = fmtPct(ytd); ytdEl.className = ytd==null ? '' : (ytd>=0?'up':'down');
     const annEl = document.getElementById('poPerfAnn'); annEl.textContent = fmtPct(ann); annEl.className = ann==null ? '' : (ann>=0?'up':'down');
     const annNoteEl = document.getElementById('poAnnNote');
     const annPending = ann==null && keys.length >= 2;
-    annEl.title = annPending ? TEI.calc.annualisedPendingText(series) : '';
+    const tooShort = keys.length >= 2 && TEI.calc.monthsBetween(keys[0], keys[keys.length-1]) < TEI.calc.MIN_ANNUALISED_MONTHS;
+    const annNote = !annPending ? '' : tooShort ? TEI.calc.annualisedPendingText(series) : "Can't be worked out from this history yet.";
+    annEl.title = annNote;
     if(annNoteEl){
       annNoteEl.style.display = annPending ? 'block' : 'none';
-      annNoteEl.textContent = annPending ? 'Annualised: ' + TEI.calc.annualisedPendingText(series) : '';
+      annNoteEl.textContent = annPending ? 'Annualised: ' + annNote : '';
     }
     const allEl = document.getElementById('poPerfAll'); allEl.textContent = fmtPct(all); allEl.className = all==null ? '' : (all>=0?'up':'down');
 
