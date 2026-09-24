@@ -8157,6 +8157,35 @@ TEI.render = TEI.render || {};
     }
     return build();
   }
+  /* Colour tiles so touching tiles look different. The palette's two navies and two golds
+     are near-identical side by side, so neighbours avoid the same colour *family* where
+     possible (else just the exact colour), and ties go to the least-used colour so the
+     treemap doesn't end up mostly navy. Index-only colouring put e.g. two gold tiles together. */
+  const PALETTE_FAMILY = {'#1D3557':'navy', '#274674':'navy', '#C9A84C':'gold', '#B4923A':'gold', '#8FA0C2':'blue'};
+  function treemapColors(tiles){
+    const e = 0.5;
+    const touch = (a,b)=>{
+      const xOverlap = Math.min(a.x1,b.x1) - Math.max(a.x0,b.x0) > e;
+      const yOverlap = Math.min(a.y1,b.y1) - Math.max(a.y0,b.y0) > e;
+      const xAdj = Math.abs(a.x1-b.x0) <= e || Math.abs(b.x1-a.x0) <= e;
+      const yAdj = Math.abs(a.y1-b.y0) <= e || Math.abs(b.y1-a.y0) <= e;
+      return (xAdj && yOverlap) || (yAdj && xOverlap);
+    };
+    const colors = [], uses = {};
+    const leastUsed = list => list.reduce((best,c)=> (uses[c]||0) < (uses[best]||0) ? c : best, list[0]);
+    tiles.forEach((d,i)=>{
+      if(d.isOther){ colors.push(OTHER_COLOR); return; }
+      const near = [];
+      for(let j=0;j<i;j++) if(touch(d,tiles[j])) near.push(colors[j]);
+      const nearFamilies = new Set(near.map(c=>PALETTE_FAMILY[c]));
+      const byFamily = PALETTE.filter(c=>!nearFamilies.has(PALETTE_FAMILY[c]));
+      const byColor = PALETTE.filter(c=>!near.includes(c));
+      const c = byFamily.length ? leastUsed(byFamily) : (byColor.length ? leastUsed(byColor) : PALETTE[i%PALETTE.length]);
+      uses[c] = (uses[c]||0)+1;
+      colors.push(c);
+    });
+    return colors;
+  }
   function renderTreemapInto(hostEl, tooltipEl, weighted, opts={}){
     if(!hostEl) return [];
     hostEl.querySelectorAll('svg').forEach(s=>s.remove());
@@ -8167,6 +8196,7 @@ TEI.render = TEI.render || {};
       ? (opts.mobileTiles ? foldToFit(weighted, width, height, 40, 30) : foldToFit(weighted, width, height, 64, 34))
       : foldOther(weighted);
     const laidOut = layoutTreemap(treemapOrder(folded), 0,0,width,height);
+    const colors = treemapColors(laidOut);
     const svgNS='http://www.w3.org/2000/svg';
     const svg=document.createElementNS(svgNS,'svg');
     svg.setAttribute('viewBox',`0 0 ${width} ${height}`); svg.setAttribute('width','100%'); svg.setAttribute('height',height);
@@ -8178,7 +8208,7 @@ TEI.render = TEI.render || {};
       const g=document.createElementNS(svgNS,'g');
       const rect=document.createElementNS(svgNS,'rect');
       rect.setAttribute('x',rx); rect.setAttribute('y',ry); rect.setAttribute('width',rw); rect.setAttribute('height',rh);
-      rect.setAttribute('rx',small?3:4); rect.setAttribute('fill', d.isOther?OTHER_COLOR:PALETTE[i%PALETTE.length]);
+      rect.setAttribute('rx',small?3:4); rect.setAttribute('fill', colors[i]);
       g.appendChild(rect);
       const minLabelW = small?24:34, minLabelH = small?18:24;
       if(rw>=minLabelW && rh>=minLabelH){
@@ -8187,14 +8217,23 @@ TEI.render = TEI.render || {};
         t1.setAttribute('fill','#F7F4ED'); t1.setAttribute('font-weight','700');
         const t1Size = small? Math.min(10,rw/6) : (opts.mobileTiles ? Math.max(11, Math.min(15,rw/6)) : Math.min(16,rw/6));
         t1.setAttribute('font-size', t1Size+'px'); t1.setAttribute('font-family','Inter,sans-serif');
+        let inlinePct = null;
         let t1Text = d.ticker || d.name; // some holdings genuinely have no ticker on file -- fall back to name rather than a blank tile
         if(opts.mobileTiles){
           // Mobile treemap only: "Other (n)", and shorten any label that would overrun its tile with an ellipsis.
-          if(d.isOther) t1Text = `Other (${d.members.length})`;
           const maxChars = Math.floor((rw-12)/(t1Size*0.6));
+          if(d.isOther) t1Text = `Other (${d.members.length})`.length <= maxChars ? `Other (${d.members.length})` : 'Other';
           if(t1Text.length > maxChars) t1Text = t1Text.slice(0, Math.max(1, maxChars-1)) + '…';
+          // Too short for the % on its own line (e.g. a 40px-high tile): put it after the ticker if it fits.
+          if(rh<=44 && (t1Text + ' ' + fmtPct(d.weight)).length <= maxChars) inlinePct = fmtPct(d.weight);
         }
         t1.textContent = t1Text;
+        if(inlinePct){
+          const ts=document.createElementNS(svgNS,'tspan');
+          ts.setAttribute('font-weight','400'); ts.setAttribute('fill','rgba(247,244,237,0.85)');
+          ts.textContent = ' ' + inlinePct;
+          t1.appendChild(ts);
+        }
         g.appendChild(t1);
         if(!small && rh>44){
           const t2=document.createElementNS(svgNS,'text');
@@ -8225,7 +8264,7 @@ TEI.render = TEI.render || {};
       }
       svg.appendChild(g);
     });
-    return folded;
+    return laidOut.map((d,i)=>({...d, color:colors[i]})); // same order as the tiles, with the colour each one got
   }
 
   /* ---------------------------- top-level render ---------------------------- */
@@ -8248,7 +8287,7 @@ TEI.render = TEI.render || {};
     const weighted = withWeights(state.holdings);
     // Only holdings too small to label fold into "Other" (see foldToFit); mobile also gets "Other (n)" labels.
     const folded = renderTreemapInto(host, tooltip, weighted, isMobileWidth() ? {fitTiles:true, mobileTiles:true} : {fitTiles:true});
-    legendEl.innerHTML = folded.map((d,i)=>`<div class="lg"><span class="sw" style="background:${d.isOther?OTHER_COLOR:PALETTE[i%PALETTE.length]}"></span>${d.isOther?`Other (${d.members.length})`:d.name} · ${fmtPct(d.weight)}</div>`).join('');
+    legendEl.innerHTML = folded.map(d=>`<div class="lg"><span class="sw" style="background:${d.color}"></span>${d.isOther?`Other (${d.members.length})`:d.name} · ${fmtPct(d.weight)}</div>`).join('');
   }
 
   function isMobileWidth(){ return !!(window.matchMedia && window.matchMedia('(max-width:860px)').matches); }
