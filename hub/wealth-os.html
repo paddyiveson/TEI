@@ -4895,21 +4895,29 @@ window.TEI = window.TEI || {};
     return Math.min(999, (nw/budgetFi.fiTarget)*100);
   }
 
+  /* Round net-worth milestones. Close together early on (roughly 20-50% apart) so the next one
+     is always within reach -- the old list jumped straight from nothing to £100k, then £250k.
+     Beyond the list: every £500k. Also drives the "Passed £X net worth" milestones. */
+  const ROUND_MILESTONES = [10000,25000,50000,75000,100000,150000,200000,250000,300000,400000,
+    500000,600000,750000,1000000,1250000,1500000,2000000];
+  function nextRoundMilestone(nw){
+    return ROUND_MILESTONES.find(t=>t>nw) || (Math.ceil((nw+1)/500000)*500000);
+  }
   function nextMilestone(client){
     const nw = latestNetWorth(client);
     // `current` is what progress is measured against: a goal's own linked accounts (same
     // figure as its goal card -- whole net worth here made "Liquid £100k" read 60% on this
-    // card but 39% on the goal card), or net worth for the round-number fallback.
-    const upcoming = (client.goals||[])
+    // card but 39% on the goal card), or net worth for a round number.
+    const goals = (client.goals||[])
       .filter(g=>g.progressType==='monetary' || !g.progressType)
       .map(g=>({label:g.name, target:Number(g.targetAmount)||0, current:goalProgress(client, g).current}))
-      .filter(g=>g.target > nw)
-      .sort((a,b)=>a.target-b.target);
-    if(upcoming.length) return upcoming[0];
-    const roundTargets = [100000,250000,500000,750000,1000000,1500000,2000000];
-    const next = roundTargets.find(t=>t>nw) || (Math.ceil((nw+1)/500000)*500000);
-    // Name the figure itself ("£100,000 net worth"), not the vague "Next round number".
-    return {label:'£'+next.toLocaleString('en-GB')+' net worth', target:next, current:nw, isRound:true};
+      .filter(g=>g.target > nw);
+    const next = nextRoundMilestone(nw);
+    // Name the figure itself ("£75,000 net worth"), not the vague "Next round number".
+    const round = {label:'£'+next.toLocaleString('en-GB')+' net worth', target:next, current:nw, isRound:true};
+    // Whichever is closest to being reached: a big goal (e.g. Liquid £100k) no longer hides a
+    // round number that's much nearer (e.g. £75k); on a tie the client's own goal wins.
+    return [...goals, round].reduce((best,m)=> (m.target-m.current) < (best.target-best.current) ? m : best);
   }
 
   /* Your Journey — the client's whole relationship with TEI, not just onboarding.
@@ -5777,7 +5785,7 @@ window.TEI = window.TEI || {};
     computeSignals, pickTopSignal, pickSignals, computeNetWorthFact, computeYtdFact,
     computeBudgetAndFI, computeEoyProjection, computeGoalState, computeSDLT, computeNextBestAction,
     computePortfolioCoach,
-    financialFreedomPct, nextMilestone, computeJourney, JOURNEY_STAGES,
+    financialFreedomPct, nextMilestone, ROUND_MILESTONES, computeJourney, JOURNEY_STAGES,
     /* Phase 1 — Client Foundation derived helpers */
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
     netWorth, goalProgress, completion, householdTotals, checkGoalAutoComplete,
@@ -6356,7 +6364,7 @@ TEI.render = TEI.render || {};
     const series = totalNetWorthSeries(client);
     const keys = Object.keys(series).sort();
     const auto = [];
-    const roundMarks = [50000,100000,250000,500000,1000000];
+    const roundMarks = TEI.calc.ROUND_MILESTONES; // same steps as the Next Milestone card
     let seen = new Set();
     keys.forEach(k=>{
       const total = series[k];
