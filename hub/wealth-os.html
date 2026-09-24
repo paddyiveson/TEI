@@ -1892,11 +1892,12 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
   #mGoalsFFHost .k-stat-split .divider{display:none;}
   #mGoalsFFHost .k-stat-split .sp, #goalsOverviewSection .k-stat-split .sp, #goalsOverviewSection .dgrid > div:last-child > .dcard{background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; padding:9px 11px; min-width:0;}
   #mGoalsFFHost .k-stat-split .v{font-size:17px !important;}
-  /* Three stat chips: progress, on track, next achievement (the "Active goals" count is dropped). */
-  #goalsOverviewSection > .dgrid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; order:20; align-items:stretch; margin-bottom:12px;}
+  /* Two stat chips: progress and on track. "Active goals" is dropped, and so is "Next achievement":
+     the goal cards below are in date order with the soonest tagged "Next up", so it only repeated that. */
+  #goalsOverviewSection > .dgrid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; order:20; align-items:stretch; margin-bottom:12px;}
   #goalsOverviewSection .dgrid > div, #goalsOverviewSection .dgrid > div:first-child > .dcard, #goalsOverviewSection .k-stat-split{display:contents;}
   #goalsOverviewSection .k-stat-split > .sp:first-child, #goalsOverviewSection .k-stat-split > .divider{display:none;}
-  #goalsOverviewSection .dgrid > div:last-child > .dcard{display:block; grid-column:auto;}
+  #goalsOverviewSection .dgrid > div:last-child > .dcard{display:none;}
   #goalsOverviewSection .k{font-size:9.5px; letter-spacing:0.04em;}
   #goalsOverviewSection .v{font-size:15px !important;}
   #goalsOverviewSection .sub2{font-size:10.5px; margin-top:2px;}
@@ -4896,16 +4897,19 @@ window.TEI = window.TEI || {};
 
   function nextMilestone(client){
     const nw = latestNetWorth(client);
+    // `current` is what progress is measured against: a goal's own linked accounts (same
+    // figure as its goal card -- whole net worth here made "Liquid £100k" read 60% on this
+    // card but 39% on the goal card), or net worth for the round-number fallback.
     const upcoming = (client.goals||[])
       .filter(g=>g.progressType==='monetary' || !g.progressType)
-      .map(g=>({label:g.name, target:Number(g.targetAmount)||0}))
+      .map(g=>({label:g.name, target:Number(g.targetAmount)||0, current:goalProgress(client, g).current}))
       .filter(g=>g.target > nw)
       .sort((a,b)=>a.target-b.target);
     if(upcoming.length) return upcoming[0];
     const roundTargets = [100000,250000,500000,750000,1000000,1500000,2000000];
     const next = roundTargets.find(t=>t>nw) || (Math.ceil((nw+1)/500000)*500000);
     // Name the figure itself ("£100,000 net worth"), not the vague "Next round number".
-    return {label:'£'+next.toLocaleString('en-GB')+' net worth', target:next, isRound:true};
+    return {label:'£'+next.toLocaleString('en-GB')+' net worth', target:next, current:nw, isRound:true};
   }
 
   /* Your Journey — the client's whole relationship with TEI, not just onboarding.
@@ -5977,7 +5981,6 @@ TEI.render = TEI.render || {};
      logic) so the mobile Plan > Goals view can fill them without rendering
      the whole of Home -- see TEI.render.financialGoalsSummary below. */
   function renderFinancialGoalsSummary(client){
-    const investableNW = TEI.calc.latestNetWorth(client); // accounts only — used for FI/milestone progress
 
     const ffPct = financialFreedomPct(client);
     const budgetFi = TEI.calc.computeBudgetAndFI(client);
@@ -5990,8 +5993,8 @@ TEI.render = TEI.render || {};
       : 'Add your income and expenses in Cashflow to unlock this';
 
     const milestone = nextMilestone(client);
-    const remaining = Math.max(0, milestone.target-investableNW);
-    const milestonePct = Math.min(100,(investableNW/milestone.target*100));
+    const remaining = Math.max(0, milestone.target-milestone.current);
+    const milestonePct = Math.min(100,(milestone.current/milestone.target*100));
     document.getElementById('hcMilestoneLabel').textContent = milestone.label;
     document.getElementById('hcMilestoneSub').textContent = remaining>0
       ? `${milestonePct.toFixed(0)}% there · ${fmtGBP(remaining)} to go · ${estimateCompletionText(remaining, monthlyContrib)}`
@@ -6775,8 +6778,7 @@ TEI.render = TEI.render || {};
     const past = computeMilestones(client).slice(0,3).reverse();
     const monthlyContrib = TEI.calc.totalMonthlyContribution(client);
     const nextM = TEI.calc.nextMilestone(client);
-    const investableNW = TEI.calc.latestNetWorth(client);
-    const remaining = Math.max(0, nextM.target-investableNW);
+    const remaining = Math.max(0, nextM.target-nextM.current);
     const parts = past.map(m=>`<span style="color:var(--k-up-ink);">&#10003; ${m.label}${m.date ? ' · '+monthLabel(m.date.length>7?m.date.slice(0,7):m.date) : ''}</span>`);
     parts.push(`<span style="color:var(--gold); font-weight:600;">&rarr; ${nextM.label}, ${estimateCompletionText(remaining, monthlyContrib)}</span>`);
     document.getElementById('wjMilestones').innerHTML = parts.join(' &middot; ');
