@@ -2345,9 +2345,10 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
         <div class="empty-state" id="timelineEmpty" style="display:none;"><div class="big">No history logged yet</div><div class="small">Net worth history will appear here once monthly balances are logged below.</div></div>
         <div id="whChips" style="display:flex; gap:10px; margin-top:16px; flex-wrap:wrap;">
           <div class="k-boxed-stat">
-            <div class="k">Last year performance</div>
+            <div class="k" id="whLastYearLabel">This year so far</div>
             <div class="v" style="font-size:21px;" id="whLastYearValue">–</div>
             <div class="sub2" id="whLastYearSub">–</div>
+            <div class="sub2" id="whPrevYearSub" style="display:none; margin-top:4px;"></div>
           </div>
           <div class="k-boxed-stat">
             <div class="k">Annualised</div>
@@ -5566,6 +5567,26 @@ window.TEI = window.TEI || {};
     return acctContributionBreakdown(client, accountId).total;
   }
 
+  /* Logging a month's balance used to leave accounts.value (the account's
+     "current value") untouched, so it went stale -- and the Phase 22
+     monthly snapshot carries accounts.value forward, writing that stale
+     figure into the next month (e.g. IG logged £350 for Aug, snapshot wrote
+     £150 for Sep). When the logged month is the account's latest (and not
+     in the future), the current value follows it. Holdings-driven accounts
+     are skipped -- their value is the live holdings total. Returns the
+     account if it changed, for the caller to persist. */
+  function syncAccountValueFromMonth(client, accountId, monthKey, value){
+    const acc = (client.accounts||[]).find(a=>a.id===accountId);
+    if(!acc || accountHasHoldings(client, accountId)) return null;
+    if(monthKey > currentMonthKey()) return null;
+    const later = Object.keys(client.months||{}).some(k=> k > monthKey && (client.months[k]||{})[accountId]!=null);
+    if(later) return null;
+    if(Number(acc.value) === Number(value)) return null;
+    acc.value = value;
+    acc.lastUpdated = new Date().toISOString().slice(0,10);
+    return acc;
+  }
+
   /* ---------- New money vs growth ----------
      An account that shows up partway through a client's history already
      holding money (typical at onboarding: one account logged in August, the
@@ -5679,6 +5700,19 @@ window.TEI = window.TEI || {};
       annualPct = (lo+hi)/2 * 100;
     }
     return { start, end, paidIn, growth, periodPct, annualPct, months: span };
+  }
+  /* Months to measure a calendar year over: from the last logged month of
+     the previous December (so January's movement counts) -- or the year's
+     first logged month if history starts mid-year -- to the year's last
+     logged month. null if there's nothing to compare. */
+  function calendarYearWindow(series, year){
+    const keys = Object.keys(series).sort();
+    const prevDec = (year-1) + '-12', thisDec = year + '-12';
+    const before = keys.filter(k=> k <= prevDec);
+    const fromKey = before.length ? before[before.length-1] : keys.find(k=> k.startsWith(String(year)));
+    const within = keys.filter(k=> k <= thisDec && k.startsWith(String(year)));
+    const toKey = within.length ? within[within.length-1] : null;
+    return (fromKey && toKey && fromKey < toKey) ? { fromKey, toKey } : null;
   }
   /* Annualised figures need a full year of history -- extrapolating one or
      two months to a yearly rate produces nonsense (e.g. 122 trillion %). */
@@ -5803,11 +5837,11 @@ window.TEI = window.TEI || {};
     /* Contribution-vs-holdings reconciliation (Portfolio Overview flags +
        Adviser Workspace "Mark reviewed") */
     RECON_TOLERANCE, depositParts, acctContributionBreakdown, acctContributedTotal, contributionDiscrepancy, fmtDiscrepancy,
-    RELIEF_RATE, isReliefEligible, openingReliefFor,
+    RELIEF_RATE, isReliefEligible, openingReliefFor, syncAccountValueFromMonth,
     /* New money vs growth (accounts added mid-history, annualised minimums) */
     accountStartingBalances, joinedByMonth, netChange, annualisedPendingText, MIN_ANNUALISED_MONTHS,
     /* Money-weighted returns */
-    moneyInByMonth, moneyWeightedReturn, annualisedReturnPct, monthsBetween,
+    moneyInByMonth, moneyWeightedReturn, annualisedReturnPct, monthsBetween, calendarYearWindow,
     isDiscrepancyFlaggable, isDiscrepancyDismissed
   };
 })();
@@ -6423,24 +6457,36 @@ TEI.render = TEI.render || {};
     const series = TEI.calc.buildUnifiedTotals(months);
     const moneyIn = TEI.calc.moneyInByMonth(client, months);
 
+    // Calendar years, not a trailing 12 months -- "last year" read as the
+    // previous calendar year, but a trailing window in September is mostly
+    // the current year (a good 2025 and a down 2026 netted to a loss).
     const lastYearValueEl = document.getElementById('whLastYearValue');
     const lastYearSubEl = document.getElementById('whLastYearSub');
-    if(keys.length<2){
+    const prevYearEl = document.getElementById('whPrevYearSub');
+    const pctText = p => p!=null ? (p>=0?'+':'')+p.toFixed(1)+'%' : '';
+    const gbpSigned = v => (v<0?'-':'+')+fmtGBP(Math.abs(v));
+    const latestYear = keys.length ? Number(keys[keys.length-1].slice(0,4)) : null;
+    const ytdWin = latestYear ? TEI.calc.calendarYearWindow(series, latestYear) : null;
+    if(!ytdWin){
       lastYearValueEl.textContent = '—';
       lastYearValueEl.className = 'v';
-      lastYearSubEl.textContent = 'Log at least two months to see this.';
+      lastYearSubEl.textContent = keys.length<2 ? 'Log at least two months to see this.' : 'Log another month this year to see this.';
     } else {
-      const latestKey = keys[keys.length-1];
-      const now = new Date(latestKey+'-01');
-      const yearAgo = new Date(now.getFullYear()-1, now.getMonth(), 1);
-      const yearAgoKey = yearAgo.getFullYear()+'-'+String(yearAgo.getMonth()+1).padStart(2,'0');
-      const baseKey = keys.find(k=>k>=yearAgoKey) || keys[0];
-      const r = TEI.calc.moneyWeightedReturn(series, moneyIn, baseKey, latestKey);
-      lastYearValueEl.textContent = (r.growth>=0?'+':'-')+fmtGBP(Math.abs(r.growth));
+      const r = TEI.calc.moneyWeightedReturn(series, moneyIn, ytdWin.fromKey, ytdWin.toKey);
+      lastYearValueEl.textContent = gbpSigned(r.growth);
       lastYearValueEl.className = 'v ' + (r.growth>=0?'traj-up':'traj-down');
-      lastYearSubEl.textContent = (r.periodPct!=null ? (r.periodPct>=0?'+':'')+r.periodPct.toFixed(1)+'% growth · ' : '')
+      lastYearSubEl.textContent = (r.periodPct!=null ? pctText(r.periodPct)+' growth · ' : '')
         + (Math.abs(r.paidIn)>=0.5 ? 'plus '+(r.paidIn<0?'-':'')+fmtGBP(Math.abs(r.paidIn))+' new money · ' : '')
-        + 'since '+monthLabel(baseKey)+(baseKey===yearAgoKey?'':' (earliest logged)');
+        + 'since '+monthLabel(ytdWin.fromKey);
+    }
+    const prevWin = latestYear ? TEI.calc.calendarYearWindow(series, latestYear-1) : null;
+    if(prevWin){
+      const p = TEI.calc.moneyWeightedReturn(series, moneyIn, prevWin.fromKey, prevWin.toKey);
+      const partial = !prevWin.fromKey.startsWith(String(latestYear-2)) || !prevWin.toKey.endsWith('-12');
+      prevYearEl.style.display = 'block';
+      prevYearEl.textContent = `${latestYear-1}${partial?' (part year)':''}: ${gbpSigned(p.growth)} growth${p.periodPct!=null ? ' ('+pctText(p.periodPct)+')' : ''}`;
+    } else {
+      prevYearEl.style.display = 'none';
     }
 
     const cagrValueEl = document.getElementById('whCagrValue');
@@ -7391,8 +7437,9 @@ TEI.render = TEI.render || {};
       const allR = TEI.calc.moneyWeightedReturn(series, moneyIn, firstKey, lastKey);
       all = allR ? allR.periodPct : null;
       ann = TEI.calc.annualisedReturnPct(series, moneyIn);
-      const yearStart = keys.find(k=> k.startsWith(lastKey.slice(0,4)));
-      if(yearStart && yearStart!==lastKey){ const ytdR = TEI.calc.moneyWeightedReturn(series, moneyIn, yearStart, lastKey); ytd = ytdR ? ytdR.periodPct : null; }
+      // From last December (TEI.calc.calendarYearWindow) so January counts.
+      const ytdWin = TEI.calc.calendarYearWindow(series, Number(lastKey.slice(0,4)));
+      if(ytdWin){ const ytdR = TEI.calc.moneyWeightedReturn(series, moneyIn, ytdWin.fromKey, ytdWin.toKey); ytd = ytdR ? ytdR.periodPct : null; }
     }
     const ytdEl = document.getElementById('poPerfYtd'); ytdEl.textContent = fmtPct(ytd); ytdEl.className = ytd==null ? '' : (ytd>=0?'up':'down');
     const annEl = document.getElementById('poPerfAnn'); annEl.textContent = fmtPct(ann); annEl.className = ann==null ? '' : (ann>=0?'up':'down');
@@ -9303,6 +9350,14 @@ TEI.render = TEI.render || {};
     });
     client.months[key] = entry;
     client.monthsMeta[key] = metaEntry;
+    // Keep each manual account's current value in step with its latest
+    // logged month (TEI.calc.syncAccountValueFromMonth).
+    for(const item of toSave){
+      const acc = TEI.calc.syncAccountValueFromMonth(client, item.id, key, item.v);
+      if(!acc) continue;
+      try{ await TEI.wealthOS.saveAccount(client.meta.clientId, acc.id, acc); }
+      catch(err){ console.error('Wealth OS: failed to sync account value from monthly balance', err); }
+    }
     renderBalancesMonthlyWidget(client);
     TEI.app.showToast('Saved ' + key);
   }
@@ -11562,6 +11617,15 @@ window.TEI = window.TEI || {};
     });
     client.months[key] = entry;
     client.monthsMeta[key] = metaEntry;
+    // Keep each manual account's current value in step with its latest
+    // logged month (TEI.calc.syncAccountValueFromMonth).
+    for(const item of toSave){
+      const acc = TEI.calc.syncAccountValueFromMonth(client, item.id, key, item.v);
+      if(!acc) continue;
+      try{ await TEI.wealthOS.saveAccount(client.meta.clientId, acc.id, acc); }
+      catch(err){ console.error('Wealth OS: failed to sync account value from monthly balance', err); }
+    }
+    renderAccounts();
     renderMonthHistory('accounts');
     showToast('Saved ' + key);
     // A logged balance can be exactly what completes a "monetary" goal
