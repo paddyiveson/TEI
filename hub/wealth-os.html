@@ -1170,6 +1170,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 #clientApp[data-theme="light"] .k-range-toggle{background:rgba(247,244,237,0.12);}
 .k-range-toggle button{border:none; background:transparent; padding:6px 14px; border-radius:16px; font-size:12.5px; font-weight:600; color:rgba(247,244,237,0.6); cursor:pointer; font-family:var(--font-body);}
 .k-range-toggle button.active{background:var(--gold); color:#16293F; font-weight:700;}
+.wh-refresh-icon{display:none;} /* mobile swaps the Net worth card's "Refresh live prices" label for this icon */
 
 .k-boxed-stat{flex:1; min-width:140px; background:var(--k-track-bg); border-radius:8px; padding:12px 14px;}
 
@@ -1771,11 +1772,25 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
   /* The Journey and Insights cards carry an inline display:flex, so the view filters need !important. */
   #clientApp[data-mview="overview"] #wealthJourneyCard, #clientApp[data-mview="journey"] #wealthInsightsCard{display:none !important;}
 
-  /* Net worth card: figure + pills, period selector row, ~150px chart, 3 chips. */
-  #page-progress .dcard.emphasis > div:first-child{gap:6px !important;}
-  #page-progress .dcard.emphasis > div:first-child > div:last-child{flex-direction:row !important; width:100%; justify-content:space-between; align-items:center !important;}
+  /* Net worth card: figure + pills, then the chart as the card's hero (~260px, straight under
+     the figure), then one compact control row (period + refresh icon + Update), then 3 chips.
+     The header wrapper goes display:contents so its two halves can sit either side of the
+     chart; every child gets an explicit order since unordered ones would jump to the top. */
+  #page-progress .dcard.emphasis{display:flex; flex-direction:column;}
+  #page-progress .dcard.emphasis > div:first-child{display:contents !important;} /* beats its inline display:flex */
+  #page-progress .dcard.emphasis > div:first-child > div:first-child{order:1;}
+  #page-progress .dcard.emphasis .k-chart-box, #page-progress #timelineEmpty{order:2;}
+  #page-progress .dcard.emphasis > div:first-child > div:last-child{order:3; flex-direction:row !important; flex-wrap:nowrap; width:100%; justify-content:space-between; align-items:center !important; gap:8px; margin-top:10px;}
+  #page-progress #whPricesStatus{order:4; margin:6px 0 0 !important;}
+  #page-progress #whContribNote{order:5; font-size:11px; line-height:1.45; margin-top:8px !important;}
+  #page-progress #whChips{order:6;}
+  #page-progress #timelineMilestones{order:7;}
   #page-progress .dcard.emphasis .v.big{font-size:30px; line-height:1.1; margin:2px 0 0;}
-  #page-progress .dcard.emphasis .k-chart-box{height:150px !important; margin-top:6px; padding:8px 4px 2px;}
+  #page-progress .dcard.emphasis .k-chart-box{height:260px !important; margin:12px -5px 0; padding:8px 2px 2px;}
+  #page-progress #timelineRangeToggle button{padding:6px 12px;}
+  #page-progress #whRefreshPricesBtn{padding:4px 10px !important; font-size:15px !important; line-height:1;}
+  #page-progress #whRefreshPricesBtn .wh-refresh-full{display:none;}
+  #page-progress #whRefreshPricesBtn .wh-refresh-icon{display:inline;}
   #page-progress #whChips{flex-wrap:nowrap !important; gap:6px !important; margin-top:8px !important;}
   #page-progress .k-boxed-stat{flex:1 1 0; min-width:0 !important; padding:8px 6px; text-align:center;}
   #page-progress .k-boxed-stat .k{font-size:9.5px; letter-spacing:0.04em;}
@@ -2329,7 +2344,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
               <button type="button" data-range="all">All</button>
             </div>
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-              <button type="button" class="btn-ghost" id="whRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+              <button type="button" class="btn-ghost" id="whRefreshPricesBtn" aria-label="Refresh live prices" title="Refresh live prices" style="padding:5px 12px; font-size:11px; white-space:nowrap;"><span class="wh-refresh-full">Refresh live prices</span><span class="wh-refresh-icon" aria-hidden="true">↻</span></button>
               <a href="#" class="btn-primary navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
             </div>
           </div>
@@ -6495,14 +6510,28 @@ TEI.render = TEI.render || {};
       contribNoteEl.style.display = (hasContributions && n) ? 'block' : 'none';
       contribNoteEl.textContent = n ? `Contributions include the starting balance of ${n} account${n===1?'':'s'} with no contribution data yet, so the gap shows growth since tracking began. Add their contributions before tracking started (My Details → Accounts) for the full picture.` : '';
     }
-    const datasets = [{label:'Net worth', data:filteredKeys.map(k=>series[k]), borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.14)', fill:true, tension:0.3, pointRadius:0, borderWidth:2.5}];
+    // Gold fade under the line (strong at the top, clear at the baseline) rather than a flat
+    // 14% gold wash, which read as a muddy grey block over the navy card.
+    const netWorthFill = ({chart})=>{
+      const area = chart.chartArea;
+      if(!area) return 'rgba(201,168,76,0.14)';
+      const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+      g.addColorStop(0, 'rgba(201,168,76,0.32)');
+      g.addColorStop(1, 'rgba(201,168,76,0)');
+      return g;
+    };
+    const datasets = [{label:'Net worth', data:filteredKeys.map(k=>series[k]), borderColor:'#C9A84C', backgroundColor:netWorthFill, fill:true, tension:0.3, pointRadius:0, pointHoverRadius:5, borderWidth:2.5}];
     if(hasContributions){
       datasets.push({label:'Contributions', data:filteredKeys.map(k=>contribSeries[k]), borderColor:'rgba(247,244,237,0.55)', backgroundColor:'transparent', borderDash:[5,4], fill:false, tension:0.3, pointRadius:0, borderWidth:2});
     }
+    // Phones: fewer, flat date labels (not ~7 labels rotated 45°, which ate the plot's height)
+    // and a tooltip wherever you touch the plot, not only right on the line.
+    const narrow = !!(window.matchMedia && window.matchMedia('(max-width:860px)').matches);
     makeChart('chartWealthTimeline', {
       type:'line',
       data:{labels:filteredKeys.map(k=>monthLabel(k)), datasets},
       options:{maintainAspectRatio:false,
+        interaction:{mode:'index', intersect:false},
         plugins:{
           /* Fixed light-cream, not currentInk() -- this chart lives in a
              .dcard.emphasis card, which stays dark navy in both themes (see
@@ -6513,8 +6542,8 @@ TEI.render = TEI.render || {};
           tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}
         },
         scales:{
-          y:{ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, callback:v=>'£'+(v/1000)+'k'}, grid:{color:'rgba(247,244,237,0.12)'}},
-          x:{grid:{display:false}, ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, maxTicksLimit:10}}
+          y:{ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, maxTicksLimit: narrow?5:undefined, callback:v=>'£'+(v/1000)+'k'}, grid:{color:'rgba(247,244,237,0.12)'}},
+          x:{grid:{display:false}, ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, maxTicksLimit: narrow?4:10, maxRotation: narrow?0:50, autoSkipPadding:8}}
         }
       }
     });
