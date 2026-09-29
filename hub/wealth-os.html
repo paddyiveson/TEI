@@ -5577,6 +5577,29 @@ window.TEI = window.TEI || {};
     const opening = Number(acc.openingContributions)||0;
     return opening > 0 ? Math.round(opening * RELIEF_RATE * 100) / 100 : 0;
   }
+  /* Bonus/relief isn't in the account the moment a deposit is logged: a
+     LISA bonus lands ~4-8 weeks later, relief-at-source pension relief up
+     to ~11 weeks. Relief on a deposit whose month is within `months` of
+     now (the current month counts as 1) is "pending" -- left out of the
+     reconciliation check only, so a fresh deposit doesn't flag its own
+     not-yet-arrived bonus. Contributions totals still count it in full.
+     Once a deposit ages out of its window the relief is expected, and a
+     cash balance/book cost that still lacks it flags as normal. Salary
+     sacrifice arrives with payroll, so it's never pending. */
+  const RELIEF_PENDING_WINDOW = {
+    lisa:    { months: 2, label: 'LISA bonus',  note: 'usually lands 4–8 weeks after deposit' },
+    pension: { months: 3, label: 'tax relief', note: 'usually lands within 11 weeks of the contribution' }
+  };
+  function isReliefPending(acc, monthKey, nowKey){
+    const w = acc && RELIEF_PENDING_WINDOW[acc.type];
+    if(!w || !monthKey) return false;
+    return monthsBetween(monthKey, nowKey || currentMonthKey()) < w.months;
+  }
+  function fmtPendingRelief(acc, amount){
+    const w = acc && RELIEF_PENDING_WINDOW[acc.type];
+    if(!w || !(amount > 0)) return '';
+    return `${fmtGBP(amount)} ${w.label} pending (${w.note})`;
+  }
   /* Total contributions to date for one account = opening_contributions
      (money in before monthly tracking started) + its bonus/relief + every
      logged deposit's amount + sacrifice + relief (LISA bonus / pension tax
@@ -5589,13 +5612,17 @@ window.TEI = window.TEI || {};
     // from a genuine £0 -- clients set up with only a lump sum, only
     // monthly history, both, or neither all go through here.
     const openingRelief = acct ? openingReliefFor(acct) : 0;
-    const out = { opening: (acct && Number(acct.openingContributions))||0, openingRelief, paidIn:0, sacrifice:0, relief:openingRelief, total:0, monthsLogged:0, recorded:false };
-    Object.values(client.contribLog||{}).forEach(monthEntry=>{
+    // reliefPending is the part of `relief` still inside its landing window
+    // (RELIEF_PENDING_WINDOW) -- already included in relief/total.
+    const out = { opening: (acct && Number(acct.openingContributions))||0, openingRelief, paidIn:0, sacrifice:0, relief:openingRelief, reliefPending:0, total:0, monthsLogged:0, recorded:false };
+    const nowKey = currentMonthKey();
+    Object.entries(client.contribLog||{}).forEach(([mk, monthEntry])=>{
       const e = monthEntry && monthEntry[accountId];
       if(!e) return;
       out.monthsLogged++;
       const p = depositParts(e);
       out.paidIn += p.paidIn; out.sacrifice += p.sacrifice; out.relief += p.relief;
+      if(p.relief && isReliefPending(acct, mk, nowKey)) out.reliefPending += p.relief;
     });
     out.total = out.opening + out.paidIn + out.sacrifice + out.relief;
     out.recorded = out.opening !== 0 || out.monthsLogged > 0;
@@ -5777,7 +5804,11 @@ window.TEI = window.TEI || {};
     // its own apples-to-apples check before being added to the total.
     let contributed = 0, accountedFor = 0, uncostedHoldings = 0, anyStated = false;
     scopedAccounts.forEach(a=>{
-      const acctContributed = acctContributedTotal(client, a.id);
+      // Bonus/relief still inside its landing window isn't expected in the
+      // account yet (see RELIEF_PENDING_WINDOW) -- checked on what should
+      // have arrived by now, not everything contributed.
+      const cb = acctContributionBreakdown(client, a.id);
+      const acctContributed = cb.total - cb.reliefPending;
       if(!acctContributed) return;
       const acctHoldings = client.holdings.filter(h=>h.accountId===a.id);
       const hasCashBalance = (Number(a.cashBalance)||0) > 0;
@@ -5876,6 +5907,7 @@ window.TEI = window.TEI || {};
        Adviser Workspace "Mark reviewed") */
     RECON_TOLERANCE, depositParts, acctContributionBreakdown, acctContributedTotal, contributionDiscrepancy, fmtDiscrepancy,
     RELIEF_RATE, isReliefEligible, openingReliefFor, syncAccountValueFromMonth,
+    RELIEF_PENDING_WINDOW, isReliefPending, fmtPendingRelief,
     /* New money vs growth (accounts added mid-history, annualised minimums) */
     accountStartingBalances, joinedByMonth, netChange, annualisedPendingText, MIN_ANNUALISED_MONTHS,
     /* Money-weighted returns */
@@ -7562,10 +7594,14 @@ TEI.render = TEI.render || {};
       ].filter(Boolean).join('');
       const acctDisc = discByAccount[a.id];
       const warnIcon = acctDisc ? `<svg class="ap-warn-icon" viewBox="0 0 24 24" fill="none" title="${TEI.calc.fmtDiscrepancy(acctDisc).replace(/"/g,'&quot;')}"><path d="M12 3L22 20H2L12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>` : '';
+      // Neutral, not a warning: bonus/relief not expected to have landed yet.
+      const pendingText = TEI.calc.fmtPendingRelief(a, TEI.calc.acctContributionBreakdown(client, a.id).reliefPending);
+      const pendingNote = pendingText ? `<div class="ap-pending" data-relief-pending="${a.id}" style="font-size:11px; color:var(--cream-soft2); margin-top:4px;">${pendingText}</div>` : '';
       return `<div class="k-acct-pill">
         <div class="ap-name">${TEI.data.acctLabel(a)}${warnIcon}</div>
         <div class="ap-value">${fmtGBP(val)}</div>
         <div class="ap-meta">${badges}</div>
+        ${pendingNote}
       </div>`;
     }).join('');
   }
@@ -11377,6 +11413,8 @@ window.TEI = window.TEI || {};
       // deposit (TEI.calc.acctContributionBreakdown -- same total the
       // reconciliation check above uses).
       const cb = TEI.calc.acctContributionBreakdown(client, acc.id);
+      const pendingText = TEI.calc.fmtPendingRelief(acc, cb.reliefPending);
+      if(pendingText) discRow += `<div class="ep-warn" data-relief-pending="${acc.id}" style="color:var(--cream-soft2);">${pendingText}</div>`;
       const cbPaidIn = cb.opening + cb.paidIn;
       let cbDetail = '';
       if(cb.relief > 0){
