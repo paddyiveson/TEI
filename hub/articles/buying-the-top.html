@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Investors Buy at the Top | The Everyday Investor</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Spectral:wght@400;500;600&display=swap');
+
+:root {
+  --navy: #1D3557;
+  --navy-dk: #0f1e3a;
+  --navy-md: #2B4C7E;
+  --blue-grey: #5C7290;
+  --cream: #F7F4ED;
+  --cream-dk: #EDE8DA;
+  --gold: #C9A84C;
+  --gold-dk: #b8922d;
+  --gold-lt: #FBF4E0;
+  --text: #1a1a2e;
+  --mid: #4a5568;
+  --lt: #718096;
+  --white: #ffffff;
+  --radius: 10px;
+  --shadow: 0 4px 28px rgba(29,53,87,.10);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+/* -- HEADER BAR -- */
+nav {
+  background: var(--navy);
+  width: 100%;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 48px;
+}
+.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-logo-mark {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: var(--gold); flex-shrink: 0;
+}
+.nav-logo-text {
+  font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
+  color: var(--gold); font-weight: 600; line-height: 1.35;
+}
+.nav-back {
+  color: rgba(247,244,237,.65); text-decoration: none;
+  font-size: 13px; font-weight: 500; letter-spacing: .03em;
+}
+.nav-back:hover { color: var(--gold); }
+
+/* -- ARTICLE HERO -- */
+.article-hero {
+  max-width: 760px; margin: 0 auto; padding: 56px 24px 32px;
+  text-align: left;
+}
+.eyebrow {
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dk);
+  margin-bottom: 18px;
+}
+.article-hero h1 {
+  font-family: 'Playfair Display', serif; font-weight: 700;
+  font-size: 42px; line-height: 1.15; color: var(--navy);
+  margin-bottom: 18px;
+}
+.article-hero .dek {
+  font-size: 19px; color: var(--mid); max-width: 640px; line-height: 1.55;
+  font-weight: 500;
+}
+.article-meta {
+  display: flex; gap: 18px; margin-top: 24px; padding-top: 20px;
+  border-top: 1px solid var(--cream-dk);
+  font-size: 12.5px; color: var(--lt); letter-spacing: .02em;
+}
+
+/* -- BODY -- */
+.article-body { max-width: 700px; margin: 0 auto; padding: 0 24px 72px; }
+.article-body p { color: var(--text); margin-bottom: 18px; font-size: 16.5px; max-width: 640px; }
+.article-body p.close { color: var(--mid); font-size: 15.5px; }
+
+/* -- VISUAL BLOCKS -- */
+.visual-block {
+  background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 28px 28px 20px; margin: 28px 0 32px;
+}
+.visual-title {
+  font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px;
+  color: var(--navy); margin-bottom: 4px;
+}
+.visual-sub {
+  font-size: 13.5px; color: var(--lt); margin-bottom: 18px;
+}
+.chart-svg { width: 100%; height: auto; display: block; }
+.axis-label { font: 500 11px 'Inter', sans-serif; fill: var(--lt); }
+.data-label { font: 600 13px 'Spectral', serif; fill: var(--navy); }
+.annotation { font: 500 12px 'Inter', sans-serif; fill: var(--blue-grey); }
+.grid-line { stroke: var(--cream-dk); stroke-width: 1; }
+.curve-line { fill: none; stroke: var(--gold-dk); stroke-width: 3; stroke-linecap: round; }
+.bubble-quiet { fill: var(--blue-grey); opacity: .85; }
+.bubble-loud { fill: var(--gold-dk); opacity: .9; }
+.peak-line { stroke: var(--blue-grey); stroke-width: 1; stroke-dasharray: 4 4; }
+.peak-label { font: 600 11px 'Inter', sans-serif; fill: var(--navy); letter-spacing: .08em; }
+.fall-line { fill: none; stroke: var(--blue-grey); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 7; }
+.visual-caption {
+  font-size: 12.5px; color: var(--lt); line-height: 1.6; margin-top: 14px;
+  padding-top: 14px; border-top: 1px solid var(--cream-dk);
+}
+
+/* -- STAT PAIR -- */
+.stat-pair { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 4px; }
+.stat-item { flex: 1; min-width: 170px; background: var(--cream); border-radius: 8px; padding: 22px 18px; text-align: center; }
+.stat-item.market { border-top: 3px solid var(--gold-dk); }
+.stat-item.investor { border-top: 3px solid var(--blue-grey); }
+.stat-num { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 32px; color: var(--navy); }
+.stat-label { font-size: 12.5px; color: var(--mid); margin-top: 6px; }
+
+.pull-quote {
+  font-family: 'Spectral', serif; font-style: italic; font-size: 20px;
+  color: var(--navy-md); line-height: 1.5; margin: 8px 0 32px;
+  padding: 4px 0 4px 22px; border-left: 3px solid var(--blue-grey);
+  max-width: 600px;
+}
+.pull-quote cite {
+  display: block; font-family: 'Inter', sans-serif; font-style: normal;
+  font-size: 12.5px; font-weight: 600; color: var(--lt); margin-top: 8px;
+  letter-spacing: .02em;
+}
+
+/* -- FORCES -- */
+.forces { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 4px; }
+.force { background: var(--cream); border-radius: 8px; padding: 18px 16px; border-top: 3px solid var(--gold-dk); }
+.force-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-dk); margin-bottom: 6px; }
+.force h4 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15px; color: var(--navy); line-height: 1.35; margin-bottom: 8px; }
+.force p { font-size: 13.5px; color: var(--mid); line-height: 1.6; }
+@media (max-width: 700px) { .forces { grid-template-columns: 1fr; } }
+.article-body p.bridge { color: var(--mid); font-size: 16px; font-style: italic; }
+
+/* -- FOUNDER NOTE -- */
+.founder-note { background: var(--gold-lt); border-left: 3px solid var(--gold-dk); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px 26px 20px; margin: 28px 0 32px; }
+.founder-note .note-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-dk); margin-bottom: 6px; }
+.founder-note .note-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; color: var(--navy); margin-bottom: 12px; }
+.article-body .founder-note p { font-size: 15.5px; color: var(--text); margin-bottom: 14px; }
+.founder-note .note-sign { font-size: 13px; font-weight: 600; color: var(--mid); margin-top: 4px; }
+.founder-note .note-small { font-size: 12px; color: var(--lt); margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(184,146,45,.25); line-height: 1.6; }
+
+/* -- PRINCIPLES -- */
+.principle-list { display: flex; flex-direction: column; gap: 14px; margin: 8px 0 28px; }
+.principle {
+  background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 18px 22px; border-left: 3px solid var(--gold);
+}
+.principle .num {
+  font-family: 'Spectral', serif; font-size: 14px; font-weight: 600;
+  color: var(--gold-dk); letter-spacing: .04em; margin-bottom: 4px; display: block;
+}
+.principle h3 {
+  font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16px;
+  color: var(--navy); margin-bottom: 5px; line-height: 1.35;
+}
+.principle p { margin-bottom: 0; font-size: 14.5px; color: var(--mid); max-width: none; }
+
+/* -- SUMMARY -- */
+.summary { border-top: 2px solid var(--navy); padding-top: 24px; margin-top: 36px; }
+.article-body .summary-lead {
+  font-family: 'Playfair Display', serif; font-weight: 600; font-size: 21px;
+  color: var(--navy); line-height: 1.35; margin-bottom: 14px;
+}
+.article-body .summary p:last-child { margin-bottom: 0; }
+
+/* -- FOOTER / DISCLAIMER -- */
+footer {
+  background: var(--navy-dk); padding: 36px 24px; margin-top: 8px;
+}
+.footer-inner { max-width: 700px; margin: 0 auto; }
+.disclaimer {
+  font-size: 12.5px; color: rgba(247,244,237,.55); line-height: 1.8;
+  margin-bottom: 14px;
+}
+.sources {
+  font-size: 11.5px; color: rgba(247,244,237,.4); line-height: 1.8;
+}
+
+/* -- WIDE DESKTOP -- */
+@media (min-width: 900px) {
+  .article-hero { max-width: 920px; }
+  .article-body { max-width: 920px; }
+  .article-hero .dek, .article-body p { max-width: 760px; }
+}
+
+@media (max-width: 600px) {
+  nav { padding: 0 20px; }
+  .article-hero { padding: 40px 20px 24px; }
+  .article-hero h1 { font-size: 30px; }
+  .visual-block { padding: 20px 16px 16px; }
+  .stat-pair { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<script>
+/* Safety net: a Supabase password-recovery link can land here instead of
+   /hub/reset-password.html if the project's Site URL falls back to the
+   site root. Forward the code/token on immediately so the reset form still
+   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
+(function () {
+  var search = window.location.search || "";
+  var hash = window.location.hash || "";
+  var params = new URLSearchParams(search);
+  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
+  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
+  if (hasAuthPayload || isRecovery) {
+    window.location.replace("/hub/reset-password.html" + search + hash);
+  }
+})();
+</script>
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/hub/js/hub-gate.js"></script>
+<nav>
+  <a href="/hub/index.html" class="nav-logo">
+    <span class="nav-logo-mark">E</span>
+    <span class="nav-logo-text">The Everyday<br>Investor</span>
+  </a>
+  <a href="/hub/articles.html" class="nav-back">&larr; Back to Articles</a>
+</nav>
+
+<article>
+  <div class="article-hero">
+    <div class="eyebrow">Behaviour &amp; Psychology</div>
+    <h1>Why Investors Buy at the Top</h1>
+    <p class="dek">Rising prices feel like proof a decision was right. This article shows the mechanism that turns a price move into rising confidence, and why that confidence tends to peak exactly when a price has moved furthest from where it started.</p>
+    <div class="article-meta">
+      <span>The Everyday Investor</span>
+      <span>Reading time: 5 minutes</span>
+    </div>
+  </div>
+
+  <div class="article-body">
+
+    <p>A queue outside a shop is not only a sign of demand. It can create demand on its own. A passer-by sees a long line, assumes the line itself is evidence something worthwhile is inside, and joins. The queue grows for reasons that have nothing to do with what is actually being sold.</p>
+
+    <p>Markets run on a similar mechanism. A rising price is visible. It shows up in an account balance, in a headline, in a friend's screenshot of gains. None of that confirms the underlying business has actually improved. It only confirms the price has moved, and a moving price is what draws the next buyer in.</p>
+
+    <div class="visual-block">
+      <div class="visual-title">The Confidence Curve</div>
+      <div class="visual-sub">The line traces price through a full cycle. Bubble size shows how much new buying typically shows up at each stage.</div>
+      <svg class="chart-svg" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Line and bubble chart of a full market cycle. Price rises through pessimism, scepticism and optimism to a peak at euphoria, then falls. New buying is smallest at pessimism when prices are lowest, largest at euphoria when prices are highest, and fades after the peak as prices fall.">
+        <line class="grid-line" x1="60" y1="255" x2="650" y2="255"/>
+        <text class="axis-label" x="14" y="44">Higher price</text>
+        <text class="axis-label" x="14" y="245">Lower price</text>
+        <line class="peak-line" x1="490" y1="28" x2="490" y2="255"/>
+        <text class="peak-label" x="518" y="34">THE TOP</text>
+        <path class="curve-line" d="M90,230 Q160,215 220,185 Q290,150 355,125 Q430,100 490,48"/>
+        <path class="fall-line" d="M490,48 Q540,85 560,140 Q585,200 625,215"/>
+        <circle class="bubble-quiet" cx="90" cy="230" r="6"/>
+        <circle class="bubble-quiet" cx="220" cy="185" r="10"/>
+        <circle class="bubble-loud" cx="355" cy="125" r="15"/>
+        <circle class="bubble-loud" cx="490" cy="48" r="20"/>
+        <circle class="bubble-quiet" cx="625" cy="215" r="5"/>
+        <text class="axis-label" x="90" y="278" text-anchor="middle">Pessimism</text>
+        <text class="axis-label" x="220" y="278" text-anchor="middle">Scepticism</text>
+        <text class="axis-label" x="355" y="278" text-anchor="middle">Optimism</text>
+        <text class="axis-label" x="490" y="278" text-anchor="middle">Euphoria</text>
+        <text class="axis-label" x="625" y="278" text-anchor="middle">After the peak</text>
+        <text class="annotation" x="90" y="298" text-anchor="middle">Quietest buying.</text>
+        <text class="annotation" x="90" y="312" text-anchor="middle">Lowest prices.</text>
+        <text class="annotation" x="490" y="298" text-anchor="middle">Loudest buying.</text>
+        <text class="annotation" x="490" y="312" text-anchor="middle">Highest prices.</text>
+        <text class="annotation" x="625" y="298" text-anchor="middle">Late buyers</text>
+        <text class="annotation" x="625" y="312" text-anchor="middle">hold the fall.</text>
+      </svg>
+      <div class="visual-caption">This is an illustrative mechanism, not a chart of any specific market, index or time period. The four rising stages follow Sir John Templeton's description of market cycles. The size and timing of the fall differ in every cycle, and some rises never fully reverse. The pattern describes a tendency across crowds over time, not a prediction about what happens next in any specific case.</div>
+    </div>
+
+    <blockquote class="pull-quote">Bull markets are born on pessimism, grown on skepticism, mature on optimism and die on euphoria.<cite>Sir John Templeton</cite></blockquote>
+
+    <p>Confidence and buying interest tend to rise together with the price itself, not with any new information about value. Each new buyer's decision becomes evidence for the next one. It can look like many people independently confirming the same view. Often it is the same signal, the price going up, being read again and again.</p>
+
+    <p>This does not mean every price rise is empty enthusiasm. Some rallies do track a genuine improvement in a business or a market. The pattern above describes a tendency that shows up across crowds and across market cycles, not a verdict on any specific rally happening right now.</p>
+
+    <p class="bridge">So why does a careful, sensible person end up buying near the top? Rarely through carelessness. Three forces build as a price rises, and they reach their strongest at the same moment.</p>
+
+    <div class="visual-block">
+      <div class="visual-title">Three Forces That Peak at the Top</div>
+      <div class="visual-sub">Each one grows as the price rises, and each one feeds the others.</div>
+      <div class="forces">
+        <div class="force">
+          <div class="force-label">Certainty</div>
+          <h4>Gains start to feel like proof of skill.</h4>
+          <p>After a run of rising prices, it is easy to credit good judgement rather than a rising market. Each win makes the next decision feel safer, and recent gains begin to look like a guide to future ones. Confidence is often highest exactly when the room for disappointment is largest.</p>
+        </div>
+        <div class="force">
+          <div class="force-label">The crowd</div>
+          <h4>Going with everyone else feels like the safe choice.</h4>
+          <p>When friends, colleagues and headlines all point the same way, standing apart feels reckless. Being wrong alongside everyone else is far more comfortable than being wrong alone, so the crowd's view quietly takes the place of independent judgement.</p>
+        </div>
+        <div class="force">
+          <div class="force-label">Fear of missing out</div>
+          <h4>Watching others gain can hurt more than losing.</h4>
+          <p>Seeing other people profit from a rise you sat out stings in a way that is hard to ignore. The urge to make that feeling stop pulls people in late, usually after much of the rise has already happened.</p>
+        </div>
+      </div>
+      <div class="visual-caption">These describe common patterns in how people respond to rising prices, studied in behavioural finance as overconfidence, herding and regret. They are tendencies across crowds, not a diagnosis of any one investor.</div>
+    </div>
+
+    <p>None of these forces is foolish on its own. Confidence after success, trust in what others are doing and regret at missing out are ordinary human responses that serve people well in plenty of everyday situations. The problem is timing. All three are at their most persuasive when the price has risen furthest, which is exactly when the most is already assumed and the least room is left for things to go wrong.</p>
+
+    <p>That is the real answer to the title. Investors rarely buy at the top because they ignore the evidence. They buy there because, at the top, the evidence they can feel has never been more convincing.</p>
+
+    <div class="founder-note">
+      <div class="note-label">From my own portfolio</div>
+      <div class="note-title">Late to a Party I Didn't Know Had Started</div>
+      <p>In late 2021 I bought shares in Enphase Energy, a US maker of solar equipment, at around $220 to $240 each. The story was everywhere. Governments were pushing hard on clean energy, an energy shortage was dominating the headlines, and the investors I followed online were talking about solar as one of the defining trades of the decade. I had seen the chart. The shares had already risen around tenfold since early 2020, but I did not read that as a warning. If anything, the climb felt like proof the story was right.</p>
+      <p>At the time, it did not feel late. It only looked late afterwards. The narrative, the people I was listening to and the rising price were all saying the same thing, and that is exactly the combination this article describes.</p>
+      <p>Buying near the top does not end with the purchase. Because I still believed I was right, every fall looked like a chance to buy more at a better price, and I kept averaging down for four years. The loss hurt, but the bigger cost never appears on a statement: money tied up in one belief that could have been growing somewhere else the whole time.</p>
+      <p>I was not careless. I was carried. When a story, the crowd and the price all agree, the question worth asking is whether I am buying the business or the feeling.</p>
+      <p>I paid for that lesson with my own money, so you do not have to. Spotting the pattern in someone else's mistake is far cheaper than learning it with yours.</p>
+      <div class="note-sign">Founder, The Everyday Investor</div>
+      <div class="note-small">A personal example of a past decision, included to illustrate the pattern above. It is not a view on Enphase today or a recommendation to buy or sell any investment.</div>
+    </div>
+
+    <blockquote class="pull-quote">Be fearful when others are greedy and greedy when others are fearful.<cite>Warren Buffett</cite></blockquote>
+
+    <p>It is simple to say and hard to do, for exactly the reasons above. Acting against the crowd means sitting with the discomfort all three forces create, and it is no guarantee of being right. Sometimes the crowd is right, and a price that looks stretched keeps rising for years. The point is not to bet against every rally, but to notice when a decision is being driven by the feeling rather than by the business.</p>
+
+    <div class="principle-list">
+      <div class="principle">
+        <span class="num">01</span>
+        <h3>A rising price manufactures its own supporting evidence.</h3>
+        <p>Gains that show up in an account balance feel like proof a decision was right, even before anything about the underlying business has been confirmed.</p>
+      </div>
+      <div class="principle">
+        <span class="num">02</span>
+        <h3>Buying because others are buying has a name: herd behaviour.</h3>
+        <p>It is not a verdict on any one person's judgement. It is what a crowd looks like when many people react to the same visible price move rather than to separate evidence.</p>
+      </div>
+      <div class="principle">
+        <span class="num">03</span>
+        <h3>Confidence tends to peak exactly when a price has moved furthest from where the cycle began.</h3>
+        <p>That describes the shape of the pattern. It is not a signal that says a specific price has stopped rising today.</p>
+      </div>
+    </div>
+
+    <p>There is a measurable cost to this pattern, though buying near the top is only part of it. Studies of fund investors compare the return a fund earns with the return its investors actually receive, once the timing of every purchase and sale is counted. The difference is often called the behaviour gap.</p>
+
+    <div class="visual-block">
+      <div class="visual-title">Being in the Market Is Not the Same as Capturing Its Return</div>
+      <div class="visual-sub">One year, US market, 2024</div>
+      <div class="stat-pair">
+        <div class="stat-item market">
+          <div class="stat-num">25.0%</div>
+          <div class="stat-label">The market itself (the S&amp;P 500, a broad measure of US shares)</div>
+        </div>
+        <div class="stat-item investor">
+          <div class="stat-num">16.5%</div>
+          <div class="stat-label">The average investor in US equity funds</div>
+        </div>
+      </div>
+      <div class="visual-caption">2024 was one of the widest gaps of the past decade, and the gap is not fixed: in 2025 it narrowed to under one percentage point. Over longer periods, Morningstar estimates fund investors earn around 1.2 percentage points a year less than the funds they own, because of when they buy and sell. Buying after prices have risen is one cause; selling after they fall is another. These are US figures; other markets and periods will differ.</div>
+    </div>
+
+    <div class="summary">
+      <p class="summary-lead">In short: a rising price feels like evidence, but it is only evidence that the price has risen.</p>
+      <p>Each new buyer reads the move as confirmation, and their buying pushes the price further, drawing in the next. Confidence, the pull of the crowd and the fear of missing out all grow with the price, so buying tends to be loudest near the top of a cycle and quietest near the bottom, the opposite of when prices are most attractive.</p>
+      <p>So next time something you own, or something everyone is talking about, has risen sharply, you can ask: has anything about the business actually changed, or only the price? Am I buying because of what I know, or because others are buying? Those questions won't tell you whether the top has arrived. They make sure your decision rests on more than a moving price.</p>
+    </div>
+
+  </div>
+</article>
+
+<footer>
+  <div class="footer-inner">
+    <p class="disclaimer">The Everyday Investor provides financial coaching and education. We are coaches and educators, not regulated financial advisers, and nothing in this article constitutes personal financial advice or a recommendation to buy, hold, or sell any investment. Please consider your own circumstances, or speak to a regulated adviser, before making financial decisions.</p>
+    <p class="sources">Quotes: Sir John Templeton and Warren Buffett (Berkshire Hathaway 1986 shareholder letter, restated in the New York Times, October 2008). Market-cycle stage framework (pessimism, scepticism, optimism, euphoria): Sir John Templeton. Data: DALBAR Quantitative Analysis of Investor Behavior, 2025 and 2026 reports (average equity fund investor vs the S&amp;P 500, 2024 and 2025). Enphase Energy share price history, 2020 to 2021. Morningstar, Mind the Gap study (investor returns vs fund returns, rolling 10-year periods). The confidence curve is an illustration and does not represent any real market or period.</p>
+  </div>
+</footer>
+
+</body>
+</html>
