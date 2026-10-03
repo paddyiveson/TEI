@@ -1572,6 +1572,36 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 .k-doc-name{font-size:15px; font-weight:600; color:var(--k-ink);}
 .k-doc-meta{font-size:13px; color:var(--k-ink-softer); margin-top:2px;}
 .k-doc-open{font-size:13.5px; font-weight:600; color:var(--k-accent); text-decoration:none; flex:none;}
+button.k-doc-open{background:none; border:0; padding:6px 0 6px 8px; font-family:inherit; cursor:pointer;}
+
+/* Wealth Plan forecast: card on the Forecast page + full-screen viewer (TEI.forecastView) */
+#forecastPlanSlot:empty{display:none;}
+#forecastPlanSlot{padding-top:var(--space-lg); order:-1;}
+@media (max-width:860px){
+  #clientApp[data-mview] #forecastPlanSlot{padding:0; margin:0; align-self:stretch;}
+  #clientApp[data-mview] #forecastPlanSlot .dgrid, #clientApp[data-mview] #forecastPlanSlot .span-12{display:contents;}
+}
+.k-fc-card{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; border-left:3px solid var(--gold);}
+.k-fc-card .k-fc-title{font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--k-ink); margin:0;}
+.k-fc-card .k-fc-meta{font-size:13px; color:var(--k-ink-softer); margin-top:2px;}
+.k-fc-card .btn-primary{flex:none; min-height:40px;}
+html.fcv-open, html.fcv-open body{overflow:hidden;}
+.fcv{position:fixed; inset:0; z-index:10000; display:flex; flex-direction:column; height:100vh; height:100dvh; background:#0F1B2D;}
+.fcv[hidden]{display:none;}
+.fcv-bar{flex:none; display:flex; align-items:center; gap:10px; min-height:52px; padding:env(safe-area-inset-top,0px) max(12px, env(safe-area-inset-right,0px)) 0 max(8px, env(safe-area-inset-left,0px)); background:#1D3557; color:#F7F4ED; border-bottom:2px solid #C9A84C; font-family:'Inter',sans-serif;}
+.fcv-back{flex:none; display:inline-flex; align-items:center; gap:4px; min-height:40px; padding:0 12px 0 6px; font:600 14px 'Inter',sans-serif; color:#F7F4ED; background:transparent; border:1px solid rgba(247,244,237,0.28); border-radius:8px; cursor:pointer;}
+.fcv-back:focus-visible{outline:3px solid #C9A84C; outline-offset:2px;}
+.fcv-title{flex:1; min-width:0; font:500 16px 'Playfair Display',serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.fcv-body{flex:1; min-height:0; position:relative; padding-bottom:env(safe-area-inset-bottom,0px); background:#FFFFFF;}
+.fcv-body iframe{display:block; width:100%; height:100%; border:0;}
+.fcv-status{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center; font:15px 'Inter',sans-serif; color:#5A6B86; background:#FFFFFF;}
+.fcv-status[hidden]{display:none;}
+@media (prefers-color-scheme: dark){ .fcv-body, .fcv-status{background:#0F1B2D; color:#A9B6CC;} }
+#subtab-documents .form-field[hidden]{display:none;}
+.fc-state{margin-top:6px; font-size:12.5px; color:var(--cream-soft);}
+.fc-state details{margin-top:4px;}
+.fc-state summary{cursor:pointer; color:var(--gold);}
+.fc-state ul{margin:6px 0 0; padding-left:16px; max-height:220px; overflow:auto; font-family:ui-monospace,Menlo,Consolas,monospace; font-size:11.5px;}
 
 #clientApp header.hero.k-greeting{padding-top:var(--space-lg); padding-bottom:0;}
 #clientApp header.hero.k-greeting h1{font-family:var(--font-display); font-size:23px; font-weight:500; color:var(--k-ink); margin:0;}
@@ -2011,7 +2041,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
   #page-documents #documentsList{order:20;}
   #clientApp .m-docs-empty{display:block; order:20;}
   #clientApp .m-docs-empty[hidden]{display:none;}
-  #page-documents:not(.m-docs-all) .k-doc-row:not([data-doctype="note"]){display:none;}
+  #page-documents:not(.m-docs-all) .k-doc-row:not([data-doctype="note"]):not([data-doctype="forecast"]){display:none;}
   #page-documents .k-doc-name{font-size:14.5px;}
 
   #clientApp .m-explain{display:flex; align-items:center; gap:6px; min-height:40px; margin:6px 0 0; padding:0; background:none; border:0; color:var(--gold); font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-align:left; -webkit-tap-highlight-color:transparent;}
@@ -2695,6 +2725,8 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 <!-- ============================= PLANNING TOOLS ============================= -->
 <div id="page-planning" class="page">
 <header class="hero wrap k-greeting"><h1>Forecast</h1><div class="sub">Explore how today's choices shape where you end up.</div></header>
+<!-- Wealth Plan forecast card: filled by TEI.forecastView only when the client has a forecast document; empty otherwise. -->
+<div class="wrap" id="forecastPlanSlot"></div>
 
 <section class="wrap" style="padding-top:var(--space-lg);">
   <div class="dgrid" style="align-items:start;">
@@ -4050,9 +4082,10 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
       <div id="documentsListAdv"></div>
       <div class="mini-form">
         <label class="form-field"><span>Name</span><input type="text" id="newDocName" placeholder="e.g. Q3 review notes"></label>
-        <label class="form-field"><span>Type</span><select id="newDocType"><option value="statement">Statement</option><option value="report">Report</option><option value="note">Meeting note</option><option value="other">Other</option></select></label>
-        <label class="form-field"><span>Date</span><input type="date" id="newDocDate"></label>
-        <label class="form-field"><span>Link (optional)</span><input type="text" id="newDocUrl" placeholder="https://…"></label>
+        <label class="form-field"><span>Type</span><select id="newDocType"><option value="statement">Statement</option><option value="report">Report</option><option value="note">Meeting note</option><option value="forecast" data-adviser-only="1">Wealth Plan forecast (.html)</option><option value="other">Other</option></select></label>
+        <label class="form-field" id="newDocFileField" data-adviser-only="1"><span>File (uploads to the client's documents)</span><input type="file" id="newDocFile"></label>
+        <label class="form-field" id="newDocDateField"><span>Date</span><input type="date" id="newDocDate"></label>
+        <label class="form-field" id="newDocUrlField"><span>Link (optional)</span><input type="text" id="newDocUrl" placeholder="https://…"></label>
         <button type="button" class="btn-primary" id="addDocBtn">Add document</button>
       </div>
     </div>
@@ -11182,7 +11215,12 @@ TEI.render = TEI.render || {};
     grid.dataset.built = '1';
   }
 
-  const DOC_TYPE_LABEL = {statement:'ST', report:'RP', note:'MN', other:'DOC'};
+  const DOC_TYPE_LABEL = {statement:'ST', report:'RP', note:'MN', forecast:'FC', other:'DOC'};
+  // Forecast documents open in the full-screen viewer (TEI.forecastView), never as a raw HTML link.
+  function docOpenHTML(d){
+    if(d.type === 'forecast') return `<button type="button" class="k-doc-open" data-forecast-open="${d.id}">Open</button>`;
+    return `<a class="k-doc-open" href="${d.url||'#'}" target="_blank" rel="noopener">Open</a>`;
+  }
 
   function renderDocuments(client){
     const list = document.getElementById('documentsList');
@@ -11193,8 +11231,8 @@ TEI.render = TEI.render || {};
     list.innerHTML = client.documents.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(d=>`
       <div class="k-doc-row" data-doctype="${d.type||''}">
         <div class="k-doc-icon">${DOC_TYPE_LABEL[d.type]||'DOC'}</div>
-        <div class="k-doc-info"><div class="k-doc-name">${d.name}</div><div class="k-doc-meta">${d.date||''}</div></div>
-        <a class="k-doc-open" href="${d.url||'#'}" target="_blank" rel="noopener">Open</a>
+        <div class="k-doc-info"><div class="k-doc-name">${d.name}</div><div class="k-doc-meta">${d.type === 'forecast' ? 'Wealth Plan forecast · ' + (TEI.forecastView ? TEI.forecastView.fmtDate(d.uploadedAt || d.date) : '') : (d.date||'')}</div></div>
+        ${docOpenHTML(d)}
       </div>
     `).join('');
   }
@@ -13297,23 +13335,46 @@ window.TEI = window.TEI || {};
   }
 
   /* ================= DOCUMENTS ================= */
+  /* Documents with a storagePath are real rows in wealth_os.documents with a
+     file in the client-documents bucket (uploaded here via the File field);
+     edits/removals of those go to Supabase. Link-only entries without a file
+     keep the original in-memory behaviour. Only an adviser session can
+     upload/edit/remove stored files (RLS enforces it; the controls are hidden
+     for a client viewing this panel through My Details). */
+  const isAdviserSession = ()=> client && client.meta && client.meta.role === 'adviser';
   function renderDocuments(){
     const list = document.getElementById('documentsListAdv');
+    const adviser = isAdviserSession();
+    document.querySelectorAll('#subtab-documents [data-adviser-only]').forEach(el=>{ el.hidden = !adviser; });
+    toggleDocFileFields();
     list.innerHTML = client.documents.length ? '' : `<div class="empty-state" style="padding:14px 0;"><div class="small">No documents yet.</div></div>`;
     client.documents.forEach(d=>{
+      const stored = !!d.storagePath;
+      const canEdit = !stored || adviser;
+      const isForecast = d.type === 'forecast';
+      const when = stored && TEI.forecastView ? TEI.forecastView.fmtDate(d.uploadedAt) : (d.date||'no date');
       const row = document.createElement('div');
       row.className = 'list-row';
-      row.innerHTML = `<div class="lr-main"><b>${d.name}</b><div class="lr-meta">${d.type} · ${d.date||'no date'}</div></div>
+      row.innerHTML = `<div class="lr-main"><b>${d.name}</b><div class="lr-meta">${isForecast ? 'Wealth Plan forecast' : d.type} · ${when}${stored ? ' · uploaded file' : ''}</div>${isForecast && stored ? `<div class="fc-state" data-fc-state="${d.id}"></div>` : ''}</div>
         <div style="display:flex; gap:8px; flex-none:1;">
-          <button type="button" class="btn-ghost" data-edit-doc="${d.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
-          <button type="button" class="btn-ghost" data-del-doc="${d.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
+          ${isForecast && stored ? `<button type="button" class="btn-ghost" data-forecast-open="${d.id}" style="padding:5px 12px; font-size:11px;">Open</button>` : ''}
+          ${canEdit ? `<button type="button" class="btn-ghost" data-edit-doc="${d.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
+          <button type="button" class="btn-ghost" data-del-doc="${d.id}" style="padding:5px 12px; font-size:11px;">Remove</button>` : ''}
         </div>`;
       list.appendChild(row);
     });
+    // [data-forecast-open] buttons are handled by TEI.forecastView's single delegated click listener.
     list.querySelectorAll('[data-del-doc]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        client.documents = client.documents.filter(d=>d.id!==this.dataset.delDoc);
-        if(editing.document === this.dataset.delDoc) cancelDocEdit();
+      btn.addEventListener('click', async function(){
+        const id = this.dataset.delDoc;
+        const d = client.documents.find(x=>x.id===id); if(!d) return;
+        if(d.storagePath){
+          if(!confirm(`Remove "${d.name}" and its file for this client? Any saved forecast settings for it are removed too.`)) return;
+          try{ await TEI.wealthOS.deleteDocument(d); }
+          catch(err){ console.error('Wealth OS: delete document failed', err); showToast("Couldn't remove the document."); return; }
+        }
+        client.documents = client.documents.filter(x=>x.id!==id);
+        if(editing.document === id) cancelDocEdit();
         renderDocuments();
       });
     });
@@ -13323,36 +13384,93 @@ window.TEI = window.TEI || {};
         editing.document = d.id;
         document.getElementById('newDocName').value = d.name;
         document.getElementById('newDocType').value = d.type;
-        document.getElementById('newDocDate').value = d.date||'';
-        document.getElementById('newDocUrl').value = d.url||'';
+        document.getElementById('newDocDate').value = d.storagePath ? '' : (d.date||'');
+        document.getElementById('newDocUrl').value = d.storagePath ? '' : (d.url||'');
+        document.getElementById('newDocFile').value = '';
+        toggleDocFileFields();
         document.getElementById('addDocBtn').textContent = 'Save changes';
         document.getElementById('newDocName').scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
+    if(adviser && TEI.forecastView) TEI.forecastView.fillAdviserStates(list, client.meta.clientId);
+  }
+  /* A stored file has its own upload date and no link, so Date/Link are hidden
+     while a file is chosen or a stored document is being edited (and the file
+     picker is hidden while editing: a stored file isn't replaced in place --
+     upload a new one, older forecasts are kept). */
+  function toggleDocFileFields(){
+    const fileInput = document.getElementById('newDocFile');
+    const editingDoc = editing.document ? client.documents.find(x=>x.id===editing.document) : null;
+    const stored = !!(editingDoc && editingDoc.storagePath);
+    const hasFile = !!(fileInput && fileInput.files && fileInput.files.length);
+    const fileField = document.getElementById('newDocFileField');
+    if(fileField && isAdviserSession()) fileField.hidden = !!editingDoc;
+    ['newDocDateField','newDocUrlField'].forEach(id=>{ const el = document.getElementById(id); if(el) el.hidden = hasFile || stored; });
   }
   function cancelDocEdit(){
     editing.document = null;
     document.getElementById('addDocBtn').textContent = 'Add document';
-    ['newDocName','newDocDate','newDocUrl'].forEach(id=>document.getElementById(id).value='');
+    ['newDocName','newDocDate','newDocUrl','newDocFile'].forEach(id=>document.getElementById(id).value='');
+    toggleDocFileFields();
   }
-  function addDocument(){
+  let docBusy = false;
+  async function addDocument(){
+    if(docBusy) return;
     const name = document.getElementById('newDocName').value.trim();
-    if(!name){ showToast('Give the document a name'); return; }
     const type = document.getElementById('newDocType').value;
+    const fileInput = document.getElementById('newDocFile');
+    const file = fileInput.files && fileInput.files[0];
+    if(!name && !file){ showToast('Give the document a name'); return; }
     const date = document.getElementById('newDocDate').value || null;
     const url = document.getElementById('newDocUrl').value.trim() || null;
+    const btn = document.getElementById('addDocBtn');
+
     if(editing.document){
       const d = client.documents.find(x=>x.id===editing.document);
       if(!d){ cancelDocEdit(); return; }
-      Object.assign(d, {name, type, date, url});
-      TEI.calc.stampEdit(d, 'adviser');
+      if(!name){ showToast('Give the document a name'); return; }
+      if(d.storagePath){
+        if(type === 'forecast' && !/\.html?$/i.test(d.storagePath)){ showToast('Only an .html file can be a Wealth Plan forecast'); return; }
+        docBusy = true; btn.disabled = true;
+        try{ Object.assign(d, await TEI.wealthOS.updateDocument(d.id, {name, type})); }
+        catch(err){ console.error('Wealth OS: update document failed', err); showToast("Couldn't save the document."); return; }
+        finally{ docBusy = false; btn.disabled = false; }
+      } else {
+        Object.assign(d, {name, type, date, url});
+        TEI.calc.stampEdit(d, 'adviser');
+      }
       cancelDocEdit();
       showToast('Document updated');
-    } else {
-      client.documents.push(TEI.calc.stampEdit({id:uid(), name, type, date, url}, 'adviser'));
-      ['newDocName','newDocDate','newDocUrl'].forEach(id=>document.getElementById(id).value='');
-      showToast('Document added');
+      renderDocuments();
+      return;
     }
+
+    if(file){
+      if(!isAdviserSession()){ showToast('Only your adviser can upload files'); return; }
+      if(type === 'forecast' && !/\.html?$/i.test(file.name)){ showToast('A Wealth Plan forecast must be an .html file'); return; }
+      if(file.size > 20 * 1024 * 1024){ showToast('That file is over the 20 MB limit'); return; }
+      const docName = name || file.name.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
+      docBusy = true; btn.disabled = true; btn.textContent = 'Uploading…';
+      try{
+        const saved = await TEI.wealthOS.uploadDocument(client.meta.clientId, file, docName, type);
+        client.documents.push(saved);
+        cancelDocEdit();
+        showToast(type === 'forecast' ? 'Forecast uploaded' : 'Document uploaded');
+        if(TEI.app && TEI.app.rerenderCurrentPage) TEI.app.rerenderCurrentPage();
+      } catch(err){
+        console.error('Wealth OS: upload document failed', err);
+        showToast("Couldn't upload the file.");
+      } finally {
+        docBusy = false; btn.disabled = false; btn.textContent = editing.document ? 'Save changes' : 'Add document';
+      }
+      renderDocuments();
+      return;
+    }
+
+    if(type === 'forecast'){ showToast('Choose the forecast .html file to upload'); return; }
+    client.documents.push(TEI.calc.stampEdit({id:uid(), name, type, date, url}, 'adviser'));
+    ['newDocName','newDocDate','newDocUrl'].forEach(id=>document.getElementById(id).value='');
+    showToast('Document added');
     renderDocuments();
   }
 
@@ -13779,6 +13897,7 @@ window.TEI = window.TEI || {};
     document.getElementById('saveCashflowBtn').addEventListener('click', saveCashflow);
     document.getElementById('cfEfAccount').addEventListener('change', renderCalculatedSavingStats);
     document.getElementById('addDocBtn').addEventListener('click', addDocument);
+    document.getElementById('newDocFile').addEventListener('change', toggleDocFileFields);
     document.getElementById('csvImportBtn').addEventListener('click', importHoldingsCsv);
     document.getElementById('exportBtn').addEventListener('click', exportClient);
     document.getElementById('markReviewedBtn').addEventListener('click', markUpdatesReviewed);
@@ -15270,10 +15389,7 @@ window.TEI = window.TEI || {};
          the existing render code (TEI.render.documents, which reads d.date
          and d.url and was told not to change) has something sane to show
          rather than blank fields. */
-      documents: (bundle.documents||[]).map(d=>({
-        id:d.id, name:d.name, type:d.type, storagePath:d.storage_path, uploadedAt:d.uploaded_at,
-        date: d.uploaded_at, url: d.storage_path || null
-      })),
+      documents: (bundle.documents||[]).map(docRowToLocal),
 
       // feedback: the client's own bug-report/feedback widget submissions,
       // newest first (already ordered server-side). Adviser-side triage
@@ -15826,8 +15942,72 @@ window.TEI = window.TEI || {};
     });
   }
 
+  /* ---------- documents: real files in the private client-documents bucket ----------
+     Path convention: <client_id>/<timestamp>-<safe filename>, the first folder
+     being the client id is what the bucket's SELECT policy keys on. Uploads,
+     edits and deletes are adviser-only (RLS + storage policies). */
+  const DOCS_BUCKET = 'client-documents';
+  function docRowToLocal(d){
+    return { id:d.id, name:d.name, type:d.type, storagePath:d.storage_path, uploadedAt:d.uploaded_at,
+             date: d.uploaded_at, url: d.storage_path || null };
+  }
+  function cleanDocPath(path){ return String(path||'').replace(/^\/+/, '').replace(/^client-documents\//, ''); }
+  async function uploadDocument(clientId, file, name, type){
+    const safe = String(file.name || 'document').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = clientId + '/' + Date.now() + '-' + safe;
+    // HTML is stored as plain text so a signed URL can never render it as a page;
+    // forecasts are only ever shown through the sandboxed viewer.
+    const isHtml = /\.html?$/i.test(file.name || '') || /html/i.test(file.type || '');
+    const up = await window.teiSupabase.storage.from(DOCS_BUCKET)
+      .upload(path, file, { contentType: isHtml ? 'text/plain;charset=utf-8' : (file.type || 'application/octet-stream'), upsert:false });
+    if(up.error) throw up.error;
+    try{
+      return docRowToLocal(await insertRow('documents', { client_id:clientId, name, type, storage_path:path }));
+    } catch(err){
+      await window.teiSupabase.storage.from(DOCS_BUCKET).remove([path]).catch(()=>{});
+      throw err;
+    }
+  }
+  async function updateDocument(documentId, fields){
+    return docRowToLocal(await updateRow('documents', 'id', documentId, { name:fields.name, type:fields.type }));
+  }
+  async function deleteDocument(doc){
+    await deleteRow('documents', 'id', doc.id); // forecast_state rows go with it (on delete cascade)
+    if(doc.storagePath){
+      const res = await window.teiSupabase.storage.from(DOCS_BUCKET).remove([cleanDocPath(doc.storagePath)]);
+      if(res.error) console.warn('Wealth OS: document row deleted but file removal failed', res.error);
+    }
+  }
+  async function downloadDocumentText(path){
+    const { data, error } = await window.teiSupabase.storage.from(DOCS_BUCKET).download(cleanDocPath(path));
+    if(error) throw error;
+    return await data.text();
+  }
+
+  /* ---------- forecast_state: settings changed inside a forecast document ---------- */
+  async function loadForecastState(documentId){
+    const { data, error } = await wo(window.teiSupabase).from('forecast_state').select('*').eq('document_id', documentId).maybeSingle();
+    if(error) throw error;
+    return data;
+  }
+  async function loadForecastStates(clientId){
+    const { data, error } = await wo(window.teiSupabase).from('forecast_state').select('*').eq('client_id', clientId);
+    if(error) throw error;
+    return data || [];
+  }
+  async function saveForecastState(documentId, clientId, stamp, stateObj){
+    const { error } = await wo(window.teiSupabase).from('forecast_state')
+      .upsert({ document_id:documentId, client_id:clientId, stamp, state:stateObj, updated_at:new Date().toISOString() }, { onConflict:'document_id' });
+    if(error) throw error;
+  }
+  async function deleteForecastState(documentId){
+    await deleteRow('forecast_state', 'document_id', documentId);
+  }
+
   TEI.wealthOS = {
     loadWealthOSClient, loadClientById, openClientAsAdviser, createClient,
+    uploadDocument, updateDocument, deleteDocument, downloadDocumentText,
+    loadForecastState, loadForecastStates, saveForecastState, deleteForecastState,
     linkHousehold, unlinkHousehold, loadHouseholdSummary,
     showLoadError, hideLoadError,
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
@@ -16302,7 +16482,8 @@ window.TEI = window.TEI || {};
     if(nums[1]) nums[1].textContent = '(' + docs.length + ')';
     const empty = page.querySelector('.m-docs-empty');
     if(empty){
-      const showEmpty = !page.classList.contains('m-docs-all') && notes === 0 && docs.length > 0;
+      const forecasts = docs.filter(d=> d.type === 'forecast').length; // forecasts stay visible in the default view
+      const showEmpty = !page.classList.contains('m-docs-all') && notes === 0 && forecasts === 0 && docs.length > 0;
       empty.hidden = !showEmpty;
       empty.innerHTML = `<div class="line">No meeting notes yet. Statements and reports are under <b>All documents</b>.</div>`;
     }
@@ -16925,6 +17106,7 @@ window.TEI = window.TEI || {};
     if(TEI.onboarding && TEI.onboarding.init) TEI.onboarding.init(state.client);
     if(TEI.feedback && TEI.feedback.init) TEI.feedback.init(state.client);
     setMode('client');
+    if(TEI.forecastView) TEI.forecastView.restoreFromHash();
   }
 
   /* ================= THEME ================= */
@@ -16989,6 +17171,8 @@ window.TEI = window.TEI || {};
      handles ?client= the same way). Adviser-only: client-role sessions have
      no list to navigate between, so there's nothing to reconcile for them. */
   function onWealthOSPopState(){
+    // Opening/closing the full-screen forecast viewer only changes the #forecast/ hash; that's not a client switch.
+    if(TEI.forecastView && TEI.forecastView.onPopState()) return;
     if(state.role !== 'adviser') return;
     const urlClientId = new URLSearchParams(location.search).get('client');
     if(urlClientId){
@@ -17010,6 +17194,302 @@ window.TEI = window.TEI || {};
   });
 })();
 
+</script>
+<script>
+window.TEI = window.TEI || {};
+
+/* ================= WEALTH PLAN FORECAST VIEWER =================
+   A client's Wealth Plan forecast is a self-contained HTML file uploaded by
+   the adviser as a 'forecast' document (private client-documents bucket +
+   wealth_os.documents row). The newest one is the current forecast.
+
+   - Forecast page: a card above everything else, only when a forecast exists.
+   - Documents: forecast rows open here, never as a raw HTML download.
+   - Viewer: full-screen, its own #forecast/<docId>/<from> hash route. The file
+     is fetched with the signed-in Supabase client, read as text and rendered
+     via srcdoc in an iframe sandboxed with allow-scripts allow-popups only (no
+     allow-same-origin), so the forecast can never reach the portal session.
+   - Saved settings: the forecast talks to the portal by postMessage only.
+       forecast -> portal {source:"tei-forecast", id, type:"ready"|"save"|"reset", stamp, state}
+       portal -> forecast {source:"tei-host", type:"state", stamp, state}
+     Only messages from this iframe's own window are accepted. "ready" loads
+     wealth_os.forecast_state for the document and posts it back (the forecast
+     ignores it if the stamp doesn't match); "save" upserts (debounced 800ms);
+     "reset" deletes. DB writes run one at a time so a reset can't race a save. */
+(function(){
+  const PREPARED_BY = 'Paddy';
+  const SAVE_DEBOUNCE_MS = 800;
+  const MAX_STATE_CHARS = 200000;
+  const FROM_PAGES = ['planning', 'documents'];
+
+  let el = null, frame = null, cur = null;
+  let pending = null, timer = null, chain = Promise.resolve();
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtDate(v){
+    if(!v) return '';
+    const d = new Date(v);
+    return isNaN(d) ? String(v) : d.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
+  }
+  function fmtDateTime(v){
+    const d = new Date(v);
+    return isNaN(d) ? String(v||'') : fmtDate(v) + ', ' + d.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+  }
+  function toast(msg){ if(TEI.app && TEI.app.showToast) TEI.app.showToast(msg); }
+  function currentClient(){ return TEI.app && TEI.app.state && TEI.app.state.client; }
+  function forecastsOf(c){
+    return ((c && c.documents) || []).filter(d=> d.type === 'forecast' && d.storagePath)
+      .sort((a,b)=> String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
+  }
+  function basePath(){ return location.pathname + location.search; }
+
+  /* ---------- Forecast page card ---------- */
+  function renderPlanCard(c){
+    const slot = document.getElementById('forecastPlanSlot');
+    if(!slot) return;
+    const doc = forecastsOf(c)[0];
+    if(!doc){ slot.innerHTML = ''; return; }
+    slot.innerHTML = `<div class="dgrid"><div class="span-12"><div class="dcard k-fc-card">
+        <div><div class="k-fc-title">Your Wealth Plan forecast</div>
+        <div class="k-fc-meta">Prepared by ${PREPARED_BY} · ${esc(fmtDate(doc.uploadedAt))}</div></div>
+        <button type="button" class="btn-primary" data-forecast-open="${esc(doc.id)}">Open</button>
+      </div></div></div>`;
+  }
+  const basePlanning = TEI.render && TEI.render.planning;
+  if(basePlanning){
+    TEI.render.planning = function(c){ try{ basePlanning(c); } finally { renderPlanCard(c); } };
+  }
+
+  /* ---------- the viewer ---------- */
+  function build(){
+    if(el) return el;
+    el = document.createElement('div');
+    el.id = 'forecastViewer';
+    el.className = 'fcv';
+    el.hidden = true;
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'fcvTitle');
+    el.innerHTML = `<div class="fcv-bar">
+        <button type="button" class="fcv-back" id="fcvBack"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6l6 6"/></svg>Back</button>
+        <div class="fcv-title" id="fcvTitle"></div>
+      </div>
+      <div class="fcv-body" id="fcvBody"><div class="fcv-status" id="fcvStatus" role="status"></div></div>`;
+    document.body.appendChild(el);
+    el.querySelector('#fcvBack').addEventListener('click', back);
+    el.addEventListener('keydown', e=>{ if(e.key === 'Escape') back(); });
+    return el;
+  }
+  function setStatus(msg){
+    const s = document.getElementById('fcvStatus');
+    if(!s) return;
+    s.hidden = !msg;
+    s.textContent = msg || '';
+  }
+
+  async function open(docId, from, opts){
+    const c = currentClient();
+    const doc = c && (c.documents || []).find(d=> d.id === docId && d.storagePath);
+    if(!doc){ toast("Couldn't find that forecast."); return; }
+    if(cur) closeView();
+    build();
+    from = FROM_PAGES.indexOf(from) >= 0 ? from : (from === 'adviser' ? 'adviser' : 'documents');
+    const ctx = cur = { doc, from, clientId: c.meta.clientId, pushed:false, opener: document.activeElement };
+    if(!(opts && opts.restored)){
+      history.pushState(history.state, '', basePath() + '#forecast/' + doc.id + '/' + from);
+      ctx.pushed = true;
+    }
+    document.getElementById('fcvTitle').textContent = doc.name || 'Your Wealth Plan forecast';
+    setStatus('Loading your forecast…');
+    el.hidden = false;
+    document.documentElement.classList.add('fcv-open');
+    document.getElementById('fcvBack').focus();
+    try{
+      const html = await TEI.wealthOS.downloadDocumentText(doc.storagePath);
+      if(cur !== ctx) return;
+      frame = document.createElement('iframe');
+      frame.setAttribute('sandbox', 'allow-scripts allow-popups');
+      frame.setAttribute('title', doc.name || 'Wealth Plan forecast');
+      frame.setAttribute('referrerpolicy', 'no-referrer');
+      frame.addEventListener('load', ()=>{ if(cur === ctx) setStatus(null); }, {once:true});
+      frame.srcdoc = html;
+      document.getElementById('fcvBody').appendChild(frame);
+    } catch(err){
+      console.error('Wealth OS: could not load forecast', err);
+      if(cur === ctx) setStatus("We couldn't load this forecast. Please try again in a moment.");
+    }
+  }
+
+  function closeView(){
+    if(!cur) return;
+    const ctx = cur;
+    flush();
+    if(frame){ frame.remove(); frame = null; }
+    cur = null;
+    if(el) el.hidden = true;
+    setStatus(null);
+    document.documentElement.classList.remove('fcv-open');
+    if(ctx.opener && document.contains(ctx.opener) && ctx.opener.focus) ctx.opener.focus({preventScroll:true});
+    // Adviser's view of saved changes may now be out of date.
+    const advList = document.getElementById('documentsListAdv');
+    if(advList) chain.then(()=> fillAdviserStates(advList, ctx.clientId));
+  }
+
+  /* Back: undo our own history entry when we pushed one (popstate then closes
+     the view); after a reload straight onto the hash there is nothing to go
+     back to, so just close and drop the hash. Either way the page underneath
+     -- Forecast, Documents or the adviser workspace -- is where they were. */
+  function back(){
+    if(!cur) return;
+    if(cur.pushed) history.back();
+    else { closeView(); history.replaceState(history.state, '', basePath()); }
+  }
+
+  function parseHash(){
+    const m = /^#forecast\/([0-9a-f-]{36})(?:\/(planning|documents|adviser))?$/i.exec(location.hash || '');
+    return m ? { id:m[1], from:m[2] || 'documents' } : null;
+  }
+  /* Returns true when the history change was the viewer's own (so the app's
+     adviser popstate handler shouldn't treat it as a client switch). */
+  function onPopState(){
+    const h = parseHash();
+    if(cur && !h){ closeView(); return true; }
+    return !!h;
+  }
+  /* A reload (or shared link) on #forecast/<id>/<from>: put the right page
+     underneath and reopen the viewer, if this client has that forecast. */
+  function restoreFromHash(){
+    const h = parseHash();
+    if(!h) return;
+    const c = currentClient();
+    if(!c || !(c.documents || []).some(d=> d.id === h.id && d.storagePath)){
+      history.replaceState(history.state, '', basePath());
+      return;
+    }
+    if(FROM_PAGES.indexOf(h.from) >= 0 && TEI.app && TEI.app.showPage) TEI.app.showPage(h.from);
+    open(h.id, h.from, {restored:true});
+  }
+
+  /* ---------- postMessage bridge ---------- */
+  function enqueue(fn, failMsg){
+    chain = chain.then(fn).catch(err=>{
+      console.error('Wealth OS: forecast settings', err);
+      if(failMsg) toast(failMsg);
+    });
+    return chain;
+  }
+  function flush(){
+    clearTimeout(timer); timer = null;
+    const p = pending; pending = null;
+    if(!p) return;
+    enqueue(()=> TEI.wealthOS.saveForecastState(p.ctx.doc.id, p.ctx.clientId, p.stamp, p.state),
+      "Couldn't save your forecast settings.");
+  }
+  window.addEventListener('message', function(e){
+    if(!cur || !frame || e.source !== frame.contentWindow) return;
+    const d = e.data;
+    if(!d || typeof d !== 'object' || d.source !== 'tei-forecast') return;
+    const ctx = cur, win = frame.contentWindow;
+    if(d.type === 'ready'){
+      enqueue(()=> TEI.wealthOS.loadForecastState(ctx.doc.id).then(row=>{
+        if(row && cur === ctx && frame && frame.contentWindow === win){
+          win.postMessage({ source:'tei-host', type:'state', stamp:row.stamp, state:row.state }, '*');
+        }
+      }));
+    } else if(d.type === 'save'){
+      if(typeof d.stamp !== 'string' || !d.state || typeof d.state !== 'object') return;
+      if(JSON.stringify(d.state).length > MAX_STATE_CHARS) return;
+      pending = { ctx, stamp:d.stamp, state:d.state };
+      clearTimeout(timer);
+      timer = setTimeout(flush, SAVE_DEBOUNCE_MS);
+    } else if(d.type === 'reset'){
+      clearTimeout(timer); timer = null; pending = null;
+      enqueue(()=> TEI.wealthOS.deleteForecastState(ctx.doc.id), "Couldn't reset your saved settings.");
+    }
+  });
+  // Don't lose a debounced save if the tab is hidden or closed mid-edit.
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'hidden') flush(); });
+
+  /* Open buttons anywhere: the Forecast page card, Documents rows, adviser rows. */
+  document.addEventListener('click', function(e){
+    const b = e.target.closest && e.target.closest('[data-forecast-open]');
+    if(!b) return;
+    e.preventDefault();
+    const from = b.closest('#page-planning') ? 'planning' : b.closest('#page-documents') ? 'documents' : 'adviser';
+    open(b.getAttribute('data-forecast-open'), from);
+  });
+
+  /* ---------- adviser: what the client has saved, read-only ---------- */
+  function flatten(o, prefix, out){
+    out = out || [];
+    Object.keys(o || {}).forEach(k=>{
+      const v = o[k], key = prefix ? prefix + '.' + k : k;
+      if(v && typeof v === 'object' && !Array.isArray(v)) flatten(v, key, out);
+      else out.push([key, Array.isArray(v) ? JSON.stringify(v) : String(v)]);
+    });
+    return out;
+  }
+  /* The plan figures to compare against come from the forecast itself: loaded
+     once in a hidden iframe with the same sandbox, it can't read any saved
+     settings (no storage in the sandbox), so its "ready" message carries its
+     plan defaults. Cached per document; null if it doesn't answer in time. */
+  const baselines = {};
+  function baselineFor(doc){
+    if(baselines[doc.id]) return baselines[doc.id];
+    baselines[doc.id] = TEI.wealthOS.downloadDocumentText(doc.storagePath).then(html=> new Promise(resolve=>{
+      const f = document.createElement('iframe');
+      f.setAttribute('sandbox', 'allow-scripts');
+      f.setAttribute('aria-hidden', 'true');
+      f.tabIndex = -1;
+      f.style.cssText = 'position:fixed; left:-10000px; top:0; width:1024px; height:768px; border:0; visibility:hidden;';
+      let done = false;
+      const finish = v=>{ if(done) return; done = true; window.removeEventListener('message', onMsg); clearTimeout(t); f.remove(); resolve(v); };
+      const onMsg = e=>{
+        const d = e.data;
+        if(e.source === f.contentWindow && d && d.source === 'tei-forecast' && d.type === 'ready') finish({ stamp:d.stamp, state:d.state });
+      };
+      const t = setTimeout(()=> finish(null), 20000);
+      window.addEventListener('message', onMsg);
+      f.srcdoc = html;
+      document.body.appendChild(f);
+    })).catch(err=>{ console.error('Wealth OS: could not read forecast plan figures', err); return null; });
+    return baselines[doc.id];
+  }
+  async function fillAdviserStates(list, clientId){
+    const slots = list ? list.querySelectorAll('[data-fc-state]') : [];
+    const c = currentClient();
+    if(!slots.length || !clientId) return;
+    let rows;
+    try{ rows = await TEI.wealthOS.loadForecastStates(clientId); }
+    catch(err){ console.error('Wealth OS: could not load saved forecast settings', err); return; }
+    const byDoc = {};
+    rows.forEach(r=>{ byDoc[r.document_id] = r; });
+    slots.forEach(async slot=>{
+      const docId = slot.getAttribute('data-fc-state');
+      const r = byDoc[docId];
+      if(!r){ slot.textContent = 'No saved changes: the client sees the plan figures.'; return; }
+      const head = `Client has saved changes, last updated ${esc(fmtDateTime(r.updated_at))}`;
+      slot.innerHTML = head;
+      const doc = c && (c.documents || []).find(d=> d.id === docId);
+      const base = doc ? await baselineFor(doc) : null;
+      const saved = flatten(r.state).sort((a,b)=> a[0].localeCompare(b[0]));
+      let items, label;
+      if(base && base.stamp === r.stamp){
+        const plan = {};
+        flatten(base.state).forEach(([k,v])=>{ plan[k] = v; });
+        items = saved.filter(([k,v])=> plan[k] !== v).map(([k,v])=> `<li>${esc(k)}: ${esc(v)}${k in plan ? ` <span style="opacity:.6">(plan: ${esc(plan[k])})</span>` : ''}</li>`);
+        label = items.length ? `Show changed settings (${items.length})` : '';
+        if(!items.length){ slot.innerHTML = head + '. Every setting matches the plan figures.'; return; }
+      } else {
+        items = saved.map(([k,v])=> `<li>${esc(k)}: ${esc(v)}</li>`);
+        label = `Show saved settings (${items.length})` + (base ? ', saved against a different version of this forecast' : '');
+      }
+      slot.innerHTML = head + `<details><summary>${label}</summary><ul>${items.join('')}</ul></details>`;
+    });
+  }
+
+  TEI.forecastView = { open, back, onPopState, restoreFromHash, fillAdviserStates, fmtDate, latest: c=> forecastsOf(c)[0] || null };
+})();
 </script>
 </body>
 </html>
