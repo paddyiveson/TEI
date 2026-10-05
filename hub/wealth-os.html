@@ -1842,9 +1842,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #page-progress #timelineViewToggle{order:5;}
   #page-progress #timelineViewToggle button{padding:6px 12px;}
   #page-progress #whPrevYearSub{display:none !important;} /* same as the other tiles' sub-lines on phones */
-  #page-progress #whRefreshPricesBtn{padding:4px 10px !important; font-size:15px !important; line-height:1;}
-  #page-progress #whRefreshPricesBtn .wh-refresh-full{display:none;}
-  #page-progress #whRefreshPricesBtn .wh-refresh-icon{display:inline;}
   #page-progress #whChips{flex-wrap:nowrap !important; gap:6px !important; margin-top:8px !important;}
   #page-progress .k-boxed-stat{flex:1 1 0; min-width:0 !important; padding:8px 6px; text-align:center;}
   #page-progress .k-boxed-stat .k{font-size:9.5px; letter-spacing:0.04em;}
@@ -2408,7 +2405,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
               <button type="button" data-view="total">Total</button>
             </div>
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-              <button type="button" class="btn-ghost" id="whRefreshPricesBtn" aria-label="Refresh live prices" title="Refresh live prices" style="padding:5px 12px; font-size:11px; white-space:nowrap;"><span class="wh-refresh-full">Refresh live prices</span><span class="wh-refresh-icon" aria-hidden="true">↻</span></button>
               <a href="#" class="btn-primary navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
             </div>
           </div>
@@ -2614,7 +2610,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
           <div class="k">Portfolio overview</div>
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button type="button" class="btn-ghost" id="poRefreshPricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
             <a href="#" class="btn-primary navlink" data-page="update" style="padding:5px 12px; font-size:11px; white-space:nowrap; text-decoration:none;">Update →</a>
           </div>
         </div>
@@ -3915,20 +3910,23 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
     <div class="card" style="margin-bottom:16px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;">
         <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Holdings</h3>
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;" data-adviser-only="1">
           <label style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--cream-soft2); white-space:nowrap;">
             <input type="checkbox" id="skipRecentlyPricedCheckbox"> Skip holdings priced in the last hour
           </label>
-          <button type="button" class="btn-ghost" id="refreshLivePricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;">Refresh live prices</button>
+          <button type="button" class="btn-ghost" id="refreshLivePricesBtn" style="padding:5px 12px; font-size:11px; white-space:nowrap;" title="Reprices Auto (US) holdings now -- the same holdings the weekday schedule prices">Refresh live prices</button>
         </div>
       </div>
-      <div class="note" style="margin-top:0;">What sits inside each account. For bulk entry use CSV / Spreadsheet Import instead. Give a holding a ticker + units and "Refresh live prices" will price it automatically — leave ticker blank to keep entering the value by hand.</div>
-      <div class="small" id="livePricesStatus" style="margin:-4px 0 10px; color:var(--cream-soft2);"></div>
+      <div class="note" style="margin-top:0;">What sits inside each account. For bulk entry use CSV / Spreadsheet Import instead. Holdings set to <b>Auto (US)</b> are repriced automatically each weekday at 15:00, 17:00, 19:00 and 21:15 UK time — everything else keeps the value entered by hand.</div>
+      <div class="small" id="livePricesStatus" style="margin:-4px 0 10px; color:var(--cream-soft2);" data-adviser-only="1"></div>
       <div id="holdingsList"></div>
       <div class="mini-form">
         <label class="form-field"><span>Account</span><select id="newHoldingAccount"></select></label>
         <label class="form-field"><span>Name</span><input type="text" id="newHoldingName" placeholder="e.g. VWRP"></label>
         <label class="form-field"><span>Ticker (optional)</span><input type="text" id="newHoldingTicker" placeholder="e.g. AAPL"></label>
+        <label class="form-field" data-adviser-only="1"><span>Pricing</span><select id="newHoldingPriceSource">
+          <option value="manual">Manual</option><option value="auto_us">Auto (US) — needs a US ticker + units</option>
+        </select></label>
         <label class="form-field"><span>Units (optional)</span><input type="number" id="newHoldingUnits" placeholder="0" step="any"></label>
         <label class="form-field"><span id="newHoldingAvgOpenLabel">Avg open price £ (optional)</span><input type="number" id="newHoldingAvgOpen" placeholder="0" step="any"></label>
         <label class="form-field"><span>Value £ (optional if units + ticker or avg open given)</span><input type="number" id="newHoldingValue" placeholder="0"></label>
@@ -4849,6 +4847,23 @@ window.TEI = window.TEI || {};
   }
   function seedMonthlyValue(monthsObj, monthKey, recordId, value){
     monthsObj[monthKey] = Object.assign({}, monthsObj[monthKey], {[recordId]: value});
+  }
+
+  /* "US prices as of 21:15, 5 Oct" -- latest lastPricedAt across holdings
+     on scheduled auto-pricing (price_source 'auto_us', repriced four times
+     each weekday by the refresh-us-prices Edge Function, see
+     supabase/migrations/004_auto_us_pricing.sql). Clients no longer have a
+     refresh button, so this is how they know how fresh the figures are.
+     '' when the client has no auto-priced holdings. */
+  function usPricesAsOfText(client){
+    const latest = (client.holdings||[])
+      .filter(h=>h.priceSource==='auto_us' && h.lastPricedAt)
+      .reduce((max,h)=> Math.max(max, new Date(h.lastPricedAt).getTime()||0), 0);
+    if(!latest) return '';
+    const d = new Date(latest);
+    const time = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:'Europe/London'});
+    const day = d.toLocaleDateString('en-GB',{day:'numeric',month:'short',timeZone:'Europe/London'});
+    return `US prices as of ${time}, ${day}`;
   }
 
   /* Client Updates feed — every record across the Foundation that carries a
@@ -5952,7 +5967,7 @@ window.TEI = window.TEI || {};
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
     netWorth, goalProgress, completion, householdTotals, checkGoalAutoComplete,
     /* Operating Model Refinement — source tagging, monthly history, updates feed */
-    stampEdit, seedMonthlyValue, collectClientUpdates,
+    stampEdit, seedMonthlyValue, collectClientUpdates, usPricesAsOfText,
     /* Contribution-vs-holdings reconciliation (Portfolio Overview flags +
        Adviser Workspace "Mark reviewed") */
     RECON_TOLERANCE, depositParts, acctContributionBreakdown, acctContributedTotal, contributionDiscrepancy, fmtDiscrepancy,
@@ -6800,23 +6815,12 @@ TEI.render = TEI.render || {};
     wrap.dataset.wired = '1';
   }
 
-  /* Reuses Adviser Workspace's own fetch+apply+pacing logic (TEI.adviser.
-     refreshLivePrices, see its own comment) against this page's own button/
-     status elements instead of duplicating the Twelve Data chunking/rate-
-     limit handling here. skipRecent:true since this page has no "skip
-     recently priced" checkbox of its own -- always skips holdings priced in
-     the last hour rather than re-spending API credits on a double-click. */
-  function wireWealthRefreshPrices(){
-    const btn = document.getElementById('whRefreshPricesBtn');
-    if(!btn || btn.dataset.wired) return;
-    btn.dataset.wired = '1';
-    btn.addEventListener('click', ()=>{
-      if(!TEI.adviser || !TEI.adviser.refreshLivePrices) return;
-      TEI.adviser.refreshLivePrices({
-        btn, skipRecent: true,
-        status: document.getElementById('whPricesStatus')
-      });
-    });
+  /* No client-side refresh any more -- US holdings are repriced on a
+     schedule server-side (see usPricesAsOfText), so this page just reports
+     how fresh they are. */
+  function renderWealthPricesAsOf(client){
+    const el = document.getElementById('whPricesStatus');
+    if(el) el.textContent = TEI.calc.usPricesAsOfText(client);
   }
 
   /* ---------------- 4. Wealth Composition (assets + liabilities, merged) & Accounts ----------------
@@ -6998,7 +7002,7 @@ TEI.render = TEI.render || {};
   TEI.render.progress = function(client){
     renderOverview(client);
     wireTimelineToggle(client);
-    wireWealthRefreshPrices();
+    renderWealthPricesAsOf(client);
     renderTimeline(client);
     renderComposition(client);
     renderWealthInsights(client);
@@ -7930,25 +7934,15 @@ TEI.render = TEI.render || {};
       : 'Not logged yet';
   }
 
-  /* Same reuse pattern as the Wealth page's wireWealthRefreshPrices --
-     calls into Adviser Workspace's TEI.adviser.refreshLivePrices against
-     this page's own button/status rather than duplicating the fetch logic. */
-  function wirePortfolioRefreshPrices(){
-    const btn = document.getElementById('poRefreshPricesBtn');
-    if(!btn || btn.dataset.wired) return;
-    btn.dataset.wired = '1';
-    btn.addEventListener('click', ()=>{
-      if(!TEI.adviser || !TEI.adviser.refreshLivePrices) return;
-      TEI.adviser.refreshLivePrices({
-        btn, skipRecent: true,
-        status: document.getElementById('poPricesStatus')
-      });
-    });
+  /* Same as the Wealth page's renderWealthPricesAsOf. */
+  function renderPortfolioPricesAsOf(client){
+    const el = document.getElementById('poPricesStatus');
+    if(el) el.textContent = TEI.calc.usPricesAsOfText(client);
   }
 
   TEI.render.portfolio = function(client){
     renderOverview(client);
-    wirePortfolioRefreshPrices();
+    renderPortfolioPricesAsOf(client);
     wireAnalysisScope(client); // also renders the Portfolio Analysis & Optimisation Lab/Performance Drivers/Insights/Coach's Corner, scoped or not
     renderDivStats(client);
     renderDivIncomeChart(client, false);
@@ -11306,6 +11300,12 @@ TEI.render = TEI.render || {};
 
     const riskField = document.getElementById('mRiskField');
     if(riskField) riskField.style.display = (client.meta.role === 'adviser') ? '' : 'none';
+    // Same for live pricing: clients never trigger Twelve Data calls (US
+    // holdings are repriced on a schedule server-side) and can't switch a
+    // holding between Auto (US) and Manual.
+    panel.querySelectorAll('#subtab-holdings [data-adviser-only]').forEach(el=>{
+      el.style.display = (client.meta.role === 'adviser') ? '' : 'none';
+    });
   }
 
   /* Puts #tab-manual back where the Adviser Workspace expects it. Only
@@ -12322,7 +12322,9 @@ window.TEI = window.TEI || {};
     // live-price refresh affordance for a holding under a crypto account,
     // even if it happens to have a ticker + units set.
     const acctForHolding = client.accounts.find(a=>a.id===h.accountId);
-    const canLivePrice = h.ticker && h.units!=null && (!acctForHolding || acctForHolding.type!=='crypto');
+    // Adviser only -- this list is also shown to clients on My Details, and
+    // clients never trigger Twelve Data calls themselves.
+    const canLivePrice = ((client.meta && client.meta.role) || 'adviser') === 'adviser' && h.ticker && h.units!=null && (!acctForHolding || acctForHolding.type!=='crypto');
     return `
       <div class="entity-pill">
         <div class="ep-top">
@@ -12334,7 +12336,7 @@ window.TEI = window.TEI || {};
         </div>
         ${holdingPriceRowHtml(h)}
         <div class="ep-value">${fmtGBP(h.value)}</div>
-        <div class="ep-meta">${h.units!=null?h.units+' units'+(h.ticker?' (live-priced)':''):''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
+        <div class="ep-meta">${h.units!=null?h.units+' units'+(h.priceSource==='auto_us'?' (auto-priced, US)':''):''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
         ${(h.theme&&h.theme.length)?`<div class="ep-tags">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.85;">${t}</span>`).join('')}</div>`:''}
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-holding="${h.id}">Edit</button>
@@ -12444,6 +12446,7 @@ window.TEI = window.TEI || {};
         }
         sectorSel.value = h.sector||'';
         document.getElementById('newHoldingTheme').value = (h.theme && h.theme.length) ? h.theme.join(', ') : '';
+        document.getElementById('newHoldingPriceSource').value = h.priceSource === 'auto_us' ? 'auto_us' : 'manual';
         document.getElementById('addHoldingBtn').textContent = 'Save changes';
         updateHoldingFormForTicker();
         document.getElementById('newHoldingName').scrollIntoView({behavior:'smooth', block:'center'});
@@ -12456,6 +12459,7 @@ window.TEI = window.TEI || {};
     ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newHoldingSector').value = '';
     document.getElementById('newHoldingTheme').value = '';
+    document.getElementById('newHoldingPriceSource').value = 'manual';
     updateHoldingFormForTicker();
   }
   /* Ticker-gated form chrome: a ticker'd holding's cost basis is always
@@ -12533,6 +12537,15 @@ window.TEI = window.TEI || {};
     const manualCostBasis = costBasisInput ? parseFloat(costBasisInput) : null;
     const sector = document.getElementById('newHoldingSector').value || null;
     const theme = parseThemeInput(document.getElementById('newHoldingTheme').value);
+    // Auto (US) only means anything with a ticker + units outside a crypto
+    // account (the scheduled job ignores anything else) -- store 'manual'
+    // rather than a flag that silently never prices.
+    const acctType = (client.accounts.find(a=>a.id===accountId)||{}).type;
+    const priceSource = document.getElementById('newHoldingPriceSource').value === 'auto_us'
+      && ticker && units!=null && acctType !== 'crypto' ? 'auto_us' : 'manual';
+    if(document.getElementById('newHoldingPriceSource').value === 'auto_us' && priceSource !== 'auto_us'){
+      showToast('Auto (US) needs a ticker and units, and not a crypto account — saved as Manual');
+    }
     const btn = document.getElementById('addHoldingBtn');
     btn.disabled = true;
     if(editing.holding){
@@ -12541,7 +12554,7 @@ window.TEI = window.TEI || {};
       const oldAccountId = h.accountId;
       const costBasis = ticker ? h.costBasis
         : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
-      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value, costBasis, sector, theme});
+      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value, costBasis, sector, theme, priceSource});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveHolding(accountId, h.id, merged);
@@ -12563,7 +12576,7 @@ window.TEI = window.TEI || {};
     } else {
       const costBasis = ticker ? null
         : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
-      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, theme, value}, 'adviser');
+      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, theme, value, priceSource}, 'adviser');
       try{
         h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
       } catch(err){
@@ -12580,8 +12593,9 @@ window.TEI = window.TEI || {};
       ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newHoldingSector').value = '';
       document.getElementById('newHoldingTheme').value = '';
+      document.getElementById('newHoldingPriceSource').value = 'manual';
       updateHoldingFormForTicker();
-      showToast(ticker && units!=null && !valueInput ? 'Holding added — click Refresh live prices to price it' : 'Holding added');
+      showToast(ticker && units!=null && !valueInput ? 'Holding added — use its ⟳ button to price it now' : 'Holding added');
     }
     holdingsGroupExpanded[accountId] = true; // so the account you just added/edited a holding in doesn't collapse the moment it re-renders
     renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields(); renderAccounts();
@@ -12605,10 +12619,9 @@ window.TEI = window.TEI || {};
       const patch = { value, lastPrice: price, lastPricedAt: new Date().toISOString() };
       if(h.avgOpen != null) patch.costBasis = h.avgOpen * usdGbpRate * h.units;
       const merged = Object.assign({}, h, patch);
-      // Was hardcoded 'adviser' -- correct while this button only lived in
-      // Adviser Workspace, wrong now that the Wealth/Portfolio pages let a
-      // client trigger the exact same refresh themselves (see
-      // wireWealthRefreshPrices/wirePortfolioRefreshPrices).
+      // Role-derived rather than hardcoded 'adviser' -- clients could once
+      // trigger this from Wealth/Portfolio (since replaced by the scheduled
+      // refresh-us-prices job); kept as the safe default.
       TEI.calc.stampEdit(merged, (client.meta && client.meta.role) || 'adviser');
       await TEI.wealthOS.saveHolding(h.accountId, h.id, merged);
       Object.assign(h, merged);
@@ -12643,11 +12656,10 @@ window.TEI = window.TEI || {};
      refreshOneHolding) exist specifically to avoid needing this at all
      while tagging one new ticker at a time during setup.
 
-     Exposed on TEI.adviser (below) so the client-facing Wealth/Portfolio
-     pages can trigger the exact same fetch+apply logic against their own
-     button/status elements instead of Adviser Workspace's, since neither
-     page has (or needs) a "skip recently priced" checkbox of its own --
-     opts.skipRecent lets a caller pass that in directly. Called with no
+     Exposed on TEI.adviser (below); opts.btn/status/skipRecent let a
+     caller point it at its own elements (the client Wealth/Portfolio
+     buttons that used to do this are gone -- US holdings now reprice on a
+     schedule via the refresh-us-prices Edge Function). Called with no
      args (the original wiring, `addEventListener('click', refreshLivePrices)`)
      opts is the raw click Event, whose irrelevant fields all fall through to
      the Adviser Workspace defaults below exactly as before. */
@@ -12659,7 +12671,12 @@ window.TEI = window.TEI || {};
     // Crypto holdings are manual-valuation only (no price API) -- excluded
     // from the batch sweep even if a ticker+units happen to be set, same
     // guard as the per-holding refresh button (see holdingPillHtml).
+    // Auto (US) holdings only -- the same set the weekday schedule prices,
+    // so this is a "run it now" fallback. Manual holdings with a ticker
+    // (e.g. a UK listing Twelve Data would mis-price as USD) are left alone;
+    // the per-holding ⟳ button still prices any one of them on demand.
     let priceable = client.holdings.filter(h=>{
+      if(h.priceSource !== 'auto_us') return false;
       if(!(h.ticker && h.units!=null)) return false;
       const acct = client.accounts.find(a=>a.id===h.accountId);
       return !acct || acct.type!=='crypto';
@@ -12667,8 +12684,8 @@ window.TEI = window.TEI || {};
     if(skipRecent) priceable = priceable.filter(h=>!pricedRecently(h));
     if(!priceable.length){
       status.textContent = skipRecent
-        ? 'Nothing to refresh -- every live-priced holding was priced in the last hour.'
-        : 'No holdings have both a ticker and units set yet.';
+        ? 'Nothing to refresh -- every Auto (US) holding was priced in the last hour.'
+        : 'No Auto (US) holdings with a ticker and units yet.';
       return;
     }
     const CHUNK_SIZE = 7;
@@ -15371,7 +15388,7 @@ window.TEI = window.TEI || {};
       holdings: (bundle.holdings||[]).map(h=>({
         id: h.id, accountId: h.account_id, name: h.name, ticker: h.ticker, units: h.units,
         avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, theme: h.theme || [], value: h.value,
-        lastPrice: h.last_price, lastPricedAt: h.last_priced_at,
+        lastPrice: h.last_price, lastPricedAt: h.last_priced_at, priceSource: h.price_source || 'manual',
         lastEditedBy: h.last_edited_by, lastEditedAt: h.last_edited_at
       })),
 
@@ -15665,7 +15682,12 @@ window.TEI = window.TEI || {};
       sector: h.sector || null,
       theme: (h.theme && h.theme.length) ? h.theme : null,
       last_priced_at: h.lastPricedAt || null,
-      last_price: h.lastPrice != null ? h.lastPrice : null
+      last_price: h.lastPrice != null ? h.lastPrice : null,
+      // 'auto_us' = repriced on a schedule by the refresh-us-prices Edge
+      // Function (supabase/migrations/004_auto_us_pricing.sql); anything
+      // else, including every holding created before that existed, is
+      // 'manual'. Only the adviser can change it (holding editor toggle).
+      price_source: h.priceSource === 'auto_us' ? 'auto_us' : 'manual'
     };
     // holdings has no last_edited_by/last_edited_at column (confirmed via
     // information_schema) -- deliberately omitted. last_priced_at is
