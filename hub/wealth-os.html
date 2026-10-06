@@ -866,6 +866,38 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .entity-pill .ep-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:12px; border-top:1px solid rgba(247,244,237,0.1);}
 .entity-pill .ep-actions button{padding:5px 12px; font-size:11px;}
 
+/* Recurring contribution rules (005_pension_contribution_engine) */
+#contribRuleCard[hidden], #contribRuleCard [hidden], #contribFlagsCard[hidden],
+#newHoldingAsAtField[hidden], #newHoldingValueHelp[hidden]{display:none !important;}
+.entity-pill .ep-toggles{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:10px; font-size:12px; color:var(--cream-soft);}
+.entity-pill .ep-toggles label{display:inline-flex; align-items:center; gap:6px; cursor:pointer;}
+.entity-pill .ep-toggles input{width:auto; margin:0; accent-color:var(--gold);}
+.entity-pill .ep-rule{font-size:12.5px; color:var(--cream-soft); margin-top:8px; line-height:1.5;}
+.entity-pill .ep-rule strong{color:var(--cream); font-weight:600;}
+.entity-pill .ep-checked{font-size:11.5px; color:var(--cream-soft2); margin-top:6px; line-height:1.45;}
+.entity-pill .ep-checked.unchecked{color:var(--gold);}
+.flag-badge{display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.02em; padding:2px 8px; border-radius:999px; background:var(--gold); color:var(--card-dark); vertical-align:1px;}
+.cr-funds{display:grid; gap:6px; margin:6px 0 4px;}
+.cr-fund{display:grid; grid-template-columns:minmax(0,1fr) 120px; gap:10px; align-items:center; font-size:13px; color:var(--cream);}
+.cr-fund.disabled{opacity:.5;}
+.cr-fund input{width:100%;}
+.cr-fund .cr-why{grid-column:1/-1; font-size:11px; color:var(--cream-soft2); margin-top:-3px;}
+.cr-breakdown{background:rgba(247,244,237,0.05); border:1px solid rgba(247,244,237,0.12); border-radius:8px; padding:12px 14px; font-size:13px; color:var(--cream-soft); line-height:1.6; margin-top:10px;}
+.cr-breakdown table{width:100%; border-collapse:collapse;}
+.cr-breakdown td{padding:2px 0;}
+.cr-breakdown td:last-child{text-align:right; color:var(--cream); font-variant-numeric:tabular-nums;}
+.cr-breakdown tr.total td{border-top:1px solid rgba(247,244,237,0.15); padding-top:5px; font-weight:700; color:var(--cream);}
+.cr-runs{display:grid; gap:8px; margin-top:8px;}
+.cr-run{border:1px solid rgba(247,244,237,0.12); border-radius:8px; padding:9px 12px; font-size:12.5px; color:var(--cream-soft);}
+.cr-run .cr-run-head{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; color:var(--cream);}
+.cr-run.reversed .cr-run-head{text-decoration:line-through; opacity:.7;}
+.cr-run .cr-run-actions{display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;}
+.cr-run .cr-run-actions button{padding:3px 10px; font-size:11px;}
+.cr-flag{border:1px solid var(--gold); border-radius:8px; padding:12px 14px; margin-top:12px; font-size:13px; color:var(--cream-soft); line-height:1.55;}
+.cr-flag b{color:var(--cream);}
+.cr-flag .cr-flag-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:10px;}
+.cr-flag .cr-flag-actions input{width:140px;}
+
 /* Holdings grouped by account (2026-08-29) -- a flat grid of every
    holding across every account read as too dense once there were more
    than a handful. Each account gets one collapsed-by-default group;
@@ -3895,6 +3927,53 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
       <div class="note">Total contributions to date is calculated from monthly deposits plus any contributions before tracking started. Cash balance = uninvested cash, added on top of holdings so totals reconcile. Interest rate (Cash ISA/Deposit only) accrues monthly — Fixed + Maturity date stops it at term. Joint account appears once linked to a household; stays edited here, read-only elsewhere. <span id="advAcctPensionNote" style="display:none;">Pension splits personal/salary-sacrifice.</span></div>
     </div>
 
+    <!-- Recurring contribution rules. The editor opens from an account
+         card's "Recurring contribution rule" toggle / "Edit rule" button;
+         adviser-only (clients see each rule read-only on its account card). -->
+    <div class="card" style="margin-bottom:16px;" id="contribRuleCard" data-adviser-only="1" hidden>
+      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Recurring contribution — <span id="crAcctName"></span></h3>
+      <div class="note" style="margin-top:0;">Applied automatically on the day each month: each fund's value and cost basis rise by its share. Statement values entered later replace the value. No back-dating — a change applies from the next run date.</div>
+      <div id="crFlags"></div>
+      <div class="mini-form" style="margin-top:8px;">
+        <label class="form-field"><span>Basis</span><select id="crBasis"><option value="fixed">Fixed amount</option><option value="salary_derived">Salary-derived</option></select></label>
+        <label class="form-field"><span>Split by</span><select id="crMethod"><option value="percentage">Percentage</option><option value="manual">Manual amounts (£)</option></select></label>
+        <label class="form-field" id="crTotalField"><span>Monthly total £</span><input type="number" step="0.01" id="crTotal" placeholder="0.00"></label>
+        <label class="form-field"><span>Day of month (1–28)</span><input type="number" min="1" max="28" id="crDay" placeholder="1"></label>
+        <label class="form-field"><span>Annual uplift %</span><input type="number" step="0.01" min="0" id="crUplift" placeholder="0"><small class="field-help" style="color:var(--cream-soft2); font-size:11px; line-height:1.4;">Only used in a year with no income-driven review.</small></label>
+        <label class="form-field" id="crPersonalMethodField"><span>Paid by</span><select id="crPersonalMethod"><option value="">Client directly (no relief)</option><option value="relief_at_source">Relief at source</option><option value="salary_sacrifice">Salary sacrifice</option></select></label>
+      </div>
+      <div id="crSalaryFields" hidden>
+        <div class="note" style="margin:4px 0 0;">Enter from the client's fact find. Use gross salary.</div>
+        <div class="mini-form" style="margin-top:8px;">
+          <label class="form-field"><span>Gross annual salary £</span><input type="number" step="0.01" id="crGross" placeholder="0"></label>
+          <label class="form-field"><span>Pensionable pay</span><select id="crPensionable"><option value="full_salary">Full salary</option><option value="qualifying_earnings">Qualifying earnings</option></select></label>
+          <label class="form-field"><span>Employee %</span><input type="number" step="0.01" min="0" id="crEmployeePct" placeholder="0"></label>
+          <label class="form-field"><span>Employer core %</span><input type="number" step="0.01" min="0" id="crEmployerPct" placeholder="0"></label>
+          <label class="form-field"><span>Employer matches up to %</span><input type="number" step="0.01" min="0" id="crMatchCap" placeholder="0"></label>
+          <label class="form-field"><span>Contribution method</span><select id="crSalaryMethod"><option value="relief_at_source">Relief at source</option><option value="salary_sacrifice">Salary sacrifice</option></select></label>
+          <label class="form-field"><span>Link to income</span><select id="crLinkedIncome"></select><small class="field-help" style="color:var(--cream-soft2); font-size:11px; line-height:1.4;">Used only to flag when income changes.</small></label>
+        </div>
+      </div>
+      <div class="form-field" style="margin-top:10px;"><span>Funds</span><div id="crFunds" class="cr-funds"></div><small class="field-help" id="crFundsTotal" style="color:var(--cream-soft2); font-size:11px;"></small></div>
+      <div id="crBreakdown" class="cr-breakdown">Fill in the figures to see the monthly breakdown.</div>
+      <div class="small" id="crAppliesFrom" style="margin-top:8px; color:var(--gold);"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;">
+        <button type="button" class="btn-primary" id="crSaveBtn">Save rule</button>
+        <button type="button" class="btn-ghost" id="crCancelBtn">Close</button>
+        <button type="button" class="btn-ghost" id="crEndBtn" hidden>End rule</button>
+      </div>
+      <h4 style="margin:18px 0 0; color:var(--cream); font-size:14px;">Contribution history</h4>
+      <div id="crRuns" class="cr-runs"></div>
+      <h4 style="margin:18px 0 0; color:var(--cream); font-size:14px;">Rule versions</h4>
+      <div id="crVersions" class="small" style="color:var(--cream-soft2); margin-top:6px; line-height:1.6;"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;" id="contribFlagsCard" data-adviser-only="1" hidden>
+      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Pension contribution flags — all clients</h3>
+      <div class="note" style="margin-top:0;">Income changed on a client with a salary-derived rule. The annual uplift is held until each is resolved.</div>
+      <div id="contribFlagsAll"></div>
+    </div>
+
     <div class="card" style="margin-bottom:16px;">
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:4px;">
         <h3 style="margin:0; color:var(--cream); font-family:'Playfair Display',serif;">Log a month's balances</h3>
@@ -3929,7 +4008,8 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         </select></label>
         <label class="form-field"><span>Units (optional)</span><input type="number" id="newHoldingUnits" placeholder="0" step="any"></label>
         <label class="form-field"><span id="newHoldingAvgOpenLabel">Avg open price £ (optional)</span><input type="number" id="newHoldingAvgOpen" placeholder="0" step="any"></label>
-        <label class="form-field"><span>Value £ (optional if units + ticker or avg open given)</span><input type="number" id="newHoldingValue" placeholder="0"></label>
+        <label class="form-field"><span>Value £ (optional if units + ticker or avg open given)</span><input type="number" id="newHoldingValue" placeholder="0"><small class="field-help" id="newHoldingValueHelp" style="color:var(--cream-soft2); font-size:11px; line-height:1.4;" hidden>Statement value — replaces the current figure, it isn't added on top.</small></label>
+        <label class="form-field" id="newHoldingAsAtField" hidden><span>Value as at</span><input type="date" id="newHoldingAsAt"></label>
         <label class="form-field" id="newHoldingCostBasisField"><span>Cost basis £ (optional)</span><input type="number" id="newHoldingCostBasis" placeholder="0"></label>
         <label class="form-field"><span>Sector (optional)</span><select id="newHoldingSector">
           <option value="">–</option><option>Communication Services</option><option>Consumer Discretionary</option><option>Financials</option><option>Health Care</option><option>Industrials</option><option>Information Technology</option><option>Other</option>
@@ -4048,6 +4128,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         </select></label>
         <button type="button" class="btn-primary" id="advAddIncomeBtn">Add</button>
       </div>
+      <div id="advIncomeFlagPrompt"></div>
 
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 14px; color:var(--cream); font-family:'Playfair Display',serif;">Cashflow — Expenses</h3>
@@ -9640,6 +9721,25 @@ TEI.render = TEI.render || {};
       return;
     }
     btn.disabled = false;
+    // Manual-priced accounts: a changed current-month figure is a statement
+    // valuation -- replaces holdings.value and stamps value_checked_at
+    // (record_holding_valuation; clients may do this for their own funds).
+    const valued = {};
+    if(isCurrent){
+      const d = new Date();
+      const today = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      for(const item of toSave){
+        const h = client.holdings.find(x=>x.id===item.id);
+        const acc = h && client.accounts.find(a=>a.id===h.accountId);
+        if(!(acc && acc.isManualPriced && Number(item.v) !== Number(h.value))) continue;
+        try{
+          valued[h.id] = await TEI.wealthOS.contributionRules.recordHoldingValuation(h.id, item.v, today);
+        } catch(err){
+          console.error('Wealth OS: failed to record statement valuation', err);
+          TEI.app.showToast("Saved, but the statement value for " + h.name + " wasn't recorded — " + (err.message || 'try again'));
+        }
+      }
+    }
     client.holdingsMonths = client.holdingsMonths || {};
     const entry = client.holdingsMonths[key] ? Object.assign({}, client.holdingsMonths[key]) : {};
     // Same "manual save clears the auto-carried-forward flag immediately"
@@ -9654,6 +9754,7 @@ TEI.render = TEI.render || {};
         // Only the current month should move the holding's live/displayed
         // value -- backfilling a past month must not overwrite today's number.
         if(isCurrent) h.value = item.v;
+        if(valued[h.id]){ h.value = Number(valued[h.id].value); h.valueCheckedAt = valued[h.id].value_checked_at; }
         TEI.calc.stampEdit(h, client.meta.role);
       }
     });
@@ -11500,10 +11601,13 @@ window.TEI = window.TEI || {};
           <span class="tag-pill">${acc.type}</span>
         </div>
         <div class="ep-value">${fmtGBP(acc.value)}</div>
-        <div class="ep-meta">${acc.provider||'No provider set'}${isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo'}${isCrypto && acc.lastUpdated ? ' · Last updated '+new Date(acc.lastUpdated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : ''}</div>
+        <div class="ep-meta">${acc.provider||'No provider set'}${acc.hasContributionRule ? '' : (isPension ? ' · personal '+fmtGBP(acc.contributionPersonal)+'/mo · sacrifice '+fmtGBP(acc.contributionSacrifice)+'/mo' : ' · '+fmtGBP(acc.contribution)+'/mo')}${isCrypto && acc.lastUpdated ? ' · Last updated '+new Date(acc.lastUpdated).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : ''}</div>
+        ${contribRuleSummaryHtml(acc)}
+        ${acc.isManualPriced ? accountCheckedHtml(acc) : ''}
         ${contribRow}
         ${acctTags}
         ${discRow}
+        ${contribTogglesHtml(acc)}
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-acct="${acc.id}">Edit</button>
           <button type="button" class="btn-ghost" data-del-acct="${acc.id}">Remove</button>
@@ -11529,6 +11633,7 @@ window.TEI = window.TEI || {};
         renderAccounts(); renderMonthlyBalanceFields(); refreshAccountSelects(); renderCalculatedSavingStats();
       });
     });
+    wireContribAccountControls(list);
     list.querySelectorAll('[data-mark-reviewed]').forEach(btn=>{
       btn.addEventListener('click', ()=> setDiscrepancyReviewed(btn.dataset.markReviewed, true));
     });
@@ -11555,6 +11660,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctRateType').value = acc.rateType || 'variable';
         document.getElementById('newAcctMaturityDate').value = acc.maturityDate || '';
         document.getElementById('newAcctIsJoint').checked = !!acc.isJoint;
+        setAcctContribFieldsRuleOwned(!!acc.hasContributionRule);
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
         document.getElementById('newAcctType').scrollIntoView({behavior:'smooth', block:'center'});
@@ -11602,6 +11708,14 @@ window.TEI = window.TEI || {};
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
+    setAcctContribFieldsRuleOwned(false);
+  }
+  function setAcctContribFieldsRuleOwned(owned){
+    ['newAcctContrib','newAcctContribPersonal','newAcctContribEmployer'].forEach(id=>{
+      const el = document.getElementById(id);
+      el.disabled = owned;
+      el.title = owned ? 'Set by the recurring contribution rule — edit the rule instead' : '';
+    });
   }
   function toggleAdvAcctContribFields(){
     const type = document.getElementById('newAcctType').value;
@@ -11661,10 +11775,15 @@ window.TEI = window.TEI || {};
       // instead, see addHolding) -- this only covers a crypto account still being
       // manually balanced before its first holding is logged.
       if(type==='crypto' && !hasHoldings) patch.lastUpdated = new Date().toISOString().slice(0,10);
-      if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
+      // A recurring contribution rule owns the monthly contribution fields
+      // (synced server-side from calc_contribution on every rule version) --
+      // the form shows them disabled, and they're carried over unchanged.
+      const ruleOwned = !!acc.hasContributionRule;
+      if(ruleOwned){ /* keep acc's contribution fields as they are */ }
+      else if(type==='pension'){ patch.contributionPersonal = contribPersonal; patch.contributionSacrifice = contribEmployer; }
       else { patch.contribution = contrib; }
       const merged = Object.assign({}, acc, patch);
-      if(type==='pension') delete merged.contribution; else { delete merged.contributionPersonal; delete merged.contributionSacrifice; }
+      if(!ruleOwned){ if(type==='pension') delete merged.contribution; else { delete merged.contributionPersonal; delete merged.contributionSacrifice; } }
       TEI.calc.stampEdit(merged, 'adviser');
       btn.disabled = true;
       try{
@@ -11901,6 +12020,17 @@ window.TEI = window.TEI || {};
       return;
     }
     btn.disabled = false;
+    // Manual-priced accounts: a changed figure for the current month is a
+    // statement valuation -- it replaces holdings.value server-side and
+    // stamps value_checked_at (the month log alone never touched
+    // holdings.value).
+    if(isCurrent){
+      for(const item of toSave){
+        const h = client.holdings.find(x=>x.id===item.id);
+        const acc = h && client.accounts.find(a=>a.id===h.accountId);
+        if(acc && acc.isManualPriced && Number(item.v) !== Number(h.value)) await recordValuationSafely(h, item.v, todayISO());
+      }
+    }
     const entry = client.holdingsMonths[key] ? Object.assign({}, client.holdingsMonths[key]) : {};
     client.holdingsMonthsMeta = client.holdingsMonthsMeta || {};
     const metaEntry = client.holdingsMonthsMeta[key] ? Object.assign({}, client.holdingsMonthsMeta[key]) : {};
@@ -12324,7 +12454,7 @@ window.TEI = window.TEI || {};
     const acctForHolding = client.accounts.find(a=>a.id===h.accountId);
     // Adviser only -- this list is also shown to clients on My Details, and
     // clients never trigger Twelve Data calls themselves.
-    const canLivePrice = ((client.meta && client.meta.role) || 'adviser') === 'adviser' && h.ticker && h.units!=null && (!acctForHolding || acctForHolding.type!=='crypto');
+    const canLivePrice = ((client.meta && client.meta.role) || 'adviser') === 'adviser' && h.ticker && h.units!=null && (!acctForHolding || (acctForHolding.type!=='crypto' && !acctForHolding.isManualPriced));
     return `
       <div class="entity-pill">
         <div class="ep-top">
@@ -12337,6 +12467,7 @@ window.TEI = window.TEI || {};
         ${holdingPriceRowHtml(h)}
         <div class="ep-value">${fmtGBP(h.value)}</div>
         <div class="ep-meta">${h.units!=null?h.units+' units'+(h.priceSource==='auto_us'?' (auto-priced, US)':''):''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
+        ${acctForHolding && acctForHolding.isManualPriced ? holdingCheckedHtml(h) : ''}
         ${(h.theme&&h.theme.length)?`<div class="ep-tags">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.85;">${t}</span>`).join('')}</div>`:''}
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-holding="${h.id}">Edit</button>
@@ -12400,7 +12531,10 @@ window.TEI = window.TEI || {};
           await TEI.wealthOS.deleteHolding(id);
         } catch(err){
           console.error('Wealth OS: failed to delete holding', err);
-          showToast("Couldn't remove — " + (err.message || 'try again'));
+          // FK from contribution_rule_allocations (any rule version, kept for history)
+          showToast(err && err.code === '23503'
+            ? "Couldn't remove — this fund is part of a recurring contribution rule (current or past version)"
+            : "Couldn't remove — " + (err.message || 'try again'));
           this.disabled = false;
           return;
         }
@@ -12448,7 +12582,9 @@ window.TEI = window.TEI || {};
         document.getElementById('newHoldingTheme').value = (h.theme && h.theme.length) ? h.theme.join(', ') : '';
         document.getElementById('newHoldingPriceSource').value = h.priceSource === 'auto_us' ? 'auto_us' : 'manual';
         document.getElementById('addHoldingBtn').textContent = 'Save changes';
+        document.getElementById('newHoldingAsAt').value = todayISO();
         updateHoldingFormForTicker();
+        updateHoldingFormForManualPriced();
         document.getElementById('newHoldingName').scrollIntoView({behavior:'smooth', block:'center'});
       });
     });
@@ -12460,7 +12596,48 @@ window.TEI = window.TEI || {};
     document.getElementById('newHoldingSector').value = '';
     document.getElementById('newHoldingTheme').value = '';
     document.getElementById('newHoldingPriceSource').value = 'manual';
+    document.getElementById('newHoldingAsAt').value = todayISO();
     updateHoldingFormForTicker();
+    updateHoldingFormForManualPriced();
+  }
+  /* Manual-priced accounts (005_pension_contribution_engine): the value
+     typed here is a statement figure "as at" a date -- it replaces the
+     holding's value (via record_holding_valuation, which also stamps
+     value_checked_at) rather than being added to it, and the holding can
+     only be manually priced. */
+  function updateHoldingFormForManualPriced(){
+    const acc = client.accounts.find(a=>a.id===document.getElementById('newHoldingAccount').value);
+    const manual = !!(acc && acc.isManualPriced);
+    document.getElementById('newHoldingAsAtField').hidden = !manual;
+    document.getElementById('newHoldingValueHelp').hidden = !manual;
+    const asAt = document.getElementById('newHoldingAsAt');
+    if(manual && !asAt.value) asAt.value = todayISO();
+    asAt.max = todayISO();
+    const ps = document.getElementById('newHoldingPriceSource');
+    if(manual) ps.value = 'manual';
+    ps.disabled = manual;
+    ps.title = manual ? 'This account is manual-priced' : '';
+  }
+  // Statement valuation for a manual-priced holding. Mutates h on success;
+  // on failure the rest of the save has already gone through, so say so.
+  async function recordValuationSafely(h, value, asAt){
+    try{
+      const res = await TEI.wealthOS.contributionRules.recordHoldingValuation(h.id, value, asAt || todayISO());
+      h.value = Number(res.value);
+      h.valueCheckedAt = res.value_checked_at;
+      if(Number(res.contributions_since) > 0){
+        showToast(`Statement value recorded — plus ${fmtGBP2(res.contributions_since)} of contributions applied after ${fmtDateShort(asAt)}`);
+      }
+      return true;
+    } catch(err){
+      console.error('Wealth OS: failed to record statement valuation', err);
+      showToast("Saved, but the statement value wasn't recorded — " + (err.message || 'try again'));
+      return false;
+    }
+  }
+  function todayISO(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
   }
   /* Ticker-gated form chrome: a ticker'd holding's cost basis is always
      derived (see addHolding's costBasis logic below and refreshOneHolding's
@@ -12540,8 +12717,12 @@ window.TEI = window.TEI || {};
     // Auto (US) only means anything with a ticker + units outside a crypto
     // account (the scheduled job ignores anything else) -- store 'manual'
     // rather than a flag that silently never prices.
-    const acctType = (client.accounts.find(a=>a.id===accountId)||{}).type;
-    const priceSource = document.getElementById('newHoldingPriceSource').value === 'auto_us'
+    const targetAcct = client.accounts.find(a=>a.id===accountId) || {};
+    const acctType = targetAcct.type;
+    const manualPriced = !!targetAcct.isManualPriced;
+    const asAt = document.getElementById('newHoldingAsAt').value || todayISO();
+    if(manualPriced && asAt > todayISO()){ showToast('The "as at" date can’t be in the future'); return; }
+    const priceSource = !manualPriced && document.getElementById('newHoldingPriceSource').value === 'auto_us'
       && ticker && units!=null && acctType !== 'crypto' ? 'auto_us' : 'manual';
     if(document.getElementById('newHoldingPriceSource').value === 'auto_us' && priceSource !== 'auto_us'){
       showToast('Auto (US) needs a ticker and units, and not a crypto account — saved as Manual');
@@ -12554,7 +12735,11 @@ window.TEI = window.TEI || {};
       const oldAccountId = h.accountId;
       const costBasis = ticker ? h.costBasis
         : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
-      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value, costBasis, sector, theme, priceSource});
+      // Manual-priced: a changed value is a statement valuation -- the row
+      // save keeps the current value and record_holding_valuation then
+      // replaces it (never adds), stamping value_checked_at.
+      const isValuation = manualPriced && accountId === h.accountId && Number(value) !== Number(h.value);
+      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value: isValuation ? h.value : value, costBasis, sector, theme, priceSource});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveHolding(accountId, h.id, merged);
@@ -12566,7 +12751,8 @@ window.TEI = window.TEI || {};
       }
       btn.disabled = false;
       Object.assign(h, merged);
-      TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
+      if(isValuation) await recordValuationSafely(h, value, asAt);
+      TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, h.value);
       TEI.calc.syncAccountValueFromHoldings(client, oldAccountId);
       if(accountId !== oldAccountId) TEI.calc.syncAccountValueFromHoldings(client, accountId);
       await persistCryptoLastUpdated(oldAccountId);
@@ -12587,7 +12773,9 @@ window.TEI = window.TEI || {};
       }
       btn.disabled = false;
       client.holdings.push(h);
-      TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, value);
+      // A new fund in a manual-priced account starts from a statement value.
+      if(manualPriced && valueInput) await recordValuationSafely(h, value, asAt);
+      TEI.calc.seedMonthlyValue(client.holdingsMonths, currentMonthKey(), h.id, h.value);
       TEI.calc.syncAccountValueFromHoldings(client, accountId);
       await persistCryptoLastUpdated(accountId);
       ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
@@ -13062,6 +13250,12 @@ window.TEI = window.TEI || {};
       Object.assign(i, merged);
       cancelAdvIncomeEdit();
       showToast('Income updated');
+      // The income trigger (trg_income_contribution_flag) raises a flag on
+      // any salary-derived rule linked to this income -- ask right here.
+      if(contribState().rules.some(r=>!r.effective_to && r.linked_income_id === i.id)){
+        await reloadContrib();
+        renderIncomeFlagPrompt(i.id);
+      }
     } else {
       const i = TEI.calc.stampEdit({id:uid(), owner, type, amount, frequency}, 'adviser');
       try{
@@ -13948,6 +14142,7 @@ window.TEI = window.TEI || {};
     document.getElementById('csvImportBtn').addEventListener('click', importHoldingsCsv);
     document.getElementById('exportBtn').addEventListener('click', exportClient);
     document.getElementById('markReviewedBtn').addEventListener('click', markUpdatesReviewed);
+    wireContribEditor();
   }
   function init(sharedClient){
     client = sharedClient;
@@ -13984,6 +14179,7 @@ window.TEI = window.TEI || {};
     updateHoldingFormForTicker();
 
     if(!wired){ wired = true; wireAdviserControls(); }
+    resetContribUi();
     enhanceMobileCollapse();
   }
 
@@ -14055,6 +14251,528 @@ window.TEI = window.TEI || {};
     });
   }
 
+  /* ================= RECURRING CONTRIBUTION RULES =================
+     005_pension_contribution_engine. The browser never calculates a
+     contribution: the editor previews through preview_contribution, saves
+     through save_contribution_rule, and everything shown afterwards is
+     read back from the rule tables -- or, for the monthly total, from the
+     legacy accounts.contribution_* fields the server syncs from that same
+     calc_contribution on every rule version. */
+  let crAccountId = null;   // account whose rule editor is open
+  let crPreviewTimer = null;
+  let crPreviewSeq = 0;
+  let incomePromptId = null; // income row the inline "Income changed" prompt is for
+  const REASON_LABEL = { created:'created', manual_edit:'edited', income_change:'income change', annual_uplift:'annual uplift' };
+
+  function isAdviserView(){ return ((client.meta && client.meta.role) || 'adviser') === 'adviser'; }
+  function contribState(){
+    if(!client.contrib) client.contrib = { rules:[], state:{}, runs:[], flags:[] };
+    return client.contrib;
+  }
+  function currentRule(accountId){ return contribState().rules.find(r=>r.account_id===accountId && !r.effective_to) || null; }
+  function pendingFlags(accountId){ return contribState().flags.filter(f=>f.status==='pending' && (!accountId || f.account_id===accountId)); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function fmtGBP2(v){ const n = Number(v)||0; return (n<0?'-':'') + '£' + Math.abs(n).toLocaleString('en-GB',{minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function fmtPct(v){ return (Number(v)||0).toLocaleString('en-GB',{maximumFractionDigits:2}) + '%'; }
+  function fmtDateShort(iso){
+    if(!iso) return '';
+    const d = new Date(String(iso).slice(0,10)+'T00:00:00');
+    return isNaN(d) ? '' : d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }
+  function holdingName(id){ const h = client.holdings.find(x=>x.id===id); return h ? h.name : 'Removed fund'; }
+
+  /* Automatic contributions credited to a fund after its last statement
+     check -- a sum of the engine's run records, not a recalculation. */
+  function contributionsSinceCheck(h){
+    let total = 0;
+    contribState().runs.forEach(run=>{
+      if(run.status === 'reversed') return;
+      if(h.valueCheckedAt && run.run_date <= h.valueCheckedAt) return;
+      (run.allocations||[]).forEach(a=>{ if(a.holding_id === h.id) total += Number(a.amount)||0; });
+    });
+    return Math.round(total*100)/100;
+  }
+  function holdingCheckedHtml(h){
+    if(!h.valueCheckedAt) return `<div class="ep-checked unchecked">Value not yet checked against a statement.</div>`;
+    const since = contributionsSinceCheck(h);
+    return `<div class="ep-checked">Value last checked ${fmtDateShort(h.valueCheckedAt)}.${since>0 ? ` Includes ${fmtGBP2(since)} of automatic contributions since.` : ''}</div>`;
+  }
+  function accountCheckedHtml(acc){
+    const hs = client.holdings.filter(h=>h.accountId===acc.id);
+    if(!hs.length) return `<div class="ep-checked">Manual-priced — add its funds under Holdings.</div>`;
+    const checked = hs.filter(h=>h.valueCheckedAt);
+    if(!checked.length) return `<div class="ep-checked unchecked">Manual-priced · value not yet checked against a statement.</div>`;
+    const dates = checked.map(h=>h.valueCheckedAt).sort();
+    const when = dates[0] === dates[dates.length-1] ? fmtDateShort(dates[0]) : `between ${fmtDateShort(dates[0])} and ${fmtDateShort(dates[dates.length-1])}`;
+    const since = checked.reduce((s,h)=>s+contributionsSinceCheck(h), 0);
+    const unchecked = hs.length - checked.length;
+    return `<div class="ep-checked${unchecked?' unchecked':''}">Manual-priced · value last checked ${when}.${since>0 ? ` Includes ${fmtGBP2(since)} of automatic contributions since.` : ''}${unchecked ? ` ${unchecked} fund${unchecked>1?'s':''} not yet checked against a statement.` : ''}</div>`;
+  }
+  function contribRuleSummaryHtml(acc){
+    if(!acc.hasContributionRule) return '';
+    const rule = currentRule(acc.id);
+    if(!rule) return '';
+    const monthly = TEI.calc.acctContribTotal(acc);
+    const flags = pendingFlags(acc.id);
+    const basis = rule.basis === 'salary_derived' ? `salary-derived (${fmtGBP(rule.gross_annual_salary)} gross)` : 'fixed';
+    return `<div class="ep-rule">Recurring contribution <strong>${fmtGBP2(monthly)}/mo</strong> on day ${rule.day_of_month} · ${basis}${Number(rule.annual_uplift_pct)>0 ? ' · uplift '+fmtPct(rule.annual_uplift_pct)+'/yr' : ''}${flags.length ? ` <span class="flag-badge" title="Income changed — review the contribution">${flags.length} pending flag${flags.length>1?'s':''}</span>` : ''}</div>`;
+  }
+  function contribTogglesHtml(acc){
+    if(!isAdviserView()) return '';
+    const hasHistory = contribState().rules.some(r=>r.account_id===acc.id);
+    return `<div class="ep-toggles">
+      <label><input type="checkbox" data-cr-manual="${acc.id}" ${acc.isManualPriced?'checked':''}> Manual-priced</label>
+      <label><input type="checkbox" data-cr-rule="${acc.id}" ${acc.hasContributionRule?'checked':''}> Recurring contribution rule</label>
+      ${acc.hasContributionRule || hasHistory ? `<button type="button" class="btn-ghost" data-cr-open="${acc.id}" style="padding:2px 9px; font-size:10.5px;">${acc.hasContributionRule?'Edit rule':'History'}</button>` : ''}
+    </div>`;
+  }
+  function wireContribAccountControls(list){
+    list.querySelectorAll('[data-cr-manual]').forEach(cb=> cb.addEventListener('change', ()=> toggleManualPriced(cb.dataset.crManual, cb.checked, cb)));
+    list.querySelectorAll('[data-cr-rule]').forEach(cb=> cb.addEventListener('change', ()=> toggleContributionRule(cb.dataset.crRule, cb.checked, cb)));
+    list.querySelectorAll('[data-cr-open]').forEach(b=> b.addEventListener('click', ()=> openRuleEditor(b.dataset.crOpen)));
+  }
+
+  async function toggleManualPriced(accountId, on, cb){
+    const acc = client.accounts.find(a=>a.id===accountId);
+    if(!acc) return;
+    const autoCount = client.holdings.filter(h=>h.accountId===accountId && h.priceSource==='auto_us').length;
+    const msg = on
+      ? `Mark ${TEI.data.acctLabel(acc)} as manual-priced?\n\nFund values are entered by hand from statements, and scheduled pricing never touches this account.`
+        + (autoCount ? `\n\n${autoCount} holding${autoCount>1?'s':''} currently on Auto (US) pricing will be switched to Manual.` : '')
+      : `Turn off manual pricing for ${TEI.data.acctLabel(acc)}?\n\nHoldings stay on Manual pricing until you change them individually.`;
+    if(!confirm(msg)){ cb.checked = !on; return; }
+    cb.disabled = true;
+    try{
+      await TEI.wealthOS.contributionRules.setManualPriced(accountId, on);
+    } catch(err){
+      console.error('Wealth OS: failed to set manual pricing', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      cb.checked = !on; cb.disabled = false;
+      return;
+    }
+    await reloadContrib();
+    showToast(on ? 'Account is now manual-priced' : 'Manual pricing turned off');
+  }
+  async function toggleContributionRule(accountId, on, cb){
+    // Switching on just opens the editor -- the account's flag is only set
+    // once a rule is actually saved.
+    if(on){ if(cb) cb.checked = false; openRuleEditor(accountId); return; }
+    const acc = client.accounts.find(a=>a.id===accountId);
+    if(!acc) return;
+    if(!confirm(`End the recurring contribution on ${TEI.data.acctLabel(acc)}?\n\nNo further contributions will be applied. Past contributions and the rule's history are kept.`)){
+      if(cb) cb.checked = true;
+      return;
+    }
+    try{
+      await TEI.wealthOS.contributionRules.end(accountId);
+    } catch(err){
+      console.error('Wealth OS: failed to end contribution rule', err);
+      showToast("Couldn't end the rule — " + (err.message || 'try again'));
+      if(cb) cb.checked = true;
+      return;
+    }
+    await reloadContrib();
+    if(crAccountId === accountId) openRuleEditor(accountId);
+    showToast('Rule ended — history kept');
+  }
+
+  /* Re-read the rule tables plus the account/holding rows an RPC may have
+     changed (values, cost basis, legacy contribution fields, flags), so
+     the in-memory client matches the server, then re-render. */
+  async function reloadContrib(){
+    let res;
+    try{
+      res = await TEI.wealthOS.contributionRules.reload(client.accounts.map(a=>a.id));
+    } catch(err){
+      console.error('Wealth OS: failed to refresh contribution data', err);
+      showToast("Couldn't refresh contribution data — reload the page");
+      return;
+    }
+    client.contrib = res.contrib;
+    res.accounts.forEach(row=>{
+      const acc = client.accounts.find(a=>a.id===row.id);
+      if(!acc) return;
+      Object.assign(acc, {
+        value: row.value, lastUpdated: row.last_updated,
+        contribution: row.contribution, contributionPersonal: row.contribution_personal, contributionSacrifice: row.contribution_sacrifice,
+        isManualPriced: !!row.is_manual_priced, hasContributionRule: !!row.has_contribution_rule
+      });
+    });
+    res.holdings.forEach(row=>{
+      const h = client.holdings.find(x=>x.id===row.id);
+      if(!h) return;
+      Object.assign(h, { value: row.value, costBasis: row.cost_basis, priceSource: row.price_source || 'manual', valueCheckedAt: row.value_checked_at || null });
+    });
+    renderAccounts(); renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields();
+    updateHoldingFormForManualPriced();
+    if(crAccountId) renderRuleEditorAux();
+    renderIncomeFlagPrompt();
+    if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
+  }
+
+  /* ---------- rule editor ---------- */
+  function crEl(id){ return document.getElementById(id); }
+  function closeRuleEditor(){
+    crAccountId = null;
+    crEl('contribRuleCard').hidden = true;
+  }
+  function openRuleEditor(accountId){
+    const acc = client.accounts.find(a=>a.id===accountId);
+    if(!acc || !isAdviserView()) return;
+    crAccountId = accountId;
+    const card = crEl('contribRuleCard');
+    card.hidden = false;
+    card.classList.add('expanded');
+    crEl('crAcctName').textContent = TEI.data.acctLabel(acc);
+    const rule = currentRule(accountId);
+    const salary = rule && rule.basis === 'salary_derived';
+    const v = (x)=> x==null ? '' : x;
+    crEl('crBasis').value = rule ? rule.basis : 'fixed';
+    crEl('crMethod').value = rule ? rule.allocation_method : 'percentage';
+    crEl('crTotal').value = rule ? v(rule.total_amount) : '';
+    crEl('crDay').value = rule ? rule.day_of_month : Math.min(new Date().getDate(), 28);
+    crEl('crUplift').value = rule ? (Number(rule.annual_uplift_pct)||0) : 0;
+    crEl('crPersonalMethod').value = rule && !salary ? (rule.contribution_method || '') : '';
+    crEl('crGross').value = salary ? v(rule.gross_annual_salary) : '';
+    crEl('crPensionable').value = salary && rule.pensionable_basis ? rule.pensionable_basis : 'full_salary';
+    crEl('crEmployeePct').value = salary ? v(rule.employee_pct) : '';
+    crEl('crEmployerPct').value = salary ? v(rule.employer_pct) : '';
+    crEl('crMatchCap').value = salary ? v(rule.employer_match_cap_pct) : '';
+    crEl('crSalaryMethod').value = salary && rule.contribution_method ? rule.contribution_method : 'relief_at_source';
+    const incSel = crEl('crLinkedIncome');
+    incSel.innerHTML = '<option value="">Not linked</option>' + client.cashflow.income.map(i=>
+      `<option value="${i.id}">${esc(i.type||'Income')} (${i.owner==='partner'?'partner':'client'}) — ${fmtGBP(i.amount)} ${esc(i.frequency||'')}</option>`).join('');
+    incSel.value = salary && rule.linked_income_id ? rule.linked_income_id : '';
+    renderRuleFunds(rule);
+    crEl('crEndBtn').hidden = !rule;
+    crEl('crSaveBtn').textContent = rule ? 'Save as new version' : 'Save rule';
+    syncRuleEditorChrome();
+    renderRuleEditorAux();
+    schedulePreview(0);
+    card.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function syncRuleEditorChrome(){
+    const salary = crEl('crBasis').value === 'salary_derived';
+    if(salary) crEl('crMethod').value = 'percentage';
+    crEl('crMethod').disabled = salary;
+    crEl('crMethod').title = salary ? 'Salary-derived rules always split by percentage' : '';
+    crEl('crSalaryFields').hidden = !salary;
+    crEl('crTotalField').hidden = salary || crEl('crMethod').value !== 'percentage';
+    const acc = client.accounts.find(a=>a.id===crAccountId);
+    crEl('crPersonalMethodField').hidden = salary || !(acc && acc.type === 'pension');
+    fillFundInputs();
+  }
+  /* One input per fund; the weight and the £ amount are both remembered
+     (data-w / data-amt) so flipping Percentage <-> Manual doesn't lose
+     what was typed. Only manually priced funds can take contributions --
+     the engine never adds to a fund a price feed would overwrite. */
+  function renderRuleFunds(rule){
+    const wrap = crEl('crFunds');
+    const hs = client.holdings.filter(h=>h.accountId===crAccountId);
+    const allocs = {};
+    (rule ? rule.allocations : []).forEach(a=>{ allocs[a.holding_id] = a; });
+    if(!hs.length){
+      wrap.innerHTML = `<div class="small" style="color:var(--cream-soft2);">No funds in this account yet — add them under Holdings first.</div>`;
+      return;
+    }
+    wrap.innerHTML = hs.map(h=>{
+      const manual = h.priceSource !== 'auto_us';
+      const a = allocs[h.id];
+      return `<div class="cr-fund${manual?'':' disabled'}">
+        <span>${esc(h.name)}${h.ticker?` <span style="color:var(--cream-soft2); font-size:11px;">${esc(h.ticker)}</span>`:''}</span>
+        <input type="number" step="0.01" min="0" data-cr-fund="${h.id}" data-w="${a && a.weight_pct!=null ? Number(a.weight_pct) : ''}" data-amt="${a && a.amount!=null ? Number(a.amount) : ''}" ${manual?'':'disabled'} aria-label="${esc(h.name)}">
+        ${manual ? '' : `<span class="cr-why">Auto-priced (US) — contributions only go into manually priced funds, since a price feed would overwrite them. Set this fund to Manual pricing (or mark the account manual-priced) to include it.</span>`}
+      </div>`;
+    }).join('');
+    wrap.querySelectorAll('[data-cr-fund]').forEach(inp=> inp.addEventListener('input', ()=>{
+      if(crEl('crMethod').value === 'percentage') inp.dataset.w = inp.value; else inp.dataset.amt = inp.value;
+      schedulePreview();
+    }));
+    fillFundInputs();
+  }
+  function fillFundInputs(){
+    const pct = crEl('crMethod').value === 'percentage';
+    crEl('crFunds').querySelectorAll('[data-cr-fund]').forEach(inp=>{
+      inp.value = pct ? inp.dataset.w : inp.dataset.amt;
+      inp.placeholder = pct ? '% of total' : '£ per month';
+    });
+  }
+  function rulePayload(){
+    const num = id=>{ const x = crEl(id).value; return x === '' ? null : parseFloat(x); };
+    const salary = crEl('crBasis').value === 'salary_derived';
+    const method = salary ? 'percentage' : crEl('crMethod').value;
+    const allocations = Array.from(crEl('crFunds').querySelectorAll('[data-cr-fund]:not([disabled])'))
+      .map(inp=>({ holding_id: inp.dataset.crFund, w: parseFloat(inp.dataset.w), amt: parseFloat(inp.dataset.amt) }))
+      .filter(x=> method === 'percentage' ? x.w > 0 : x.amt > 0)
+      .map(x=> method === 'percentage' ? { holding_id: x.holding_id, weight_pct: x.w } : { holding_id: x.holding_id, amount: x.amt });
+    const p = {
+      account_id: crAccountId, basis: salary ? 'salary_derived' : 'fixed', allocation_method: method,
+      day_of_month: num('crDay'), annual_uplift_pct: num('crUplift') || 0, allocations
+    };
+    if(salary){
+      Object.assign(p, {
+        gross_annual_salary: num('crGross'), pensionable_basis: crEl('crPensionable').value,
+        employee_pct: num('crEmployeePct'), employer_pct: num('crEmployerPct') || 0, employer_match_cap_pct: num('crMatchCap') || 0,
+        contribution_method: crEl('crSalaryMethod').value, linked_income_id: crEl('crLinkedIncome').value || null
+      });
+    } else {
+      const acc = client.accounts.find(a=>a.id===crAccountId);
+      p.total_amount = method === 'percentage' ? num('crTotal') : null;
+      p.contribution_method = acc && acc.type === 'pension' ? (crEl('crPersonalMethod').value || null) : null;
+    }
+    return p;
+  }
+  function schedulePreview(delay){
+    clearTimeout(crPreviewTimer);
+    crPreviewTimer = setTimeout(runPreview, delay==null ? 300 : delay);
+  }
+  async function runPreview(){
+    if(!crAccountId) return;
+    const seq = ++crPreviewSeq;
+    const p = rulePayload();
+    // Entry feedback only (not a contribution figure): do the weights add up?
+    const help = crEl('crFundsTotal');
+    if(p.allocation_method === 'percentage'){
+      const w = p.allocations.reduce((s,a)=>s+a.weight_pct, 0);
+      help.textContent = `Weights total ${fmtPct(w)}${Math.abs(w-100) > 0.0005 ? ' — must add up to 100%' : ''}`;
+    } else {
+      help.textContent = 'Each fund receives the amount entered.';
+    }
+    let res;
+    try{
+      res = await TEI.wealthOS.contributionRules.preview(p);
+    } catch(err){
+      if(seq === crPreviewSeq) crEl('crBreakdown').textContent = "Couldn't calculate — " + (err.message || 'try again');
+      return;
+    }
+    if(seq !== crPreviewSeq || !crAccountId) return;
+    renderBreakdown(res, p);
+  }
+  function renderBreakdown(res, p){
+    const rows = [];
+    if(res.basis === 'salary_derived'){
+      rows.push(['Pensionable pay', fmtGBP(res.pensionable_pay) + '/yr' + (p.pensionable_basis === 'qualifying_earnings' ? ' (qualifying earnings)' : '')]);
+      rows.push([`Employee ${fmtPct(p.employee_pct)} (gross)`, fmtGBP2(res.employee_gross)]);
+      const core = Number(res.employer_core_pct)||0, eff = Number(res.employer_effective_pct)||0;
+      rows.push([res.employer_match_applied
+        ? `Employer ${fmtPct(eff)} — matching the employee (core is ${fmtPct(core)})`
+        : `Employer ${fmtPct(core)} core`, fmtGBP2(res.employer)]);
+    }
+    if(res.contribution_method === 'relief_at_source'){
+      rows.push(['Client pays from take-home pay', fmtGBP2(res.client_pays)]);
+      rows.push(['Basic-rate relief added (relief at source)', fmtGBP2(res.relief_amount)]);
+    } else if(res.contribution_method === 'salary_sacrifice'){
+      rows.push(['Salary sacrificed (from gross pay)', fmtGBP2(res.sacrifice_amount)]);
+    }
+    const split = (res.allocations||[]).map(a=>[`→ ${esc(holdingName(a.holding_id))}`, fmtGBP2(a.amount)]);
+    crEl('crBreakdown').innerHTML = `<table>
+      ${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
+      <tr class="total"><td>Total into funds each month</td><td>${fmtGBP2(res.total)}</td></tr>
+      ${split.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
+    </table>`;
+    crEl('crAppliesFrom').textContent = res.next_run_date
+      ? `Applies from ${fmtDateShort(res.next_run_date)}. No back-dating.`
+      : 'No back-dating — applies from the next scheduled day.';
+  }
+  async function saveRule(){
+    if(!crAccountId) return;
+    const btn = crEl('crSaveBtn');
+    btn.disabled = true;
+    let res;
+    try{
+      res = await TEI.wealthOS.contributionRules.save(crAccountId, rulePayload());
+    } catch(err){
+      console.error('Wealth OS: failed to save contribution rule', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
+    await reloadContrib();
+    openRuleEditor(crAccountId);
+    showToast(`Rule saved (version ${res.version}) — applies from ${fmtDateShort(res.next_run_date)}. No back-dating.`);
+  }
+
+  /* ---------- history, versions, flags inside the editor ---------- */
+  function describeRule(r){
+    if(r.basis === 'salary_derived'){
+      const method = r.contribution_method === 'salary_sacrifice' ? 'salary sacrifice' : 'relief at source';
+      return `${fmtGBP(r.gross_annual_salary)} gross · employee ${fmtPct(r.employee_pct)} · employer ${fmtPct(r.employer_pct)}${Number(r.employer_match_cap_pct)>0 ? ` (matches to ${fmtPct(r.employer_match_cap_pct)})` : ''} · ${method}`;
+    }
+    if(r.allocation_method === 'percentage') return `${fmtGBP2(r.total_amount)}/mo fixed`;
+    return 'fixed, manual amounts per fund';
+  }
+  function renderRuleEditorAux(){
+    if(!crAccountId) return;
+    const flagsBox = crEl('crFlags');
+    flagsBox.innerHTML = pendingFlags(crAccountId).map(flagPanelHtml).join('');
+    wireFlagPanels(flagsBox);
+
+    const runs = contribState().runs.filter(r=>r.account_id===crAccountId);
+    const runsBox = crEl('crRuns');
+    runsBox.innerHTML = runs.length ? runs.map(run=>{
+      const parts = [];
+      if(Number(run.employer_amount) > 0) parts.push('employer ' + fmtGBP2(run.employer_amount));
+      if(Number(run.sacrifice_amount) > 0) parts.push('salary sacrifice ' + fmtGBP2(run.sacrifice_amount));
+      if(Number(run.relief_amount) > 0) parts.push('tax relief ' + fmtGBP2(run.relief_amount));
+      const split = (run.allocations||[]).map(a=>`${esc(holdingName(a.holding_id))} ${fmtGBP2(a.amount)}`).join(' · ');
+      return `<div class="cr-run ${run.status}">
+        <div class="cr-run-head"><span>${fmtDateShort(run.run_date)}${run.status !== 'applied' ? ` <span class="tag-pill">${run.status}</span>` : ''}</span><strong>${fmtGBP2(run.total_amount)}</strong></div>
+        <div>${split}${parts.length ? ' — incl. ' + parts.join(', ') : ''}</div>
+        ${run.correction_note ? `<div class="small" style="margin-top:3px;">Note: ${esc(run.correction_note)}${run.corrected_at ? ' (' + fmtDateShort(run.corrected_at) + ')' : ''}</div>` : ''}
+        ${run.status !== 'reversed' ? `<div class="cr-run-actions"><button type="button" class="btn-ghost" data-run-reverse="${run.id}">Reverse</button><button type="button" class="btn-ghost" data-run-adjust="${run.id}">Adjust</button></div>` : ''}
+        <div data-run-adjust-box="${run.id}"></div>
+      </div>`;
+    }).join('') : `<div class="small" style="color:var(--cream-soft2);">No contributions applied yet.</div>`;
+    runsBox.querySelectorAll('[data-run-reverse]').forEach(b=> b.addEventListener('click', ()=> reverseRun(b.dataset.runReverse)));
+    runsBox.querySelectorAll('[data-run-adjust]').forEach(b=> b.addEventListener('click', ()=> openAdjustRun(b.dataset.runAdjust)));
+
+    const versions = contribState().rules.filter(r=>r.account_id===crAccountId).sort((a,b)=>b.version-a.version);
+    crEl('crVersions').innerHTML = versions.length ? versions.map(r=>
+      `<div>v${r.version} · ${fmtDateShort(r.effective_from)}${r.effective_to ? (r.effective_to < r.effective_from ? ' (replaced same day)' : ' – ' + fmtDateShort(r.effective_to)) : ' onwards <b style="color:var(--cream);">(current)</b>'} · ${REASON_LABEL[r.change_reason] || esc(r.change_reason || '')} · ${describeRule(r)} · day ${r.day_of_month}</div>`
+    ).join('') : 'No rule yet.';
+  }
+  async function reverseRun(runId){
+    const run = contribState().runs.find(r=>r.id===runId);
+    if(!run) return;
+    const note = prompt(`Reverse the ${fmtGBP2(run.total_amount)} contribution of ${fmtDateShort(run.run_date)}?\n\nCost basis and that month's deposits are reduced. Fund values are reduced too, unless a statement value has been entered since (then the statement stands).\n\nReason (saved with the run):`);
+    if(note === null) return;
+    try{
+      const res = await TEI.wealthOS.contributionRules.reverseRun(runId, note.trim() || 'Reversed');
+      showToast(res.message || 'Reversed');
+    } catch(err){
+      console.error('Wealth OS: failed to reverse contribution', err);
+      showToast("Couldn't reverse — " + (err.message || 'try again'));
+      return;
+    }
+    await reloadContrib();
+  }
+  function openAdjustRun(runId){
+    const run = contribState().runs.find(r=>r.id===runId);
+    const box = document.querySelector(`[data-run-adjust-box="${runId}"]`);
+    if(!run || !box) return;
+    box.innerHTML = `<div class="cr-funds" style="margin-top:8px;">
+      ${(run.allocations||[]).map(a=>`<div class="cr-fund"><span>${esc(holdingName(a.holding_id))}</span><input type="number" step="0.01" min="0" data-adj-fund="${a.holding_id}" value="${Number(a.amount)}"></div>`).join('')}
+      <label class="form-field"><span>Note (required)</span><input type="text" data-adj-note placeholder="e.g. payslip showed £280"></label>
+      <div class="cr-run-actions"><button type="button" class="btn-primary" data-adj-apply>Apply adjustment</button><button type="button" class="btn-ghost" data-adj-cancel>Cancel</button></div>
+    </div>`;
+    box.querySelector('[data-adj-cancel]').addEventListener('click', ()=>{ box.innerHTML = ''; });
+    box.querySelector('[data-adj-apply]').addEventListener('click', async ()=>{
+      const allocations = Array.from(box.querySelectorAll('[data-adj-fund]')).map(inp=>({ holding_id: inp.dataset.adjFund, amount: parseFloat(inp.value)||0 }));
+      const note = box.querySelector('[data-adj-note]').value.trim();
+      if(!note){ showToast('Add a note explaining the adjustment'); return; }
+      try{
+        const res = await TEI.wealthOS.contributionRules.adjustRun(runId, allocations, note);
+        showToast(res.message || 'Adjusted');
+      } catch(err){
+        console.error('Wealth OS: failed to adjust contribution', err);
+        showToast("Couldn't adjust — " + (err.message || 'try again'));
+        return;
+      }
+      await reloadContrib();
+    });
+  }
+
+  /* ---------- income-change flags ---------- */
+  function flagPanelHtml(f){
+    const acc = client.accounts.find(a=>a.id===f.account_id);
+    const s = f.suggested;
+    const inc = `${fmtGBP(f.old_amount)} ${esc(f.old_frequency||'')} → ${fmtGBP(f.new_amount)} ${esc(f.new_frequency||'')}`;
+    return `<div class="cr-flag" data-flag="${f.id}">
+      <b>Income changed — does this affect the pension contribution?</b>
+      <div>${esc(acc ? TEI.data.acctLabel(acc) : 'Account')} · linked income ${inc}</div>
+      ${s
+        ? `<div>Suggested gross salary <b>${fmtGBP(s.gross_annual_salary)}</b> <span style="color:var(--gold);">(estimate — confirm from payslip or fact find)</span> → new total <b>${fmtGBP2(s.total_monthly)}/mo</b>${s.current_total_monthly != null ? ` (currently ${fmtGBP2(s.current_total_monthly)}/mo)` : ''}</div>`
+        : `<div>No estimate available for this income — enter the new gross salary from the payslip or fact find.</div>`}
+      <div class="cr-flag-actions">
+        ${s ? `<button type="button" class="btn-primary" data-flag-accept="${f.id}">Accept</button>` : ''}
+        <button type="button" class="btn-ghost" data-flag-edit="${f.id}">Edit figure</button>
+        <span data-flag-edit-box="${f.id}" hidden><input type="number" step="0.01" min="0" placeholder="Gross salary £" data-flag-gross="${f.id}" value="${s ? Number(s.gross_annual_salary) : ''}"> <button type="button" class="btn-primary" data-flag-accept-edited="${f.id}">Accept figure</button></span>
+        <button type="button" class="btn-ghost" data-flag-dismiss="${f.id}">Not affected</button>
+      </div>
+    </div>`;
+  }
+  function wireFlagPanels(container){
+    container.querySelectorAll('[data-flag-accept]').forEach(b=> b.addEventListener('click', ()=> resolveFlag(b.dataset.flagAccept, 'accept', null)));
+    container.querySelectorAll('[data-flag-dismiss]').forEach(b=> b.addEventListener('click', ()=> resolveFlag(b.dataset.flagDismiss, 'dismiss', null)));
+    container.querySelectorAll('[data-flag-edit]').forEach(b=> b.addEventListener('click', ()=>{
+      const box = container.querySelector(`[data-flag-edit-box="${b.dataset.flagEdit}"]`);
+      if(box){ box.hidden = false; box.style.display = 'inline-flex'; box.style.gap = '8px'; }
+    }));
+    container.querySelectorAll('[data-flag-accept-edited]').forEach(b=> b.addEventListener('click', ()=>{
+      const id = b.dataset.flagAcceptEdited;
+      const gross = parseFloat((container.querySelector(`[data-flag-gross="${id}"]`)||{}).value);
+      if(!(gross > 0)){ showToast('Enter the gross annual salary'); return; }
+      resolveFlag(id, 'accept', gross);
+    }));
+  }
+  async function resolveFlag(flagId, action, gross){
+    let res;
+    try{
+      res = await TEI.wealthOS.contributionRules.resolveFlag(flagId, action, gross);
+    } catch(err){
+      console.error('Wealth OS: failed to resolve contribution flag', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+      return;
+    }
+    showToast(action === 'accept'
+      ? `New rule version — ${fmtGBP2(res.calc && res.calc.total)}/mo, applies from ${fmtDateShort(res.next_run_date)}`
+      : 'Marked not affected — no change to the contribution');
+    await reloadContrib();
+    refreshAllClientFlags();
+  }
+  // Inline under the Cashflow income form, right after an income edit.
+  function renderIncomeFlagPrompt(incomeId){
+    if(incomeId !== undefined) incomePromptId = incomeId;
+    const box = document.getElementById('advIncomeFlagPrompt');
+    if(!box) return;
+    const flags = incomePromptId && isAdviserView() ? pendingFlags().filter(f=>f.income_id === incomePromptId) : [];
+    box.innerHTML = flags.map(flagPanelHtml).join('');
+    wireFlagPanels(box);
+  }
+  // Adviser-level list: pending flags across every client.
+  async function refreshAllClientFlags(){
+    const card = document.getElementById('contribFlagsCard');
+    if(!card) return;
+    if(!isAdviserView()){ card.hidden = true; return; }
+    let rows;
+    try{
+      rows = await TEI.wealthOS.contributionRules.pendingFlagsAllClients();
+    } catch(err){
+      console.warn('Wealth OS: could not load contribution flags', err);
+      card.hidden = true;
+      return;
+    }
+    card.hidden = !rows.length;
+    const list = document.getElementById('contribFlagsAll');
+    list.innerHTML = rows.map(r=>{
+      const a = r.accounts || {};
+      const c = a.clients || {};
+      const name = [c.first_name, c.last_name].filter(Boolean).join(' ') || 'Client';
+      const isThis = a.client_id === client.meta.clientId;
+      return `<div class="list-row"><div class="lr-main"><b>${esc(name)}</b><div class="lr-meta">${esc(TEI.data.acctLabel({provider:a.provider, type:a.type}))} · flagged ${fmtDateShort(r.created_at)}${r.suggested ? ` · suggested ${fmtGBP(r.suggested.gross_annual_salary)} gross (estimate)` : ''}</div></div>
+        <div class="lr-actions">${isThis
+          ? `<button type="button" class="btn-ghost" data-cr-open="${r.account_id}" style="padding:5px 12px; font-size:11px;">Review</button>`
+          : `<a class="btn-ghost" href="?client=${encodeURIComponent(a.client_id)}" style="padding:5px 12px; font-size:11px;">Open client</a>`}</div></div>`;
+    }).join('');
+    list.querySelectorAll('[data-cr-open]').forEach(b=> b.addEventListener('click', ()=> openRuleEditor(b.dataset.crOpen)));
+  }
+  function wireContribEditor(){
+    ['crBasis','crMethod'].forEach(id=> crEl(id).addEventListener('change', ()=>{ syncRuleEditorChrome(); schedulePreview(); }));
+    ['crTotal','crDay','crUplift','crGross','crEmployeePct','crEmployerPct','crMatchCap'].forEach(id=> crEl(id).addEventListener('input', ()=> schedulePreview()));
+    ['crPersonalMethod','crPensionable','crSalaryMethod','crLinkedIncome'].forEach(id=> crEl(id).addEventListener('change', ()=> schedulePreview()));
+    crEl('crSaveBtn').addEventListener('click', saveRule);
+    crEl('crCancelBtn').addEventListener('click', closeRuleEditor);
+    crEl('crEndBtn').addEventListener('click', ()=>{ if(crAccountId) toggleContributionRule(crAccountId, false, null); });
+    document.getElementById('newHoldingAccount').addEventListener('change', updateHoldingFormForManualPriced);
+  }
+  function resetContribUi(){
+    closeRuleEditor();
+    renderIncomeFlagPrompt(null);
+    updateHoldingFormForManualPriced();
+    refreshAllClientFlags();
+  }
+
   function refresh(){
     clientId = client.meta.clientId || 'preview-client';
     renderOverview();
@@ -14082,6 +14800,7 @@ window.TEI = window.TEI || {};
     renderDocuments();
     refreshAccountSelects();
     refreshAdvGoalLinkedIncomeOptions();
+    resetContribUi();
     enhanceMobileCollapse();
   }
 
@@ -15215,6 +15934,31 @@ window.TEI = window.TEI || {};
 
   function wo(supabase){ return supabase.schema('wealth_os'); }
 
+  /* Recurring contribution rules (supabase/migrations/005_pension_
+     contribution_engine.sql). Read-only here -- every write goes through
+     the RPCs below, and every figure comes from the shared SQL
+     calc_contribution, so the browser never does its own contribution
+     maths. Fails soft: an error (e.g. the migration not applied yet)
+     leaves the feature empty instead of blocking the whole client load. */
+  async function fetchContributionBundle(w, accountIds){
+    const empty = { rules:[], state:[], runs:[], flags:[] };
+    if(!accountIds.length) return empty;
+    try{
+      const [rulesRes, stateRes, runsRes, flagsRes] = await Promise.all([
+        w.from('contribution_rules').select('*, contribution_rule_allocations(*)').in('account_id', accountIds).order('version'),
+        w.from('contribution_rule_state').select('*').in('account_id', accountIds),
+        w.from('contribution_runs').select('*').in('account_id', accountIds).order('run_date', {ascending:false}),
+        w.from('contribution_flags').select('*').in('account_id', accountIds).order('created_at', {ascending:false}),
+      ]);
+      const err = [rulesRes, stateRes, runsRes, flagsRes].map(r=>r.error).find(Boolean);
+      if(err) throw err;
+      return { rules: rulesRes.data||[], state: stateRes.data||[], runs: runsRes.data||[], flags: flagsRes.data||[] };
+    } catch(err){
+      console.warn('Wealth OS: contribution rules unavailable', err);
+      return empty;
+    }
+  }
+
   /* ---------- fetch: one client's full relational bundle ---------- */
   async function fetchClientBundle(supabase, clientId){
     const w = wo(supabase);
@@ -15265,7 +16009,10 @@ window.TEI = window.TEI || {};
       : {data:[], error:null};
     if(holdingMonthsRes.error) throw holdingMonthsRes.error;
 
+    const contrib = await fetchContributionBundle(w, accountIds);
+
     return {
+      contrib,
       client: clientRes.data,
       accounts: accountsRes.data||[],
       holdings: holdingsRes.data||[],
@@ -15294,6 +16041,17 @@ window.TEI = window.TEI || {};
      through that same function so every default-filling rule (jsonb columns
      with no row yet, empty arrays, etc.) is handled in one place rather than
      re-implemented here. */
+  function normaliseContrib(raw){
+    raw = raw || {};
+    const state = {};
+    (raw.state||[]).forEach(s=>{ state[s.account_id] = s; });
+    return {
+      rules: (raw.rules||[]).map(r=>Object.assign({}, r, {
+        allocations: (r.contribution_rule_allocations||[]).slice().sort((a,b)=>a.sort_order-b.sort_order)
+      })),
+      state, runs: raw.runs||[], flags: raw.flags||[]
+    };
+  }
   function adaptClientBundle(bundle, role){
     const c = bundle.client || {};
     const cf = bundle.cashflowSettings || {};
@@ -15382,6 +16140,7 @@ window.TEI = window.TEI || {};
         interestRate: a.interest_rate, rateType: a.rate_type, maturityDate: a.maturity_date,
         interestAccruedToDate: a.interest_accrued_to_date, lastAccruedAt: a.last_accrued_at,
         isJoint: !!a.is_joint,
+        isManualPriced: !!a.is_manual_priced, hasContributionRule: !!a.has_contribution_rule,
         discrepancyDismissedAmount: a.discrepancy_dismissed_amount, discrepancyDismissedAt: a.discrepancy_dismissed_at
       })),
 
@@ -15389,6 +16148,7 @@ window.TEI = window.TEI || {};
         id: h.id, accountId: h.account_id, name: h.name, ticker: h.ticker, units: h.units,
         avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, theme: h.theme || [], value: h.value,
         lastPrice: h.last_price, lastPricedAt: h.last_priced_at, priceSource: h.price_source || 'manual',
+        valueCheckedAt: h.value_checked_at || null,
         lastEditedBy: h.last_edited_by, lastEditedAt: h.last_edited_at
       })),
 
@@ -15453,7 +16213,11 @@ window.TEI = window.TEI || {};
       journeyOverrides: c.journey_overrides, wealthInsights: c.wealth_insights, wealthNextSteps: c.wealth_next_steps,
       dividendHistory: c.dividend_history, investorStage: c.investor_stage, northStar: c.north_star,
 
-      months, holdingsMonths, goalsMonths, contribLog, cashflowMonths, monthsMeta, holdingsMonthsMeta
+      months, holdingsMonths, goalsMonths, contribLog, cashflowMonths, monthsMeta, holdingsMonthsMeta,
+
+      // Recurring contribution rules -- kept as the raw DB rows (snake_case)
+      // because they're only ever read for display; all writes are RPCs.
+      contrib: normaliseContrib(bundle.contrib)
     };
 
     const merged = TEI.data.mergeDefaults(loaded);
@@ -15968,6 +16732,51 @@ window.TEI = window.TEI || {};
     if(error) throw error;
     return data;
   }
+
+  /* ---------- recurring contribution rules (005_pension_contribution_engine) ----------
+     All calculation lives in SQL (calc_contribution); these just call the
+     RPCs. Everything except recordHoldingValuation is adviser-only and is
+     refused server-side for anyone else. */
+  async function rpc(name, args){
+    const { data, error } = await wo(window.teiSupabase).rpc(name, args);
+    if(error) throw error;
+    return data;
+  }
+  const contributionRules = {
+    preview: (payload)=> rpc('preview_contribution', { p_payload: payload }),
+    save: (accountId, payload)=> rpc('save_contribution_rule', { p_account_id: accountId, p_payload: payload }),
+    end: (accountId)=> rpc('end_contribution_rule', { p_account_id: accountId }),
+    resolveFlag: (flagId, action, grossOverride)=> rpc('resolve_contribution_flag', { p_flag_id: flagId, p_action: action, p_gross_override: grossOverride!=null ? grossOverride : null }),
+    reverseRun: (runId, note)=> rpc('reverse_contribution_run', { p_run_id: runId, p_note: note }),
+    adjustRun: (runId, allocations, note)=> rpc('adjust_contribution_run', { p_run_id: runId, p_allocations: allocations, p_note: note }),
+    setManualPriced: (accountId, value)=> rpc('set_manual_priced', { p_account_id: accountId, p_value: !!value }),
+    // Statement valuation: replaces the holding's value (never adds to it)
+    // and stamps value_checked_at. Adviser or the client themselves.
+    recordHoldingValuation: (holdingId, value, asAt)=> rpc('record_holding_valuation', { p_holding_id: holdingId, p_value: value, p_as_at: asAt }),
+    // Re-read one client's rule tables + the affected account/holding rows
+    // after an RPC, so the in-memory client matches what the server did.
+    reload: async (accountIds)=>{
+      const w = wo(window.teiSupabase);
+      const contrib = await fetchContributionBundle(w, accountIds);
+      const [accRes, holdRes] = await Promise.all([
+        accountIds.length ? w.from('accounts').select('id,value,last_updated,contribution,contribution_personal,contribution_sacrifice,is_manual_priced,has_contribution_rule').in('id', accountIds) : Promise.resolve({data:[]}),
+        accountIds.length ? w.from('holdings').select('id,account_id,value,cost_basis,price_source,value_checked_at').in('account_id', accountIds) : Promise.resolve({data:[]}),
+      ]);
+      if(accRes.error) throw accRes.error;
+      if(holdRes.error) throw holdRes.error;
+      return { contrib: normaliseContrib(contrib), accounts: accRes.data||[], holdings: holdRes.data||[] };
+    },
+    // Adviser-level list: every pending flag across all clients (RLS lets
+    // only an adviser see other clients' rows).
+    pendingFlagsAllClients: async ()=>{
+      const { data, error } = await wo(window.teiSupabase).from('contribution_flags')
+        .select('id, created_at, suggested, account_id, accounts(provider, type, client_id, clients(first_name, last_name))')
+        .eq('status', 'pending').order('created_at', {ascending:false});
+      if(error) throw error;
+      return data || [];
+    }
+  };
+
   async function saveCashflowMonth(clientId, monthKey, actualIncome, actualExpenses, source){
     const row = { client_id: clientId, month_key: monthKey,
       actual_income: actualIncome, actual_expenses: actualExpenses,
@@ -16096,7 +16905,7 @@ window.TEI = window.TEI || {};
     saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
-    saveFeedback, updateFeedbackStatus, fetchLivePrices
+    saveFeedback, updateFeedbackStatus, fetchLivePrices, contributionRules
   };
 })();
 
