@@ -3951,6 +3951,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
           <label class="form-field"><span>Employer core %</span><input type="number" step="0.01" min="0" id="crEmployerPct" placeholder="0"></label>
           <label class="form-field"><span>Employer matches up to %</span><input type="number" step="0.01" min="0" id="crMatchCap" placeholder="0"></label>
           <label class="form-field"><span>Contribution method</span><select id="crSalaryMethod"><option value="relief_at_source">Relief at source</option><option value="salary_sacrifice">Salary sacrifice</option></select></label>
+          <label class="form-field" id="crNiPassonField"><span>Employer passes on NI saving %</span><input type="number" step="1" min="0" max="100" id="crNiPasson" placeholder="0"><small class="field-help" style="color:var(--cream-soft2); font-size:11px; line-height:1.4;">Share of the employer's NI saving added to the pension — 100 if all of it, 0 if they keep it.</small></label>
           <label class="form-field"><span>Link to income</span><select id="crLinkedIncome"></select><small class="field-help" style="color:var(--cream-soft2); font-size:11px; line-height:1.4;">Used only to flag when income changes.</small></label>
         </div>
       </div>
@@ -14439,6 +14440,7 @@ window.TEI = window.TEI || {};
     crEl('crEmployerPct').value = salary ? v(rule.employer_pct) : '';
     crEl('crMatchCap').value = salary ? v(rule.employer_match_cap_pct) : '';
     crEl('crSalaryMethod').value = salary && rule.contribution_method ? rule.contribution_method : 'relief_at_source';
+    crEl('crNiPasson').value = salary && rule.employer_ni_passon_pct != null ? Number(rule.employer_ni_passon_pct) : 0;
     const incSel = crEl('crLinkedIncome');
     incSel.innerHTML = '<option value="">Not linked</option>' + client.cashflow.income.map(i=>
       `<option value="${i.id}">${esc(i.type||'Income')} (${i.owner==='partner'?'partner':'client'}) — ${fmtGBP(i.amount)} ${esc(i.frequency||'')}</option>`).join('');
@@ -14460,6 +14462,7 @@ window.TEI = window.TEI || {};
     crEl('crTotalField').hidden = salary || crEl('crMethod').value !== 'percentage';
     const acc = client.accounts.find(a=>a.id===crAccountId);
     crEl('crPersonalMethodField').hidden = salary || !(acc && acc.type === 'pension');
+    crEl('crNiPassonField').hidden = !salary || crEl('crSalaryMethod').value !== 'salary_sacrifice';
     fillFundInputs();
   }
   /* One input per fund; the weight and the £ amount are both remembered
@@ -14513,7 +14516,8 @@ window.TEI = window.TEI || {};
       Object.assign(p, {
         gross_annual_salary: num('crGross'), pensionable_basis: crEl('crPensionable').value,
         employee_pct: num('crEmployeePct'), employer_pct: num('crEmployerPct') || 0, employer_match_cap_pct: num('crMatchCap') || 0,
-        contribution_method: crEl('crSalaryMethod').value, linked_income_id: crEl('crLinkedIncome').value || null
+        contribution_method: crEl('crSalaryMethod').value, linked_income_id: crEl('crLinkedIncome').value || null,
+        employer_ni_passon_pct: crEl('crSalaryMethod').value === 'salary_sacrifice' ? (num('crNiPasson') || 0) : 0
       });
     } else {
       const acc = client.accounts.find(a=>a.id===crAccountId);
@@ -14562,13 +14566,25 @@ window.TEI = window.TEI || {};
       rows.push(['Client pays from take-home pay', fmtGBP2(res.client_pays)]);
       rows.push(['Basic-rate relief added (relief at source)', fmtGBP2(res.relief_amount)]);
     } else if(res.contribution_method === 'salary_sacrifice'){
+      if(Number(res.employer_ni_passon) > 0){
+        rows.push([`Employer NI saving passed on (${fmtPct(res.employer_ni_passon_pct)} of ${fmtGBP2(res.employer_ni_saving)})`, fmtGBP2(res.employer_ni_passon)]);
+      }
       rows.push(['Salary sacrificed (from gross pay)', fmtGBP2(res.sacrifice_amount)]);
+    }
+    // Information only -- the client's own NI saving stays in take-home pay.
+    const info = [];
+    if(res.contribution_method === 'salary_sacrifice' && Number(res.employee_ni_saving) > 0){
+      info.push(['Client\'s NI saving (stays in take-home pay, not added to funds)', fmtGBP2(res.employee_ni_saving)]);
+    }
+    if(res.contribution_method === 'salary_sacrifice' && Number(res.employer_ni_saving) > 0 && !(Number(res.employer_ni_passon) > 0)){
+      info.push(['Employer\'s NI saving (kept by the employer)', fmtGBP2(res.employer_ni_saving)]);
     }
     const split = (res.allocations||[]).map(a=>[`→ ${esc(holdingName(a.holding_id))}`, fmtGBP2(a.amount)]);
     crEl('crBreakdown').innerHTML = `<table>
       ${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
       <tr class="total"><td>Total into funds each month</td><td>${fmtGBP2(res.total)}</td></tr>
       ${split.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
+      ${info.map(r=>`<tr style="opacity:.75; font-size:12px;"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
     </table>`;
     crEl('crAppliesFrom').textContent = res.next_run_date
       ? `Applies from ${fmtDateShort(res.next_run_date)}. No back-dating.`
@@ -14597,7 +14613,7 @@ window.TEI = window.TEI || {};
   function describeRule(r){
     if(r.basis === 'salary_derived'){
       const method = r.contribution_method === 'salary_sacrifice' ? 'salary sacrifice' : 'relief at source';
-      return `${fmtGBP(r.gross_annual_salary)} gross · employee ${fmtPct(r.employee_pct)} · employer ${fmtPct(r.employer_pct)}${Number(r.employer_match_cap_pct)>0 ? ` (matches to ${fmtPct(r.employer_match_cap_pct)})` : ''} · ${method}`;
+      return `${fmtGBP(r.gross_annual_salary)} gross · employee ${fmtPct(r.employee_pct)} · employer ${fmtPct(r.employer_pct)}${Number(r.employer_match_cap_pct)>0 ? ` (matches to ${fmtPct(r.employer_match_cap_pct)})` : ''} · ${method}${Number(r.employer_ni_passon_pct)>0 ? ` + ${fmtPct(r.employer_ni_passon_pct)} employer NI saving` : ''}`;
     }
     if(r.allocation_method === 'percentage') return `${fmtGBP2(r.total_amount)}/mo fixed`;
     return 'fixed, manual amounts per fund';
@@ -14760,7 +14776,9 @@ window.TEI = window.TEI || {};
   function wireContribEditor(){
     ['crBasis','crMethod'].forEach(id=> crEl(id).addEventListener('change', ()=>{ syncRuleEditorChrome(); schedulePreview(); }));
     ['crTotal','crDay','crUplift','crGross','crEmployeePct','crEmployerPct','crMatchCap'].forEach(id=> crEl(id).addEventListener('input', ()=> schedulePreview()));
-    ['crPersonalMethod','crPensionable','crSalaryMethod','crLinkedIncome'].forEach(id=> crEl(id).addEventListener('change', ()=> schedulePreview()));
+    ['crPersonalMethod','crPensionable','crLinkedIncome'].forEach(id=> crEl(id).addEventListener('change', ()=> schedulePreview()));
+    crEl('crSalaryMethod').addEventListener('change', ()=>{ syncRuleEditorChrome(); schedulePreview(); });
+    crEl('crNiPasson').addEventListener('input', ()=> schedulePreview());
     crEl('crSaveBtn').addEventListener('click', saveRule);
     crEl('crCancelBtn').addEventListener('click', closeRuleEditor);
     crEl('crEndBtn').addEventListener('click', ()=>{ if(crAccountId) toggleContributionRule(crAccountId, false, null); });

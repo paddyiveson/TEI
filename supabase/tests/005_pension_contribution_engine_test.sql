@@ -259,6 +259,20 @@ begin
   r := wealth_os.calc_contribution_core('{"basis":"salary_derived","allocation_method":"percentage","gross_annual_salary":12000,"pensionable_basis":"full_salary","employee_pct":2,"employer_pct":3,"employer_match_cap_pct":5,"contribution_method":"salary_sacrifice"}', '[]');
   perform pg_temp.chk('T11 2/3/5 -> employer 3%', (r->>'employer_effective_pct')::numeric, 3);
 
+  -- 006 NI savings: £34k, 5% EE + 5% ER, salary sacrifice, employer passes on 100% of its NI saving
+  r := wealth_os.calc_contribution_core('{"basis":"salary_derived","allocation_method":"percentage","gross_annual_salary":34000,"pensionable_basis":"full_salary","employee_pct":5,"employer_pct":5,"contribution_method":"salary_sacrifice","employer_ni_passon_pct":100}', '[]');
+  perform pg_temp.chk('NI: total into funds £304.59', (r->>'total')::numeric, 304.59);
+  perform pg_temp.chk('NI: employer saving 15% x 1700 / 12', (r->>'employer_ni_saving')::numeric, 21.25);
+  perform pg_temp.chk('NI: employee saving 8% x 1700 / 12 (info only)', (r->>'employee_ni_saving')::numeric, 11.33);
+  perform pg_temp.chk('NI: deposits employer/sacrifice column incl. pass-on', (r->>'deposit_sacrifice')::numeric, 304.59);
+  r := wealth_os.calc_contribution_core('{"basis":"salary_derived","allocation_method":"percentage","gross_annual_salary":34000,"pensionable_basis":"full_salary","employee_pct":5,"employer_pct":5,"contribution_method":"salary_sacrifice","employer_ni_passon_pct":0}', '[]');
+  perform pg_temp.chk('NI: no pass-on -> total £283.34', (r->>'total')::numeric, 283.34);
+  r := wealth_os.calc_contribution_core('{"basis":"salary_derived","allocation_method":"percentage","gross_annual_salary":34000,"pensionable_basis":"full_salary","employee_pct":5,"employer_pct":5,"contribution_method":"relief_at_source","employer_ni_passon_pct":100}', '[]');
+  perform pg_temp.chk('NI: relief at source has no NI saving', (r->>'employer_ni_passon')::numeric, 0);
+  -- above the UEL the employee saving is at 2%: £60k, 10% sacrificed (6000) -> 54000 still above UEL -> 2% x 6000 / 12 = 10.00
+  r := wealth_os.calc_contribution_core('{"basis":"salary_derived","allocation_method":"percentage","gross_annual_salary":60000,"pensionable_basis":"full_salary","employee_pct":10,"contribution_method":"salary_sacrifice"}', '[]');
+  perform pg_temp.chk('NI: employee saving above UEL at 2%', (r->>'employee_ni_saving')::numeric, 10.00);
+
   -- rounding: 3-way 33.333 split of 100 sums exactly
   r := wealth_os.calc_contribution_core('{"basis":"fixed","allocation_method":"percentage","total_amount":100}',
          '[{"holding_id":"a","weight_pct":33.333,"sort_order":0},{"holding_id":"b","weight_pct":33.333,"sort_order":1},{"holding_id":"c","weight_pct":33.334,"sort_order":2}]');
