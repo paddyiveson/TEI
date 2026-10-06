@@ -824,6 +824,27 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
 .mini-form button{grid-column:span 1;}
 @media (max-width:960px){ .mini-form{grid-template-columns:repeat(2,minmax(0,1fr));} }
 @media (max-width:560px){ .mini-form{grid-template-columns:1fr;} }
+/* Accounts form "More options": optional set-and-forget / earmarked yes/no
+   switches. Full-width row of the mini-form grid; collapsed unless an
+   account being edited already has one switched on (see data-edit-acct).
+   Adviser palette (--cream/--gold), same as the rest of this form -- it
+   keeps its dark backdrop when reparented into My Details. */
+.acct-more{grid-column:1 / -1; border:1px solid rgba(247,244,237,0.14); border-radius:var(--radius);}
+.acct-more > summary{cursor:pointer; list-style:none; padding:10px 14px; color:var(--cream-soft); font-size:13px; font-weight:600; font-family:'Inter',sans-serif;}
+.acct-more > summary::-webkit-details-marker{display:none;}
+.acct-more > summary::before{content:'▸'; display:inline-block; width:14px; color:var(--gold); transition:transform .15s;}
+.acct-more[open] > summary::before{transform:rotate(90deg);}
+.acct-more > summary:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:var(--radius);}
+.acct-more-body{display:grid; gap:14px; padding:2px 14px 14px;}
+.acct-yn{display:flex; gap:12px; align-items:flex-start; cursor:pointer; position:relative;}
+.acct-yn input{position:absolute; opacity:0; width:0; height:0; margin:0;}
+.acct-yn .track{flex:none; position:relative; width:36px; height:20px; margin-top:1px; border-radius:10px; background:rgba(247,244,237,0.18); transition:background .15s;}
+.acct-yn .track::after{content:''; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:var(--cream); transition:transform .15s;}
+.acct-yn input:checked + .track{background:var(--gold);}
+.acct-yn input:checked + .track::after{transform:translateX(16px); background:var(--card-dark);}
+.acct-yn input:focus-visible + .track{outline:2px solid var(--gold); outline-offset:2px;}
+.acct-yn .q{display:block; color:var(--cream); font-size:13.5px; font-weight:600;}
+.acct-yn .h{display:block; margin-top:2px; color:var(--cream-soft2); font-size:12px; line-height:1.45;}
 .list-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid rgba(247,244,237,0.08); color:var(--cream); font-size:15px;}
 .list-row:last-child{border-bottom:none;}
 .list-row .lr-main{flex:1;}
@@ -1418,6 +1439,13 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 .lab-scenario-tabs{display:flex; gap:6px; margin:16px 0 12px; border-bottom:1px solid var(--k-row-border); padding-bottom:10px; flex-wrap:wrap;}
 .lab-sc-chip{font-size:12.5px; font-weight:600; padding:6px 12px; border-radius:16px; border:1px solid var(--k-card-border); color:var(--k-ink-softer); background:var(--k-card-bg); cursor:pointer;}
 .lab-sc-chip.active{background:var(--k-badge-bg); border-color:var(--gold); color:var(--k-badge-ink);}
+.lab-filter-row{margin:0 0 12px;}
+.lab-filter-row[hidden]{display:none !important;}
+.lab-filter-chips{display:flex; gap:8px; flex-wrap:wrap;}
+.lab-filter-chips .lab-sc-chip{font-family:var(--font-body);}
+.lab-filter-chips .lab-sc-chip:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+.lab-filter-note{margin-top:8px; font-size:12.5px; color:var(--k-ink-softer);}
+.lab-filter-note:empty{display:none;}
 
 .lab-slider-row{display:flex; align-items:center; gap:12px; background:var(--k-track-bg); border-radius:8px; padding:12px 14px; margin-bottom:16px;}
 .lab-slider-row label{font-size:12.5px; font-weight:600; flex:none; width:150px; color:var(--k-ink);}
@@ -1919,6 +1947,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #clientApp #analysisScopeToggle button.active{background:var(--k-track-bg); border-color:var(--gold); box-shadow:none;}
 
   /* Treemap hero, CTA under it, then the ranked lists, coach, accordions; Lab stepper last. */
+  #clientApp #labFilterRow{order:15; width:100%; margin:0;}
   #clientApp #labTreemapEmpty, #clientApp #labTreemapHost{order:20;}
   #clientApp #labTreemapHost{height:300px; margin:0;}
   #clientApp #labTmLegend{display:none;}
@@ -2694,6 +2723,14 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
             <div class="k-pill-toggle" id="analysisScopeToggle"></div>
           </div>
           <button type="button" class="btn-primary lab-cta" id="labCta" style="margin-left:auto;">Model a change in the Lab →</button>
+        </div>
+        <!-- "Hide set-and-forget" / "Hide earmarked" chips. Hidden unless the
+             "All accounts" scope has an account with that setting (Manual
+             Entry -> Accounts -> More options), so most clients never see
+             it. See renderLabFilters(). -->
+        <div id="labFilterRow" class="lab-filter-row" hidden>
+          <div class="lab-filter-chips" id="labFilterChips"></div>
+          <div class="lab-filter-note" id="labFilterNote"></div>
         </div>
         <div id="labTreemapEmpty"></div>
         <div id="labTreemapHost" class="lab-treemap-host">
@@ -3922,6 +3959,21 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         <label class="form-field" id="advAcctRateTypeField" style="display:none;"><span>Rate type</span><select id="newAcctRateType"><option value="variable">Variable</option><option value="fixed">Fixed</option></select></label>
         <label class="form-field" id="advAcctMaturityField" style="display:none;"><span>Maturity date</span><input type="date" id="newAcctMaturityDate"></label>
         <label class="form-field" id="advAcctJointField" style="display:none; flex-direction:row; align-items:center; gap:6px;"><input type="checkbox" id="newAcctIsJoint" style="width:auto;"><span>Joint account</span></label>
+        <details class="acct-more" id="acctMoreOptions">
+          <summary>More options</summary>
+          <div class="acct-more-body">
+            <label class="acct-yn">
+              <input type="checkbox" id="newAcctSetAndForget">
+              <span class="track" aria-hidden="true"></span>
+              <span><span class="q">Is this account set-and-forget?</span><span class="h">Like a workplace pension: money goes in and you don't really look at it. It still counts in your total wealth, but you can hide it when reviewing what to rebalance.</span></span>
+            </label>
+            <label class="acct-yn">
+              <input type="checkbox" id="newAcctEarmarked">
+              <span class="track" aria-hidden="true"></span>
+              <span><span class="q">Is this money earmarked for something soon?</span><span class="h">For example, a LISA you'll use for a house deposit. It still counts in your total wealth, but you can hide it to see your long-term portfolio.</span></span>
+            </label>
+          </div>
+        </details>
         <button type="button" class="btn-primary" id="addAcctBtn">Add account</button>
       </div>
       <div class="note">Total contributions to date is calculated from monthly deposits plus any contributions before tracking started. Cash balance = uninvested cash, added on top of holdings so totals reconcile. Interest rate (Cash ISA/Deposit only) accrues monthly — Fixed + Maturity date stops it at term. Joint account appears once linked to a household; stays edited here, read-only elsewhere. <span id="advAcctPensionNote" style="display:none;">Pension splits personal/salary-sacrifice.</span></div>
@@ -8115,7 +8167,11 @@ TEI.render = TEI.render || {};
     cashAmount:10000, raiseCashTargetPct:10,
     selectedIds:new Set(), consolidateTargetId:null,
     targetWeights:{},
-    ledgerOpen:false, implementOpen:false
+    ledgerOpen:false, implementOpen:false,
+    // Treemap filter chips -- in memory only, both off by default (see FILTERS below).
+    hide:{setAndForget:false, earmarked:false},
+    filterAvail:{}, filterKey:'', fullTotal:null,
+    client:null, scopeId:null // last render's inputs, so a chip click can re-render itself
   };
 
   function resetScenarioState(){
@@ -8127,6 +8183,36 @@ TEI.render = TEI.render || {};
     state.cashAmount = 10000; state.raiseCashTargetPct = 10;
     state.selectedIds = new Set(); state.consolidateTargetId = null;
     state.targetWeights = {}; state.ledgerOpen = false; state.implementOpen = false;
+  }
+
+  /* "Hide set-and-forget" / "Hide earmarked" chips above the treemap, driven by
+     the account settings in Manual Entry -> Accounts -> More options. Filtering
+     is per account and happens before ticker-grouping, so a ticker held in both
+     an earmarked LISA and an ordinary ISA keeps its ISA part. The Lab models
+     whatever the chips leave (state.holdings), so every weight, scenario and
+     Performance-drivers row is against the filtered total. "All accounts" scope
+     only -- a single-account scope ignores the chips (they'd just empty it).
+     A chip only appears when some account with that setting actually has
+     holdings, i.e. when it would change the treemap. Nothing outside the Lab
+     (net worth, Overview, Coach's Corner, Insights, forecast...) is filtered. */
+  const FILTERS = [
+    {key:'setAndForget', label:'Hide set-and-forget'},
+    {key:'earmarked', label:'Hide earmarked'}
+  ];
+  function filterAvailability(client, scopeId){
+    const avail = {};
+    FILTERS.forEach(f=>{
+      avail[f.key] = !scopeId && client.accounts.some(a=> a[f.key] && client.holdings.some(h=>h.accountId===a.id));
+    });
+    return avail;
+  }
+  function anyFilterOn(){ return FILTERS.some(f=> state.hide[f.key] && state.filterAvail[f.key]); }
+  function filteredClient(client){
+    const hidden = new Set(client.accounts
+      .filter(a=> FILTERS.some(f=> state.hide[f.key] && state.filterAvail[f.key] && a[f.key]))
+      .map(a=>a.id));
+    if(!hidden.size) return client;
+    return Object.assign({}, client, {holdings: client.holdings.filter(h=>!hidden.has(h.accountId))});
   }
 
   /* All accounts -> TEI.calc.groupedHoldings(client), ticker-merged (a holding split
@@ -8622,7 +8708,7 @@ TEI.render = TEI.render || {};
     if(!state.holdings.length){
       host.style.display = 'none';
       legendEl.innerHTML = '';
-      emptyEl.innerHTML = `<div class="line" style="text-align:center; padding:24px 0;">No holdings logged yet.</div>`;
+      emptyEl.innerHTML = `<div class="line" style="text-align:center; padding:24px 0;">${anyFilterOn() ? 'Everything here is hidden by the filters above.' : 'No holdings logged yet.'}</div>`;
       document.getElementById('labCta').style.display = 'none';
       return;
     }
@@ -8646,7 +8732,7 @@ TEI.render = TEI.render || {};
     if(!topEl || !allEl) return;
     const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     if(!state.holdings.length){
-      topEl.innerHTML = allEl.innerHTML = `<div class="line">No holdings logged yet.</div>`;
+      topEl.innerHTML = allEl.innerHTML = `<div class="line">${anyFilterOn() ? 'Everything here is hidden by the filters above.' : 'No holdings logged yet.'}</div>`;
       return;
     }
     const weighted = withWeights(state.holdings);
@@ -9471,7 +9557,30 @@ TEI.render = TEI.render || {};
     document.querySelectorAll('#labStageBody [data-mini="scenario"]').forEach(el=> renderTreemapInto(el, null, scenario, {small:true, height:130}));
   }
 
+  function renderLabFilters(){
+    const row = document.getElementById('labFilterRow');
+    if(!row) return;
+    const shown = FILTERS.filter(f=> state.filterAvail[f.key]);
+    row.hidden = !shown.length;
+    const chips = document.getElementById('labFilterChips');
+    chips.innerHTML = shown.map(f=>{
+      const on = !!state.hide[f.key];
+      return `<button type="button" class="lab-sc-chip${on?' active':''}" data-lab-filter="${f.key}" aria-pressed="${on}">${f.label}</button>`;
+    }).join('');
+    chips.querySelectorAll('[data-lab-filter]').forEach(b=> b.addEventListener('click', ()=>{
+      const key = b.dataset.labFilter;
+      state.hide[key] = !state.hide[key];
+      TEI.render.portfolioLab(state.client, state.scopeId);
+      const again = document.querySelector(`#labFilterChips [data-lab-filter="${key}"]`); // innerHTML rebuilt -- keep keyboard focus on the chip
+      if(again) again.focus();
+    }));
+    document.getElementById('labFilterNote').textContent = state.fullTotal!=null
+      ? `Showing ${fmtGBP(grandTotal())} of ${fmtGBP(state.fullTotal)} Holistic Portfolio`
+      : '';
+  }
+
   function renderLabAll(){
+    renderLabFilters();
     renderTreemapSection();
     renderMobileHoldings();
     const wrap = document.getElementById('labStepperWrap');
@@ -9487,11 +9596,27 @@ TEI.render = TEI.render || {};
   // live-price refresh) keeps whatever stage/scenario was already in progress.
   TEI.render.portfolioLab = function(client, scopeId){
     const scopeKey = scopeId || 'all';
+    state.client = client; state.scopeId = scopeId;
+    state.filterAvail = filterAvailability(client, scopeId);
+    // A setting switched off on every account (in All accounts) also switches its chip off,
+    // so it doesn't come back already on if the setting is turned on again later.
+    if(!scopeId) FILTERS.forEach(f=>{ if(!state.filterAvail[f.key]) state.hide[f.key] = false; });
+    const filterKey = FILTERS.map(f=> state.hide[f.key] && state.filterAvail[f.key] ? 1 : 0).join('');
     if(state.scopeKey !== scopeKey) resetScenarioState();
+    else if(state.filterKey !== filterKey){
+      // Toggling a chip changes which holdings are being modelled, so any scenario in
+      // progress is reset like a scope switch -- but the Lab stays open if it was.
+      const wasExpanded = state.expanded;
+      resetScenarioState();
+      state.expanded = wasExpanded;
+    }
     state.scopeKey = scopeKey;
-    state.holdings = buildLabHoldings(client, scopeId);
-    state.driverRows = buildDriverRows(client, scopeId);
-    state.driverEmptyNote = driverEmptyNote(client, scopeId);
+    state.filterKey = filterKey;
+    const source = filteredClient(client);
+    state.holdings = buildLabHoldings(source, scopeId);
+    state.driverRows = buildDriverRows(source, scopeId);
+    state.driverEmptyNote = driverEmptyNote(source, scopeId);
+    state.fullTotal = anyFilterOn() ? client.holdings.reduce((s,h)=>s+(Number(h.value)||0),0) : null;
     if(state.expanded){
       const cta = document.getElementById('labCta');
       if(cta) cta.textContent = 'Hide the Lab ←';
@@ -11661,6 +11786,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctRateType').value = acc.rateType || 'variable';
         document.getElementById('newAcctMaturityDate').value = acc.maturityDate || '';
         document.getElementById('newAcctIsJoint').checked = !!acc.isJoint;
+        setAcctMoreOptions(acc);
         setAcctContribFieldsRuleOwned(!!acc.hasContributionRule);
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
@@ -11706,10 +11832,20 @@ window.TEI = window.TEI || {};
     ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newAcctRateType').value = 'variable';
     document.getElementById('newAcctIsJoint').checked = false;
+    setAcctMoreOptions(null);
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
     setAcctContribFieldsRuleOwned(false);
+  }
+  /* "More options" (set-and-forget / earmarked): optional, collapsed by
+     default, and opened on edit only when the account already has one
+     switched on so its current state is visible. null = blank add form. */
+  function setAcctMoreOptions(acc){
+    const sf = !!(acc && acc.setAndForget), em = !!(acc && acc.earmarked);
+    document.getElementById('newAcctSetAndForget').checked = sf;
+    document.getElementById('newAcctEarmarked').checked = em;
+    document.getElementById('acctMoreOptions').open = sf || em;
   }
   function setAcctContribFieldsRuleOwned(owned){
     ['newAcctContrib','newAcctContribPersonal','newAcctContribEmployer'].forEach(id=>{
@@ -11765,13 +11901,15 @@ window.TEI = window.TEI || {};
     // a household -- for everyone else it stays false regardless of the
     // (hidden) checkbox's DOM state, same guard as the expense owner field.
     const isJoint = !!client.meta.householdId && document.getElementById('newAcctIsJoint').checked;
+    const setAndForget = document.getElementById('newAcctSetAndForget').checked;
+    const earmarked = document.getElementById('newAcctEarmarked').checked;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
       const acc = client.accounts.find(a=>a.id===editing.account);
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint};
+      const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint, setAndForget, earmarked};
       // Crypto's value is normally holdings-driven (stamped in persistCryptoLastUpdated
       // instead, see addHolding) -- this only covers a crypto account still being
       // manually balanced before its first holding is logged.
@@ -11805,7 +11943,7 @@ window.TEI = window.TEI || {};
       cancelAcctEdit();
       showToast('Account updated');
     } else {
-      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint, setAndForget, earmarked, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -11826,6 +11964,7 @@ window.TEI = window.TEI || {};
       ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newAcctRateType').value = 'variable';
       document.getElementById('newAcctIsJoint').checked = false;
+      setAcctMoreOptions(null);
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -16159,6 +16298,7 @@ window.TEI = window.TEI || {};
         interestAccruedToDate: a.interest_accrued_to_date, lastAccruedAt: a.last_accrued_at,
         isJoint: !!a.is_joint,
         isManualPriced: !!a.is_manual_priced, hasContributionRule: !!a.has_contribution_rule,
+        setAndForget: !!a.set_and_forget, earmarked: !!a.earmarked,
         discrepancyDismissedAmount: a.discrepancy_dismissed_amount, discrepancyDismissedAt: a.discrepancy_dismissed_at
       })),
 
@@ -16439,6 +16579,11 @@ window.TEI = window.TEI || {};
       interest_accrued_to_date: a.interestAccruedToDate != null ? a.interestAccruedToDate : null,
       last_accrued_at: a.lastAccruedAt || null,
       is_joint: !!a.isJoint,
+      // Portfolio-treemap settings (Manual Entry -> Accounts -> More options).
+      // Every saveAccount caller passes the full account object, so these
+      // carry through unrelated saves unchanged.
+      set_and_forget: !!a.setAndForget,
+      earmarked: !!a.earmarked,
       discrepancy_dismissed_amount: a.discrepancyDismissedAmount != null ? a.discrepancyDismissedAmount : null,
       discrepancy_dismissed_at: a.discrepancyDismissedAt || null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),
