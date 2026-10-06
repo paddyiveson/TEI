@@ -317,6 +317,7 @@ begin
   perform wealth_os.end_contribution_rule(a);
   perform pg_temp.chkt('End: flag off', (select has_contribution_rule::text from wealth_os.accounts where id=a), 'false');
   perform pg_temp.chk('End: history kept', (select count(*) from wealth_os.contribution_rules where account_id=a), 1);
+  perform pg_temp.chk('End: legacy figures left as at last update', (select contribution_personal from wealth_os.accounts where id=a), 304);
 
   -- deleting a whole account with a rule works (cascade)
   delete from wealth_os.accounts where id = g;
