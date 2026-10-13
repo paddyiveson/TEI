@@ -1,6 +1,7 @@
 /**
  * Client Hub boundary wording ("coaching, not advice"). The wording lives in
- * this file only, and is shown three ways on signed-in pages:
+ * this file (Wealth OS also has it written into its own "Important" bar), and
+ * is shown three ways on signed-in pages:
  *
  *   1. Footer: the boundary block with a "How we work" link, on every page.
  *   2. Short risk warning: beneath the tool, on tool and calculator pages.
@@ -21,7 +22,8 @@
  * element, or on the tool pages listed below, just above the footer. Either
  * attribute may be set to "inherit" to use the page's own text colour tokens
  * (for pages with a light and a dark theme). data-footer="manual" on the script
- * tag means the page places the footer itself.
+ * tag means the page shows the footer wording itself (Investment Suite: at the
+ * end of each note; Wealth OS: in its "Important" bar).
  */
 (function () {
   if (window.TeiBoundary) return;

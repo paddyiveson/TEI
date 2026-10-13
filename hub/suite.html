@@ -308,33 +308,29 @@ function filterNotes(cat, btn) {
   }
 }
 
-// Compliance wording shown at the end of every note ("TEI Compliance Wording
-// v1": the 2b short warning, then the 2c individual-companies add-on). Added
-// here, not inside each note string, so all notes carry the same wording.
+// Compliance wording shown at the end of every note, as one footer band: the
+// 2b short warning with the 2c individual-companies add-on ("TEI Compliance
+// Wording v1"), then the Hub boundary wording (hub-boundary.js). Added here,
+// not inside each note string, so all notes carry the same wording. This page
+// does not scroll, so the end of the note is where a page footer is read.
 var NOTE_WARNING =
-  '<div style="margin:0;padding:24px 20px 32px;background:#F7F4ED;border-top:3px solid #C9A84C;font-family:Inter,Arial,sans-serif;">' +
-    '<div style="max-width:860px;margin:0 auto;">' +
-      '<p style="margin:0 0 10px;font-size:12.5px;line-height:1.7;color:#1D3557;">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>' +
-      '<p style="margin:0;font-size:12.5px;line-height:1.7;color:#4a5568;">This note explains how a business works and the case for and against it. It is not a recommendation to buy, sell or hold the shares. Single companies can fall much further than a diversified fund, and can lose all of their value. The author may hold shares in companies discussed.</p>' +
-    '</div>' +
-  '</div>';
+  'Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees. ' +
+  'This note explains how a business works and the case for and against it. It is not a recommendation to buy, sell or hold the shares. Single companies can fall much further than a diversified fund, and can lose all of their value. The author may hold shares in companies discussed.';
 
-// The Hub footer wording (hub-boundary.js). This page does not scroll, so the
-// footer goes at the end of each note, where a page footer would be read.
-function noteBoundary() {
+function noteFooter() {
   var b = window.TeiBoundary;
-  if (!b) return '';
-  return '<div style="margin:0;padding:0 20px 32px;background:#F7F4ED;font-family:Inter,Arial,sans-serif;">' +
-    '<div style="max-width:860px;margin:0 auto;padding-top:16px;border-top:1px solid rgba(29,53,87,.15);">' +
-      '<p style="margin:0;font-size:12.5px;line-height:1.7;color:#4a5568;">' + b.TEXT + ' ' + b.linkHtml('color:#1D3557;font-weight:600;') + '</p>' +
-    '</div>' +
+  var text = 'margin:0 auto;max-width:880px;font-size:11.5px;line-height:1.7;color:rgba(247,244,237,.74);';
+  return '<div style="margin:0;padding:24px 24px 28px;background:#0f1e3a;font-family:Inter,Arial,sans-serif;text-align:center;">' +
+    '<p style="' + text + '">' + NOTE_WARNING + '</p>' +
+    (b ? '<p style="' + text + 'margin-top:12px;padding-top:12px;border-top:1px solid rgba(247,244,237,.14);">' +
+      b.TEXT + ' ' + b.linkHtml('color:#C9A84C;font-weight:600;white-space:nowrap;') + '</p>' : '') +
   '</div>';
 }
 
 function withNoteWarning(html) {
-  var extra = NOTE_WARNING + noteBoundary();
+  var footer = noteFooter();
   var end = html.lastIndexOf('</body>');
-  return end === -1 ? html + extra : html.slice(0, end) + extra + html.slice(end);
+  return end === -1 ? html + footer : html.slice(0, end) + footer + html.slice(end);
 }
 
 function loadNote(key) {
