@@ -185,14 +185,15 @@
         '<button type="button" class="tei-menu-close" aria-label="Close menu">' + svg('x') + '</button>' +
       '</div>' +
       '<div class="tei-menu-body">' +
-        (V.book ? '<a class="tei-menu-book" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer">Book a discovery call</a>' : '') +
+        (V.book ? '<a class="tei-menu-book" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer">Book a discovery call</a>' +
+          '<div class="tei-menu-hww"><a href="/how-we-work">How we work</a></div>' : '') +
         '<ul class="tei-menu-list' + (V.book ? '' : ' tei-menu-list--first') + '">' + links + '</ul>' +
       '</div>' +
       (V.adviserLink ? '<div class="tei-menu-foot"><a href="/admin/login.html">Adviser sign in</a></div>' : '');
     document.body.appendChild(menu);
 
     closeBtn = menu.querySelector('.tei-menu-close');
-    Array.prototype.forEach.call(menu.querySelectorAll('.tei-menu-link, .tei-menu-foot a'), function (a) {
+    Array.prototype.forEach.call(menu.querySelectorAll('.tei-menu-link, .tei-menu-hww a, .tei-menu-foot a'), function (a) {
       if (a.hasAttribute('data-id')) menuLinks[a.getAttribute('data-id')] = a;
       // Same-tab navigation: close first so a bfcache "Back" doesn't restore an open menu.
       a.addEventListener('click', function () { closeMenu(false); });

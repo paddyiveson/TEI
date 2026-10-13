@@ -307,6 +307,22 @@ function filterNotes(cat, btn) {
   }
 }
 
+// Compliance wording shown at the end of every note ("TEI Compliance Wording
+// v1": the 2b short warning, then the 2c individual-companies add-on). Added
+// here, not inside each note string, so all notes carry the same wording.
+var NOTE_WARNING =
+  '<div style="margin:0;padding:24px 20px 32px;background:#F7F4ED;border-top:3px solid #C9A84C;font-family:Inter,Arial,sans-serif;">' +
+    '<div style="max-width:860px;margin:0 auto;">' +
+      '<p style="margin:0 0 10px;font-size:12.5px;line-height:1.7;color:#1D3557;">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>' +
+      '<p style="margin:0;font-size:12.5px;line-height:1.7;color:#4a5568;">This note explains how a business works and the case for and against it. It is not a recommendation to buy, sell or hold the shares. Single companies can fall much further than a diversified fund, and can lose all of their value. The author may hold shares in companies discussed.</p>' +
+    '</div>' +
+  '</div>';
+
+function withNoteWarning(html) {
+  var end = html.lastIndexOf('</body>');
+  return end === -1 ? html + NOTE_WARNING : html.slice(0, end) + NOTE_WARNING + html.slice(end);
+}
+
 function loadNote(key) {
   if (key === current) { if (isMobile()) closeSidebar(); return; }
   current = key;
@@ -316,7 +332,7 @@ function loadNote(key) {
   var loading = document.getElementById('loading');
   var frame = document.getElementById('note-frame');
   loading.classList.remove('hidden');
-  frame.srcdoc = notes[key];
+  frame.srcdoc = withNoteWarning(notes[key]);
   frame.onload = function(){ loading.classList.add('hidden'); };
   if (isMobile()) closeSidebar();
 }
