@@ -1,0 +1,113 @@
+/* TEI Client Hub -- boundary wording ("coaching, not advice").
+   Styles for the three things hub/js/hub-boundary.js adds to a signed-in page:
+     .tei-boundary          the footer block
+     .tei-risk-warning      the short risk warning beneath a tool
+     .tei-boundary-notice   the first-login notice with "I understand"
+   Hub pages do not share a stylesheet or a set of colour variables, so brand
+   colours are written out here. */
+
+/* -- Footer block -- */
+.tei-boundary {
+  box-sizing: border-box; width: 100%;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 400; line-height: 1.65;
+  letter-spacing: 0; text-align: center; text-transform: none;
+}
+.tei-boundary p { margin: 0 auto; padding: 0; max-width: 760px; font: inherit; color: inherit; letter-spacing: inherit; }
+.tei-boundary a {
+  color: inherit; font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px; white-space: nowrap;
+}
+.tei-boundary a:focus-visible,
+.tei-boundary-notice a:focus-visible { outline: 2px solid #C9A84C; outline-offset: 3px; border-radius: 3px; }
+
+/* On a light page, on a dark footer, or taking the page's own text colour. */
+.tei-boundary--light { color: #4a5568; }
+.tei-boundary--light a { color: #1D3557; text-decoration-color: #C9A84C; }
+.tei-boundary--dark { color: rgba(247, 244, 237, .74); }
+.tei-boundary--dark a { color: #C9A84C; }
+/* Pages with their own light and dark themes (Wealth OS): use their text tokens. */
+.tei-boundary--inherit { color: var(--ink-soft, inherit); }
+.tei-boundary--inherit a { color: var(--ink, inherit); }
+
+/* A page with no footer of its own gets this one at the end of the page. */
+.tei-boundary-footer {
+  box-sizing: border-box; width: 100%; clear: both;
+  margin: 40px 0 0; padding: 20px 16px 20px;
+  border-top: 1px solid rgba(113, 128, 150, .3);
+}
+/* Added to the end of a footer the page already has. */
+.tei-boundary--joined {
+  flex: 0 0 auto;
+  margin-top: 18px; padding-top: 18px;
+  border-top: 1px solid rgba(128, 138, 152, .3);
+}
+
+/* -- Short risk warning beneath a tool -- */
+.tei-risk-warning {
+  box-sizing: border-box; max-width: 760px;
+  margin: 28px auto 0; padding: 14px 16px 0;
+  border-top: 1px solid rgba(113, 128, 150, .3);
+  font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 400; line-height: 1.65;
+  letter-spacing: 0; text-align: center; text-transform: none;
+  color: #4a5568;
+}
+.tei-risk-warning--dark { color: rgba(247, 244, 237, .68); }
+.tei-risk-warning--inherit { color: var(--ink-soft, inherit); border-top-color: var(--line, rgba(113, 128, 150, .3)); }
+.tei-risk-warning + .tei-boundary-footer { margin-top: 16px; }
+
+/* -- First-login notice -- */
+.tei-boundary-notice {
+  position: fixed; inset: 0;
+  z-index: 4500; /* above the mobile nav (1100), below the sign-in gate (5000) */
+  display: flex; align-items: center; justify-content: center;
+  box-sizing: border-box; padding: 24px;
+  background: rgba(15, 30, 58, .72);
+  font-family: 'Inter', sans-serif;
+  overscroll-behavior: contain;
+}
+.tei-boundary-notice-card {
+  box-sizing: border-box; width: 100%; max-width: 480px; max-height: 100%; overflow-y: auto;
+  padding: 28px 28px 24px;
+  background: #F7F4ED; color: #1D3557;
+  border-top: 4px solid #C9A84C; border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .35);
+  text-align: left;
+}
+.tei-boundary-notice-mark {
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; margin: 0 0 16px;
+  border: 1px solid #C9A84C; border-radius: 50%;
+  font-size: 14px; line-height: 1; color: #b8922d;
+}
+.tei-boundary-notice-text {
+  margin: 0 0 22px; padding: 0;
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 400; line-height: 1.7;
+  letter-spacing: 0; text-transform: none; color: #1D3557;
+}
+.tei-boundary-notice-text a {
+  color: #1D3557; font-weight: 600;
+  text-decoration: underline; text-decoration-color: #C9A84C; text-underline-offset: 3px; white-space: nowrap;
+}
+.tei-boundary-notice-btn {
+  -webkit-appearance: none; appearance: none;
+  display: block; box-sizing: border-box; width: 100%; min-height: 48px; margin: 0; padding: 0 20px;
+  border: 0; border-radius: 10px;
+  background: #1D3557; color: #F7F4ED;
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: .01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tei-boundary-notice-btn:hover { background: #0f1e3a; }
+.tei-boundary-notice-btn:focus-visible { outline: 2px solid #C9A84C; outline-offset: 3px; }
+.tei-boundary-notice-btn[disabled] { opacity: .6; cursor: default; }
+
+@media (max-width: 600px) {
+  .tei-boundary { font-size: 11.5px; }
+  .tei-boundary a { display: inline-block; padding: 8px 2px; margin: -8px 0; }
+  /* A sheet at the bottom of the screen, within thumb reach. */
+  .tei-boundary-notice { align-items: flex-end; padding: 0; }
+  .tei-boundary-notice-card {
+    max-width: none; border-radius: 16px 16px 0 0;
+    padding: 24px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+}

@@ -108,6 +108,7 @@
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
+<script src="/hub/js/hub-boundary.js" data-footer="manual"></script>
 
 <div class="app">
 
@@ -217,7 +218,7 @@
         <div class="spinner"></div>
         <p class="loading-text">Loading note...</p>
       </div>
-      <iframe id="note-frame" title="Investment Note" sandbox="allow-scripts allow-same-origin"></iframe>
+      <iframe id="note-frame" title="Investment Note" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
     </div>
   </div>
 
@@ -318,9 +319,22 @@ var NOTE_WARNING =
     '</div>' +
   '</div>';
 
+// The Hub footer wording (hub-boundary.js). This page does not scroll, so the
+// footer goes at the end of each note, where a page footer would be read.
+function noteBoundary() {
+  var b = window.TeiBoundary;
+  if (!b) return '';
+  return '<div style="margin:0;padding:0 20px 32px;background:#F7F4ED;font-family:Inter,Arial,sans-serif;">' +
+    '<div style="max-width:860px;margin:0 auto;padding-top:16px;border-top:1px solid rgba(29,53,87,.15);">' +
+      '<p style="margin:0;font-size:12.5px;line-height:1.7;color:#4a5568;">' + b.TEXT + ' ' + b.linkHtml('color:#1D3557;font-weight:600;') + '</p>' +
+    '</div>' +
+  '</div>';
+}
+
 function withNoteWarning(html) {
+  var extra = NOTE_WARNING + noteBoundary();
   var end = html.lastIndexOf('</body>');
-  return end === -1 ? html + NOTE_WARNING : html.slice(0, end) + NOTE_WARNING + html.slice(end);
+  return end === -1 ? html + extra : html.slice(0, end) + extra + html.slice(end);
 }
 
 function loadNote(key) {

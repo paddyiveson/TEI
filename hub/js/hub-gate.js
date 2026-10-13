@@ -123,6 +123,14 @@
     }
   }
 
+  /** Footer wording, tool risk warning and first-login notice: see hub-boundary.js. */
+  function loadBoundaryWording() {
+    if (window.TeiBoundary) return;
+    var script = document.createElement("script");
+    script.src = "/hub/js/hub-boundary.js";
+    document.body.appendChild(script);
+  }
+
   TeiAuth.waitForReady()
     .then(function () {
       return TeiAuth.getUser();
@@ -135,6 +143,7 @@
       }
       overlay.remove();
       injectSignedInUI(user);
+      loadBoundaryWording();
     })
     .catch(goToLogin);
 })();
