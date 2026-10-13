@@ -156,6 +156,11 @@ nav {
   display: flex;
   flex-direction: column;
 }
+/* Optical centring: content that is exactly centred under a nav bar reads as
+   sitting low, so the spare height is split 3:5 (above : below). On short
+   screens there is no spare height and the spacers collapse to nothing. */
+.hero::before, .hero::after { content: ''; flex: 3 1 0; }
+.hero::after { flex-grow: 5; }
 .hero-mesh {
   position: absolute; inset: 0; pointer-events: none;
   background:
@@ -171,7 +176,7 @@ nav {
   filter: url(#teiGrain);
 }
 .hero-grid {
-  position: relative; z-index: 2; flex: 1;
+  position: relative; z-index: 2; flex: none;
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 80px; align-items: center;
   padding: 48px 64px; max-width: 1400px; width: 100%; margin: 0 auto;
