@@ -1,0 +1,83 @@
+/* TEI site -- compliance wording ("TEI Compliance Wording v1").
+   Three pieces, all static HTML on the pages themselves:
+     .tei-compliance  the footer block: 1c one-liner + "How we work" link,
+                      then the 2b short warning in small text
+     .tei-hww         the small "How we work" link under a sign-up CTA
+     .tei-footer-min  a footer for pages that had none, holding the block
+   Colour fallbacks are the brand values, for pages that name them differently. */
+
+/* -- Footer block -- */
+.tei-compliance {
+  box-sizing: border-box;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+}
+.tei-compliance p { margin: 0; padding: 0; max-width: 760px; letter-spacing: 0; }
+.tei-compliance .tei-compliance-line {
+  font-size: 13px; line-height: 1.6; font-weight: 500;
+  color: rgba(247, 244, 237, .88);
+}
+.tei-compliance .tei-compliance-warning {
+  margin-top: 8px;
+  font-size: 11.5px; line-height: 1.65; font-weight: 400;
+  color: rgba(247, 244, 237, .64);
+}
+.tei-compliance a {
+  color: var(--gold, #C9A84C);
+  font-weight: 600;
+  text-decoration: underline; text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.tei-compliance a:hover { color: var(--cream, #F7F4ED); }
+.tei-compliance a:focus-visible,
+.tei-hww a:focus-visible { outline: 2px solid var(--gold, #C9A84C); outline-offset: 3px; border-radius: 3px; }
+
+/* Placed after, or before, the footer's existing content. */
+.tei-compliance--after { margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(247, 244, 237, .12); }
+.tei-compliance--before { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(247, 244, 237, .12); }
+
+/* Footers that centre their text at every width. */
+.tei-compliance--center { text-align: center; }
+.tei-compliance--center p { margin-left: auto; margin-right: auto; }
+
+/* Site footers that lay the logo and disclaimer out in a row: the block takes
+   its own full-width row beneath them. The footer's gap already separates it. */
+footer.tei-footer-stack { flex-wrap: wrap; }
+footer.tei-footer-stack > .tei-compliance--after { margin-top: 0; }
+
+/* -- Footer for pages that had none -- */
+.tei-footer-min { background: var(--navy-dk, #0f1e3a); padding: 32px 24px; }
+.tei-footer-min .tei-compliance { max-width: 760px; margin: 0 auto; }
+
+/* -- "How we work" link under a CTA (dark backgrounds by default) -- */
+.tei-hww {
+  margin: 12px 0 0; padding: 0;
+  font-family: 'Inter', sans-serif; font-size: 12.5px; line-height: 1.4; font-weight: 500;
+  letter-spacing: 0;
+  text-align: center;
+}
+.tei-hww a {
+  display: inline-block; padding: 6px 4px;
+  color: rgba(247, 244, 237, .8);
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: rgba(201, 168, 76, .75);
+}
+.tei-hww a:hover { color: var(--gold, #C9A84C); }
+.tei-hww--start { text-align: left; }
+.tei-hww--light a { color: var(--mid, #4a5568); }
+.tei-hww--light a:hover { color: var(--navy, #1D3557); }
+
+@media (max-width: 860px) {
+  /* Footers centre their content at this width; the block follows. */
+  footer.tei-footer-stack > .tei-compliance,
+  .tei-footer-min .tei-compliance { text-align: center; }
+  .tei-compliance p { max-width: none; }
+  .tei-compliance .tei-compliance-line { font-size: 13px; }
+  /* Comfortable tap targets. */
+  /* The negative margin stops the padding pushing its line of text apart. */
+  .tei-compliance a { display: inline-block; padding: 8px 2px; margin: -8px 0; }
+  .tei-hww a { padding: 10px 8px; }
+  /* The home hero hides its booking button at this width, so its link goes too. */
+  .hero-ctas + .tei-hww { display: none; }
+}

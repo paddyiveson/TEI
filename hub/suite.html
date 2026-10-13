@@ -108,6 +108,7 @@
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
+<script src="/hub/js/hub-boundary.js" data-footer="manual"></script>
 
 <div class="app">
 
@@ -217,7 +218,7 @@
         <div class="spinner"></div>
         <p class="loading-text">Loading note...</p>
       </div>
-      <iframe id="note-frame" title="Investment Note" sandbox="allow-scripts allow-same-origin"></iframe>
+      <iframe id="note-frame" title="Investment Note" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
     </div>
   </div>
 
@@ -307,6 +308,31 @@ function filterNotes(cat, btn) {
   }
 }
 
+// Compliance wording shown at the end of every note, as one footer band: the
+// 2b short warning with the 2c individual-companies add-on ("TEI Compliance
+// Wording v1"), then the Hub boundary wording (hub-boundary.js). Added here,
+// not inside each note string, so all notes carry the same wording. This page
+// does not scroll, so the end of the note is where a page footer is read.
+var NOTE_WARNING =
+  'Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees. ' +
+  'This note explains how a business works and the case for and against it. It is not a recommendation to buy, sell or hold the shares. Single companies can fall much further than a diversified fund, and can lose all of their value. The author may hold shares in companies discussed.';
+
+function noteFooter() {
+  var b = window.TeiBoundary;
+  var text = 'margin:0 auto;max-width:880px;font-size:11.5px;line-height:1.7;color:rgba(247,244,237,.74);';
+  return '<div style="margin:0;padding:24px 24px 28px;background:#0f1e3a;font-family:Inter,Arial,sans-serif;text-align:center;">' +
+    '<p style="' + text + '">' + NOTE_WARNING + '</p>' +
+    (b ? '<p style="' + text + 'margin-top:12px;padding-top:12px;border-top:1px solid rgba(247,244,237,.14);">' +
+      b.TEXT + ' ' + b.linkHtml('color:#C9A84C;font-weight:600;white-space:nowrap;') + '</p>' : '') +
+  '</div>';
+}
+
+function withNoteWarning(html) {
+  var footer = noteFooter();
+  var end = html.lastIndexOf('</body>');
+  return end === -1 ? html + footer : html.slice(0, end) + footer + html.slice(end);
+}
+
 function loadNote(key) {
   if (key === current) { if (isMobile()) closeSidebar(); return; }
   current = key;
@@ -316,7 +342,7 @@ function loadNote(key) {
   var loading = document.getElementById('loading');
   var frame = document.getElementById('note-frame');
   loading.classList.remove('hidden');
-  frame.srcdoc = notes[key];
+  frame.srcdoc = withNoteWarning(notes[key]);
   frame.onload = function(){ loading.classList.add('hidden'); };
   if (isMobile()) closeSidebar();
 }
