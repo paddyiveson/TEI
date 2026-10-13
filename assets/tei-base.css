@@ -1,0 +1,356 @@
+/* TEI site -- shared base for the public site and the Client Hub.
+   Pages still carry their own <style> blocks; this file holds only what is
+   common to them:
+     1. the spacing scale (custom properties)
+     2. .amp, a sans-serif ampersand for serif headings
+     3. card grids whose buttons line up along the bottom of each row
+     4. the mobile sweep (max-width 768px / 480px) for shared page templates
+   Link it last in <head> so its mobile rules follow the page's own styles.
+   Wealth OS does not load this file. */
+
+/* -- 1. Spacing scale -- */
+:root {
+  --section-pad-y: clamp(56px, 7vw, 88px);
+  --section-pad-y-tight: clamp(40px, 5vw, 56px);
+  --heading-gap: 24px; /* eyebrow/heading block to the content below it */
+  --card-gap: 20px;
+}
+
+/* -- 2. Ampersand -- */
+/* Playfair Display draws "&" as an ornate ligature. Wrap it in .amp to show
+   the plain sans-serif glyph at the heading's own size and weight. */
+.amp {
+  font-family: var(--font-body, 'Inter', sans-serif);
+  font-style: normal;
+  font-weight: inherit;
+  line-height: 0; /* keeps the heading's own line height: the sans glyph has taller metrics */
+}
+
+/* -- 3. Card grids -- */
+/* Cards stretch to the height of their row; a .tei-card-btn sits on the
+   bottom edge, so every button in a row shares one baseline. */
+.tei-card-grid {
+  display: grid;
+  gap: var(--card-gap);
+  align-items: stretch;
+}
+.tei-card-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tei-card-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tei-card {
+  display: flex; flex-direction: column;
+  background: var(--white, #ffffff);
+  border-radius: var(--radius, 10px);
+  border: 1px solid rgba(29, 53, 87, .07);
+  box-shadow: var(--shadow, 0 4px 28px rgba(29, 53, 87, .10));
+  overflow: hidden;
+}
+.tei-card-bar { flex: none; height: 6px; background: var(--navy, #1D3557); }
+.tei-card-body { display: flex; flex-direction: column; flex: 1; padding: 28px 26px; }
+.tei-card-icon { display: block; font-size: 26px; margin-bottom: 12px; }
+.tei-card-icon--lg { font-size: 30px; margin-bottom: 14px; }
+.tei-card-tag {
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold-dk, #b8922d); font-weight: 700; margin-bottom: 6px;
+}
+.tei-card-tag--gold { color: var(--gold, #C9A84C); }
+.tei-card-title {
+  font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 400;
+  color: var(--navy, #1D3557); margin-bottom: 10px;
+}
+h3.tei-card-title { font-size: 19px; font-weight: 700; }
+.tei-card-desc { font-size: 13px; color: var(--mid, #4a5568); line-height: 1.7; margin-bottom: 16px; }
+.tei-card-desc--grow { margin-bottom: 22px; flex: 1; }
+.tei-card-note { display: flex; align-items: center; gap: 6px; margin-top: auto; font-size: 11px; color: var(--lt, #718096); }
+.tei-card-btn {
+  display: block; box-sizing: border-box; width: 100%;
+  margin-top: auto; padding: 12px;
+  background: var(--navy, #1D3557); color: var(--cream, #F7F4ED);
+  border: none; border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700;
+  text-align: center; text-decoration: none; cursor: pointer;
+  transition: background .2s;
+}
+.tei-card-btn--lg { padding: 13px; }
+
+/* Sections that share a background with the one above drop their top
+   padding, so the gap between two blocks of content is one --section-pad-y. */
+.tei-section { padding-top: var(--section-pad-y); padding-bottom: var(--section-pad-y); }
+.tei-section--join { padding-top: 0; }
+.tei-section--tight-top { padding-top: var(--section-pad-y-tight); }
+.tei-section--tight-bottom { padding-bottom: var(--section-pad-y-tight); }
+
+/* -- 4. Mobile sweep -- */
+@media (max-width: 768px) {
+  /* Card grids: one column, equal gaps. */
+  .tei-card-grid--2, .tei-card-grid--3 { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .tei-card-body { padding: 24px 20px; }
+  .tei-card-title, h3.tei-card-title { font-size: 20px; line-height: 1.3; }
+  .tei-card-tag { font-size: 11px; }
+  .tei-card-desc { font-size: 16px; line-height: 1.6; }
+  .tei-card-note { font-size: 13px; }
+  .tei-card-btn, .tei-card-btn--lg { min-height: 48px; padding: 14px 12px; font-size: 15px; }
+
+  /* "How we work" links: a 44px target without pushing the text lines apart. */
+  .tei-compliance p a, .tei-boundary p a {
+    display: inline-block; padding: 13px 2px !important; margin: -13px 0 !important;
+  }
+  .tei-hww a { padding: 13px 8px; }
+  .tei-compliance .tei-compliance-warning, .tei-risk-warning { font-size: 12.5px; }
+  .tei-boundary { font-size: 13px; }
+}
+
+/* ==== MOBILE SWEEP: page templates (generated block, edit in place) ==== */
+/* Layout and type only, at phone widths. Many of these pages set sizes with
+   inline styles or id selectors, so sizes here carry !important; nothing in
+   this block applies above 768px. Body copy is 16px, secondary copy 13px or
+   more, and every button, link and pill is at least 44px tall. */
+@media (max-width: 768px) {
+
+  /* ---- Standard pages (thin hero + .section) ---- */
+  .thin-hero-inner, .art-hero-inner { padding-left: 20px !important; padding-right: 20px !important; }
+  body > div > .section, body > .section, #guides > .section, #tools.section { padding-left: 20px; padding-right: 20px; }
+  #guides > .section, #tools.section, .tei-section--tight-top, .tei-section--tight-bottom {
+    padding-top: var(--section-pad-y-tight); padding-bottom: var(--section-pad-y-tight);
+  }
+  #tools.section { padding-top: 0; }
+  #guides .section-label, #tools .section-label { font-size: 11px !important; }
+  .section-sub { font-size: 16px !important; line-height: 1.6; }
+  .story-wrap { padding: var(--section-pad-y-tight) 20px !important; }
+  .cred-inner { padding: 32px 20px !important; }
+  .cred-text { font-size: 16px !important; }
+  .about-cta { padding: var(--section-pad-y-tight) 20px !important; }
+  .about-cta p { font-size: 16px !important; }
+  .about-cta-btn { min-height: 48px; box-sizing: border-box; justify-content: center; }
+  .footer-disc { font-size: 12px !important; }
+  .tei-banner { padding: 24px 20px; }
+  .tei-banner-tag { font-size: 11px; }
+  .tei-banner-desc { font-size: 16px; }
+  .tei-banner-btn { min-height: 48px; box-sizing: border-box; width: 100%; justify-content: center; font-size: 15px; }
+  .tei-tool-note { font-size: 12.5px; }
+  .tei-tool-embed { margin-bottom: var(--section-pad-y-tight); }
+
+  /* Article index (public and hub) */
+  .art-body { padding-left: 20px !important; padding-right: 20px !important; }
+  .art-dek { font-size: 16px !important; line-height: 1.6 !important; }
+  .art-more { display: inline-flex; align-items: center; min-height: 44px; }
+  [data-tei-page="article-index"] body > nav .nav-logo { min-height: 44px; }
+  [data-tei-page="article-index"] .nav-mobile-toggle { min-width: 44px; min-height: 44px; align-items: center; justify-content: center; }
+
+  /* Client Hub dashboard */
+  .hub-hero { padding: 20px !important; }
+  .hub-featured-eyebrow, .hub-body-eyebrow, .hub-library-eyebrow { font-size: 11px !important; }
+  .hub-featured-desc { font-size: 16px !important; max-width: none !important; }
+  .hub-featured-link { min-height: 44px; font-size: 15px !important; }
+  .hub-featured-item { padding-bottom: 20px !important; }
+  .hub-body-title { font-size: clamp(19px, 5.4vw, 22px) !important; line-height: 1.3; }
+  .hub-quick-card { min-height: 64px; box-sizing: border-box; }
+  .hub-quick-title { font-size: 15px !important; }
+  .hub-library-banner { padding: 24px 20px !important; flex-direction: column; align-items: flex-start !important; }
+  .hub-library-desc { font-size: 16px !important; }
+  .hub-library-cta { min-height: 48px; box-sizing: border-box; width: 100%; justify-content: center; font-size: 15px !important; }
+
+  /* Knowledge Library home */
+  [data-tei-page="knowledge-home"] .kl-body { padding-left: 20px !important; padding-right: 20px !important; }
+  [data-tei-page="knowledge-home"] .section-desc { font-size: 16px !important; line-height: 1.55; }
+  [data-tei-page="knowledge-home"] .section-status { font-size: 11px !important; }
+  [data-tei-page="knowledge-home"] .crumb a { display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* ---- Cost of Waiting calculator (embedded on Guides & Tools, and the hub page) ---- */
+  #cow-container .calc-wrapper { padding-left: 0 !important; padding-right: 0 !important; }
+  #cow-container .calc-header, #cow-container .calc-body, #cow-container .full-result, #cow-container .calc-footer { padding-left: 20px !important; padding-right: 20px !important; }
+  #cow-container .calc-sub, #cow-container .partial-desc { font-size: 16px !important; }
+  #cow-container .input-field, #cow-container .goal-select, #cow-container .contact-input { font-size: 16px !important; min-height: 48px; box-sizing: border-box; }
+  #cow-container .risk-btn { min-height: 56px; }
+  #cow-container .proc-tab, #cow-container .contact-opt { min-height: 44px; }
+  #cow-container .footer-cta { min-height: 48px; box-sizing: border-box; justify-content: center; }
+  #cow-container .field-label, #cow-container .field-hint, #cow-container .section-label { font-size: 11.5px !important; }
+
+  /* ---- Tool and guide pages: back pill and sign-out pill ---- */
+  body > a[href$="guides.html"][style*="position:fixed"], a.back-to-guides {
+    min-height: 44px; box-sizing: border-box; padding-top: 0 !important; padding-bottom: 0 !important;
+    max-width: calc(100vw - 132px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #hubGateSignOutPill { padding-top: 0 !important; padding-bottom: 0 !important; padding-right: 4px !important; }
+  #hubGateSignOutPill a { display: inline-flex; align-items: center; min-height: 44px; padding-top: 0 !important; padding-bottom: 0 !important; }
+
+  /* ---- TEI Principles ---- */
+  .nav-dots { flex-wrap: nowrap !important; justify-content: flex-start !important; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin-left: -20px; margin-right: -20px; padding: 0 20px; }
+  .nav-dots::-webkit-scrollbar { display: none; }
+  .nav-dot { flex: none; display: inline-flex; align-items: center; min-height: 44px; box-sizing: border-box; white-space: nowrap; font-size: 13px !important; }
+  .vs-cards { grid-template-columns: 1fr !important; }
+  .vs-card-text, .philosophy-text p, .sizing-text, .scenario-panel-text, .rotation-example-text,
+  .part-question, .path-card-text, .matrix-rotation p, .inflation-inner p, .machine-inner p { font-size: 16px !important; line-height: 1.6 !important; }
+
+  /* ---- Five Stages ---- */
+  .stage-outcome, .grad-list li, .why-intro, .why-outro, .hero-sub, #finalCtaText, .assess-q,
+  .lesson-body, .lesson-intro { font-size: 16px !important; line-height: 1.6 !important; }
+  .stage-tagline { font-size: 15px !important; }
+  .journey-caption, .lesson-caption { font-size: 13px !important; }
+  .assess-btn { min-height: 48px; }
+
+  /* ---- Tax Wrapper Guide ---- */
+  .stage-bar { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-left: 20px !important; padding-right: 20px !important; }
+  .stage-bar::-webkit-scrollbar { display: none; }
+  .stage-bar .stage-label { flex: none; }
+  .stage-btn { flex: none; min-height: 44px; box-sizing: border-box; white-space: nowrap; }
+  .wc-desc, .sec-sub, .cta-block p { font-size: 16px !important; line-height: 1.6 !important; }
+  .cta-step p { font-size: 14px !important; }
+  .allowance-banner div[style] { font-size: 13px !important; }
+  .wc-pill { font-size: 12px !important; }
+  .wc-expand-btn { min-height: 44px; font-size: 14px !important; }
+  header .header-logo, header .header-back { min-height: 44px; }
+  header .header-back { font-size: 14px !important; }
+
+  /* ---- Property Investment Calculator ---- */
+  .proc-tabs .proc-tab { min-height: 44px; font-size: 12.5px !important; }
+  .info-text, .warn-banner span, .calc-footer p, .calc-sub { font-size: 16px !important; line-height: 1.55 !important; }
+  .footnote, .input-hint { font-size: 13px !important; }
+
+  /* ---- Tax Wrapper Scenario Tool ---- */
+  [data-tei-page="taxscenario"] input, [data-tei-page="taxscenario"] select { font-size: 16px !important; min-height: 48px; box-sizing: border-box; }
+  [data-tei-page="taxscenario"] .field-row { grid-template-columns: 1fr !important; }
+  [data-tei-page="taxscenario"] .toggle-btn { min-height: 48px; }
+  [data-tei-page="taxscenario"] .hero h1 { font-size: clamp(24px, 7vw, 30px) !important; line-height: 1.2 !important; }
+  [data-tei-page="taxscenario"] .hero > p, [data-tei-page="taxscenario"] .hero p { font-size: 16px !important; }
+  [data-tei-page="taxscenario"] .field label { font-size: 14px !important; }
+  [data-tei-page="taxscenario"] .field > p, [data-tei-page="taxscenario"] .caveat { font-size: 13px !important; }
+  [data-tei-page="taxscenario"] button { min-height: 48px; }
+
+  /* ---- Portfolio Strategy ---- */
+  [data-tei-page="portfolio"] .option, [data-tei-page="portfolio"] .q-text, [data-tei-page="portfolio"] .step-sub { font-size: 16px !important; line-height: 1.5 !important; }
+  [data-tei-page="portfolio"] button { min-height: 44px; }
+
+  /* ---- Wealth Forecast (desktop tool: contained to the screen, not redesigned) ---- */
+  [data-tei-page="wealthforecast"] .main { padding-left: 16px !important; padding-right: 16px !important; }
+  [data-tei-page="wealthforecast"] .layout { grid-template-columns: minmax(0, 1fr) !important; }
+  [data-tei-page="wealthforecast"] .panel { position: static !important; }
+  [data-tei-page="wealthforecast"] .toolbar, [data-tei-page="wealthforecast"] .summary-bar { flex-wrap: wrap !important; }
+  [data-tei-page="wealthforecast"] .tool-btn { white-space: normal !important; }
+  [data-tei-page="wealthforecast"] .tabs { scrollbar-width: none; }
+  [data-tei-page="wealthforecast"] .tabs::-webkit-scrollbar { display: none; }
+  [data-tei-page="wealthforecast"] input, [data-tei-page="wealthforecast"] select { font-size: 16px !important; min-height: 44px; box-sizing: border-box; }
+  [data-tei-page="wealthforecast"] button { min-height: 44px; }
+  [data-tei-page="wealthforecast"] .disc { font-size: 12.5px !important; }
+  [data-tei-page="wealthforecast"] canvas, [data-tei-page="wealthforecast"] table { max-width: 100%; }
+
+  /* ---- Portfolio Optimisation Lab (contained to the screen, not redesigned) ---- */
+  [data-tei-page="lab"] main { padding: 24px 16px 72px !important; }
+  [data-tei-page="lab"] .topbar { padding-left: 16px !important; padding-right: 16px !important; }
+  [data-tei-page="lab"] .card-pad { padding: 16px !important; }
+  [data-tei-page="lab"] .stage-nav { scrollbar-width: none; }
+  [data-tei-page="lab"] .stage-nav::-webkit-scrollbar { display: none; }
+  [data-tei-page="lab"] .stage-nav .stage-btn { flex: none; min-height: 44px; }
+  [data-tei-page="lab"] .holding-row-edit { grid-template-columns: 76px minmax(0, 1fr) 96px 44px !important; gap: 6px !important; }
+  [data-tei-page="lab"] input, [data-tei-page="lab"] select, [data-tei-page="lab"] textarea { font-size: 16px !important; min-height: 44px; box-sizing: border-box; min-width: 0; }
+  [data-tei-page="lab"] .holding-row-edit input { padding-left: 8px !important; padding-right: 8px !important; }
+  [data-tei-page="lab"] button { min-height: 44px; }
+  [data-tei-page="lab"] .remove-x { min-width: 44px; }
+  [data-tei-page="lab"] .section-sub, [data-tei-page="lab"] .view-desc, [data-tei-page="lab"] .notice span { font-size: 16px !important; }
+  [data-tei-page="lab"] .disclaimer-strip { font-size: 13px !important; }
+
+  /* ---- Education Platform ---- */
+  [data-tei-page="education"] header.tei-header .brand,
+  [data-tei-page="education"] header.tei-header .edu-exit,
+  [data-tei-page="education"] header.tei-header .edu-signout,
+  [data-tei-page="education"] header.tei-header .crumb a { display: inline-flex; align-items: center; min-height: 44px; }
+  [data-tei-page="education"] header.tei-header .crumb { overflow: hidden; white-space: nowrap; }
+  [data-tei-page="education"] header.tei-header .crumb > * { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  [data-tei-page="education"] .card > p, [data-tei-page="education"] .mod-purpose { font-size: 16px !important; line-height: 1.6; }
+  [data-tei-page="education"] .takeaway { font-size: 15px !important; }
+  [data-tei-page="education"] .home-footnote { font-size: 13px !important; padding-left: 16px; padding-right: 16px; }
+
+  /* ---- Sign in / reset password ---- */
+  [data-tei-page="login"] input { font-size: 16px !important; min-height: 48px; box-sizing: border-box; }
+  [data-tei-page="login"] .login-btn { min-height: 48px; font-size: 16px !important; }
+  [data-tei-page="login"] .login-sub { font-size: 16px !important; }
+  [data-tei-page="login"] .pw-toggle { min-width: 44px; min-height: 44px; }
+
+  /* ---- Investment Suite shell (the notes themselves are separate documents) ---- */
+  [data-tei-page="suite"] .seg-btn { min-height: 44px; }
+  [data-tei-page="suite"] .sidebar a { display: flex; align-items: center; min-height: 44px; }
+  [data-tei-page="suite"] .sidebar-footer a { display: inline-flex; }
+
+  /* ---- Articles (public and hub copies share one template) ---- */
+  body > nav .nav-back, .article-nav .nav-back, nav .nav-back { display: inline-flex; align-items: center; min-height: 44px; }
+  nav > .nav-logo { min-height: 44px; }
+  .principle p, .example-note p, .founder-note p, p.close { font-size: 16px !important; line-height: 1.65 !important; }
+  .force p, .flow-text, .visual-sub { font-size: 15px !important; line-height: 1.55 !important; }
+  .visual-caption { font-size: 14px !important; line-height: 1.55 !important; }
+  p.sources, p.disclaimer { font-size: 12.5px !important; }
+
+  /* ---- Knowledge Library section pages ---- */
+  .controls { padding-left: 16px !important; padding-right: 16px !important; }
+  .controls-row > * { flex: 1 1 100% !important; min-width: 0; width: 100%; box-sizing: border-box; }
+  .controls-row #searchInput, .controls-row select { font-size: 16px !important; min-height: 48px; }
+  .controls-row .clear-btn { min-height: 44px; font-size: 14px !important; }
+  .kl-sub, .entry-teaser, .model-teaser, .entry-field-body, .entry-field-body p, .entry-field-body li,
+  .model-field-body, .model-field-body p, .model-field-body li, .quote-text, .term-def { font-size: 16px !important; line-height: 1.6 !important; }
+  .term-example, .term-why, .quote-why, .fw-checklist li { font-size: 15px !important; line-height: 1.55 !important; }
+  /* Tag rows: one line that scrolls sideways. Each tag keeps its small pill
+     (drawn by ::before) inside a 44px touch area. */
+  .entry-tags, .model-tags, .term-tags, .quote-tags {
+    flex-wrap: nowrap !important; gap: 8px !important; margin-top: 6px !important;
+    overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .entry-tags::-webkit-scrollbar, .model-tags::-webkit-scrollbar, .term-tags::-webkit-scrollbar, .quote-tags::-webkit-scrollbar { display: none; }
+  button.tag {
+    position: relative; z-index: 0; flex: none;
+    display: inline-flex; align-items: center; min-height: 44px;
+    padding-top: 0; padding-bottom: 0; white-space: nowrap;
+    background: none !important; border: 0 !important;
+    font-size: 11px !important;
+  }
+  button.tag::before {
+    content: ''; position: absolute; z-index: -1;
+    left: 0; right: 0; top: 50%; height: 26px; margin-top: -13px;
+    border-radius: 4px; box-sizing: border-box;
+  }
+  button.tag-module::before { background: var(--wine-lt); }
+  button.tag-module.soft::before { background: transparent; border: 1px dashed var(--wine); }
+  button.tag-theme::before { background: var(--cream-dk); }
+  .link-btn { display: inline-flex !important; align-items: center; min-height: 44px; margin-top: 0 !important; font-size: 13px !important; }
+  .entry-related, .model-related { font-size: 14px !important; margin-top: 4px !important; }
+  .entry-related a, .model-related a { display: inline-flex; align-items: center; min-height: 44px; }
+  .pagination .pg-btn { min-width: 44px; min-height: 44px; }
+}
+
+@media (max-width: 480px) {
+  .thin-hero h1, .art-hero h1 { font-size: 19px !important; }
+  .hub-featured-title { font-size: 22px !important; }
+  [data-tei-page="lab"] .holding-row-edit { grid-template-columns: 68px minmax(0, 1fr) 88px 44px !important; }
+  .article-hero h1 { font-size: clamp(25px, 7.4vw, 30px) !important; }
+}
+
+@media (max-width: 768px) {
+  /* Hub boundary wording is styled by a stylesheet added after this one. */
+  div.tei-boundary { font-size: 13px !important; }
+  p.tei-risk-warning { font-size: 12.5px !important; }
+
+  /* Grid items that hold a sideways-scrolling row must be allowed to shrink,
+     or the row's full width pushes the page wider than the screen. */
+  .term-grid, .quote-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .term-card, .quote-card, .model-card, .entry-card { min-width: 0; }
+  .pagination { flex-wrap: wrap; justify-content: center; gap: 6px; }
+  .fw-stage-q { font-size: 15px !important; }
+  [data-tei-page="lab"] .grid-2, [data-tei-page="lab"] .grid-3 { grid-template-columns: minmax(0, 1fr) !important; }
+  [data-tei-page="lab"] .card { min-width: 0; }
+
+  /* Hub tool pages float a Back pill and a Sign out pill over the top of the
+     page. Start the page's own header below them so nothing is covered. */
+  [data-tei-page="lab"] .topbar { padding-top: 62px !important; }
+  [data-tei-page^="wealthforecast"] .header { padding-top: 62px !important; }
+  [data-tei-page="hub-property"] .calc-wrapper { padding-top: 62px !important; }
+  [data-tei-page="costofwaiting"] body > div[style*="max-width:720px"] { padding: 62px 16px 32px !important; }
+  [data-tei-page="taxscenario"] .hero { margin-top: 26px; }
+  [data-tei-page="hub-tax"] body > header { position: static !important; height: auto !important; padding-top: 58px !important; padding-bottom: 6px !important; }
+  [data-tei-page="hub-tax"] .stage-bar { top: 58px !important; }
+  /* Public tax guide: its header scrolls away on a phone, so the filter bar sticks to the top. */
+  html.tei-mtool .stage-bar { top: 0 !important; }
+  .stage-bar { justify-content: flex-start !important; }
+
+  /* TEI Principles: remaining copy set with inline sizes. */
+  .structure-inner p, .timeline-text, .part3-bridge, .step-preview { font-size: 16px !important; line-height: 1.6 !important; }
+  /* Articles: supporting copy inside the diagrams. */
+  .limit-note p, .trait p, .compare-text { font-size: 16px !important; line-height: 1.55 !important; }
+  .note-small { font-size: 13px !important; }
+}

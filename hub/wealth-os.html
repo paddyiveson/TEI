@@ -1676,6 +1676,44 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .dv-actions .btn-ghost{color:#F7F4ED; border-color:rgba(247,244,237,0.35);}
 .doc-file-hint{display:block; margin-top:5px; font-size:12px; line-height:1.4; color:var(--cream-soft); font-weight:400; text-transform:none; letter-spacing:0;}
 #subtab-documents .form-field[hidden]{display:none;}
+/* Playfair Display draws "&" as an ornate ligature. .amp shows the plain
+   sans-serif glyph instead, at the heading's own size and weight (same class
+   as the public site's /assets/tei-base.css). */
+.amp{font-family:var(--font-body, 'Inter', sans-serif); font-style:normal; font-weight:inherit; line-height:0;}
+/* Documents list: Open / Edit / Remove sit level with the document title,
+   not centred against the whole block (title + meta + forecast state). */
+@media (min-width:561px){
+  #documentsListAdv .list-row{align-items:flex-start;}
+  #documentsListAdv .list-row > div:last-child{flex:none; margin-top:-2px;}
+}
+/* Add-document form: two rows with every label on one baseline.
+     Row 1: Name | Type | Date      Row 2: File (hint underneath) | Link
+   then the button on its own row, right-aligned. DOM order is Name, Type,
+   File, Date, Link, so Date is pulled forward with `order`. Fields the
+   script hides (File for clients, Date/Link once a file is chosen) simply
+   drop out of the flow. */
+#subtab-documents .doc-form{grid-template-columns:repeat(6,minmax(0,1fr)); align-items:start; gap:var(--space-md);}
+#subtab-documents .doc-form > .form-field{grid-column:span 2; order:1;}
+#subtab-documents .doc-form > #newDocFileField,
+#subtab-documents .doc-form > #newDocUrlField{grid-column:span 3; order:2;}
+#subtab-documents .doc-form > button{grid-column:1 / -1; order:3; justify-self:end; min-width:180px;}
+#subtab-documents .doc-form .form-field > span{line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+#subtab-documents .doc-form .form-field input,
+#subtab-documents .doc-form .form-field select{box-sizing:border-box; width:100%; height:44px;}
+#subtab-documents .doc-form input[type=file]{padding:6px 10px; line-height:30px;}
+#subtab-documents .doc-form .doc-file-hint{margin-top:1px;}
+@media (max-width:960px){
+  #subtab-documents .doc-form > .form-field,
+  #subtab-documents .doc-form > #newDocUrlField{grid-column:span 3;}
+  #subtab-documents .doc-form > #newDocFileField{grid-column:1 / -1;}
+}
+@media (max-width:560px){
+  #subtab-documents .doc-form{grid-template-columns:1fr;}
+  #subtab-documents .doc-form > .form-field,
+  #subtab-documents .doc-form > #newDocFileField,
+  #subtab-documents .doc-form > #newDocUrlField{grid-column:1 / -1;}
+  #subtab-documents .doc-form > button{justify-self:stretch; min-height:44px;}
+}
 .fc-state{margin-top:6px; font-size:12.5px; color:var(--cream-soft);}
 .fc-state details{margin-top:4px;}
 .fc-state summary{cursor:pointer; color:var(--gold);}
@@ -4116,7 +4154,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 
     <div class="subtab-panel" id="subtab-wealth">
     <div class="card" style="margin-bottom:16px;">
-      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Wealth — Property &amp; Other Assets</h3>
+      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;"><span>Wealth — Property <span class="amp">&amp;</span> Other Assets</span></h3>
       <div class="note" style="margin-top:0;">Property is stored as an asset (type: property). Cash, ISAs, GIAs and pensions belong in Accounts, not here.</div>
       <div id="advAssetsList"></div>
       <div class="mini-form">
@@ -4218,7 +4256,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
     </div>
 
     <div class="card" style="margin-bottom:16px;">
-      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Cashflow — Saving, Emergency Fund &amp; Preferences</h3>
+      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;"><span>Cashflow — Saving, Emergency Fund <span class="amp">&amp;</span> Preferences</span></h3>
       <div class="note" style="margin-top:0;">Monthly savings and investing are calculated from account contribution fields, not typed here — see Accounts. Personal pension contributions count as investing; employer/salary sacrifice counts as neither, since it never touches take-home pay.</div>
       <div class="range-stats" style="margin-top:0; margin-bottom:16px;" id="cfCalculatedSavingStats"></div>
       <div class="form-grid">
@@ -4233,9 +4271,9 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 
     <div class="subtab-panel" id="subtab-documents">
     <div class="card">
-      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Documents &amp; meeting notes</h3>
+      <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;"><span>Documents <span class="amp">&amp;</span> meeting notes</span></h3>
       <div id="documentsListAdv"></div>
-      <div class="mini-form">
+      <div class="mini-form doc-form">
         <label class="form-field"><span>Name</span><input type="text" id="newDocName" placeholder="e.g. Q3 review notes"></label>
         <label class="form-field"><span>Type</span><select id="newDocType"><option value="statement">Statement</option><option value="report">Report</option><option value="note">Meeting note</option><option value="forecast" data-adviser-only="1">Wealth Plan forecast (.html)</option><option value="other">Other</option></select></label>
         <label class="form-field" id="newDocFileField" data-adviser-only="1"><span>File (uploads to the client's documents)</span><input type="file" id="newDocFile" accept=".docx,.pdf,.xlsx,.xls,.csv,.html,.htm,.png,.jpg,.jpeg,.webp,.doc,.pptx,.ppt,.txt,.rtf,.odt"><small class="doc-file-hint">Word, Excel, CSV, PDF, images or HTML, up to 20 MB. Word, Excel and CSV open as a page; other types are download-only.</small></label>
@@ -4283,7 +4321,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
       <div id="uploadQueueList"></div>
     </div>
     <div class="card">
-      <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;">Review &amp; export</h3>
+      <h3 style="margin:0 0 8px; color:var(--cream); font-family:'Playfair Display',serif;"><span>Review <span class="amp">&amp;</span> export</span></h3>
       <div class="note" style="margin-top:0;">
         Every save on this page already goes straight to this client's account. Exporting just downloads a snapshot
         <code id="exportFilename">client.json</code> for your own records or to hand to a colleague.
