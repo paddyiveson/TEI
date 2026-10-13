@@ -174,15 +174,25 @@ footer {
 </style>
 
 <style>
-.section { max-width: 1100px; margin: 0 auto; padding: 64px 32px; }
+.section { max-width: 1100px; margin: 0 auto; padding: var(--section-pad-y) 32px; }
 .section-label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 10px; display: block; }
 .section-title { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.2vw, 36px); color: var(--navy); line-height: 1.15; margin-bottom: 14px; }
 .section-title em { font-style: italic; color: var(--gold-dk); }
-.section-sub { font-size: 14px; color: var(--mid); line-height: 1.8; max-width: 640px; margin-bottom: 40px; }
+.section-sub { font-size: 14px; color: var(--mid); line-height: 1.8; max-width: 640px; margin-bottom: var(--heading-gap); }
+/* Everything on the page shares the .section container: same width, same left edge. */
+.tei-tool-embed { margin: 0 0 var(--section-pad-y-tight); }
+.tei-tool-note { font-size: 11px; color: var(--mid); text-align: center; margin-top: 16px; line-height: 1.6; }
+.tei-card-grid--mb { margin-bottom: var(--card-gap); }
+.tei-banner { background: var(--navy); border-radius: var(--radius); padding: 28px 36px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.tei-banner-tag { font-size: 9px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-weight: 700; display: block; margin-bottom: 6px; }
+.tei-banner-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--cream); margin-bottom: 6px; line-height: 1.3; }
+.tei-banner-desc { font-size: 13px; color: rgba(247,244,237,.55); line-height: 1.6; max-width: 540px; }
+.tei-banner-btn { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid rgba(201,168,76,.5); color: var(--gold); background: transparent; font-size: 12px; font-weight: 600; padding: 10px 20px; border-radius: 6px; white-space: nowrap; text-decoration: none; flex-shrink: 0; }
 </style>
 
 <link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
+<link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
 <script>
@@ -259,49 +269,49 @@ footer {
     <h2 class="section-title">Guides and tools built to<br><em>actually teach you something.</em></h2>
     <p class="section-sub">No email required. No sign up. Read the same material that shapes how every TEI portfolio is built and coached, and try a real tool from the TEI suite.</p>
 
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+    <div class="tei-card-grid tei-card-grid--2">
 
-      <div style="background:var(--white);border-radius:var(--radius);border:1px solid rgba(29,53,87,.07);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;">
-        <div style="height:6px;background:var(--navy);"></div>
-        <div style="padding:28px 26px;display:flex;flex-direction:column;flex:1;">
-          <span style="font-size:30px;margin-bottom:14px;display:block;">&#129504;</span>
-          <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;">Investment philosophy</span>
-          <h3 style="font-family:'Playfair Display',serif;font-size:19px;color:var(--navy);margin-bottom:10px;">TEI Principles</h3>
-          <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:22px;flex:1;">Master the principles, ignore the noise. From first principles to the exact framework behind every position in a TEI portfolio, including the conviction matrix and dip-buying rules.</p>
-          <a href="/guides/principles.html" style="width:100%;padding:13px;background:var(--navy);color:var(--cream);border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;;display:block;text-decoration:none;text-align:center;box-sizing:border-box;">Read the guide &#8594;</a>
+      <div class="tei-card">
+        <div class="tei-card-bar"></div>
+        <div class="tei-card-body">
+          <span class="tei-card-icon tei-card-icon--lg">&#129504;</span>
+          <span class="tei-card-tag tei-card-tag--gold">Investment philosophy</span>
+          <h3 class="tei-card-title">TEI Principles</h3>
+          <p class="tei-card-desc tei-card-desc--grow">Master the principles, ignore the noise. From first principles to the exact framework behind every position in a TEI portfolio, including the conviction matrix and dip-buying rules.</p>
+          <a href="/guides/principles.html" class="tei-card-btn tei-card-btn--lg">Read the guide &#8594;</a>
         </div>
       </div>
 
-      <div style="background:var(--white);border-radius:var(--radius);border:1px solid rgba(29,53,87,.07);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;">
-        <div style="height:6px;background:var(--navy);"></div>
-        <div style="padding:28px 26px;display:flex;flex-direction:column;flex:1;">
-          <span style="font-size:30px;margin-bottom:14px;display:block;">&#128506;&#65039;</span>
-          <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;">The learning path</span>
-          <h3 style="font-family:'Playfair Display',serif;font-size:19px;color:var(--navy);margin-bottom:10px;">Five Stages to the Seasoned Investor</h3>
-          <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:22px;flex:1;">The full curriculum, from your first ISA to a fully coordinated financial life. Includes a two-minute self-assessment to find out where you would start.</p>
-          <a href="/guides/stages.html" style="width:100%;padding:13px;background:var(--navy);color:var(--cream);border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;;display:block;text-decoration:none;text-align:center;box-sizing:border-box;">Read the guide &#8594;</a>
+      <div class="tei-card">
+        <div class="tei-card-bar"></div>
+        <div class="tei-card-body">
+          <span class="tei-card-icon tei-card-icon--lg">&#128506;&#65039;</span>
+          <span class="tei-card-tag tei-card-tag--gold">The learning path</span>
+          <h3 class="tei-card-title">Five Stages to the Seasoned Investor</h3>
+          <p class="tei-card-desc tei-card-desc--grow">The full curriculum, from your first ISA to a fully coordinated financial life. Includes a two-minute self-assessment to find out where you would start.</p>
+          <a href="/guides/stages.html" class="tei-card-btn tei-card-btn--lg">Read the guide &#8594;</a>
         </div>
       </div>
 
-      <div style="background:var(--white);border-radius:var(--radius);border:1px solid rgba(29,53,87,.07);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;">
-        <div style="height:6px;background:var(--navy);"></div>
-        <div style="padding:28px 26px;display:flex;flex-direction:column;flex:1;">
-          <span style="font-size:30px;margin-bottom:14px;display:block;">&#127974;</span>
-          <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;">Tax and allowances</span>
-          <h3 style="font-family:'Playfair Display',serif;font-size:19px;color:var(--navy);margin-bottom:10px;">The Tax Wrapper Guide</h3>
-          <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:22px;flex:1;">Every ISA, pension and account type explained, with 2026/27 allowances, the order to use them in, and the advanced strategies most people never hear about.</p>
-          <a href="/guides/tax.html" style="width:100%;padding:13px;background:var(--navy);color:var(--cream);border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;;display:block;text-decoration:none;text-align:center;box-sizing:border-box;">Read the guide &#8594;</a>
+      <div class="tei-card">
+        <div class="tei-card-bar"></div>
+        <div class="tei-card-body">
+          <span class="tei-card-icon tei-card-icon--lg">&#127974;</span>
+          <span class="tei-card-tag tei-card-tag--gold">Tax and allowances</span>
+          <h3 class="tei-card-title">The Tax Wrapper Guide</h3>
+          <p class="tei-card-desc tei-card-desc--grow">Every ISA, pension and account type explained, with 2026/27 allowances, the order to use them in, and the advanced strategies most people never hear about.</p>
+          <a href="/guides/tax.html" class="tei-card-btn tei-card-btn--lg">Read the guide &#8594;</a>
         </div>
       </div>
 
-      <div style="background:var(--white);border-radius:var(--radius);border:1px solid rgba(29,53,87,.07);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;">
-        <div style="height:6px;background:var(--navy);"></div>
-        <div style="padding:28px 26px;display:flex;flex-direction:column;flex:1;">
-          <span style="font-size:30px;margin-bottom:14px;display:block;">&#127968;</span>
-          <span style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:6px;">Property investing</span>
-          <h3 style="font-family:'Playfair Display',serif;font-size:19px;color:var(--navy);margin-bottom:10px;">Property Investment Calculator</h3>
-          <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:22px;flex:1;">See how a property purchase actually works: the mortgage, the equity, the tax, and what could go wrong. Model your own numbers, then stress-test them against a rate rise or a price fall.</p>
-          <a href="/guides/property-calculator.html" style="width:100%;padding:13px;background:var(--navy);color:var(--cream);border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;transition:background .2s;;display:block;text-decoration:none;text-align:center;box-sizing:border-box;">Try the calculator &#8594;</a>
+      <div class="tei-card">
+        <div class="tei-card-bar"></div>
+        <div class="tei-card-body">
+          <span class="tei-card-icon tei-card-icon--lg">&#127968;</span>
+          <span class="tei-card-tag tei-card-tag--gold">Property investing</span>
+          <h3 class="tei-card-title">Property Investment Calculator</h3>
+          <p class="tei-card-desc tei-card-desc--grow">See how a property purchase actually works: the mortgage, the equity, the tax, and what could go wrong. Model your own numbers, then stress-test them against a rate rise or a price fall.</p>
+          <a href="/guides/property-calculator.html" class="tei-card-btn tei-card-btn--lg">Try the calculator &#8594;</a>
         </div>
       </div>
 
@@ -316,13 +326,13 @@ footer {
   <h2 class="section-title">A real tool from the<br><em>TEI suite.</em></h2>
   <p class="section-sub">Free, no sign up. Below is the Cost of Waiting calculator, live. Enter your own numbers and see what a delay actually costs.</p>
 
-  <div style="max-width:720px;margin:0 auto 56px;">
+  <div class="tei-tool-embed">
 <!-- Inline calculator -->
       <div id="cow-container" style="background:var(--white);border-radius:var(--radius);overflow:hidden;">
         <style>
 
 #cow-container{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);line-height:1.7}
-#cow-container .calc-wrapper{max-width:700px;margin:0 auto;padding:0 20px 40px}
+#cow-container .calc-wrapper{max-width:none;margin:0;padding:0 20px 40px}
 
 /* HEADER */
 #cow-container .calc-header{background:var(--navy);border-radius:var(--radius) var(--radius) 0 0;padding:32px 36px 28px;position:relative;overflow:hidden}
@@ -1413,35 +1423,35 @@ function showOpenVersion() {
 </script>
       </div>
 
-      <p style="font-size:11px;color:rgba(247,244,237,.25);text-align:center;margin-top:16px;line-height:1.6;">Projections are illustrative only. Based on compound growth at the assumed annual return rate. Not financial advice.</p>
+      <p class="tei-tool-note">Projections are illustrative only. Based on compound growth at the assumed annual return rate. Not financial advice.</p>
   </div>
 
-  <div style="max-width:900px;margin:0 auto;">
-    <p class="section-label" style="margin-bottom:24px;">More tools, available to TEI clients</p>
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:24px;">
-      <div style="background:var(--white);border-radius:var(--radius);border:1px solid rgba(29,53,87,.07);box-shadow:var(--shadow);padding:28px 26px;">
-        <span style="font-size:26px;margin-bottom:12px;display:block;">&#9889;</span>
-        <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dk);font-weight:700;margin-bottom:6px;">Wealth Forecast</div>
-        <div style="font-family:'Playfair Display',serif;font-size:17px;color:var(--navy);margin-bottom:10px;">See your financial future</div>
-        <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:16px;">Run 5,000 simulations of your investment portfolio. Model contributions, returns, inflation, and drawdown in retirement. Download a full personalised report.</p>
-        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--lt);">&#128274; Available to all clients</div>
+  <div>
+    <p class="section-label" style="margin-bottom:var(--heading-gap);">More tools, available to TEI clients</p>
+    <div class="tei-card-grid tei-card-grid--2 tei-card-grid--mb">
+      <div class="tei-card tei-card-body">
+        <span class="tei-card-icon">&#9889;</span>
+        <div class="tei-card-tag">Wealth Forecast</div>
+        <div class="tei-card-title">See your financial future</div>
+        <p class="tei-card-desc">Run 5,000 simulations of your investment portfolio. Model contributions, returns, inflation, and drawdown in retirement. Download a full personalised report.</p>
+        <div class="tei-card-note">&#128274; Available to all clients</div>
       </div>
-      <div style="background:var(--white);border-radius:var(--radius);border:1px solid rgba(29,53,87,.07);box-shadow:var(--shadow);padding:28px 26px;">
-        <span style="font-size:26px;margin-bottom:12px;display:block;">&#128506;</span>
-        <div style="font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dk);font-weight:700;margin-bottom:6px;">Portfolio Strategy</div>
-        <div style="font-family:'Playfair Display',serif;font-size:17px;color:var(--navy);margin-bottom:10px;">Build your investment approach</div>
-        <p style="font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:16px;">An interactive framework for how to think about portfolio construction, position sizing, conviction tiers, and the balance between growth and stability.</p>
-        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--lt);">&#128274; Available to Core clients and above</div>
+      <div class="tei-card tei-card-body">
+        <span class="tei-card-icon">&#128506;</span>
+        <div class="tei-card-tag">Portfolio Strategy</div>
+        <div class="tei-card-title">Build your investment approach</div>
+        <p class="tei-card-desc">An interactive framework for how to think about portfolio construction, position sizing, conviction tiers, and the balance between growth and stability.</p>
+        <div class="tei-card-note">&#128274; Available to Core clients and above</div>
       </div>
     </div>
 
-    <div style="background:var(--navy);border-radius:var(--radius);padding:28px 36px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;">
+    <div class="tei-banner">
       <div>
-        <span style="font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700;display:block;margin-bottom:6px;">TEI Growth Fund</span>
-        <p style="font-family:'Playfair Display',serif;font-size:20px;color:var(--cream);margin-bottom:6px;line-height:1.3;">Research and Analysis</p>
-        <p style="font-size:13px;color:rgba(247,244,237,.55);line-height:1.6;max-width:540px;">In-depth investment notes on current holdings. Thesis, financials, risk factors, and positioning, written to educate as well as inform. Available to clients from Core tier upward.</p>
+        <span class="tei-banner-tag">TEI Growth Fund</span>
+        <p class="tei-banner-title">Research and Analysis</p>
+        <p class="tei-banner-desc">In-depth investment notes on current holdings. Thesis, financials, risk factors, and positioning, written to educate as well as inform. Available to clients from Core tier upward.</p>
       </div>
-      <a href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank" style="display:inline-flex;align-items:center;gap:8px;border:1.5px solid rgba(201,168,76,.5);color:var(--gold);background:transparent;font-size:12px;font-weight:600;padding:10px 20px;border-radius:6px;white-space:nowrap;text-decoration:none;flex-shrink:0;">Find out more</a>
+      <a href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank" class="tei-banner-btn">Find out more</a>
     </div>
   </div>
 </div>

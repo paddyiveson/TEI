@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-tei-page="suite">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -87,6 +87,7 @@
   .nav-group-bar{width:3px;height:16px;border-radius:2px;flex-shrink:0;}
   .nav-group-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin:0;}
 </style>
+<link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
 <script>
@@ -123,7 +124,7 @@
         <span class="brand-icon">&#10022;</span>
         <span class="brand-name">The Everyday Investor</span>
       </div>
-      <p class="sidebar-title">Research &amp; Analysis</p>
+      <p class="sidebar-title">Research <span class="amp">&amp;</span> Analysis</p>
     </div>
     <a href="/hub/index.html" style="display:flex;align-items:center;gap:8px;margin:14px 16px;padding:11px 14px;background:#C9A84C;color:#1D3557;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700;flex-shrink:0;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1D3557" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -333,6 +334,42 @@ function withNoteWarning(html) {
   return end === -1 ? html + footer : html.slice(0, end) + footer + html.slice(end);
 }
 
+// Serif headings draw "&" as an ornate glyph. Inside a note, show it in the
+// note's own body font instead (the .amp treatment used across the site).
+function wrapNoteAmpersands(doc) {
+  if (!doc || !doc.body || !doc.head) return;
+  var view = doc.defaultView;
+  var bodyFont = view.getComputedStyle(doc.body).fontFamily || "sans-serif";
+  var style = doc.createElement("style");
+  style.textContent = ".amp{font-family:" + bodyFont + ";font-style:normal;font-weight:inherit;line-height:0;}";
+  doc.head.appendChild(style);
+  var heads = doc.querySelectorAll("h1,h2,h3,h4,h5,h6");
+  for (var i = 0; i < heads.length; i++) {
+    if (heads[i].textContent.indexOf("&") === -1) continue;
+    if (!/(^|,)\s*serif\s*$/i.test(view.getComputedStyle(heads[i]).fontFamily)) continue;
+    var walker = doc.createTreeWalker(heads[i], 4, null);
+    var texts = [];
+    var node;
+    while ((node = walker.nextNode())) {
+      if (node.nodeValue.indexOf("&") !== -1 && !(node.parentNode.className === "amp")) texts.push(node);
+    }
+    for (var j = 0; j < texts.length; j++) {
+      var parts = texts[j].nodeValue.split("&");
+      var frag = doc.createDocumentFragment();
+      for (var k = 0; k < parts.length; k++) {
+        if (k > 0) {
+          var span = doc.createElement("span");
+          span.className = "amp";
+          span.appendChild(doc.createTextNode("&"));
+          frag.appendChild(span);
+        }
+        if (parts[k]) frag.appendChild(doc.createTextNode(parts[k]));
+      }
+      texts[j].parentNode.replaceChild(frag, texts[j]);
+    }
+  }
+}
+
 function loadNote(key) {
   if (key === current) { if (isMobile()) closeSidebar(); return; }
   current = key;
@@ -343,7 +380,10 @@ function loadNote(key) {
   var frame = document.getElementById('note-frame');
   loading.classList.remove('hidden');
   frame.srcdoc = withNoteWarning(notes[key]);
-  frame.onload = function(){ loading.classList.add('hidden'); };
+  frame.onload = function(){
+    try { wrapNoteAmpersands(frame.contentDocument); } catch (e) {}
+    loading.classList.add('hidden');
+  };
   if (isMobile()) closeSidebar();
 }
 
