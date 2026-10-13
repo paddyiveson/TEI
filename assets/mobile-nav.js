@@ -6,8 +6,11 @@
 (function () {
   'use strict';
 
-  // Same link the site's existing "Book a discovery call" buttons use.
-  var BOOK_URL = 'https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F';
+  // Every "Book a call" button on the public site points at /book. Where that
+  // goes is set in one place: the /book redirect in vercel.json.
+  var BOOK_URL = '/book';
+  // "Chat on WhatsApp first", the secondary link beside Book a call.
+  var WHATSAPP_URL = 'https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F';
 
   // Tabler-style outline icons: 24px viewBox, stroke set in CSS.
   var ICONS = {
@@ -31,22 +34,29 @@
   // href === null marks the Menu button (opens the full-screen menu). Bar ids
   // that aren't in the bar (e.g. About) light up Menu instead.
   var VARIANTS = {
-    // Guides and Tools are one page on the public site, so they share one item.
+    // Public site: bottom bar Home, Guides, Articles, Membership, Menu. The
+    // Menu screen lists every page, so the whole site is reachable on a phone.
+    // The header itself is static markup on each page (.tei-hdr, /style.css);
+    // headerActions is only a fallback for a page that has none.
     site: {
       logoHref: '/index.html',
       logoLabel: 'The Everyday Investor, home',
+      rings: true,     // ring-and-dot tab icons instead of the outline icons
+      siteMenu: true,  // the Menu screen from buildSiteMenu(); the bar stays visible under it
       bar: [
-        { id: 'home',     label: 'Home',               icon: 'home', href: '/index.html' },
-        { id: 'guides',   label: 'Guides &amp; Tools', icon: 'book', href: '/guides.html' },
-        { id: 'articles', label: 'Articles',           icon: 'news', href: '/articles.html' },
-        { id: 'menu',     label: 'Menu',               icon: 'menu', href: null }
+        { id: 'home',       label: 'Home',       href: '/index.html' },
+        { id: 'guides',     label: 'Guides',     href: '/guides.html' },
+        { id: 'articles',   label: 'Articles',   href: '/articles.html' },
+        { id: 'membership', label: 'Membership', href: '/membership.html' },
+        { id: 'menu',       label: 'Menu',       href: null }
       ],
       links: [
-        { id: 'home',     label: 'Home',               icon: 'home',       href: '/index.html' },
-        { id: 'about',    label: 'About',              icon: 'info',       href: '/about.html' },
-        { id: 'guides',   label: 'Guides &amp; Tools', icon: 'book',       href: '/guides.html' },
-        { id: 'articles', label: 'Articles',           icon: 'news',       href: '/articles.html' },
-        { id: 'hub',      label: 'Client Hub',         icon: 'usercircle', href: '/hub/index.html' }
+        { id: 'home',       label: 'Home',               href: '/index.html' },
+        { id: 'about',      label: 'About',              href: '/about.html' },
+        { id: 'hww',        label: 'How we work',        href: '/how-we-work' },
+        { id: 'guides',     label: 'Guides &amp; Tools', href: '/guides.html' },
+        { id: 'articles',   label: 'Articles',           href: '/articles.html' },
+        { id: 'membership', label: 'Membership',         href: '/membership.html' }
       ],
       headerActions:
         '<a class="tei-mhead-cta" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer"><span>Book a call</span></a>' +
@@ -88,7 +98,8 @@
   var V = isHub ? VARIANTS.hub : VARIANTS.site;
 
   var barItems = {}, menuLinks = {};
-  var menu, menuBtn, closeBtn;
+  var menu, menuBtn, closeBtn, barEl;
+  var currentPage = '';
   var isOpen = false, lastFocus = null, savedY = 0;
   var inerted = [];
 
@@ -111,8 +122,10 @@
     }
     if (p === '/' || p === '/index') return 'home';
     if (p === '/guides' || p.indexOf('/guides/') === 0) return 'guides';
-    if (p === '/articles') return 'articles';
+    if (p === '/articles' || p.indexOf('/articles/') === 0) return 'articles';
+    if (p === '/membership') return 'membership';
     if (p === '/about') return 'about';
+    if (p === '/how-we-work' || p === '/how-we-work/index') return 'hww';
     return '';
   }
 
@@ -155,15 +168,84 @@
         el.setAttribute('aria-controls', 'teiMenu');
         menuBtn = el;
       }
-      el.innerHTML = svg(item.icon) + '<span class="tei-mbar-label">' + item.label + '</span>';
+      el.innerHTML = (V.rings ? '<span class="tei-mbar-ring" aria-hidden="true"></span>' : svg(item.icon)) +
+        '<span class="tei-mbar-label">' + item.label + '</span>';
       barItems[item.id] = el;
       bar.appendChild(el);
     });
     document.body.appendChild(bar);
+    barEl = bar;
+  }
+
+  /* ---------------- public site Menu screen ---------------- */
+  // Pages, Members, Get started, then the short not-advice line.
+  function buildSiteMenu() {
+    var mark = '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" focusable="false">' +
+      '<circle cx="13" cy="13" r="11.5" fill="none" stroke="#E8D6A8" stroke-width="1.4"/>' +
+      '<circle cx="13" cy="13" r="6" fill="none" stroke="#E8D6A8" stroke-opacity=".5" stroke-width="1.2"/>' +
+      '<circle cx="13" cy="13" r="2.4" fill="#E8D6A8"/></svg>';
+    var pages = V.links.map(function (item) {
+      return '<li><a class="tei-smenu-page" data-id="' + item.id + '" href="' + item.href + '">' +
+        '<span>' + item.label + '</span>' + svg('chevron') + '</a></li>';
+    }).join('');
+    return '<div class="tei-smenu-top">' +
+        '<a class="tei-smenu-brand" href="' + V.logoHref + '">' + mark + '<span>The Everyday Investor</span></a>' +
+        '<button type="button" class="tei-menu-close tei-smenu-close" aria-label="Close menu">' + svg('x') + '</button>' +
+      '</div>' +
+      '<div class="tei-smenu-body">' +
+        '<div role="navigation" aria-label="Pages">' +
+          '<p class="tei-smenu-label">Pages</p>' +
+          '<ul class="tei-smenu-pages">' + pages + '</ul>' +
+        '</div>' +
+        '<div>' +
+          '<p class="tei-smenu-label">Members</p>' +
+          '<div class="tei-smenu-cards">' +
+            '<a class="tei-smenu-card" href="/hub/index.html"><span class="tei-smenu-card-t">Log in</span><span class="tei-smenu-card-s">Client Hub and Wealth OS</span></a>' +
+            '<a class="tei-smenu-card" href="/admin/login.html"><span class="tei-smenu-card-t">Adviser sign in</span><span class="tei-smenu-card-s">For TEI staff</span></a>' +
+          '</div>' +
+        '</div>' +
+        '<div class="tei-smenu-start">' +
+          '<a class="tei-smenu-book" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer">Book a call</a>' +
+          '<a class="tei-smenu-wa" href="' + WHATSAPP_URL + '" target="_blank" rel="noopener noreferrer">Chat on WhatsApp first</a>' +
+          // TODO(copy sheet): the line about the free first call and the fact
+          // find fee goes here once its wording is approved.
+        '</div>' +
+        '<p class="tei-smenu-note">Financial coaching and education, not regulated financial advice.</p>' +
+      '</div>';
   }
 
   /* ---------------- full-screen menu ---------------- */
   function buildMenu() {
+    menu = document.createElement('div');
+    menu.className = 'tei-menu' + (V.siteMenu ? ' tei-menu--site' : '');
+    menu.id = 'teiMenu';
+    menu.setAttribute('role', 'dialog');
+    menu.hidden = true;
+    if (V.siteMenu) {
+      // The bottom bar stays usable under this screen, so it is not modal.
+      menu.setAttribute('aria-label', 'Menu');
+      menu.innerHTML = buildSiteMenu();
+    } else {
+      menu.setAttribute('aria-modal', 'true');
+      menu.setAttribute('aria-labelledby', 'teiMenuTitle');
+      menu.innerHTML = hubMenuHTML();
+    }
+    document.body.appendChild(menu);
+
+    closeBtn = menu.querySelector('.tei-menu-close');
+    Array.prototype.forEach.call(menu.querySelectorAll('a[href]'), function (a) {
+      if (a.hasAttribute('data-id')) menuLinks[a.getAttribute('data-id')] = a;
+      // Same-tab navigation: close first so a bfcache "Back" doesn't restore an open menu.
+      a.addEventListener('click', function () { closeMenu(false); });
+    });
+    closeBtn.addEventListener('click', function () { closeMenu(true); });
+    // On the public site the Menu tab opens and closes the screen.
+    menuBtn.addEventListener('click', function () {
+      if (V.siteMenu && isOpen) closeMenu(true); else openMenu();
+    });
+  }
+
+  function hubMenuHTML() {
     var links = V.links.map(function (item) {
       return '<li><a class="tei-menu-link" data-id="' + item.id + '" href="' + item.href + '">' +
         '<span class="tei-menu-link-icon">' + svg(item.icon) + '</span>' +
@@ -171,15 +253,7 @@
         '<span class="tei-menu-link-chev">' + svg('chevron') + '</span>' +
       '</a></li>';
     }).join('');
-
-    menu = document.createElement('div');
-    menu.className = 'tei-menu';
-    menu.id = 'teiMenu';
-    menu.setAttribute('role', 'dialog');
-    menu.setAttribute('aria-modal', 'true');
-    menu.setAttribute('aria-labelledby', 'teiMenuTitle');
-    menu.hidden = true;
-    menu.innerHTML =
+    return (
       '<div class="tei-menu-top">' +
         '<h2 class="tei-menu-title" id="teiMenuTitle">Menu</h2>' +
         '<button type="button" class="tei-menu-close" aria-label="Close menu">' + svg('x') + '</button>' +
@@ -189,21 +263,17 @@
           '<div class="tei-menu-hww"><a href="/how-we-work">How we work</a></div>' : '') +
         '<ul class="tei-menu-list' + (V.book ? '' : ' tei-menu-list--first') + '">' + links + '</ul>' +
       '</div>' +
-      (V.adviserLink ? '<div class="tei-menu-foot"><a href="/admin/login.html">Adviser sign in</a></div>' : '');
-    document.body.appendChild(menu);
-
-    closeBtn = menu.querySelector('.tei-menu-close');
-    Array.prototype.forEach.call(menu.querySelectorAll('.tei-menu-link, .tei-menu-hww a, .tei-menu-foot a'), function (a) {
-      if (a.hasAttribute('data-id')) menuLinks[a.getAttribute('data-id')] = a;
-      // Same-tab navigation: close first so a bfcache "Back" doesn't restore an open menu.
-      a.addEventListener('click', function () { closeMenu(false); });
-    });
-    closeBtn.addEventListener('click', function () { closeMenu(true); });
-    menuBtn.addEventListener('click', openMenu);
+      (V.adviserLink ? '<div class="tei-menu-foot"><a href="/admin/login.html">Adviser sign in</a></div>' : '')
+    );
   }
 
+  // Tab order while the menu is open. On the public site the bar is part of it.
   function focusables() {
-    return Array.prototype.slice.call(menu.querySelectorAll('a[href], button:not([disabled])'));
+    var items = Array.prototype.slice.call(menu.querySelectorAll('a[href], button:not([disabled])'));
+    if (V.siteMenu && barEl) {
+      items = items.concat(Array.prototype.slice.call(barEl.querySelectorAll('a[href], button:not([disabled])')));
+    }
+    return items;
   }
 
   function openMenu() {
@@ -218,10 +288,12 @@
     // Everything behind the dialog becomes inert (unreachable by Tab / screen reader).
     Array.prototype.forEach.call(document.body.children, function (el) {
       if (el === menu || el.tagName === 'SCRIPT' || el.inert) return;
+      if (V.siteMenu && el === barEl) return; // the bar stays live under the Menu screen
       el.inert = true;
       inerted.push(el);
     });
     menuBtn.setAttribute('aria-expanded', 'true');
+    if (V.siteMenu) markBar('menu'); // the Menu tab is the active tab while it is open
     closeBtn.focus();
   }
 
@@ -236,6 +308,7 @@
     try { window.scrollTo({ top: savedY, left: 0, behavior: 'instant' }); }
     catch (e) { window.scrollTo(0, savedY); }
     menuBtn.setAttribute('aria-expanded', 'false');
+    if (V.siteMenu) markBar(barItems[currentPage] ? currentPage : 'menu');
     if (restoreFocus !== false && lastFocus && lastFocus.focus) {
       try { lastFocus.focus({ preventScroll: true }); } catch (e) { lastFocus.focus(); }
     }
@@ -252,18 +325,22 @@
     var items = focusables();
     if (!items.length) return;
     var first = items[0], last = items[items.length - 1], active = document.activeElement;
-    if (!menu.contains(active)) { e.preventDefault(); first.focus(); }
+    if (items.indexOf(active) === -1) { e.preventDefault(); first.focus(); }
     else if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
   }
 
   /* ---------------- active state ---------------- */
-  function setActive(page) {
-    var barId = barItems[page] ? page : 'menu';
+  function markBar(barId) {
     Object.keys(barItems).forEach(function (key) {
       if (key === barId) barItems[key].setAttribute('aria-current', 'page');
       else barItems[key].removeAttribute('aria-current');
     });
+  }
+
+  function setActive(page) {
+    currentPage = page;
+    markBar(barItems[page] ? page : 'menu');
     Object.keys(menuLinks).forEach(function (key) {
       if (key === page) menuLinks[key].setAttribute('aria-current', 'page');
       else menuLinks[key].removeAttribute('aria-current');
@@ -272,12 +349,14 @@
 
   function init() {
     root.classList.add('tei-mnav');
+    if (!isHub) root.classList.add('tei-site'); // scopes the public-site look in mobile-nav.css
     if (isToolPage()) root.classList.add('tei-mtool');
     var hasFooter = false, i, kids = document.body.children;
     for (i = 0; i < kids.length; i++) if (kids[i].tagName === 'FOOTER') hasFooter = true;
     if (!hasFooter) root.classList.add('tei-mbar-nofooter');
 
-    buildHeader();
+    // Public pages carry their own static header; only build one if it is missing.
+    if (!document.querySelector('.tei-hdr')) buildHeader();
     buildBar();
     buildMenu();
     setActive(pageOverride || detectPage());
