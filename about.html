@@ -3,171 +3,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About -- The Everyday Investor</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
-
-:root {
-  --navy:    #1D3557;
-  --navy-dk: #0f1e3a;
-  --navy-md: #2B4C7E;
-  --cream:   #F7F4ED;
-  --cream-dk:#EDE8DA;
-  --gold:    #C9A84C;
-  --gold-dk: #b8922d;
-  --gold-lt: #FBF4E0;
-  --text:    #1a1a2e;
-  --mid:     #4a5568;
-  --lt:      #718096;
-  --white:   #ffffff;
-  --green:   #2D7D52;
-  --radius:  10px;
-  --shadow:  0 4px 28px rgba(29,53,87,.10);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; overflow-x: hidden; }
-
-/* NAV */
-nav {
-  background: var(--navy);
-  width: 100%;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 48px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  box-shadow: 0 2px 16px rgba(0,0,0,.2);
-}
-.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
-.nav-logo-text {
-  font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--gold); font-weight: 600; line-height: 1.35;
-}
-.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-.nav-links a {
-  color: rgba(247,244,237,.65); text-decoration: none;
-  font-size: 13px; font-weight: 500; letter-spacing: .03em;
-  transition: color .2s;
-}
-.nav-links a:hover, .nav-links a.active { color: var(--gold); }
-.nav-cta {
-  position: relative;
-  width: 44px; height: 44px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  text-decoration: none;
-}
-.nav-cta-ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 1.5px solid var(--gold);
-  animation: pulse-ring 2.5s ease-in-out infinite;
-}
-.nav-cta-ring-2 {
-  position: absolute; inset: -6px; border-radius: 50%;
-  border: 1px solid rgba(201,168,76,.25);
-  animation: pulse-ring 2.5s ease-in-out infinite .6s;
-}
-@keyframes pulse-ring { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: .6; } }
-.nav-cta-tooltip {
-  position: absolute; bottom: -36px; right: 0;
-  background: var(--navy-dk); color: var(--cream);
-  font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 4px;
-  white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s;
-  border: 1px solid rgba(201,168,76,.3);
-}
-.nav-cta:hover .nav-cta-tooltip { opacity: 1; }
-.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
-.nav-mobile-menu {
-  display: none; position: fixed; top: 68px; left: 0; right: 0;
-  background: var(--navy); flex-direction: column; padding: 8px 0;
-  border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199;
-  box-shadow: 0 4px 20px rgba(0,0,0,.3);
-}
-.nav-mobile-menu a {
-  color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px;
-  font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06);
-  display: block; transition: color .2s;
-}
-.nav-mobile-menu a:hover { color: var(--gold); }
-.nav-mobile-menu.open { display: flex; }
-
-/* HERO */
-.thin-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 20px 0; }
-.thin-hero-inner { max-width: 720px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; gap: 16px; }
-.thin-eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; padding-right: 16px; border-right: 1px solid rgba(201,168,76,.4); line-height: 1.2; }
-.thin-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px; color: var(--cream); line-height: 1.2; }
-@media(max-width: 700px) { .thin-hero { padding: 16px 0; } .thin-hero-inner { padding: 0 16px; flex-direction: column; align-items: flex-start; gap: 6px; } .thin-eyebrow { border-right: 0; padding-right: 0; } .thin-hero h1 { font-size: 20px; } }
-
-/* STORY */
-.story-wrap { max-width: 720px; margin: 0 auto; padding: 72px 32px; }
-.story-wrap p { font-size: 16px; color: var(--mid); line-height: 1.95; margin-bottom: 26px; }
-.story-wrap p:first-of-type { font-size: 18px; color: var(--navy); font-weight: 500; }
-.story-wrap p:last-of-type { margin-bottom: 0; }
-
-.pull-quote {
-  border-left: 3px solid var(--gold);
-  padding: 4px 0 4px 28px;
-  margin: 44px 0;
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 21px;
-  color: var(--navy);
-  line-height: 1.6;
-}
-
-/* FOOTER */
-footer {
-  background: var(--navy); width: 100%; padding: 36px 48px;
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
-}
-.footer-logo { display: flex; align-items: center; gap: 10px; }
-.footer-logo-mark { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(201,168,76,.5); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--gold); flex-shrink: 0; }
-.footer-logo-text { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,244,237,.3); line-height: 1.4; }
-.footer-disc { font-size: 10px; color: rgba(247,244,237,.22); text-align: right; max-width: 420px; line-height: 1.7; }
-
-@media(max-width: 860px) {
-  nav { padding: 0 24px; }
-  .nav-links { display: none; }
-  .nav-mobile-toggle { display: flex; }
-  footer { flex-direction: column; text-align: center; padding: 28px 24px; }
-  .footer-disc { text-align: center; max-width: 100%; }
-  .story-wrap { padding: 48px 24px; }
-}
-</style>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
+<title>About &amp; How we work | The Everyday Investor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
+<style>
+/* About & How we work (redesign phase G4, spec C3). Static sections carry the
+   board's sizes and colours inline. The classes below are the parts that
+   change state (the four steps, the FAQ, the founder story) and the text
+   carried over from the old How we work page. Shared header and footer:
+   /style.css. */
+body{margin:0;background:#F7F4ED}
+.tei-page{font-family:'Geist',system-ui,sans-serif;color:#13213A;background:#F7F4ED}
+:where(.tei-page) a{color:inherit}
+.tei-page a:hover{opacity:.85}
+.tei-page a:focus-visible,.tei-page button:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:10px}
+.tei-page [id]{scroll-margin-top:84px}
+.tei-page [hidden]{display:none !important}
+@keyframes t-up{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes t-glow{0%,100%{opacity:.22;transform:scale(1)}50%{opacity:.4;transform:scale(1.08)}}
+@keyframes t-spin{to{transform:rotate(360deg)}}
+@keyframes t-grow{0%{transform:scaleX(0)}70%,100%{transform:scaleX(1)}}
+@keyframes t-slide{0%,100%{left:50%}50%{left:56%}}
+@keyframes t-halo{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.6);opacity:0}}
+.t-up{animation:t-up .9s cubic-bezier(.2,.8,.2,1) both}
+.t-up2{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .15s both}
+.t-up3{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .3s both}
+.t-glow{animation:t-glow 8s ease-in-out infinite}
+.t-s90{animation:t-spin 90s linear infinite}
+.t-s32{animation:t-spin 32s linear infinite}
+.t-grow{transform-origin:left;animation:t-grow 4s cubic-bezier(.3,.8,.3,1) .4s infinite}
+.t-halo{animation:t-halo 2.4s ease-out infinite}
+.t-card{transition:transform .25s ease, box-shadow .25s ease}
+.t-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.10)}
+.ab-tabs{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.ab-tabs button{font-family:inherit;cursor:pointer;text-align:left;min-height:88px;padding:16px 18px;border-radius:18px;border:1px solid rgba(232,214,168,0.2);background:transparent;color:#F7F4ED;display:flex;flex-direction:column;gap:8px}
+.ab-tabs button[aria-selected="true"]{background:#E8D6A8;border-color:#E8D6A8;color:#0F1E36}
+.ab-tab-n{font-family:'Geist Mono',monospace;font-size:12px;opacity:.8}
+.ab-tab-t{font-size:17px;font-weight:500}
+.ab-step{margin-top:16px;display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start;background:rgba(255,255,255,0.04);border:1px solid rgba(232,214,168,0.16);border-radius:24px;padding:32px}
+.ab-legal-intro{margin-top:24px;max-width:760px}
+.ab-legal-intro p{margin:0 0 14px;font-size:17px;line-height:1.6;font-weight:300;color:#4E5B70}
+.ab-legal-intro p:first-child{color:#13213A}
+.tei-page .ab-on-dark a{color:#E8D6A8}
+.tei-page h3 + p a,.tei-faq-item p a{text-decoration:underline;text-underline-offset:3px}
+.ab-story-btn{position:relative;display:inline-flex;align-items:center;margin-top:18px;min-height:44px;padding:0;border:0;background:transparent;cursor:pointer;font-family:inherit;font-size:15px;font-weight:500;color:#0F1E36;text-decoration:underline;text-underline-offset:3px}
+.ab-story{background:#FFFFFF;border:1px solid #DEDAD0;border-radius:28px;padding:48px 40px}
+.ab-story > *{max-width:860px;margin-left:auto;margin-right:auto}
+.ab-story-label{margin-top:0;margin-bottom:0;font-family:'Geist Mono',monospace;font-size:13px;color:#83661C}
+.ab-story h2{margin-top:12px;margin-bottom:28px;font-size:clamp(28px,3.4vw,40px);line-height:1.1;font-weight:300;letter-spacing:-0.03em}
+.ab-story p{margin-top:0;margin-bottom:20px;font-size:18px;line-height:1.7;font-weight:300}
+.ab-story p.ab-story-label{font-size:13px;line-height:1.4;font-weight:400;margin-bottom:0}
+.ab-story p.ab-story-quote{margin-top:28px;margin-bottom:28px;padding-left:22px;border-left:2px solid #83661C;font-size:22px;line-height:1.5}
+.ab-story p:last-child{margin-bottom:0}
+.tei-faq-item{border-top:1px solid #EEEAE0}
+.tei-faq-item:first-child{border-top-color:transparent}
+.tei-faq-item h3{margin:0;font:inherit}
+.tei-faq-item button{font-family:inherit;cursor:pointer;width:100%;min-height:64px;display:flex;justify-content:space-between;align-items:center;gap:16px;background:transparent;border:0;padding:0;color:#13213A;font-size:17px;text-align:left}
+.tei-faq-item button svg{flex:none;transition:transform .2s ease}
+.tei-faq-item button[aria-expanded="true"] svg{transform:rotate(45deg)}
+.tei-faq-item p{margin:0 0 20px;max-width:640px;font-size:15px;line-height:1.6;font-weight:300;color:#4E5B70}
+@media (max-width: 760px){
+.t-pad{padding-left:16px !important;padding-right:16px !important}
+.t-sec{padding-top:56px !important;padding-bottom:56px !important}
+.t-spectrum{flex-direction:column !important}
+.ab-step{padding:24px 20px}
+.ab-story{padding:32px 20px}
+}
+@media (prefers-reduced-motion: reduce){.t-up,.t-up2,.t-up3,.t-glow,.t-s90,.t-s32,.t-grow,.t-halo{animation:none}.t-card,.tei-faq-item button svg{transition:none}}
+</style>
 </head>
 <body>
-<script>
-/* Safety net: a Supabase password-recovery link can land here instead of
-   /hub/reset-password.html if the project's Site URL falls back to the
-   site root. Forward the code/token on immediately so the reset form still
-   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
-(function () {
-  var search = window.location.search || "";
-  var hash = window.location.hash || "";
-  var params = new URLSearchParams(search);
-  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
-  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
-  if (hasAuthPayload || isRecovery) {
-    window.location.replace("/hub/reset-password.html" + search + hash);
-  }
-})();
-</script>
-
-<!-- ── NAV ── -->
 <!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
 <div class="tei-hdr" role="banner">
   <div class="tei-hdr-in">
@@ -186,32 +95,139 @@ footer {
   </div>
 </div>
 
-<!-- ── HERO ── -->
-<div class="thin-hero">
-  <div class="thin-hero-inner">
-    <p class="thin-eyebrow">About</p>
-    <h1>Why I started this.</h1>
-  </div>
+<main class="tei-page">
+
+<section style="background: #0B1729; color: #F7F4ED; position: relative; overflow: hidden">
+<div class="t-glow" style="position: absolute; width: 640px; height: 640px; right: -220px; top: -260px; border-radius: 50%; background: #B9CAE6; filter: blur(150px)" aria-hidden="true"></div>
+<div class="t-s90" style="position: absolute; width: 980px; height: 980px; left: -480px; bottom: -620px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.10)" aria-hidden="true"></div>
+<div class="t-pad" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 64px 32px 104px">
+<p class="t-up" style="margin: 0 0 24px; display: inline-flex; align-items: center; gap: 10px; font-family: 'Geist Mono', monospace; font-size: 13px; color: #AAB6C8; border: 1px solid rgba(232,214,168,0.18); border-radius: 999px; padding: 8px 14px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8D6A8"></span>About and how we work</p>
+<h1 class="t-up2" style="margin: 0; max-width: 980px; font-size: clamp(44px, 6vw, 84px); line-height: 1; font-weight: 300; letter-spacing: -0.045em">Built so you need us <span style="color: #E8D6A8">less every year.</span></h1>
+<p class="t-up3" style="margin: 28px 0 0; max-width: 600px; font-size: 19px; line-height: 1.6; font-weight: 300; color: #AAB6C8">Plenty of capable people never had money explained to them properly. TEI exists to close that gap with honest education, practical coaching and complete transparency, until you can explain and justify your own decisions.</p>
 </div>
+</section>
 
-<!-- ── STORY ── -->
-<div class="story-wrap">
-  <p>I've been interested in investing for as long as I can remember. Not in a spreadsheet-and-suit way. I just always wanted to understand how money actually worked, and why it seemed to work so much harder for some people than others.</p>
-
-  <p>That curiosity took me into financial services. And once I was actually inside the industry, something started to bother me. I would go home, talk to friends, family, people I had grown up with, and realise how little any of them actually knew. Not because they were not capable. Because nobody had ever bothered to sit down and explain it to them properly.</p>
-
-  <p>The same patterns kept showing up. Savings sitting in an account, quietly losing value, because it felt safer than the alternative. Workplace pensions nobody had looked at since the day they were auto-enrolled. People who assumed investing was for someone else, someone with more money, more time, more confidence than they had. None of it was stupidity. It was just silence. Nobody had ever offered to close the gap.</p>
-
-  <p>I still work inside financial services day to day, and that is exactly where I keep noticing it. The Everyday Investor is built around what that work has taught me, but it stands apart from it entirely. This is coaching and education, not regulated financial advice, and never a replacement for it.</p>
-
-  <p class="pull-quote">Honestly, it started to frustrate me. I would sit there knowing exactly what someone should do with their money, and know that if I did not say something, they would probably never hear it from anyone else either.</p>
-
-  <p>That is an uncomfortable thing to sit with once you have noticed it.</p>
-
-  <p>I did not build this because I had some grand plan. I built it because I got tired of watching people I cared about miss out on things that were not actually complicated, they just needed someone to explain them. That is still the whole point. Not a product. Not a pitch. Just someone willing to do that properly, and stay around while you put it into practice.</p>
+<!-- WHAT WE BELIEVE (light) -->
+<section style="background: #F7F4ED">
+<div class="t-pad t-sec" style="max-width: 1280px; margin: 0 auto; padding: 80px 32px">
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; justify-content: space-between"><div style="max-width: 640px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">What we believe</p><h2 style="margin: 14px 0 0; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.05; font-weight: 300; letter-spacing: -0.035em">Teaching over telling.</h2></div><p style="margin: 0; max-width: 420px; font-size: 17px; line-height: 1.6; font-weight: 300; color: #4E5B70">An answer solves one moment. Understanding solves every moment like it that comes after.</p></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 40px">
+<div class="t-card" style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; min-height: 220px; box-sizing: border-box"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">01</span><h3 style="margin: 0; font-size: 23px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.2">Education beats instruction</h3><p style="margin: 0; font-size: 15px; line-height: 1.6; font-weight: 300; color: #4E5B70">Telling you what to buy solves today. Teaching you how to think about it solves every decision after.</p></div>
+<div class="t-card" style="background: #F0E7D0; border: 1px solid #DEDAD0; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; min-height: 220px; box-sizing: border-box"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">02</span><h3 style="margin: 0; font-size: 23px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.2">Confidence comes from understanding</h3><p style="margin: 0; font-size: 15px; line-height: 1.6; font-weight: 300; color: #4E5B70">Not from someone else handling it. We measure success by how far you have come, not how much you need us.</p></div>
+<div class="t-card" style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; min-height: 220px; box-sizing: border-box"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">03</span><h3 style="margin: 0; font-size: 23px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.2">Transparency builds trust</h3><p style="margin: 0; font-size: 15px; line-height: 1.6; font-weight: 300; color: #4E5B70">Every risk, every uncertainty and every bear case is shown on purpose, never hidden to make a decision feel easier.</p></div>
+<div class="t-card" style="background: #DFE6F2; border: 1px solid #DEDAD0; border-radius: 24px; padding: 28px; display: flex; flex-direction: column; gap: 14px; min-height: 220px; box-sizing: border-box"><span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">04</span><h3 style="margin: 0; font-size: 23px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.2">Think in decades</h3><p style="margin: 0; font-size: 15px; line-height: 1.6; font-weight: 300; color: #4E5B70">Long-term thinking beats short-term excitement. We are not in the business of chasing trends.</p></div>
 </div>
+</div>
+</section>
 
-<!-- ── FOOTER ── -->
+<!-- WHERE TEI SITS (light, spectrum) -->
+<section style="background: #F7F4ED">
+<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px">
+<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 28px; padding: 40px; position: relative; overflow: hidden">
+<div style="position: absolute; width: 360px; height: 360px; right: -140px; top: -180px; border-radius: 50%; border: 1px solid #DFE6F2" aria-hidden="true"></div>
+<p style="position: relative; margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">Where we sit</p>
+<h2 style="position: relative; margin: 12px 0 0; max-width: 720px; font-size: clamp(28px, 3.4vw, 40px); line-height: 1.1; font-weight: 300; letter-spacing: -0.03em">Between free content and full financial advice.</h2>
+<div class="t-spectrum" style="position: relative; margin-top: 36px; display: flex; gap: 12px; align-items: stretch">
+<div style="flex: 1; border-radius: 20px; padding: 22px; background: #F7F4ED; border: 1px solid #DEDAD0"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Free content</p><p style="margin: 10px 0 0; font-size: 18px; font-weight: 400">Videos, forums, finfluencers</p><p style="margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: #4E5B70">Easy to find. Hard to trust, and never about your situation.</p></div>
+<div style="flex: 1.3; border-radius: 20px; padding: 22px; background: #0F1E36; color: #F7F4ED; position: relative; overflow: hidden"><div class="t-s32" style="position: absolute; width: 180px; height: 180px; right: -60px; top: -80px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.25)" aria-hidden="true"></div><p style="position: relative; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #E8D6A8">The Everyday Investor</p><p style="position: relative; margin: 10px 0 0; font-size: 22px; font-weight: 300">Education and coaching, applied to your real numbers</p><p style="position: relative; margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: #AAB6C8">A written plan you understand, and support while you put it into practice. Your decisions stay yours.</p></div>
+<div style="flex: 1; border-radius: 20px; padding: 22px; background: #DFE6F2"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Regulated advice</p><p style="margin: 10px 0 0; font-size: 18px; font-weight: 400">FCA-authorised advisers</p><p style="margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: #4E5B70">Personal recommendations. Often out of reach until you already have significant assets.</p></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- HOW WE WORK (dark, interactive journey) -->
+<section id="how-we-work" style="background: #0F1E36; color: #F7F4ED; position: relative; overflow: hidden">
+<div class="t-glow" style="position: absolute; width: 600px; height: 600px; left: -260px; top: 80px; border-radius: 50%; background: #E8D6A8; filter: blur(170px)" aria-hidden="true"></div>
+<div class="t-pad t-sec" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 96px 32px">
+<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8D6A8">How we work</p>
+<h2 style="margin: 14px 0 0; max-width: 760px; font-size: clamp(32px, 4.2vw, 54px); line-height: 1.05; font-weight: 300; letter-spacing: -0.035em">Four steps, at your pace.</h2>
+<div class="ab-tabs" role="tablist" aria-label="Steps">
+<button type="button" role="tab" id="ab-tab0" aria-controls="ab-step0" aria-selected="true"><span class="ab-tab-n">01</span><span class="ab-tab-t">Discovery call</span></button>
+<button type="button" role="tab" id="ab-tab1" aria-controls="ab-step1" aria-selected="false" tabindex="-1"><span class="ab-tab-n">02</span><span class="ab-tab-t">Join</span></button>
+<button type="button" role="tab" id="ab-tab2" aria-controls="ab-step2" aria-selected="false" tabindex="-1"><span class="ab-tab-n">03</span><span class="ab-tab-t">Fact find</span></button>
+<button type="button" role="tab" id="ab-tab3" aria-controls="ab-step3" aria-selected="false" tabindex="-1"><span class="ab-tab-n">04</span><span class="ab-tab-t">Setup, then your rhythm</span></button>
+</div>
+<div class="ab-step" role="tabpanel" id="ab-step0" aria-labelledby="ab-tab0">
+<div style="flex: 1 1 380px; min-width: 0"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">01 &middot; About 30 minutes</p><h3 style="margin: 10px 0 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">Discovery call</h3><p style="margin: 14px 0 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #AAB6C8">We talk through where you are, what you want to change and how TEI works, including what coaching is and is not. Then we both decide whether it is a fit. Tiers come afterwards, once we both know it is.</p></div>
+<ul style="flex: 1 1 300px; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px"><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>The first call is free</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>A short discovery form helps us make the most of the call. It is optional.</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>No pitch at the end</span></li></ul>
+</div>
+<div class="ab-step" role="tabpanel" id="ab-step1" aria-labelledby="ab-tab1" hidden>
+<div style="flex: 1 1 380px; min-width: 0"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">02 &middot; When you are ready</p><h3 style="margin: 10px 0 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">Join</h3><p style="margin: 14px 0 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #AAB6C8">Choose the tier that suits how much support you want after setup. Monthly Direct Debit through GoCardless.</p></div>
+<ul style="flex: 1 1 300px; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px"><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>Core, Momentum or Inner Circle</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>The 3-month minimum term starts here</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>Your Wealth OS login is set up for you</span></li></ul>
+</div>
+<div class="ab-step" role="tabpanel" id="ab-step2" aria-labelledby="ab-tab2" hidden>
+<div style="flex: 1 1 380px; min-width: 0"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">03 &middot; About an hour</p><h3 style="margin: 10px 0 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">Fact find</h3><p style="margin: 14px 0 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #AAB6C8">We gather the full picture: income, spending, accounts, pensions, debts and goals. Either a form you complete in your own time, or a session where we go through it together.</p></div>
+<ul style="flex: 1 1 300px; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px"><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>Nothing is judged, everything is counted</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>You get a written report afterwards</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>&pound;30, taken off your first month if you join. Free if you were referred.</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>Your figures go into Wealth OS</span></li></ul>
+</div>
+<div class="ab-step" role="tabpanel" id="ab-step3" aria-labelledby="ab-tab3" hidden>
+<div style="flex: 1 1 380px; min-width: 0"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">04 &middot; First 3 months, then ongoing</p><h3 style="margin: 10px 0 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">Setup, then your rhythm</h3><p style="margin: 14px 0 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #AAB6C8">As many sessions as it takes to get set up, usually 3 to 4. You get your Wealth Plan and Forecast, and Wealth OS set up with your figures. After that, sessions and plan refreshes run at your tier's pace, with messages in between.</p></div>
+<ul style="flex: 1 1 300px; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px"><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>A written plan with the reasoning and the risks set out plainly</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>Sessions at your tier's pace after setup</span></li><li style="display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.5"><span style="flex: none; margin-top: 4px; width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.5); display: inline-flex; align-items: center; justify-content: center"><span style="width: 5px; height: 5px; border-radius: 50%; background: #E8D6A8"></span></span><span>Most members need less support over time</span></li></ul>
+</div>
+</div>
+</section>
+
+<!-- WHAT WE DO / DON'T (light) -->
+<section id="coaching-not-advice" style="background: #F7F4ED">
+<div class="t-pad t-sec" style="max-width: 1280px; margin: 0 auto; padding: 80px 32px">
+<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">Coaching, not advice</p>
+<h2 style="margin: 14px 0 0; max-width: 760px; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.05; font-weight: 300; letter-spacing: -0.035em">Clear about what we do, and what we do not.</h2>
+<div class="ab-legal-intro"><p>The Everyday Investor provides financial coaching and education. We help you understand how your money works so that you can make your own decisions with confidence.</p><p>We are not a regulated financial advice service. The Everyday Investor is not authorised or regulated by the Financial Conduct Authority (FCA). We do not provide regulated financial advice, discretionary investment management, or personal recommendations within the meaning of the Financial Services and Markets Act 2000.</p><p>The Everyday Investor is an independent business. It is not part of, and does not act on behalf of, any regulated financial firm.</p></div> <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 40px"> <div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; overflow: hidden"><h3 style="margin: 0; background: #DFE6F2; padding: 20px 28px; font-size: 18px; font-weight: 500">What we do</h3><ul style="list-style: none; margin: 0; padding: 12px 28px 24px"><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F1E36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg><span>Explain how financial products, accounts and tax rules work, in plain English.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F1E36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg><span>Help you understand where you are today and what your options are.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F1E36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg><span>Show how different choices could play out, using forecasts and tools built on clearly stated assumptions.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F1E36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg><span>Set out the trade-offs, including the risks and the bear case, for every option.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F1E36" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M5 12l5 5 9-10"></path></svg><span>Help you build the knowledge to explain and justify your own decisions.</span></li></ul></div> <div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; overflow: hidden"><h3 style="margin: 0; background: #F0E7D0; padding: 20px 28px; font-size: 18px; font-weight: 500">What we do not do</h3><ul style="list-style: none; margin: 0; padding: 12px 28px 24px"><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M6 6l12 12M18 6L6 18"></path></svg><span>Tell you which investment, fund, pension or product to buy, sell or hold.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M6 6l12 12M18 6L6 18"></path></svg><span>Make decisions for you, or manage your money on your behalf.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M6 6l12 12M18 6L6 18"></path></svg><span>Hold your money or investments, or place trades for you.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M6 6l12 12M18 6L6 18"></path></svg><span>Arrange insurance, mortgages or pension transfers.</span></li><li style="display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid #EEEAE0; font-size: 15px; line-height: 1.5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" style="flex: none; margin-top: 2px"><path d="M6 6l12 12M18 6L6 18"></path></svg><span>Give regulated tax or legal advice.</span></li></ul></div> </div> <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 16px"> <div class="ab-on-dark" style="background: #0F1E36; color: #F7F4ED; border-radius: 24px; padding: 28px"><h3 style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 400; color: #E8D6A8">When you need regulated advice</h3><p style="margin: 12px 0 0; font-size: 16px; line-height: 1.6; font-weight: 300">Some decisions need an FCA-authorised adviser. These include transferring a pension (especially one with guarantees or a final salary), arranging protection insurance, arranging a mortgage, and choosing specific investments for you. When a conversation reaches one of these points, we will say so clearly. You can check whether a firm is authorised on the <a href="https://register.fca.org.uk" target="_blank" rel="noopener noreferrer">FCA Register</a>, and find free, impartial guidance at <a href="https://www.moneyhelper.org.uk" target="_blank" rel="noopener noreferrer">MoneyHelper</a>.</p></div> <div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; padding: 28px"><h3 style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 400; color: #83661C">What this means for your protection</h3><p style="margin: 12px 0 0; font-size: 16px; line-height: 1.6; font-weight: 300; color: #13213A">Because we are not regulated by the FCA, you cannot take a complaint about our coaching to the Financial Ombudsman Service, and the Financial Services Compensation Scheme does not cover our service. We never hold your money, so your savings and investments keep whatever protection their own provider gives them. If you are unhappy with our service, contact us directly and we will put it right.</p></div> <div style="background: #F0E7D0; border-radius: 24px; padding: 28px"><h3 style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 400; color: #83661C">Your decisions are yours</h3><p style="margin: 12px 0 0; font-size: 16px; line-height: 1.6; font-weight: 300; color: #13213A">All sessions, communications and written materials, including Wealth Plans, Forecasts and tools, are educational and informational. You remain fully responsible for every financial decision you make, including any decision made after a coaching session.</p></div> </div>
+</div>
+</section>
+
+<!-- WHO IS BEHIND TEI + FAQ -->
+<section style="background: #F7F4ED">
+<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<div style="flex: 1 1 360px; min-width: 0; background: #DFE6F2; border-radius: 24px; padding: 32px; position: relative; overflow: hidden">
+<div class="t-s32" style="position: absolute; width: 200px; height: 200px; right: -70px; bottom: -90px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div>
+<p style="position: relative; margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #0F1E36; opacity: .75">Who is behind TEI</p>
+<p style="position: relative; margin: 14px 0 0; font-size: 22px; line-height: 1.4; font-weight: 300">Started by someone inside financial services who kept meeting capable people nobody had ever sat down with.</p>
+<p style="position: relative; margin: 14px 0 0; font-size: 15px; line-height: 1.6; color: #4E5B70">TEI is run by Paddy Iveson, who holds the Diploma in Financial Planning and has years of experience in the financial industry. TEI is an independent business. It is not part of, and does not act for, any regulated firm.</p>
+<button type="button" class="ab-story-btn" aria-expanded="false" aria-controls="story">Read the full story</button>
+</div>
+<div style="flex: 1.4 1 420px; min-width: 0; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; padding: 12px 28px">
+<div class="tei-faq-item"><h3><button type="button" id="ab-faq-b0" aria-expanded="true" aria-controls="ab-faq-p0"><span>Is this financial advice?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="ab-faq-p0" role="region" aria-labelledby="ab-faq-b0">No. TEI provides coaching and education. We explain how things work and show how choices could play out. We never tell you which product to buy or hold, and every decision stays yours.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="ab-faq-b1" aria-expanded="false" aria-controls="ab-faq-p1"><span>Do you manage or hold my money?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="ab-faq-p1" role="region" aria-labelledby="ab-faq-b1" hidden>No. Your money stays with your own providers. We never place trades or hold investments for you.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="ab-faq-b2" aria-expanded="false" aria-controls="ab-faq-p2"><span>Who is TEI for?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="ab-faq-p2" role="region" aria-labelledby="ab-faq-b2" hidden>People in the UK who are willing to learn and want to take ownership of their money, whatever they are starting with.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="ab-faq-b3" aria-expanded="false" aria-controls="ab-faq-p3"><span>What happens after the first call?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="ab-faq-p3" role="region" aria-labelledby="ab-faq-b3" hidden>If we both think it is a fit, we talk through the tiers and you choose one. Then we run the fact find and build your Wealth Plan and Forecast. If it does not fit, we will say so.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="ab-faq-b4" aria-expanded="false" aria-controls="ab-faq-p4"><span>How much does it cost?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="ab-faq-p4" role="region" aria-labelledby="ab-faq-b4" hidden>The first call is free. The fact find is &pound;30, taken off your first month if you join, and free if you were referred. Membership starts at &pound;25 a month. See the <a href="/membership.html">Membership page</a> for what each tier includes.</p></div>
+</div>
+</div>
+</section>
+
+<!-- THE FOUNDER STORY: the only first-person section on the site. Word for word from the previous About page. -->
+<section id="story" class="ab-story-sec" hidden style="background: #F7F4ED">
+<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px">
+<div class="ab-story">
+<p class="ab-story-label">The full story</p>
+<h2>
+Why I started this.
+</h2>
+<p>I've been interested in investing for as long as I can remember. Not in a spreadsheet-and-suit way. I just always wanted to understand how money actually worked, and why it seemed to work so much harder for some people than others.</p>
+<p>That curiosity took me into financial services. And once I was actually inside the industry, something started to bother me. I would go home, talk to friends, family, people I had grown up with, and realise how little any of them actually knew. Not because they were not capable. Because nobody had ever bothered to sit down and explain it to them properly.</p>
+<p>The same patterns kept showing up. Savings sitting in an account, quietly losing value, because it felt safer than the alternative. Workplace pensions nobody had looked at since the day they were auto-enrolled. People who assumed investing was for someone else, someone with more money, more time, more confidence than they had. None of it was stupidity. It was just silence. Nobody had ever offered to close the gap.</p>
+<p>I still work inside financial services day to day, and that is exactly where I keep noticing it. The Everyday Investor is built around what that work has taught me, but it stands apart from it entirely. This is coaching and education, not regulated financial advice, and never a replacement for it.</p>
+<p class="ab-story-quote">Honestly, it started to frustrate me. I would sit there knowing exactly what someone should do with their money, and know that if I did not say something, they would probably never hear it from anyone else either.</p>
+<p>That is an uncomfortable thing to sit with once you have noticed it.</p>
+<p>I did not build this because I had some grand plan. I built it because I got tired of watching people I cared about miss out on things that were not actually complicated, they just needed someone to explain them. That is still the whole point. Not a product. Not a pitch. Just someone willing to do that properly, and stay around while you put it into practice.</p>
+</div>
+</div>
+</section>
+
+<!-- CLOSING CTA CARD -->
+<section class="t-pad" style="background: #F7F4ED; padding: 0 32px">
+<div style="position: relative; max-width: 1280px; margin: 0 auto; background: #0B1729; color: #F7F4ED; border-radius: 32px; overflow: hidden; padding: 80px 24px; text-align: center">
+<div class="t-glow" style="position: absolute; width: 520px; height: 340px; left: 50%; margin-left: -260px; top: 30px; border-radius: 50%; background: #B9CAE6; filter: blur(150px)" aria-hidden="true"></div>
+<div class="t-s90" style="position: absolute; left: 50%; top: 50%; width: 760px; height: 760px; margin: -380px 0 0 -380px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.12)" aria-hidden="true"></div>
+<h2 style="position: relative; margin: 0 auto; max-width: 760px; font-size: clamp(36px, 4.8vw, 64px); line-height: 1.03; font-weight: 300; letter-spacing: -0.04em">See whether TEI <span style="color: #E8D6A8">fits you.</span></h2>
+<p style="position: relative; margin: 20px auto 0; max-width: 500px; font-size: 18px; line-height: 1.6; font-weight: 300; color: #AAB6C8">A free 30-minute call on where you are and where you want to be. No pitch at the end.</p>
+<div style="position: relative; margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center"><a href="/book" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 16px; font-weight: 500; padding: 0 26px; min-height: 52px; border-radius: 999px">Book a call</a><a href="/membership.html" style="display: inline-flex; align-items: center; color: #F7F4ED; text-decoration: none; font-size: 16px; padding: 0 26px; min-height: 52px; border-radius: 999px; border: 1px solid rgba(232,214,168,0.3)">See membership</a></div>
+</div>
+</section>
+
+</main>
+
 <!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
 <div class="tei-ftr" role="navigation" aria-label="Footer">
   <div class="tei-ftr-in">
@@ -237,15 +253,62 @@ footer {
     <p class="tei-compliance-warning">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
   </div>
 </footer>
-
 <script>
-function toggleNav() {
-  document.getElementById('navMobileMenu').classList.toggle('open');
-}
-function closeNav() {
-  document.getElementById('navMobileMenu').classList.remove('open');
-}
+/* About page: the four steps (tabs), the FAQ (one answer open at a time)
+   and the founder story (opened from "Read the full story"). */
+(function () {
+  var each = function (list, fn) { Array.prototype.forEach.call(list, fn); };
+
+  var tabs = document.querySelectorAll('.ab-tabs [role="tab"]');
+  function selectTab(index, focus) {
+    each(tabs, function (tab, i) {
+      var on = i === index;
+      tab.setAttribute('aria-selected', on ? 'true' : 'false');
+      if (on) tab.removeAttribute('tabindex'); else tab.setAttribute('tabindex', '-1');
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (focus) tabs[index].focus();
+  }
+  each(tabs, function (tab, i) {
+    tab.addEventListener('click', function () { selectTab(i, false); });
+    tab.addEventListener('keydown', function (e) {
+      var next = -1;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % tabs.length;
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i + tabs.length - 1) % tabs.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = tabs.length - 1;
+      if (next < 0) return;
+      e.preventDefault();
+      selectTab(next, true);
+    });
+  });
+
+  var faqButtons = document.querySelectorAll('.tei-faq-item button');
+  function setOpen(button, open) {
+    button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.getElementById(button.getAttribute('aria-controls')).hidden = !open;
+  }
+  each(faqButtons, function (b) {
+    b.addEventListener('click', function () {
+      var wasOpen = b.getAttribute('aria-expanded') === 'true';
+      each(faqButtons, function (other) { setOpen(other, false); });
+      setOpen(b, !wasOpen);
+    });
+  });
+
+  var storyButton = document.querySelector('.ab-story-btn');
+  var story = document.getElementById('story');
+  function showStory(open, scroll) {
+    story.hidden = !open;
+    storyButton.setAttribute('aria-expanded', open ? 'true' : 'false');
+    storyButton.textContent = open ? 'Hide the full story' : 'Read the full story';
+    if (open && scroll) story.scrollIntoView({ block: 'start' });
+  }
+  storyButton.addEventListener('click', function () { showStory(story.hidden, true); });
+  if (location.hash === '#story') showStory(true, true);
+})();
 </script>
+<noscript><style>#story{display:block !important}</style></noscript>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

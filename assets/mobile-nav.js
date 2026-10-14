@@ -53,7 +53,7 @@
       links: [
         { id: 'home',       label: 'Home',               href: '/index.html' },
         { id: 'about',      label: 'About',              href: '/about.html' },
-        { id: 'hww',        label: 'How we work',        href: '/how-we-work' },
+        { id: 'hww',        label: 'How we work',        href: '/about.html#how-we-work' },
         { id: 'guides',     label: 'Guides &amp; Tools', href: '/guides.html' },
         { id: 'articles',   label: 'Articles',           href: '/articles.html' },
         { id: 'membership', label: 'Membership',         href: '/membership.html' }
@@ -125,7 +125,6 @@
     if (p === '/articles' || p.indexOf('/articles/') === 0) return 'articles';
     if (p === '/membership') return 'membership';
     if (p === '/about') return 'about';
-    if (p === '/how-we-work' || p === '/how-we-work/index') return 'hww';
     return '';
   }
 
