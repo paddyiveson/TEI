@@ -107,19 +107,13 @@ h1,h2,h3,.num{font-family:'Playfair Display',serif;}
 #clientApp .wrap{max-width:1680px;}
 /* Re-flow to 4-per-row (from 3) on very wide screens -- scoped to the
    handful of grids that are genuinely repeating collections of same-size
-   cards (goal cards, priority actions, completed goals, learning cards),
+   cards (learning cards),
    never the fixed dashboard layouts elsewhere (span-6/span-8 pairings
    that mean something about position, not just "more cards fit"). Those
    would need a page-by-page look at what's actually being paired before
    touching -- this is the safe subset. */
 @media (min-width:1600px){
-  /* NOT #priorityGrid: always exactly 3 fixed, meaningful cards (Current
-     priority / Needs attention-or-On track / Long-term goal) -- already
-     fills the row exactly at 3-per-row, so reflowing to 4 would open up
-     a gap rather than close one. */
-  #clientApp #completedGoalsGrid.dgrid .span-4,
   #clientApp #learningGrid.dgrid .span-4{ grid-column:span 3; } /* 3-per-row -> 4 */
-  #clientApp #goalCardsGrid.dgrid .span-6{ grid-column:span 4; } /* 2-per-row -> 3 */
 }
 a{color:inherit;}
 :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
@@ -526,7 +520,6 @@ h2{font-size:24px; color:var(--ink); margin:4px 0 6px;}
 @media (max-width:860px){ .completed-grid{grid-template-columns:1fr 1fr;} }
 @media (max-width:520px){ .completed-grid{grid-template-columns:1fr;} }
 .completed-card{background:var(--card-dark2); border-radius:var(--radius-sm); padding:14px 16px; display:flex; align-items:flex-start; gap:10px;}
-.gc-hidden{display:none;}
 .completed-card .cg-icon{color:var(--sage); font-size:18px; flex:none; line-height:1.3;}
 .completed-card .cg-name{font-size:15px; color:var(--cream); font-weight:600;}
 .completed-card .cg-date{font-size:13px; color:var(--cream-soft2); margin-top:2px;}
@@ -1248,45 +1241,6 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 
 .k-debtfree-pill{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:11.5px; font-weight:700; background:var(--k-debtfree-bg); color:var(--k-debtfree-ink); border:1px solid var(--k-debtfree-border);}
 
-.k-goal-header{display:flex; align-items:center; gap:10px; margin-bottom:8px;}
-.k-goal-icon{flex:none; width:30px; height:30px; border-radius:8px; background:rgba(201,168,76,0.16); display:flex; align-items:center; justify-content:center; color:var(--gold);}
-.k-goal-icon svg{width:16px; height:16px;}
-.k-goal-name{font-family:var(--font-display); font-weight:600; font-size:16.5px; color:var(--k-emphasis-ink);}
-.k-goal-next{margin-left:auto; flex:none; font-size:11px; font-weight:700; letter-spacing:0.03em; color:var(--gold); background:rgba(201,168,76,0.16); border-radius:10px; padding:3px 9px;}
-.k-goal-meta{display:flex; justify-content:space-between; font-size:13px; color:var(--k-emphasis-softer); margin-top:6px;}
-.k-goal-meta b{color:var(--k-emphasis-ink); font-weight:700;}
-.k-tl-track{position:relative; height:4px; background:var(--k-track-bg); border-radius:4px; margin:58px 10px 58px;}
-.k-tl-fill{position:absolute; left:0; top:0; height:100%; background:var(--gold); border-radius:4px;}
-.k-tl-marker{position:absolute; top:-10px; width:24px; height:24px; transform:translateX(-50%); display:flex; align-items:center; justify-content:center;}
-.k-tl-marker::before{content:''; width:12px; height:12px; border-radius:50%; background:var(--k-ink-softer); border:2px solid var(--k-card-bg);}
-.k-tl-marker.next::before{background:var(--gold);}
-.k-tl-marker.done::before{background:var(--k-up-ink);}
-.k-tl-marker .lbl{position:absolute; top:28px; left:50%; transform:translateX(-50%); font-size:12px; white-space:nowrap; color:var(--k-ink-softer);}
-.k-tl-marker .amt{position:absolute; bottom:28px; left:50%; transform:translateX(-50%); font-size:12.5px; font-weight:700; color:var(--k-ink); white-space:nowrap;}
-.k-tl-marker.next .amt{color:var(--gold);}
-.k-tl-marker.row-b .lbl{top:46px;}
-.k-tl-marker.row-b .amt{bottom:46px;}
-.k-tl-marker.has-icon{border-radius:8px; background:rgba(201,168,76,0.14); color:var(--k-ink-softer);}
-.k-tl-marker.has-icon::before{content:none;}
-.k-tl-marker.has-icon svg{width:14px; height:14px;}
-.k-tl-marker.has-icon.next{background:rgba(201,168,76,0.22); color:var(--gold);}
-.k-priority-card{border-left:3px solid; border-radius:6px 9px 9px 6px;}
-.k-priority-card.warn{border-left-color:var(--k-down-ink);}
-.k-priority-card.ok{border-left-color:var(--k-up-ink);}
-.k-priority-card.goal{border-left-color:var(--gold);}
-.k-priority-status{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:10px; margin-bottom:6px;}
-.k-priority-status.warn{background:var(--k-down-bg); color:var(--k-down-ink);}
-.k-priority-status.ok{background:var(--k-up-bg); color:var(--k-up-ink);}
-.k-priority-status.goal{background:var(--gold-bg); color:var(--gold);}
-.k-priority-goal{font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--k-ink); font-weight:700; margin-bottom:4px;}
-#priorityGrid.dgrid{align-items:stretch;}
-#priorityGrid .dcard{height:100%; box-sizing:border-box;}
-
-.k-completed-card{display:flex; align-items:center; gap:10px;}
-.k-completed-check{width:22px; height:22px; border-radius:50%; background:var(--k-up-bg); color:var(--k-up-ink); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; flex:none;}
-.k-completed-name{font-size:14.5px; font-weight:600; color:var(--k-ink);}
-.k-completed-date{font-size:12.5px; color:var(--k-ink-softer);}
-
 .k-rowstats{display:flex; gap:22px; margin-top:10px; flex-wrap:wrap;}
 /* .k-boxed-stat's own background (--k-track-bg) flips per theme like an
    ordinary .dcard's does -- but every .dcard.emphasis text-colour override
@@ -1744,7 +1698,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 /* Mobile-only Wealth additions (segmented switch, ranked lists, Journey stage host). */
 #clientApp .m-lab-head, #clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
 /* Mobile-only Plan additions (merged next-steps card, hosts for moved blocks, conversion legend, accordion title). */
-#clientApp .m-nextsteps, #clientApp #mGoalsFFHost, #clientApp #wcdLegend, #clientApp .m-explain, #clientApp .m-step{display:none;}
+#clientApp .m-nextsteps, #clientApp #wcdLegend, #clientApp .m-explain, #clientApp .m-step{display:none;}
 /* Mobile-only Library additions (Learn cards, Meeting notes filter). */
 #clientApp #mLearnHost, #clientApp .m-chips, #clientApp .m-docs-empty{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
@@ -2030,48 +1984,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   /* Coach's corner cards (Forecast, Cashflow): 2 lines + full-width action. */
   #fcMessage, #cfcMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
   #fcActionBtn, #cfcActionBtn{align-self:stretch !important; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; margin-top:8px !important; padding:9px 14px; font-size:13px;}
-
-  /* -- Plan > Goals (page: goals) -- */
-  #page-goals > section:not(#goalsEmptyState), #goalsContent{display:contents;}
-  #page-goals > section:nth-of-type(1):not(#goalsEmptyState){display:none;}   /* "Add, edit or remove a goal" nudge */
-  #goalsOverviewSection{display:contents;}
-  #clientApp #goalsEmptyState{order:15; padding-left:0; padding-right:0;}
-  /* The host is a .dcard only so the moved block keeps its card-scoped text styles; it draws no card of its own. */
-  #clientApp #mGoalsFFHost{display:block; order:10; background:none; border:0; padding:0 !important;}
-  #mGoalsFFHost .k-stat-split{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:0 !important; align-items:stretch;}
-  #mGoalsFFHost .k-stat-split .divider{display:none;}
-  #mGoalsFFHost .k-stat-split .sp, #goalsOverviewSection .k-stat-split .sp, #goalsOverviewSection .dgrid > div:last-child > .dcard{background:var(--k-card-bg); border:1px solid var(--k-card-border); border-radius:9px; padding:9px 11px; min-width:0;}
-  #mGoalsFFHost .k-stat-split .v{font-size:17px !important;}
-  /* Two stat chips: progress and on track. "Active goals" is dropped, and so is "Next achievement":
-     the goal cards below are in date order with the soonest tagged "Next up", so it only repeated that. */
-  #goalsOverviewSection > .dgrid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; order:20; align-items:stretch; margin-bottom:12px;}
-  #goalsOverviewSection .dgrid > div, #goalsOverviewSection .dgrid > div:first-child > .dcard, #goalsOverviewSection .k-stat-split{display:contents;}
-  #goalsOverviewSection .k-stat-split > .sp:first-child, #goalsOverviewSection .k-stat-split > .divider{display:none;}
-  #goalsOverviewSection .dgrid > div:last-child > .dcard{display:none;}
-  #goalsOverviewSection .k{font-size:9.5px; letter-spacing:0.04em;}
-  #goalsOverviewSection .v{font-size:15px !important;}
-  #goalsOverviewSection .sub2{font-size:10.5px; margin-top:2px;}
-  #goalsOverviewSection .sp .k-bar{max-width:none !important; margin-top:6px;}
-  /* Active goals: compact single-column cards. */
-  #goalsContent > section:nth-of-type(2){display:contents;}
-  #clientApp #goalCardsGrid.dgrid{display:grid; grid-template-columns:minmax(0,1fr); gap:8px; order:30;}
-  #goalCardsGrid > div, #completedGoalsGrid > div{grid-column:auto !important;}
-  #goalCardsGrid .dcard.emphasis{padding:10px 12px;}
-  #goalCardsGrid .k-goal-header{margin-bottom:6px;}
-  /* Timeline, Goal insights, Your goal journey: accordions. */
-  #goalsContent > section:nth-of-type(3), #goalsContent > section:nth-of-type(3) > .dgrid, #goalsContent > section:nth-of-type(3) > .dgrid > div,
-  #goalsContent > section:nth-of-type(5), #goalsContent > section:nth-of-type(5) > .dgrid, #goalsContent > section:nth-of-type(5) > .dgrid > div{display:contents;}
-  #goalsContent > section:nth-of-type(3) .dcard{order:40;}
-  /* The goal cards above already show each goal's target, progress and estimated date (in date
-     order, soonest tagged "Next up"), so the Timeline card only repeated them on a phone. */
-  #goalsContent > section:nth-of-type(3){display:none !important;}
-  #goalCardsGrid > div{order:var(--m-order,0);}
-  #completedGoalsGrid .k-completed-empty{display:none;}   /* empty "celebrated here" placeholder: just noise on a phone */
-  #goalsContent > section:nth-of-type(5) > .dgrid > div:nth-child(1) > .dcard{order:50;}
-  #goalsContent > section:nth-of-type(5) > .dgrid > div:nth-child(2) > .dcard{order:60;}
-  #goalsContent > section:nth-of-type(4){display:none;}               /* "Where to put your attention" (the Next best steps card replaces it) */
-  #clientApp #completedGoalsSection{order:70; padding:0 !important; max-width:100%;}
-  #completedGoalsGrid.dgrid{grid-template-columns:minmax(0,1fr); gap:8px;}
 
   /* -- Plan > Forecast (page: planning) -- */
   #page-planning > section, #page-planning > section > .dgrid, #page-planning > section > .dgrid > div:not([data-m="hide"]){display:contents;}
@@ -2785,6 +2697,185 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .wl-lab-panel .lab-preset-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .wl-lab-panel .lab-num-input{ width:120px; }
 }
+/* ================================================================
+   REDESIGN B12.6 -- Goals (spec B6, boards Goals and GoalsMobile).
+   Builds on the B12.3 hm- tiles; Goals-only parts are prefixed gl-.
+   ================================================================ */
+#clientApp[data-theme="light"] .gl-hero, #clientApp[data-theme="light"] .gl-coach{ --gold:#E8D6A8; }
+.gl-add-btn{ gap:8px; }
+.gl-add-btn svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; }
+
+.gl-hero{ grid-column:span 8; gap:0; padding:26px; }
+.gl-whatif{ grid-column:span 4; gap:14px; animation-delay:.06s; }
+.gl-cards{ display:contents; }
+.gl-card{ grid-column:span 3; gap:12px; padding:22px; }
+.gl-addcard{ grid-column:span 3; }
+.gl-miles{ grid-column:1 / span 8; animation-delay:.36s; } /* always starts its own row */
+.gl-coach{ grid-column:span 4; animation-delay:.42s; }
+.gl-tile-hidden, .gl [hidden]{ display:none !important; }
+
+/* Headline goal (navy in both themes) */
+.gl-hero-top{ position:relative; display:flex; flex-wrap:wrap; align-items:center; gap:24px; }
+.gl-ringwrap{ position:relative; width:132px; height:132px; flex:none; }
+.gl-ringwrap svg{ display:block; width:132px; height:132px; }
+.gl-ring-track{ fill:none; stroke:rgba(255,255,255,0.10); stroke-width:8; }
+.gl-ring-fill{ fill:none; stroke:#E8D6A8; stroke-width:8; stroke-linecap:round; animation:hm-ringfill 1.8s cubic-bezier(.3,.8,.3,1) .3s both; }
+.gl-ring-text{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.gl-ring-text span{ font-size:30px; font-weight:300; letter-spacing:-0.03em; }
+.gl-ring-text small{ font-family:'Geist Mono', ui-monospace, monospace; font-size:10px; color:#AAB6C8; }
+.gl-hero-text{ flex:1 1 280px; min-width:0; }
+.gl-hero-name{ margin:8px 0 0; font-family:inherit; font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; color:#F7F4ED; }
+.gl-hero-sub{ margin-top:10px !important; font-size:15px; color:#AAB6C8; }
+.gl-hl{ color:#E8D6A8; }
+.gl-chart{ position:relative; display:block; width:100%; height:200px; margin-top:20px; overflow:visible; }
+.gl-c-target{ stroke:#E8D6A8; stroke-opacity:.5; stroke-dasharray:4 6; vector-effect:non-scaling-stroke; }
+.gl-c-plan{ stroke:#AAB6C8; stroke-opacity:.4; stroke-dasharray:2 5; vector-effect:non-scaling-stroke; }
+.gl-c-area{ fill:#E8D6A8; fill-opacity:.10; }
+.gl-c-line{ fill:none; stroke:#E8D6A8; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
+.gl-axis{ position:relative; display:flex; justify-content:space-between; margin-top:8px; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:#AAB6C8; }
+.gl-legend{ position:relative; display:flex; flex-wrap:wrap; gap:8px 20px; margin-top:12px; font-size:12px; color:#AAB6C8; }
+.gl-legend span{ display:inline-flex; align-items:center; gap:8px; }
+.gl-k-target{ width:18px; border-top:2px dashed #E8D6A8; }
+.gl-k-plan{ width:0; height:12px; border-left:2px dotted #AAB6C8; }
+
+/* What if? (champagne) */
+.gl-q{ font-size:15px; line-height:1.4; color:var(--w-text); }
+.gl-q strong{ font-weight:600; }
+.gl-range{ width:100%; height:44px; margin:0; accent-color:var(--w-gold); cursor:pointer; }
+.gl-range:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; border-radius:8px; }
+.gl-ends{ display:flex; justify-content:space-between; margin-top:-8px; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-muted); }
+.gl-result{ background:var(--w-tile); border-radius:18px; padding:16px; }
+.gl-result-v{ margin-top:4px !important; font-size:28px; font-weight:300; letter-spacing:-0.03em; color:var(--w-text); }
+.gl-result-d{ margin-top:6px !important; font-size:14px; font-weight:500; color:var(--w-gold); }
+.gl-result-d:empty{ display:none; }
+.gl-whatif-foot{ margin-top:auto !important; }
+
+/* Goal cards */
+.gl-card--complete{ background:var(--w-powder); }
+.gl-card--behind{ background:var(--w-champ); }
+.gl-when{ font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-muted); }
+.gl-chip{ flex:none; font-size:12px; font-weight:500; padding:4px 10px; border-radius:999px; border:1px solid var(--w-line); color:var(--w-text); }
+.gl-chip--complete{ background:var(--w-nav-active); border-color:var(--w-nav-active); color:var(--w-nav-active-text); }
+.gl-chip--on-track{ border-color:var(--w-gold); color:var(--w-gold); }
+.gl-card-name{ margin:0; font-family:inherit; font-size:20px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; color:var(--w-text); }
+.gl-card-fig{ font-size:26px; font-weight:300; letter-spacing:-0.03em; color:var(--w-text); }
+.gl-card-fig span{ font-size:14px; letter-spacing:0; color:var(--w-muted); }
+.gl-card .hm-bar > span{ background:var(--w-gold); }
+.gl-card--complete .hm-bar > span{ background:var(--w-nav-active); }
+.gl-card--behind .hm-bar > span{ background:var(--w-muted); }
+.gl-card-foot{ display:flex; align-items:flex-end; justify-content:space-between; gap:8px; margin-top:auto; }
+.gl-accts{ display:flex; flex-wrap:wrap; gap:6px; min-width:0; padding-bottom:12px; }
+.gl-acct{ font-family:'Geist Mono', ui-monospace, monospace; font-size:10px; padding:4px 9px; border-radius:999px; border:1px solid var(--w-line); color:var(--w-muted); }
+.gl-card-foot .hm-link{ flex:none; }
+.gl-sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* Add a goal (dashed) */
+.gl-addcard{ box-sizing:border-box; min-height:220px; padding:22px; border:1.5px dashed var(--w-line); border-radius:26px; background:transparent; color:var(--w-text); font-family:inherit; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; animation:hm-up .7s cubic-bezier(.2,.8,.2,1) .3s both; transition:transform .2s ease; }
+.gl-addcard:hover{ transform:translateY(-2px); background:var(--w-chip); }
+.gl-addcard:focus-visible{ outline:2px solid var(--w-gold); outline-offset:3px; }
+.gl-addcard-ring{ width:52px; height:52px; border-radius:50%; border:1px solid var(--w-gold); display:inline-flex; align-items:center; justify-content:center; color:var(--w-gold); }
+.gl-addcard-ring svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+.gl-addcard-t{ font-size:16px; font-weight:500; }
+.gl-addcard-s{ font-size:13px; line-height:1.5; color:var(--w-muted); }
+
+/* Milestones: evenly spaced, not to scale */
+.gl-tl{ position:relative; margin-top:26px; --gl-n:6; --gl-fill-x:0%; --gl-fill-y:0%; }
+.gl-tl::before, .gl-tl::after{ content:''; position:absolute; top:9px; height:2px; left:calc(50% / var(--gl-n)); }
+.gl-tl::before{ right:calc(50% / var(--gl-n)); background:var(--w-line); }
+.gl-tl::after{ width:var(--gl-fill-x); background:var(--w-gold); transform-origin:left; animation:hm-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
+.gl-tl-list{ position:relative; z-index:1; list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(var(--gl-n), minmax(0, 1fr)); gap:8px; }
+.gl-m{ display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; min-width:0; }
+.gl-dot{ box-sizing:border-box; width:20px; height:20px; border-radius:50%; border:2px solid var(--w-muted); background:var(--w-tile); }
+.gl-m--done .gl-dot{ border-color:var(--w-nav-active); background:var(--w-nav-active); }
+.gl-m--today .gl-dot{ border-color:var(--w-gold); animation:gl-pulse 2.4s ease-in-out infinite; }
+.gl-m--next .gl-dot{ border-color:var(--w-gold); }
+.gl-m--head .gl-dot{ border-color:var(--w-gold); background:var(--w-gold); }
+.gl-m-d{ font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-muted); }
+.gl-m--today .gl-m-d{ color:var(--w-gold); }
+.gl-m-t{ font-size:13px; font-weight:500; line-height:1.3; color:var(--w-text); overflow-wrap:anywhere; }
+@keyframes gl-pulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(131,102,28,.4); } 50%{ box-shadow:0 0 0 8px rgba(131,102,28,0); } }
+
+/* Coach's corner (navy) */
+.gl-coach{ min-height:220px; }
+.gl-coach-msg{ position:relative; font-size:17px; font-weight:300; line-height:1.5; color:#F7F4ED; }
+.gl-coach-btn{ position:relative; margin-top:auto; align-self:flex-start; background:#E8D6A8; color:#0F1E36; border-color:transparent; }
+.gl-coach-btn:hover{ background:#E8D6A8; opacity:.9; }
+
+.gl-foot{ margin-top:28px !important; }
+
+/* Goal panel: the form that used to sit on the Update page */
+.gl-form{ display:flex; flex-direction:column; gap:14px; }
+.gl-field{ display:flex; flex-direction:column; gap:6px; font-size:14px; font-weight:500; color:var(--w-text); }
+.gl-field input, .gl-field select{ box-sizing:border-box; width:100%; min-height:44px; padding:0 12px; border:1px solid var(--w-line); border-radius:12px; background:var(--w-bg); color:var(--w-text); font-family:inherit; font-size:15px; font-weight:400; }
+.gl-field input:focus, .gl-field select:focus{ outline:2px solid var(--w-gold); outline-offset:1px; }
+.gl-checks{ display:flex; flex-direction:column; border:1px solid var(--w-line); border-radius:12px; padding:4px 12px; background:var(--w-tile); }
+.gl-checks label{ display:flex; align-items:center; gap:10px; min-height:44px; font-weight:400; cursor:pointer; }
+.gl-checks label + label{ border-top:1px solid var(--w-line); }
+.gl-checks input{ width:18px; height:18px; min-height:0; margin:0; accent-color:var(--w-gold); }
+.gl-checks.empty{ padding:12px; font-weight:400; color:var(--w-muted); }
+.gl-panel-actions{ display:flex; flex-wrap:wrap; gap:10px; }
+.gl-panel #clCancelGoalEditBtn{ display:none !important; }
+.gl-remove{ margin-left:auto; color:var(--w-warn); border-color:var(--w-warn); }
+
+@media (prefers-reduced-motion: reduce){
+  .gl-ring-fill, .gl-tl::after, .gl-m--today .gl-dot, .gl-addcard{ animation:none; }
+  .gl-addcard:hover{ transform:none; }
+}
+
+@media (max-width:1100px){
+  .gl-card, .gl-addcard{ grid-column:span 6; }
+}
+
+/* Phones (B6): Plan > Goals. Headline goal, what if, goal cards, add a goal,
+   milestones. The page header and the Goals | Forecast | Cashflow switch
+   sit above the tiles. */
+@media (max-width:860px){
+  #clientApp[data-mview] #page-goals.active{ padding:4px 16px 24px; gap:12px; }
+  #page-goals .gl{ display:contents; }
+  #page-goals .gl-head{ order:-3; margin-bottom:0; }
+  #page-goals .hm-date, #page-goals .gl-add-btn{ display:none; }
+  #page-goals .gl-grid{ order:0; }
+  #page-goals .gl-foot{ order:1; margin-top:4px !important; }
+  #page-goals > .m-seg{ margin:0; }
+  .gl-grid > .hm-tile, .gl-card, .gl-addcard, .gl-hero, .gl-whatif, .gl-miles{ grid-column:1 / span 2 !important; }
+  .gl-hero{ padding:20px; }
+  .gl-hero-top{ flex-wrap:nowrap; gap:16px; }
+  .gl-ringwrap, .gl-ringwrap svg{ width:84px; height:84px; }
+  .gl-ring-text span{ font-size:20px; }
+  .gl-ring-text small{ display:none; }
+  .gl-hero-name{ margin-top:4px; font-size:20px; line-height:1.2; }
+  .gl-hero-sub{ margin-top:6px !important; font-size:12px; }
+  .gl-chart{ height:110px; margin-top:14px; }
+  .gl-axis{ display:none; }
+  .gl-legend{ margin-top:8px; }
+  .gl-whatif{ padding:18px; gap:10px; }
+  .gl-ends{ display:none; }
+  .gl-result{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:baseline; gap:4px 12px; border-radius:14px; padding:12px 14px; }
+  .gl-result-k{ display:none; }
+  .gl-result-v{ margin:0 !important; font-size:22px; }
+  .gl-result-d{ margin:0 !important; font-size:12px; }
+  .gl-card{ padding:16px 18px; gap:8px; }
+  .gl-card .hm-row{ flex-wrap:nowrap; }
+  .gl-card-name{ font-size:17px; }
+  .gl-card-fig{ font-size:20px; }
+  .gl-addcard{ min-height:52px; flex-direction:row; padding:4px 16px; border-radius:24px; gap:8px; color:var(--w-gold); }
+  .gl-addcard-ring{ width:auto; height:auto; border:0; }
+  .gl-addcard-ring svg{ width:16px; height:16px; }
+  .gl-addcard-t{ font-size:14px; }
+  .gl-addcard-s{ display:none; }
+  .gl-miles{ padding:18px; }
+  .gl-miles .hm-h3{ display:none; }
+  .gl-tl{ margin-top:14px; padding-left:28px; }
+  .gl-tl::before, .gl-tl::after{ top:6px; left:7px; width:2px; }
+  .gl-tl::before{ right:auto; bottom:6px; height:auto; }
+  .gl-tl::after{ height:calc((100% - 12px) * var(--gl-fill-y) / 100%); transform-origin:top; animation-name:gl-growY; }
+  .gl-tl-list{ display:flex; flex-direction:column; gap:16px; }
+  .gl-m{ position:relative; align-items:flex-start; text-align:left; gap:2px; }
+  .gl-dot{ position:absolute; left:-28px; top:2px; width:16px; height:16px; }
+  .gl-m-t{ font-size:14px; }
+  .gl-coach{ display:none; } /* not in the phone order (B6) */
+}
+@keyframes gl-growY{ from{ transform:scaleY(0); } to{ transform:scaleY(1); } }
 </style>
 </head>
 <body>
@@ -3090,8 +3181,9 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 
   </div>
 
-  <!-- Financial freedom and next milestone: shown in Plan > Goals on phones
-       (moved there by M_MOVES); not part of the desktop Home board. -->
+  <!-- Financial freedom and next milestone: on neither the Home nor the
+       Goals board (B12.6 took it off phones too); Forecast's overview
+       covers FI (B7.3). Kept hidden until the B12.11 clean-up. -->
   <div class="hm-hold" id="whFFHold">
     <div class="k-stat-split">
       <div class="sp">
@@ -3304,107 +3396,117 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 </div>
 
 <!-- ============================= GOALS ============================= -->
+<!-- Redesign B12.6 (spec B6, boards Goals and GoalsMobile). Filled by
+     TEI.render.goals. Add a goal and Edit open the goal panel below, which
+     holds the goal form that used to sit on the Update page (same ids, so
+     the Update module still saves it). -->
 <div id="page-goals" class="page">
-<header class="hero wrap k-greeting"><h1>Goals</h1><div class="sub">Progress and priorities across everything you're building towards.</div></header>
-
-<section class="wrap" style="padding-top:var(--space-lg); padding-bottom:0;">
-  <div class="dgrid">
-    <div class="span-12">
-      <a href="#" class="navlink dcard update-nudge" data-page="update" data-direct style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
-        <div>
-          <div class="k">Add, edit or remove a goal</div>
-          <div class="sub2" id="goalsUpdateSummary">–</div>
-        </div>
-        <span class="btn-primary" style="pointer-events:none;">Update →</span>
-      </a>
+<div class="hm gl">
+  <header class="hm-head gl-head">
+    <div>
+      <p class="hm-date">Plan</p>
+      <h1 class="hm-title"><span class="hm-greet-d">Goals</span><span class="hm-greet-m">Plan</span></h1>
     </div>
-  </div>
-</section>
+    <button type="button" class="hm-btn hm-btn-primary gl-add-btn" id="glAddBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add a goal</button>
+  </header>
 
-<section class="wrap" style="display:none;" id="goalsEmptyState">
-  <div class="empty-hero-card">
-    <div class="eh-title">No goals set yet</div>
-    <div class="eh-sub">Add your first goal on the Update page and progress, priorities and milestones will appear here.</div>
-  </div>
-</section>
+  <div class="hm-grid gl-grid">
 
-<div id="goalsContent">
-<section class="wrap" style="padding-top:var(--space-lg);" id="goalsOverviewSection">
-  <div class="dgrid">
-    <div class="span-8">
-      <div class="dcard" style="height:100%;">
-        <div class="k-stat-split">
-          <div class="sp"><div class="k">Active goals</div><div class="v" id="goStatActive">0</div></div>
-          <div class="divider"></div>
-          <div class="sp"><div class="k">Overall progress</div><div class="v" id="goStatProgress">0%</div><div class="k-bar" style="max-width:140px;"><div class="fill" id="goStatProgressBar" style="width:0%;"></div></div></div>
-          <div class="divider"></div>
-          <div class="sp"><div class="k">Goals on track</div><div class="v" id="goStatOnTrack">0 of 0</div></div>
+    <section class="hm-tile hm-feat gl-hero" id="glHero" aria-labelledby="glHeroName">
+      <div class="hm-orbit hm-spin" aria-hidden="true"></div>
+      <div class="gl-hero-top">
+        <div class="gl-ringwrap">
+          <svg viewBox="0 0 112 112" role="img" id="glRingSvg" aria-label="Headline goal progress">
+            <circle class="gl-ring-track" cx="56" cy="56" r="48"></circle>
+            <circle class="gl-ring-fill" id="glRing" cx="56" cy="56" r="48" stroke-dasharray="301.6" stroke-dashoffset="301.6" transform="rotate(-90 56 56)"></circle>
+          </svg>
+          <div class="gl-ring-text"><span id="glRingPct">0%</span><small>of target</small></div>
+        </div>
+        <div class="gl-hero-text">
+          <p class="hm-label">Headline goal</p>
+          <h2 class="gl-hero-name" id="glHeroName"></h2>
+          <p class="gl-hero-sub" id="glHeroSub"></p>
         </div>
       </div>
-    </div>
-    <div class="span-4">
-      <div class="dcard" style="height:100%;">
-        <div class="k">Next achievement</div>
-        <div class="v sm" id="goStatNext">–</div>
-        <div class="sub2" id="goStatNextSub">–</div>
+      <svg class="gl-chart" id="glChart" viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label="Projected path to your target"></svg>
+      <div class="gl-axis" id="glAxis"></div>
+      <div class="gl-legend" id="glLegend"></div>
+      <p class="gl-hero-note" id="glHeroNote" hidden></p>
+    </section>
+
+    <section class="hm-tile hm-champ gl-whatif" id="glWhatIf">
+      <p class="hm-label hm-gold">What if?</p>
+      <label for="glPmt" class="gl-q">If I put away <strong id="glPmtFmt"></strong> a month</label>
+      <input id="glPmt" class="gl-range" type="range" min="500" max="2500" step="50" value="1000">
+      <div class="gl-ends" aria-hidden="true"><span>£500</span><span>£2,500</span></div>
+      <div class="gl-result">
+        <p class="hm-muted hm-small gl-result-k">You would reach your target</p>
+        <p class="gl-result-v" id="glHit" aria-live="polite"></p>
+        <p class="gl-result-d" id="glDiff"></p>
       </div>
-    </div>
+      <p class="hm-note gl-whatif-foot">Illustrative. Assumes 5% a year growth. Real returns vary.</p>
+    </section>
+
+    <div class="gl-cards" id="glCards"></div>
+
+    <button type="button" class="gl-addcard" id="glAddCard">
+      <span class="gl-addcard-ring" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+      <span class="gl-addcard-t">Add a goal</span>
+      <span class="gl-addcard-s">Name it, set a target and date, link the accounts that fund it.</span>
+    </button>
+
+    <section class="hm-tile gl-miles" id="glMiles">
+      <p class="hm-label">Milestones</p>
+      <h2 class="hm-h3" id="glMilesTitle">The road ahead</h2>
+      <div class="gl-tl" id="glTl">
+        <ol class="gl-tl-list" id="glMilesList"></ol>
+      </div>
+      <p class="hm-note">Evenly spaced, not to scale.</p>
+    </section>
+
+    <section class="hm-tile hm-feat gl-coach" id="glCoach">
+      <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
+      <p class="hm-label">Coach's corner</p>
+      <p class="gl-coach-msg" id="glCoachMsg"></p>
+      <a href="/book" class="hm-btn gl-coach-btn">Discuss next session</a>
+    </section>
+
   </div>
-</section>
+  <p class="hm-note gl-foot">Projections are illustrative and for education only. TEI provides financial coaching and education, not regulated financial advice.</p>
 
-<section class="wrap">
-  <div class="k-section-label">Every goal, in full</div>
-  <div class="dgrid" id="goalCardsGrid"></div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label">How today connects to what's ahead</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard" data-m-acc data-m-rerender>
-        <div class="k" data-m-acc-h>Timeline</div>
-        <div class="k-tl-track" id="goalTimeline"></div>
-      </div>
+  <!-- Add or edit a goal: a side panel on desktop, a bottom sheet on phones. -->
+  <div class="wl-scrim" id="glPanelScrim" hidden></div>
+  <div class="wl-panel gl-panel" id="glPanel" role="dialog" aria-modal="true" aria-labelledby="clGoalFormTitle" hidden>
+    <div class="wl-panel-head">
+      <div><p class="hm-label">Goals</p><h2 class="hm-h3" id="clGoalFormTitle">Add a goal</h2></div>
+      <button type="button" class="wl-x" id="glPanelClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
     </div>
+    <p class="hm-muted hm-small">A goal saved as an amount tracks what is in the accounts you link to it, so link at least one.</p>
+    <div class="gl-form">
+      <label class="gl-field"><span>Goal type</span><select id="clNewGoalType">
+        <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
+        <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+        <option value="Build a Business">Build a Business</option>
+        <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
+      </select></label>
+      <label class="gl-field"><span>Name</span><input type="text" id="clNewGoalName" placeholder="For example, house deposit"></label>
+      <label class="gl-field"><span>Target date</span><input type="month" id="clNewGoalDate"></label>
+      <label class="gl-field"><span>Track progress by</span><select id="clNewGoalProgressType">
+        <option value="monetary">Amount saved (£)</option><option value="income">Income level</option><option value="completion">Done / not done</option>
+      </select></label>
+      <label class="gl-field" id="clGoalTargetAmountField"><span>Target £</span><input type="number" inputmode="decimal" id="clNewGoalTargetAmount" placeholder="0"></label>
+      <label class="gl-field" id="clGoalTargetIncomeField" style="display:none;"><span>Target yearly income £</span><input type="number" inputmode="decimal" id="clNewGoalTargetIncome" placeholder="0"></label>
+      <label class="gl-field" id="clGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="clNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
+      <div class="gl-field" id="clGoalLinkedAccountsField"><span>Linked accounts</span><div id="clNewGoalLinkedAccounts" class="gl-checks"></div></div>
+    </div>
+    <div class="gl-panel-actions">
+      <button type="button" class="hm-btn hm-btn-primary" id="clAddGoalBtn">Add goal</button>
+      <button type="button" class="hm-btn" id="clCancelGoalEditBtn" style="display:none;">Cancel</button>
+      <button type="button" class="hm-btn gl-remove" id="glRemoveBtn" hidden>Remove goal</button>
+    </div>
+    <div id="clGoalsList" hidden></div>
   </div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label">Where to put your attention</div>
-  <div class="dgrid" id="priorityGrid"></div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label">Goal guidance</div>
-  <div class="dgrid">
-    <div class="span-6">
-      <div class="dcard" style="height:100%;" data-m-acc>
-        <div class="k" data-m-acc-h>Goal insights</div>
-        <div id="goalInsightsList" style="margin-top:10px;"></div>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard" style="height:100%;" data-m-acc>
-        <div class="k" data-m-acc-h>Your goal journey</div>
-        <div style="margin-top:8px;">
-          <div class="k-js-row"><span class="jk">Completed</span><span class="jv" id="gjCompleted">–</span></div>
-          <div class="k-js-row"><span class="jk">Current focus</span><span class="jv" id="gjFocus">–</span></div>
-          <div class="k-js-row"><span class="jk">Next milestone</span><span class="jv" id="gjMilestone">–</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap" style="padding-bottom:var(--space-2xl);" id="completedGoalsSection">
-  <div class="k-section-label">Completed goals</div>
-  <div class="dgrid" id="completedGoalsGrid"></div>
-  <div style="text-align:center; margin-top:14px;"><button type="button" class="btn-ghost" id="completedGoalsToggle" style="display:none;">View all completed goals</button></div>
-</section>
 </div>
-<!-- Mobile only (empty and hidden above 860px): Home's Financial freedom / Next milestone block is moved in here for Plan > Goals. See M_MOVES. -->
-<div class="dcard" id="mGoalsFFHost"></div>
-
 </div>
 <!-- ============================= PORTFOLIO ============================= -->
 <!-- Merged into Wealth (B12.4). showPage("portfolio") opens Wealth at the Lab. -->
@@ -3914,7 +4016,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
     </div>
   </div>
 </section>
-<section class="wrap">
+<section class="wrap" style="padding-bottom:var(--space-2xl);">
   <div class="k-section-label">Cashflow</div>
   <div class="dgrid">
     <div class="span-12">
@@ -3934,39 +4036,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
     </div>
   </div>
 </section>
-<section class="wrap" style="padding-bottom:var(--space-2xl);">
-  <div class="k-section-label">Goals</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard">
-        <div class="k" id="clGoalFormTitle">Add a goal</div>
-        <div class="sub2" style="margin-bottom:12px;">What are you building towards? Monetary goals need at least one linked account, since their progress is tracked from what's actually in it.</div>
-        <div class="form-grid">
-          <label class="form-field on-light"><span>Goal type</span><select id="clNewGoalType">
-            <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
-            <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
-            <option value="Build a Business">Build a Business</option>
-            <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
-          </select></label>
-          <label class="form-field on-light"><span>Name</span><input type="text" id="clNewGoalName" placeholder="e.g. House deposit"></label>
-          <label class="form-field on-light"><span>Target date</span><input type="month" id="clNewGoalDate"></label>
-          <label class="form-field on-light"><span>Track progress by</span><select id="clNewGoalProgressType">
-            <option value="monetary">Amount saved (£)</option><option value="income">Income level</option><option value="completion">Done / not done</option>
-          </select></label>
-          <label class="form-field on-light" id="clGoalTargetAmountField"><span>Target £</span><input type="number" id="clNewGoalTargetAmount" placeholder="0"></label>
-          <label class="form-field on-light" id="clGoalTargetIncomeField" style="display:none;"><span>Target annual income £</span><input type="number" id="clNewGoalTargetIncome" placeholder="0"></label>
-          <label class="form-field on-light" id="clGoalLinkedIncomeField" style="display:none;"><span>Which income?</span><select id="clNewGoalLinkedIncome"><option value="">Whole household income</option></select></label>
-          <div class="form-field on-light" id="clGoalLinkedAccountsField" style="grid-column:1/-1;"><span>Linked account(s)</span><div id="clNewGoalLinkedAccounts" class="checkbox-list"></div></div>
-        </div>
-        <div style="display:flex; gap:10px; margin-top:12px;">
-          <button type="button" class="btn-primary" id="clAddGoalBtn">Add goal</button>
-          <button type="button" class="btn-ghost on-light" id="clCancelGoalEditBtn" style="display:none;">Cancel</button>
-        </div>
-        <div id="clGoalsList" style="margin-top:16px;"></div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- Goals moved to the goal panel on the Goals page (B12.6). -->
 </div>
 
 <!-- ============================= DOCUMENTS ============================= -->
@@ -6093,17 +6163,28 @@ window.TEI = window.TEI || {};
         message:'No goals set yet. Add goals in Adviser Workspace, or via the client’s onboarding.',
         actionLabel:'Set a goal', actionPage:'goals'});
     } else if(activeGoals.length){
-      let offTrack = null, nearComplete = null, onTrackCount = 0;
+      // On track / behind is goalStatus, the rule the Goals cards and
+      // Home show (B12.6), so this never contradicts them.
+      let offTrack = null, behind = null, nearComplete = null, onTrackCount = 0;
       activeGoals.forEach(g=>{
         const gp = goalProgress(client, g);
-        const pastDue = g.targetDate && new Date(g.targetDate) < new Date() && !gp.isComplete;
+        const st = goalStatus(client, g);
+        const pastDue = st.past;
         if(pastDue && (!offTrack || (g.targetDate < offTrack.targetDate))) offTrack = g;
-        if(!pastDue) onTrackCount++;
+        if(st.key === 'behind' && !pastDue && (!behind || g.targetDate < behind.g.targetDate)) behind = {g, st};
+        if(st.key !== 'behind') onTrackCount++;
         if(!gp.isComplete && gp.pct>=90 && gp.pct<100 && !nearComplete) nearComplete = {g, pct:gp.pct};
       });
       if(offTrack){
         push({id:'goal-off-track', domain:['goals','home'], severity:82, tier:'critical',
           message:`${offTrack.name} has passed its target date and hasn’t been marked complete — worth reviewing whether the target or timeline needs to change.`,
+          actionLabel:'Review Goals', actionPage:'goals'});
+      }
+      if(behind){
+        const gap = Math.max(1, Math.round(behind.st.needed - behind.st.monthly));
+        const by = new Date(behind.g.targetDate).toLocaleDateString('en-GB', {month:'long', year:'numeric'});
+        push({id:'goal-behind', domain:['goals'], severity:55, tier:'warning',
+          message:`${behind.g.name} needs about £${gap.toLocaleString('en-GB')} more a month to reach its target by ${by}. Worth deciding at your next session whether to add to it or move the date.`,
           actionLabel:'Review Goals', actionPage:'goals'});
       }
       if(nearComplete){
@@ -6112,7 +6193,7 @@ window.TEI = window.TEI || {};
           actionLabel:'Review Goals', actionPage:'goals'});
       }
       push({id:'goals-on-track-count', domain:['goals'], severity:10, tier:'neutral',
-        message:`You’re on track with ${onTrackCount} of ${activeGoals.length} active goals.`,
+        message:`You are on track with ${onTrackCount} of ${activeGoals.length} active goals.`,
         actionLabel:'Review Goals', actionPage:'goals'});
     }
 
@@ -6730,6 +6811,69 @@ window.TEI = window.TEI || {};
     lookupTickerInfo, SECTOR_OPTIONS,
     DIVIDEND_FREQUENCY_OPTIONS, dividendPeriodsPerYear, dividendFrequencyLabel
   };
+  /* ---------- Projection (spec B11) ----------
+     The one compounding formula, shared by Forecast and Goals. Steps a
+     starting value forward `steps` periods at `rate` a period, adding
+     `delta` each period. Forecast steps in years; Goals steps in months. */
+  function projectSeries(startValue, delta, rate, steps){
+    const series = [startValue];
+    for(let i=1; i<=steps; i++){
+      series.push(series[i-1]*(1+rate) + delta);
+    }
+    return series;
+  }
+
+  /* ---------- Goal status (spec B6) ----------
+     One rule for Home's headline goal and the Goals page. Growth is the
+     5% a year the Goals what-if states. A monetary goal with a target date
+     is on track when what goes into its linked accounts each month is
+     enough to reach the target by that date; past its date without being
+     reached, any goal is behind. */
+  const GOAL_GROWTH = 0.05;
+  function monthsUntil(dateStr){
+    if(!dateStr) return null;
+    const d = new Date(dateStr), n = new Date();
+    if(isNaN(d)) return null;
+    return (d.getFullYear()-n.getFullYear())*12 + (d.getMonth()-n.getMonth());
+  }
+  function goalLinkedMonthly(client, goal){
+    return (goal.linkedAccountIds||[]).reduce((s,id)=>{
+      const a = client.accounts.find(x=>x.id===id);
+      return s + (a ? acctContribTotal(a) : 0);
+    }, 0);
+  }
+  /* Monthly amount that grows `start` to `target` in `months` at GOAL_GROWTH. */
+  function goalMonthlyNeeded(start, target, months){
+    if(months <= 0) return Math.max(0, target-start);
+    const r = GOAL_GROWTH/12, f = Math.pow(1+r, months);
+    return Math.max(0, (target - start*f) * r / (f-1));
+  }
+  /* Months until `start` reaches `target` at `monthly` a month, or null if
+     not within `maxMonths`. */
+  function goalMonthsToTarget(start, monthly, target, maxMonths){
+    if(start >= target) return 0;
+    const i = projectSeries(start, monthly, GOAL_GROWTH/12, maxMonths).findIndex(v=> v >= target);
+    return i < 0 ? null : i;
+  }
+  function goalStatus(client, goal){
+    const gp = goalProgress(client, goal);
+    const monetary = !goal.progressType || goal.progressType === 'monetary';
+    const out = {key:'on-track', label:'On track', gp, monetary, monthsLeft: monthsUntil(goal.targetDate), past:false, monthly:null, needed:null};
+    if(goal.status === 'completed' || gp.isComplete){ out.key = 'complete'; out.label = 'Complete'; return out; }
+    if(out.monthsLeft != null && out.monthsLeft < 0){ out.key = 'behind'; out.label = 'Behind'; out.past = true; return out; }
+    if(monetary && out.monthsLeft != null && gp.target > 0){
+      out.monthly = goalLinkedMonthly(client, goal);
+      out.needed = goalMonthlyNeeded(gp.current||0, gp.target, out.monthsLeft);
+      if(out.monthly + 0.5 < out.needed){ out.key = 'behind'; out.label = 'Behind'; }
+    }
+    return out;
+  }
+  /* When a goal was completed: the last 'completed' entry in its history. */
+  function goalCompletedDate(goal){
+    const h = (goal.statusHistory||[]).filter(e=> e.status === 'completed');
+    return h.length ? h[h.length-1].date : null;
+  }
+
   TEI.calc = {
     accountTotal, buildMergedMonths, buildUnifiedTotals, latestBreakdown, latestNetWorth,
     trailingReturnPct, acctContribTotal, totalMonthlyContribution,
@@ -6754,7 +6898,9 @@ window.TEI = window.TEI || {};
     accountStartingBalances, joinedByMonth, netChange, annualisedPendingText, MIN_ANNUALISED_MONTHS,
     /* Money-weighted returns */
     moneyInByMonth, moneyWeightedReturn, annualisedReturnPct, monthsBetween, calendarYearWindow,
-    isDiscrepancyFlaggable, isDiscrepancyDismissed
+    isDiscrepancyFlaggable, isDiscrepancyDismissed,
+    /* Projection and goal status (Goals redesign, B12.6) */
+    projectSeries, GOAL_GROWTH, monthsUntil, goalLinkedMonthly, goalMonthlyNeeded, goalMonthsToTarget, goalStatus, goalCompletedDate
   };
 })();
 
@@ -6882,10 +7028,11 @@ TEI.render = TEI.render || {};
     }
     return goals.find(g=> g.status !== 'completed') || goals[0] || null;
   }
+  // Shared with the Goals page, so both show the same headline goal.
+  TEI.calc.northStarGoalRef = northStarGoalRef;
 
-  /* Financial freedom + Next milestone. Not on the Home board any more, but
-     the mobile Plan > Goals view still shows them (M_MOVES carries the block
-     there), so the renderer stays and is exported as before. */
+  /* Financial freedom + Next milestone. On no board now (Goals dropped it
+     in B12.6); the renderer stays until the B12.11 clean-up. */
   function renderFinancialGoalsSummary(client){
     const ffPct = financialFreedomPct(client);
     const budgetFi = TEI.calc.computeBudgetAndFI(client);
@@ -7091,8 +7238,7 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------- Headline goal ----------------
-     On-track rule is the Goals page's own: reached, past its target date,
-     or on track. */
+     Status comes from TEI.calc.goalStatus, the rule the Goals page uses. */
   function renderGoal(client){
     const g = northStarGoalRef(client);
     const ring = document.getElementById('whGoalRing');
@@ -7105,8 +7251,8 @@ TEI.render = TEI.render || {};
       pct = Math.max(0, Math.min(100, gp.pct || (gp.isComplete ? 100 : 0)));
       const year = g.targetDate ? new Date(g.targetDate).getFullYear() : null;
       setText('whGoalName', g.name + (year ? ' by ' + year : ''));
-      const past = g.targetDate && new Date(g.targetDate) < new Date();
-      setText('whGoalStatus', gp.isComplete ? 'Reached' : past ? 'Past its target date' : 'On track');
+      const st = TEI.calc.goalStatus(client, g);
+      setText('whGoalStatus', st.key === 'complete' ? 'Reached' : st.past ? 'Past its target date' : st.label);
     }
     setText('whGoalPct', Math.round(pct) + '%');
     ring.setAttribute('stroke-dashoffset', (301.6 * (1 - pct/100)).toFixed(1));
@@ -7840,404 +7986,303 @@ window.TEI = window.TEI || {};
 TEI.render = TEI.render || {};
 
 (function(){
+  /* Goals (redesign B12.6, spec B6, boards Goals and GoalsMobile).
+     Headline goal, What if?, one card per goal, Add a goal, Milestones and
+     Coach's corner. Progress is TEI.calc.goalProgress, status is
+     TEI.calc.goalStatus (shared with Home) and every projection is
+     TEI.calc.projectSeries at 5% a year, as the What if? tile says. */
   const {fmtGBP} = TEI.data;
+  const MAX_MONTHS = 600;
+  const $ = id => document.getElementById(id);
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function setText(id, t){ const el = $(id); if(el) el.textContent = t; }
 
-  const TYPE_ICON = {
-    'Build Wealth':'📈', 'Buy a Home':'🏡', 'Retirement':'🏛️',
-    'Financial Independence':'🕊️', 'Improve Tax Efficiency':'📋',
-    'Build a Business':'💼',
-    'Education':'🎓', 'Lifestyle':'🌿', 'Other':'🎯'
-  };
-  const HEALTH_LABEL = {'on-track':'🟢 On Track','ahead':'🔵 Ahead','at-risk':'🟡 At Risk','off-track':'🔴 Off Track'};
+  function monthDate(offset){ const n = new Date(); return new Date(n.getFullYear(), n.getMonth()+offset, 1); }
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function monLabel(d){ return MON[d.getMonth()] + ' ' + d.getFullYear(); }
+  function dateLabel(str){ const d = new Date(str); return isNaN(d) ? '' : monLabel(d); }
+  function span(n){
+    if(n < 24) return n + (n === 1 ? ' month' : ' months');
+    const y = Math.floor(n/12), m = n % 12;
+    return y + ' years' + (m ? ' ' + m + (m === 1 ? ' month' : ' months') : '');
+  }
+  function hitLabel(hit){
+    if(hit === 0) return 'Reached';
+    return hit == null ? 'after ' + monthDate(MAX_MONTHS).getFullYear() : monLabel(monthDate(hit));
+  }
 
-  /* Shared per-goal metric calc — wraps TEI.calc.goalProgress (the same
-     monetary/completion/income logic used on the homepage and onboarding
-     Review step) with the ETA text this page needs. */
-  function goalMetric(client, g){
-    const gp = TEI.calc.goalProgress(client, g);
-    const monthlyContrib = TEI.calc.totalMonthlyContribution(client);
-    let etaText = '—', etaDate = null;
-    if(g.progressType === 'income'){
-      // "remaining" here is an annual income shortfall (£/yr) -- dividing
-      // it by the household's monthly ISA/pension contribution rate (as
-      // the branch below does for monetary goals) produced a plausible-
-      // looking but meaningless date, since investing into ISAs/pensions
-      // has no causal link to growing self-employment/business income.
-      // Show the client's own stated target date instead of a computed
-      // guess, same as a completion-type goal shows no computed ETA.
-      const remaining = Math.max(0, (gp.target||0)-(gp.current||0));
-      if(gp.isComplete){ etaText = 'Reached'; }
-      else if(g.targetDate){ etaDate = new Date(g.targetDate); etaText = etaDate.toLocaleDateString('en-GB',{month:'short',year:'numeric'}); }
-      return {pct:gp.pct, current:gp.current, target:gp.target, remaining, etaText, etaDate, gp};
+  /* ---------------- Headline goal + What if? ----------------
+     The slider starts at what goes into wealth each month
+     (actualTotalSavingInvesting) and runs £500 to £2,500 in £50 steps; the
+     top end stretches when the client already puts away more, so the
+     starting point is always their real figure. The chart's length is set
+     from the target date and today's pace, so it holds still while the
+     slider moves. */
+  const whatIf = {goalId:null, pmt:null, actual:0};
+
+  function headlineFigures(client, g, st){
+    const gp = st.gp;
+    const P = gp.current || 0, T = gp.target || 0;
+    const r = TEI.calc.GOAL_GROWTH/12;
+    const pmt = whatIf.pmt;
+    const hit = TEI.calc.goalMonthsToTarget(P, pmt, T, MAX_MONTHS);
+    const hitActual = TEI.calc.goalMonthsToTarget(P, whatIf.actual, T, MAX_MONTHS);
+    const plan = st.monthsLeft != null && st.monthsLeft >= 0 ? st.monthsLeft : null;
+    const base = Math.max(plan || 0, hitActual == null ? 120 : hitActual, 24);
+    const M = Math.min(480, Math.ceil(base*1.1/12)*12);
+    return {P, T, r, pmt, hit, hitActual, plan, M};
+  }
+
+  function drawHeadline(client, g, st){
+    const f = headlineFigures(client, g, st);
+    const pts = TEI.calc.projectSeries(f.P, f.pmt, f.r, f.M);
+    const mx = Math.max(f.T*1.18, pts[f.M], 1);
+    const Y = v => (196 - v/mx*186).toFixed(1);
+    const X = m => (m/f.M*600).toFixed(1);
+    const step = Math.max(1, Math.floor(f.M/120));
+    let line = '';
+    for(let m=0; m<=f.M; m+=step) line += (m ? ' L' : 'M') + X(m) + ' ' + Y(pts[m]);
+    if(f.M % step) line += ' L600 ' + Y(pts[f.M]);
+    const planLine = f.plan != null && f.plan <= f.M
+      ? `<line class="gl-c-plan" x1="${X(f.plan)}" y1="0" x2="${X(f.plan)}" y2="200"></line>` : '';
+    $('glChart').innerHTML =
+      `<line class="gl-c-target" x1="0" y1="${Y(f.T)}" x2="600" y2="${Y(f.T)}"></line>` + planLine +
+      `<path class="gl-c-area" d="${line} L600 200 L0 200 Z"></path>` +
+      `<path class="gl-c-line hm-draw" d="${line}"></path>`;
+    $('glChart').setAttribute('aria-label', 'Projected path from ' + fmtGBP(f.P) + ' to the ' + fmtGBP(f.T) + ' target at ' + fmtGBP(f.pmt) + ' a month: ' + hitLabel(f.hit));
+    const ticks = [];
+    for(let i=0; i<=5; i++) ticks.push(i ? String(monthDate(Math.round(f.M*i/5)).getFullYear()) : 'Today');
+    $('glAxis').innerHTML = ticks.map(t=> `<span>${t}</span>`).join('');
+    $('glLegend').innerHTML = `<span><i class="gl-k-target"></i>Target ${fmtGBP(f.T)}</span>` +
+      (g.targetDate ? `<span><i class="gl-k-plan"></i>Plan date: ${esc(dateLabel(g.targetDate))}</span>` : '');
+
+    const hl = hitLabel(f.hit);
+    $('glHeroSub').innerHTML = `${fmtGBP(f.P)} of ${fmtGBP(f.T)} · projected <span class="gl-hl">${esc(hl)}</span>`;
+    setText('glPmtFmt', fmtGBP(f.pmt));
+    setText('glHit', hl);
+    let diff = '';
+    if(f.hit === 0) diff = 'Already there';
+    else if(f.hit == null) diff = 'Not reached within ' + (MAX_MONTHS/12) + ' years';
+    else if(f.plan != null){
+      const d = f.plan - f.hit;
+      diff = d > 0 ? span(d) + ' ahead of plan' : d < 0 ? span(-d) + ' behind plan' : 'Right on plan';
+    } else if(f.hitActual != null){
+      const d = f.hitActual - f.hit;
+      diff = d > 0 ? span(d) + ' sooner than today' : d < 0 ? span(-d) + ' later than today' : 'The same as today';
     }
-    if(g.progressType !== 'completion'){
-      const remaining = Math.max(0, (gp.target||0)-(gp.current||0));
-      if(remaining > 0 && monthlyContrib > 0){
-        const monthsNeeded = Math.ceil(remaining/monthlyContrib);
-        const d = new Date(); d.setMonth(d.getMonth()+monthsNeeded);
-        etaDate = d; etaText = d.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
-      } else if(gp.isComplete){ etaText = 'Reached'; }
-      return {pct:gp.pct, current:gp.current, target:gp.target, remaining, etaText, etaDate, gp};
-    }
-    return {pct:gp.pct, current:null, target:null, remaining:0, etaText: gp.isComplete?'Complete':'—', etaDate:null, gp};
+    setText('glDiff', diff);
   }
 
-  function targetDisplay(g, gm){
-    if(g.progressType==='income') return fmtGBP(gm.target)+'/yr';
-    if(g.progressType==='completion') return '';
-    return fmtGBP(gm.target);
-  }
-
-  /* No health field is captured at onboarding — derived instead: reached
-     target = ahead, target date passed without reaching it = off-track,
-     otherwise on-track. Simple and honest about what we actually know. */
-  function healthOf(g, gm){
-    if(gm.gp.isComplete) return 'ahead';
-    if(g.targetDate && new Date(g.targetDate) < new Date()) return 'off-track';
-    return 'on-track';
-  }
-  function isDone(g){ return g.status === 'completed'; }
-
-  function renderOverview(client, active, m){
-    document.getElementById('goStatActive').textContent = active.length;
-    const avgPct = active.length ? Math.round(active.reduce((s,g)=> s+m[g.id].pct, 0)/active.length) : 0;
-    document.getElementById('goStatProgress').textContent = avgPct+'%';
-    document.getElementById('goStatProgressBar').style.width = Math.min(100,avgPct)+'%';
-    const onTrackCount = active.filter(g=> ['on-track','ahead'].includes(healthOf(g,m[g.id]))).length;
-    document.getElementById('goStatOnTrack').textContent = onTrackCount+' of '+active.length;
-    const upcoming = active.filter(g=> m[g.id].remaining>0).sort((a,b)=> m[a.id].remaining-m[b.id].remaining)[0];
-    if(upcoming){
-      document.getElementById('goStatNext').textContent = upcoming.name;
-      document.getElementById('goStatNextSub').textContent = fmtGBP(m[upcoming.id].remaining)+' remaining';
+  function renderHeadline(client){
+    const g = TEI.calc.northStarGoalRef ? TEI.calc.northStarGoalRef(client) : null;
+    const hero = $('glHero'), wi = $('glWhatIf');
+    const showChart = on => ['glChart','glAxis','glLegend'].forEach(id=> $(id).toggleAttribute('hidden', !on)); // the chart is an svg, which has no .hidden property
+    const note = $('glHeroNote');
+    let pct = 0;
+    if(!g){
+      setText('glHeroName', 'No goals yet');
+      setText('glHeroSub', 'Add a goal and the path to it shows here.');
+      showChart(false); note.hidden = true; wi.hidden = true;
     } else {
-      document.getElementById('goStatNext').textContent = 'All targets reached';
-      document.getElementById('goStatNextSub').textContent = '—';
+      const st = TEI.calc.goalStatus(client, g);
+      const gp = st.gp;
+      pct = Math.max(0, Math.min(100, gp.pct || (st.key === 'complete' ? 100 : 0)));
+      const year = g.targetDate ? new Date(g.targetDate).getFullYear() : null;
+      setText('glHeroName', g.name + (year ? ' by ' + year : ''));
+      const chartable = st.monetary && gp.target > 0 && st.key !== 'complete';
+      if(chartable){
+        if(whatIf.goalId !== g.id){
+          whatIf.goalId = g.id;
+          whatIf.actual = Math.max(0, TEI.calc.actualTotalSavingInvesting(client));
+          whatIf.pmt = Math.min(Math.max(500, Math.round(whatIf.actual/50)*50), Math.max(2500, Math.ceil(whatIf.actual/50)*50));
+        }
+        const range = $('glPmt');
+        const max = Math.max(2500, Math.ceil(whatIf.actual/50)*50);
+        range.max = String(max);
+        $('glWhatIf').querySelector('.gl-ends span:last-child').textContent = fmtGBP(max);
+        range.value = String(whatIf.pmt);
+        showChart(true); note.hidden = true; wi.hidden = false;
+        drawHeadline(client, g, st);
+      } else {
+        showChart(false); wi.hidden = true;
+        let sub = '';
+        if(st.key === 'complete') sub = 'Reached' + (TEI.calc.goalCompletedDate(g) ? ' ' + dateLabel(TEI.calc.goalCompletedDate(g)) : '') + '. Well done.';
+        else if(g.progressType === 'income') sub = fmtGBP(gp.current) + ' a year of ' + fmtGBP(gp.target) + ' a year';
+        else if(g.progressType === 'completion') sub = 'Tracked as done or not done.';
+        else sub = 'Add a target amount to see the path to it.';
+        setText('glHeroSub', sub);
+        note.hidden = true;
+      }
     }
+    setText('glRingPct', Math.round(pct) + '%');
+    $('glRing').setAttribute('stroke-dashoffset', (301.6 * (1 - pct/100)).toFixed(1));
+    $('glRingSvg').setAttribute('aria-label', (g ? g.name : 'Headline goal') + ', ' + Math.round(pct) + ' percent of target');
+    hero.dataset.goalId = g ? g.id : '';
   }
 
-  /* Goal icons — the data model has no category field (that would be a
-     schema change), so this infers a sensible icon from keywords in the
-     goal name, with a generic flag as a fallback for anything that doesn't
-     match. Simple line SVGs (currentColor) to match the site's existing
-     unicode/glyph nav icons in weight without depending on a font's glyph
-     coverage. Add new keyword groups here as real client goal names
-     surface ones this doesn't yet cover. */
-  const GOAL_ICONS = [
-    { test:/travel|holiday|trip|vacation/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.5 13.5 3c.6-.3 1.1.3.8.9L9 14l-1.3-4.3L2 8.5Z"/><path d="M7.7 9.7 5.5 12"/></svg>' },
-    { test:/house|home|deposit|property|mortgage/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8 8 2.5 14 8"/><path d="M3.5 6.5V13a.5.5 0 0 0 .5.5h3v-4h2v4h3a.5.5 0 0 0 .5-.5V6.5"/></svg>' },
-    { test:/emergency|rainy.?day|safety.?net|buffer/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5 13.5 3.5V7.5C13.5 11 11 13 8 14.5 5 13 2.5 11 2.5 7.5V3.5Z"/></svg>' },
-    { test:/wedding|marriage|engagement/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="5.5" cy="10" r="3"/><circle cx="10.5" cy="10" r="3"/></svg>' },
-    { test:/retire|pension|fi\b|financial independence/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M14.5 8H13M3 8H1.5M12.5 3.5l-1 1M4.5 11.5l-1 1M12.5 12.5l-1-1M4.5 4.5l-1-1"/></svg>' },
-    { test:/educat|univers|school|tuition|course|study/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 5.5 8 2.5l6.5 3-6.5 3-6.5-3Z"/><path d="M4 7.2v3c0 1 1.8 1.8 4 1.8s4-.8 4-1.8v-3"/></svg>' },
-    { test:/car|vehicle|motorbike/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 10V7.8L4 5h8l1.5 2.8V10"/><path d="M2.5 10h11v1.5a.7.7 0 0 1-.7.7H12a.7.7 0 0 1-.7-.7V10M4.7 11.2v.5a.7.7 0 0 1-.7.7H3.2a.7.7 0 0 1-.7-.7V10"/><circle cx="5" cy="10" r=".2"/><circle cx="11" cy="10" r=".2"/></svg>' },
-    { test:/business|company|startup|venture/i, svg:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5.5" width="12" height="8" rx="1"/><path d="M5.5 5.5V4a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 10.5 4v1.5"/></svg>' },
-  ];
-  const GOAL_ICON_DEFAULT = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14V2"/><path d="M3 2.5h9l-1.8 3L12 8.5H3"/></svg>';
-  function goalIconSvg(name){
-    const match = GOAL_ICONS.find(g=> g.test.test(name||''));
-    return match ? match.svg : GOAL_ICON_DEFAULT;
+  /* ---------------- Goal cards ----------------
+     Complete first (as on the board), then by target date, undated last. */
+  function cardNote(client, g, st){
+    const gp = st.gp;
+    if(st.key === 'complete') return g.progressType === 'completion' ? 'Done.' : (gp.isComplete ? 'Target reached.' : 'Marked complete.');
+    if(st.past) return 'Past its target date. Worth a look at your next session.';
+    if(g.progressType === 'completion') return 'Tracked as done or not done.';
+    if(g.progressType === 'income'){
+      const inc = g.linkedIncomeId && (client.cashflow.income||[]).find(i=> i.id === g.linkedIncomeId);
+      return 'Tracks ' + (inc ? inc.type : 'household') + ' income.';
+    }
+    if(!(gp.target > 0)) return 'Add a target amount to track this.';
+    if(st.needed != null){
+      if(st.key === 'behind') return fmtGBP(Math.max(1, st.needed - st.monthly)) + ' more a month would close the gap by ' + dateLabel(g.targetDate) + '.';
+      return st.needed < 1 ? 'Growth on what is there already gets this to target.' : fmtGBP(st.needed) + ' a month keeps this on track.';
+    }
+    const monthly = TEI.calc.goalLinkedMonthly(client, g);
+    const hit = monthly > 0 ? TEI.calc.goalMonthsToTarget(gp.current||0, monthly, gp.target, MAX_MONTHS) : null;
+    return hit != null ? 'At ' + fmtGBP(monthly) + ' a month, reached around ' + hitLabel(hit) + '.' : 'Add a target date to see what it needs each month.';
   }
 
-  function renderGoalCards(client, allGoals, m){
-    const grid = document.getElementById('goalCardsGrid');
-    const active = allGoals.filter(g=>!isDone(g));
-    if(!active.length){
-      grid.innerHTML = `<div class="span-12"><div class="dcard"><div class="line">No active goals yet.</div></div></div>`;
-      return;
-    }
-    // Soonest estimated date first (undated last). Used as the card order on phones, where
-    // these cards replace the Timeline card, so each card also carries its date and the
-    // soonest one gets a "Next up" tag. Desktop keeps its own order and the Timeline track.
-    const byEta = active.filter(g=>m[g.id].etaDate).sort((a,b)=> m[a.id].etaDate - m[b.id].etaDate);
-    const etaRank = g => { const i = byEta.indexOf(g); return i<0 ? byEta.length : i; };
-    grid.innerHTML = active.map(g=>{
-      const gm = m[g.id];
-      const pct = Math.min(100, gm.pct);
-      const isNext = byEta[0] === g;
-      const eta = gm.etaDate ? `est. ${gm.etaText}` : '';
-      const valuesText = g.progressType==='completion'
-        ? (gm.gp.isComplete ? 'Complete' : 'Not yet done')
-        : `${fmtGBP(gm.current)} / ${targetDisplay(g,gm)}`;
-      return `
-      <div class="span-6" style="--m-order:${etaRank(g)};">
-        <div class="dcard emphasis">
-          <div class="k-goal-header"><div class="k-goal-icon">${goalIconSvg(g.name)}</div><div class="k-goal-name">${g.name}</div>${isNext?'<span class="k-goal-next">Next up</span>':''}</div>
-          <div class="k-bar"><div class="fill" style="width:${pct}%;"></div></div>
-          <div class="k-goal-meta"><span>${pct.toFixed(0)}% funded${eta?` · ${eta}`:''}</span><b>${valuesText}</b></div>
-        </div>
-      </div>`;
+  function renderCards(client, goals, sts){
+    const order = goals.slice().sort((a,b)=>{
+      const ca = sts[a.id].key === 'complete', cb = sts[b.id].key === 'complete';
+      if(ca !== cb) return ca ? -1 : 1;
+      if(ca) return String(TEI.calc.goalCompletedDate(a)||'').localeCompare(String(TEI.calc.goalCompletedDate(b)||''));
+      return (a.targetDate||'9999').localeCompare(b.targetDate||'9999');
+    });
+    $('glCards').innerHTML = order.map((g,i)=>{
+      const st = sts[g.id], gp = st.gp;
+      const pct = Math.max(0, Math.min(100, gp.pct || (st.key === 'complete' ? 100 : 0)));
+      let fig;
+      if(g.progressType === 'completion') fig = st.key === 'complete' ? 'Done' : 'Not yet';
+      else if(g.progressType === 'income') fig = `${fmtGBP(gp.current)} <span>of ${fmtGBP(gp.target)} a year</span>`;
+      else fig = `${fmtGBP(gp.current)} <span>of ${fmtGBP(gp.target)}</span>`;
+      const when = st.key === 'complete' ? 'Done' : (g.targetDate ? dateLabel(g.targetDate) : 'No date set');
+      const accts = (g.linkedAccountIds||[]).map(id=> client.accounts.find(a=> a.id === id)).filter(Boolean)
+        .map(a=> `<span class="gl-acct">${esc(TEI.data.acctLabel(a))}</span>`).join('');
+      return `<section class="hm-tile gl-card gl-card--${st.key}" style="animation-delay:${(0.12 + i*0.06).toFixed(2)}s">
+        <div class="hm-row"><span class="gl-when">${esc(when)}</span><span class="gl-chip gl-chip--${st.key}">${st.label}</span></div>
+        <h3 class="gl-card-name">${esc(g.name)}</h3>
+        <p class="gl-card-fig">${fig}</p>
+        <div class="hm-bar"><span class="hm-grow" style="width:${pct.toFixed(1)}%"></span></div>
+        <p class="hm-muted hm-small">${esc(cardNote(client, g, st))}</p>
+        <div class="gl-card-foot"><div class="gl-accts">${accts}</div><button type="button" class="hm-link hm-linkbtn" data-gl-edit="${esc(g.id)}">Edit<span class="gl-sr"> ${esc(g.name)}</span></button></div>
+      </section>`;
     }).join('');
   }
 
-  function renderTimeline(client, allGoals, m, currentPriority){
-    const el = document.getElementById('goalTimeline');
-    const dated = allGoals.filter(g=>!isDone(g) && m[g.id].etaDate).sort((a,b)=> m[a.id].etaDate - m[b.id].etaDate);
-    const undated = allGoals.filter(g=>!isDone(g) && !m[g.id].etaDate);
-
-    if(!dated.length){
-      el.innerHTML = '';
-      el.insertAdjacentHTML('afterend', `<div class="line" id="goalTimelineEmptyNote">Timeline will appear once goals have regular contributions to estimate a date.</div>`);
-      return;
+  /* ---------------- Milestones ----------------
+     Evenly spaced, not to scale (spec B6): the last two goals reached
+     (filled navy), Today (gold ring), then dated goals still to come, the
+     headline goal filled gold. Seven points at most; the headline goal is
+     always kept. */
+  function renderMilestones(client, goals, sts, head){
+    const tile = $('glMiles');
+    const done = goals.filter(g=> sts[g.id].key === 'complete' && TEI.calc.goalCompletedDate(g))
+      .sort((a,b)=> String(TEI.calc.goalCompletedDate(a)).localeCompare(String(TEI.calc.goalCompletedDate(b))))
+      .slice(-2).map(g=> ({d:dateLabel(TEI.calc.goalCompletedDate(g)), t:g.name, k:'done'}));
+    const ahead = goals.filter(g=> sts[g.id].key !== 'complete' && g.targetDate && !sts[g.id].past)
+      .sort((a,b)=> a.targetDate.localeCompare(b.targetDate))
+      .map(g=> ({d:dateLabel(g.targetDate), t:g.name, k: head && g.id === head.id ? 'head' : (sts[g.id].key === 'behind' ? 'behind' : 'next'), id:g.id}));
+    let next = ahead;
+    const room = 7 - done.length - 1;
+    if(next.length > room){
+      const h = next.find(m=> m.k === 'head');
+      next = next.slice(0, room);
+      if(h && next.indexOf(h) < 0) next[room-1] = h;
     }
-    const existingNote = document.getElementById('goalTimelineEmptyNote');
-    if(existingNote) existingNote.remove();
-
-
-    const now = Date.now();
-    const times = dated.map(g=> m[g.id].etaDate.getTime());
-    const maxT = Math.max(...times, now+1);
-    const nowPos = 4;
-    const points = [{pos:nowPos, label:'Now', amt:'', status:'done', icon:null, title:''}];
-    dated.forEach((g,i)=>{
-      const t = m[g.id].etaDate.getTime();
-      const frac = Math.min(1, Math.max(0, (t-now)/(maxT-now)));
-      const pos = 10 + frac*86;
-      // Icon replaces the goal name visually — label is just the date now,
-      // full name lives in the title attribute (native hover tooltip).
-      points.push({pos, label:m[g.id].etaText, amt:targetDisplay(g,m[g.id]), status: i===0 ? 'next' : '', icon:goalIconSvg(g.name), title:g.name});
-    });
-    // Fill only reflects elapsed time up to "Now" — every goal here is in
-    // the future, so the bar should read as mostly empty, not "complete".
-    el.innerHTML = `<div class="k-tl-fill" style="width:${nowPos}%;"></div>` + points.map(p=>
-      `<div class="k-tl-marker ${p.status} ${p.icon?'has-icon':''}" style="left:${p.pos}%;" ${p.title?`title="${p.title}"`:''}>${p.icon||''}${p.amt?`<span class="amt">${p.amt}</span>`:''}<span class="lbl">${p.label}</span></div>`
+    const items = done.concat([{d:'Today', t:monLabel(new Date()), k:'today'}], next);
+    if(!goals.length || items.length < 2){ tile.hidden = true; return; }
+    tile.hidden = false;
+    const headItem = items.find(m=> m.k === 'head');
+    const headYear = head && head.targetDate ? new Date(head.targetDate).getFullYear() : null;
+    setText('glMilesTitle', headItem && headYear ? 'The road to ' + headYear : 'The road ahead');
+    const n = items.length, t = done.length;
+    const tl = $('glTl');
+    tl.style.setProperty('--gl-n', n);
+    tl.style.setProperty('--gl-fill-x', (t/n*100).toFixed(2) + '%');
+    tl.style.setProperty('--gl-fill-y', (n > 1 ? t/(n-1)*100 : 0).toFixed(2) + '%');
+    $('glMilesList').innerHTML = items.map(m=>
+      `<li class="gl-m gl-m--${m.k}"><span class="gl-dot" aria-hidden="true"></span><span class="gl-m-d">${esc(m.d)}</span><span class="gl-m-t">${esc(m.t)}</span></li>`
     ).join('');
-
-    // Collision pass: percentage-based spacing alone isn't reliable — the
-    // same % gap is fewer actual pixels on a narrower screen while label
-    // text stays the same size, so it can still overlap. Measure the real
-    // rendered width of each label/amount now that they're in the DOM, then
-    // greedily pack labels left-to-right into one of two vertical rows —
-    // a label only drops to the second row (or gets nudged right) when it
-    // would genuinely collide with the previous label in its row. On a wide
-    // screen with well-spaced goals this results in everything staying in
-    // a single row, unchanged from before; it's only a busy/narrow timeline
-    // that starts using the second row. Markers themselves always stay at
-    // their true chronological position — only the label/amount text shifts.
-    const trackW = el.getBoundingClientRect().width;
-    if(trackW > 0){
-      const markers = Array.from(el.querySelectorAll('.k-tl-marker'));
-
-      // Pass 1 — marker (icon) positions themselves. Every marker now shares
-      // the same 24px box, so on a genuinely narrow/busy track the icons can
-      // physically collide with each other, not just their labels. Nudge
-      // markers rightward (sequential, single row — icons always sit in the
-      // same vertical band) only when two are closer than an icon-width
-      // apart. This can move a marker slightly off its exact chronological
-      // pixel — an honest trade-off: a few px of date accuracy vs. two
-      // icons rendering on top of each other, which is worse either way.
-      const iconHalf = 15; // 24px box / 2 + small padding
-      const truePxPos = points.map(p=> p.pos/100*trackW);
-      const pxPos = truePxPos.slice();
-      for(let i=1;i<pxPos.length;i++){
-        if(pxPos[i] - pxPos[i-1] < iconHalf*2){
-          pxPos[i] = pxPos[i-1] + iconHalf*2;
-        }
-      }
-      markers.forEach((mk,i)=>{
-        if(pxPos[i] !== truePxPos[i]) mk.style.left = (pxPos[i]/trackW*100)+'%';
-      });
-
-      // Pass 2 — label/amount text. Percentage-based spacing alone isn't
-      // reliable — the same % gap is fewer actual pixels on a narrower
-      // screen while label text stays the same size, so it can still
-      // overlap. Measure the real rendered width of each label/amount now
-      // that they're in the DOM, then greedily pack labels left-to-right
-      // into one of two vertical rows — a label only drops to the second
-      // row (or gets nudged right) when it would genuinely collide with
-      // the previous label in its row. On a wide screen with well-spaced
-      // goals this results in everything staying in a single row,
-      // unchanged from before; it's only a busy/narrow timeline that
-      // starts using the second row.
-      const halfWidths = markers.map(mk=>{
-        const lbl = mk.querySelector('.lbl'), amt = mk.querySelector('.amt');
-        const w = Math.max(lbl ? lbl.getBoundingClientRect().width : 0, amt ? amt.getBoundingClientRect().width : 0);
-        return w/2 + 6; // + small breathing-room padding
-      });
-      const rowLastPos = {a:null, b:null};
-      const rowLastHalf = {a:0, b:0};
-      markers.forEach((mk,i)=>{
-        const reqA = rowLastPos.a==null ? pxPos[i] : Math.max(pxPos[i], rowLastPos.a + rowLastHalf.a + halfWidths[i]);
-        const reqB = rowLastPos.b==null ? pxPos[i] : Math.max(pxPos[i], rowLastPos.b + rowLastHalf.b + halfWidths[i]);
-        const shiftA = reqA - pxPos[i], shiftB = reqB - pxPos[i];
-        const row = shiftA <= shiftB ? 'a' : 'b';
-        const finalPos = row==='a' ? reqA : reqB;
-        rowLastPos[row] = finalPos; rowLastHalf[row] = halfWidths[i];
-        if(row==='b') mk.classList.add('row-b');
-        const shift = finalPos - pxPos[i];
-        if(shift){
-          const lbl = mk.querySelector('.lbl'), amt = mk.querySelector('.amt');
-          if(lbl) lbl.style.transform = `translateX(calc(-50% + ${shift}px))`;
-          if(amt) amt.style.transform = `translateX(calc(-50% + ${shift}px))`;
-        }
-      });
-    }
-    if(undated.length){
-      el.insertAdjacentHTML('afterend', `<div class="line" id="goalTimelineEmptyNote">${undated.length} goal${undated.length===1?'':'s'} without a target date ${undated.length===1?'isn’t':'aren’t'} shown here: ${undated.map(g=>g.name).join(', ')}.</div>`);
-    }
   }
 
-  function pickCurrentPriority(active, m){
-    const withDate = active.filter(g=>g.targetDate).sort((a,b)=> a.targetDate.localeCompare(b.targetDate));
-    if(withDate.length) return withDate[0];
-    const byPct = [...active].sort((a,b)=> m[b.id].pct - m[a.id].pct);
-    return byPct[0] || null;
-  }
-  function pickNeedsAttention(active, m){
-    const offTrack = active.filter(g=> healthOf(g,m[g.id])==='off-track');
-    if(!offTrack.length) return null;
-    return [...offTrack].sort((a,b)=> (a.targetDate||'9999').localeCompare(b.targetDate||'9999'))[0];
-  }
-  function pickLongTerm(client, active){
-    if(client.northStar && client.northStar.goalLabel){
-      const match = active.find(g=> g.name === client.northStar.goalLabel);
-      if(match) return match;
-    }
-    const withDate = active.filter(g=>g.targetDate).sort((a,b)=> b.targetDate.localeCompare(a.targetDate));
-    return withDate[0] || active[active.length-1] || null;
+  /* ---------------- Coach's corner ----------------
+     The top Goals signal from the shared engine (the same one Wealth and
+     Forecast use), with a plain fallback. */
+  function renderCoach(client){
+    const s = TEI.calc.pickTopSignal(client, 'goals');
+    setText('glCoachMsg', s && s.relevant !== false ? s.message : 'Bring your goals to your next session: what to focus on first, and what each one needs a month.');
   }
 
-  function renderPriorities(client, active, m){
-    const grid = document.getElementById('priorityGrid');
-    const current = pickCurrentPriority(active, m);
-    const attention = pickNeedsAttention(active, m);
-    const longTerm = pickLongTerm(client, active);
-    let html = '';
-    html += `<div class="span-4"><div class="dcard k-priority-card ok">
-      <div class="k-priority-status ok">Current priority</div>
-      ${current ? `<div class="k-priority-goal">${current.name}</div><div class="line">Completing this goal ${current.targetDate ? 'by your target date ' : ''}moves you closer to what matters most right now.</div>` : `<div class="line">No active goals to prioritise yet.</div>`}
-    </div></div>`;
-    if(attention){
-      html += `<div class="span-4"><div class="dcard k-priority-card warn">
-        <div class="k-priority-status warn">Needs attention</div>
-        <div class="k-priority-goal">${attention.name}</div>
-        <div class="line">${attention.name} has passed its target date and could use a closer look.</div>
-      </div></div>`;
-    } else {
-      html += `<div class="span-4"><div class="dcard k-priority-card ok">
-        <div class="k-priority-status ok">On track</div>
-        <div class="k-priority-goal">Everything on track</div>
-        <div class="line">Great work. All active goals are currently progressing as expected.</div>
-      </div></div>`;
-    }
-    html += `<div class="span-4"><div class="dcard k-priority-card goal">
-      <div class="k-priority-status goal">Long-term goal</div>
-      ${longTerm ? `<div class="k-priority-goal">${longTerm.name}</div><div class="line">This is the horizon everything else is building towards.</div>` : `<div class="line">Set a long-term goal to see it here.</div>`}
-    </div></div>`;
-    grid.innerHTML = html;
+  /* ---------------- Goal panel ---------------- */
+  let lastFocus = null;
+  function openPanel(goalId){
+    const client = TEI.app.state.client;
+    if(!client || !TEI.goalForm) return;
+    TEI.goalForm.open(client, goalId || null);
+    lastFocus = document.activeElement;
+    $('glPanelScrim').hidden = false;
+    const panel = $('glPanel');
+    panel.hidden = false;
+    panel.scrollTop = 0;
+    const first = $('clNewGoalName');
+    if(first) first.focus();
+  }
+  function closePanel(){
+    const panel = $('glPanel');
+    if(panel.hidden) return;
+    panel.hidden = true;
+    $('glPanelScrim').hidden = true;
+    if(lastFocus && document.body.contains(lastFocus) && lastFocus.offsetParent) lastFocus.focus(); else $('glAddBtn').focus();
   }
 
-  function renderInsights(client, active, completed, m, attention){
-    const list = document.getElementById('goalInsightsList');
-    const lines = [];
-    if(active.length){
-      const furthest = [...active].sort((a,b)=> m[b.id].pct - m[a.id].pct)[0];
-      lines.push({color:'var(--gold)', html:`${furthest.name} is <b style="color:var(--gold);">${m[furthest.id].pct.toFixed(0)}%</b> complete — your furthest along active goal.`});
-    }
-    if(attention){
-      lines.push({color:'var(--k-down-ink)', html:`${attention.name} is marked <b style="color:var(--k-down-ink);">${HEALTH_LABEL[healthOf(attention,m[attention.id])].replace(/^\S+\s/,'')}</b> and may need a closer look.`});
-    }
-    if(active.length){
-      const onTrackCount = active.filter(g=> ['on-track','ahead'].includes(healthOf(g,m[g.id]))).length;
-      lines.push({color:'var(--k-up-ink)', html:`You're on track with <b style="color:var(--k-up-ink);">${onTrackCount} of ${active.length}</b> active goals.`});
-    }
-    if(completed.length){
-      lines.push({color:'var(--k-up-ink)', html:`You've completed <b style="color:var(--k-up-ink);">${completed.length} goal${completed.length===1?'':'s'}</b> so far — nice work.`});
-    }
-    if(!lines.length) lines.push({color:'var(--k-ink-softer)', html:'Insights will appear once goals are progressing.'});
-    list.innerHTML = lines.map(l=>`<div style="display:flex; gap:8px; font-size:11.5px; line-height:1.5; margin-bottom:8px; color:var(--k-ink-soft);"><div style="width:5px; height:5px; border-radius:50%; background:${l.color}; flex:none; margin-top:6px;"></div><div style="flex:1; min-width:0;">${l.html}</div></div>`).join('');
-  }
-
-  function renderJourney(client, active, completed, m, current){
-    const cEl = document.getElementById('gjCompleted');
-    cEl.textContent = completed.length;
-    cEl.style.color = completed.length>0 ? 'var(--k-up-ink)' : '';
-    const fEl = document.getElementById('gjFocus');
-    fEl.textContent = current ? current.name : '—';
-    fEl.style.color = current ? 'var(--gold)' : '';
-    document.getElementById('gjMilestone').textContent = current ? (fmtGBP(m[current.id].remaining)+' to go · est. '+m[current.id].etaText) : '—';
-  }
-
-  function renderCompletedGoals(completed){
-    const grid = document.getElementById('completedGoalsGrid');
-    const toggle = document.getElementById('completedGoalsToggle');
-    if(!completed.length){
-      grid.innerHTML = `<div class="span-12 k-completed-empty"><div class="dcard"><div class="line">Completed goals will be celebrated here.</div></div></div>`;
-      toggle.style.display = 'none';
-      return;
-    }
-    grid.innerHTML = completed.map((g,i)=> `
-      <div class="span-4 ${i>=6?'gc-hidden':''}" data-completed-extra="${i>=6?'1':'0'}">
-        <div class="dcard k-completed-card">
-          <span class="k-completed-check">&#10003;</span>
-          <div><div class="k-completed-name">${g.name}</div><div class="k-completed-date">Completed</div></div>
-        </div>
-      </div>`).join('');
-    if(completed.length > 6){
-      toggle.style.display = 'inline-block';
-      toggle.textContent = 'View all completed goals';
-      toggle.dataset.open = '0';
-      if(!toggle.dataset.wired){
-        toggle.addEventListener('click', function(){
-          const open = this.dataset.open === '1';
-          document.querySelectorAll('[data-completed-extra="1"]').forEach(el=> el.classList.toggle('gc-hidden', open));
-          this.dataset.open = open ? '0' : '1';
-          this.textContent = open ? 'View all completed goals' : 'Show fewer';
-        });
-        toggle.dataset.wired = '1';
-      }
-    } else {
-      toggle.style.display = 'none';
-    }
-  }
-
-  /* Compact "manage your goals" nudge card -- add/edit/delete now lives on
-     the Update page (TEI.render.update), not inline here. */
-  function renderGoalsUpdateSummary(client){
-    const el = document.getElementById('goalsUpdateSummary');
-    if(!el) return;
-    const count = (client.goals||[]).length;
-    el.textContent = count ? `${count} goal${count===1?'':'s'} set` : 'None set yet';
+  let wired = false;
+  function wireOnce(){
+    if(wired) return;
+    wired = true;
+    $('glAddBtn').addEventListener('click', ()=> openPanel(null));
+    $('glAddCard').addEventListener('click', ()=> openPanel(null));
+    $('glCards').addEventListener('click', e=>{
+      const b = e.target.closest('[data-gl-edit]');
+      if(b) openPanel(b.dataset.glEdit);
+    });
+    $('glPanelClose').addEventListener('click', closePanel);
+    $('glPanelScrim').addEventListener('click', closePanel);
+    document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closePanel(); });
+    $('glPanel').addEventListener('keydown', e=>{
+      if(e.key !== 'Tab') return;
+      const f = Array.from(e.currentTarget.querySelectorAll('input, select, button, a[href]')).filter(el=> !el.disabled && el.offsetParent);
+      if(!f.length) return;
+      if(e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length-1].focus(); }
+      else if(!e.shiftKey && document.activeElement === f[f.length-1]){ e.preventDefault(); f[0].focus(); }
+    });
+    if(TEI.goalForm) TEI.goalForm.onDone = closePanel;
+    $('glPmt').addEventListener('input', e=>{
+      const client = TEI.app.state.client;
+      const g = client && (client.goals||[]).find(x=> x.id === whatIf.goalId);
+      if(!g) return;
+      whatIf.pmt = parseInt(e.target.value, 10) || 0;
+      drawHeadline(client, g, TEI.calc.goalStatus(client, g));
+    });
   }
 
   TEI.render.goals = async function(client){
+    wireOnce();
     // Catches anything that crossed its target (either direction) via a
-    // path that didn't already call checkGoalAutoComplete itself (e.g.
-    // data edited elsewhere in the session, or a fresh load) -- see its
-    // own comment. No-op fast (no await reached) when nothing changed.
-    const goalStatusChanges = await TEI.calc.checkGoalAutoComplete(client);
-    goalStatusChanges.completed.forEach(g=> TEI.app.showToast(`🎉 "${g.name}" completed!`));
-    goalStatusChanges.reopened.forEach(g=> TEI.app.showToast(`"${g.name}" dropped back below target — reopened`));
+    // path that did not already call checkGoalAutoComplete itself (data
+    // edited elsewhere in the session, or a fresh load). No-op fast when
+    // nothing changed.
+    const changes = await TEI.calc.checkGoalAutoComplete(client);
+    changes.completed.forEach(g=> TEI.app.showToast('"' + g.name + '" reached. Well done.'));
+    changes.reopened.forEach(g=> TEI.app.showToast('"' + g.name + '" is below its target again, so it is open again.'));
 
-    renderGoalsUpdateSummary(client);
-
-    const allGoals = client.goals || [];
-    const empty = document.getElementById('goalsEmptyState');
-    const content = document.getElementById('goalsContent');
-    if(!allGoals.length){
-      empty.style.display = 'block';
-      content.style.display = 'none';
-      return;
-    }
-    empty.style.display = 'none';
-    // '' not 'block': an inline display:block beat the phone layout's display:contents, so the
-    // goal cards and accordions lost the page's 8px gap and sat flush against each other.
-    content.style.display = '';
-
-    const active = allGoals.filter(g=>!isDone(g));
-    const completed = allGoals.filter(g=>isDone(g));
-    const m = {};
-    allGoals.forEach(g=>{ m[g.id] = goalMetric(client, g); });
-
-    const current = pickCurrentPriority(active, m);
-    const attention = pickNeedsAttention(active, m);
-
-    renderOverview(client, active, m);
-    renderGoalCards(client, allGoals, m);
-    renderTimeline(client, allGoals, m, current);
-    renderPriorities(client, active, m);
-    renderInsights(client, active, completed, m, attention);
-    renderJourney(client, active, completed, m, current);
-    renderCompletedGoals(completed);
+    const goals = client.goals || [];
+    const sts = {};
+    goals.forEach(g=>{ sts[g.id] = TEI.calc.goalStatus(client, g); });
+    const head = TEI.calc.northStarGoalRef ? TEI.calc.northStarGoalRef(client) : null;
+    renderHeadline(client);
+    renderCards(client, goals, sts);
+    renderMilestones(client, goals, sts, head && sts[head.id] && sts[head.id].key !== 'complete' ? head : null);
+    renderCoach(client);
   };
 })();
 
@@ -11105,6 +11150,8 @@ TEI.render = TEI.render || {};
     document.getElementById('clGoalFormTitle').textContent = 'Add a goal';
     document.getElementById('clAddGoalBtn').textContent = 'Add goal';
     document.getElementById('clCancelGoalEditBtn').style.display = 'none';
+    const removeBtn = document.getElementById('glRemoveBtn');
+    if(removeBtn) removeBtn.hidden = true;
     ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('clNewGoalProgressType').value = 'monetary';
     toggleClGoalProgressFields();
@@ -11130,8 +11177,8 @@ TEI.render = TEI.render || {};
     refreshClGoalLinkedIncomeOptions(client);
     document.getElementById('clNewGoalLinkedIncome').value = g.linkedIncomeId || '';
     document.getElementById('clAddGoalBtn').textContent = 'Save changes';
-    document.getElementById('clCancelGoalEditBtn').style.display = 'inline-block';
-    document.getElementById('clGoalFormTitle').scrollIntoView({behavior:'smooth', block:'center'});
+    const removeBtn = document.getElementById('glRemoveBtn');
+    if(removeBtn) removeBtn.hidden = false;
   }
 
   function renderClGoalsList(client){
@@ -11177,7 +11224,7 @@ TEI.render = TEI.render || {};
     const client = TEI.app.state.client;
     const type = document.getElementById('clNewGoalType').value;
     const name = document.getElementById('clNewGoalName').value.trim();
-    if(!name){ TEI.app.showToast('Give the goal a name'); return; }
+    if(!name){ TEI.app.showToast('Give the goal a name.'); return; }
     const targetDate = TEI.data.monthInputToDate(document.getElementById('clNewGoalDate').value);
     const progressType = document.getElementById('clNewGoalProgressType').value;
     const targetAmount = parseFloat(document.getElementById('clNewGoalTargetAmount').value) || null;
@@ -11185,11 +11232,11 @@ TEI.render = TEI.render || {};
     const linkedAccountIds = Array.from(document.getElementById('clNewGoalLinkedAccounts').querySelectorAll('input[type=checkbox]:checked')).map(cb=>cb.value);
     const linkedIncomeId = document.getElementById('clNewGoalLinkedIncome').value || null;
     if(progressType === 'monetary' && !linkedAccountIds.length){
-      TEI.app.showToast('Link at least one account so this goal has something to track progress from');
+      TEI.app.showToast('Link at least one account, so the goal has something to track.');
       return;
     }
     if(progressType === 'income' && type === 'Build a Business' && !linkedIncomeId){
-      TEI.app.showToast('Add a Self-Employed or Business Venture Income entry, then link it here');
+      TEI.app.showToast('Add a Self-Employed or Business Venture Income entry, then link it here.');
       return;
     }
     const btn = document.getElementById('clAddGoalBtn');
@@ -11203,7 +11250,7 @@ TEI.render = TEI.render || {};
         await TEI.wealthOS.saveGoal(client.meta.clientId, existing.id, merged);
       } catch(err){
         console.error('Wealth OS: failed to save goal', err);
-        TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
+        TEI.app.showToast('That did not save. Please try again.');
         btn.disabled = false;
         return;
       }
@@ -11211,6 +11258,7 @@ TEI.render = TEI.render || {};
       btn.disabled = false;
       cancelClGoalEdit();
       TEI.app.showToast('Goal updated');
+      if(TEI.goalForm.onDone) TEI.goalForm.onDone();
     } else {
       const g = TEI.calc.stampEdit({id: TEI.data.uid(), type, name, targetDate, progressType, targetAmount, targetIncome,
         completed:false, status:'active', linkedAccountIds, linkedIncomeId, statusHistory:[]}, client.meta.role);
@@ -11218,7 +11266,7 @@ TEI.render = TEI.render || {};
         g.id = await TEI.wealthOS.saveGoal(client.meta.clientId, null, g);
       } catch(err){
         console.error('Wealth OS: failed to save goal', err);
-        TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
+        TEI.app.showToast('That did not save. Please try again.');
         btn.disabled = false;
         return;
       }
@@ -11227,6 +11275,7 @@ TEI.render = TEI.render || {};
       ['clNewGoalName','clNewGoalDate','clNewGoalTargetAmount','clNewGoalTargetIncome'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('clNewGoalLinkedIncome').value = '';
       TEI.app.showToast('Goal added');
+      if(TEI.goalForm.onDone) TEI.goalForm.onDone();
     }
     TEI.app.rerenderCurrentPage();
   }
@@ -11291,6 +11340,41 @@ TEI.render = TEI.render || {};
     renderCashflowMonthlyWidget(client);
   };
   TEI.update = { persistAccountBalances, persistHoldingValues };
+
+  /* The goal form now sits in the Goals page's panel (B12.6). open() fills
+     it for a new goal (no id) or an existing one; remove() deletes the goal
+     being edited. onDone is set by the Goals page to close its panel. */
+  async function removeClGoal(){
+    const client = TEI.app.state.client;
+    const id = editingGoalId;
+    if(!id) return;
+    const btn = document.getElementById('glRemoveBtn');
+    btn.disabled = true;
+    try{
+      await TEI.wealthOS.deleteGoal(id);
+    } catch(err){
+      console.error('Wealth OS: failed to delete goal', err);
+      TEI.app.showToast('That did not remove. Please try again.');
+      btn.disabled = false;
+      return;
+    }
+    btn.disabled = false;
+    client.goals = client.goals.filter(g=>g.id!==id);
+    cancelClGoalEdit();
+    TEI.app.showToast('Goal removed');
+    if(TEI.goalForm.onDone) TEI.goalForm.onDone();
+    TEI.app.rerenderCurrentPage();
+  }
+  TEI.goalForm = {
+    open(client, goalId){
+      wireClGoalForm();
+      const removeBtn = document.getElementById('glRemoveBtn');
+      if(removeBtn && !removeBtn.dataset.wired){ removeBtn.dataset.wired = '1'; removeBtn.addEventListener('click', removeClGoal); }
+      if(goalId) startClGoalEdit(client, goalId);
+      else cancelClGoalEdit();
+    },
+    onDone:null
+  };
 })();
 
 </script>
@@ -11489,16 +11573,9 @@ TEI.render = TEI.render || {};
     {key:'base', label:'Expected (8%)', rate:0.08},
     {key:'optimistic', label:'Strong-return (15%)', rate:0.15},
   ];
-  // Projects a starting value forward `years` annual steps at a fixed rate,
-  // with a constant annual addition. Used by both "Your plan" and
-  // "Decision impact" so there's exactly one compounding formula on the page.
-  function projectSeries(startValue, annualDelta, rate, years){
-    const series = [startValue];
-    for(let i=1; i<=years; i++){
-      series.push(series[i-1]*(1+rate) + annualDelta);
-    }
-    return series;
-  }
+  // Annual steps here ("Your plan" and "Decision impact"); the formula is
+  // the shared TEI.calc.projectSeries, which Goals uses too (spec B11).
+  const projectSeries = TEI.calc.projectSeries;
   function leverAdjustedMonthly(client){
     const extraContrib = parseFloat(document.getElementById('scContrib').value)||0;
     const spendChange = parseFloat(document.getElementById('scSpend').value)||0;
@@ -18361,8 +18438,8 @@ window.TEI = window.TEI || {};
   /* Removed pages land on their new homes (spec B2.2): Portfolio is part of
      Wealth now (scrolled to the Lab), and Update opens Wealth's Update
      balances panel. opts.direct still opens the old Update page, which the
-     Goals and Cashflow "Update" links use until those pages get their own
-     panels (B12.6, B12.8); it goes in the B12.11 clean-up. */
+     Cashflow "Update" link uses until Cashflow gets its own panel (B12.8);
+     it goes in the B12.11 clean-up. Goals has its own panel (B12.6). */
   function showPage(pageId, opts){
     let after = null;
     if(pageId === 'portfolio'){ pageId = 'progress'; after = 'lab'; }
@@ -18436,7 +18513,6 @@ window.TEI = window.TEI || {};
       });
       // Views that show a block belonging to another page fill it from that page's own renderer.
       if(view === 'journey' && state.client && TEI.render.investorStage) TEI.render.investorStage(state.client);
-      if(view === 'goals' && state.client && TEI.render.financialGoalsSummary) TEI.render.financialGoalsSummary(state.client);
     } else {
       app.removeAttribute('data-mview');
     }
@@ -18481,8 +18557,7 @@ window.TEI = window.TEI || {};
      (it keeps its ids, so its own renderer still fills it), `host` is where it
      goes on mobile. They go back, in reverse order, above 860px. */
   const M_MOVES = [
-    {find:()=> closestOf('stageBadge', '.dcard'), host:'mJourneyStageHost'},     // Investor stage -> Wealth > Journey
-    {find:()=> closestOf('hcFFPct', '.k-stat-split'), host:'mGoalsFFHost'}       // Financial freedom / Next milestone -> Plan > Goals
+    {find:()=> closestOf('stageBadge', '.dcard'), host:'mJourneyStageHost'}      // Investor stage -> Wealth > Journey
   ];
   function closestOf(id, sel){ const el = document.getElementById(id); return el ? el.closest(sel) : null; }
   function placeMoves(mobile){
@@ -18736,13 +18811,14 @@ window.TEI = window.TEI || {};
 
   /* Plan tab: one merged "Next best steps" card above the segmented switch,
      built from the two existing lists (Forecast's and Cashflow's) -- top 2.
-     Built once per Plan page (no ids, so three copies are fine). */
+     Built once per Plan page (no ids, so copies are fine). Not on Goals:
+     its board has no such card (B6). */
   function buildMobilePlanExtras(){
     const ns = TEI.planNextSteps || {};
     const f = ns.forecast || [], c = ns.cashflow || [];
     // Forecast's first step, then Cashflow's lifestyle-inflation step: one from each page, no overlap.
     const steps = [f[0], c[1]].filter(Boolean);
-    ['goals','planning','cashflow'].forEach(pid=>{
+    ['planning','cashflow'].forEach(pid=>{
       const page = document.getElementById('page-'+pid);
       if(!page || page.querySelector('.m-nextsteps')) return;
       const card = document.createElement('div');
