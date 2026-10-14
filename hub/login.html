@@ -206,7 +206,11 @@ function toggleShowPassword(fieldId, btn) {
 
 (function () {
   var params = new URLSearchParams(window.location.search);
-  var redirectTo = params.get("redirect") || "/hub/index.html";
+  // Phones go straight to Wealth OS Home; the Hub's content is its Library
+  // tab there (spec A5). Desktop keeps Flow B: Sign in, then the Client Hub.
+  // 860px is where Wealth OS switches to its phone layout.
+  var phone = window.matchMedia && window.matchMedia("(max-width: 860px)").matches;
+  var redirectTo = params.get("redirect") || (phone ? "/hub/wealth-os.html" : "/hub/index.html");
 
   function showError(msg) {
     var el = document.getElementById("loginError");

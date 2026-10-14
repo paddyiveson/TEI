@@ -2,118 +2,213 @@
 <html lang="en" data-tei-page="hub-home">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Client Hub -- The Everyday Investor</title>
+<script>
+/* Theme before first paint (spec B1.5): the same "tei-theme" choice as
+   Sign in and Wealth OS; light by default. */
+(function () {
+  var t = 'light';
+  try { t = localStorage.getItem('tei-theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+/* Client Hub home (redesign B12.2, spec B2.4 and B3.2, board Hub).
+   Tokens are the Wealth OS ones (B1.2). */
 :root {
-  --navy: #1D3557; --navy-dk: #0f1e3a; --navy-md: #2B4C7E; --navy-tint: #EDF2F8;
-  --cream: #F7F4ED; --cream-dk: #EDE8DA;
-  --gold: #C9A84C; --gold-dk: #b8922d; --gold-lt: #FBF4E0;
-  --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
-  --shadow: 0 4px 28px rgba(29,53,87,.10);
+  --bg:#F2EFE7; --side:#FFFFFF; --tile:#FFFFFF; --line:#DEDAD0; --text:#13213A; --muted:#4E5B70;
+  --champ:#F0E7D0; --powder:#DFE6F2; --gold:#83661C; --track:#E9E5DA; --chip:#F7F4ED;
+  --navActive:#0F1E36; --navActiveText:#E8D6A8; --feat:#0F1E36; --featLine:transparent;
+  --shadow:0 14px 34px rgba(15,30,54,0.10);
+  --ink:var(--text); --ink-soft:var(--muted);
+  color-scheme:light;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-
-nav {
-  background: var(--navy); width: 100%; height: 68px; display: flex; align-items: center;
-  justify-content: space-between; padding: 0 48px; position: sticky; top: 0; z-index: 200;
-  box-shadow: 0 2px 16px rgba(0,0,0,.2);
+:root[data-theme="dark"] {
+  --bg:#0B1729; --side:#0F1E36; --tile:#12233D; --line:rgba(232,214,168,0.14); --text:#F7F4ED; --muted:#AAB6C8;
+  --champ:#28303A; --powder:#1C2B45; --gold:#E8D6A8; --track:rgba(255,255,255,0.10); --chip:rgba(255,255,255,0.05);
+  --navActive:#E8D6A8; --navActiveText:#0F1E36; --feat:#1A2C4A; --featLine:rgba(232,214,168,0.28);
+  --shadow:0 14px 34px rgba(0,0,0,0.30);
+  color-scheme:dark;
 }
-.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
-.nav-logo-text { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; line-height: 1.35; }
-.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-.nav-links a { color: rgba(247,244,237,.65); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .03em; transition: color .2s; }
-.nav-links a:hover, .nav-links a.active { color: var(--gold); }
-.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
-.nav-mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: var(--navy); flex-direction: column; padding: 8px 0; border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
-.nav-mobile-menu a { color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px; font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06); display: block; transition: color .2s; }
-.nav-mobile-menu a:hover { color: var(--gold); }
-.nav-mobile-menu.open { display: flex; }
-.hub-auth-item { display: flex; align-items: center; gap: 10px; }
-.hub-auth-email { font-size: 12px; color: rgba(247,244,237,.45); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hub-auth-signout, .hub-auth-signout-mobile { color: rgba(247,244,237,.65) !important; font-size: 13px !important; }
-.hub-auth-signout:hover, .hub-auth-signout-mobile:hover { color: var(--gold) !important; }
+* { box-sizing:border-box; }
+html, body { margin:0; }
+body { font-family:'Geist', system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+p, h1, h2, h3, ul { margin:0; }
+a { color:inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.mono { font-family:'Geist Mono', ui-monospace, Menlo, monospace; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-/* ---------- Hero ---------- */
-.hub-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 26px 40px; text-align: center; }
-.hub-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: clamp(19px, 2.1vw, 24px); color: var(--cream); margin: 0; }
+/* Hub top bar (B2.4) */
+.hb-bar { background:var(--side); border-bottom:1px solid var(--line); }
+.hb-bar-in { padding:14px 32px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; }
+.hb-brand { display:inline-flex; align-items:center; gap:10px; min-height:44px; text-decoration:none; font-weight:500; font-size:16px; }
+.hb-brand svg { flex:none; }
+.hb-nav { display:flex; flex-wrap:wrap; gap:4px; align-items:center; font-size:14px; }
+.hb-nav a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; text-decoration:none; color:var(--muted); }
+.hb-nav a:hover { color:var(--text); background:var(--chip); }
+.hb-nav a[aria-current="page"] { background:var(--chip); color:var(--text); }
+.hb-nav a.hb-open { margin-left:6px; padding:0 18px; font-weight:500; background:var(--navActive); color:var(--navActiveText); }
+.hb-nav a.hb-open:hover { opacity:.9; }
+.hb-icon { display:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--tile); color:var(--text); cursor:pointer; align-items:center; justify-content:center; }
+.hb-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 
-/* ---------- Featured suites (masthead band) ---------- */
-.hub-featured { background: var(--navy-dk); }
-.hub-featured-grid { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr; }
-.hub-featured-item {
-  padding: var(--section-pad-y-tight) 48px; position: relative; text-decoration: none;
-  display: flex; flex-direction: column;
-  transition: background .2s;
+/* Page */
+.hb { padding:28px 32px 40px; }
+.hb-head { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
+.hb-date { font-size:12px; color:var(--muted); }
+.hb-title { margin-top:6px; font-size:36px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
+.hb-head-side { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.hb-seg { display:inline-flex; padding:4px; border-radius:999px; border:1px solid var(--line); background:var(--tile); }
+.hb-seg button { font-family:inherit; font-size:13px; font-weight:500; min-height:36px; min-width:64px; padding:0 14px; border:0; border-radius:999px; cursor:pointer; background:transparent; color:var(--muted); }
+.hb-seg button[aria-pressed="true"] { background:var(--navActive); color:var(--navActiveText); }
+.hb-signout { font-family:inherit; font-size:13px; min-height:44px; padding:0 12px; border:0; background:none; color:var(--muted); cursor:pointer; }
+.hb-signout:hover { color:var(--text); text-decoration:underline; }
+
+.hb-grid { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
+.t { position:relative; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; transition:transform .2s ease, box-shadow .2s ease; animation:hb-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.t:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.t-champ { background:var(--champ); }
+.t-powder { background:var(--powder); }
+.t-feat { background:var(--feat); border-color:var(--featLine); color:#F7F4ED; overflow:hidden; }
+.lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--muted); }
+.lab-gold { color:var(--gold); }
+.t-feat .lab { color:#E8D6A8; position:relative; }
+.row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.lnk { display:inline-flex; align-items:center; min-height:44px; font-size:13px; color:var(--gold); text-decoration:none; }
+.lnk:hover { text-decoration:underline; }
+.btn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--text); font-family:inherit; font-size:14px; font-weight:500; text-decoration:none; cursor:pointer; }
+.btn:hover { background:var(--chip); }
+.btn-primary { border-color:transparent; background:var(--navActive); color:var(--navActiveText); }
+.btn-primary:hover { background:var(--navActive); opacity:.9; }
+.btn-champ { border-color:transparent; background:#E8D6A8; color:#0F1E36; }
+.btn-champ:hover { background:#E8D6A8; opacity:.9; }
+.btn-ghost-feat { border-color:rgba(232,214,168,0.35); color:#F7F4ED; }
+.btn-ghost-feat:hover { background:rgba(255,255,255,0.06); }
+.muted { color:var(--muted); font-size:14px; }
+.orbit { position:absolute; border-radius:50%; pointer-events:none; }
+
+/* Open Wealth OS (navy, span 8) */
+.t-wos { grid-column:span 8; background:#0F1E36; padding:28px; flex-direction:row; flex-wrap:wrap; gap:24px; align-items:flex-end; justify-content:space-between; text-decoration:none; }
+.t-wos .orbit { width:380px; height:380px; right:-120px; top:-160px; border:1px dashed rgba(232,214,168,0.16); animation:hb-spin 40s linear infinite; }
+.t-wos-text { position:relative; flex:1 1 260px; }
+.t-wos h2 { margin-top:10px; font-size:32px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.t-wos .btn { margin-top:20px; font-size:15px; }
+.t-wos svg { position:relative; flex:1 1 260px; max-width:340px; height:auto; }
+.wos-bar { fill:rgba(185,202,230,0.18); transform-box:fill-box; transform-origin:bottom; animation:hb-rise 1s cubic-bezier(.3,.8,.3,1) both; }
+.wos-line { fill:none; stroke:#E8D6A8; stroke-width:2.6; stroke-linecap:round; stroke-dasharray:900; animation:hb-draw 2.6s cubic-bezier(.6,.05,.2,1) .2s both; }
+.wos-dot { fill:#E8D6A8; }
+.wos-pulse { fill:#E8D6A8; animation:hb-pulse 1.8s ease-out infinite; }
+
+.t-session { grid-column:span 4; gap:10px; animation-delay:.06s; }
+.t-session h2 { font-size:24px; font-weight:400; letter-spacing:-0.02em; }
+.t-session .btn { margin-top:auto; }
+
+.t-plan { grid-column:span 6; padding:26px; animation-delay:.1s; }
+.t-plan .orbit { width:260px; height:260px; right:-90px; bottom:-120px; border:1px solid rgba(232,214,168,0.16); }
+.t-plan h2 { position:relative; font-size:28px; font-weight:300; letter-spacing:-0.03em; }
+.t-plan p.sub { position:relative; font-size:14px; color:#AAB6C8; }
+.t-plan .acts { position:relative; display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+
+.t-learn { grid-column:span 6; padding:26px; gap:14px; animation-delay:.14s; }
+.steps { display:flex; align-items:center; list-style:none; padding:0; }
+.steps li { display:flex; align-items:center; flex:1; min-width:0; }
+.steps li:last-child { flex:0 0 auto; }
+.steps i { width:14px; height:14px; flex:none; border-radius:50%; border:2px solid var(--navActive); }
+.steps .done i { background:var(--navActive); }
+.steps span { margin:0 8px; font-size:13px; white-space:nowrap; }
+.steps .now span { font-weight:600; }
+.steps b { flex:1; height:2px; background:var(--track); }
+.steps .done b { background:var(--navActive); }
+.t-learn h2 { font-size:22px; font-weight:400; letter-spacing:-0.02em; }
+.bar { height:6px; border-radius:999px; background:var(--track); overflow:hidden; }
+.bar span { display:block; height:100%; width:0; background:var(--navActive); transform-origin:left; animation:hb-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
+.t-learn .btn { align-self:flex-start; }
+
+.t-list { grid-column:span 4; gap:0; }
+.t-guides { animation-delay:.18s; } .t-tools { animation-delay:.22s; } .t-suite { animation-delay:.26s; }
+.list { list-style:none; padding:0; }
+.list li { border-top:1px solid var(--line); }
+.list a { display:flex; justify-content:space-between; align-items:center; gap:10px; min-height:48px; text-decoration:none; font-size:15px; }
+.list a:hover { color:var(--gold); }
+.list .ring { flex:none; width:7px; height:7px; border-radius:50%; border:1.5px solid var(--gold); }
+.list .tag { flex:none; font-size:11px; color:var(--muted); }
+
+.t-articles { grid-column:span 12; flex-direction:row; flex-wrap:wrap; gap:12px 24px; align-items:center; padding:22px 24px; animation-delay:.28s; }
+.t-articles-k { flex:0 0 220px; }
+.t-articles-k p + p { margin-top:6px; font-size:15px; line-height:1.45; }
+.t-articles-list { flex:1 1 420px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; }
+.t-articles-empty { flex:1 1 420px; font-size:14px; color:var(--muted); }
+
+.t-know { grid-column:span 6; gap:14px; animation-delay:.3s; }
+.t-know form { display:flex; flex-direction:column; gap:10px; }
+.t-know label { font-size:14px; }
+.t-know input { font-family:inherit; font-size:15px; min-height:46px; padding:0 16px; border-radius:999px; border:1px solid var(--line); background:var(--chip); color:var(--text); width:100%; }
+.chips { display:flex; flex-wrap:wrap; gap:8px; }
+.chips a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--line); text-decoration:none; font-size:14px; }
+.chips a:hover { background:var(--chip); }
+
+.t-notes { grid-column:span 6; gap:0; animation-delay:.34s; }
+.notes a, .notes button { display:flex; justify-content:flex-start; gap:16px; align-items:center; width:100%; min-height:52px; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; text-decoration:none; cursor:pointer; }
+.notes a:hover .nt, .notes button:hover .nt { color:var(--gold); }
+.notes .nd { width:92px; flex:none; font-size:12px; color:var(--muted); }
+.notes .nt { font-size:15px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.notes .empty { padding:14px 0 0; font-size:14px; color:var(--muted); border-top:1px solid var(--line); }
+
+.hb-foot { margin-top:28px; font-size:12px; }
+.hb-foot .tei-boundary { text-align:left; font-family:inherit; }
+.hb-foot .tei-boundary p { max-width:none; margin:0; }
+
+/* Phone bottom bar: the Wealth OS tabs, Library active (spec A5). */
+.hb-tabs { display:none; }
+
+@keyframes hb-up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+@keyframes hb-spin { to { transform:rotate(360deg); } }
+@keyframes hb-rise { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+@keyframes hb-draw { from { stroke-dashoffset:900; } to { stroke-dashoffset:0; } }
+@keyframes hb-pulse { 0% { r:5; opacity:1; } 100% { r:16; opacity:0; } }
+@keyframes hb-grow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .t, .t-wos .orbit, .wos-bar, .wos-line, .wos-pulse, .bar span { animation:none; }
+  .wos-line { stroke-dasharray:none; }
+  .t:hover { transform:none; }
 }
-.hub-featured-item:hover { background: rgba(255,255,255,.03); }
-.hub-featured-item + .hub-featured-item { border-left: 1px solid rgba(201,168,76,.18); }
-.hub-featured-eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 14px; }
-.hub-featured-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 24px; color: var(--white); margin-bottom: 10px; }
-.hub-featured-desc { font-size: 13px; color: rgba(247,244,237,.5); max-width: 280px; margin-bottom: 22px; }
-.hub-featured-link { display: inline-flex; align-items: center; gap: 8px; margin-top: auto; align-self: flex-start; font-size: 12.5px; font-weight: 600; letter-spacing: .03em; color: var(--gold); }
-.hub-featured-link .arrow { transition: transform .2s; display: inline-block; }
-.hub-featured-item:hover .hub-featured-link .arrow { transform: translateX(4px); }
 
-/* ---------- Body / card grid ---------- */
-.hub-body { max-width: 1040px; margin: 0 auto; padding: var(--section-pad-y-tight) 40px var(--section-pad-y); }
-
-.hub-body-head { text-align: center; margin-bottom: var(--heading-gap); }
-.hub-body-eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
-.hub-body-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px; color: var(--navy); }
-
-.hub-quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--card-gap); margin-bottom: var(--card-gap); }
-.hub-quick-card {
-  display: flex; align-items: center; gap: 14px; background: var(--white); border: 1px solid var(--cream-dk);
-  border-radius: 10px; padding: 18px 20px; text-decoration: none;
-  transition: border-color .18s ease, transform .18s ease;
+@media (max-width:1100px) {
+  .t-wos, .t-session { grid-column:span 6; }
+  .t-list { grid-column:span 6; }
+  .t-suite { grid-column:span 12; }
 }
-.hub-quick-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-.hub-quick-icon {
-  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--gold);
-  display: flex; align-items: center; justify-content: center; font-size: 14px;
-  color: var(--gold-dk); flex-shrink: 0;
-}
-.hub-quick-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 13.5px; color: var(--navy); flex: 1; line-height: 1.35; }
-.hub-quick-arrow { color: var(--gold-dk); font-size: 14px; flex-shrink: 0; transition: transform .18s ease; }
-.hub-quick-card:hover .hub-quick-arrow { transform: translateX(3px); }
-
-.hub-library-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
-  background: var(--navy-tint); border: 1px solid var(--cream-dk); border-radius: 14px;
-  padding: 34px 38px; text-decoration: none; transition: border-color .18s ease, transform .18s ease;
-}
-.hub-library-banner:hover { border-color: var(--gold); transform: translateY(-2px); }
-.hub-library-text { max-width: 460px; }
-.hub-library-eyebrow { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
-.hub-library-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; color: var(--navy); margin-bottom: 6px; }
-.hub-library-desc { font-size: 13px; color: var(--mid); }
-.hub-library-cta {
-  display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: var(--cream);
-  font-size: 12.5px; font-weight: 600; padding: 13px 24px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
-  transition: background .18s ease, color .18s ease;
-}
-.hub-library-banner:hover .hub-library-cta { background: var(--gold); color: var(--navy); }
-
-@media(max-width: 700px) {
-  nav { padding: 0 20px; }
-  .nav-links { display: none; }
-  .nav-mobile-toggle { display: flex; }
-  .hub-featured-grid { grid-template-columns: 1fr; }
-  .hub-featured-item + .hub-featured-item { border-left: none; border-top: 1px solid rgba(201,168,76,.18); }
-  .hub-featured-item { padding: 32px 20px; }
-  .hub-body { padding: var(--section-pad-y-tight) 20px; }
-  .hub-quick-grid { grid-template-columns: 1fr; gap: 12px; }
-  .hub-library-banner { flex-direction: column; align-items: flex-start; padding: 28px 26px; }
+/* Phones (A5, B1.3): the pill nav hides and the bottom bar takes over. */
+@media (max-width:860px) {
+  .hb-bar-in { padding:12px 16px; }
+  .hb-nav { display:none; }
+  .hb-icon { display:inline-flex; }
+  .hb { padding:20px 16px calc(84px + 24px); }
+  .hb-head { margin-bottom:16px; }
+  .hb-title { font-size:28px; }
+  .hb-seg { display:none; }
+  .hb-grid { gap:12px; }
+  .hb-grid > * { grid-column:span 12 !important; }
+  .t { border-radius:24px; padding:18px; }
+  .t-wos { padding:20px; }
+  .t-wos h2 { font-size:24px; }
+  .t-wos svg { display:none; }
+  .t-articles-k { flex:1 1 100%; }
+  .steps span { font-size:12px; margin:0 6px; }
+  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; height:84px; padding:8px 8px 18px; background:var(--side); border-top:1px solid var(--line); }
+  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:52px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
+  .hb-tabs a[aria-current="page"] { color:var(--text); }
+  .hb-tabs i { width:22px; height:22px; border-radius:50%; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; }
+  .hb-tabs i::after { content:''; width:8px; height:8px; border-radius:50%; }
+  .hb-tabs a[aria-current="page"] i { border-color:var(--gold); }
+  .hb-tabs a[aria-current="page"] i::after { background:var(--gold); }
 }
 </style>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
 <script>
@@ -135,192 +230,285 @@ nav {
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
+
+<header class="hb-bar">
+  <div class="hb-bar-in">
+    <a class="hb-brand" href="/hub/index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--gold)" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="var(--gold)" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="var(--gold)"/></svg>Client Hub</a>
+    <nav class="hb-nav" aria-label="Client Hub">
+      <a href="/hub/index.html" aria-current="page">Home</a>
+      <!-- TODO(G6): Learn opens the stage index (E2) once it is built. -->
+      <a href="/hub/education/index.html">Learn</a>
+      <a href="/guides.html?show=Guides">Guides</a>
+      <a href="/guides.html?show=Tools">Tools</a>
+      <!-- TODO(G5): Articles opens members' articles (D7) once it is built. -->
+      <a href="/hub/articles.html">Articles</a>
+      <!-- TODO(G5): the suite index (D3) replaces suite.html. -->
+      <a href="/hub/suite.html">Investment suite</a>
+      <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
+    </nav>
+    <button type="button" class="hb-icon" id="hbThemeIcon" aria-label="Switch to dark mode"></button>
+  </div>
+</header>
+
+<main class="hb">
+  <div class="hb-head">
+    <div>
+      <p class="hb-date mono" id="hbDate"></p>
+      <h1 class="hb-title" id="hubHeroGreeting">Welcome back</h1>
+    </div>
+    <div class="hb-head-side">
+      <div class="hb-seg" role="group" aria-label="Theme">
+        <button type="button" data-theme-choice="light" aria-pressed="true">Light</button>
+        <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+      </div>
+      <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
+    </div>
+  </div>
+
+  <div class="hb-grid">
+
+    <a class="t t-feat t-wos" href="/hub/wealth-os.html" id="hbWos">
+      <span class="orbit" aria-hidden="true"></span>
+      <div class="t-wos-text">
+        <p class="lab">Wealth OS</p>
+        <h2>Your plan, live. Every account and goal.</h2>
+        <span class="btn btn-champ">Open Wealth OS</span>
+      </div>
+      <svg viewBox="0 0 300 140" aria-hidden="true">
+        <rect class="wos-bar" x="10" y="110" width="20" height="30" rx="5" style="animation-delay:.2s"/><rect class="wos-bar" x="50" y="98" width="20" height="42" rx="5" style="animation-delay:.3s"/><rect class="wos-bar" x="90" y="84" width="20" height="56" rx="5" style="animation-delay:.4s"/><rect class="wos-bar" x="130" y="68" width="20" height="72" rx="5" style="animation-delay:.5s"/><rect class="wos-bar" x="170" y="50" width="20" height="90" rx="5" style="animation-delay:.6s"/><rect class="wos-bar" x="210" y="32" width="20" height="108" rx="5" style="animation-delay:.7s"/><rect class="wos-bar" x="250" y="12" width="20" height="128" rx="5" style="animation-delay:.8s"/>
+        <path class="wos-line" d="M6 124 C 80 116, 140 96, 190 70 S 262 24, 292 12"/><circle class="wos-pulse" cx="292" cy="12" r="5"/><circle class="wos-dot" cx="292" cy="12" r="5"/>
+      </svg>
+    </a>
+
+    <!-- Next session. There is no session booking data yet, so this shows
+         what Wealth OS Home shows. TODO: date, time and "Add a question"
+         once sessions are recorded (B3.2). -->
+    <section class="t t-champ t-session" aria-labelledby="hbSessionTitle">
+      <p class="lab lab-gold">Next session</p>
+      <h2 id="hbSessionTitle">Not booked yet</h2>
+      <p class="muted">Book a time with your coach and it will show here.</p>
+      <a class="btn" href="/book">Book a session</a>
+    </section>
+
+    <section class="t t-feat t-plan" aria-labelledby="hbPlanTitle">
+      <span class="orbit" aria-hidden="true"></span>
+      <p class="lab">Your plan</p>
+      <h2 id="hbPlanTitle">Wealth Plan and Forecast</h2>
+      <p class="sub" id="hbPlanSub">Your coach adds your Wealth Plan here after your plan session.</p>
+      <div class="acts">
+        <a class="btn btn-champ" id="hbPlanOpen" href="/hub/wealth-os.html?page=planning" hidden>Open plan</a>
+        <a class="btn btn-ghost-feat" href="/hub/wealth-os.html?page=planning">View forecast</a>
+      </div>
+    </section>
+
+    <section class="t t-powder t-learn" aria-labelledby="hbLearnTitle">
+      <p class="lab">Continue learning</p>
+      <ol class="steps" id="hbSteps" aria-label="Your stage">
+        <li><i></i><span>Start here</span><b></b></li>
+        <li><i></i><span>Stage 1</span><b></b></li>
+        <li><i></i><span>Stage 2</span></li>
+      </ol>
+      <h2 id="hbLearnTitle">Lessons at your own pace</h2>
+      <div>
+        <div class="bar"><span id="hbLearnBar"></span></div>
+        <p class="muted" id="hbLearnCount" style="margin-top:8px; font-size:13px;"></p>
+      </div>
+      <a class="btn btn-primary" id="hbLearnBtn" href="/hub/education/index.html">Start learning</a>
+    </section>
+
+    <section class="t t-list t-guides" aria-labelledby="hbGuidesK">
+      <div class="row"><p class="lab" id="hbGuidesK">Guides</p><a class="lnk" href="/guides.html?show=Guides">All guides</a></div>
+      <ul class="list">
+        <li><a href="/guides/tax.html">The Tax Wrapper Guide<span class="ring" aria-hidden="true"></span></a></li>
+        <li><a href="/guides/stages.html">The Five Stages<span class="ring" aria-hidden="true"></span></a></li>
+        <li><a href="/guides/principles.html">TEI Principles<span class="ring" aria-hidden="true"></span></a></li>
+      </ul>
+    </section>
+
+    <section class="t t-list t-tools" aria-labelledby="hbToolsK">
+      <div class="row"><p class="lab" id="hbToolsK">Tools</p><a class="lnk" href="/guides.html?show=Tools">All tools</a></div>
+      <ul class="list">
+        <li><a href="/guides/cost-of-waiting.html">Cost of Waiting<span class="ring" aria-hidden="true"></span></a></li>
+        <li><a href="/guides/property-calculator.html">Property Calculator<span class="ring" aria-hidden="true"></span></a></li>
+        <li><a href="/hub/wealth-os.html?page=planning">Wealth Forecast<span class="ring" aria-hidden="true"></span></a></li>
+      </ul>
+    </section>
+
+    <!-- TODO(G5): the three latest notes come from the suite manifest (D3)
+         and open their own note pages. Until then they open in suite.html. -->
+    <section class="t t-champ t-list t-suite" aria-labelledby="hbSuiteK">
+      <div class="row"><p class="lab lab-gold" id="hbSuiteK">Investment suite</p><a class="lnk" href="/hub/suite.html">All notes</a></div>
+      <ul class="list">
+        <li><a href="/hub/suite.html?note=onds">Ondas Holdings<span class="tag mono">Note</span></a></li>
+        <li><a href="/hub/suite.html?note=nbis">Nebius Group<span class="tag mono">Note</span></a></li>
+        <li><a href="/hub/suite.html?note=asts">AST SpaceMobile<span class="tag mono">Note</span></a></li>
+      </ul>
+    </section>
+
+    <!-- TODO(G5): the latest two from members-articles.json (D7), with an
+         "All articles" link to the members' articles page. -->
+    <section class="t t-powder t-articles" aria-labelledby="hbArticlesK">
+      <div class="t-articles-k"><p class="lab" id="hbArticlesK">Members' articles</p><p>Themes and company deep dives.</p></div>
+      <p class="t-articles-empty">The first members' articles are on their way and will show here.</p>
+    </section>
+
+    <!-- TODO(G6): search the whole Knowledge library (E5). Until then the
+         search runs on the glossary. -->
+    <section class="t t-know" aria-labelledby="hbKnowK">
+      <p class="lab" id="hbKnowK">Knowledge library</p>
+      <form action="/hub/knowledge/glossary.html" method="get" role="search">
+        <label for="hbKnowQ">Search the glossary</label>
+        <input id="hbKnowQ" name="q" type="search" placeholder="For example, compounding" autocomplete="off">
+      </form>
+      <div class="chips">
+        <a href="/hub/knowledge/glossary.html">Glossary</a>
+        <a href="/hub/knowledge/mental-models.html">Mental models</a>
+        <a href="/hub/knowledge/quote-library.html">Quote library</a>
+        <a href="/hub/knowledge/book-library.html">Book library</a>
+      </div>
+    </section>
+
+    <section class="t t-notes" aria-labelledby="hbNotesK">
+      <div class="row"><p class="lab" id="hbNotesK">Meeting notes</p><a class="lnk" href="/hub/wealth-os.html?page=documents">All notes</a></div>
+      <ul class="list notes" id="hbNotes"><li class="empty">Notes from each session appear here after it.</li></ul>
+    </section>
+
+  </div>
+  <div class="hb-foot" data-tei-boundary-footer="inherit"></div>
+</main>
+
+<nav class="hb-tabs" aria-label="Main">
+  <a href="/hub/wealth-os.html"><i></i>Home</a>
+  <a href="/hub/wealth-os.html?page=progress"><i></i>Wealth</a>
+  <a href="/hub/wealth-os.html?page=goals"><i></i>Plan</a>
+  <a href="/hub/index.html" aria-current="page"><i></i>Library</a>
+  <a href="/hub/wealth-os.html?page=menu"><i></i>Me</a>
+</nav>
+
 <script>
-/* Personalises the hero heading with the signed-in user's first name.
-   Checks wealth_os.profiles.first_name first (covers advisers, who have
-   no wealth_os.clients row of their own -- see hub/wealth-os.html's wo()
-   helper), then falls back to wealth_os.clients.first_name for client
-   logins. Neither set keeps the plain "Welcome back." from the markup. */
+/* Theme: Light | Dark on desktop, an icon on phones, saved under tei-theme. */
 (function () {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", run);
-  } else {
-    run();
+  var root = document.documentElement;
+  var MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>';
+  var SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>';
+  var icon = document.getElementById('hbThemeIcon');
+  function apply(t) {
+    root.setAttribute('data-theme', t);
+    document.querySelectorAll('[data-theme-choice]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-theme-choice') === t ? 'true' : 'false'); });
+    icon.innerHTML = t === 'dark' ? SUN : MOON;
+    icon.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  function choose(t) { apply(t); try { localStorage.setItem('tei-theme', t); } catch (e) {} }
+  apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  document.querySelectorAll('[data-theme-choice]').forEach(function (b) {
+    b.addEventListener('click', function () { choose(b.getAttribute('data-theme-choice')); });
+  });
+  icon.addEventListener('click', function () { choose(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); });
+})();
+</script>
+<script src="/hub/education/js/embedded-data.js" defer></script>
+<script>
+/* Fills the Hub from the signed-in person's own records: first name, the
+   newest Wealth Plan forecast, the last three meeting notes (wealth_os
+   documents, as Wealth OS reads them) and lesson progress
+   (education_progress). Anything that cannot be read keeps its default. */
+(function () {
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function shortDate(str) { var d = new Date(str); return isNaN(d) ? '' : d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
+
+  var now = new Date();
+  $('hbDate').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MON[now.getMonth()] + ' ' + now.getFullYear();
+
+  function w() { return window.teiSupabase.schema('wealth_os'); }
+
+  function renderDocs(docs) {
+    var plans = docs.filter(function (d) { return d.type === 'forecast' && d.storage_path; })
+      .sort(function (a, b) { return String(b.uploaded_at || '').localeCompare(String(a.uploaded_at || '')); });
+    if (plans.length) {
+      var p = plans[0];
+      $('hbPlanSub').textContent = 'Updated ' + shortDate(p.uploaded_at);
+      var open = $('hbPlanOpen');
+      open.href = '/hub/wealth-os.html#forecast/' + encodeURIComponent(p.id) + '/planning';
+      open.hidden = false;
+    }
+    var notes = docs.filter(function (d) { return d.type === 'note'; })
+      .sort(function (a, b) { return String(b.uploaded_at || '').localeCompare(String(a.uploaded_at || '')); })
+      .slice(0, 3);
+    if (notes.length) {
+      $('hbNotes').innerHTML = notes.map(function (n) {
+        var href = n.storage_path ? '/hub/wealth-os.html#doc/' + encodeURIComponent(n.id) + '/documents' : '/hub/wealth-os.html?page=documents';
+        return '<li><a href="' + esc(href) + '"><span class="nd mono">' + esc(shortDate(n.uploaded_at)) + '</span><span class="nt">' + esc(n.name || 'Meeting note') + '</span></a></li>';
+      }).join('');
+    }
+  }
+
+  /* Stage stepper (E1 labels): Start here is the Investor Learning
+     Commitment, then the Stage 1 and Stage 2 modules. The next lesson is the
+     first one not yet completed, in module order. */
+  function renderLearning(progress) {
+    var data = window.TEI_DATA;
+    if (!data) return;
+    var done = (progress && progress.completed_lessons) || {};
+    var committed = !!(progress && progress.commitment_completed_at);
+    var order = [];
+    data.MODULES.forEach(function (m) { (m.lessonSequence || []).forEach(function (id) { order.push({ id: id, stage: m.stage }); }); });
+    var total = order.length;
+    var count = order.filter(function (l) { return done[l.id]; }).length;
+    var next = order.filter(function (l) { return !done[l.id]; })[0];
+    var lesson = next && data.LESSONS.filter(function (l) { return l.id === next.id; })[0];
+    var stageNow = !committed ? 0 : (next ? next.stage : 3);
+    var items = $('hbSteps').children;
+    for (var i = 0; i < items.length; i++) {
+      items[i].className = i < stageNow ? 'done' : (i === stageNow ? 'now' : '');
+      if (i === stageNow) items[i].setAttribute('aria-current', 'step'); else items[i].removeAttribute('aria-current');
+    }
+    $('hbLearnBar').style.width = (total ? count / total * 100 : 0).toFixed(1) + '%';
+    $('hbLearnCount').textContent = count + ' of ' + total + ' lessons';
+    var btn = $('hbLearnBtn');
+    if (!committed) {
+      $('hbLearnTitle').textContent = 'Investor Learning Commitment';
+      btn.textContent = 'Start here';
+    } else if (lesson) {
+      $('hbLearnTitle').textContent = lesson.title;
+      btn.textContent = count ? 'Resume lesson' : 'Start lesson';
+      btn.href = '/hub/education/lesson.html?lesson=' + encodeURIComponent(lesson.id);
+    } else {
+      $('hbLearnTitle').textContent = 'Every lesson complete';
+      btn.textContent = 'Review lessons';
+    }
   }
 
   function run() {
-    var greeting = document.getElementById("hubHeroGreeting");
-    if (!greeting) return;
-    var log = function () {
-      console.log.apply(console, ["[hub-greeting]"].concat(Array.prototype.slice.call(arguments)));
-    };
-    var w = function () {
-      return window.teiSupabase.schema("wealth_os");
-    };
-
-    log("starting");
-
+    if (!window.TeiAuth || !window.teiSupabase) { renderLearning(null); return; }
     TeiAuth.waitForReady()
-      .then(function () {
-        log("supabase ready, calling getUser()");
-        return TeiAuth.getUser();
-      })
-      .then(function (result) {
-        log("getUser() result", result);
-        var user = result.data && result.data.user;
-        if (!user) {
-          log("no signed-in user, stopping");
-          return null;
-        }
-        log("querying wealth_os.profiles for user_id", user.id);
-        return w()
-          .from("profiles")
-          .select("first_name")
-          .eq("user_id", user.id)
-          .maybeSingle()
-          .then(function (profileResult) {
-            log("profiles query result", profileResult);
-            var profileName = profileResult.data && profileResult.data.first_name;
-            if (profileName) return profileName;
-            log("no profile first_name, querying wealth_os.clients");
-            return w()
-              .from("clients")
-              .select("first_name")
-              .eq("user_id", user.id)
-              .maybeSingle()
-              .then(function (clientResult) {
-                log("clients query result", clientResult);
-                return clientResult.data && clientResult.data.first_name;
+      .then(function () { return TeiAuth.getUser(); })
+      .then(function (res) {
+        var user = res && res.data && res.data.user;
+        if (!user) return;
+        // Lesson progress belongs to the signed-in person.
+        window.teiSupabase.from('education_progress').select('completed_lessons, commitment_completed_at').eq('user_id', user.id).maybeSingle()
+          .then(function (r) { renderLearning(r && !r.error ? r.data : null); }, function () { renderLearning(null); });
+        // First name: the profile first (advisers have no client row), then the client row.
+        return w().from('profiles').select('first_name').eq('user_id', user.id).maybeSingle()
+          .then(function (pr) {
+            return w().from('clients').select('id, first_name').eq('user_id', user.id).maybeSingle()
+              .then(function (cr) {
+                var client = cr && !cr.error ? cr.data : null;
+                var name = (pr && pr.data && pr.data.first_name) || (client && client.first_name);
+                if (name) $('hubHeroGreeting').textContent = 'Welcome back, ' + name;
+                if (!client) return;
+                return w().from('documents').select('id, name, type, storage_path, uploaded_at').eq('client_id', client.id)
+                  .then(function (dr) { if (dr && !dr.error) renderDocs(dr.data || []); });
               });
           });
       })
-      .then(function (firstName) {
-        log("resolved firstName:", firstName);
-        if (firstName) greeting.textContent = "Welcome back, " + firstName + ".";
-      })
-      .catch(function (err) {
-        console.error("[hub-greeting] failed:", err);
-      });
+      .catch(function (err) { console.error('Client Hub: could not load your details', err); });
   }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 </script>
-
-<nav>
-  <a class="nav-logo" href="/hub/index.html">
-    <div class="nav-logo-mark">&#10022;</div>
-    <span class="nav-logo-text">The Everyday<br>Investor</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="/hub/index.html" class="active">Dashboard</a></li>
-    <li><a href="/hub/wealth-os.html">Wealth OS</a></li>
-    <li><a href="/hub/suite.html">Investment Suite</a></li>
-    <li><a href="/hub/education/index.html">Education Platform</a></li>
-    <li><a href="/hub/guides.html">Guides &amp; Tools</a></li>
-    <li><a href="/hub/articles.html">Articles</a></li>
-    <li><a href="/hub/knowledge/index.html">Knowledge Library</a></li>
-    <li style="border-left:1px solid rgba(201,168,76,.25);padding-left:20px;"><a href="/">Visit Website &#8599;</a></li>
-  </ul>
-  <button class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<div class="nav-mobile-menu" id="navMobileMenu">
-  <a href="/hub/index.html" onclick="closeNav()" class="active">Dashboard</a>
-  <a href="/hub/wealth-os.html" onclick="closeNav()">Wealth OS</a>
-  <a href="/hub/suite.html" onclick="closeNav()">Investment Suite</a>
-  <a href="/hub/education/index.html" onclick="closeNav()">Education Platform</a>
-  <a href="/hub/guides.html" onclick="closeNav()">Guides &amp; Tools</a>
-  <a href="/hub/articles.html" onclick="closeNav()">Articles</a>
-  <a href="/hub/knowledge/index.html" onclick="closeNav()">Knowledge Library</a>
-  <a href="/">Visit Website &#8599;</a>
-</div>
-
-<div class="hub-hero">
-  <h1 id="hubHeroGreeting">Welcome back.</h1>
-</div>
-
-<div class="hub-featured">
-  <div class="hub-featured-grid">
-    <a class="hub-featured-item" href="/hub/wealth-os.html">
-      <div class="hub-featured-eyebrow">Your Numbers</div>
-      <div class="hub-featured-title">Wealth OS</div>
-      <div class="hub-featured-desc">Your accounts, holdings, goals and cashflow in one live dashboard</div>
-      <span class="hub-featured-link">Open Wealth OS <span class="arrow">&#8594;</span></span>
-    </a>
-    <a class="hub-featured-item" href="/hub/suite.html">
-      <div class="hub-featured-eyebrow">Research &amp; Analysis</div>
-      <div class="hub-featured-title">Investment Suite</div>
-      <div class="hub-featured-desc">14 research notes across Growth, Foundation, Top Ideas &amp; Watchlist</div>
-      <span class="hub-featured-link">Enter the suite <span class="arrow">&#8594;</span></span>
-    </a>
-    <a class="hub-featured-item" href="/hub/education/index.html">
-      <div class="hub-featured-eyebrow">Learning Path</div>
-      <div class="hub-featured-title">Education Platform</div>
-      <div class="hub-featured-desc">30 lessons across Financial Foundations and Investor Understanding, at your own pace</div>
-      <span class="hub-featured-link">Start learning <span class="arrow">&#8594;</span></span>
-    </a>
-  </div>
-</div>
-
-<div class="hub-body">
-
-  <div class="hub-body-head">
-    <p class="hub-body-eyebrow">Quick Access</p>
-    <p class="hub-body-title">A few of the most useful, close at hand</p>
-  </div>
-
-  <div class="hub-quick-grid">
-    <a class="hub-quick-card" href="/hub/guides/costofwaiting.html">
-      <span class="hub-quick-icon">&#9889;</span>
-      <span class="hub-quick-title">Cost of Waiting Calculator</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/wealthforecast.html">
-      <span class="hub-quick-icon">&#128200;</span>
-      <span class="hub-quick-title">Wealth Forecast</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/tax.html">
-      <span class="hub-quick-icon">&#127974;</span>
-      <span class="hub-quick-title">The Tax Wrapper Guide</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/property.html">
-      <span class="hub-quick-icon">&#127968;</span>
-      <span class="hub-quick-title">Property Investment Calculator</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/portfolio-optimisation-lab.html">
-      <span class="hub-quick-icon">&#128202;</span>
-      <span class="hub-quick-title">Portfolio Optimisation Lab</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/knowledge/index.html">
-      <span class="hub-quick-icon">&#128218;</span>
-      <span class="hub-quick-title">Knowledge Library</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-  </div>
-
-  <a class="hub-library-banner" href="/hub/guides.html">
-    <div class="hub-library-text">
-      <p class="hub-library-eyebrow">The Full Library</p>
-      <p class="hub-library-title">Every guide, framework and calculator we've built</p>
-      <p class="hub-library-desc">TEI Principles, the Five Stages framework, tax wrappers, portfolio strategy, and every tool in between -- all in one place.</p>
-    </div>
-    <span class="hub-library-cta">Browse Guides &amp; Tools <span class="arrow">&#8594;</span></span>
-  </a>
-
-</div>
-
-<script>
-function toggleNav() {
-  document.getElementById('navMobileMenu').classList.toggle('open');
-}
-function closeNav() {
-  document.getElementById('navMobileMenu').classList.remove('open');
-}
-</script>
-<script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

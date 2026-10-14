@@ -115,6 +115,15 @@
 
   function injectSignedInUI(user) {
     var email = (user && user.email) || "Signed in";
+    // A page with its own Sign out control (the redesigned Client Hub) just
+    // has it wired up; nothing is added to the page.
+    var own = document.querySelectorAll("[data-hub-signout]");
+    if (own.length) {
+      Array.prototype.forEach.call(own, function (el) {
+        el.addEventListener("click", function (e) { e.preventDefault(); signOut(); });
+      });
+      return;
+    }
     var navLinks = document.querySelector(".nav-links");
     if (navLinks) {
       renderNavSignOut(navLinks, document.querySelector(".nav-mobile-menu"), email);
@@ -142,7 +151,13 @@
         return;
       }
       overlay.remove();
-      injectSignedInUI(user);
+      // This script sits at the top of <body>, so wait for the rest of the
+      // page before looking for its nav or its own Sign out control.
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", function () { injectSignedInUI(user); });
+      } else {
+        injectSignedInUI(user);
+      }
       loadBoundaryWording();
     })
     .catch(goToLogin);

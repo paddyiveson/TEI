@@ -286,6 +286,10 @@ body{margin:0;background:#F7F4ED}
     b.addEventListener('click', function () { kind = b.textContent; press(kindButtons, b); apply(); });
   });
   search.addEventListener('input', apply);
+
+  // ?show=Guides or ?show=Tools (the Client Hub's "All guides" and "All tools").
+  var show = new URLSearchParams(window.location.search).get('show');
+  each(kindButtons, function (b) { if (show && b.textContent === show) b.click(); });
 })();
 </script>
 <script src="/assets/newsletter.js" defer></script>

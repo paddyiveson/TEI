@@ -19404,11 +19404,24 @@ window.TEI = window.TEI || {};
      Mutates state.client in place going forward (see openClient/addNewClient
      and TEI.adviser's own save flows) rather than replacing the object, so
      nav/theme wiring done once at startup keeps working unchanged. */
+  /* ?page=<id> opens that page first (the Client Hub links to Forecast,
+     Meeting notes and the phone tabs this way). It is taken off the address
+     afterwards, so a reload starts on Home again. */
+  function startPageFromUrl(){
+    const params = new URLSearchParams(location.search);
+    const p = params.get('page');
+    if(!p) return 'home';
+    params.delete('page');
+    const qs = params.toString();
+    history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    return PAGES.indexOf(p) >= 0 ? p : 'home';
+  }
+
   function startClientView(loadedClient){
     document.getElementById('clientListApp').style.display = 'none';
     state.client = loadedClient;
     updateAvatar(state.client);
-    showPage('home');
+    showPage(startPageFromUrl());
     if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(state.client);
     if(TEI.onboarding && TEI.onboarding.init) TEI.onboarding.init(state.client);
     if(TEI.feedback && TEI.feedback.init) TEI.feedback.init(state.client);
