@@ -1589,17 +1589,7 @@ a.k-guide-link .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(
 .k-doc-open{font-size:13.5px; font-weight:600; color:var(--k-accent); text-decoration:none; flex:none;}
 button.k-doc-open{background:none; border:0; padding:6px 0 6px 8px; font-family:inherit; cursor:pointer;}
 
-/* Wealth Plan forecast: card on the Forecast page + full-screen viewer (TEI.forecastView) */
-#forecastPlanSlot:empty{display:none;}
-#forecastPlanSlot{padding-top:var(--space-lg); order:-1;}
-@media (max-width:860px){
-  #clientApp[data-mview] #forecastPlanSlot{padding:0; margin:0; align-self:stretch;}
-  #clientApp[data-mview] #forecastPlanSlot .dgrid, #clientApp[data-mview] #forecastPlanSlot .span-12{display:contents;}
-}
-.k-fc-card{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; border-left:3px solid var(--gold);}
-.k-fc-card .k-fc-title{font-family:var(--font-display); font-size:18px; font-weight:600; color:var(--k-ink); margin:0;}
-.k-fc-card .k-fc-meta{font-size:13px; color:var(--k-ink-softer); margin-top:2px;}
-.k-fc-card .btn-primary{flex:none; min-height:40px;}
+/* Wealth Plan forecast: full-screen viewer (TEI.forecastView). Its tile on Forecast is .fc-doc. */
 html.fcv-open, html.fcv-open body{overflow:hidden;}
 .fcv{position:fixed; inset:0; z-index:10000; display:flex; flex-direction:column; height:100vh; height:100dvh; background:#0F1B2D;}
 .fcv[hidden]{display:none;}
@@ -1698,7 +1688,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 /* Mobile-only Wealth additions (segmented switch, ranked lists, Journey stage host). */
 #clientApp .m-lab-head, #clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
 /* Mobile-only Plan additions (merged next-steps card, hosts for moved blocks, conversion legend, accordion title). */
-#clientApp .m-nextsteps, #clientApp #wcdLegend, #clientApp .m-explain, #clientApp .m-step{display:none;}
+#clientApp .m-nextsteps, #clientApp #wcdLegend{display:none;}
 /* Mobile-only Library additions (Learn cards, Meeting notes filter). */
 #clientApp #mLearnHost, #clientApp .m-chips, #clientApp .m-docs-empty{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
@@ -1981,64 +1971,10 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .m-nextsteps .k-simple-list li{font-size:13.5px; line-height:1.4;}
   .m-nextsteps .k-simple-list li .dot{background:var(--gold);}
 
-  /* Coach's corner cards (Forecast, Cashflow): 2 lines + full-width action. */
-  #fcMessage, #cfcMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
-  #fcActionBtn, #cfcActionBtn{align-self:stretch !important; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; margin-top:8px !important; padding:9px 14px; font-size:13px;}
+  /* Coach's corner card (Cashflow): 2 lines + full-width action. */
+  #cfcMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
+  #cfcActionBtn{align-self:stretch !important; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; margin-top:8px !important; padding:9px 14px; font-size:13px;}
 
-  /* -- Plan > Forecast (page: planning) -- */
-  #page-planning > section, #page-planning > section > .dgrid, #page-planning > section > .dgrid > div:not([data-m="hide"]){display:contents;}
-  #page-planning > section:nth-of-type(3){display:none;}              /* "Bringing it together": next steps are merged above, Learning hub lives in Library */
-  #page-planning .dcard.emphasis{order:10;}
-  #wpCard{order:20;}
-  #fcCard{order:30;}
-  #fcKnowCard{order:40;}
-  #page-planning [data-m-open]{order:50;}
-  #page-planning .dcard.emphasis .k-stat-split{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px;}
-  #page-planning .dcard.emphasis .k-stat-split .divider{display:none;}
-  #page-planning .dcard.emphasis .k-stat-split .sp{background:rgba(247,244,237,0.12); border-radius:8px; padding:8px 6px; text-align:center; min-width:0;}
-  #page-planning .dcard.emphasis .k-stat-split .k{font-size:9.5px; letter-spacing:0.04em;}
-  #page-planning .dcard.emphasis .k-stat-split .v{font-size:15px !important;}
-  #page-planning .dcard.emphasis .k-stat-split .sub2{font-size:10px; margin-top:2px;}
-  /* Wealth projection: ONE card. The view switch (Your plan / Hypothetical /
-     Order of returns / Decision impact) sits at the top, and the chart for the
-     selected view directly under it, so the control and what it changes stay together. */
-  #wpCard > div:first-child{flex-direction:column; align-items:stretch !important; gap:8px !important; margin-bottom:2px;}
-  #wpCard > div:first-child .sub2{display:none;}
-  #wpCard #wpToggle{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; border-radius:12px; gap:2px;}
-  #wpCard #wpToggle button{padding:8px 6px; font-size:12.5px; border-radius:10px;}
-  #wpCard .k-chart-box{height:170px !important; margin-top:8px; padding:8px 4px 2px;}
-  #wpCard .k-future-scenario{display:none;}                            /* "Future scenario planning: coming soon" */
-  #wpCard .k-form-grid{grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px;}
-  #wpCard .k-form-field{min-width:0;}
-  #wpCard .k-form-field input, #wpCard .k-form-field select{min-width:0; width:100%; box-sizing:border-box;}
-  #wpCard .k-mc-toggles{gap:6px 12px; margin-top:8px;}
-  #wpCard .k-mc-toggle{font-size:12px;}
-  /* "Your plan" view: chart and its return toggles first, then the numbers, then the inputs.
-     (The view containers show/hide with an inline display, so only flex the visible one.) */
-  #wpCard #wpPlan:not([style*="none"]){display:flex !important; flex-direction:column;}
-  /* Inputs sit directly above the results they drive, so an edit shows its effect straight away. */
-  #wpPlan > #wpPlanChartBox{order:1;}
-  #wpPlan > #wpMcToggles{order:2;}
-  #wpPlan > .k-form-grid{order:3; margin-top:14px;}
-  #wpPlan > .form-actions{order:4;}
-  #wpPlan > .k-rowstats{order:5;}
-  #clientApp #wpPlan > .m-explain{order:6;}
-  #wpPlan > .sub2{order:7;}
-  #wpPlan > #scInterpretation{order:8;}
-
-  /* Scenario inputs: full-width rows, big touch targets, 16px text (stops iOS zooming in), -/+ steppers. */
-  #wpCard input[type="number"], #wpCard select{height:48px; font-size:16px;}
-  #wpPlan > .k-form-grid{grid-template-columns:minmax(0,1fr); gap:14px;}
-  #wpPlan .k-form-field{display:grid; grid-template-columns:48px minmax(0,1fr) 48px; gap:8px; align-items:center;}
-  #wpPlan .k-form-field > span{grid-column:1 / -1; font-size:13px;}
-  #wpPlan .k-form-field input{text-align:center; font-weight:600;}
-  #clientApp .m-step{display:flex; align-items:center; justify-content:center; width:48px; height:48px; margin:0; padding:0; background:var(--k-track-bg); border:1px solid var(--k-card-border); border-radius:12px; color:var(--k-ink); font-family:inherit; font-size:24px; line-height:1; cursor:pointer; -webkit-tap-highlight-color:transparent;}
-  #clientApp .m-step:active{background:var(--gold); color:var(--card-dark);}
-  #clientApp .m-step:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
-  #wpPlan .form-actions{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px !important;}
-  #wpPlan .form-actions button{min-height:44px; margin:0; padding:0 10px; font-size:13px;}
-
-  /* Explainer text: collapsed behind a small toggle in every view. */
   /* ================= Library: Plan | Learn | Meeting notes ================= */
   #clientApp[data-mview] #page-libplan.active, #clientApp[data-mview] #page-learning.active, #clientApp[data-mview] #page-documents.active{display:flex; flex-direction:column; gap:8px; padding:12px 14px 0;}
   #clientApp[data-mview] #page-learning > header.hero, #clientApp[data-mview] #page-documents > header.hero{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; padding:0;}
@@ -2069,18 +2005,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #clientApp .m-docs-empty[hidden]{display:none;}
   #page-documents:not(.m-docs-all) .k-doc-row:not([data-doctype="note"]):not([data-doctype="forecast"]){display:none;}
   #page-documents .k-doc-name{font-size:14.5px;}
-
-  #clientApp .m-explain{display:flex; align-items:center; gap:6px; min-height:40px; margin:6px 0 0; padding:0; background:none; border:0; color:var(--gold); font:inherit; font-size:13px; font-weight:600; cursor:pointer; text-align:left; -webkit-tap-highlight-color:transparent;}
-  #clientApp .m-explain::after{content:""; width:7px; height:7px; margin:-3px 0 0 2px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); transition:transform .15s;}
-  #clientApp .m-explain-open > .m-explain::after{transform:rotate(-135deg); margin-top:3px;}
-  #clientApp[data-theme="light"] .m-explain{color:var(--hero-pill-gold-ink);}   /* darker gold: plain gold is too pale on cream */
-  #clientApp .m-explain:focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:4px;}
-  #wpCard [data-m-explain-body]{display:none;}
-  #wpCard .m-explain-open > [data-m-explain-body]{display:block;}
-  #fcKnowCard .k-simple-list li{font-size:13.5px; gap:10px;}
-  #fcKnowCard .k-simple-list li .dot{width:16px; height:16px; margin-top:2px; border-radius:0; background:var(--gold); -webkit-mask:var(--m-bulb) center/contain no-repeat; mask:var(--m-bulb) center/contain no-repeat;}
-  #page-planning .k-assump-row{gap:8px;}
-  #page-planning .k-assump-row .a{min-width:calc(50% - 8px);}
 
   /* -- Plan > Cashflow (page: cashflow) -- */
   #page-cashflow > section, #page-cashflow > section > .dgrid, #page-cashflow > section > .dgrid > div:not([data-m="hide"]){display:contents;}
@@ -2876,6 +2800,220 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .gl-coach{ display:none; } /* not in the phone order (B6) */
 }
 @keyframes gl-growY{ from{ transform:scaleY(0); } to{ transform:scaleY(1); } }
+/* ================================================================
+   REDESIGN B12.7 -- Forecast (spec B7, boards Forecast and ForecastMobile).
+   Builds on the hm- tiles; Forecast-only parts are prefixed fc-.
+   ================================================================ */
+#clientApp[data-theme="light"] .fc-hero, #clientApp[data-theme="light"] .fc-coach{ --gold:#E8D6A8; }
+.fc-sub{ margin-top:8px !important; font-size:15px; }
+.fc-hero{ grid-column:span 8; padding:26px; gap:0; }
+.fc-right{ grid-column:span 4; display:flex; flex-direction:column; gap:16px; min-width:0; }
+.fc-comp{ grid-column:span 6; gap:16px; animation-delay:.18s; }
+.fc-ind{ grid-column:span 6; gap:18px; animation-delay:.22s; }
+.fc-mc{ grid-column:span 7; gap:18px; animation-delay:.26s; }
+.fc-know{ grid-column:span 5; animation-delay:.3s; }
+.fc-steps{ grid-column:span 7; animation-delay:.34s; }
+.fc-coach{ grid-column:span 5; animation-delay:.38s; min-height:220px; }
+.fc-hero:hover{ transform:none; box-shadow:none; }
+.fc .mono, .fc-hero .mono{ font-family:'Geist Mono', ui-monospace, monospace; }
+.fc-gold{ color:#E8D6A8; }
+.fc-gold-t{ color:var(--w-gold); }
+.fc-muted{ color:var(--w-muted); }
+
+/* Hero */
+.fc-hero-top{ position:relative; display:flex; flex-wrap:wrap; gap:16px; justify-content:space-between; align-items:flex-start; }
+.fc-hero-text{ min-width:0; }
+.fc-at{ margin-top:10px !important; font-size:15px; color:#AAB6C8; }
+.fc-end{ margin-top:4px !important; font-size:52px; font-weight:300; letter-spacing:-0.04em; line-height:1; color:#F7F4ED; }
+.fc-gap{ margin-top:10px !important; font-size:14px; color:#AAB6C8; }
+.fc-dob{ margin-top:8px !important; font-size:13px; color:#B9CAE6; }
+.fc-seg{ position:relative; display:inline-flex; flex-wrap:wrap; padding:4px; border-radius:999px; background:rgba(255,255,255,0.06); border:1px solid rgba(232,214,168,0.18); }
+.fc-seg button{ font-family:inherit; font-size:13px; font-weight:500; min-height:36px; padding:0 14px; border:0; border-radius:999px; background:transparent; color:#AAB6C8; cursor:pointer; }
+.fc-seg button.mono{ font-size:12px; min-width:52px; }
+.fc-seg button[aria-pressed="true"]{ background:#E8D6A8; color:#0F1E36; }
+.fc-seg button:focus-visible, .fc-adj button:focus-visible, .fc-adj input:focus-visible, .fc-adj-open:focus-visible{ outline:2px solid #E8D6A8; outline-offset:2px; }
+
+.fc-chart{ position:relative; margin-top:24px; padding-left:52px; }
+.fc-yaxis{ position:absolute; left:0; top:0; width:46px; height:260px; }
+.fc-yaxis span{ position:absolute; right:0; transform:translateY(-50%); font-family:'Geist Mono', ui-monospace, monospace; font-size:10px; color:#8796AD; }
+.fc-plot{ position:relative; height:260px; }
+.fc-grid-lines i{ position:absolute; left:0; right:0; border-top:1px solid rgba(255,255,255,0.07); }
+.fc-plot svg{ position:absolute; inset:0; display:block; width:100%; height:100%; overflow:visible; }
+.fc-band{ fill:#E8D6A8; fill-opacity:.10; }
+.fc-fi{ fill:none; stroke:#E8D6A8; stroke-opacity:.55; stroke-width:1.4; stroke-dasharray:4 6; vector-effect:non-scaling-stroke; }
+.fc-line{ fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vector-effect:non-scaling-stroke; }
+.fc-line-main{ stroke-width:2.8; }
+.fc-line[stroke-dasharray]{ animation:none; }
+.fc-fi-dot{ position:absolute; width:12px; height:12px; margin:-6px 0 0 -6px; border-radius:50%; background:#E8D6A8; border:2px solid #0F1E36; }
+.fc-fi-tag{ position:absolute; transform:translate(-50%, -150%); white-space:nowrap; font-size:11px; padding:4px 8px; border-radius:999px; background:#E8D6A8; color:#0F1E36; }
+.fc-oo-line{ position:absolute; top:0; bottom:0; border-left:1px dashed rgba(185,202,230,0.55); }
+.fc-oo-tag{ position:absolute; top:6px; transform:translateX(-50%); white-space:nowrap; font-size:10px; padding:3px 7px; border-radius:999px; background:#B9CAE6; color:#0F1E36; }
+.fc-xaxis{ position:relative; height:34px; margin-top:8px; }
+.fc-xaxis span{ position:absolute; transform:translateX(-50%); text-align:center; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:#AAB6C8; line-height:1.4; white-space:nowrap; }
+.fc-xaxis span small{ display:block; font-size:11px; color:#6F7F98; }
+.fc-xaxis .fc-x-first{ transform:none; text-align:left; }
+.fc-xaxis .fc-x-last{ transform:translateX(-100%); text-align:right; }
+.fc-legend{ position:relative; display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:10px; font-size:12px; color:#AAB6C8; }
+.fc-legend span{ display:inline-flex; gap:8px; align-items:center; }
+.fc-legend i{ width:18px; }
+.fc-k-fi{ border-top:2px dashed rgba(232,214,168,0.6); }
+
+.fc-controls{ position:relative; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; margin-top:18px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.08); }
+.fc-insight{ flex:1 1 280px; font-size:14px; line-height:1.5; color:#F7F4ED; }
+.fc-control-row{ display:flex; flex-wrap:wrap; gap:10px; }
+
+/* Adjust strip */
+.fc-adj-open{ display:none; }
+.fc-adj{ position:relative; margin-top:18px; padding:18px; border-radius:20px; background:rgba(255,255,255,0.04); border:1px solid rgba(232,214,168,0.14); }
+.fc-adj-sheet-head, .fc-done{ display:none; }
+.fc-adj-head{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.fc-adj-btns{ display:flex; flex-wrap:wrap; gap:8px; }
+.fc-adj .fc-btn-ghost{ border-color:rgba(232,214,168,0.3); color:#F7F4ED; background:transparent; font-size:13px; }
+.fc-adj .fc-btn-ghost:hover{ background:rgba(255,255,255,0.06); }
+.fc-btn-champ{ border-color:transparent; background:#E8D6A8; color:#0F1E36; font-size:13px; }
+.fc-btn-champ:hover{ background:#E8D6A8; opacity:.9; }
+.fc-adj-grid{ display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:12px; }
+.fc-field{ display:flex; flex-direction:column; gap:6px; min-width:0; font-size:12px; color:#AAB6C8; }
+.fc-field input{ box-sizing:border-box; width:100%; min-height:44px; padding:0 12px; border-radius:12px; border:1px solid rgba(232,214,168,0.22); background:rgba(255,255,255,0.05); color:#F7F4ED; font-family:'Geist Mono', ui-monospace, monospace; font-size:14px; }
+.fc-oo{ display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08); }
+.fc-oo-note{ flex:0 0 100%; margin-bottom:2px !important; font-size:13px; color:#AAB6C8; }
+.fc-oo-age{ flex:0 0 96px; }
+.fc-oo-amt{ flex:0 0 150px; }
+.fc-oo-add{ font-family:inherit; cursor:pointer; min-height:44px; padding:0 16px; border-radius:999px; border:1px dashed rgba(232,214,168,0.5); background:transparent; color:#E8D6A8; font-size:13px; font-weight:500; }
+.fc-oo-add[disabled]{ opacity:.45; cursor:not-allowed; }
+.fc-oo-list{ display:flex; flex-wrap:wrap; gap:8px; }
+.fc-oo-chip{ display:inline-flex; align-items:center; gap:6px; min-height:36px; padding:0 4px 0 12px; border-radius:999px; background:#B9CAE6; color:#0F1E36; font-size:12px; font-weight:500; }
+.fc-oo-chip button{ cursor:pointer; width:32px; height:32px; border-radius:50%; border:0; background:rgba(15,30,54,0.12); color:#0F1E36; display:inline-flex; align-items:center; justify-content:center; }
+.fc-oo-chip svg{ width:10px; height:10px; fill:none; stroke:currentColor; stroke-width:3; stroke-linecap:round; }
+.fc-adj-foot{ margin-top:12px !important; font-size:12px; color:#8796AD; }
+.fc-scrim{ display:none; }
+
+/* Right column */
+.fc-over{ gap:16px; animation-delay:.06s; }
+.fc-chip{ flex:none; font-size:12px; font-weight:500; padding:4px 10px; border-radius:999px; border:1px solid var(--w-line); color:var(--w-text); }
+.fc-chip-on{ background:var(--w-nav-active); border-color:var(--w-nav-active); color:var(--w-nav-active-text); }
+.fc-pair{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.fc-box{ background:var(--w-chip); border-radius:18px; padding:14px; min-width:0; }
+.fc-box-champ{ background:var(--w-champ); }
+.fc-box p{ font-size:12px; color:var(--w-muted); }
+.fc-box b{ display:block; margin-top:4px; font-size:26px; font-weight:300; letter-spacing:-0.03em; color:var(--w-text); }
+.fc-box small{ display:block; margin-top:4px; font-size:11px; color:var(--w-muted); }
+.fc-box small.fc-gold-t{ color:var(--w-gold); }
+.fc-ret-l{ display:flex; justify-content:space-between; font-size:14px; color:var(--w-text); }
+.fc-ret-l strong{ font-weight:600; }
+.fc-doc{ gap:12px; animation-delay:.12s; }
+.fc-doc-top{ display:flex; align-items:center; gap:12px; }
+.fc-doc-icon{ width:44px; height:44px; flex:none; border-radius:14px; background:var(--w-tile); border:1px solid var(--w-line); display:inline-flex; align-items:center; justify-content:center; color:var(--w-gold); }
+.fc-doc-icon svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.fc-doc-title{ margin:2px 0 0; font-family:inherit; font-size:19px; font-weight:400; letter-spacing:-0.02em; color:var(--w-text); }
+.fc-doc-text{ line-height:1.5; }
+.fc-doc-foot{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; }
+.fc-doc-date{ font-size:11px; color:var(--w-muted); }
+
+/* Where it comes from */
+.fc-comp-bar{ display:flex; height:18px; border-radius:999px; overflow:hidden; gap:3px; }
+.fc-comp-bar span{ display:block; min-width:2px; height:100%; transform-origin:left; animation:hm-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
+.fc-c1{ background:var(--w-nav-active); }
+.fc-c2{ background:var(--w-gold); }
+.fc-c3{ background:var(--w-third, #C9D3E3); }
+#clientApp[data-theme="dark"] .fc-c3{ background:#5D6F8C; }
+.fc-comp-key{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+.fc-comp-key p{ display:flex; gap:8px; align-items:center; font-size:12px; color:var(--w-muted); }
+.fc-comp-key i{ width:10px; height:10px; flex:none; border-radius:3px; }
+.fc-comp-key b{ display:block; margin-top:6px; font-size:22px; font-weight:300; letter-spacing:-0.02em; color:var(--w-text); }
+.fc-comp-key small{ display:block; margin-top:2px; font-size:11px; color:var(--w-muted); }
+.fc-plus{ display:flex; gap:12px; align-items:center; background:var(--w-chip); border-radius:18px; padding:14px 16px; }
+.fc-plus b{ font-size:24px; font-weight:300; color:var(--w-gold); white-space:nowrap; }
+.fc-plus span{ font-size:13px; line-height:1.45; color:var(--w-muted); }
+
+/* Independence */
+.fc-ind-row{ align-items:baseline; font-size:15px; font-weight:500; color:var(--w-text); margin-bottom:8px; }
+.fc-ind-row .mono{ font-size:13px; font-weight:400; }
+
+/* Range of outcomes */
+.fc-mc-top{ display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:flex-end; }
+.fc-dots{ display:flex; gap:4px; }
+.fc-dots i{ width:14px; height:14px; border-radius:50%; box-sizing:border-box; border:1.5px solid var(--w-gold); }
+.fc-dots i.on{ background:var(--w-gold); }
+.fc-mc-track{ position:relative; height:64px; margin-top:6px; }
+.fc-mc-base{ position:absolute; left:0; right:0; top:26px; height:12px; border-radius:999px; background:var(--w-track); }
+.fc-mc-range{ position:absolute; top:26px; height:12px; border-radius:999px; background:var(--w-champ); border:1px solid var(--w-gold); box-sizing:border-box; }
+.fc-mc-med{ position:absolute; top:18px; width:3px; height:28px; margin-left:-1.5px; border-radius:2px; background:var(--w-nav-active); }
+.fc-mc-fi{ position:absolute; top:4px; bottom:4px; border-left:2px dashed var(--w-gold); }
+.fc-mc-fi-tag{ position:absolute; top:-14px; transform:translateX(-50%); white-space:nowrap; font-size:10px; color:var(--w-gold); }
+.fc-mc-figs{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+.fc-mc-figs p{ font-size:12px; color:var(--w-muted); }
+.fc-mc-figs b{ display:block; margin-top:4px; font-size:22px; font-weight:300; color:var(--w-text); }
+.fc-mc-figs small{ display:block; margin-top:2px; font-size:10px; color:var(--w-muted); }
+
+/* Things to know, next steps */
+.fc-know-list{ list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.fc-know-list li{ display:flex; gap:12px; font-size:13px; line-height:1.5; color:var(--w-text); }
+.fc-know-list strong{ font-weight:500; }
+.fc-dotk{ flex:none; width:6px; height:6px; margin-top:7px; border-radius:50%; background:var(--w-gold); }
+.fc-steps-list{ list-style:none; margin:16px 0 0; padding:0; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+.fc-steps-list li{ background:var(--w-chip); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:8px; }
+.fc-steps-list li.fc-step-champ{ background:var(--w-champ); }
+.fc-steps-list .mono{ font-size:11px; }
+.fc-steps-list b{ font-size:14px; font-weight:500; line-height:1.35; color:var(--w-text); }
+.fc-steps-list span:last-child{ font-size:12px; line-height:1.5; }
+
+@media (prefers-reduced-motion: reduce){
+  .fc-comp-bar span{ animation:none; }
+}
+@media (max-width:1100px){
+  .fc-adj-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .fc-hero, .fc-right{ grid-column:span 12; }
+  .fc-right{ display:grid; grid-template-columns:1fr 1fr; }
+}
+
+/* Phones (B7): Plan > Forecast. Adjust is a bottom sheet. */
+@media (max-width:860px){
+  #clientApp[data-mview] #page-planning.active{ padding:4px 16px 24px; gap:12px; }
+  #page-planning .fc{ display:contents; }
+  #page-planning .fc-head{ order:-3; margin-bottom:0; }
+  #page-planning .hm-date, #page-planning .fc-sub{ display:none; }
+  #page-planning .fc-grid{ order:0; }
+  #page-planning .gl-foot{ order:1; margin-top:4px !important; }
+  #page-planning > .m-seg{ margin:0; }
+  .fc-grid > *{ grid-column:1 / span 2 !important; }
+  .fc-right{ display:contents; }
+  .fc-hero{ padding:20px; order:1; }
+  .fc-doc{ order:2; } .fc-over{ order:3; } .fc-comp{ order:4; } .fc-ind{ order:5; } .fc-mc{ order:6; } .fc-coach{ order:7; }
+  .fc-know, .fc-steps{ display:none; }
+  .fc-modes{ display:none; }
+  .fc-end{ font-size:40px; }
+  .fc-chart{ padding-left:0; margin-top:14px; }
+  .fc-yaxis, .fc-grid-lines{ display:none; }
+  .fc-plot{ height:150px; }
+  .fc-xaxis span:not(.fc-x-first):not(.fc-x-last){ display:none; }
+  .fc-legend{ display:none; }
+  .fc-controls{ margin-top:10px; padding-top:12px; }
+  .fc-insight{ font-size:13px; }
+  .fc-adj-open{ position:relative; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:12px; min-height:44px; border-radius:999px; border:1px solid rgba(232,214,168,0.4); background:transparent; color:#E8D6A8; font-family:inherit; font-size:14px; font-weight:500; cursor:pointer; }
+  .fc-adj-open svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+  .fc-adj{ display:none; }
+  .fc-adj.open{ display:flex; flex-direction:column; position:fixed; left:0; right:0; bottom:0; z-index:119; max-height:88vh; overflow-y:auto; overscroll-behavior:contain; margin:0; padding:20px 16px calc(20px + env(safe-area-inset-bottom)); border-radius:22px 22px 0 0; background:#0F1E36; border:0; border-top:1px solid rgba(232,214,168,0.28); box-shadow:0 -20px 50px rgba(11,23,41,0.3); }
+  .fc-scrim:not([hidden]){ display:block; position:fixed; inset:0; z-index:118; background:rgba(11,23,41,0.45); }
+  .fc-adj-sheet-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:14px; }
+  .fc-adj-sheet-head .hm-label{ color:#AAB6C8; }
+  .fc-adj-sheet-head .hm-h3{ color:#F7F4ED; }
+  .fc-adj-sheet-end{ font-size:28px; font-weight:300; letter-spacing:-0.03em; color:#E8D6A8; }
+  .fc-adj-state{ display:none; }
+  .fc-adj-head{ order:9; margin:14px 0 0; }
+  .fc-adj-head .fc-adj-btns{ display:grid; grid-template-columns:1fr 1fr; width:100%; }
+  .fc-done{ order:10; }
+  .fc-adj-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .fc-done{ display:flex; width:100%; margin-top:12px; background:#E8D6A8; color:#0F1E36; }
+  .fc-comp-key{ grid-template-columns:1fr; gap:8px; }
+  .fc-comp-key div{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .fc-comp-key b{ margin-top:0; font-size:17px; }
+  .fc-comp-key small{ display:none; }
+  .fc-mc-track{ display:none; }
+  .fc-mc-figs small{ display:none; }
+  .fc-pair{ gap:8px; }
+  .fc-box b{ font-size:22px; }
+}
 </style>
 </head>
 <body>
@@ -3514,219 +3652,184 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 
 <!-- ============================= PLANNING TOOLS ============================= -->
 <div id="page-planning" class="page">
-<header class="hero wrap k-greeting"><h1>Forecast</h1><div class="sub">Explore how today's choices shape where you end up.</div></header>
-<!-- Wealth Plan forecast card: filled by TEI.forecastView only when the client has a forecast document; empty otherwise. -->
-<div class="wrap" id="forecastPlanSlot"></div>
+<!-- Redesign B12.7 (spec B7, boards Forecast and ForecastMobile). Filled by
+     TEI.render.planning. Every figure on the page comes from one projection
+     (TEI.calc.projectSeries), including the range of outcomes. -->
+<div class="hm fc">
+  <header class="hm-head fc-head">
+    <div>
+      <p class="hm-date">Plan</p>
+      <h1 class="hm-title"><span class="hm-greet-d">Forecast</span><span class="hm-greet-m">Plan</span></h1>
+      <p class="hm-muted fc-sub">Where today's money and habits lead, if nothing changes.</p>
+    </div>
+  </header>
 
-<section class="wrap" style="padding-top:var(--space-lg);">
-  <div class="dgrid" style="align-items:start;">
-    <div class="span-12">
-      <div class="dcard emphasis">
-        <div class="k">Financial future overview</div>
-        <div class="k-stat-split" style="margin-top:10px;">
-          <div class="sp"><div class="k">FI year (expected)</div><div class="v sm gold" id="ffoFiYear">–</div></div>
-          <div class="divider"></div>
-          <div class="sp"><div class="k">Trajectory</div><div class="v sm up" id="ffoTrajectory">–</div></div>
-          <div class="divider"></div>
-          <div class="sp"><div class="k">Wealth at FI</div><div class="v sm" id="ffoProjectedWealth">–</div><div class="sub2" id="ffoProjectedTargetThen" style="margin-top:2px;"></div></div>
+  <div class="hm-grid fc-grid">
+
+    <section class="hm-tile hm-feat fc-hero" aria-labelledby="fcEnd">
+      <div class="hm-orbit hm-spin" aria-hidden="true"></div>
+      <div class="fc-hero-top">
+        <div class="fc-hero-text">
+          <p class="hm-label">Wealth projection</p>
+          <p class="fc-at" id="fcAt"></p>
+          <p class="fc-end" id="fcEnd" aria-live="polite"></p>
+          <p class="fc-gap"><span id="fcMoneyNote"></span> · <span class="fc-gold" id="fcGap"></span></p>
+          <p class="fc-dob" id="fcDobNote" hidden>Add your date of birth in Settings to see this by age.</p>
         </div>
-
-        <div style="height:1px; background:var(--k-emphasis-softer); opacity:0.25; margin:12px 0;"></div>
-
-        <div class="k" id="ffoFiNumberLabel">Progress to FI number</div>
-        <div class="k-bar" style="margin-top:7px;"><div class="fill" id="ffoProgressBar" style="width:0%;"></div></div>
-        <div class="sub2" id="ffoProgressSub" style="margin-top:5px;">–</div>
-
-        <div class="sub2" style="margin-top:10px;" id="ffoPassiveLine">–</div>
-
-        <div style="height:1px; background:var(--k-emphasis-softer); opacity:0.25; margin:12px 0;"></div>
-
-        <div class="k-dropdown-toggle" id="ffoAssumpToggle" role="button" tabindex="0" aria-expanded="false">
-          <span>What's behind this number <span class="k-tag">Estimate</span></span>
-          <svg class="k-dropdown-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6l6 -6"/></svg>
-        </div>
-        <div class="k-dropdown-body" id="ffoAssumpBody">
-          <div class="k-assump-row" style="margin-top:10px;">
-            <div class="a"><div class="sub2">Investment growth</div><b id="ffoAssumpGrowth" style="color:var(--k-up-ink);">–</b></div>
-            <div class="a"><div class="sub2">Inflation</div><b id="ffoAssumpInflation" style="color:var(--gold);">–</b></div>
-            <div class="a"><div class="sub2">Spending increase</div><b id="ffoAssumpSpending" style="color:var(--k-down-ink);">–</b></div>
-            <div class="a"><div class="sub2">Pay rises on contributions</div><b id="ffoAssumpPayRise" style="color:var(--k-up-ink);">–</b></div>
-          </div>
-          <div class="line" id="ffoAssumpExplainer" style="margin-top:10px;">–</div>
+        <div class="fc-seg fc-modes" role="group" aria-label="Chart view">
+          <button type="button" data-fc-mode="plan" aria-pressed="true">Your plan</button>
+          <button type="button" data-fc-mode="hyp" aria-pressed="false">What if</button>
+          <button type="button" data-fc-mode="order" aria-pressed="false">Order of returns</button>
         </div>
       </div>
+
+      <div class="fc-chart">
+        <div class="fc-yaxis" id="fcYAxis" aria-hidden="true"></div>
+        <div class="fc-plot" id="fcPlot">
+          <div class="fc-grid-lines" id="fcGridLines" aria-hidden="true"></div>
+          <svg id="fcSvg" viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label="Wealth projection"></svg>
+          <div id="fcMarks" aria-hidden="true"></div>
+        </div>
+        <div class="fc-xaxis" id="fcXAxis" aria-hidden="true"></div>
+      </div>
+      <div class="fc-legend" id="fcLegend"></div>
+
+      <div class="fc-controls">
+        <p class="fc-insight" id="fcInsight"></p>
+        <div class="fc-control-row">
+          <div class="fc-seg" role="group" aria-label="Growth rate">
+            <button type="button" class="mono" data-fc-rate="0.02" aria-pressed="false">2%</button>
+            <button type="button" class="mono" data-fc-rate="0.05" aria-pressed="true">5%</button>
+            <button type="button" class="mono" data-fc-rate="0.08" aria-pressed="false">8%</button>
+          </div>
+          <div class="fc-seg" role="group" aria-label="Money values">
+            <button type="button" data-fc-real="1" aria-pressed="true">Today's money</button>
+            <button type="button" data-fc-real="0" aria-pressed="false">Future money</button>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="fc-adj-open" id="fcAdjOpen" aria-controls="fcAdj" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span id="fcAdjOpenLabel">Adjust</span></button>
+
+      <!-- Adjust strip (B7.2): inside the hero on desktop, a bottom sheet on phones. -->
+      <div class="fc-scrim" id="fcAdjScrim" hidden></div>
+      <div class="fc-adj" id="fcAdj" role="group" aria-labelledby="fcAdjState">
+        <div class="fc-adj-sheet-head">
+          <div><p class="hm-label" id="fcAdjStateM"></p><h2 class="hm-h3">Adjust forecast</h2></div>
+          <span class="fc-adj-sheet-end" id="fcAdjEnd"></span>
+        </div>
+        <div class="fc-adj-head">
+          <p class="hm-label fc-adj-state" id="fcAdjState">Adjust · your figures</p>
+          <div class="fc-adj-btns">
+            <button type="button" class="hm-btn fc-btn-ghost" id="fcReset">Reset to my figures</button>
+            <button type="button" class="hm-btn fc-btn-champ" id="fcSave">Save as my plan</button>
+          </div>
+        </div>
+        <div class="fc-adj-grid">
+          <label class="fc-field">Monthly saving £<input type="number" inputmode="decimal" min="0" step="50" id="fcInPmt"></label>
+          <label class="fc-field">Starting pot £<input type="number" inputmode="decimal" min="0" step="1000" id="fcInP0"></label>
+          <label class="fc-field"><span id="fcInRetLabel">Retire at</span><input type="number" inputmode="numeric" min="55" max="68" step="1" id="fcInRet"></label>
+          <label class="fc-field">Yearly spending £<input type="number" inputmode="decimal" min="5000" step="1000" id="fcInYs"></label>
+          <label class="fc-field">Saving rises a year %<input type="number" inputmode="decimal" min="0" max="10" step="0.5" id="fcInRise"></label>
+        </div>
+        <div class="fc-oo">
+          <p class="fc-oo-note">One-off money in or out, such as a house deposit or an inheritance</p>
+          <label class="fc-field fc-oo-age"><span id="fcOoAgeLabel">At age</span><input type="number" inputmode="numeric" step="1" id="fcOoAge"></label>
+          <label class="fc-field fc-oo-amt">Amount £<input type="number" inputmode="decimal" min="0" step="1000" id="fcOoAmt"></label>
+          <div class="fc-seg" role="group" aria-label="Money in or out">
+            <button type="button" data-fc-dir="in" aria-pressed="true">Money in</button>
+            <button type="button" data-fc-dir="out" aria-pressed="false">Money out</button>
+          </div>
+          <button type="button" class="fc-oo-add" id="fcOoAdd">Add a one-off</button>
+          <div class="fc-oo-list" id="fcOoList"></div>
+        </div>
+        <p class="fc-adj-foot">Changes here are a what-if. Save as my plan keeps your retirement age and yearly spending in Plan settings.</p>
+        <button type="button" class="hm-btn hm-btn-primary fc-done" id="fcDone">Done</button>
+      </div>
+    </section>
+
+    <div class="fc-right">
+      <section class="hm-tile fc-over" aria-labelledby="fcOverK">
+        <div class="hm-row"><p class="hm-label" id="fcOverK">Financial future overview</p><span class="fc-chip" id="fcStatus"></span></div>
+        <div class="fc-pair">
+          <div class="fc-box"><p>FI number</p><b id="fcFiNum"></b><small id="fcFiHow"></small></div>
+          <div class="fc-box fc-box-champ"><p>Projected FI</p><b id="fcFiAge"></b><small class="fc-gold-t" id="fcFiWhen"></small></div>
+        </div>
+        <div>
+          <label for="fcRetRange" class="fc-ret-l"><span id="fcRetRangeLabel">Planned retirement age</span><strong id="fcRetVal"></strong></label>
+          <input id="fcRetRange" class="gl-range" type="range" min="55" max="68" step="1">
+          <div class="gl-ends" aria-hidden="true"><span id="fcRetMin">55</span><span id="fcRetMax">68</span></div>
+        </div>
+        <p class="hm-muted hm-small" id="fcStatusNote"></p>
+      </section>
+
+      <section class="hm-tile hm-champ fc-doc" aria-labelledby="fcDocTitle">
+        <div class="fc-doc-top">
+          <span class="fc-doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 17l3-3 2 2 3-4"/></svg></span>
+          <div><p class="hm-label hm-gold">Built with your coach</p><h2 class="fc-doc-title" id="fcDocTitle">Your coach's forecast</h2></div>
+        </div>
+        <p class="hm-muted hm-small fc-doc-text">Your personal plan, built in session around your own goals and settings. This page updates live from your Wealth OS figures; your coach's forecast is the detailed version.</p>
+        <div class="fc-doc-foot"><span class="mono fc-doc-date" id="fcDocDate">Your coach adds this after your plan session.</span><button type="button" class="hm-btn hm-btn-primary" id="fcDocOpen" hidden>Open forecast</button></div>
+      </section>
     </div>
+
+    <section class="hm-tile fc-comp" aria-labelledby="fcCompTitle">
+      <div><p class="hm-label" id="fcCompK"></p><h2 class="hm-h3" id="fcCompTitle">Today's habits do most of the work</h2></div>
+      <div class="fc-comp-bar" id="fcCompBar" role="img"></div>
+      <div class="fc-comp-key" id="fcCompKey"></div>
+      <div class="fc-plus"><b id="fcPlus100"></b><span id="fcPlusText"></span></div>
+    </section>
+
+    <section class="hm-tile hm-powder fc-ind" aria-labelledby="fcIndTitle">
+      <div><p class="hm-label">Independence</p><h2 class="hm-h3" id="fcIndTitle">How close you are today</h2></div>
+      <div>
+        <div class="hm-row fc-ind-row"><span>Financial independence</span><span class="mono" id="fcFiPct"></span></div>
+        <div class="hm-bar hm-bar-lg"><span class="hm-grow" id="fcFiBar"></span></div>
+        <p class="hm-muted hm-small hm-mt" id="fcFiNote"></p>
+      </div>
+      <div>
+        <div class="hm-row fc-ind-row"><span id="fcCoastLabel"></span><span class="mono" id="fcCoastPct"></span></div>
+        <div class="hm-bar hm-bar-lg"><span class="hm-grow hm-fill-gold" id="fcCoastBar"></span></div>
+        <p class="hm-muted hm-small hm-mt" id="fcCoastNote"></p>
+      </div>
+    </section>
+
+    <section class="hm-tile fc-mc" aria-labelledby="fcMcHead">
+      <div class="fc-mc-top">
+        <div><p class="hm-label">Range of outcomes</p><h2 class="hm-h3" id="fcMcHead"></h2></div>
+        <div class="fc-dots" id="fcMcDots" aria-hidden="true"></div>
+      </div>
+      <div class="fc-mc-track" id="fcMcTrack" aria-hidden="true"></div>
+      <div class="fc-mc-figs">
+        <div><p>Tough markets</p><b id="fcP10"></b><small class="mono">1 in 10 paths do worse</small></div>
+        <div><p>Middle path</p><b id="fcP50"></b><small class="mono">Half above, half below</small></div>
+        <div><p>Strong markets</p><b id="fcP90"></b><small class="mono">1 in 10 paths do better</small></div>
+      </div>
+      <p class="hm-note" id="fcMcNote"></p>
+    </section>
+
+    <section class="hm-tile fc-know" aria-labelledby="fcKnowTitle">
+      <p class="hm-label">Things to know</p>
+      <h2 class="hm-h3" id="fcKnowTitle">What this is built on</h2>
+      <ul class="fc-know-list" id="fcKnow"></ul>
+    </section>
+
+    <section class="hm-tile fc-steps" aria-labelledby="fcStepsTitle">
+      <p class="hm-label">Next steps</p>
+      <h2 class="hm-h3" id="fcStepsTitle">What would move your forecast</h2>
+      <ol class="fc-steps-list" id="fcSteps"></ol>
+    </section>
+
+    <section class="hm-tile hm-feat fc-coach">
+      <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
+      <p class="hm-label">Coach's corner</p>
+      <p class="gl-coach-msg" id="fcMessage"></p>
+      <a href="/book" class="hm-btn gl-coach-btn">Discuss next session</a>
+    </section>
+
   </div>
-
-  <div class="dgrid" style="margin-top:12px;">
-    <div class="span-6">
-      <div class="dcard advisory" id="fcCard" style="height:100%;">
-        <div class="k">Forecast coach's corner</div>
-        <div class="line" id="fcMessage">–</div>
-        <a href="#" class="btn-primary cc-action" id="fcActionBtn" style="display:none; align-self:flex-start; margin-top:10px;">–</a>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard" id="fcKnowCard" style="height:100%;">
-        <div class="k">Things to know right now</div>
-        <ul class="k-simple-list" id="thingsToKnowList" style="margin-top:10px;"></ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label strong">Explore</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard" id="wpCard">
-        <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px;">
-          <div>
-            <div class="k" style="font-size:16px; text-transform:none; letter-spacing:0; font-family:var(--font-display); font-weight:600; color:var(--k-ink);">Wealth projection</div>
-            <div class="sub2">Your real numbers, a free-form sandbox, and how the order of returns changes everything.</div>
-          </div>
-          <div class="k-pill-toggle" id="wpToggle">
-            <button type="button" data-wp-view="plan" class="active">Your plan</button>
-            <button type="button" data-wp-view="hypothetical">Hypothetical</button>
-            <button type="button" data-wp-view="sequence">Order of returns</button>
-            <button type="button" data-wp-view="decision">Decision impact</button>
-          </div>
-        </div>
-
-        <div id="wpPlan">
-          <div class="k-form-grid">
-            <label class="k-form-field"><span>Extra monthly contribution £</span><input type="number" id="scContrib" value="0" step="10"></label>
-            <label class="k-form-field"><span>Change in monthly spending £</span><input type="number" id="scSpend" value="0" step="10"></label>
-            <label class="k-form-field"><span>Extra monthly income £</span><input type="number" id="scIncome" value="0" step="10"></label>
-          </div>
-          <div class="form-actions" style="margin:12px 0 0;">
-            <button type="button" class="btn-ghost on-light" id="scCoastBtn">Try: stop contributing</button>
-            <button type="button" class="btn-ghost on-light" id="scResetBtn">Reset</button>
-          </div>
-          <div class="k-mc-toggles" id="wpMcToggles">
-            <div class="k-mc-toggle k-mc-static"><span class="sw sw-dash" id="swActual"></span>Actual, today's plan</div>
-            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="conservative"><span class="sw" id="swConservative"></span>Lower-return (5%)</label>
-            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="base" checked><span class="sw" id="swBase"></span>Expected (8%)</label>
-            <label class="k-mc-toggle"><input type="checkbox" data-mc-toggle="optimistic"><span class="sw" id="swOptimistic"></span>Strong-return (15%)</label>
-          </div>
-          <div class="k-chart-box" id="wpPlanChartBox" style="height:260px;"><canvas id="chartWealthPlan"></canvas></div>
-          <div class="k-rowstats">
-            <div class="rs">Pot needed, today's plan<b id="scBeforeStat">–</b></div>
-            <div class="rs">Pot needed, with this scenario<b class="gold" id="scAfterStat">–</b></div>
-          </div>
-          <div class="sub2" style="margin-top:4px;">These figures are the pot you'd need to sustain that level of spending forever, and the date you'd reach it — not how much wealth you'd have. A bigger number can mean a bigger commitment, not a better outcome.</div>
-          <div class="k-insight-note" id="scInterpretation"></div>
-
-          <div class="k-future-scenario">
-            <div class="k">Future scenario planning <span class="k-badge-soon">Coming soon</span></div>
-            <div class="line">Explore how career choices, retirement timing and major life events could influence your financial future.</div>
-            <div class="k-locked-row">
-              <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Retirement age scenarios</div>
-              <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Career progression</div>
-              <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Life event modelling</div>
-              <a href="#" class="lritem" id="lrDecisionImpact" style="text-decoration:none; cursor:pointer;">Major financial decisions &rarr;</a>
-            </div>
-          </div>
-        </div>
-
-        <div id="wpHypothetical" style="display:none;">
-          <div class="line" style="margin-top:12px;">A free-form sandbox — not tied to your real numbers. Useful for teaching the concept with round figures.</div>
-          <div class="k-form-grid cols-4">
-            <label class="k-form-field"><span>Starting amount £</span><input type="number" id="cgStart" value="10000"></label>
-            <label class="k-form-field"><span>Monthly contribution £</span><input type="number" id="cgMonthly" value="300"></label>
-            <label class="k-form-field"><span>Annual return %</span><input type="number" id="cgRate" value="8" step="0.1"></label>
-            <label class="k-form-field"><span>Years</span><input type="number" id="cgYears" value="20"></label>
-          </div>
-          <div class="k-chart-box" style="height:260px;"><canvas id="chartHypothetical"></canvas></div>
-          <div class="k-rowstats" id="cgStats"></div>
-          <div class="k-insight-note" id="cgInsight"></div>
-        </div>
-
-        <div id="wpSequence" style="display:none;">
-          <div class="line" style="margin-top:12px;">Same starting portfolio, same contributions, same average return — only the order changes. Uses your real numbers.</div>
-          <div class="k-chart-box" style="height:260px;"><canvas id="chartSequence"></canvas></div>
-          <div class="k-rowstats" id="sorStats"></div>
-          <div class="k-insight-note" id="sorContext"></div>
-        </div>
-
-        <div id="wpDecision" style="display:none;">
-          <div class="line" style="margin-top:12px;">Model a one-off lump-sum withdrawal or deposit against your real portfolio and see how it plays out.</div>
-
-          <div class="k-pill-toggle" id="diModeToggle" style="margin-top:10px;">
-            <button type="button" data-di-mode="withdrawal" class="active">One-off withdrawal</button>
-            <button type="button" data-di-mode="deposit">One-off deposit</button>
-          </div>
-
-          <div class="k-form-grid cols-4">
-            <label class="k-form-field"><span id="diAmountLabel">Withdrawal amount £</span><input type="number" id="diAmount" value="5000" step="100"></label>
-            <label class="k-form-field"><span>Growth rate %</span><input type="number" id="diRate" value="8" step="0.1"></label>
-            <label class="k-form-field">
-              <span>Account</span>
-              <select id="diAccountScope"><option value="">All accounts</option></select>
-            </label>
-          </div>
-
-          <div class="k-chart-box" style="height:260px; margin-top:14px;"><canvas id="chartDecisionImpact"></canvas></div>
-
-          <div class="k-rowstats" id="diRecoveryRow">
-            <div class="rs">Recovery time<b class="down" id="diRecoveryStat">–</b></div>
-          </div>
-
-          <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-            <div class="k-boxed-stat">
-              <div class="rs" style="font-size:10.5px;">Balance today</div>
-              <b id="diStatToday" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
-            </div>
-            <div class="k-boxed-stat">
-              <div class="rs" style="font-size:10.5px;">After the change</div>
-              <b id="diStatAfter" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
-            </div>
-            <div class="k-boxed-stat">
-              <div class="rs" style="font-size:10.5px;" id="diStatWithoutLabel">Without this change</div>
-              <b class="gold" id="diStatWithout" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
-            </div>
-            <div class="k-boxed-stat">
-              <div class="rs" style="font-size:10.5px;" id="diStatWithLabel">With this change</div>
-              <b class="up" id="diStatWith" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
-            </div>
-          </div>
-
-          <div style="display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap;">
-            <span class="sub2" style="margin:0;">Horizon:</span>
-            <div class="k-pill-toggle" id="diHorizonToggle">
-              <button type="button" data-di-horizon="5">5y</button>
-              <button type="button" data-di-horizon="10" class="active">10y</button>
-              <button type="button" data-di-horizon="20">20y</button>
-            </div>
-          </div>
-
-          <div class="k-insight-note" id="diInterpretation"></div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap" style="padding-bottom:var(--space-2xl);">
-  <div class="k-section-label strong">Bringing it together</div>
-  <div class="dgrid">
-    <div class="span-6">
-      <div class="dcard advisory next-steps" style="height:100%;">
-        <div class="k">Your next best steps</div>
-        <ul class="k-simple-list clickable" id="nextStepsList"></ul>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard advisory learning-hub" style="height:100%;">
-        <div class="k">Learning hub</div>
-        <ul class="k-simple-list clickable" id="learningHubList"></ul>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- Short risk warning beneath the forecast, filled by hub-boundary.js. order: last on mobile, where this page reorders its cards. -->
-<div class="wrap" data-tei-risk-warning="inherit" style="order:99;"></div>
+  <p class="hm-note gl-foot">Projections are illustrative and for education only. Returns are not guaranteed and investments can fall as well as rise. TEI provides financial coaching and education, not regulated financial advice.</p>
+</div>
 </div>
 <!-- ============================= CASHFLOW ============================= -->
 <div id="page-cashflow" class="page">
@@ -5734,7 +5837,11 @@ window.TEI = window.TEI || {};
     const committedSaving = actualTotalSavingInvesting(client);
     const savings = income - totalSpend - committedSaving;
     const annualSpend = totalSpend*12;
-    const fiTarget = prefs.fiOverride != null ? prefs.fiOverride : annualSpend*(prefs.fiMultiple||25);
+    /* The FI number is the multiple of yearly spending in independence:
+       the client's own Plan settings figure once saved (Forecast's Save as
+       my plan, B7.2 / B9.4), otherwise today's spending from Cashflow. */
+    const fiSpend = prefs.yearlySpending != null ? Number(prefs.yearlySpending) : annualSpend;
+    const fiTarget = prefs.fiOverride != null ? prefs.fiOverride : fiSpend*(prefs.fiMultiple||25);
     return {totalSpend, savings, committedSaving, annualSpend, fiTarget, mult, oneOffTotal, pensionPersonalTotal, income};
   }
 
@@ -6811,14 +6918,30 @@ window.TEI = window.TEI || {};
     lookupTickerInfo, SECTOR_OPTIONS,
     DIVIDEND_FREQUENCY_OPTIONS, dividendPeriodsPerYear, dividendFrequencyLabel
   };
-  /* ---------- Projection (spec B11) ----------
+  /* ---------- Projection (spec B11, B7) ----------
      The one compounding formula, shared by Forecast and Goals. Steps a
      starting value forward `steps` periods at `rate` a period, adding
-     `delta` each period. Forecast steps in years; Goals steps in months. */
-  function projectSeries(startValue, delta, rate, steps){
+     `delta` each period. Goals and Forecast step in months.
+     opts (Forecast, B7.2), all optional:
+       rise      -- yearly rise in `delta`: delta x (1 + rise)^(whole years)
+       perYear   -- periods in a year for `rise` (default 12)
+       oneOffs   -- {period: amount}, added after that period's growth; the
+                    value never goes below 0
+       shocks    -- {period: factor}, e.g. 0.75 for a 25% fall
+       rateAt    -- function(period) returning that period's rate, in place
+                    of `rate` (the range of outcomes uses this) */
+  function projectSeries(startValue, delta, rate, steps, opts){
+    const o = opts || {};
+    const perYear = o.perYear || 12;
     const series = [startValue];
+    let v = startValue;
     for(let i=1; i<=steps; i++){
-      series.push(series[i-1]*(1+rate) + delta);
+      const r = o.rateAt ? o.rateAt(i) : rate;
+      const add = o.rise ? delta * Math.pow(1 + o.rise, Math.floor((i-1)/perYear)) : delta;
+      v = v*(1+r) + add;
+      if(o.oneOffs && o.oneOffs[i]) v = Math.max(0, v + o.oneOffs[i]);
+      if(o.shocks && o.shocks[i]) v *= o.shocks[i];
+      series.push(v);
     }
     return series;
   }
@@ -7261,10 +7384,11 @@ TEI.render = TEI.render || {};
 
   /* ---------------- Wealth forecast: actual vs plan ----------------
      Accounts only, as on Forecast. Actual = each logged month. Plan = the
-     first logged total growing at Forecast's expected rate plus the current
-     monthly contributions, with accounts added to tracking later counted in
-     the month they arrived (they are not growth). Runs 12 months ahead.
-     Saving a plan of your own in Forecast (B12.7) will replace this line. */
+     first logged total growing at Forecast's middle growth rate (5%) plus
+     the current monthly contributions, with accounts added to tracking later
+     counted in the month they arrived (they are not growth). Runs 12 months
+     ahead. Forecast's Save as my plan keeps only retirement age and yearly
+     spending (B7.2), so it does not change this line. */
   function renderForecast(client){
     const svg = document.getElementById('whForecast');
     const axis = document.getElementById('whForecastAxis');
@@ -7277,7 +7401,7 @@ TEI.render = TEI.render || {};
       axis.innerHTML = ''; note.textContent = '';
       return;
     }
-    const rate = TEI.calc.EXPECTED_RATE || 0.08;
+    const rate = TEI.calc.EXPECTED_RATE || 0.05;
     const r = Math.pow(1+rate, 1/12) - 1;
     const contrib = TEI.calc.totalMonthlyContribution(client);
     const joined = TEI.calc.joinedByMonth(client, months);
@@ -11383,691 +11507,523 @@ window.TEI = window.TEI || {};
 TEI.render = TEI.render || {};
 
 (function(){
+  /* Forecast (redesign B12.7, spec B7, boards Forecast and ForecastMobile).
+     One model: the chart, the headline, every tile and the range of
+     outcomes all run TEI.calc.projectSeries month by month, with the same
+     saving, yearly rise and one-offs (B7 "One model only").
+     Locked assumptions, set by the coach and shown, not editable: growth
+     2/5/8% a year, inflation 2.5% a year, FI number = 25 x yearly spending
+     (fiMultiple / fiOverride respected). What-ifs live in `st` for the
+     session only; Save as my plan writes retirement age and yearly
+     spending to Plan settings, nothing else. */
   const {fmtGBP} = TEI.data;
-  const EXPECTED_RATE = 0.08;
-  TEI.calc.EXPECTED_RATE = EXPECTED_RATE; // Home's actual-vs-plan line uses the same expected case
-  const INFLATION_RATE = 0.03;         // general cost-of-living growth applied to the FI target
-  const SPENDING_INCREASE_RATE = 0.035; // lifestyle creep on top of inflation -- spending tends to rise faster than prices alone
-  const PAY_RISE_RATE = 0.035;         // assumed annual growth in contributions, modelling typical pay rises
-  const SUSTAINABLE_SPEND_RATIO = 0.70; // once modelled spend reaches this share of modelled income, lifestyle creep is assumed to stop (see taper note below)
+  const EXPECTED_RATE = 0.05;           // the middle growth option (B7.1)
+  TEI.calc.EXPECTED_RATE = EXPECTED_RATE; // Home's actual-vs-plan line uses the same middle case
+  const RATES = [0.02, 0.05, 0.08];
+  const INFLATION = 0.025;
+  const DEFAULT_RETIRE_AGE = 60;        // TODO(B12.9): confirm the default before Plan settings exist
+  const DEFAULT_YEARS = 25;             // horizon when there is no date of birth
+  const MC_PATHS = 500, MC_SPREAD = 0.13, MC_SEED = 0x2F6B1D;
+  const LONG_MONTHS = 600;
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const $ = id => document.getElementById(id);
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function setText(id, t){ const el = $(id); if(el) el.textContent = t; }
+  function k(n){
+    const a = Math.abs(n), sign = n < 0 ? '-' : '';
+    if(a >= 1e6) return sign + '£' + (a/1e6).toFixed(2) + 'm';
+    if(a >= 1000) return sign + '£' + Math.round(a/1000) + 'k';
+    return sign + '£' + Math.round(a);
+  }
+  function round1000(n){ return Math.round(n/1000)*1000; }
+  function monthLabel(offset){ const n = new Date(); const d = new Date(n.getFullYear(), n.getMonth()+offset, 1); return MON[d.getMonth()] + ' ' + d.getFullYear(); }
 
-  /* ---------- shared helpers ----------
-     yearsToFI models the target and the contribution as moving, not fixed:
-     the FI target grows each year by inflation AND a separate lifestyle-
-     creep (spending increase) assumption compounded on top, while the
-     contribution grows each year with an assumed pay rise. Deliberately
-     biased toward caution -- if the assumptions are wrong, better that they
-     were too bleak than too generous. Returns an object rather than a bare
-     number so callers can also show the nominal pound figures reached.
-
-     Lifestyle-creep taper: spending increase (3.5%/yr real) compounds faster
-     than income (pay rise, also 3.5%/yr, but nominal -- so barely above
-     inflation in real terms). Left unchecked for decades, modelled spend
-     eventually eats modelled income entirely, which is not a realistic
-     lifestyle path and makes the target run away rather than get caught.
-     So once modelled annual spend reaches SUSTAINABLE_SPEND_RATIO of
-     modelled annual income, spending increase is assumed to stop (the
-     target and spend keep growing with inflation only) from that year on.
-     Requires real income and spend figures (annualIncome/annualSpend) --
-     without a known income the taper can't be evaluated, so it's skipped
-     and the target keeps compounding at the full rate (unchanged, existing
-     behaviour) rather than guessed at. */
-  function yearsToFI(fiTarget, current, annualContribution, rate, inflationRate, spendingIncreaseRate, payRiseRate, annualIncome, annualSpend){
-    inflationRate = inflationRate || 0;
-    spendingIncreaseRate = spendingIncreaseRate || 0;
-    payRiseRate = payRiseRate || 0;
-    if(!fiTarget || fiTarget<=0) return {yrs:null, nominalValue:null, nominalTarget:null, taperYear:null};
-    let value = current, target = fiTarget, contribution = annualContribution, yrs = 0;
-    let spend = annualSpend||0, income = annualIncome||0;
-    const canTaper = income>0 && spend>0;
-    let spendingRate = spendingIncreaseRate, tapered = false, taperYear = null;
-    while(value < target && yrs < 60){
-      if(canTaper && !tapered && (spend/income) >= SUSTAINABLE_SPEND_RATIO){
-        tapered = true;
-        taperYear = yrs;
-        spendingRate = 0;
-      }
-      value = value*(1+rate) + contribution;
-      target = target*(1+inflationRate)*(1+spendingRate);
-      spend = spend*(1+inflationRate)*(1+spendingRate);
-      income = income*(1+payRiseRate);
-      contribution = contribution*(1+payRiseRate);
-      yrs++;
-    }
-    const reached = !(yrs>=60 && value<target);
+  /* ---------- the client's own figures (Adjust defaults) ---------- */
+  function ageNow(client){
+    const dob = (client.personal||{}).dob;
+    if(!dob) return null;
+    const d = new Date(dob), n = new Date();
+    if(isNaN(d)) return null;
+    let a = n.getFullYear() - d.getFullYear();
+    if(n.getMonth() < d.getMonth() || (n.getMonth() === d.getMonth() && n.getDate() < d.getDate())) a--;
+    return a >= 0 && a < 110 ? a : null;
+  }
+  function myFigures(client){
+    const prefs = client.preferences || {};
+    const age = ageNow(client);
+    const budget = TEI.calc.computeBudgetAndFI(client);
+    let ret = prefs.retirementAge != null ? Number(prefs.retirementAge) : DEFAULT_RETIRE_AGE;
+    if(age != null) ret = Math.max(ret, age + 1);
     return {
-      yrs: reached ? yrs : null,
-      nominalValue: reached ? value : null,
-      nominalTarget: reached ? target : null,
-      taperYear: reached ? taperYear : null
+      pmt: Math.round(TEI.calc.actualTotalSavingInvesting(client)),
+      p0: Math.round(TEI.calc.latestNetWorth(client)),
+      ret,
+      years: DEFAULT_YEARS,
+      ys: prefs.yearlySpending != null ? Number(prefs.yearlySpending) : round1000(budget.annualSpend || 0),
+      rise: 0
     };
   }
-  function trajectoryLabel(yrs, hasBudget){
-    if(yrs==null) return hasBudget ? 'Target outpacing growth' : 'Set your budget';
-    if(yrs<=15) return 'On track';
-    if(yrs<=35) return 'Progressing well';
-    return 'Needs attention';
+
+  /* What-if state: session only (B7.2 Persistence). */
+  let st = null;
+  function freshState(client){
+    const f = myFigures(client);
+    return {clientId: client.meta.clientId, base: f, pmt: f.pmt, p0: f.p0, ret: f.ret, years: f.years, ys: f.ys, rise: f.rise,
+      oneOffs: [], g: EXPECTED_RATE, real: true, mode: 'plan', saved: false,
+      ooAge: null, ooAmt: 20000, ooOut: false};
   }
-  function dividendAnnualIncome(client){
-    return (client.dividendHoldings||[]).reduce((s,h)=> s + (Number(h.amount)||0)*(Number(h.yield)||0)/100, 0);
-  }
-
-  /* ---------- Financial future overview (FI Dashboard merged in — Section 9) ----------
-     Pension money is included by default, but if the resulting FI date falls
-     before the client can actually access their pension (normal minimum
-     pension age, 57 by default), it is stripped out of both the current
-     total and the ongoing contribution and the projection is re-run on
-     accessible money only. Without a known date of birth the safer, bleaker
-     assumption is to exclude pension money rather than assume it counts. */
-  function renderOverview(client){
-    const budgetFi = TEI.calc.computeBudgetAndFI(client);
-    const thisYear = new Date().getFullYear();
-    const accessAge = TEI.calc.pensionAccessAge(client);
-
-    const annualIncome = budgetFi.income*12;
-
-    const fullTotal = TEI.calc.latestNetWorth(client);
-    const fullContribution = TEI.calc.totalMonthlyContribution(client)*12;
-    const fiFull = yearsToFI(budgetFi.fiTarget, fullTotal, fullContribution, EXPECTED_RATE, INFLATION_RATE, SPENDING_INCREASE_RATE, PAY_RISE_RATE, annualIncome, budgetFi.annualSpend);
-    const ageAtFull = fiFull.yrs!=null ? TEI.calc.ageInYear(client, thisYear+fiFull.yrs) : null;
-    const pensionAccessible = ageAtFull!=null && ageAtFull>=accessAge;
-
-    let fi = fiFull, latestTotal = fullTotal, annualContribution = fullContribution, excludedPension = false;
-    if(!pensionAccessible && fiFull.yrs!=null){
-      latestTotal = TEI.calc.latestNonPensionNetWorth(client);
-      annualContribution = TEI.calc.nonPensionMonthlyContribution(client)*12;
-      fi = yearsToFI(budgetFi.fiTarget, latestTotal, annualContribution, EXPECTED_RATE, INFLATION_RATE, SPENDING_INCREASE_RATE, PAY_RISE_RATE, annualIncome, budgetFi.annualSpend);
-      excludedPension = true;
-    }
-    const yrs = fi.yrs;
-
-    document.getElementById('ffoFiYear').textContent = yrs!=null ? String(thisYear+yrs) : '—';
-    const trajEl = document.getElementById('ffoTrajectory');
-    const traj = trajectoryLabel(yrs, budgetFi.fiTarget>0);
-    trajEl.textContent = traj;
-    trajEl.className = 'v sm ' + (traj==='On track' || traj==='Progressing well' ? 'up' : '');
-    document.getElementById('ffoProjectedWealth').textContent = fi.nominalValue!=null ? fmtGBP(fi.nominalValue) : '—';
-    document.getElementById('ffoProjectedTargetThen').textContent = fi.nominalTarget!=null
-      ? `Target then: ${fmtGBP(fi.nominalTarget)}`
-      : '';
-
-    document.getElementById('ffoFiNumberLabel').textContent = budgetFi.fiTarget>0 ? `Progress to ${fmtGBP(budgetFi.fiTarget)} FI number (today's terms)` : 'Progress to FI number';
-    const pct = budgetFi.fiTarget>0 ? Math.min(100, latestTotal/budgetFi.fiTarget*100) : 0;
-    document.getElementById('ffoProgressBar').style.width = pct+'%';
-    document.getElementById('ffoProgressSub').textContent = budgetFi.fiTarget>0
-      ? `${fmtGBP(latestTotal)} so far${excludedPension ? ' (excluding pension)' : ''} · ${pct.toFixed(0)}% of the way there`
-      : 'Set a budget in Cashflow to see progress';
-
-    document.getElementById('ffoAssumpGrowth').textContent = (EXPECTED_RATE*100).toFixed(0)+'%/yr';
-    document.getElementById('ffoAssumpInflation').textContent = (INFLATION_RATE*100).toFixed(1).replace('.0','')+'%/yr';
-    document.getElementById('ffoAssumpSpending').textContent = (SPENDING_INCREASE_RATE*100).toFixed(1).replace('.0','')+'%/yr';
-    document.getElementById('ffoAssumpPayRise').textContent = (PAY_RISE_RATE*100).toFixed(1).replace('.0','')+'%/yr';
-    /* Trimmed to ~1 sentence per case (2026-09 refinement) -- the full
-       reasoning previously lived here; caveats that change the actual
-       number (pension excluded, spending growth capped) stay, just shorter,
-       since those are decision-relevant, not just explanatory colour. */
-    const pensionNote = excludedPension
-      ? ` (pension excluded -- not accessible until age ${accessAge})`
-      : '';
-    const taperNote = fi.taperYear!=null
-      ? ` Spending growth is capped to inflation from ~${thisYear+fi.taperYear} to stay sustainable.`
-      : '';
-    let explainerText;
-    if(yrs!=null){
-      explainerText = `Single expected-case estimate at ${(EXPECTED_RATE*100).toFixed(0)}%/yr average growth, with your target and contributions both adjusted for inflation and pay rises over time${pensionNote}.${taperNote}`;
-    } else if(budgetFi.fiTarget>0){
-      const combinedTargetGrowth = ((1+INFLATION_RATE)*(1+SPENDING_INCREASE_RATE)-1)*100;
-      explainerText = `Your target is growing almost as fast as your investments (~${combinedTargetGrowth.toFixed(1)}%/yr vs ${(EXPECTED_RATE*100).toFixed(0)}%/yr) -- contributions likely need to rise, not that FI is out of reach.`;
-    } else {
-      explainerText = 'Set a budget in Cashflow to see this — it accounts for rising costs, rising contributions and average investment growth.';
-    }
-    document.getElementById('ffoAssumpExplainer').textContent = explainerText;
-
-    const passiveNow = dividendAnnualIncome(client)/12;
-    const passiveTarget = budgetFi.annualSpend>0 ? budgetFi.annualSpend/12 : null;
-    document.getElementById('ffoPassiveLine').innerHTML = passiveTarget!=null
-      ? `Passive income: <b style="color:var(--k-emphasis-ink); font-family:var(--font-display);">${fmtGBP(passiveNow)}/mo</b> now &rarr; <b style="color:var(--k-emphasis-ink); font-family:var(--font-display);">${fmtGBP(passiveTarget)}/mo</b> target`
-      : `Passive income: <b style="color:var(--k-emphasis-ink); font-family:var(--font-display);">${fmtGBP(passiveNow)}/mo</b> now`;
-
-    wireFfoAssumpToggle();
+  function changed(){
+    const b = st.base;
+    return st.pmt !== b.pmt || st.p0 !== b.p0 || st.ret !== b.ret || st.years !== b.years || st.ys !== b.ys || st.rise !== b.rise || st.oneOffs.length > 0;
   }
 
-  /* Collapsed by default, all breakpoints -- see .k-dropdown-toggle. Wired
-     once (dataset.wired guard); renderOverview re-renders the fields inside
-     on every call but never recreates the toggle/body elements themselves. */
-  function wireFfoAssumpToggle(){
-    const toggle = document.getElementById('ffoAssumpToggle');
-    const body = document.getElementById('ffoAssumpBody');
-    if(!toggle || !body || toggle.dataset.wired) return;
-    toggle.dataset.wired = '1';
-    const open = ()=>{
-      const isOpen = body.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    };
-    toggle.addEventListener('click', open);
-    toggle.addEventListener('keydown', (e)=>{
-      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); open(); }
+  /* ---------- the model ---------- */
+  function model(client){
+    const age = ageNow(client);
+    const prefs = client.preferences || {};
+    const years = age != null ? Math.max(1, st.ret - age) : Math.max(1, st.years);
+    const N = years * 12;
+    const mult = prefs.fiMultiple || 25;
+    const FI = prefs.fiOverride != null ? Number(prefs.fiOverride) : st.ys * mult;
+    const OO = {};
+    st.oneOffs.forEach(o=>{
+      const m = (age != null ? (o.at - age) : o.at) * 12;
+      if(m > 0 && m <= LONG_MONTHS) OO[m] = (OO[m]||0) + o.amt;
     });
+    const rise = st.rise / 100;
+    const run = (rate, pmt, months, extra) => TEI.calc.projectSeries(st.p0, pmt, rate/12, months, Object.assign({rise, oneOffs: OO}, extra||{}));
+    const dfl = m => st.real ? Math.pow(1+INFLATION, m/12) : 1;
+    const fiAt = m => st.real ? FI : FI * Math.pow(1+INFLATION, m/12);
+    const dv = a => a.map((v,m)=> v / dfl(m));
+    const midN = run(st.g, st.pmt, N);
+    const mid = dv(midN);
+    const long = run(st.g, st.pmt, LONG_MONTHS);
+    let fiM = -1;
+    if(FI > 0) for(let m=0; m<=LONG_MONTHS; m++){ if(long[m] / dfl(m) >= fiAt(m)){ fiM = m; break; } }
+    return {age, years, N, FI, mult, OO, rise, run, dfl, fiAt, dv, midN, mid, fiM, override: prefs.fiOverride != null};
+  }
+  // The label for a point `y` years from today: an age, or a year count.
+  function atLabel(M, y){ return M.age != null ? String(M.age + y) : 'year ' + y; }
+  function horizonLabel(M){ return M.age != null ? 'At ' + (M.age + M.years) : 'In ' + M.years + ' years'; }
+  function byLabel(M){ return M.age != null ? 'by ' + (M.age + M.years) : 'in ' + M.years + ' years'; }
+
+  /* ---------- hero chart ---------- */
+  function renderHero(client, M){
+    const gold = '#E8D6A8', pale = '#9DB4D8', grey = '#AAB6C8';
+    const N = M.N;
+    let S, lo = null, hi = null;
+    if(st.mode === 'hyp'){
+      S = [{a: M.mid, col: gold, dash: '', style: 'solid', label: 'Keep saving ' + fmtGBP(st.pmt) + ' a month'},
+           {a: M.dv(M.run(st.g, st.pmt + 200, N)), col: pale, dash: '', style: 'solid', label: 'Save ' + fmtGBP(st.pmt + 200) + ' a month'},
+           {a: M.dv(M.run(st.g, 0, N)), col: grey, dash: '5 6', style: 'dashed', label: 'Stop saving today'}];
+    } else if(st.mode === 'order'){
+      S = [{a: M.dv(M.run(st.g, st.pmt, N, {shocks: {12: 0.75}})), col: gold, dash: '', style: 'solid', label: '25% fall in your first year'},
+           {a: M.dv(M.run(st.g, st.pmt, N, {shocks: {[N]: 0.75}})), col: grey, dash: '5 6', style: 'dashed', label: 'Same fall in your final year'}];
+    } else {
+      lo = M.dv(M.run(0.02, st.pmt, N)); hi = M.dv(M.run(0.08, st.pmt, N));
+      S = [{a: M.mid, col: gold, dash: '', style: 'solid', label: 'Your path at ' + Math.round(st.g*100) + '% a year'}];
+    }
+    let mx = Math.max(M.fiAt(N) * 1.18, M.mid[N] * 1.22, 1);
+    S.forEach(s=>{ mx = Math.max(mx, s.a[N] * 1.1); });
+    const Y = v => 196 - Math.min(Math.max(v,0), mx*1.03) / mx * 186;
+    const X = m => m / N * 600;
+    const step = Math.max(1, Math.floor(N/200));
+    const pth = a => { let p = ''; for(let m=0; m<=N; m+=step) p += (m ? 'L' : 'M') + X(m).toFixed(1) + ' ' + Y(a[m]).toFixed(1); if(N % step) p += 'L600 ' + Y(a[N]).toFixed(1); return p; };
+    let band = '';
+    if(hi){ band = pth(hi); for(let b=N - (N % step); b>=0; b-=step) band += 'L' + X(b).toFixed(1) + ' ' + Y(lo[b]).toFixed(1); band += ' Z'; }
+    const fia = []; for(let f=0; f<=N; f++) fia.push(M.fiAt(f));
+    $('fcSvg').innerHTML = (band ? `<path class="fc-band" d="${band}"></path>` : '') +
+      (M.FI > 0 ? `<path class="fc-fi" d="${pth(fia)}"></path>` : '') +
+      S.slice().reverse().map((s,i)=> `<path class="fc-line hm-draw${i === S.length-1 ? ' fc-line-main' : ''}" d="${pth(s.a)}" stroke="${s.col}"${s.dash ? ` stroke-dasharray="${s.dash}"` : ''}></path>`).join('');
+    $('fcSvg').setAttribute('aria-label', 'Projected wealth to ' + horizonLabel(M).toLowerCase().replace(/^at /, 'age ') + ', ending at ' + k(M.mid[N]) + (st.real ? ' in today\'s money' : ''));
+
+    // y axis: about four steps
+    const raw = mx/4, p10 = Math.pow(10, Math.floor(Math.log10(raw))), nn = raw/p10;
+    const yStep = (nn <= 1 ? 1 : nn <= 2 ? 2 : nn <= 2.5 ? 2.5 : nn <= 5 ? 5 : 10) * p10;
+    let yHtml = '', gHtml = '';
+    for(let v=0; v<=mx; v+=yStep){
+      const top = (Y(v)/2).toFixed(2) + '%';
+      yHtml += `<span style="top:${top}">${v === 0 ? '£0' : k(v)}</span>`;
+      gHtml += `<i style="top:${top}"></i>`;
+    }
+    $('fcYAxis').innerHTML = yHtml;
+    $('fcGridLines').innerHTML = gHtml;
+
+    // x axis: every five years, and the end
+    const ticks = [];
+    for(let y=0; y<M.years; y+=5) ticks.push(y);
+    if(ticks.length > 1 && M.years - ticks[ticks.length-1] < 3) ticks.pop();
+    ticks.push(M.years);
+    const y0 = new Date().getFullYear();
+    $('fcXAxis').innerHTML = ticks.map((y,i)=>{
+      const last = i === ticks.length-1;
+      const cls = i === 0 ? 'fc-x-first' : last ? 'fc-x-last' : '';
+      const top = M.age != null ? (i === 0 ? 'Age ' + M.age : String(M.age + y)) : (i === 0 ? 'Today' : y + ' yrs');
+      return `<span class="${cls}" style="left:${(y/M.years*100).toFixed(2)}%">${top}<small>${y0 + y}</small></span>`;
+    }).join('');
+
+    // FI marker and one-off markers
+    let marks = '';
+    if(st.mode === 'plan' && M.fiM >= 0 && M.fiM <= N){
+      const left = (X(M.fiM)/6).toFixed(2) + '%', top = (Y(M.mid[M.fiM])/2).toFixed(2) + '%';
+      marks += `<span class="fc-fi-dot" style="left:${left}; top:${top}"></span><span class="fc-fi-tag mono" style="left:${left}; top:${top}">FI ${M.age != null ? 'at ' + (M.age + Math.floor(M.fiM/12)) : 'in ' + Math.floor(M.fiM/12) + ' yrs'}</span>`;
+    }
+    Object.keys(M.OO).map(Number).filter(m=> m <= N).forEach(m=>{
+      const amt = M.OO[m];
+      marks += `<span class="fc-oo-line" style="left:${(m/N*100).toFixed(2)}%"></span><span class="fc-oo-tag mono" style="left:${(m/N*100).toFixed(2)}%">${amt < 0 ? '−' : '+'}${k(Math.abs(amt))}</span>`;
+    });
+    $('fcMarks').innerHTML = marks;
+
+    $('fcLegend').innerHTML = S.map(s=> `<span><i style="border-top:2px ${s.style} ${s.col}"></i>${esc(s.label)}</span>`).join('') +
+      (M.FI > 0 ? '<span><i class="fc-k-fi"></i>FI number</span>' : '');
+
+    // headline
+    const end = M.mid[N], diff = end - M.fiAt(N);
+    setText('fcAt', horizonLabel(M) + ', you are on course for');
+    setText('fcEnd', k(end));
+    setText('fcAdjEnd', k(end));
+    setText('fcMoneyNote', st.real ? 'In today\'s money' : 'In future money');
+    setText('fcGap', M.FI > 0 ? fmtGBP(round1000(Math.abs(diff))) + (diff >= 0 ? ' above your FI number' : ' short of your FI number') : 'Add your yearly spending to see your FI number');
+    $('fcDobNote').hidden = M.age != null;
+
+    let insight;
+    if(st.mode === 'hyp'){
+      insight = 'Stopping today would leave you ' + k(end - S[2].a[N]) + ' lower ' + byLabel(M) + '. Another £200 a month would add ' + k(S[1].a[N] - end) + '.';
+    } else if(st.mode === 'order'){
+      insight = 'Same returns, different order. A fall just before you stop work costs ' + k(S[0].a[N] - S[1].a[N]) + ' more than the same fall early on, because there is more money in the pot when it lands.';
+    } else if(M.FI <= 0){
+      insight = 'Add your yearly spending in Adjust to see when you could reach financial independence. The shaded band shows 2% to 8% a year.';
+    } else {
+      const fiY = Math.floor(M.fiM/12);
+      if(M.fiM < 0) insight = 'On your current path you do not reach your FI number in the next ' + (LONG_MONTHS/12) + ' years.';
+      else if(M.fiM <= N) insight = 'On your current path you reach your FI number ' + (M.age != null ? 'at ' + (M.age + fiY) + ', ' + (M.years - fiY) + (M.years - fiY === 1 ? ' year' : ' years') + ' before your planned retirement.' : 'in ' + fiY + (fiY === 1 ? ' year.' : ' years.'));
+      else insight = 'On your current path you reach your FI number ' + (M.age != null ? 'at ' + (M.age + fiY) + ', after your planned retirement at ' + (M.age + M.years) + '.' : 'in ' + fiY + ' years, after your planned retirement.');
+      insight += ' The shaded band shows 2% to 8% a year.';
+    }
+    setText('fcInsight', insight);
+
+    document.querySelectorAll('[data-fc-mode]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.fcMode === st.mode ? 'true' : 'false'));
+    document.querySelectorAll('[data-fc-rate]').forEach(b=> b.setAttribute('aria-pressed', Number(b.dataset.fcRate) === st.g ? 'true' : 'false'));
+    document.querySelectorAll('[data-fc-real]').forEach(b=> b.setAttribute('aria-pressed', (b.dataset.fcReal === '1') === st.real ? 'true' : 'false'));
   }
 
-  /* ---------- Forecast Coach's Corner (own slot, separate from homepage) ---------- */
+  /* ---------- Adjust strip ---------- */
+  function renderAdjust(client, M){
+    const state = st.saved ? 'saved to Plan settings' : (changed() ? 'what-if, not saved' : 'your figures');
+    setText('fcAdjState', 'Adjust · ' + state);
+    setText('fcAdjStateM', state.charAt(0).toUpperCase() + state.slice(1));
+    setText('fcAdjOpenLabel', 'Adjust · ' + state);
+    const save = $('fcSave');
+    save.textContent = st.saved ? 'Saved' : 'Save as my plan';
+    const set = (id, v)=>{ const el = $(id); if(document.activeElement !== el) el.value = String(v); };
+    set('fcInPmt', st.pmt); set('fcInP0', st.p0); set('fcInYs', st.ys); set('fcInRise', st.rise);
+    const ret = $('fcInRet');
+    if(M.age != null){
+      setText('fcInRetLabel', 'Retire at');
+      ret.min = String(Math.max(55, M.age + 1)); ret.max = String(Math.max(68, M.age + 1));
+      set('fcInRet', st.ret);
+    } else {
+      setText('fcInRetLabel', 'Years to go');
+      ret.min = '1'; ret.max = '50';
+      set('fcInRet', st.years);
+    }
+    const ooAge = $('fcOoAge');
+    setText('fcOoAgeLabel', M.age != null ? 'At age' : 'In years');
+    const ooMin = M.age != null ? M.age + 1 : 1, ooMax = M.age != null ? M.age + M.years : M.years;
+    ooAge.min = String(ooMin); ooAge.max = String(ooMax);
+    if(st.ooAge == null || st.ooAge < ooMin || st.ooAge > ooMax) st.ooAge = Math.min(ooMax, ooMin + 4);
+    set('fcOoAge', st.ooAge); set('fcOoAmt', st.ooAmt);
+    document.querySelectorAll('[data-fc-dir]').forEach(b=> b.setAttribute('aria-pressed', (b.dataset.fcDir === 'out') === st.ooOut ? 'true' : 'false'));
+    $('fcOoAdd').disabled = st.oneOffs.length >= 4;
+    $('fcOoList').innerHTML = st.oneOffs.map((o,i)=>{
+      const label = (o.amt < 0 ? '−' : '+') + k(Math.abs(o.amt)) + (M.age != null ? ' at ' + o.at : ' in ' + o.at + ' yrs');
+      return `<span class="fc-oo-chip">${label}<button type="button" data-fc-oo-remove="${i}" aria-label="Remove ${label}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span>`;
+    }).join('');
+  }
+
+  /* ---------- right column ---------- */
+  function renderOverview(client, M){
+    const onTrack = M.fiM >= 0 && M.fiM <= M.N;
+    const chip = $('fcStatus');
+    chip.textContent = M.FI > 0 ? (onTrack ? 'On track' : 'Behind plan') : 'No FI number yet';
+    chip.className = 'fc-chip' + (onTrack ? ' fc-chip-on' : '');
+    setText('fcFiNum', M.FI > 0 ? fmtGBP(M.FI) : '–');
+    setText('fcFiHow', M.override ? 'Set by your coach' : (M.FI > 0 ? M.mult + ' × ' + fmtGBP(st.ys) + ' a year' : 'Add your yearly spending'));
+    if(M.fiM >= 0){
+      setText('fcFiAge', M.age != null ? 'Age ' + (M.age + Math.floor(M.fiM/12)) : 'In ' + Math.floor(M.fiM/12) + ' yrs');
+      setText('fcFiWhen', monthLabel(M.fiM));
+    } else {
+      setText('fcFiAge', M.FI > 0 ? 'After ' + (M.age != null ? M.age + LONG_MONTHS/12 : LONG_MONTHS/12 + ' yrs') : '–');
+      setText('fcFiWhen', '');
+    }
+    const range = $('fcRetRange');
+    if(M.age != null){
+      setText('fcRetRangeLabel', 'Planned retirement age');
+      range.min = String(Math.max(55, M.age + 1)); range.max = String(Math.max(68, M.age + 1));
+      range.value = String(st.ret);
+      setText('fcRetVal', String(st.ret));
+    } else {
+      setText('fcRetRangeLabel', 'Years until you stop work');
+      range.min = '1'; range.max = '50';
+      range.value = String(st.years);
+      setText('fcRetVal', String(st.years));
+    }
+    setText('fcRetMin', range.min); setText('fcRetMax', range.max);
+    const pct = Math.round(st.g*100);
+    setText('fcStatusNote', M.FI <= 0 ? 'Add your yearly spending in Adjust to see this.' :
+      onTrack ? 'Your current saving reaches your FI number before you plan to stop work, at ' + pct + '% a year growth.'
+              : 'At ' + pct + '% a year, your current saving reaches your FI number after you plan to stop work.');
+  }
+
+  function renderComposition(client, M){
+    const N = M.N, tot = M.midN[N], end = M.mid[N];
+    const grown = M.run(st.g, 0, N, {oneOffs: {}})[N];
+    let paid = 0; for(let q=1; q<=N; q++) paid += st.pmt * Math.pow(1 + M.rise, Math.floor((q-1)/12));
+    const growth = Math.max(0, tot - grown - paid);
+    const parts = [[grown, 'Today\'s pot, grown', 'fc-c1'], [paid, 'New saving', 'fc-c2'], [growth, 'Growth on new saving', 'fc-c3']];
+    const sum = parts.reduce((s,p)=> s + Math.max(0, p[0]), 0) || 1;
+    setText('fcCompK', 'Where your ' + k(end) + ' comes from');
+    setText('fcCompTitle', grown >= paid + growth ? 'Today\'s pot does most of the work' : 'Today\'s habits do most of the work');
+    $('fcCompBar').innerHTML = parts.map(p=> `<span class="${p[2]}" style="width:${(Math.max(0,p[0])/sum*100).toFixed(1)}%"></span>`).join('');
+    $('fcCompBar').setAttribute('aria-label', parts.map(p=> p[1] + ' ' + Math.round(Math.max(0,p[0])/sum*100) + '%').join(', '));
+    $('fcCompKey').innerHTML = parts.map(p=> `<div><p><i class="${p[2]}"></i>${p[1]}</p><b>${k(Math.max(0,p[0])/sum*end)}</b><small class="mono">${Math.round(Math.max(0,p[0])/sum*100)}%</small></div>`).join('');
+    const plus = (M.run(st.g, st.pmt + 100, N)[N] - tot) / M.dfl(N);
+    setText('fcPlus100', '+' + k(plus));
+    setText('fcPlusText', 'Every extra £100 a month from today adds roughly this ' + byLabel(M) + '.');
+    return {paid, grown, growth, plus};
+  }
+
+  function renderIndependence(client, M){
+    if(M.FI <= 0){
+      ['fcFiPct','fcCoastPct'].forEach(id=> setText(id, '–'));
+      $('fcFiBar').style.width = '0%'; $('fcCoastBar').style.width = '0%';
+      setText('fcFiNote', 'Add your yearly spending to see your FI number.');
+      setText('fcCoastLabel', 'Coast FI'); setText('fcCoastNote', '');
+      return;
+    }
+    const fiPct = Math.min(100, st.p0 / M.FI * 100);
+    setText('fcFiPct', Math.round(fiPct) + '%');
+    $('fcFiBar').style.width = fiPct.toFixed(1) + '%';
+    setText('fcFiNote', fmtGBP(st.p0) + ' of ' + fmtGBP(M.FI) + '. Enough to live on your investments without working.');
+    // Coast FI: what today's pot would need to be to grow to the FI number by retirement with no more saving.
+    const fiThen = M.FI * Math.pow(1+INFLATION, M.N/12);
+    const need = fiThen / Math.pow(1 + st.g/12, M.N);
+    const coast = Math.min(100, st.p0 / need * 100);
+    setText('fcCoastLabel', 'Coast FI ' + byLabel(M));
+    setText('fcCoastPct', Math.round(coast) + '%');
+    $('fcCoastBar').style.width = coast.toFixed(1) + '%';
+    setText('fcCoastNote', coast >= 100
+      ? 'You have reached Coast FI. With no more saving at all, today\'s pot is projected to grow to your FI number ' + byLabel(M) + '.'
+      : 'You would need ' + fmtGBP(round1000(need)) + ' invested today to coast to your FI number ' + byLabel(M) + ' with no more saving.');
+  }
+
+  /* Range of outcomes: 500 paths, fixed seed so results are stable. Each
+     year draws one return (average = the chosen growth, spread 13%) and the
+     path runs month by month through projectSeries with the same saving,
+     rise and one-offs as the main line. */
+  function renderOutcomes(client, M){
+    let seed = MC_SEED;
+    const rnd = ()=>{ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+    const N = M.N, Yr = M.years, fin = [];
+    const tgt = M.fiAt(N), dd = M.dfl(N);
+    let hit = 0;
+    for(let p=0; p<MC_PATHS; p++){
+      const yr = [];
+      for(let y=0; y<Yr; y++){ const z = Math.sqrt(-2*Math.log(rnd() || 1e-9)) * Math.cos(2*Math.PI*rnd()); yr.push(Math.max(-0.5, st.g + MC_SPREAD*z)); }
+      const v = M.run(st.g, st.pmt, N, {rateAt: m=> yr[Math.floor((m-1)/12)]/12})[N] / dd;
+      fin.push(v);
+      if(M.FI > 0 && v >= tgt) hit++;
+    }
+    fin.sort((a,b)=> a-b);
+    const p10 = fin[Math.floor(MC_PATHS*0.1)], p50 = fin[Math.floor(MC_PATHS*0.5)], p90 = fin[Math.floor(MC_PATHS*0.9)];
+    const tens = Math.round(hit / (MC_PATHS/10));
+    setText('fcMcHead', M.FI > 0 ? tens + ' in 10 paths reach your FI number ' + byLabel(M) : 'Where 500 market paths could leave you ' + byLabel(M));
+    $('fcMcDots').innerHTML = M.FI > 0 ? Array.from({length:10}, (_,i)=> `<i class="${i < tens ? 'on' : ''}"></i>`).join('') : '';
+    const sc = Math.max(p90, tgt) * 1.08 || 1;
+    const pc = x => (x/sc*100).toFixed(1) + '%';
+    $('fcMcTrack').innerHTML = `<span class="fc-mc-base"></span><span class="fc-mc-range hm-grow" style="left:${pc(p10)}; width:${((p90-p10)/sc*100).toFixed(1)}%"></span><span class="fc-mc-med" style="left:${pc(p50)}"></span>` +
+      (M.FI > 0 ? `<span class="fc-mc-fi" style="left:${pc(tgt)}"></span><span class="fc-mc-fi-tag mono" style="left:${pc(tgt)}">FI number</span>` : '');
+    setText('fcP10', k(p10)); setText('fcP50', k(p50)); setText('fcP90', k(p90));
+    setText('fcMcNote', MC_PATHS + ' simulated market paths at ' + Math.round(st.g*100) + '% average growth, with ups and downs like real markets. Value ' + byLabel(M) + ', ' + (st.real ? 'in today\'s money' : 'in future money') + '.');
+  }
+
+  function renderKnow(client, M){
+    const items = [
+      ['Growth is after charges.', 'Your chosen rate applies to everything you hold. Real returns vary year to year and can be negative.'],
+      ['Inflation at 2.5% a year.', 'Today\'s money shows what future sums would buy now.'],
+      st.rise ? ['Saving starts at ' + fmtGBP(st.pmt) + ' a month and rises ' + st.rise + '% a year.', 'Rises are your what-if, not a forecast of pay.']
+              : ['Saving stays at ' + fmtGBP(st.pmt) + ' a month.', 'Pay rises and higher contributions are not assumed, so this leans cautious.'],
+      M.override ? ['Your FI number is set by your coach.', 'It is ' + fmtGBP(M.FI) + '. A rule of thumb, not a guarantee.']
+                 : ['FI number is ' + M.mult + ' times yearly spending.', 'Based on ' + fmtGBP(st.ys) + ' a year. A rule of thumb, not a guarantee.'],
+      ['Tax, fees and pension access rules are simplified.', 'Your coach\'s forecast covers these in more detail.']
+    ];
+    $('fcKnow').innerHTML = items.map(i=> `<li><span class="fc-dotk" aria-hidden="true"></span><span><strong>${esc(i[0])}</strong> <span class="fc-muted">${esc(i[1])}</span></span></li>`).join('');
+  }
+
+  function renderSteps(client, M, comp){
+    const newPct = Math.round(comp.paid / Math.max(1, comp.paid + comp.grown + comp.growth) * 100);
+    const steps = [
+      ['01', 'Keep ' + fmtGBP(st.pmt) + ' a month going in', 'New saving builds ' + newPct + '% of your pot ' + byLabel(M) + '.', ''],
+      ['02', 'Test £100 more a month', 'Adds roughly ' + k(comp.plus) + ' ' + byLabel(M) + '. Try it in What if above.', ''],
+      // TODO(B12.9): a step the coach sets for this client. Until there is a
+      // field for it, this card points to the next session.
+      ['03', 'Agree your next step with your coach', 'At your next session, pick the one change worth testing here.', 'fc-step-champ']
+    ];
+    $('fcSteps').innerHTML = steps.map(s=> `<li class="${s[3]}"><span class="mono fc-gold-t">${s[0]}</span><b>${esc(s[1])}</b><span class="fc-muted">${esc(s[2])}</span></li>`).join('');
+  }
+
+  /* Coach's corner: the coach's own note for Forecast when they wrote one,
+     otherwise the top Forecast signal (the same engine as Wealth and Goals). */
   function computeForecastCoach(client){
     const fc = client.forecastCoach || {};
-    if(fc.mode==='manual' && fc.message) return {message:fc.message, actionLabel:fc.actionLabel||'Explore your plan', actionPage:fc.actionPage||'planning'};
+    if(fc.mode==='manual' && fc.message) return {message:fc.message};
     const s = TEI.calc.pickTopSignal(client, 'forecast');
-    if(!s) return {message:'Increasing your monthly investment, even by a small amount, could bring your financial independence target closer.', actionLabel:'Try it in your plan', actionPage:'planning'};
-    return {message:s.message, actionLabel:s.actionLabel, actionPage:s.actionPage};
-  }
-  function renderForecastCoach(client){
-    const cc = computeForecastCoach(client);
-    document.getElementById('fcMessage').textContent = cc.message;
-    const btn = document.getElementById('fcActionBtn');
-    btn.textContent = cc.actionLabel + ' →';
-    btn.style.display = 'inline-block';
-    btn.onclick = function(e){ e.preventDefault(); if(TEI.app) TEI.app.showPage(cc.actionPage); };
+    return {message: s ? s.message : 'Increasing your monthly investment, even by a small amount, could bring your financial independence target closer.'};
   }
 
-  /* ---------- Wealth projection: Your Plan ---------- */
-  const RATE_DEFS = [
-    {key:'conservative', label:'Lower-return (5%)', rate:0.05},
-    {key:'base', label:'Expected (8%)', rate:0.08},
-    {key:'optimistic', label:'Strong-return (15%)', rate:0.15},
-  ];
-  // Annual steps here ("Your plan" and "Decision impact"); the formula is
-  // the shared TEI.calc.projectSeries, which Goals uses too (spec B11).
-  const projectSeries = TEI.calc.projectSeries;
-  function leverAdjustedMonthly(client){
-    const extraContrib = parseFloat(document.getElementById('scContrib').value)||0;
-    const spendChange = parseFloat(document.getElementById('scSpend').value)||0;
-    const extraIncome = parseFloat(document.getElementById('scIncome').value)||0;
-    const baseMonthly = TEI.calc.totalMonthlyContribution(client);
-    return Math.max(0, baseMonthly + extraContrib + extraIncome*0.5 - spendChange);
+  /* ---------- render ---------- */
+  function renderAll(client){
+    const M = model(client);
+    renderHero(client, M);
+    renderAdjust(client, M);
+    renderOverview(client, M);
+    const comp = renderComposition(client, M);
+    renderIndependence(client, M);
+    renderOutcomes(client, M);
+    renderKnow(client, M);
+    renderSteps(client, M, comp);
   }
-  function scenarioBefore(client){
-    const budgetFi = TEI.calc.computeBudgetAndFI(client);
-    const latestTotal = TEI.calc.latestNetWorth(client);
-    const annualContribution = TEI.calc.totalMonthlyContribution(client)*12;
-    return {fiTarget:budgetFi.fiTarget, annualContribution, yrs:yearsToFI(budgetFi.fiTarget, latestTotal, annualContribution, EXPECTED_RATE).yrs};
+  let pending = 0;
+  function rerender(){
+    const client = TEI.app.state.client;
+    if(!client || !st) return;
+    cancelAnimationFrame(pending);
+    pending = requestAnimationFrame(()=> renderAll(client));
   }
-  function scenarioAfter(client){
-    const spendChange = parseFloat(document.getElementById('scSpend').value)||0;
-    const budgetFi = TEI.calc.computeBudgetAndFI(client);
-    const latestTotal = TEI.calc.latestNetWorth(client);
-    const newMonthly = leverAdjustedMonthly(client);
-    const newAnnualSpend = Math.max(0, budgetFi.annualSpend + spendChange*12);
-    const newFiTarget = client.preferences.fiOverride!=null ? client.preferences.fiOverride : newAnnualSpend*(client.preferences.fiMultiple||25);
-    return {fiTarget:newFiTarget, annualContribution:newMonthly*12, yrs:yearsToFI(newFiTarget, latestTotal, newMonthly*12, EXPECTED_RATE).yrs};
-  }
-  function renderWealthPlanChart(client){
-    const latestTotal = TEI.calc.latestNetWorth(client);
-    const actualAnnualContribution = TEI.calc.totalMonthlyContribution(client)*12;
-    const leverAnnualContribution = leverAdjustedMonthly(client)*12;
-    const leversActive = leverAnnualContribution !== actualAnnualContribution;
-    const startYear = new Date().getFullYear();
-    const years = []; for(let y=startYear; y<=startYear+20; y++) years.push(y);
-    const {GOLD, makeChart, currentInkSoft, currentGrid, currentRateColor} = TEI.charts;
 
-    const actualSeries = projectSeries(latestTotal, actualAnnualContribution, EXPECTED_RATE, 20);
-    const datasets = [{label:'Actual, today\'s plan', data:actualSeries, borderColor:GOLD, borderDash:[5,4], pointRadius:0, borderWidth:2, fill:false, order:1}];
+  /* ---------- Save as my plan (B7.2): retirement age and yearly spending only ---------- */
+  async function savePlan(){
+    const client = TEI.app.state.client;
+    if(!client || !st) return;
+    const btn = $('fcSave');
+    const prefs = client.preferences = client.preferences || {};
+    const before = {retirementAge: prefs.retirementAge, yearlySpending: prefs.yearlySpending};
+    if(ageNow(client) != null) prefs.retirementAge = st.ret;
+    prefs.yearlySpending = st.ys;
+    btn.disabled = true;
+    try{
+      await TEI.wealthOS.saveCashflowSettings(client.meta.clientId, client);
+    } catch(err){
+      console.error('Wealth OS: could not save Plan settings', err);
+      Object.assign(prefs, before);
+      btn.disabled = false;
+      TEI.app.showToast('That did not save. Please try again.');
+      return;
+    }
+    btn.disabled = false;
+    // The saved figures are now "your figures"; what-ifs other than these two stay as they are.
+    st.base = Object.assign({}, st.base, {ret: st.ret, ys: st.ys});
+    st.saved = true;
+    TEI.app.showToast('Saved to Plan settings');
+    rerender();
+  }
 
-    let firstScenario = true;
-    RATE_DEFS.forEach(r=>{
-      if(!client.monteCarlo[r.key]) return;
-      const series = projectSeries(latestTotal, leverAnnualContribution, r.rate, 20);
-      const label = leversActive ? r.label + ' + your scenario' : r.label;
-      // Shade the gap against Actual only for the first checked line, so multiple
-      // checked rates don't stack overlapping fills into a muddy block.
-      const shouldFill = leversActive && firstScenario;
-      if(shouldFill) firstScenario = false;
-      const color = currentRateColor(r.key);
-      datasets.push({
-        label, data:series, borderColor:color,
-        backgroundColor: color+'26',
-        fill: shouldFill ? 0 : false,
-        pointRadius:0, borderWidth: leversActive ? 3.5 : 2.5, tension:0.15, order:2
-      });
+  function num(el, lo, hi){
+    let v = parseFloat(el.value);
+    if(isNaN(v)) return null;
+    if(lo != null) v = Math.max(lo, v);
+    if(hi != null) v = Math.min(hi, v);
+    return v;
+  }
+
+  /* ---------- phone Adjust sheet ---------- */
+  let lastFocus = null;
+  function openSheet(){
+    lastFocus = document.activeElement;
+    $('fcAdj').classList.add('open');
+    $('fcAdjScrim').hidden = false;
+    $('fcAdjOpen').setAttribute('aria-expanded', 'true');
+    $('fcAdj').setAttribute('role', 'dialog');
+    $('fcAdj').setAttribute('aria-modal', 'true');
+    const f = $('fcInPmt'); if(f) f.focus();
+  }
+  function closeSheet(){
+    if(!$('fcAdj').classList.contains('open')) return;
+    $('fcAdj').classList.remove('open');
+    $('fcAdjScrim').hidden = true;
+    $('fcAdjOpen').setAttribute('aria-expanded', 'false');
+    $('fcAdj').setAttribute('role', 'group');
+    $('fcAdj').removeAttribute('aria-modal');
+    if(lastFocus && lastFocus.offsetParent) lastFocus.focus();
+  }
+
+  let wired = false;
+  function wireOnce(){
+    if(wired) return;
+    wired = true;
+    const client = ()=> TEI.app.state.client;
+    const age = ()=> ageNow(client());
+    const onInput = (id, fn)=> $(id).addEventListener('input', ()=>{ fn(); st.saved = false; rerender(); });
+    onInput('fcInPmt', ()=>{ const v = num($('fcInPmt'), 0); if(v != null) st.pmt = v; });
+    onInput('fcInP0', ()=>{ const v = num($('fcInP0'), 0); if(v != null) st.p0 = v; });
+    onInput('fcInYs', ()=>{ const v = num($('fcInYs'), 5000); if(v != null) st.ys = v; });
+    onInput('fcInRise', ()=>{ const v = num($('fcInRise'), 0, 10); if(v != null) st.rise = v; });
+    const setRet = el=>{
+      const a = age();
+      const v = a != null ? num(el, Math.max(55, a+1), Math.max(68, a+1)) : num(el, 1, 50);
+      if(v == null) return;
+      if(a != null) st.ret = Math.round(v); else st.years = Math.round(v);
+    };
+    onInput('fcInRet', ()=> setRet($('fcInRet')));
+    onInput('fcRetRange', ()=> setRet($('fcRetRange')));
+    // Typed values are tidied to their limits when the box is left.
+    ['fcInPmt','fcInP0','fcInYs','fcInRise','fcInRet'].forEach(id=> $(id).addEventListener('change', rerender));
+    $('fcOoAge').addEventListener('input', ()=>{ const v = parseInt($('fcOoAge').value, 10); if(!isNaN(v)) st.ooAge = v; });
+    $('fcOoAmt').addEventListener('input', ()=>{ const v = num($('fcOoAmt'), 0); if(v != null) st.ooAmt = v; });
+    document.querySelectorAll('[data-fc-dir]').forEach(b=> b.addEventListener('click', ()=>{ st.ooOut = b.dataset.fcDir === 'out'; rerender(); }));
+    $('fcOoAdd').addEventListener('click', ()=>{
+      const a = age(), years = a != null ? st.ret - a : st.years;
+      const lo = a != null ? a+1 : 1, hi = a != null ? a + years : years;
+      const at = Math.min(hi, Math.max(lo, Math.round(st.ooAge || lo)));
+      if(!st.ooAmt || st.oneOffs.length >= 4) return;
+      st.oneOffs.push({at, amt: st.ooOut ? -st.ooAmt : st.ooAmt});
+      st.saved = false;
+      rerender();
     });
-
-    makeChart('chartWealthPlan', {
-      type:'line', data:{labels:years, datasets},
-      options:{maintainAspectRatio:false,
-        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}},
-        scales:{
-          y:{ticks:{callback:v=>'£'+(v/1000)+'k', color:currentInkSoft()}, grid:{color:currentGrid()}},
-          x:{ticks:{color:currentInkSoft()}, grid:{display:false}}
-        }
-      }
+    $('fcOoList').addEventListener('click', e=>{
+      const b = e.target.closest('[data-fc-oo-remove]');
+      if(!b) return;
+      st.oneOffs.splice(Number(b.dataset.fcOoRemove), 1);
+      rerender();
     });
-    document.querySelectorAll('[data-mc-toggle]').forEach(el=>{ el.checked = client.monteCarlo[el.dataset.mcToggle]; });
-    // Swatches were previously hardcoded to a fixed palette that didn't match
-    // the actual line colors (which are theme-aware via currentRateColor and
-    // don't correspond 1:1 with the swatch hex values) -- set them from the
-    // same function the lines themselves use so legend and chart always agree.
-    document.getElementById('swConservative').style.background = currentRateColor('conservative');
-    document.getElementById('swBase').style.background = currentRateColor('base');
-    document.getElementById('swOptimistic').style.background = currentRateColor('optimistic');
-  }
-  function renderScenario(client){
-    renderWealthPlanChart(client);
-    const before = scenarioBefore(client);
-    const after = scenarioAfter(client);
-    const thisYear = new Date().getFullYear();
-    const beforeYear = before.yrs!=null ? thisYear+before.yrs : '—';
-    const afterYear = after.yrs!=null ? thisYear+after.yrs : '—';
-    document.getElementById('scBeforeStat').textContent = before.fiTarget>0 ? `${fmtGBP(before.fiTarget)} by ${beforeYear}` : '—';
-    const afterEl = document.getElementById('scAfterStat');
-    afterEl.textContent = after.fiTarget>0 ? `${fmtGBP(after.fiTarget)} by ${afterYear}` : '—';
-    const note = document.getElementById('scInterpretation');
-    const extraContrib = parseFloat(document.getElementById('scContrib').value)||0;
-    const spendChange = parseFloat(document.getElementById('scSpend').value)||0;
-    const extraIncome = parseFloat(document.getElementById('scIncome').value)||0;
-    if(extraContrib===0 && spendChange===0 && extraIncome===0){
-      note.textContent = 'Adjust the levers above to see how they shift your financial independence timeline, and tick different return rates to see how the gap to your actual plan changes. Additional contributions tend to have the largest impact — they have more time to compound.';
-    } else if(before.yrs!=null && after.yrs!=null){
-      const diff = before.yrs-after.yrs;
-      const suffix = ' Every ticked return rate above now reflects this scenario, compared against your actual, unchanged plan.';
-      let timelineText;
-      if(diff>0) timelineText = `This change could bring your FI year forward by roughly ${diff} year${diff===1?'':'s'} — from ${beforeYear} to ${afterYear}.` + (extraContrib!==0 ? ' Additional contributions have more impact the earlier they start, because they have longer to compound.' : '');
-      else if(diff<0) timelineText = `This change pushes your FI year back by roughly ${Math.abs(diff)} year${Math.abs(diff)===1?'':'s'} — from ${beforeYear} to ${afterYear}.`;
-      else timelineText = 'This change has limited impact on your FI timeline based on current assumptions.';
-
-      // Only a change in spending moves the target itself (a permanently higher
-      // or lower spend changes the size of pot needed to sustain it forever).
-      // Contributions and extra income only change how fast you get there, so
-      // make that distinction explicit -- otherwise an income-only tweak that
-      // leaves the pot figure unchanged reads as if nothing happened.
-      let targetText = '';
-      const targetDiff = Math.round(after.fiTarget - before.fiTarget);
-      if(spendChange!==0 && Math.abs(targetDiff)>=1){
-        targetText = targetDiff>0
-          ? ` Spending £${Math.abs(spendChange)}/mo more permanently also means a bigger pot is needed to sustain it — the target itself has grown from ${fmtGBP(before.fiTarget)} to ${fmtGBP(after.fiTarget)}, on top of the later date.`
-          : ` Spending £${Math.abs(spendChange)}/mo less permanently also shrinks the pot needed — the target itself has fallen from ${fmtGBP(before.fiTarget)} to ${fmtGBP(after.fiTarget)}, on top of the earlier date.`;
-      } else if(extraContrib!==0 || extraIncome!==0){
-        targetText = ' Your target pot itself is unchanged — extra contributions and income change how fast you get there, not how much you need.';
-      }
-
-      note.textContent = timelineText + targetText + suffix;
-    } else {
-      note.textContent = 'Set a budget in Cashflow to see how this scenario affects your financial independence timeline.';
-    }
-  }
-
-  /* ---------- Wealth projection: Hypothetical sandbox ---------- */
-  function renderCompoundGrowth(){
-    const start = parseFloat(document.getElementById('cgStart').value)||0;
-    const monthly = parseFloat(document.getElementById('cgMonthly').value)||0;
-    const rate = parseFloat(document.getElementById('cgRate').value)||0;
-    const years = parseInt(document.getElementById('cgYears').value)||0;
-    const monthlyRate = Math.pow(1+rate/100, 1/12)-1;
-    const labels = []; const values = []; const contribValues = [];
-    let value = start, contrib = start;
-    for(let y=0; y<=years; y++){
-      labels.push(y); values.push(value); contribValues.push(contrib);
-      for(let m=0;m<12;m++){ value = value*(1+monthlyRate)+monthly; contrib += monthly; }
-    }
-    const {NAVY, GOLD, FILL_NAVY, makeChart, currentInk, currentInkSoft, currentGrid} = TEI.charts;
-    makeChart('chartHypothetical', {
-      type:'line', data:{labels, datasets:[
-        {label:'Projected value', data:values, borderColor:NAVY, backgroundColor:FILL_NAVY, fill:true, tension:0.2, pointRadius:0, borderWidth:2.5},
-        {label:'Contributions only', data:contribValues, borderColor:GOLD, borderDash:[4,3], pointRadius:0, borderWidth:1.5, fill:false},
-      ]},
-      options:{maintainAspectRatio:false, plugins:{legend:{display:true, position:'top', align:'end', labels:{boxWidth:10,font:{size:11},color:currentInk()}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}},
-        scales:{
-          y:{ticks:{callback:v=>'£'+(v/1000)+'k', color:currentInkSoft()}, grid:{color:currentGrid()}},
-          x:{title:{display:true,text:'Years',font:{size:11},color:currentInkSoft()}, ticks:{color:currentInkSoft()}, grid:{display:false}}
-        }}
+    $('fcReset').addEventListener('click', ()=>{
+      const base = st.base;
+      Object.assign(st, {pmt: base.pmt, p0: base.p0, ret: base.ret, years: base.years, ys: base.ys, rise: base.rise, oneOffs: [], saved: false});
+      rerender();
     });
-    const finalValue = values[values.length-1], finalContrib = contribValues[contribValues.length-1];
-    document.getElementById('cgStats').innerHTML = `
-      <div class="rs">Ending balance<b class="gold">${fmtGBP(finalValue)}</b></div>
-      <div class="rs">Total contributed<b>${fmtGBP(finalContrib)}</b></div>
-      <div class="rs">Growth<b class="up">${fmtGBP(finalValue-finalContrib)}</b></div>
-    `;
-    const doubling = rate>0 ? (72/rate) : null;
-    document.getElementById('cgInsight').textContent = doubling
-      ? `At ${rate}% growth, investments could roughly double every ${doubling.toFixed(1)} years. Over longer periods, investment growth can become the biggest contributor to wealth creation.`
-      : 'Over longer periods, investment growth can become the biggest contributor to wealth creation.';
+    $('fcSave').addEventListener('click', savePlan);
+    document.querySelectorAll('[data-fc-mode]').forEach(b=> b.addEventListener('click', ()=>{ st.mode = b.dataset.fcMode; rerender(); }));
+    document.querySelectorAll('[data-fc-rate]').forEach(b=> b.addEventListener('click', ()=>{ st.g = Number(b.dataset.fcRate); rerender(); }));
+    document.querySelectorAll('[data-fc-real]').forEach(b=> b.addEventListener('click', ()=>{ st.real = b.dataset.fcReal === '1'; rerender(); }));
+    $('fcAdjOpen').addEventListener('click', openSheet);
+    $('fcDone').addEventListener('click', closeSheet);
+    $('fcAdjScrim').addEventListener('click', closeSheet);
+    document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeSheet(); });
   }
 
-  /* ---------- Wealth projection: Order of returns ---------- */
-  // Same set of annual returns, split into a strong half and a weak half,
-  // reversed for the second line — same average return, opposite order.
-  // The blunt version, by design: makes the sequence-risk gap unmistakable.
-  function buildSequence(avgRate, spread, years){
-    const seq = [];
-    for(let i=0;i<years;i++){ seq.push(i < years/2 ? avgRate+spread : avgRate-spread); }
-    return seq;
-  }
-  const SEQUENCE_YEARS = 20;
-  const SEQUENCE_AVG = 8, SEQUENCE_SPREAD = 15;
-  function renderSequenceOfReturns(client){
-    const latestTotal = TEI.calc.latestNetWorth(client);
-    const annualContribution = TEI.calc.totalMonthlyContribution(client)*12;
-    function runSeq(order){
-      let value = latestTotal; const series = [value];
-      order.forEach(r=>{ value = value*(1+r/100) + annualContribution; series.push(value); });
-      return series;
-    }
-    const strongStart = buildSequence(SEQUENCE_AVG, SEQUENCE_SPREAD, SEQUENCE_YEARS);
-    const strongFinish = strongStart.slice().reverse();
-    const seriesStart = runSeq(strongStart);
-    const seriesFinish = runSeq(strongFinish);
-    const {NAVY, OXBLOOD, makeChart, currentInk, currentInkSoft, currentGrid} = TEI.charts;
-    const years = SEQUENCE_YEARS;
-    const labels = Array.from({length:years+1}, (_,i)=>i);
-    makeChart('chartSequence', {
-      type:'line', data:{labels, datasets:[
-        {label:'Strong start', data:seriesStart, borderColor:NAVY, pointRadius:0, borderWidth:2.5, tension:0.15},
-        {label:'Strong finish', data:seriesFinish, borderColor:OXBLOOD, pointRadius:0, borderWidth:2.5, tension:0.15},
-      ]},
-      options:{maintainAspectRatio:false, plugins:{legend:{display:true, position:'top', align:'end', labels:{boxWidth:10,font:{size:11},color:currentInk()}}, tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}},
-        scales:{
-          y:{ticks:{callback:v=>'£'+(v/1000)+'k', color:currentInkSoft()}, grid:{color:currentGrid()}},
-          x:{title:{display:true,text:'Years from now',font:{size:11},color:currentInkSoft()}, ticks:{color:currentInkSoft()}, grid:{display:false}}
-        }}
-    });
-    const finalStart = seriesStart[seriesStart.length-1], finalFinish = seriesFinish[seriesFinish.length-1];
-    document.getElementById('sorStats').innerHTML = `
-      <div class="rs">Strong start, ${years}yr<b class="up">${fmtGBP(finalStart)}</b></div>
-      <div class="rs">Strong finish, ${years}yr<b class="down">${fmtGBP(finalFinish)}</b></div>
-      <div class="rs">Difference<b class="gold">${fmtGBP(Math.abs(finalStart-finalFinish))}</b></div>
-    `;
-    const budgetFi = TEI.calc.computeBudgetAndFI(client);
-    const beforeFI = !(budgetFi.fiTarget>0 && latestTotal>=budgetFi.fiTarget);
-    document.getElementById('sorContext').textContent = beforeFI
-      ? 'During accumulation, market falls can sometimes benefit long-term investors because new contributions buy more assets at lower prices.'
-      : 'During withdrawal years, early market falls can have a larger impact because withdrawals reduce recovery capacity.';
-  }
-
-  /* ---------- Wealth projection: Decision impact ----------
-     Models a one-off lump-sum withdrawal or deposit against the client's
-     real portfolio, separate from the recurring monthly levers in "Your
-     plan" above. Shares projectSeries() with that tab but nothing else --
-     no shared state var, own chart, own stat IDs. */
-  let diMode = 'withdrawal';   // 'withdrawal' | 'deposit'
-  let diHorizonYears = 10;     // 5 | 10 | 20 -- drives the two horizon-based stat cards and the deposit headline; independent of the recovery calc below, which always reports its own precise month/year.
-
-  // Display-only: how many whole months of continued contributions it takes
-  // a post-withdrawal balance to climb back to today's level. Never feeds
-  // back into projectSeries or the plotted series -- only the stat-card
-  // number, the interpretation copy, and the recovery marker's x-position.
-  function recoveryMonthsPrecise(startBalance, eventAmount, monthlyContribution, annualRate){
-    const r = Math.pow(1+annualRate, 1/12) - 1;
-    const target = startBalance;
-    let bal = startBalance + eventAmount;
-    if(bal >= target) return {months:0, complete:true};
-    for(let m=1; m<=240; m++){
-      bal = bal*(1+r) + monthlyContribution;
-      if(bal >= target) return {months:m, complete:true};
-    }
-    return {months:null, complete:false};
-  }
-
-  function renderDecisionImpact(client){
-    // Account scope: an empty value means "All accounts" (today's existing
-    // whole-portfolio behaviour); a specific account id scopes the balance
-    // and contribution the calculation runs against to just that account.
-    const scopeId = document.getElementById('diAccountScope').value || null;
-    const scopeAccount = scopeId ? client.accounts.find(a=>a.id===scopeId) : null;
-    let latestTotal, monthlyContribution;
-    if(scopeAccount){
-      const breakdown = TEI.calc.latestBreakdown(TEI.calc.buildMergedMonths(client));
-      latestTotal = breakdown[scopeId]!=null ? breakdown[scopeId] : (Number(scopeAccount.value)||0);
-      monthlyContribution = TEI.calc.acctContribTotal(scopeAccount);
-    } else {
-      latestTotal = TEI.calc.latestNetWorth(client);
-      monthlyContribution = TEI.calc.totalMonthlyContribution(client);
-    }
-    const actualAnnualContribution = monthlyContribution*12;
-    const amount = Math.abs(parseFloat(document.getElementById('diAmount').value)||0);
-    const rate = (parseFloat(document.getElementById('diRate').value)||0)/100;
-    const eventAmount = diMode==='withdrawal' ? -amount : amount;
-    const startYear = new Date().getFullYear();
-
-    const baselineSeries = projectSeries(latestTotal, actualAnnualContribution, rate, 20);
-    const scenarioSeries = projectSeries(latestTotal + eventAmount, actualAnnualContribution, rate, 20);
-
-    const {GOLD, makeChart, currentInk, currentInkSoft, currentGrid, currentRateColor} = TEI.charts;
-    // NAVY/OXBLOOD are dark-mode-tuned pastels (see currentRateColor's own
-    // comment above) that go low-contrast on light mode's white/cream chart
-    // background -- reuse currentRateColor's existing light/dark swap
-    // (its 'base'/'conservative' colors) instead of the raw constants.
-    const scenarioColor = currentRateColor('base');
-    const targetColor = currentRateColor('conservative');
-
-    const datasets = [
-      {label:'Baseline, no change', data: baselineSeries.map((v,i)=>({x:i, y:v})), borderColor:GOLD, borderDash:[5,4], pointRadius:0, borderWidth:2, fill:false, order:1},
-      {label: diMode==='withdrawal' ? 'After withdrawal' : 'After deposit', data: scenarioSeries.map((v,i)=>({x:i, y:v})), borderColor:scenarioColor, pointRadius:0, borderWidth:2.5, tension:0.15, fill:false, order:2},
-    ];
-
-    let recovery = {months:0, complete:true};
-    if(diMode==='withdrawal'){
-      datasets.push({label:"Target: back to today's balance", data:[{x:0,y:latestTotal},{x:20,y:latestTotal}], borderColor:targetColor, borderDash:[3,3], pointRadius:0, borderWidth:1.5, fill:false, order:3});
-      recovery = recoveryMonthsPrecise(latestTotal, eventAmount, monthlyContribution, rate);
-      if(recovery.complete && recovery.months>0){
-        datasets.push({label:'Recovery point', data:[{x:recovery.months/12, y:latestTotal}], borderColor:targetColor, backgroundColor:targetColor, pointRadius:5, pointHoverRadius:6, showLine:false, order:4});
-      }
-    }
-
-    makeChart('chartDecisionImpact', {
-      type:'line', data:{datasets},
-      options:{maintainAspectRatio:false,
-        plugins:{
-          legend:{display:true, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:currentInk()}},
-          tooltip:{callbacks:{
-            title:items=>startYear + Math.round(items[0].parsed.x),
-            label:c=>c.dataset.label+': '+fmtGBP(c.parsed.y)
-          }}
-        },
-        scales:{
-          y:{ticks:{callback:v=>'£'+(v/1000)+'k', color:currentInkSoft()}, grid:{color:currentGrid()}},
-          // DELIBERATE EXCEPTION: linear (numeric) x-axis, not the category axis
-          // chartWealthPlan uses, so the recovery marker can sit at its exact
-          // fractional-year position (months/12) instead of snapping to a whole
-          // year. Tick callback converts back to a calendar-year label.
-          x:{type:'linear', min:0, max:20,
-             ticks:{stepSize:5, color:currentInkSoft(), callback:v=>startYear+Math.round(v)},
-             grid:{display:false}}
-        }
-      }
-    });
-
-    document.getElementById('diStatToday').textContent = fmtGBP(latestTotal);
-    document.getElementById('diStatAfter').textContent = fmtGBP(latestTotal + eventAmount);
-    document.getElementById('diStatWithout').textContent = fmtGBP(baselineSeries[diHorizonYears]);
-    document.getElementById('diStatWith').textContent = fmtGBP(scenarioSeries[diHorizonYears]);
-    const horizonYear = startYear + diHorizonYears;
-    document.getElementById('diStatWithoutLabel').textContent = `Without this change (at ${horizonYear})`;
-    document.getElementById('diStatWithLabel').textContent = `With this change (at ${horizonYear})`;
-
-    const note = document.getElementById('diInterpretation');
-    const recoveryStat = document.getElementById('diRecoveryStat');
-    if(diMode==='withdrawal'){
-      if(recovery.complete){
-        if(recovery.months===0){
-          note.textContent = "This withdrawal does not take the balance below today's level, so there's no recovery period.";
-          recoveryStat.textContent = '—';
-        } else {
-          const d = new Date(); d.setMonth(d.getMonth()+recovery.months);
-          note.textContent = `Balance returns to today's level by ${d.toLocaleString('en-GB',{month:'long'})} ${d.getFullYear()}.`;
-          const y = Math.floor(recovery.months/12), m = recovery.months%12;
-          recoveryStat.textContent = y>0 ? `${y}y ${m}m to recover` : `${m}m to recover`;
-        }
-      } else {
-        note.textContent = "Doesn't return to today's level within 20 years at this growth rate.";
-        recoveryStat.textContent = '20y+';
-      }
-    } else {
-      note.textContent = `Adds ${fmtGBP(amount)} today, worth an estimated ${fmtGBP(scenarioSeries[diHorizonYears])} by ${horizonYear}.`;
-      recoveryStat.textContent = '—';
-    }
-
-    document.querySelectorAll('#diModeToggle button').forEach(btn=>btn.classList.toggle('active', btn.dataset.diMode===diMode));
-    document.querySelectorAll('#diHorizonToggle button').forEach(btn=>btn.classList.toggle('active', Number(btn.dataset.diHorizon)===diHorizonYears));
-    document.getElementById('diAmountLabel').textContent = diMode==='withdrawal' ? 'Withdrawal amount £' : 'Deposit amount £';
-    document.getElementById('diRecoveryRow').style.display = diMode==='withdrawal' ? 'flex' : 'none';
-
-    // Populated once with the client's real accounts; reading its value is
-    // what drives the scopeId/scopeAccount branch at the top of this function.
-    const scopeSel = document.getElementById('diAccountScope');
-    if(scopeSel.children.length===1){
-      client.accounts.forEach(a=>{ const opt=document.createElement('option'); opt.value=a.id; opt.textContent=a.name; scopeSel.appendChild(opt); });
-    }
-  }
-
-  /* ---------- Wealth projection pill toggle ---------- */
-  function wireWPToggle(){
-    const toggle = document.getElementById('wpToggle');
-    if(toggle.dataset.wired) return;
-    // Derived from the DOM rather than hardcoded, so adding another pill only
-    // needs a new button + matching div id, no change here.
-    const views = Array.from(toggle.querySelectorAll('[data-wp-view]')).map(b=>b.dataset.wpView);
-    toggle.querySelectorAll('[data-wp-view]').forEach(btn=>{
-      btn.addEventListener('click', function(){
-        toggle.querySelectorAll('button').forEach(b=>b.classList.remove('active'));
-        this.classList.add('active');
-        views.forEach(v=>{
-          document.getElementById('wp'+v.charAt(0).toUpperCase()+v.slice(1)).style.display = (v===this.dataset.wpView) ? 'block' : 'none';
-        });
-      });
-    });
-    toggle.dataset.wired = '1';
-  }
-
-  /* ---------- Contextual insights ---------- */
-  function renderThingsToKnow(client){
-    const list = document.getElementById('thingsToKnowList');
-    const lines = [];
-    const monthlyContrib = TEI.calc.totalMonthlyContribution(client);
-    const annualContribution = monthlyContrib*12;
-    const months = TEI.calc.buildMergedMonths(client);
-    const keys = Object.keys(months).sort();
-    let estAnnualGrowth = null;
-    if(keys.length>=2){
-      // last-first is the change over the client's *entire* logged history,
-      // which can be anywhere from 2 months to several years -- subtracting
-      // a flat one year of contribution, then comparing the leftover
-      // straight against one year of contribution, only isolated a fair
-      // per-year growth rate by coincidence for a client with ~12 months of
-      // data. Scaling both the contribution deduction AND the result to the
-      // actual elapsed period (same elapsedYears idiom used for CAGR
-      // elsewhere in this file) keeps estAnnualGrowth a genuine per-year
-      // figure, comparable to annualContribution regardless of how much
-      // history exists.
-      const first = months[keys[0]].total, last = months[keys[keys.length-1]].total;
-      const [sy,sm] = keys[0].split('-').map(Number), [ly,lm] = keys[keys.length-1].split('-').map(Number);
-      const elapsedYears = (ly-sy)+(lm-sm)/12;
-      estAnnualGrowth = elapsedYears>0 ? (last - first - annualContribution*elapsedYears) / elapsedYears : null;
-    }
-    if(estAnnualGrowth!=null && estAnnualGrowth>annualContribution && estAnnualGrowth>0){
-      lines.push('Your investment growth is becoming a larger contributor to your wealth than your own contributions — a sign compounding is taking hold.');
-    } else if(annualContribution>0){
-      lines.push('Your savings rate is currently contributing more to your wealth than investment returns — an advantage many investors lose once contributions slow down.');
-    }
-    lines.push('Your biggest wealth-building advantage right now is time — the earlier money is invested, the longer it has to compound.');
-    if(monthlyContrib<=0) lines.push('You do not currently have a regular monthly contribution set up.');
-    list.innerHTML = lines.slice(0,3).map(l=>`<li><div class="dot"></div>${l}</li>`).join('');
-  }
-
+  // Shared with the phone Plan tab's "Next best steps" card on Cashflow (buildMobilePlanExtras), until B12.8.
   const FORECAST_NEXT_STEPS = [
     {text:'Test what happens if you increase your investment contributions.', page:'planning'},
     {text:'Understand the impact of sequence of returns on long-term outcomes.', page:'learning'},
     {text:'Review your current financial independence pathway.', page:'planning'},
   ];
-  // Shared with the mobile Plan tab's merged "Next best steps" card (see buildMobilePlanExtras).
   TEI.planNextSteps = Object.assign(TEI.planNextSteps || {}, {forecast: FORECAST_NEXT_STEPS});
-  function renderNextSteps(){
-    const steps = FORECAST_NEXT_STEPS;
-    const list = document.getElementById('nextStepsList');
-    list.innerHTML = steps.map((s,i)=>`<li data-step-idx="${i}"><div class="dot"></div>${s.text}</li>`).join('');
-    list.querySelectorAll('[data-step-idx]').forEach(li=>{
-      li.addEventListener('click', function(){ const s = steps[this.dataset.stepIdx]; if(TEI.app) TEI.app.showPage(s.page); });
-    });
-  }
-
-  /* ---------- Learning hub ---------- */
-  function renderLearningHub(){
-    const items = [
-      {text:'The Power of Compounding', page:'learning'},
-      {text:'Cost of Waiting Calculator', page:'guides'},
-      {text:'Sequence of Returns, explained', page:'learning'},
-      {text:'Building Wealth Guide', page:'guides'},
-    ];
-    const list = document.getElementById('learningHubList');
-    list.innerHTML = items.map((it,i)=>`<li data-hub-idx="${i}"><div class="dot"></div>${it.text}</li>`).join('');
-    list.querySelectorAll('[data-hub-idx]').forEach(li=>{
-      li.addEventListener('click', function(){ const it = items[this.dataset.hubIdx]; if(TEI.app) TEI.app.showPage(it.page); });
-    });
-  }
-
-  function wire(ids, fn){
-    ids.forEach(id=>{
-      const el = document.getElementById(id);
-      if(!el || el.dataset.wired) return;
-      el.addEventListener('input', fn); el.addEventListener('change', fn);
-      el.dataset.wired = '1';
-    });
-  }
 
   TEI.render.planning = function(client){
-    renderOverview(client);
-    renderForecastCoach(client);
-    renderScenario(client);
-    renderCompoundGrowth();
-    renderSequenceOfReturns(client);
-    renderDecisionImpact(client);
-    renderThingsToKnow(client);
-    renderNextSteps();
-    renderLearningHub();
-    wireWPToggle();
-
-    wire(['scContrib','scSpend','scIncome'], ()=>renderScenario(client));
-    const coastBtn = document.getElementById('scCoastBtn');
-    if(!coastBtn.dataset.wired){
-      coastBtn.addEventListener('click', function(){
-        const base = TEI.calc.totalMonthlyContribution(client);
-        document.getElementById('scContrib').value = -Math.round(base);
-        document.getElementById('scSpend').value = 0;
-        document.getElementById('scIncome').value = 0;
-        renderScenario(client);
-      });
-      coastBtn.dataset.wired = '1';
-    }
-    const resetBtn = document.getElementById('scResetBtn');
-    if(!resetBtn.dataset.wired){
-      resetBtn.addEventListener('click', function(){
-        ['scContrib','scSpend','scIncome'].forEach(id=>document.getElementById(id).value=0);
-        renderScenario(client);
-      });
-      resetBtn.dataset.wired = '1';
-    }
-    document.querySelectorAll('[data-mc-toggle]').forEach(el=>{
-      if(el.dataset.wired) return;
-      el.addEventListener('change', function(){ client.monteCarlo[this.dataset.mcToggle] = this.checked; renderScenario(client); });
-      el.dataset.wired = '1';
-    });
-    wire(['cgStart','cgMonthly','cgRate','cgYears'], renderCompoundGrowth);
-
-    wire(['diAmount','diRate','diAccountScope'], ()=>renderDecisionImpact(client));
-    document.querySelectorAll('#diModeToggle button').forEach(btn=>{
-      if(btn.dataset.wired) return;
-      btn.addEventListener('click', function(){ diMode = this.dataset.diMode; renderDecisionImpact(client); });
-      btn.dataset.wired = '1';
-    });
-    document.querySelectorAll('#diHorizonToggle button').forEach(btn=>{
-      if(btn.dataset.wired) return;
-      btn.addEventListener('click', function(){ diHorizonYears = Number(this.dataset.diHorizon); renderDecisionImpact(client); });
-      btn.dataset.wired = '1';
-    });
-    const lrDecision = document.getElementById('lrDecisionImpact');
-    if(!lrDecision.dataset.wired){
-      lrDecision.addEventListener('click', function(e){
-        e.preventDefault();
-        document.querySelector('#wpToggle [data-wp-view="decision"]').click();
-        document.getElementById('wpDecision').scrollIntoView({behavior:'smooth', block:'start'});
-      });
-      lrDecision.dataset.wired = '1';
-    }
+    wireOnce();
+    if(!st || st.clientId !== client.meta.clientId) st = freshState(client);
+    setText('fcMessage', computeForecastCoach(client).message);
+    renderAll(client);
   };
 })();
 
@@ -17344,7 +17300,10 @@ window.TEI = window.TEI || {};
       },
       preferences:{
         fiMultiple: cf.fi_multiple, fiOverride: cf.fi_override,
-        wealthConversionTarget: cf.wealth_conversion_target
+        wealthConversionTarget: cf.wealth_conversion_target,
+        // Plan settings (B9.4, migration 009). Undefined until first saved.
+        retirementAge: cf.retirement_age != null ? cf.retirement_age : undefined,
+        yearlySpending: cf.yearly_spending != null ? Number(cf.yearly_spending) : undefined
       },
       monteCarlo: cf.monte_carlo,
 
@@ -17696,7 +17655,11 @@ window.TEI = window.TEI || {};
       fi_multiple: pref.fiMultiple != null ? pref.fiMultiple : null,
       fi_override: pref.fiOverride != null ? pref.fiOverride : null,
       wealth_conversion_target: pref.wealthConversionTarget != null ? pref.wealthConversionTarget : null,
-      monte_carlo: client.monteCarlo || null
+      monte_carlo: client.monteCarlo || null,
+      // Plan settings (migration 009): only sent once set, so saving the rest
+      // of this row keeps working on a database without those columns yet.
+      ...(pref.retirementAge != null ? {retirement_age: pref.retirementAge} : {}),
+      ...(pref.yearlySpending != null ? {yearly_spending: pref.yearlySpending} : {})
     };
   }
 
@@ -18577,59 +18540,6 @@ window.TEI = window.TEI || {};
     });
   }
 
-  /* Forecast > Wealth projection, mobile only:
-     - the long static explanation in each view collapses behind a small toggle;
-     - the three "Your plan" scenario inputs get -/+ buttons (the phone number
-       pad has no minus sign, and typing on a phone is fiddly). The buttons
-       change the value and fire the input's own `input` event, so the existing
-       recalculation runs unchanged. Both sets of controls are hidden above 860px. */
-  const SCENARIO_STEP = {scContrib:50, scSpend:50, scIncome:50};
-  function wireForecastControls(){
-    const views = [
-      {id:'wpPlan', explain:v=> v.querySelector(':scope > .sub2')},
-      {id:'wpHypothetical', explain:v=> v.querySelector(':scope > .line')},
-      {id:'wpSequence', explain:v=> v.querySelector(':scope > .line')},
-      {id:'wpDecision', explain:v=> v.querySelector(':scope > .line')}
-    ];
-    views.forEach(v=>{
-      const box = document.getElementById(v.id);
-      const text = box && v.explain(box);
-      if(!box || !text || box.querySelector(':scope > .m-explain')) return;
-      text.setAttribute('data-m-explain-body', '');
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'm-explain';
-      btn.setAttribute('aria-expanded', 'false');
-      btn.textContent = 'What does this show?';
-      btn.addEventListener('click', ()=>{
-        const open = box.classList.toggle('m-explain-open');
-        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-      box.insertBefore(btn, text); // before the text it reveals (the "Your plan" view re-orders visually with CSS)
-    });
-
-    Object.keys(SCENARIO_STEP).forEach(id=>{
-      const input = document.getElementById(id);
-      if(!input || input.parentNode.querySelector('.m-step')) return;
-      const mk = (dir, label, aria)=>{
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'm-step m-step-' + (dir < 0 ? 'dec' : 'inc');
-        b.setAttribute('aria-label', aria);
-        b.textContent = label;
-        b.addEventListener('click', ()=>{
-          const next = Math.round(((Number(input.value) || 0) + dir * SCENARIO_STEP[id]) * 100) / 100;
-          input.value = String(next);
-          input.dispatchEvent(new Event('input', {bubbles:true}));
-        });
-        return b;
-      };
-      const name = (input.parentNode.querySelector('span') || {}).textContent || 'value';
-      input.parentNode.insertBefore(mk(-1, '−', 'Decrease ' + name.replace(/\s*£\s*$/, '')), input);
-      input.parentNode.appendChild(mk(1, '+', 'Increase ' + name.replace(/\s*£\s*$/, '')));
-    });
-  }
-
   /* ================= LIBRARY > PLAN (mobile only) =================
      The client's ACTIVE investment plan, read straight from wealth_os
      (investment_plans -> plan_investments -> plan_investment_accounts). RLS lets
@@ -18811,14 +18721,14 @@ window.TEI = window.TEI || {};
 
   /* Plan tab: one merged "Next best steps" card above the segmented switch,
      built from the two existing lists (Forecast's and Cashflow's) -- top 2.
-     Built once per Plan page (no ids, so copies are fine). Not on Goals:
-     its board has no such card (B6). */
+     Built once per Plan page (no ids, so copies are fine). Not on Goals or
+     Forecast: their boards have no such card (B6, B7). */
   function buildMobilePlanExtras(){
     const ns = TEI.planNextSteps || {};
     const f = ns.forecast || [], c = ns.cashflow || [];
     // Forecast's first step, then Cashflow's lifestyle-inflation step: one from each page, no overlap.
     const steps = [f[0], c[1]].filter(Boolean);
-    ['planning','cashflow'].forEach(pid=>{
+    ['cashflow'].forEach(pid=>{
       const page = document.getElementById('page-'+pid);
       if(!page || page.querySelector('.m-nextsteps')) return;
       const card = document.createElement('div');
@@ -18898,7 +18808,6 @@ window.TEI = window.TEI || {};
     });
     buildMobileSegs();
     buildMobilePlanExtras();
-    wireForecastControls();
     // Delegated: the "Edit everything" rows are rebuilt on every render, and Profile / Preferences open a My Details section too.
     document.getElementById('page-menu').addEventListener('click', e=>{
       const b = e.target.closest && e.target.closest('[data-msub]');
@@ -19589,17 +19498,21 @@ window.TEI = window.TEI || {};
   }
   function basePath(){ return location.pathname + location.search; }
 
-  /* ---------- Forecast page card ---------- */
+  /* ---------- Forecast page: "Your coach's forecast" tile (B7.3) ---------- */
   function renderPlanCard(c){
-    const slot = document.getElementById('forecastPlanSlot');
-    if(!slot) return;
+    const date = document.getElementById('fcDocDate');
+    const btn = document.getElementById('fcDocOpen');
+    if(!date || !btn) return;
     const doc = forecastsOf(c)[0];
-    if(!doc){ slot.innerHTML = ''; return; }
-    slot.innerHTML = `<div class="dgrid"><div class="span-12"><div class="dcard k-fc-card">
-        <div><div class="k-fc-title">Your Wealth Plan forecast</div>
-        <div class="k-fc-meta">Prepared by ${PREPARED_BY} · ${esc(fmtDate(doc.uploadedAt))}</div></div>
-        <button type="button" class="btn-primary" data-forecast-open="${esc(doc.id)}">Open</button>
-      </div></div></div>`;
+    if(!doc){
+      date.textContent = 'Your coach adds this after your plan session.';
+      btn.hidden = true;
+      btn.removeAttribute('data-forecast-open');
+      return;
+    }
+    date.textContent = 'Prepared by ' + PREPARED_BY + ' · ' + fmtDate(doc.uploadedAt);
+    btn.setAttribute('data-forecast-open', doc.id);
+    btn.hidden = false;
   }
   const basePlanning = TEI.render && TEI.render.planning;
   if(basePlanning){
