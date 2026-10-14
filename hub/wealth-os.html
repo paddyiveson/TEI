@@ -799,6 +799,191 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
    tag-pill. (.client-list-row/.cl-* below this used to be dead CSS --
    defined but never actually used by renderClientListRows -- repurposed
    here rather than left orphaned.) */
+/* ================= Set up Wealth OS (B13), hub/js/wealth-setup.js ================= */
+#setupApp[data-theme="light"]{ --s-bg:#F2EFE7; --s-side:#FFFFFF; --s-tile:#FFFFFF; --s-line:#DEDAD0; --s-text:#13213A; --s-muted:#4E5B70; --s-champ:#F0E7D0; --s-powder:#DFE6F2; --s-gold:#83661C; --s-track:#E9E5DA; --s-chip:#F7F4ED; --s-act:#0F1E36; --s-act-text:#E8D6A8; color-scheme:light; }
+#setupApp[data-theme="dark"]{ --s-bg:#0B1729; --s-side:#0F1E36; --s-tile:#12233D; --s-line:rgba(232,214,168,0.14); --s-text:#F7F4ED; --s-muted:#AAB6C8; --s-champ:#28303A; --s-powder:#1C2B45; --s-gold:#E8D6A8; --s-track:rgba(255,255,255,0.10); --s-chip:rgba(255,255,255,0.05); --s-act:#E8D6A8; --s-act-text:#0F1E36; color-scheme:dark; }
+html.su-open, html.su-open body{ overflow:hidden; }
+.su{ position:fixed; inset:0; z-index:5500; overflow-y:auto; background:var(--s-bg); color:var(--s-text); font-family:'Geist',system-ui,sans-serif; font-size:15px; line-height:1.5; }
+.su[hidden]{ display:none; }
+.su *{ box-sizing:border-box; }
+.su p, .su h1, .su ol{ margin:0; }
+.su h1{ font-family:'Geist',system-ui,sans-serif; color:inherit; font-weight:300; }
+.su a{ color:inherit; }
+.su button{ font-family:inherit; }
+.su a:focus-visible, .su button:focus-visible, .su input:focus-visible, .su select:focus-visible, .su textarea:focus-visible{ outline:2px solid var(--s-gold); outline-offset:2px; }
+.su-mono{ font-family:'Geist Mono',ui-monospace,monospace; font-size:12px; }
+.su-gold{ color:var(--s-gold); }
+.su-champ{ color:#E8D6A8; }
+.su-top{ position:sticky; top:0; z-index:3; display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:68px; padding:14px 32px; background:var(--s-side); border-bottom:1px solid var(--s-line); }
+.su-brand{ display:inline-flex; align-items:center; gap:10px; font-weight:500; font-size:15px; }
+.su-brand svg{ width:26px; height:26px; fill:none; stroke:var(--s-gold); stroke-width:1.4; }
+.su-brand svg .f{ fill:var(--s-gold); stroke:none; }
+.su-pv{ font-family:'Geist Mono',monospace; font-size:11px; padding:3px 10px; border-radius:999px; background:var(--s-champ); color:var(--s-gold); }
+.su-later{ min-height:44px; padding:0 4px; border:0; background:none; color:var(--s-gold); font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.su-mprog{ display:none; }
+.su-body{ display:flex; align-items:stretch; min-height:calc(100vh - 68px); }
+.su-rail{ position:relative; overflow:hidden; flex:0 0 272px; padding:32px 20px; background:#0F1E36; color:#F7F4ED; display:flex; flex-direction:column; gap:24px; }
+.su-rail > *{ position:relative; }
+.su-orbit{ position:absolute !important; width:420px; height:420px; right:-220px; bottom:-200px; border-radius:50%; border:1px dashed rgba(232,214,168,0.18); animation:su-spin 40s linear infinite; pointer-events:none; }
+.su-rail-n{ margin-top:8px !important; font-size:22px; font-weight:300; letter-spacing:-0.02em; }
+.su-bar{ margin-top:12px; height:4px; border-radius:999px; background:var(--s-track); overflow:hidden; }
+.su-bar span{ display:block; height:100%; background:var(--s-gold); border-radius:999px; transition:width .4s ease; }
+.su-bar--dark{ background:rgba(255,255,255,0.10); }
+.su-bar--dark span{ background:#E8D6A8; }
+.su-steps{ display:flex; flex-direction:column; gap:2px; }
+.su-steps button{ display:flex; align-items:center; gap:12px; min-height:44px; padding:0 12px; border:0; border-radius:14px; background:transparent; color:#AAB6C8; font-size:14px; text-align:left; cursor:pointer; }
+.su-steps button.cur{ background:rgba(232,214,168,0.12); color:#F7F4ED; font-weight:500; }
+.su-steps button.done{ color:#F7F4ED; }
+.su-dot{ flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid rgba(170,182,200,0.6); display:inline-flex; align-items:center; justify-content:center; }
+.su-dot svg{ width:12px; height:12px; fill:none; stroke:#0F1E36; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; display:none; }
+.su-steps .cur .su-dot{ border-color:#E8D6A8; }
+.su-steps .done .su-dot{ border-color:#E8D6A8; background:#E8D6A8; }
+.su-steps .done .su-dot svg{ display:block; }
+.su-sl{ flex:1; }
+.su-sn{ font-size:11px; color:#AAB6C8; }
+.su-rail-foot{ margin-top:auto !important; font-size:12px; line-height:1.5; color:#AAB6C8; }
+.su-main{ flex:999 1 560px; min-width:0; max-width:736px; margin:0 auto; padding:40px 48px 32px; display:flex; flex-direction:column; gap:24px; }
+.su-stack{ display:flex; flex-direction:column; gap:20px; animation:su-up .5s cubic-bezier(.2,.8,.2,1) both; }
+.su-side{ flex:0 0 300px; padding:40px 32px 32px 0; }
+.su-h1{ margin-top:8px !important; font-size:36px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.su-intro{ margin-top:8px !important; font-size:15px; color:var(--s-muted); }
+.su-help{ font-size:13px; color:var(--s-muted); line-height:1.5; }
+.su-help a{ color:var(--s-gold); }
+.su-note{ font-size:12px; color:var(--s-muted); }
+.su-k{ font-family:'Geist Mono',monospace; font-size:11px; color:var(--s-muted); }
+.su-big{ margin-top:6px !important; font-size:18px; }
+.su-q{ font-size:15px; font-weight:500; }
+.su-card{ padding:20px; border-radius:22px; background:var(--s-tile); border:1px solid var(--s-line); display:flex; flex-direction:column; gap:16px; }
+.su-box{ padding:20px; border-radius:22px; background:var(--s-champ); display:flex; flex-direction:column; gap:14px; }
+.su-tag{ align-self:flex-start; font-family:'Geist Mono',monospace; font-size:11px; padding:3px 10px; border-radius:999px; background:var(--s-tile); color:var(--s-gold); }
+.su-lab{ display:flex; flex-direction:column; gap:8px; font-size:14px; font-weight:500; }
+.su-opt{ font-weight:400; color:var(--s-muted); }
+.su-in{ font-family:inherit; font-size:16px; width:100%; min-height:48px; padding:0 14px; border-radius:14px; border:1px solid var(--s-line); background:var(--s-tile); color:var(--s-text); }
+.su-in:focus{ border-color:var(--s-gold); outline:none; }
+.su-mono.su-in, .su-in.su-mono{ font-family:'Geist Mono',monospace; }
+.su-ta{ min-height:96px; padding:12px 14px; resize:vertical; line-height:1.5; }
+.su-two{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.su-three{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.su-check{ display:flex; gap:12px; align-items:center; min-height:44px; font-size:14px; }
+.su-check input{ width:22px; height:22px; margin:0; accent-color:#83661C; }
+.su-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.su-chip{ min-height:44px; min-width:56px; padding:0 16px; border-radius:999px; border:1px solid var(--s-line); background:var(--s-tile); color:var(--s-text); font-size:14px; cursor:pointer; }
+.su-chip[aria-pressed="true"]{ background:var(--s-act); border-color:var(--s-act); color:var(--s-act-text); }
+.su-rows{ border-radius:22px; background:var(--s-champ); overflow:hidden; }
+.su-line{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 12px; padding:14px 18px; border-bottom:1px solid var(--s-line); }
+.su-line:last-child{ border-bottom:0; }
+.su-line > span{ flex:1 1 160px; min-width:0; }
+.su-line b{ display:block; font-size:15px; font-weight:500; }
+.su-line small{ display:block; font-size:12px; color:var(--s-muted); }
+.su-line .su-chip{ min-height:40px; font-size:13px; }
+.su-fs{ border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.su-fs legend{ padding:0; margin-bottom:10px; font-size:14px; font-weight:500; }
+.su-from{ padding:0; margin:0; border-radius:20px; background:var(--s-tile); border:1px solid var(--s-line); overflow:hidden; }
+.su-from-h{ width:100%; min-height:52px; padding:0 18px; border:0; background:transparent; color:var(--s-text); display:flex; align-items:center; gap:12px; text-align:left; cursor:pointer; }
+.su-tick{ flex:none; width:22px; height:22px; border-radius:50%; background:var(--s-powder); display:inline-flex; align-items:center; justify-content:center; }
+.su-tick svg{ width:12px; height:12px; fill:none; stroke:var(--s-text); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.su-grow{ flex:1; min-width:0; }
+.su-grow b{ display:block; font-size:14px; font-weight:500; }
+.su-grow small{ display:block; font-size:12px; color:var(--s-muted); }
+.su-chev{ width:14px; height:14px; fill:none; stroke:var(--s-muted); stroke-width:2; stroke-linecap:round; flex:none; }
+.su-from-b{ padding:0 18px 14px; border-top:1px solid var(--s-line); }
+.su-from-b > div{ display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--s-line); font-size:14px; }
+.su-from-b > div span:first-child{ color:var(--s-muted); }
+.su-from-b > div span:last-child{ text-align:right; }
+.su-from-b .su-help{ margin-top:10px; }
+.su-hero{ position:relative; overflow:hidden; border-radius:26px; background:#0F1E36; color:#F7F4ED; padding:32px; }
+.su-hero > *{ position:relative; }
+.su-hero .su-orbit{ width:360px; height:360px; right:-150px; top:-150px; bottom:auto; border-color:rgba(232,214,168,0.22); }
+.su-hero h1{ margin-top:12px; font-size:36px; font-weight:300; letter-spacing:-0.035em; line-height:1.08; }
+.su-hero p:not(.su-mono){ margin-top:14px; font-size:16px; line-height:1.6; color:#AAB6C8; max-width:520px; }
+.su-done-tick{ width:48px; height:48px; border-radius:50%; background:#E8D6A8; display:inline-flex; align-items:center; justify-content:center; }
+.su-done-tick svg{ width:22px; height:22px; fill:none; stroke:#0F1E36; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.su-done h1{ margin-top:18px; }
+.su-ol{ padding-left:20px; display:flex; flex-direction:column; gap:8px; font-size:15px; }
+.su-confirm{ padding:0; gap:0; overflow:hidden; }
+.su-confirm > div{ display:flex; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--s-line); font-size:15px; }
+.su-confirm > div:last-child{ border-bottom:0; }
+.su-confirm > div span{ text-align:right; color:var(--s-muted); }
+.su-confirm b{ font-weight:500; }
+.su-review{ padding:0; gap:0; overflow:hidden; }
+.su-rv{ display:flex; align-items:center; gap:12px; padding:14px 18px; border-bottom:1px solid var(--s-line); }
+.su-rv:last-child{ border-bottom:0; }
+.su-st{ font-family:'Geist Mono',monospace; font-size:11px; padding:4px 10px; border-radius:999px; background:var(--s-champ); }
+.su-st.ok{ background:var(--s-powder); }
+.su-link{ min-height:44px; padding:0 8px; border:0; background:none; color:var(--s-gold); font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.su-nav{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:8px; }
+.su-nav-r{ display:flex; gap:10px; margin-left:auto; }
+.su-skip{ min-height:44px; padding:0 4px; border:0; background:none; color:var(--s-muted); font-size:14px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.su-btn{ display:inline-flex; align-items:center; justify-content:center; min-height:52px; padding:0 24px; border-radius:999px; border:1px solid var(--s-line); background:var(--s-tile); color:var(--s-text); font-size:16px; font-weight:500; cursor:pointer; text-decoration:none; }
+.su-btn--primary{ background:var(--s-act); border-color:var(--s-act); color:var(--s-act-text); }
+.su-btn:disabled{ opacity:.6; cursor:default; }
+.su-actions{ display:flex; flex-wrap:wrap; gap:10px; }
+.su-na{ font-size:12px; color:var(--s-muted); }
+.su-pic{ position:sticky; top:96px; }
+.su-pic-n{ font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1; }
+.su-pic-rows > div{ display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-top:1px solid var(--s-line); font-size:13px; }
+.su-pic-rows span{ color:var(--s-muted); }
+.su-pic-rows b{ font-weight:500; }
+@keyframes su-up{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+@keyframes su-spin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ .su-stack, .su-orbit{ animation:none; } }
+@media (max-width:1180px){ .su-side{ display:none; } }
+@media (max-width:860px){
+  .su-top{ min-height:56px; padding:8px 16px; }
+  .su-later{ font-size:13px; }
+  .su-mprog{ display:block; position:sticky; top:56px; z-index:2; padding:12px 16px 10px; background:var(--s-bg); }
+  .su-mprog > div:first-child{ display:flex; justify-content:space-between; font-family:'Geist Mono',monospace; font-size:11px; color:var(--s-muted); }
+  .su-mprog .su-bar{ margin-top:8px; }
+  .su-body{ display:block; min-height:0; }
+  .su-rail{ display:none; }
+  .su-main{ padding:8px 16px 0; gap:16px; }
+  .su-h1, .su-hero h1{ font-size:28px; }
+  .su-hero{ padding:24px; }
+  .su-two, .su-three{ grid-template-columns:minmax(0,1fr); }
+  .su-nav{ position:sticky; bottom:0; flex-direction:column-reverse; align-items:stretch; gap:4px; margin:0 -16px; padding:8px 16px calc(14px + env(safe-area-inset-bottom)); background:var(--s-side); border-top:1px solid var(--s-line); }
+  .su-nav-r{ width:100%; margin:0; }
+  .su-nav-r .su-btn{ flex:1; }
+  .su-skip{ align-self:center; }
+  .su-na{ padding-bottom:24px; }
+}
+/* Settings > You and investing reuses the wizard fields inside #clientApp. */
+#clientApp .su-settings{ --s-tile:var(--w-tile); --s-line:var(--w-line); --s-text:var(--w-text); --s-muted:var(--w-muted); --s-champ:var(--w-chip); --s-gold:var(--w-gold); --s-act:var(--w-nav-active); --s-act-text:var(--w-nav-active-text); display:flex; flex-direction:column; gap:14px; margin-bottom:14px; }
+#clientApp .su-settings .su-box{ padding:0; background:none; }
+#clientApp .su-settings .su-rows{ background:none; border:1px solid var(--w-line); }
+#clientApp .su-settings-you{ gap:14px; padding:0; }
+/* Coach view: Setup tab (B13.4), in the adviser workspace style. */
+#advSetupHost .cs-top{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px; margin-bottom:16px; }
+#advSetupHost .cs-k{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); font-weight:700; margin:0 0 6px; }
+#advSetupHost .cs-grid{ display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:16px; align-items:start; }
+#advSetupHost .cs-main, #advSetupHost .cs-side{ display:flex; flex-direction:column; gap:12px; }
+#advSetupHost .card{ margin:0; border:1px solid var(--cream-line); }
+#advSetupHost .cs-head{ display:flex; align-items:center; gap:12px; }
+#advSetupHost .cs-dot{ flex:none; width:10px; height:10px; border-radius:50%; background:rgba(247,244,237,0.25); }
+#advSetupHost .cs-dot.on{ background:var(--gold); }
+#advSetupHost .cs-grow{ flex:1; min-width:0; }
+#advSetupHost .cs-grow b{ display:block; color:var(--cream); font-size:15px; }
+#advSetupHost .cs-grow small{ display:block; color:var(--cream-soft2); font-size:13px; }
+#advSetupHost .cs-gaps{ margin-top:10px; padding-top:6px; border-top:1px solid var(--cream-line); }
+#advSetupHost .cs-gap{ display:flex; align-items:center; gap:12px; min-height:40px; font-size:14px; color:var(--cream); }
+#advSetupHost .cs-gap input{ width:18px; height:18px; margin:0; accent-color:var(--gold); }
+#advSetupHost .cs-gap > span{ flex:1; }
+#advSetupHost .cs-gap small{ font-size:11px; color:var(--cream-soft2); }
+#advSetupHost .cs-gap em{ display:block; font-style:normal; color:var(--gold); font-size:13px; margin-top:2px; }
+#advSetupHost .cs-off{ color:var(--cream-soft2); text-decoration:line-through; }
+#advSetupHost .cs-q button{ padding:4px 10px; font-size:11px; }
+#advSetupHost .cs-n{ font-size:40px; color:var(--cream); line-height:1; margin:4px 0; }
+#advSetupHost .cs-send{ display:flex; flex-direction:column; gap:10px; }
+#advSetupHost .cs-add{ display:flex; flex-direction:column; gap:10px; }
+#advSetupHost .cs-tl{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+#advSetupHost .cs-tl li{ display:flex; align-items:center; gap:10px; color:var(--cream-soft2); font-size:14px; }
+#advSetupHost .cs-tl li span{ width:14px; height:14px; border-radius:50%; border:1.5px solid var(--cream-line); }
+#advSetupHost .cs-tl li.on{ color:var(--cream); }
+#advSetupHost .cs-tl li.on span{ background:var(--gold); border-color:var(--gold); }
+#advSetupHost .cs-tl small{ margin-left:auto; font-size:12px; }
+#advSetupHost .cs-answers h3{ margin:0 0 8px; color:var(--cream); font-size:16px; }
+#advSetupHost .cs-ans{ display:flex; justify-content:space-between; gap:12px; padding:8px 0; border-bottom:1px solid var(--cream-line); font-size:14px; color:var(--cream-soft); }
+#advSetupHost .cs-ans b{ color:var(--gold); font-weight:600; text-align:right; }
+@media (max-width:900px){ #advSetupHost .cs-grid{ grid-template-columns:minmax(0,1fr); } }
 /* Loading screen (#woBoot) */
 #woBoot{position:fixed; inset:0; z-index:6000; display:flex; align-items:center; justify-content:center; padding:24px; background:#F2EFE7; color:#13213A; font-family:'Geist',system-ui,sans-serif; transition:opacity .2s ease;}
 #woBoot[data-theme="dark"]{background:#0B1729; color:#F7F4ED;}
@@ -3366,6 +3551,9 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   </main>
 </div>
 
+<!-- Set up Wealth OS (B13): full-screen gap flow, built by hub/js/wealth-setup.js. -->
+<div id="setupApp" class="su" data-theme="light" role="dialog" aria-modal="true" aria-label="Finish setting up" hidden></div>
+
 <div id="clientApp" data-theme="light">
 <script>/* Saved theme before first paint (B1.5). Light is the default. */
 (function(){ var t = "light"; try { if (localStorage.getItem("tei-theme") === "dark") t = "dark"; } catch (e) {} document.getElementById("clientApp").setAttribute("data-theme", t); })();</script>
@@ -4440,6 +4628,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         <button type="button" data-st="property">Property and debts</button>
         <button type="button" data-st="income">Income and spending</button>
         <button type="button" data-st="goals">Goals</button>
+        <button type="button" data-st="you">You and investing</button>
       </div>
       <div><p class="hm-label">Documents</p>
         <button type="button" data-st="documents">Documents<span class="st-badge" id="stDocBadge" hidden></span></button>
@@ -4491,6 +4680,12 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
           <ul class="st-list" id="stGoals"></ul>
           <button type="button" class="hm-btn st-add" id="stGoalAdd">Add a goal</button>
         </section>
+      </div>
+
+      <!-- You and investing (B13.3): family, State Pension, protection, attitudes and investment profile -->
+      <div class="st-sec" data-st-sec="you">
+        <p class="hm-muted st-intro">Your own words, for how your coach and Wealth OS talk to you. Change them any time.</p>
+        <div id="stYouHost"></div>
       </div>
 
       <!-- Documents (B9.3) -->
@@ -5056,7 +5251,11 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
     <button data-tab="updates" type="button">Client Updates</button>
     <button data-tab="manual" type="button">Manual Entry</button>
     <button data-tab="tools" type="button">Tools</button>
+    <button data-tab="setup" type="button">Setup</button>
   </div>
+
+  <!-- ===================== SETUP (B13.4) ===================== -->
+  <div class="tab-panel" id="tab-setup"><div id="advSetupHost"></div></div>
 
   <!-- ===================== OVERVIEW ===================== -->
   <div class="tab-panel active" id="tab-overview">
@@ -7711,6 +7910,12 @@ TEI.render = TEI.render || {};
   /* "Finish setting up" sits first while the record is still thin. The B13
      gap flow will replace the checklist count with questions left. */
   function renderSetup(client){
+    // A coach's setup request (B13) takes over the tile while it is open.
+    if(TEI.setup && TEI.setup.homeTile(client, {
+      show: v=> show('whSetup', v), title: t=> setText('whSetupTitle', t), text: t=> setText('whSetupText', t),
+      bar: pct=> { document.getElementById('whSetupBar').style.width = pct + '%'; },
+      button: fn=> { document.getElementById('whSetupBtn').onclick = (e)=>{ e.preventDefault(); fn(); }; }
+    })) return;
     const c = TEI.calc.completion(client);
     const needed = !(client.settings.onboardingComplete && c.hasRealData);
     show('whSetup', needed);
@@ -12895,7 +13100,7 @@ TEI.render = TEI.render || {};
      the Adviser Workspace by restoreMyDetailsPanel. On phones, Me lists the
      sections and each opens as its own screen with "‹ Me" (B9.1). */
   const ST_TITLES = {profile:'Profile', accounts:'Accounts', holdings:'Holdings', property:'Property and debts',
-    income:'Income and spending', goals:'Goals', documents:'Documents', plan:'Plan settings',
+    income:'Income and spending', goals:'Goals', you:'You and investing', documents:'Documents', plan:'Plan settings',
     membership:'Membership', notifications:'Notifications', security:'Security and data', help:'Help and learning'};
   const ST_PANELS = {profile:'subtab-profile', accounts:'subtab-accounts', holdings:'subtab-holdings', property:'subtab-wealth', income:'subtab-cashflow'};
   const TIERS = [
@@ -13060,7 +13265,7 @@ TEI.render = TEI.render || {};
   }
   const ST_RENDER = {
     accounts: renderAccountsSummary, income: renderSpendSummary, goals: renderGoalsList,
-    documents: stRenderDocuments, plan: renderPlan, membership: renderMembership, notifications: renderNotifications
+    documents: stRenderDocuments, plan: renderPlan, you: c=> { if(TEI.setup) TEI.setup.settingsRender(c); }, membership: renderMembership, notifications: renderNotifications
   };
 
   /* ---------- actions ---------- */
@@ -13215,7 +13420,7 @@ TEI.render = TEI.render || {};
     const prefs = notifPrefs(c);
     const groups = [
       ['My details', [['profile','Profile',''], ['accounts','Accounts', n + ' · ' + fmtGBP(total)], ['holdings','Holdings', String((c.holdings||[]).length)],
-        ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)]]],
+        ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)], ['you','You and investing','']]],
       ['Documents and plan', [['documents','Documents', pending ? pending + ' pending' : ''], ['plan','Plan settings', 'Retire at ' + ((c.preferences||{}).retirementAge || 60)]]],
       ['Account', [['membership','Membership', t ? t.name + ' · £' + t.price : ''], ['notifications','Notifications', Object.values(prefs).some(Boolean) ? 'Email on' : 'Email off'], ['security','Security and data','']]],
       ['Help', [['help','Help and learning',''], ['_message','Message your coach','']]],
@@ -13284,6 +13489,7 @@ window.TEI = window.TEI || {};
         if(this.dataset.tab === 'tools') renderExportSummary();
         if(this.dataset.tab === 'overview') renderOverview();
         if(this.dataset.tab === 'updates') renderUpdates();
+        if(this.dataset.tab === 'setup' && TEI.setup) TEI.setup.coachRender(TEI.app.state.client);
       });
     });
   }
@@ -18016,8 +18222,14 @@ window.TEI = window.TEI || {};
         employmentStatus: c.employment_status, relationshipStatus: c.relationship_status,
         riskProfile: c.risk_profile, email: c.email, notes: c.notes,
         partner:{ name: c.partner_name, employmentStatus: c.partner_employment_status, incomeSources:[] },
+        // Set up Wealth OS (B13, migration 013). Null until answered.
+        dependants: c.dependants || null,
         lastEditedBy: c.last_edited_by, lastEditedAt: c.last_edited_at
       },
+      pensions:{ statePension: c.state_pension || null },
+      protection: c.protection || {},
+      profile: c.investor_profile || {},
+      setupRequest: c.setup_request || null,
       settings:{ currency: c.currency, onboardingComplete: c.onboarding_complete,
         // Redesign B9 (migration 011). Undefined until set.
         theme: c.theme || undefined,
@@ -18792,6 +19004,17 @@ window.TEI = window.TEI || {};
   async function saveClientSettings(clientId, fields){
     return await updateRow('clients','id',clientId, fields);
   }
+  /* Set up Wealth OS (B13, migration 013): dependants, state_pension,
+     protection, investor_profile and setup_request on the clients row. Only
+     the keys passed are written, so nothing else on the row changes. */
+  async function saveSetupFields(clientId, fields){
+    const row = {};
+    ['dependants','state_pension','protection','investor_profile','setup_request','dob','employment_status','relationship_status','risk_profile']
+      .forEach(k=>{ if(fields[k] !== undefined) row[k] = fields[k]; });
+    if(!Object.keys(row).length) return null;
+    row.last_updated = new Date().toISOString();
+    return await updateRow('clients','id',clientId, row);
+  }
   async function setDocumentReviewStatus(documentId, status){
     return docRowToLocal(await updateRow('documents', 'id', documentId, { review_status: status }));
   }
@@ -18850,7 +19073,7 @@ window.TEI = window.TEI || {};
     uploadDocument, updateDocument, deleteDocument, downloadDocumentText, downloadDocumentBlob, documentSignedUrl,
     loadForecastState, loadForecastStates, saveForecastState, deleteForecastState,
     linkHousehold, unlinkHousehold, loadHouseholdSummary,
-    showLoadError, hideLoadError, hideBoot,
+    showLoadError, hideLoadError, hideBoot, saveSetupFields,
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
     saveIncome, deleteIncome, saveExpense, deleteExpense,
     saveAccountMonth, saveHoldingMonth, saveGoalMonth, saveAccountDeposit, saveCashflowMonth,
@@ -20070,7 +20293,9 @@ window.TEI = window.TEI || {};
       try { localStorage.setItem('tei-theme', loadedClient.settings.theme); } catch(e) {}
     }
     updateAvatar(state.client);
+    const wantSetup = new URLSearchParams(location.search).get('page') === 'setup';
     showPage(startPageFromUrl());
+    if(TEI.setup){ if(wantSetup && TEI.setup.isActive(state.client)) TEI.setup.open(); else TEI.setup.maybeAutoOpen(state.client); }
     if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(state.client);
     if(TEI.onboarding && TEI.onboarding.init) TEI.onboarding.init(state.client);
     if(TEI.feedback && TEI.feedback.init) TEI.feedback.init(state.client);
@@ -20893,5 +21118,6 @@ em{color:${c.soft};}
   TEI.docView = { prepare, render, download, formatOf, formatLabel };
 })();
 </script>
+<script src="/hub/js/wealth-setup.js"></script>
 </body>
 </html>

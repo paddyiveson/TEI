@@ -73,6 +73,11 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .t { position:relative; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; transition:transform .2s ease, box-shadow .2s ease; animation:hb-up .7s cubic-bezier(.2,.8,.2,1) both; }
 .t:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
 .t-champ { background:var(--champ); }
+.t-setup { grid-column:span 12; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; text-decoration:none; }
+.t-setup[hidden] { display:none; }
+.t-setup .lab { font-size:12px; color:var(--gold); }
+.t-setup-h { margin-top:6px; font-size:22px; font-weight:400; letter-spacing:-0.02em; }
+.t-setup-p { margin-top:4px; font-size:14px; color:var(--muted); }
 .t-powder { background:var(--powder); }
 .t-feat { background:var(--feat); border-color:var(--featLine); color:#F7F4ED; overflow:hidden; }
 .lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--muted); }
@@ -268,6 +273,13 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
   </div>
 
   <div class="hb-grid">
+
+    <!-- Set up Wealth OS (B13.5): shows while the coach's setup request is open. -->
+    <a class="t t-champ t-setup" href="/hub/wealth-os.html?page=setup" id="hbSetup" hidden>
+      <div><p class="lab mono">Finish setting up</p><h2 class="t-setup-h" id="hbSetupH">A few things left from your session</h2>
+      <p class="t-setup-p">Your coach filled in most of your Wealth OS. Answer what is left, then you are done.</p></div>
+      <span class="btn btn-primary">Continue</span>
+    </a>
 
     <a class="t t-feat t-wos" href="/hub/wealth-os.html" id="hbWos">
       <span class="orbit" aria-hidden="true"></span>
@@ -502,6 +514,15 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
                 var name = (pr && pr.data && pr.data.first_name) || (client && client.first_name);
                 if (name) $('hubHeroGreeting').textContent = 'Welcome back, ' + name;
                 if (!client) return;
+                // Setup request (migration 013); fails soft before it is applied.
+                w().from('clients').select('setup_request').eq('id', client.id).maybeSingle()
+                  .then(function (sr) {
+                    var req = sr && !sr.error && sr.data ? sr.data.setup_request : null;
+                    if (!req || (req.status !== 'sent' && req.status !== 'in_progress')) return;
+                    var left = req.left != null ? req.left : null;
+                    if (left != null) $('hbSetupH').textContent = left ? left + (left === 1 ? ' thing' : ' things') + ' left from your session' : 'Nearly there';
+                    $('hbSetup').hidden = false;
+                  }, function () {});
                 return w().from('documents').select('id, name, type, storage_path, uploaded_at').eq('client_id', client.id)
                   .then(function (dr) { if (dr && !dr.error) renderDocs(dr.data || []); });
               });
