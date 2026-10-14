@@ -2276,6 +2276,16 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .w-ring::after{ content:''; width:8px; height:8px; border-radius:50%; background:transparent; }
 #clientApp .m-tab.on .w-ring{ border-color:var(--w-gold); }
 #clientApp .m-tab.on .w-ring::after{ background:var(--w-gold); }
+/* Redesigned bar: line icons in a pill that fills when the tab is active. */
+@media (max-width:860px){
+  #clientApp .m-tabs{ background:color-mix(in srgb, var(--w-side) 97%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); padding-top:6px; }
+  #clientApp .m-tab{ gap:4px; font-size:11px; font-weight:500; letter-spacing:0; }
+  #clientApp .m-tab.on{ color:var(--w-text); font-weight:600; }
+  #clientApp .tab-pill{ display:flex; align-items:center; justify-content:center; width:56px; height:30px; border-radius:999px; transition:background .2s ease; }
+  #clientApp .m-tab .tab-ic{ width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  #clientApp .m-tab.on .tab-pill{ background:var(--w-champ); color:var(--w-gold); }
+  #clientApp[data-theme="dark"] .m-tab.on .tab-pill{ background:rgba(232,214,168,0.16); }
+}
 
 /* -- Feedback button: an icon, not an emoji (B0) -- */
 #clientApp .feedback-fab{ background:var(--w-nav-active); color:var(--w-nav-active-text); box-shadow:0 10px 24px rgba(11,23,41,0.25); }
@@ -2594,6 +2604,26 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .wl-lab .lab-tm-legend .sw{ width:10px; height:10px; border-radius:3px; }
 .wl-lab .wl-lab-panel{ display:block; margin:0; padding:22px; border:0; border-radius:20px; background:var(--w-chip); min-width:0; }
 .wl-lab .wl-lab-panel .m-lab-head{ display:none; }
+/* Condensed so the stage panel stays inside the card beside the treemap. */
+.wl-lab .wl-lab-panel{ overflow:hidden; }
+.wl-lab .wl-lab-panel .lab-stat-grid{ grid-template-columns:repeat(5, minmax(0, 1fr)); gap:6px; margin-bottom:14px; }
+.wl-lab .wl-lab-panel .lab-stat-card{ min-width:0; padding:8px 6px; }
+.wl-lab .wl-lab-panel .lab-stat-card .v{ font-size:16px; }
+.wl-lab .wl-lab-panel .lab-stat-card .l{ font-size:9px; line-height:1.2; }
+.wl-lab .wl-lab-panel .k-table{ width:100%; table-layout:fixed; }
+.wl-lab .wl-lab-panel .k-table th:nth-child(1){ width:auto; }
+.wl-lab .wl-lab-panel .k-table th:nth-child(2){ width:118px; }
+.wl-lab .wl-lab-panel .k-table th:nth-child(3){ width:64px; }
+.wl-lab .wl-lab-panel .lab-holding-cell{ overflow:hidden; }
+.wl-lab .wl-lab-panel .lab-holding-cell b{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wl-lab .lab-treemap-host{ height:460px; }
+.wl-lab .wl-lab-panel .lab-drivers-grid{ grid-template-columns:minmax(0, 1fr); gap:12px; }
+.wl-lab .wl-lab-panel .lab-driver-row{ min-width:0; }
+.wl-lab .wl-lab-panel .lab-driver-name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wl-lab .wl-lab-panel .k-table td, .wl-lab .wl-lab-panel .k-table th{ padding-top:7px; padding-bottom:7px; }
+.wl-lab .wl-lab-panel .lab-holding-cell .hc-name{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
+.wl-lab .wl-lab-panel .lab-more-btn{ margin:6px 0 4px; font-size:13px; }
+.wl-lab .wl-lab-panel .lab-subhead-note{ font-size:12px; }
 #clientApp #labCta{ min-height:44px; }
 
 /* Holdings */
@@ -2604,6 +2634,18 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .wl-chips button:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; }
 .wl-warn{ color:var(--w-warn) !important; }
 .wl-hlist{ overflow-x:auto; }
+.wl-hgrp-tools{ display:flex; justify-content:flex-end; gap:16px; margin:-4px 0 6px; }
+.wl-hgrp-h th{ padding:0 !important; }
+.wl-hgrp-h button{ display:flex; align-items:center; gap:10px; width:100%; min-height:48px; padding:0 10px 0 0; border:0; background:none; color:var(--w-text); font-family:inherit; font-size:14px; text-align:left; cursor:pointer; }
+.wl-hgrp-h button:hover b{ text-decoration:underline; }
+.wl-hgrp-h svg{ flex:none; width:16px; height:16px; fill:none; stroke:var(--w-muted); stroke-width:2; stroke-linecap:round; transition:transform .2s; }
+.wl-hgrp.open .wl-hgrp-h svg{ transform:rotate(90deg); }
+.wl-hgrp-h i{ flex:none; width:10px; height:10px; border-radius:3px; }
+.wl-hgrp-h b{ font-weight:500; }
+.wl-hgrp-h small{ font-size:12px; color:var(--w-muted); }
+.wl-hgrp-v{ margin-left:auto; font-variant-numeric:tabular-nums; font-weight:500; }
+.wl-hgrp-h button:focus-visible{ outline:2px solid var(--w-gold); outline-offset:-2px; border-radius:8px; }
+.wl-hgrp:not(.open) .wl-hgrp-h th{ border-bottom:0; }
 .wl-htable{ width:100%; border-collapse:collapse; font-size:14px; }
 .wl-htable th, .wl-htable td{ padding:12px 10px; border-top:1px solid var(--w-line); border-bottom:0; text-align:left; vertical-align:middle; color:var(--w-text); font-size:14px; text-transform:none; letter-spacing:0; }
 .wl-htable thead th{ border-top:0; padding-top:0; font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; font-weight:400; color:var(--w-muted); }
@@ -3450,6 +3492,12 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .me-edit{ position:relative; width:44px; height:44px; border-radius:50%; border:1px solid rgba(232,214,168,0.3); background:transparent; color:#E8D6A8; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .me-edit svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
 .me-group{ margin-top:14px; }
+.w-setup-cta{ display:flex; align-items:center; gap:12px; width:calc(100% - 32px); margin:16px 16px 0; padding:12px 14px; border:0; border-radius:16px; background:var(--w-champ); color:var(--w-text); font-family:inherit; text-align:left; cursor:pointer; }
+.w-setup-cta[hidden]{ display:none; }
+.w-setup-cta:hover{ box-shadow:0 0 0 1px var(--w-gold) inset; }
+.w-setup-cta b{ display:block; font-size:14px; font-weight:500; }
+.w-setup-cta small{ display:block; font-size:12px; color:var(--w-muted); }
+.w-setup-ring{ flex:none; width:22px; height:22px; border-radius:50%; border:2px solid var(--w-gold); border-right-color:transparent; }
 .st-appear{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:6px; }
 .st-appear button{ display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding:14px; border-radius:18px; border:1px solid var(--w-line); background:var(--w-chip); color:var(--w-text); font-family:inherit; text-align:left; cursor:pointer; }
 .st-appear button[aria-pressed="true"]{ border-color:var(--w-gold); box-shadow:0 0 0 1px var(--w-gold) inset; }
@@ -3618,23 +3666,23 @@ window.TeiTheme && TeiTheme.paint();</script>
      wireMobileTabs(); active tab follows showPage() via syncMobileTabs(). -->
 <div class="m-tabs" id="mTabs" role="navigation" aria-label="Primary">
   <button type="button" class="m-tab on" data-mtab="home">
-    <span class="w-ring" aria-hidden="true"></span>
+    <span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/></svg></span>
     <span>Home</span>
   </button>
   <button type="button" class="m-tab" data-mtab="wealth">
-    <span class="w-ring" aria-hidden="true"></span>
+    <span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19h16"/><path d="M5 15.5l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7.5h4v4"/></svg></span>
     <span>Wealth</span>
   </button>
   <button type="button" class="m-tab" data-mtab="plan">
-    <span class="w-ring" aria-hidden="true"></span>
+    <span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span>
     <span>Plan</span>
   </button>
   <button type="button" class="m-tab" data-mtab="library">
-    <span class="w-ring" aria-hidden="true"></span>
+    <span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.5C10.3 5 7.8 4.5 4 4.8v13.4c3.8-.3 6.3.2 8 1.6 1.7-1.4 4.2-1.9 8-1.6V4.8c-3.8-.3-6.3.2-8 1.7z"/><path d="M12 6.5v13.3"/></svg></span>
     <span>Library</span>
   </button>
   <button type="button" class="m-tab" data-mtab="menu">
-    <span class="w-ring" aria-hidden="true"></span>
+    <span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></span>
     <span>Me</span>
   </button>
 </div>
@@ -3652,6 +3700,8 @@ window.TeiTheme && TeiTheme.paint();</script>
       <a href="#" class="navlink" data-page="cashflow"><span class="w-dot" aria-hidden="true"></span>Cashflow</a>
       <a href="#" class="navlink" data-page="mydetails"><span class="w-dot" aria-hidden="true"></span>Settings</a>
     </nav>
+    <!-- Set up Wealth OS (B13): shown while anything is still missing. -->
+    <button type="button" class="w-setup-cta" id="sideSetupBtn" hidden><span class="w-setup-ring" aria-hidden="true"></span><span><b>Finish setting up</b><small id="sideSetupSub"></small></span></button>
     <div class="sidebar-spacer"></div>
     <div class="sidebar-foot">
       <div class="nav-menu-wrap">
@@ -7936,7 +7986,20 @@ TEI.render = TEI.render || {};
   /* "Finish setting up" sits first while there is something to finish: the
      coach's setup request, or the client's own gaps before setup is done.
      The button opens the set up flow (hub/js/wealth-setup.js). */
+  function renderSideSetup(client){
+    const btn = document.getElementById('sideSetupBtn');
+    if(!btn) return;
+    const n = TEI.setup && client.meta.role === 'client' ? TEI.setup.leftToDo(client) : 0;
+    btn.hidden = !n;
+    if(n){
+      document.getElementById('sideSetupSub').textContent = n + (n === 1 ? ' thing left' : ' things left');
+      btn.onclick = ()=> TEI.setup.open();
+    }
+  }
+  TEI.render = TEI.render || {};
+  TEI.render.sideSetup = renderSideSetup;
   function renderSetup(client){
+    renderSideSetup(client);
     // A coach's setup request (B13) takes over the tile while it is open.
     if(TEI.setup && TEI.setup.homeTile(client, {
       show: v=> show('whSetup', v), title: t=> setText('whSetupTitle', t), text: t=> setText('whSetupText', t),
@@ -10487,8 +10550,8 @@ TEI.render = TEI.render || {};
         <div class="lab-subhead-note">${state.driverEmptyNote}</div>
       `;
     }
-    const positive = state.driverRows.filter(x=>x.gain>0).sort((a,b)=>b.gain-a.gain).slice(0,5);
-    const negative = state.driverRows.filter(x=>x.gain<0).sort((a,b)=>a.gain-b.gain).slice(0,5);
+    const positive = state.driverRows.filter(x=>x.gain>0).sort((a,b)=>b.gain-a.gain).slice(0,3);
+    const negative = state.driverRows.filter(x=>x.gain<0).sort((a,b)=>a.gain-b.gain).slice(0,3);
     const maxAbsGain = Math.max(...positive.map(x=>x.gain), ...negative.map(x=>-x.gain), 1);
     const row = x => {
       const isUp = x.gain>0;
@@ -10536,12 +10599,12 @@ TEI.render = TEI.render || {};
       <div class="lab-subhead-note">The approximate single-holding move (all else equal) required to shift total portfolio value by 1%.</div>
       <div style="overflow-x:auto;">
       <table class="k-table">
-        <thead><tr><th>Holding</th><th style="text-align:right;">Weight</th><th style="text-align:right;">Move for 1% impact</th></tr></thead>
+        <thead><tr><th>Holding</th><th style="text-align:right;">Weight</th><th style="text-align:right;" title="Move for 1% impact">1% move</th></tr></thead>
         <tbody>
-          ${weighted.map(h=>{
+          ${weighted.map((h, i)=>{
             const move = moveNeededFor1Pct(h.weight);
             const barWidth = maxWeight>0 ? (h.weight/maxWeight*100) : 0;
-            return `<tr>
+            return `<tr${i >= 5 ? ' class="lab-more-row" hidden' : ''}>
               <td class="lab-holding-cell"><b>${h.ticker||h.name}</b><span class="hc-name">· ${h.name} (${h.account})</span></td>
               <td class="num"><span class="lab-wt-mini"><span class="lab-wt-mini-track"><span class="lab-wt-mini-fill" style="width:${barWidth}%"></span></span>${fmtPct(h.weight)}</span></td>
               <td class="num lab-move-figure">${move!==null?fmtPct(move):'—'}</td>
@@ -10550,6 +10613,7 @@ TEI.render = TEI.render || {};
         </tbody>
       </table>
       </div>
+      ${weighted.length > 5 ? `<button type="button" class="hm-link hm-linkbtn lab-more-btn" aria-expanded="false" onclick="var t=this.previousElementSibling; var open=this.getAttribute('aria-expanded')!=='true'; t.querySelectorAll('.lab-more-row').forEach(function(r){ r.hidden=!open; }); this.setAttribute('aria-expanded', open); this.textContent = open ? 'Show the top 5' : 'Show all ${weighted.length} holdings';">Show all ${weighted.length} holdings</button>` : ''}
       ${driversSectionHTML()}
       <div class="lab-stage-actions">
         <div></div>
@@ -19251,6 +19315,9 @@ TEI.render = TEI.render || {};
 
   /* ---------------- Holdings table ---------------- */
   let holdFilter = 'all';
+  // Account groups open in the All view. Starts with every group open while
+  // the list is short, and every group closed once it gets long.
+  let holdOpen = null;
   function renderHoldings(client){
     const rows = holdingRows(client);
     const accounts = (client.accounts||[]).filter(a=> rows.some(r=> r.acc.id === a.id));
@@ -19270,11 +19337,10 @@ TEI.render = TEI.render || {};
       list.innerHTML = '<p class="hm-muted">No accounts or holdings recorded yet. Add them in Settings.</p>';
       return;
     }
-    list.innerHTML = `<table class="wl-htable"><thead><tr><th scope="col">Holding</th><th scope="col">Ticker</th><th scope="col">Account</th><th scope="col" class="num">Value</th><th scope="col" class="num">Cost</th><th scope="col" class="num">Return</th><th scope="col">Flags</th></tr></thead><tbody>`
-      + shown.map(r=>{
+    const rowHTML = (r, hidden)=>{
         const flags = [r.acc.setAndForget ? 'Set and forget' : '', r.acc.earmarked ? 'Earmarked' : '', r.kind === 'holding' && r.manual ? 'Manual price' : ''].filter(Boolean);
         const sub = acctLabel(r.acc) + (r.cost ? ' · paid ' + fmtGBP(r.cost) : '');
-        return `<tr>
+        return `<tr${hidden ? ' hidden' : ''}>
           <th scope="row" class="wl-h-name"><i style="background:${ACCT_RING[r.acc.type]||'#C9D3E3'};"></i><span><b>${esc(r.name)}</b><small>${esc(sub)}</small></span></th>
           <td class="wl-h-ticker">${esc(r.ticker || '–')}</td>
           <td class="wl-h-acct">${esc(acctLabel(r.acc))}</td>
@@ -19283,8 +19349,38 @@ TEI.render = TEI.render || {};
           <td class="num wl-h-ret"><span class="wl-ret${r.ret==null?'':(r.ret>=0?' up':' down')}">${fmtRet(r.ret)}</span></td>
           <td class="wl-h-flags">${flags.map(f=> `<span class="wl-flag">${f}</span>`).join('')}</td>
         </tr>`;
-      }).join('') + '</tbody></table>'
+    };
+    const head = `<table class="wl-htable"><thead><tr><th scope="col">Holding</th><th scope="col">Ticker</th><th scope="col">Account</th><th scope="col" class="num">Value</th><th scope="col" class="num">Cost</th><th scope="col" class="num">Return</th><th scope="col">Flags</th></tr></thead>`;
+    let body;
+    if(holdFilter === 'all'){
+      // Grouped by account, largest first; each account with holdings folds.
+      const groups = accounts.map(a=> ({a, rows: shown.filter(r=> r.acc.id === a.id)})).sort((x,y)=> sum(y.rows) - sum(x.rows));
+      if(holdOpen === null) holdOpen = new Set(shown.length > 8 ? [] : groups.map(g=> g.a.id));
+      body = groups.map(g=>{
+        if(g.rows.length === 1 && g.rows[0].kind === 'account') return '<tbody>' + rowHTML(g.rows[0], false) + '</tbody>';
+        const open = holdOpen.has(g.a.id);
+        const n = g.rows.filter(r=> r.kind === 'holding').length;
+        return `<tbody class="wl-hgrp${open ? ' open' : ''}"><tr class="wl-hgrp-h"><th colspan="7" scope="rowgroup"><button type="button" data-hgrp="${esc(g.a.id)}" aria-expanded="${open}">`
+          + `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><i style="background:${ACCT_RING[g.a.type]||'#C9D3E3'};"></i>`
+          + `<b>${esc(acctLabel(g.a))}</b><small>${n} ${n === 1 ? 'holding' : 'holdings'}</small><span class="wl-hgrp-v">${fmtGBP(sum(g.rows))}</span></button></th></tr>`
+          + g.rows.map(r=> rowHTML(r, !open)).join('') + '</tbody>';
+      }).join('');
+    } else {
+      body = '<tbody>' + shown.map(r=> rowHTML(r, false)).join('') + '</tbody>';
+    }
+    const groupable = holdFilter === 'all' && accounts.some(a=> shown.filter(r=> r.acc.id === a.id && r.kind !== 'account').length);
+    list.innerHTML = (groupable ? `<div class="wl-hgrp-tools"><button type="button" class="hm-link hm-linkbtn" data-hgrp-all="open">Expand all</button><button type="button" class="hm-link hm-linkbtn" data-hgrp-all="close">Collapse all</button></div>` : '')
+      + head + body + '</table>'
       + (shown.some(r=> r.kind === 'account' && r.cost) ? '<p class="hm-note">For an account without holdings, cost is what you paid in, and tax relief or bonuses are not counted as return.</p>' : '');
+    list.querySelectorAll('[data-hgrp]').forEach(b=> b.onclick = ()=>{
+      const id = b.dataset.hgrp;
+      if(holdOpen.has(id)) holdOpen.delete(id); else holdOpen.add(id);
+      renderHoldings(client);
+    });
+    list.querySelectorAll('[data-hgrp-all]').forEach(b=> b.onclick = ()=>{
+      holdOpen = new Set(b.dataset.hgrpAll === 'open' ? accounts.map(a=> a.id) : []);
+      renderHoldings(client);
+    });
   }
 
   /* ---------------- Portfolio health ----------------
@@ -20315,6 +20411,7 @@ window.TEI = window.TEI || {};
       if((t === 'dark' || t === 'light' ? t : 'system') !== TeiTheme.pref()) TeiTheme.set(t === 'dark' || t === 'light' ? t : 'system');
     }
     updateAvatar(state.client);
+    if(TEI.render && TEI.render.sideSetup) TEI.render.sideSetup(state.client);
     const wantSetup = new URLSearchParams(location.search).get('page') === 'setup';
     showPage(startPageFromUrl());
     if(TEI.setup){ if(wantSetup && TEI.setup.isActive(state.client)) TEI.setup.open(); else TEI.setup.maybeAutoOpen(state.client); }

@@ -63,61 +63,96 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .hb-seg button { font-family:inherit; font-size:13px; font-weight:500; min-height:36px; min-width:64px; padding:0 14px; border:0; border-radius:999px; cursor:pointer; background:transparent; color:var(--muted); }
 .hb-seg button[aria-pressed="true"] { background:var(--navActive); color:var(--navActiveText); }
 
-/* Filters tile */
-.vl-filters { background:var(--tile); border:1px solid var(--line); border-radius:26px; padding:20px 22px; display:flex; flex-direction:column; gap:14px; }
-.vl-frow { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
-.vl-flabel { flex:none; width:56px; font-size:11px; color:var(--muted); }
-.vl-chips { display:flex; flex-wrap:wrap; gap:6px; flex:1; min-width:0; }
-.vl-chip { font-family:inherit; font-size:13px; min-height:36px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--chip); color:var(--muted); cursor:pointer; }
+/* Featured row: New this week and Picked for your stage (homepage teaser) */
+.vl-top { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:16px; margin-bottom:20px; }
+.vl-feat { position:relative; overflow:hidden; display:flex; gap:24px; align-items:stretch; padding:28px; border-radius:26px; background:#0F1E36; color:#F7F4ED; border:1px solid var(--featLine); }
+.vl-feat-l { flex:1 1 280px; min-width:0; display:flex; flex-direction:column; gap:8px; }
+.vl-feat-k { font-size:12px; color:#E8D6A8; }
+.vl-feat h2 { font-size:28px; font-weight:300; letter-spacing:-0.02em; line-height:1.15; }
+.vl-feat-m { font-size:12px; color:#AAB6C8; }
+.vl-feat-btn { align-self:flex-start; margin-top:auto; min-height:44px; padding:0 20px; border-radius:999px; border:0; background:#E8D6A8; color:#0F1E36; font:inherit; font-size:14px; font-weight:500; cursor:pointer; }
+.vl-feat-btn:disabled { background:transparent; color:#E8D6A8; border:1px dashed rgba(232,214,168,0.6); cursor:default; }
+.vl-feat-r { flex:1 1 260px; position:relative; min-height:170px; border-radius:16px; background:#12233D; border:1px solid rgba(232,214,168,0.18); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.vl-feat-r img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.vl-feat-r .vl-ring { position:absolute; width:220px; height:220px; right:-60px; top:-90px; border-radius:50%; border:1px dashed rgba(232,214,168,0.3); }
+.vl-feat-play { position:relative; width:52px; height:52px; border-radius:50%; background:#E8D6A8; display:flex; align-items:center; justify-content:center; }
+.vl-feat-play svg { width:16px; height:16px; fill:#0F1E36; margin-left:3px; }
+.vl-feat-play.soon { background:transparent; border:1.5px dashed #E8D6A8; }
+.vl-feat-play.soon svg { fill:none; stroke:#E8D6A8; stroke-width:2; margin:0; width:20px; height:20px; }
+.vl-pick { padding:24px; border-radius:26px; background:var(--champ); display:flex; flex-direction:column; }
+.vl-pick-k { font-size:12px; color:var(--gold); }
+.vl-pick h2 { margin-top:8px; font-size:20px; font-weight:400; letter-spacing:-0.01em; }
+.vl-pick ul { list-style:none; margin:12px 0 0; padding:0; }
+.vl-pick li { display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid var(--line); font-size:14px; }
+.vl-pick li span:last-child { font-family:'Geist Mono', monospace; font-size:12px; color:var(--muted); }
+.vl-pick li button { all:unset; cursor:pointer; flex:1; }
+.vl-pick li button:hover { text-decoration:underline; }
+.vl-pick-empty { margin-top:12px; font-size:14px; color:var(--muted); }
+
+/* Filters */
+.vl-filters { display:flex; flex-direction:column; gap:10px; }
+.vl-frow { display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+.vl-chips { display:flex; flex-wrap:wrap; gap:6px; min-width:0; }
+.vl-chip { font-family:inherit; font-size:13px; min-height:36px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--tile); color:var(--muted); cursor:pointer; }
 .vl-chip:hover { color:var(--text); }
 .vl-chip[aria-pressed="true"] { background:var(--navActive); border-color:var(--navActive); color:var(--navActiveText); }
-.vl-stage-desc { font-size:13px; color:var(--muted); padding-left:68px; margin-top:-4px; }
+.vl-chips--topic .vl-chip { min-height:32px; font-size:12px; background:transparent; }
+.vl-chips--topic .vl-chip[aria-pressed="true"] { background:var(--navActive); color:var(--navActiveText); }
+.vl-stage-desc { font-size:13px; color:var(--muted); }
 .vl-stage-desc:empty { display:none; }
-.vl-search { display:flex; align-items:center; gap:8px; flex:1; max-width:420px; min-height:42px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--chip); }
+.vl-search { display:flex; align-items:center; gap:8px; flex:0 1 340px; min-height:40px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--tile); }
 .vl-search:focus-within { border-color:var(--gold); }
 .vl-search svg { width:16px; height:16px; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; flex:none; }
 .vl-search input { flex:1; min-width:0; border:0; background:none; color:var(--text); font:inherit; font-size:14px; outline:none; }
 .vl-search input::placeholder { color:var(--muted); }
-.vl-count { margin-left:auto; font-size:12px; color:var(--muted); }
+.vl-count { font-size:12px; color:var(--muted); }
 
 /* Sections */
 .vl-sec { margin-top:28px; }
 .vl-sec-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
 .vl-sec-h h2 { font-size:20px; font-weight:400; letter-spacing:-0.01em; }
 .vl-sec-h p { font-size:12px; color:var(--muted); }
-
-/* Shorts row: 9:16 cards that swipe sideways */
-.vl-shorts { display:grid; grid-auto-flow:column; grid-auto-columns:160px; gap:12px; overflow-x:auto; padding-bottom:6px; scroll-snap-type:x mandatory; }
+.vl-shorts { display:grid; grid-auto-flow:column; grid-auto-columns:170px; gap:12px; overflow-x:auto; padding-bottom:6px; scroll-snap-type:x mandatory; }
 .vl-shorts > * { scroll-snap-align:start; }
 
-/* Cards */
+/* Cards (homepage teaser style) */
 .vl-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
 .vc { position:relative; display:flex; flex-direction:column; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:22px; overflow:hidden; text-align:left; font:inherit; color:inherit; padding:0; transition:transform .2s ease, box-shadow .2s ease; animation:vl-up .6s cubic-bezier(.2,.8,.2,1) both; }
 button.vc { cursor:pointer; }
 button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
-.vc-thumb { position:relative; aspect-ratio:16/9; background:var(--powder); overflow:hidden; }
-.vc--short .vc-thumb { aspect-ratio:9/16; }
+.vc-thumb { position:relative; height:150px; background:var(--powder); overflow:hidden; }
+.vc--champ .vc-thumb { background:var(--champ); }
+.vc--short .vc-thumb { height:auto; aspect-ratio:9/14; }
 .vc-thumb img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-.vc-ring { position:absolute; border-radius:50%; border:1px solid var(--gold); opacity:.22; pointer-events:none; }
+.vc-ring { position:absolute; border-radius:50%; border:1px solid #B9CAE6; pointer-events:none; }
+.vc--champ .vc-ring { border-color:#DCC894; }
 .vc-ring.r1 { width:220px; height:220px; right:-70px; top:-90px; }
-.vc-ring.r2 { width:140px; height:140px; right:-30px; top:-50px; border-style:dashed; animation:vl-spin 60s linear infinite; }
-.vc-play { position:absolute; left:14px; bottom:14px; width:40px; height:40px; border-radius:50%; background:#0F1E36; display:flex; align-items:center; justify-content:center; }
-.vc-play svg { width:14px; height:14px; fill:#E8D6A8; margin-left:2px; }
-.vc-badges { position:absolute; left:12px; top:12px; right:12px; display:flex; flex-wrap:wrap; gap:6px; }
+.vc-ring.r2 { width:150px; height:150px; right:-35px; top:-55px; border-style:dashed; animation:vl-spin 60s linear infinite; }
+:root[data-theme="dark"] .vc-ring { border-color:rgba(232,214,168,0.22); }
+.vc-fmt { position:absolute; left:20px; top:16px; font-family:'Geist Mono', monospace; font-size:11px; color:var(--text); opacity:.7; }
+.vc-badges { position:absolute; right:14px; top:12px; display:flex; gap:6px; }
 .vc-b { font-size:11px; font-weight:500; padding:3px 9px; border-radius:999px; background:var(--tile); color:var(--text); }
 .vc-b--client { background:#0F1E36; color:#E8D6A8; }
-.vc-b--new { background:var(--champ); color:var(--gold); }
-.vc-b--soon { background:var(--champ); color:var(--gold); }
-.vc-dur { position:absolute; right:12px; bottom:12px; font-size:11px; padding:3px 8px; border-radius:999px; background:rgba(15,30,54,0.82); color:#F7F4ED; }
-.vc-body { padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; }
-.vc-meta { font-size:11px; color:var(--gold); }
-.vc-title { font-size:16px; font-weight:500; line-height:1.3; letter-spacing:-0.01em; }
-.vc-desc { font-size:13px; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-.vc--soon .vc-thumb { background:var(--champ); }
-.vc--soon .vc-play { background:transparent; border:1px dashed var(--gold); }
-.vc--soon .vc-play svg { fill:var(--gold); }
-.vc--short .vc-body { padding:10px 12px 12px; }
-.vc--short .vc-title { font-size:14px; }
+.vc-b--new { background:#E8D6A8; color:#0F1E36; }
+.vc-play { position:absolute; left:20px; bottom:16px; width:44px; height:44px; border-radius:50%; background:#0F1E36; display:flex; align-items:center; justify-content:center; }
+.vc-play svg { width:14px; height:14px; fill:#E8D6A8; margin-left:2px; }
+.vc-dur { position:absolute; right:16px; bottom:26px; font-family:'Geist Mono', monospace; font-size:11px; padding:4px 9px; border-radius:999px; background:rgba(15,30,54,0.82); color:#F7F4ED; }
+.vc-body { padding:18px 22px 22px; display:flex; flex-direction:column; gap:6px; }
+.vc-meta { font-family:'Geist Mono', monospace; font-size:11px; color:var(--muted); }
+.vc-title { font-size:20px; font-weight:400; line-height:1.25; letter-spacing:-0.02em; }
+.vc-desc { font-size:15px; font-weight:300; color:var(--muted); line-height:1.55; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.vc--short .vc-body { padding:12px 14px 14px; }
+.vc--short .vc-title { font-size:15px; }
+/* Coming soon: a solid tag and a clock instead of the play button */
+.vc-soon { position:absolute; left:16px; top:12px; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:5px 11px; border-radius:999px; background:#0F1E36; color:#E8D6A8; }
+.vc-soon svg, .vl-soon-tag svg { width:13px; height:13px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+.vc--soon .vc-fmt { display:none; }
+.vc--soon .vc-play { background:transparent; border:1.5px dashed #0F1E36; }
+:root[data-theme="dark"] .vc--soon .vc-play { border-color:#E8D6A8; }
+.vc--soon .vc-play svg { fill:none; stroke:currentColor; stroke-width:2; margin:0; width:18px; height:18px; color:#0F1E36; }
+:root[data-theme="dark"] .vc--soon .vc-play svg { color:#E8D6A8; }
+.vc--soon .vc-title::after { content:''; }
+.vl-soon-tag { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:4px 10px; border-radius:999px; background:#E8D6A8; color:#0F1E36; }
 
 /* Loading skeleton */
 .vc--skel .vc-thumb, .vc--skel .sk { background:var(--track); }
@@ -177,29 +212,35 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
   .hb-nav { display:none; }
   .hb-icon { display:inline-flex; }
   .hb { padding:20px 16px calc(84px + 24px); }
-  .vl-head .hb-seg { display:none; }
+  .vl-top { grid-template-columns:1fr; gap:12px; }
+  .vl-feat { flex-direction:column; padding:22px; gap:16px; }
+  .vl-feat-l, .vl-feat-r { flex:none; }
+  .vl-feat-l .vl-feat-btn { margin-top:8px; }
+  .vl-feat-r { min-height:150px; }
+  .vl-chips { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; width:100%; }
+  .vl-chips::-webkit-scrollbar { display:none; }
+  .vl-chip { flex:none; }
+  .vl-search { flex:1 1 100%; }
+  .vl-feat h2 { font-size:24px; }
   .vl-title { font-size:28px; }
   .vl-intro { font-size:15px; }
   .vl-filters { padding:16px; border-radius:22px; }
-  .vl-frow { flex-wrap:nowrap; }
-  .vl-flabel { display:none; }
   .vl-chips { flex-wrap:nowrap; overflow-x:auto; padding-bottom:2px; scrollbar-width:none; }
   .vl-chips::-webkit-scrollbar { display:none; }
   .vl-chip { flex:none; }
-  .vl-stage-desc { padding-left:0; }
   .vl-search { max-width:none; }
   .vl-count { display:none; }
   .vl-shorts { grid-auto-columns:150px; }
   .vl-grid { grid-template-columns:1fr; gap:12px; }
   .vp { padding:0; align-items:flex-end; }
   .vp-box { border-radius:24px 24px 0 0; max-height:100vh; }
-  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; height:84px; padding:8px 8px 18px; background:var(--side); border-top:1px solid var(--line); }
-  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:52px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
-  .hb-tabs a[aria-current="page"] { color:var(--text); }
-  .hb-tabs i { width:22px; height:22px; border-radius:50%; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; }
-  .hb-tabs i::after { content:''; width:8px; height:8px; border-radius:50%; }
-  .hb-tabs a[aria-current="page"] i { border-color:var(--gold); }
-  .hb-tabs a[aria-current="page"] i::after { background:var(--gold); }
+  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; padding:6px 8px calc(10px + env(safe-area-inset-bottom)); background:color-mix(in srgb, var(--side) 97%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-top:1px solid var(--line); }
+  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:56px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
+  .hb-tabs a[aria-current="page"] { color:var(--text); font-weight:600; }
+  .hb-tabs .tab-pill { display:flex; align-items:center; justify-content:center; width:56px; height:30px; border-radius:999px; }
+  .hb-tabs .tab-ic { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .hb-tabs a[aria-current="page"] .tab-pill { background:var(--champ); color:var(--gold); }
+  :root[data-theme="dark"] .hb-tabs a[aria-current="page"] .tab-pill { background:rgba(232,214,168,0.16); }
 }
 </style>
 </head>
@@ -217,7 +258,7 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
       <a href="/hub/videos.html" aria-current="page">Videos</a>
       <a href="/hub/guides.html">Guides &amp; tools</a>
       <a href="/hub/articles.html">Articles</a>
-      <a href="/hub/suite.html">Investment suite</a>
+      <a href="/hub/suite/index.html">Investment suite</a>
       <a href="/index.html">Website</a>
       <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
     </nav>
@@ -227,22 +268,22 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
 <main class="hb">
   <div class="vl-head">
     <div>
-      <p class="vl-kicker mono">Video library</p>
-      <h1 class="vl-title">Watch it explained, at the stage you are at.</h1>
-      <p class="vl-intro">Short explainers, deep dives and recorded member sessions. Filter by your stage or a topic, and follow the links on to the notes and tools.</p>
+      <p class="vl-kicker mono">Videos</p>
+      <h1 class="vl-title">Watch it explained, at your own pace.</h1>
     </div>
     <div class="vl-head-side">
       <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
     </div>
   </div>
 
+  <div class="vl-top" id="vlTop"></div>
+
   <section class="vl-filters" aria-label="Filter videos">
-    <div class="vl-frow"><span class="vl-flabel mono">Stage</span><div class="vl-chips" id="vlStages" role="group" aria-label="Stage"></div></div>
+    <div class="vl-chips" id="vlStages" role="group" aria-label="Stage"></div>
     <p class="vl-stage-desc" id="vlStageDesc" aria-live="polite"></p>
-    <div class="vl-frow"><span class="vl-flabel mono">Topic</span><div class="vl-chips" id="vlTopics" role="group" aria-label="Topic"></div></div>
     <div class="vl-frow">
+      <div class="vl-chips vl-chips--topic" id="vlTopics" role="group" aria-label="Topic"></div>
       <label class="vl-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="vlSearch" placeholder="Search titles, topics and chapters" aria-label="Search videos"></label>
-      <span class="vl-count mono" id="vlCount"></span>
     </div>
   </section>
 
@@ -275,11 +316,11 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
 </div>
 
 <nav class="hb-tabs" aria-label="Main">
-  <a href="/hub/wealth-os.html"><i></i>Home</a>
-  <a href="/hub/wealth-os.html?page=progress"><i></i>Wealth</a>
-  <a href="/hub/wealth-os.html?page=goals"><i></i>Plan</a>
-  <a href="/hub/index.html" aria-current="page"><i></i>Library</a>
-  <a href="/hub/wealth-os.html?page=menu"><i></i>Me</a>
+  <a href="/hub/wealth-os.html"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/></svg></span>Home</a>
+  <a href="/hub/wealth-os.html?page=progress"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19h16"/><path d="M5 15.5l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7.5h4v4"/></svg></span>Wealth</a>
+  <a href="/hub/wealth-os.html?page=goals"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span>Plan</a>
+  <a href="/hub/index.html" aria-current="page"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.5C10.3 5 7.8 4.5 4 4.8v13.4c3.8-.3 6.3.2 8 1.6 1.7-1.4 4.2-1.9 8-1.6V4.8c-3.8-.3-6.3.2-8 1.7z"/><path d="M12 6.5v13.3"/></svg></span>Library</a>
+  <a href="/hub/wealth-os.html?page=menu"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></span>Me</a>
 </nav>
 
 <script src="/hub/js/video-library.js"></script>

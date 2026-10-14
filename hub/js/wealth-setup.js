@@ -407,7 +407,7 @@ window.TEI = window.TEI || {};
 
   function buildSteps(c) {
     var items = itemsFor(c);
-    if (!items.length) return ['confirm'];
+    if (!items.length) return profileAnswered(c) < PROFILE_Q.length ? ['welcome', 'you', 'review', 'done'] : ['confirm'];
     var secs = SECTIONS.map(function (s) { return s.id; }).filter(function (s) {
       return s !== 'you' && items.some(function (it) { return it.section === s; });
     });
@@ -423,8 +423,16 @@ window.TEI = window.TEI || {};
   /* Without a coach request the client can still run it themselves from
      "Continue setup" (Home), Me or Settings > Help: every empty field, no
      coach questions. It is saved as a request of their own as they go. */
+  /* Shown until there is nothing left: any empty field, or the You and
+     investing answers not given yet. Not tied to the old onboarding flag,
+     which most existing clients already have set. */
   function canSelfServe(c) {
-    return !!(c && c.meta.role === 'client' && !isActive(c) && !c.settings.onboardingComplete && gapsFor(c).length);
+    return !!(c && c.meta.role === 'client' && !isActive(c) && leftToDo(c) > 0);
+  }
+  function leftToDo(c) {
+    if (!c) return 0;
+    if (isActive(c)) return Math.max(leftCount(c), 1);
+    return gapsFor(c).length + (profileAnswered(c) < PROFILE_Q.length ? 1 : 0);
   }
 
   function open(opts) {
@@ -453,6 +461,7 @@ window.TEI = window.TEI || {};
     root.hidden = true;
     document.documentElement.classList.remove('su-open');
     if (TEI.app && TEI.app.rerenderCurrentPage) TEI.app.rerenderCurrentPage();
+    if (TEI.render && TEI.render.sideSetup && W.c) TEI.render.sideSetup(W.c);
   }
   function later() {
     try { sessionStorage.setItem('tei-setup-later', '1'); } catch (e) {}
@@ -871,7 +880,7 @@ window.TEI = window.TEI || {};
   function homeTile(c, els) {
     if (!isActive(c)) {
       if (!canSelfServe(c)) return false;
-      var n = gapsFor(c).length;
+      var n = leftToDo(c);
       els.show(true);
       els.title(n + (n === 1 ? ' thing' : ' things') + ' left to set up');
       els.text('A few details, then some questions about you and investing. Skip anything you do not know.');
@@ -902,6 +911,6 @@ window.TEI = window.TEI || {};
 
   TEI.setup = {
     open: open, close: close, gapsFor: gapsFor, itemsFor: itemsFor, leftCount: leftCount, isActive: isActive,
-    homeTile: homeTile, canSelfServe: canSelfServe, maybeAutoOpen: maybeAutoOpen, coachRender: coachRender, settingsRender: settingsRender
+    homeTile: homeTile, canSelfServe: canSelfServe, leftToDo: leftToDo, maybeAutoOpen: maybeAutoOpen, coachRender: coachRender, settingsRender: settingsRender
   };
 })();

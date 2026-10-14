@@ -34,11 +34,12 @@
      titles match the homepage teaser. No video_id, so nothing plays. */
   var FALLBACK = [
     { title: 'How the five stages work', tier: 'public', format: 'explainer', stages: '0', topics: 'Foundations', description: 'Five stages, how they fit together, and where most people start.' },
-    { title: 'Why volatility is normal', tier: 'public', format: 'explainer', stages: '3', topics: 'Investing, Mindset', description: 'What market swings look like over time, and how to sit through them.' },
     { title: 'Your safety net', tier: 'client', format: 'explainer', stages: '1', topics: 'Foundations', description: 'How much to keep in cash before you invest, and where to hold it.' },
     { title: 'Staying invested', tier: 'client', format: 'explainer', stages: '1, 2', topics: 'Mindset', description: 'Why time in the market matters more than timing it.' },
-    { title: 'Pensions, explained', tier: 'client', format: 'deep-dive', stages: '2', topics: 'Pensions', description: 'Tax relief, workplace schemes and SIPPs, in one longer session.' },
-    { title: 'Member Q and A', tier: 'client', format: 'webinar', stages: '', topics: 'Investing', description: 'A recorded session answering questions from members.' },
+    { title: 'Why volatility is normal', tier: 'public', format: 'explainer', stages: '3', topics: 'Investing, Mindset', description: 'What market swings actually look like, and how to sit through them.' },
+    { title: 'Pension tax relief, explained', tier: 'public', format: 'explainer', stages: '2', topics: 'Pensions', description: 'Basic, higher and additional rate relief in plain English.' },
+    { title: 'Monthly market commentary', tier: 'client', format: 'webinar', stages: '3, 4, 5', topics: 'Market Commentary', description: 'A recorded webinar each month: rates, UK equities and what moved the growth names.' },
+    { title: 'Inside the Growth Portfolio', tier: 'client', format: 'deep-dive', stages: '4, 5', topics: 'Investing', description: 'How the growth portfolio is built, position by position.' },
     { title: 'One idea in sixty seconds', tier: 'public', format: 'short', stages: '', topics: 'Mindset', description: '' }
   ];
 
@@ -133,32 +134,63 @@
   /* ---------- Rendering ---------- */
   var PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg>';
 
+  var CLOCK = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+
+  function stageText(v) {
+    return v.stages.length ? v.stages.map(function (s) { return s === '0' ? 'Start here' : 'Stage ' + s; }).join(', ') : 'All stages';
+  }
+
+  /* Same card as the homepage teaser: tinted panel with rings, play button,
+     duration, then format and topic, title and one line. Webinars and deep
+     dives sit on champagne, explainers and Shorts on powder blue. */
   function cardHTML(v, i) {
     var soon = !v.id;
     var short = v.format === 'short';
-    var cls = 'vc' + (short ? ' vc--short' : '') + (soon ? ' vc--soon' : '');
+    var champ = v.format === 'webinar' || v.format === 'deep-dive';
+    var cls = 'vc' + (short ? ' vc--short' : '') + (champ ? ' vc--champ' : '') + (soon ? ' vc--soon' : '');
     var badges = '';
-    if (soon) badges += '<span class="vc-b vc-b--soon">Coming soon</span>';
-    else if (!short) badges += '<span class="vc-b">' + esc(FORMAT_LABEL[v.format]) + '</span>';
-    if (v.tier === 'client') badges += '<span class="vc-b vc-b--client">Client</span>';
+    if (v.tier === 'client') badges += '<span class="vc-b vc-b--client">Members</span>';
     if (v.isNew && !soon) badges += '<span class="vc-b vc-b--new">New</span>';
     var thumb = soon ? '' : '<img src="https://i.ytimg.com/vi/' + esc(v.id) + '/' + (short ? 'oardefault' : 'hqdefault') + '.jpg" alt="" loading="lazy" onerror="this.remove()">';
-    var stageTxt = v.stages.length ? v.stages.map(function (s) { return s === '0' ? 'Start here' : 'Stage ' + s; }).join(', ') : 'All stages';
-    var meta = (v.topics[0] || FORMAT_LABEL[v.format]) + ' · ' + stageTxt;
+    var meta = FORMAT_LABEL[v.format] + (v.topics[0] ? ' \u00b7 ' + v.topics[0] : '') + (soon ? ' \u00b7 ' + stageText(v) : '');
     var inner =
       '<div class="vc-thumb"><span class="vc-ring r1"></span><span class="vc-ring r2"></span>' + thumb +
+      (soon ? '<span class="vc-soon">' + CLOCK + 'Coming soon</span>' : '<span class="vc-fmt">' + esc(FORMAT_LABEL[v.format]) + '</span>') +
       '<div class="vc-badges">' + badges + '</div>' +
-      (soon ? '<span class="vc-play" aria-hidden="true"></span>' : '<span class="vc-play">' + PLAY + '</span>') +
-      (v.duration && !soon ? '<span class="vc-dur mono">' + esc(v.duration) + '</span>' : '') +
+      '<span class="vc-play"' + (soon ? ' aria-hidden="true">' + CLOCK : '>' + PLAY) + '</span>' +
+      (v.duration && !soon ? '<span class="vc-dur">' + esc(v.duration) + '</span>' : '') +
       '</div>' +
       '<div class="vc-body">' +
-      (short ? '' : '<p class="vc-meta mono">' + esc(meta) + '</p>') +
+      (short ? '' : '<p class="vc-meta">' + esc(meta) + '</p>') +
       '<h3 class="vc-title">' + esc(v.title) + '</h3>' +
       (v.description && !short ? '<p class="vc-desc">' + esc(v.description) + '</p>' : '') +
       '</div>';
     var delay = ' style="animation-delay:' + Math.min(i, 8) * 40 + 'ms"';
     if (soon) return '<div class="' + cls + '"' + delay + ' aria-label="' + esc(v.title) + ', coming soon">' + inner + '</div>';
     return '<button type="button" class="' + cls + '"' + delay + ' data-v="' + esc(v.id) + '" aria-label="Play ' + esc(v.title) + '">' + inner + '</button>';
+  }
+
+  /* Top row: the newest video ("New this week") and up to three picked for
+     the stage chosen below (Stage 1 when none is chosen). */
+  function topHTML() {
+    if (!videos || !videos.length) return '';
+    var main = videos.filter(function (v) { return v.format !== 'short'; });
+    var feat = main.filter(function (v) { return v.id; })[0] || main[0];
+    if (!feat) return '';
+    var soon = !feat.id;
+    var st = filt.stage === 'all' ? '1' : filt.stage;
+    var stage = STAGES.filter(function (x) { return x.id === st; })[0];
+    var picks = main.filter(function (v) { return v !== feat && (!v.stages.length || v.stages.indexOf(st) >= 0); }).slice(0, 3);
+    return '<section class="vl-feat"><div class="vl-feat-l"><p class="vl-feat-k mono">' + (soon ? 'Coming soon' : 'New this week') + '</p>' +
+      '<h2>' + esc(feat.title) + '</h2><p class="vl-feat-m mono">' + esc(FORMAT_LABEL[feat.format] + (feat.duration ? ' \u00b7 ' + feat.duration : '') + ' \u00b7 ' + stageText(feat)) + '</p>' +
+      (soon ? '<button type="button" class="vl-feat-btn" disabled>Coming soon</button>' : '<button type="button" class="vl-feat-btn" data-v="' + esc(feat.id) + '">Watch now</button>') + '</div>' +
+      '<div class="vl-feat-r" aria-hidden="true">' + (soon ? '' : '<img src="https://i.ytimg.com/vi/' + esc(feat.id) + '/hqdefault.jpg" alt="" onerror="this.remove()">') +
+      '<span class="vl-ring hb-spin"></span><span class="vl-feat-play' + (soon ? ' soon">' + CLOCK : '">' + PLAY) + '</span></div></section>' +
+      '<section class="vl-pick"><p class="vl-pick-k mono">Picked for your stage</p><h2>' + esc(stage ? stage.label + (stage.name ? ': ' + stage.name : '') : 'Your stage') + '</h2>' +
+      (picks.length ? '<ul>' + picks.map(function (v) {
+        return '<li>' + (v.id ? '<button type="button" data-v="' + esc(v.id) + '">' + esc(v.title) + '</button>' : '<span>' + esc(v.title) + '</span>') +
+          '<span>' + esc(v.id ? (v.duration || '') : 'Soon') + '</span></li>';
+      }).join('') + '</ul>' : '<p class="vl-pick-empty">More for this stage soon.</p>') + '</section>';
   }
 
   function skeletons(n) {
@@ -183,11 +215,11 @@
 
   function render() {
     renderFilters();
+    $('vlTop').innerHTML = topHTML();
     var grid = $('vlGrid');
     if (videos === null) {
       grid.innerHTML = skeletons(6);
       $('vlShortsSec').hidden = true;
-      $('vlCount').textContent = '';
       return;
     }
     var list = videos.filter(matches);
@@ -195,8 +227,7 @@
     var main = list.filter(function (v) { return v.format !== 'short'; });
     $('vlShortsSec').hidden = !shorts.length;
     $('vlShorts').innerHTML = shorts.map(cardHTML).join('');
-    $('vlCount').textContent = list.length + (list.length === 1 ? ' video' : ' videos');
-    $('vlSourceNote').textContent = fromFallback ? 'First videos coming soon' : 'Newest first';
+    $('vlSourceNote').textContent = list.length + (list.length === 1 ? ' video' : ' videos') + (fromFallback ? ' \u00b7 first ones coming soon' : ' \u00b7 newest first');
     if (!main.length) {
       grid.innerHTML = shorts.length ? '' : '<div class="vl-empty" style="grid-column:1/-1"><b>No videos match these filters</b><p>Try another stage or topic, or clear the search.</p><button type="button" class="vl-btn" id="vlClear">Clear filters</button></div>';
       var clr = $('vlClear');

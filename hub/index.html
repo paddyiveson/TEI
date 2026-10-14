@@ -197,13 +197,13 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
   .t-wos svg { display:none; }
   .t-articles-k { flex:1 1 100%; }
   .steps span { font-size:12px; margin:0 6px; }
-  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; height:84px; padding:8px 8px 18px; background:var(--side); border-top:1px solid var(--line); }
-  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:52px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
-  .hb-tabs a[aria-current="page"] { color:var(--text); }
-  .hb-tabs i { width:22px; height:22px; border-radius:50%; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; }
-  .hb-tabs i::after { content:''; width:8px; height:8px; border-radius:50%; }
-  .hb-tabs a[aria-current="page"] i { border-color:var(--gold); }
-  .hb-tabs a[aria-current="page"] i::after { background:var(--gold); }
+  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; padding:6px 8px calc(10px + env(safe-area-inset-bottom)); background:color-mix(in srgb, var(--side) 97%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-top:1px solid var(--line); }
+  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:56px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
+  .hb-tabs a[aria-current="page"] { color:var(--text); font-weight:600; }
+  .hb-tabs .tab-pill { display:flex; align-items:center; justify-content:center; width:56px; height:30px; border-radius:999px; }
+  .hb-tabs .tab-ic { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .hb-tabs a[aria-current="page"] .tab-pill { background:var(--champ); color:var(--gold); }
+  :root[data-theme="dark"] .hb-tabs a[aria-current="page"] .tab-pill { background:rgba(232,214,168,0.16); }
 }
 </style>
 </head>
@@ -240,7 +240,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       <!-- TODO(G5): Articles opens members' articles (D7) once it is built. -->
       <a href="/hub/articles.html">Articles</a>
       <!-- TODO(G5): the suite index (D3) replaces suite.html. -->
-      <a href="/hub/suite.html">Investment suite</a>
+      <a href="/hub/suite/index.html">Investment suite</a>
       <a href="/index.html">Website</a>
       <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
     </nav>
@@ -337,7 +337,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     <!-- TODO(G5): the three latest notes come from the suite manifest (D3)
          and open their own note pages. Until then they open in suite.html. -->
     <section class="t t-champ t-list t-suite" aria-labelledby="hbSuiteK">
-      <div class="row"><p class="lab lab-gold" id="hbSuiteK">Investment suite</p><a class="lnk" href="/hub/suite.html">All notes</a></div>
+      <div class="row"><p class="lab lab-gold" id="hbSuiteK">Investment suite</p><a class="lnk" href="/hub/suite/index.html">All notes</a></div>
       <ul class="list">
         <li><a href="/hub/suite.html?note=onds">Ondas Holdings<span class="tag mono">Note</span></a></li>
         <li><a href="/hub/suite.html?note=nbis">Nebius Group<span class="tag mono">Note</span></a></li>
@@ -378,11 +378,11 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 </main>
 
 <nav class="hb-tabs" aria-label="Main">
-  <a href="/hub/wealth-os.html"><i></i>Home</a>
-  <a href="/hub/wealth-os.html?page=progress"><i></i>Wealth</a>
-  <a href="/hub/wealth-os.html?page=goals"><i></i>Plan</a>
-  <a href="/hub/index.html" aria-current="page"><i></i>Library</a>
-  <a href="/hub/wealth-os.html?page=menu"><i></i>Me</a>
+  <a href="/hub/wealth-os.html"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/></svg></span>Home</a>
+  <a href="/hub/wealth-os.html?page=progress"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19h16"/><path d="M5 15.5l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7.5h4v4"/></svg></span>Wealth</a>
+  <a href="/hub/wealth-os.html?page=goals"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span>Plan</a>
+  <a href="/hub/index.html" aria-current="page"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.5C10.3 5 7.8 4.5 4 4.8v13.4c3.8-.3 6.3.2 8 1.6 1.7-1.4 4.2-1.9 8-1.6V4.8c-3.8-.3-6.3.2-8 1.7z"/><path d="M12 6.5v13.3"/></svg></span>Library</a>
+  <a href="/hub/wealth-os.html?page=menu"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></span>Me</a>
 </nav>
 
 <script src="/hub/education/js/embedded-data.js" defer></script>
