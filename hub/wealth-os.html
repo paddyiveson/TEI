@@ -2709,6 +2709,82 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #clientApp #wealthCompCard, #clientApp #pfcCard{ padding:18px; }
   #clientApp #pfcMessage{ display:block; -webkit-line-clamp:unset; font-size:17px; }
 }
+
+/* ================================================================
+   REDESIGN B12.5 -- Portfolio Lab stages and presets (spec B5.1, B5.2).
+   Restyles the stage panel inside the Wealth Lab tile to the board.
+   ================================================================ */
+#clientApp[data-theme="light"] .wl-lab{ --lab-sell:#F0E7D0; --lab-buy:#DFE6F2; }
+#clientApp[data-theme="dark"] .wl-lab{ --lab-sell:#3A3A32; --lab-buy:#22385A; }
+.wl-lab-panel{ font-size:14px; color:var(--w-text); }
+.wl-lab-panel .lab-eyebrow{ font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--w-muted); }
+.wl-lab-panel .lab-stage-title{ margin:2px 0 6px; font-family:inherit; font-size:18px; font-weight:500; color:var(--w-text); }
+.wl-lab-panel .lab-stage-desc{ font-size:13px; line-height:1.5; color:var(--w-muted); }
+.wl-lab-panel .lab-subhead{ margin-top:16px; font-size:13px; font-weight:500; text-transform:none; letter-spacing:0; color:var(--w-text); }
+.wl-lab-panel .lab-subhead-note{ font-size:12px; line-height:1.5; color:var(--w-muted); }
+
+/* Presets: a 3 x 2 grid of buttons, the chosen one navy (champagne in dark) */
+.wl-lab-panel .lab-preset-grid{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; margin-top:10px; }
+.wl-lab-panel .lab-preset-card{ display:flex; align-items:center; min-height:44px; padding:8px 12px; border-radius:12px; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); font-family:inherit; font-size:13px; text-align:left; cursor:pointer; box-shadow:none; }
+.wl-lab-panel .lab-preset-card .pt{ font-size:13px; font-weight:500; color:inherit; }
+.wl-lab-panel .lab-preset-card.selected{ background:var(--w-nav-active); border-color:transparent; color:var(--w-nav-active-text); }
+.wl-lab-panel .lab-preset-card:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; }
+.lab-preset-detail{ margin-top:10px; padding:14px; border-radius:16px; background:var(--w-tile); }
+.lab-preset-detail .pt{ margin:0; font-size:14px; font-weight:500; }
+.lab-preset-detail .pd{ margin:6px 0 0; font-size:13px; line-height:1.5; color:var(--w-muted); }
+/* The preset cards and 'You set' line replace the old Current / Scenario chips. */
+.wl-lab-panel .lab-scenario-tabs{ display:none; }
+.lab-you-set{ margin:10px 0 0; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-gold); }
+
+/* Controls */
+.lab-seg{ display:inline-flex; flex-wrap:wrap; gap:4px; margin-top:14px; padding:3px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-tile); }
+.lab-seg button{ min-height:44px; padding:0 14px; border:0; border-radius:999px; background:transparent; color:var(--w-muted); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; }
+.lab-seg button.active{ background:var(--w-nav-active); color:var(--w-nav-active-text); }
+.lab-seg button:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; }
+.wl-lab-panel .lab-field-row{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; }
+.lab-field{ display:flex; flex-direction:column; gap:6px; }
+.wl-lab-panel .lab-field-label{ font-size:12px; color:var(--w-muted); }
+.lab-field-input{ display:inline-flex; align-items:center; gap:6px; }
+.lab-field-input em{ font-style:normal; color:var(--w-muted); }
+.wl-lab-panel .lab-num-input, .wl-lab-panel .lab-target-input, .wl-lab-panel .amt-input{ box-sizing:border-box; min-height:40px; padding:0 12px; border:1px solid var(--w-line); border-radius:10px; background:var(--w-tile); color:var(--w-text); font-family:'Geist Mono', ui-monospace, monospace; font-size:14px; }
+.wl-lab-panel .lab-num-input{ width:140px; }
+.wl-lab-panel select.lab-num-input{ width:auto; min-width:200px; font-family:inherit; }
+.wl-lab-panel .lab-auto-note, .wl-lab-panel .lab-no-match-note{ margin-top:12px; padding:12px 14px; border-radius:14px; background:var(--w-tile); font-size:13px; line-height:1.5; color:var(--w-text); }
+.wl-lab-panel .lab-checklist-row{ min-height:44px; }
+.wl-lab-panel .lab-checklist-tools button{ min-height:44px; padding:0 12px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); font-family:inherit; font-size:12px; cursor:pointer; }
+.wl-lab-panel .lab-checklist-tools button[disabled]{ opacity:.45; cursor:default; }
+
+/* Implement: SELL / BUY rows */
+.wl-lab-panel .lab-move-row{ display:flex; align-items:center; gap:12px; width:100%; box-sizing:border-box; margin-top:8px; padding:10px 14px; border:0; border-radius:14px; background:var(--w-tile); color:var(--w-text); font-family:inherit; text-align:left; }
+.wl-lab-panel button.lab-move-row{ cursor:pointer; }
+.lab-move-tag{ flex:none; padding:3px 8px; border-radius:999px; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; font-weight:500; color:var(--w-text); }
+.lab-move-tag.sell{ background:var(--lab-sell); }
+.lab-move-tag.buy{ background:var(--lab-buy); }
+.wl-lab-panel .lab-move-text{ flex:1; min-width:0; display:flex; flex-direction:column; font-size:14px; }
+.wl-lab-panel .lab-move-text small{ font-size:12px; color:var(--w-muted); }
+.wl-lab-panel .lab-move-amt{ font-size:14px; font-weight:500; white-space:nowrap; }
+.lab-moves-summary{ margin:12px 0 0 !important; font-size:13px; line-height:1.5; }
+.wl-lab-panel .lab-cross-flag{ display:flex; gap:10px; align-items:flex-start; margin-top:12px; padding:12px 14px; border-radius:14px; border:1px solid var(--w-gold); background:transparent; color:var(--w-text); font-size:13px; line-height:1.5; }
+.wl-lab-panel .lab-cross-flag::before{ content:''; flex:none; margin-top:5px; width:8px; height:8px; border-radius:50%; background:var(--w-gold); }
+
+/* Results */
+.wl-lab-panel .lab-results-narrative{ list-style:none; margin:12px 0 0; padding:0; }
+.wl-lab-panel .lab-results-narrative li{ position:relative; padding:0 0 10px 18px; font-size:14px; line-height:1.5; }
+.wl-lab-panel .lab-results-narrative li::before{ content:''; position:absolute; left:0; top:7px; width:7px; height:7px; box-sizing:border-box; border-radius:50%; border:1.5px solid var(--w-gold); }
+.lab-not-advice{ margin:12px 0 0 !important; font-size:12px; line-height:1.5; color:var(--w-muted); }
+.lab-result-btns{ display:inline-flex; flex-wrap:wrap; gap:8px; }
+
+/* Stage buttons */
+.wl-lab-panel .lab-stage-actions{ flex-wrap:wrap; gap:8px; border-top-color:var(--w-line); }
+.wl-lab-panel .lab-stage-actions .btn-primary, .wl-lab-panel .lab-stage-actions .btn-ghost{ min-height:44px; padding:0 18px; border-radius:999px; font-family:inherit; font-size:14px; font-weight:500; }
+.wl-lab-panel .lab-stage-actions .btn-primary{ background:var(--w-nav-active); color:var(--w-nav-active-text); border:0; }
+.wl-lab-panel .lab-stage-actions .btn-primary[disabled]{ opacity:.45; cursor:not-allowed; }
+.wl-lab-panel .lab-stage-actions .btn-ghost{ background:transparent; border:1px solid var(--w-line); color:var(--w-text); }
+
+@media (max-width:860px){
+  .wl-lab-panel .lab-preset-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .wl-lab-panel .lab-num-input{ width:120px; }
+}
 </style>
 </head>
 <body>
@@ -8789,11 +8865,15 @@ TEI.render = TEI.render || {};
 
   function resetScenarioState(){
     state.expanded = false; state.stage = 'analyse';
-    state.scenarioActive = false; state.presetType = null;
+    // Reallocate capital is the default selection (B5.2): by amount, nothing ticked yet.
+    state.scenarioActive = true; state.presetType = 'move'; state.reallocMode = 'amount';
     state.capPct = 20; state.moveUnit = '£';
     state.moveSourceIds = new Set(); state.moveSourceAmounts = {};
     state.moveDestMode = 'prorata'; state.moveDestIds = new Set(); state.moveDestAmounts = {};
     state.cashAmount = 10000; state.raiseCashTargetPct = 10;
+    state.freshMode = 'lump'; state.freshLump = '10000'; state.freshMonthly = '500'; state.freshMonths = '12';
+    state.raiseUnit = '£'; state.raiseValue = '5000';
+    state.bed = {holdingId:null, isaId:null, amount:'', allowance:''};
     state.selectedIds = new Set(); state.consolidateTargetId = null;
     state.targetWeights = {}; state.ledgerOpen = false; state.implementOpen = false;
   }
@@ -8942,9 +9022,74 @@ TEI.render = TEI.render || {};
   function findCash(){ return state.holdings.find(h=>h.ticker===CASH_TICKER); }
 
   function moveSourceGBP(h){
-    const raw = Number(state.moveSourceAmounts[h.id])||0;
+    const rawStr = state.moveSourceAmounts[h.id];
+    const raw = Number(rawStr)||0;
     if(state.moveUnit==='£') return Math.min(raw, h.value);
+    if(state.moveUnit==='share'){
+      // Reallocate by new share (B5.2): sell down to the share entered, of the scope total.
+      if(rawStr===undefined || rawStr==='') return 0;
+      const total = state.holdings.reduce((s,x)=>s+x.value,0);
+      return Math.max(0, h.value - total*Math.min(raw,100)/100);
+    }
     return Math.min(raw,100)/100 * h.value;
+  }
+
+  /* Allocate fresh capital (B5.2): the new money, a lump sum or a monthly
+     amount over a number of months, goes to the ticked holdings furthest
+     below an equal share of them first. Nothing is sold. */
+  function freshTotal(){
+    if(state.freshMode==='monthly') return (Number(state.freshMonthly)||0) * (Number(state.freshMonths)||0);
+    return Number(state.freshLump)||0;
+  }
+  function freshAllocations(){
+    const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
+    const C = freshTotal(), out = {};
+    if(!selected.length || C<=0) return out;
+    const S = selected.reduce((s,h)=>s+h.value,0);
+    const goal = (S + C)/selected.length;
+    const deficits = selected.map(h=> Math.max(0, goal - h.value));
+    const D = deficits.reduce((s,d)=>s+d,0);
+    selected.forEach((h,i)=>{ out[h.id] = D>0 ? C*deficits[i]/D : C/selected.length; });
+    return out;
+  }
+
+  /* Raise cash (B5.2): a set amount, in £ or as a % of the money in scope,
+     taken in proportion from the holdings ticked. */
+  function raiseAmount(){
+    const total = state.holdings.reduce((s,h)=>s+h.value,0);
+    const v = Number(state.raiseValue)||0;
+    const want = state.raiseUnit==='%' ? total*Math.min(v,100)/100 : v;
+    const avail = scenarioPool().filter(h=>state.selectedIds.has(h.id)).reduce((s,h)=>s+h.value,0);
+    return Math.max(0, Math.min(want, avail));
+  }
+
+  /* Bed & ISA (B5.2): sell a GIA holding and buy the same holding in an ISA,
+     up to the ISA allowance left. Works on the real account holdings, not
+     the ticker-grouped treemap tiles, since the money only changes wrapper. */
+  function bedSourcePool(){
+    const c = state.client; if(!c) return [];
+    const gia = c.accounts.filter(a=> a.type==='gia' && (!state.scopeId || a.id===state.scopeId)).map(a=>a.id);
+    return c.holdings.filter(h=> gia.includes(h.accountId) && (Number(h.value)||0) > 0);
+  }
+  function bedIsaPool(){ const c = state.client; return c ? c.accounts.filter(a=> a.type==='isa') : []; }
+  function bedSource(){ return bedSourcePool().find(h=> h.id===state.bed.holdingId) || null; }
+  function bedIsa(){ const pool = bedIsaPool(); return pool.find(a=> a.id===state.bed.isaId) || (pool.length===1 ? pool[0] : null); }
+  function bedCap(){
+    const h = bedSource();
+    const allowance = state.bed.allowance==='' ? null : Number(state.bed.allowance)||0;
+    if(!h || allowance==null) return 0;
+    return Math.min(allowance, Number(h.value)||0);
+  }
+  function bedAmount(){ return Math.max(0, Math.min(Number(state.bed.amount)||0, bedCap())); }
+  function bedGain(){
+    const h = bedSource(); const amt = bedAmount();
+    if(!h || !amt || !(Number(h.costBasis)>0) || !(Number(h.value)>0)) return null;
+    return (Number(h.value) - Number(h.costBasis)) * amt / Number(h.value);
+  }
+  function taxYearLabel(){
+    const d = new Date(); const y = d.getFullYear();
+    const start = (d.getMonth() > 3 || (d.getMonth()===3 && d.getDate()>=6)) ? y : y-1;
+    return start + ' to ' + (start+1);
   }
   function moveTotalRaised(){
     return [...state.moveSourceIds].reduce((s,id)=>{
@@ -8970,7 +9115,7 @@ TEI.render = TEI.render || {};
       const capValue = total * state.capPct/100;
       return base.filter(h=>h.value <= capValue);
     }
-    if(state.presetType==='raisecash') return base.filter(h=>h.ticker!==CASH_TICKER);
+    if(state.presetType==='raisecash' || state.presetType==='freshcash') return base.filter(h=>h.ticker!==CASH_TICKER);
     return base;
   }
   function moveSourcePool(){ return state.holdings.filter(h=>!state.moveDestIds.has(h.id)); }
@@ -8979,7 +9124,8 @@ TEI.render = TEI.render || {};
   function scenarioCanProceed(){
     if(!state.scenarioActive) return false;
     const base = state.holdings;
-    if(state.presetType==='equal') return true;
+    if(state.presetType==='equal') return scenarioPool().filter(h=>state.selectedIds.has(h.id)).length >= 2;
+    if(state.presetType==='bedisa') return !!bedSource() && !!bedIsa() && bedAmount() > 0.5;
     if(state.presetType==='cap'){
       const total = base.reduce((s,h)=>s+h.value,0);
       const capValue = total * state.capPct/100;
@@ -8994,15 +9140,8 @@ TEI.render = TEI.render || {};
       if(destOk && state.moveDestMode==='manual') destOk = Math.abs(moveAllocatedTotal()-totalRaised) < 0.5;
       return sourcesOk && destOk;
     }
-    if(state.presetType==='freshcash') return scenarioPool().filter(h=>state.selectedIds.has(h.id)).length > 0;
-    if(state.presetType==='raisecash'){
-      const cash = findCash();
-      const total = base.reduce((s,h)=>s+h.value,0);
-      const targetVal = total * state.raiseCashTargetPct/100;
-      const currentCash = cash ? cash.value : 0;
-      if(targetVal <= currentCash) return false;
-      return scenarioPool().filter(h=>state.selectedIds.has(h.id)).length > 0;
-    }
+    if(state.presetType==='freshcash') return freshTotal() > 0.5 && scenarioPool().filter(h=>state.selectedIds.has(h.id)).length > 0;
+    if(state.presetType==='raisecash') return raiseAmount() > 0.5;
     if(state.presetType==='target'){
       const sum = base.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
       return Math.abs(sum-100) < 0.5;
@@ -9020,9 +9159,13 @@ TEI.render = TEI.render || {};
     const scopeTotal = base.reduce((s,h)=>s+h.value,0);
 
     if(state.presetType==='equal'){
-      const per = scopeTotal / base.length;
-      return base.map(h=>({...h, value: per}));
+      // Equal shares across the holdings picked; the rest are left alone.
+      const picked = base.filter(h=>state.selectedIds.has(h.id));
+      if(picked.length < 2) return base;
+      const per = picked.reduce((s,h)=>s+h.value,0) / picked.length;
+      return base.map(h=> state.selectedIds.has(h.id) ? {...h, value: per} : h);
     }
+    if(state.presetType==='bedisa') return base; // the mix is unchanged; only the wrapper moves
     if(state.presetType==='cap'){
       const capValue = scopeTotal * state.capPct/100;
       const overCap = base.filter(h=>h.value > capValue);
@@ -9065,33 +9208,26 @@ TEI.render = TEI.render || {};
       return out;
     }
     if(state.presetType==='freshcash'){
-      const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
-      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
-      const out = base.map(h=>{
-        if(selected.find(s=>s.id===h.id)){
-          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
-          return {...h, value: h.value + state.cashAmount*share};
-        }
-        return h;
-      });
-      if(selected.length===0) out.push({id:'_pending', ticker:'Pending', name:'Uncommitted new cash — pick where it lands', value:state.cashAmount, account:'—', accountPension:false, vol:0, isPending:true});
+      const alloc = freshAllocations();
+      const out = base.map(h=> alloc[h.id] ? {...h, value: h.value + alloc[h.id]} : h);
+      if(!Object.keys(alloc).length && freshTotal()>0) out.push({id:'_pending', ticker:'Pending', name:'New money, not placed yet', value:freshTotal(), account:'-', accountPension:false, vol:0, isPending:true});
       return out;
     }
     if(state.presetType==='raisecash'){
-      const cash = findCash();
-      const targetVal = scopeTotal * state.raiseCashTargetPct/100;
-      const currentCash = cash ? cash.value : 0;
-      const amount = Math.max(0, targetVal - currentCash);
+      const amount = raiseAmount();
       const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
       const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
-      return base.map(h=>{
-        if(h.ticker===CASH_TICKER) return {...h, value: targetVal};
+      const cash = findCash();
+      const out = base.map(h=>{
+        if(cash && h.id===cash.id) return {...h, value: h.value + amount};
         if(selected.find(s=>s.id===h.id)){
           const share = selectedTotal>0 ? h.value/selectedTotal : 0;
           return {...h, value: Math.max(0, h.value - amount*share)};
         }
         return h;
       });
+      if(!cash && amount>0.5) out.push({id:'_cash', ticker:CASH_TICKER, name:'Cash raised', value:amount, account:'Cash', accountPension:false, accountType:'cash', vol:0});
+      return out;
     }
     if(state.presetType==='target'){
       return base.map(h=>({...h, value: scopeTotal * (Number(state.targetWeights[h.id])||0)/100}));
@@ -9112,6 +9248,17 @@ TEI.render = TEI.render || {};
   // grows is a buy. No preset-specific listing logic (see BUILD_HANDOFF.md's warning
   // about why that's the mistake to avoid if a new preset gets added later).
   function scenarioMoves(){
+    if(state.presetType==='bedisa'){
+      // The holding is the same before and after, so the moves come from the preset itself.
+      const h = bedSource(), isa = bedIsa(), amt = bedAmount();
+      if(!h || !isa || !amt) return {sells:[], buys:[], netFlow:0};
+      const gia = state.client.accounts.find(a=>a.id===h.accountId);
+      return {
+        sells:[{name:h.name, account: gia ? TEI.data.acctLabel(gia) : 'GIA', accountPension:false, accountType:'gia', amount:amt}],
+        buys:[{name:h.name, account: TEI.data.acctLabel(isa), accountPension:false, accountType:'isa', amount:amt}],
+        netFlow:0
+      };
+    }
     const base = state.holdings;
     const scenario = getScenarioHoldings().filter(h=>!h.isPending);
     const sells = [], buys = [];
@@ -9119,9 +9266,12 @@ TEI.render = TEI.render || {};
       const after = scenario.find(h=>h.id===b.id);
       if(!after) return;
       const diff = after.value - b.value;
-      if(diff < -0.5) sells.push({name:b.name, account:b.account, accountPension:b.accountPension, amount:-diff});
-      else if(diff > 0.5) buys.push({name:b.name, account:b.account, accountPension:b.accountPension, amount:diff});
+      if(diff < -0.5) sells.push({name:b.name, account:b.account, accountPension:b.accountPension, accountType:b.accountType, amount:-diff});
+      else if(diff > 0.5) buys.push({name:b.name, account:b.account, accountPension:b.accountPension, accountType:b.accountType, amount:diff});
     });
+    // Raise cash with no cash holding in scope: the freed money shows as cash.
+    const raised = scenario.find(h=>h.id==='_cash');
+    if(raised) buys.push({name:'Cash', account:'Cash', accountPension:false, accountType:'cash', amount:raised.value});
     const baseTotal = base.reduce((s,h)=>s+h.value,0);
     const scenarioTotal = scenario.reduce((s,h)=>s+h.value,0);
     return {sells, buys, netFlow: scenarioTotal - baseTotal};
@@ -9131,11 +9281,33 @@ TEI.render = TEI.render || {};
   // £253 into an ISA is still a cross-wrapper move for that £253; checking "did GIA get
   // any buy" would miss it.
   function crossWrapperFlags(sells, buys){
-    const net = {}, pensionByAccount = {};
-    sells.forEach(s=>{ net[s.account]=(net[s.account]||0)-s.amount; pensionByAccount[s.account]=pensionByAccount[s.account]||s.accountPension; });
-    buys.forEach(b=>{ net[b.account]=(net[b.account]||0)+b.amount; pensionByAccount[b.account]=pensionByAccount[b.account]||b.accountPension; });
+    const net = {}, pensionByAccount = {}, typeByAccount = {};
+    sells.forEach(s=>{ net[s.account]=(net[s.account]||0)-s.amount; pensionByAccount[s.account]=pensionByAccount[s.account]||s.accountPension; typeByAccount[s.account]=typeByAccount[s.account]||s.accountType; });
+    buys.forEach(b=>{ net[b.account]=(net[b.account]||0)+b.amount; pensionByAccount[b.account]=pensionByAccount[b.account]||b.accountPension; typeByAccount[b.account]=typeByAccount[b.account]||b.accountType; });
     const leftWrapper = Object.keys(net).filter(a=> net[a] < -0.5);
-    return {leftWrapper, sippLeft: leftWrapper.some(a=>pensionByAccount[a])};
+    const intoAccounts = Object.keys(net).filter(a=> net[a] > 0.5);
+    return {
+      leftWrapper, intoAccounts,
+      sippLeft: leftWrapper.some(a=>pensionByAccount[a]),
+      isaLeft: leftWrapper.some(a=> ['isa','lisa','cash_isa'].includes(typeByAccount[a])),
+      otherLeft: leftWrapper.filter(a=> !pensionByAccount[a] && !['isa','lisa','cash_isa'].includes(typeByAccount[a]))
+    };
+  }
+  /* Cross-wrapper wording (B5.1), shared by Implement and Results. Stated as
+     mechanics, never as advice. */
+  function crossFlagsHTML(flags){
+    let html = '';
+    if(flags.isaLeft) html += `<div class="lab-cross-flag">Once it leaves the ISA wrapper, that allowance cannot be used again this tax year.</div>`;
+    if(flags.otherLeft.length) html += `<div class="lab-cross-flag">Selling in ${flags.otherLeft.join(', ')} is a sale for tax purposes, which can have consequences of its own. Shown for illustration only.</div>`;
+    if(flags.sippLeft) html += `<div class="lab-cross-flag">This takes money out of a pension, where access rules and tax apply. Shown for illustration only.</div>`;
+    return html;
+  }
+  // "moves from [account] to [account]" (B5.1)
+  function movesSummaryHTML(sells, buys){
+    const flags = crossWrapperFlags(sells, buys);
+    if(!flags.leftWrapper.length || !flags.intoAccounts.length) return '';
+    const out = sells.filter(s=> flags.leftWrapper.includes(s.account)).reduce((s,x)=>s+x.amount,0);
+    return `<p class="lab-moves-summary">${fmtGBP(out)} moves from ${flags.leftWrapper.join(', ')} to ${flags.intoAccounts.join(', ')}.</p>`;
   }
 
   /* ---------------------------- treemap (plain SVG, no chart library) ---------------------------- */
@@ -9503,22 +9675,53 @@ TEI.render = TEI.render || {};
   /* ---- Stage II: Optimise ---- */
   const PRESET_META = {
     equal: {label:'Equal weight', badge:'Rebalanced', badgeClass:'lab-badge-realloc'},
-    cap: {label:'Maximum holding size', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
-    move: {label:'Move value between holdings', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
-    freshcash: {label:'Allocate fresh cash', badge:'Fresh cash', badgeClass:'lab-badge-cash'},
-    raisecash: {label:'Raise cash to X%', badge:'Withdrawn', badgeClass:'lab-badge-withdrawn'},
+    cap: {label:'Reallocate capital', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
+    move: {label:'Reallocate capital', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
+    freshcash: {label:'Allocate fresh capital', badge:'New money', badgeClass:'lab-badge-cash'},
+    raisecash: {label:'Raise cash', badge:'Cash raised', badgeClass:'lab-badge-withdrawn'},
     target: {label:'Target allocation', badge:'Reallocated', badgeClass:'lab-badge-realloc'},
+    bedisa: {label:'Bed & ISA', badge:'GIA to ISA', badgeClass:'lab-badge-realloc'},
     consolidate: {label:'Consolidate holdings', badge:'Consolidated', badgeClass:'lab-badge-realloc'}
   };
+  /* The six presets, locked names and order (spec B5.2). Reallocate capital
+     merges the old Move value and Maximum holding size: its engine type is
+     'move' (by amount or new share) or 'cap' (by maximum weight). Consolidate
+     stays for the adviser view only (decided 13 Oct 2026). */
   const PRESET_LIST = [
-    {id:'equal', title:'Equal weight', desc:'Rebalance so every holding carries the same weight.'},
-    {id:'cap', title:'Maximum holding size', desc:'Cap a holding at a chosen %, redistributing the excess.'},
-    {id:'move', title:'Move value between holdings', desc:'Move a £ amount or % — from one or more holdings into one or more others.'},
-    {id:'freshcash', title:'Allocate fresh cash', desc:'Model new capital being added to one or more holdings.'},
-    {id:'raisecash', title:'Raise cash to X%', desc:'Withdraw proportionally from holdings until cash reaches a target %.'},
-    {id:'target', title:'Target allocation', desc:'Enter target weights directly and see the trades required.'},
-    {id:'consolidate', title:'Consolidate holdings', desc:'Merge selected holdings into a single chosen holding.'}
+    {id:'equal', title:'Equal weight', desc:'Gives each holding you pick the same share, and shows what to buy and sell to get there.'},
+    {id:'freshcash', title:'Allocate fresh capital', desc:'Puts new money, a lump sum or a monthly amount, into the holdings furthest below target. Nothing is sold.'},
+    {id:'realloc', title:'Reallocate capital', desc:'Moves money from one holding to others. Pick the source, the amount or new share, and where it goes.'},
+    {id:'target', title:'Target allocation', desc:'Set the share you want for each holding or asset type, and see the moves that get you there.'},
+    {id:'raisecash', title:'Raise cash', desc:'Frees up a set amount of cash from the holdings you choose, and shows what it does to your mix.'},
+    {id:'bedisa', title:'Bed & ISA', desc:'Moves money from your general account into your ISA, within this year\'s allowance. Flags the sale and any gain.'},
+    {id:'consolidate', title:'Consolidate holdings', desc:'Merges selected holdings into a single chosen holding.', adviserOnly:true}
   ];
+  function presetCardId(type){ return (type==='move' || type==='cap') ? 'realloc' : type; }
+  function visiblePresets(){
+    const adviser = state.client && state.client.meta && state.client.meta.role === 'adviser';
+    return PRESET_LIST.filter(p=> !p.adviserOnly || adviser);
+  }
+  /* "You set: ..." under the chosen card (B5.2), in Geist Mono. */
+  function youSetText(){
+    const t = state.presetType;
+    const picked = state.selectedIds ? state.selectedIds.size : 0;
+    if(t==='equal') return picked >= 2 ? `${picked} holdings, equal shares` : 'pick at least two holdings';
+    if(t==='cap') return `maximum ${state.capPct}% per holding, excess to ${picked} ${picked===1?'holding':'holdings'}`;
+    if(t==='move'){
+      const raised = moveTotalRaised();
+      const by = state.moveUnit==='share' ? 'new share' : '£ amount';
+      return raised > 0.5 ? `${fmtGBP(raised)} by ${by} from ${state.moveSourceIds.size}, into ${state.moveDestIds.size}` : `by ${by}, nothing chosen yet`;
+    }
+    if(t==='freshcash') return (state.freshMode==='monthly' ? `${fmtGBP(Number(state.freshMonthly)||0)} a month for ${Number(state.freshMonths)||0} months` : `${fmtGBP(Number(state.freshLump)||0)} lump sum`) + `, into ${picked}`;
+    if(t==='raisecash') return `${state.raiseUnit==='%' ? (Number(state.raiseValue)||0)+'% of the portfolio' : fmtGBP(Number(state.raiseValue)||0)} from ${picked} ${picked===1?'holding':'holdings'}`;
+    if(t==='target') return 'a share for each holding';
+    if(t==='bedisa'){
+      const h = bedSource();
+      return h ? `${fmtGBP(bedAmount())} of ${h.name}, allowance left ${state.bed.allowance===''?'not entered':fmtGBP(Number(state.bed.allowance)||0)}` : 'choose a GIA holding';
+    }
+    if(t==='consolidate') return `${picked} into one holding`;
+    return '';
+  }
 
   function amountChecklistHTML(pool, selectedIds, amounts, idPrefix, headline, note, placeholderFor){
     const allSelected = pool.length>0 && pool.every(h=>selectedIds.has(h.id));
@@ -9605,10 +9808,12 @@ TEI.render = TEI.render || {};
       return base.map(h=>`<div class="lab-tw-row"><span class="tw-name">${h.name}</span><span class="tw-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tw-arrow">→</span><span class="lab-tw-val">${fmtPct(Number(state.targetWeights[h.id])||0)}</span></div>`).join('');
     }
     const weighted = withWeights(scenarioHoldings);
+    const baseWeighted = withWeights(base);
     return `
       ${weighted.filter(h=>!h.isPending).map(h=>{
         const isZero = h.value===0 && state.presetType==='consolidate' && state.selectedIds.has(h.id);
-        return `<div class="lab-tw-row"><span class="tw-name" style="${isZero?'color:var(--k-ink-softer);text-decoration:line-through;':''}">${h.name}</span><span class="tw-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tw-arrow">→</span><span class="lab-tw-val" style="${isZero?'color:var(--k-ink-softer);':''}">${fmtPct(h.weight)}</span></div>`;
+        const before = baseWeighted.find(b=>b.id===h.id); // absent for "Cash raised", which is new
+        return `<div class="lab-tw-row"><span class="tw-name" style="${isZero?'color:var(--k-ink-softer);text-decoration:line-through;':''}">${h.name}</span><span class="tw-cur">${fmtPct(before ? before.weight : 0)}</span><span class="tw-arrow">→</span><span class="lab-tw-val" style="${isZero?'color:var(--k-ink-softer);':''}">${fmtPct(h.weight)}</span></div>`;
       }).join('')}
       ${weighted.find(h=>h.isPending) ? `<div class="lab-tw-row"><span class="tw-name" style="color:var(--k-ink-softer);">Uncommitted</span><span class="tw-cur"></span><span class="tw-arrow"></span><span class="lab-tw-val" style="color:var(--k-ink-softer);">${fmtPct(weighted.find(h=>h.isPending).weight)}</span></div>` : ''}
     `;
@@ -9620,7 +9825,15 @@ TEI.render = TEI.render || {};
     const scopeTotal = base.reduce((s,h)=>s+h.value,0);
 
     if(state.presetType==='equal'){
-      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>All ${base.length} holdings — ${fmtPct(100/base.length)} each</span><span class="lab-ledger-amt">—</span></div>`;
+      const picked = base.filter(h=>state.selectedIds.has(h.id));
+      const pickedShare = picked.reduce((s,h)=>s+h.value,0) / (scopeTotal||1) * 100;
+      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>${picked.length>=2 ? `${picked.length} holdings, ${fmtPct(pickedShare/picked.length)} each` : 'Pick at least two holdings below'}</span><span class="lab-ledger-amt">-</span></div>`;
+    }
+    if(state.presetType==='bedisa'){
+      const h = bedSource(), isa = bedIsa(), amt = bedAmount();
+      if(!h || !isa || !amt) return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Not set yet</span>Choose a GIA holding, the ISA and an amount above</span><span class="lab-ledger-amt">-</span></div>`;
+      const gia = state.client.accounts.find(a=>a.id===h.accountId);
+      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>${h.name}: ${gia?TEI.data.acctLabel(gia):'GIA'} to ${TEI.data.acctLabel(isa)}</span><span class="lab-ledger-amt">${fmtGBP(amt)}</span></div>`;
     }
     if(state.presetType==='cap'){
       const capValue = scopeTotal * state.capPct/100;
@@ -9676,28 +9889,23 @@ TEI.render = TEI.render || {};
     }
     if(state.presetType==='freshcash'){
       const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
-      const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
+      const alloc = freshAllocations();
+      const C = freshTotal();
       if(selected.length===0){
-        return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Uncommitted</span>New cash — select holdings below</span><span class="lab-ledger-amt">${fmtGBP(state.cashAmount)}</span></div>`;
+        return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge lab-badge-pending">Not placed yet</span>New money: tick holdings below</span><span class="lab-ledger-amt">${fmtGBP(C)}</span></div>`;
       }
-      const destLabel = selected.length===1 ? `${selected[0].name} (${selected[0].account})` : `spread across ${selected.length} holdings (pro-rata)`;
+      const destLabel = selected.length===1 ? `${selected[0].name} (${selected[0].account})` : `${selected.length} holdings, furthest below an equal share first`;
       return `
         <div class="lab-ledger-row clickable" id="labLedgerToggle">
-          <span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>New cash → ${destLabel}${selected.length>1?`<span class="lab-ledger-chev">${state.ledgerOpen?'▲':'▼'}</span>`:''}</span>
-          <span class="lab-ledger-amt">${fmtGBP(state.cashAmount)}</span>
+          <span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>New money to ${destLabel}${selected.length>1?`<span class="lab-ledger-chev">${state.ledgerOpen?'▲':'▼'}</span>`:''}</span>
+          <span class="lab-ledger-amt">${fmtGBP(C)}</span>
         </div>
-        ${state.ledgerOpen && selected.length>1 ? `<div class="lab-ledger-breakdown">${selected.map(h=>{
-          const share = selectedTotal>0 ? h.value/selectedTotal : 0;
-          return `<div class="br"><span>${h.name} (${h.account})</span><span>+${fmtGBP(state.cashAmount*share)}</span></div>`;
-        }).join('')}</div>` : ''}
+        ${state.ledgerOpen && selected.length>1 ? `<div class="lab-ledger-breakdown">${selected.map(h=>`<div class="br"><span>${h.name} (${h.account})</span><span>+${fmtGBP(alloc[h.id]||0)}</span></div>`).join('')}</div>` : ''}
       `;
     }
     if(state.presetType==='raisecash'){
-      const cash = findCash();
-      const targetVal = scopeTotal * state.raiseCashTargetPct/100;
-      const currentCash = cash ? cash.value : 0;
-      const amount = targetVal - currentCash;
-      if(amount <= 0) return `<div class="lab-no-match-note">Cash is already at or above ${state.raiseCashTargetPct}% — nothing to raise.</div>`;
+      const amount = raiseAmount();
+      if(amount <= 0.5) return `<div class="lab-no-match-note">Enter an amount and tick the holdings it comes from.</div>`;
       const selected = scenarioPool().filter(h=>state.selectedIds.has(h.id));
       const selectedTotal = selected.reduce((s,h)=>s+h.value,0);
       if(selected.length===0){
@@ -9738,59 +9946,82 @@ TEI.render = TEI.render || {};
   function presetControlsHTML(){
     const base = state.holdings;
     const scopeTotal = base.reduce((s,h)=>s+h.value,0);
+    const numInput = (id, value, label, suffix) => `
+      <label class="lab-field"><span class="lab-field-label">${label}</span>
+        <span class="lab-field-input">${suffix==='£'?'<em>£</em>':''}<input type="text" inputmode="decimal" class="lab-num-input" id="${id}" value="${value}">${suffix==='%'?'<em>%</em>':''}</span>
+      </label>`;
+    const seg = (attr, options, current) => `<div class="lab-seg" role="group">${options.map(o=>`<button type="button" ${attr}="${o[0]}" aria-pressed="${o[0]===current}" class="${o[0]===current?'active':''}">${o[1]}</button>`).join('')}</div>`;
 
     if(state.presetType==='equal'){
-      return `<div class="lab-auto-note">Rebalances all ${base.length} holdings in scope to an equal weight (${fmtPct(100/base.length)} each). No further input needed.</div>`;
+      return checklistHTML('Which holdings?', 'Each holding you tick ends up with the same share of their combined value. Holdings you leave unticked stay as they are.');
     }
-    if(state.presetType==='cap'){
-      return `
-        <div class="lab-field-row">
-          <div>
-            <span class="lab-field-label">Maximum weight per holding</span>
-            <input type="text" inputmode="decimal" class="lab-num-input" id="labCapInput" value="${state.capPct}">
-          </div>
-        </div>
-        ${checklistHTML('Where does the excess go?', 'Tick as many holdings as you like — the excess splits proportionally across whatever is checked. Holdings already over the cap aren’t eligible destinations.')}
-      `;
-    }
-    if(state.presetType==='move'){
+    if(state.presetType==='cap' || state.presetType==='move'){
+      const modeSeg = seg('data-reallocmode', [['amount','£ amount'],['share','New share'],['cap','Maximum weight']], state.reallocMode);
+      if(state.presetType==='cap'){
+        return `
+          ${modeSeg}
+          <div class="lab-field-row">${numInput('labCapInput', state.capPct, 'No holding above', '%')}</div>
+          ${checklistHTML('Where does the excess go?', 'Tick the holdings it goes to; it is split in proportion to their size. Holdings already over the limit cannot receive it.')}
+        `;
+      }
       const totalRaised = moveTotalRaised();
-      const allocated = moveAllocatedTotal();
-      const allocOk = Math.abs(allocated-totalRaised) < 0.5;
+      const byShare = state.moveUnit==='share';
       return `
-        <div class="lab-unit-toggle">
-          <button type="button" data-moveunit="£" class="${state.moveUnit==='£'?'active':''}">£ amount</button>
-          <button type="button" data-moveunit="%" class="${state.moveUnit==='%'?'active':''}">% of holding</button>
-        </div>
-        ${amountChecklistHTML(moveSourcePool(), state.moveSourceIds, state.moveSourceAmounts, 'src', 'Sell from', state.moveUnit==='£' ? 'Tick one or more holdings and enter how much to sell from each.' : 'Tick one or more holdings and enter what % of each to sell.', h=>state.moveUnit==='£'?'£0':'0%')}
-        <div class="lab-raised-note">Total raised<b>${fmtGBP(totalRaised)}</b></div>
-        <div class="lab-subhead">Invest proceeds into</div>
-        <div class="lab-dest-toggle">
-          <button type="button" data-movedestmode="prorata" class="${state.moveDestMode==='prorata'?'active':''}">Split pro-rata</button>
-          <button type="button" data-movedestmode="manual" class="${state.moveDestMode==='manual'?'active':''}">Set amounts individually</button>
-        </div>
-        ${state.moveDestMode==='prorata' ? moveDestChecklistHTML() : amountChecklistHTML(moveDestPool(), state.moveDestIds, state.moveDestAmounts, 'dst', '', state.moveUnit==='£' ? 'Enter how much of the proceeds goes to each holding.' : 'Enter what % of total proceeds goes to each holding.', h=>state.moveUnit==='£'?'£0':'0%')}
-        ${state.moveDestMode==='manual' ? `<div class="lab-alloc-total-row ${allocOk?'ok':'warn'}"><span>Allocated</span><span>${fmtGBP(allocated)} of ${fmtGBP(totalRaised)}${allocOk?' ✓':''}</span></div>` : ''}
+        ${modeSeg}
+        ${amountChecklistHTML(moveSourcePool(), state.moveSourceIds, state.moveSourceAmounts, 'src', 'Move from',
+          byShare ? 'Tick a holding and enter the share you want it to have afterwards.' : 'Tick a holding and enter how much to move from it.',
+          h=> byShare ? 'now '+fmtPct(h.value/(scopeTotal||1)*100) : '£0')}
+        <div class="lab-raised-note">Total to move<b>${fmtGBP(totalRaised)}</b></div>
+        <div class="lab-subhead">Move it to</div>
+        <div class="lab-subhead-note">Tick where it goes; it is split in proportion to their size.</div>
+        ${moveDestChecklistHTML()}
       `;
     }
     if(state.presetType==='freshcash'){
+      const modeSeg = seg('data-freshmode', [['lump','Lump sum'],['monthly','Monthly']], state.freshMode);
+      const fields = state.freshMode==='monthly'
+        ? `${numInput('labFreshMonthly', state.freshMonthly, 'Each month', '£')}${numInput('labFreshMonths', state.freshMonths, 'For how many months', '')}`
+        : numInput('labFreshLump', state.freshLump, 'Amount', '£');
       return `
-        <div class="lab-amount-row">
-          <label>Amount to add</label>
-          <div class="amt-inline"><input type="range" min="1000" max="40000" step="500" value="${state.cashAmount}" id="labCashSlider"><div class="out">${fmtGBP(state.cashAmount)}</div></div>
-        </div>
-        ${checklistHTML('Where does the new cash go?', 'Tick as many holdings as you like — new money splits proportionally across whatever is checked.')}
+        ${modeSeg}
+        <div class="lab-field-row">${fields}</div>
+        <div class="lab-auto-note">${fmtGBP(freshTotal())} of new money in total. It goes first to the ticked holdings furthest below an equal share of them. Nothing is sold.</div>
+        ${checklistHTML('Which holdings can it go to?', 'Tick the holdings the new money can go into.')}
       `;
     }
     if(state.presetType==='raisecash'){
-      const cash = findCash();
+      const modeSeg = seg('data-raiseunit', [['£','£ amount'],['%','% of portfolio']], state.raiseUnit);
+      const amount = raiseAmount();
       return `
-        <div class="lab-amount-row">
-          <label>Target cash %</label>
-          <div class="amt-inline"><input type="range" min="0" max="40" step="1" value="${state.raiseCashTargetPct}" id="labRaiseCashSlider"><div class="out">${state.raiseCashTargetPct}%</div></div>
+        ${modeSeg}
+        <div class="lab-field-row">${numInput('labRaiseInput', state.raiseValue, state.raiseUnit==='%' ? 'Share of the portfolio' : 'Amount', state.raiseUnit)}</div>
+        <div class="lab-auto-note">That frees ${fmtGBP(amount)}, ${fmtPct(amount/(scopeTotal||1)*100)} of the money in scope, taken in proportion from the holdings ticked.</div>
+        ${checklistHTML('Which holdings does it come from?', 'Tick the holdings to sell from. Cash itself is not a source.')}
+      `;
+    }
+    if(state.presetType==='bedisa'){
+      const pool = bedSourcePool(), isas = bedIsaPool();
+      if(!pool.length) return `<div class="lab-no-match-note">There are no holdings in a general investment account (GIA) in this view, so there is nothing to move into an ISA.</div>`;
+      if(!isas.length) return `<div class="lab-no-match-note">There is no stocks and shares ISA on record to move money into. Add one in Settings, under Accounts.</div>`;
+      const h = bedSource();
+      const cap = bedCap();
+      const gain = bedGain();
+      const isa = bedIsa();
+      return `
+        <div class="lab-field-row">${numInput('labBedAllowance', state.bed.allowance, 'ISA allowance left, '+taxYearLabel(), '£')}</div>
+        <div class="lab-subhead-note">${state.bed.allowance==='' ? 'Enter what is left of this tax year\'s allowance to run this. ' : ''}It is used for this scenario only and is not saved yet.</div>
+        <div class="lab-subhead">Sell from your GIA</div>
+        <div class="lab-checklist">
+          ${pool.map(x=>{
+            const acc = state.client.accounts.find(a=>a.id===x.accountId);
+            return `<label class="lab-checklist-row"><input type="radio" name="labBedSrc" data-bedsrc="${x.id}" ${state.bed.holdingId===x.id?'checked':''}><span class="cl-name">${x.name}</span><span class="cl-meta">${acc?TEI.data.acctLabel(acc):''} · ${fmtGBP(Number(x.value)||0)}</span></label>`;
+          }).join('')}
         </div>
-        <div class="lab-auto-note">Current cash: ${cash?fmtPct(cash.value/scopeTotal*100):'0.0%'} of scope. Withdraws proportionally from non-cash holdings until cash reaches the target above.</div>
-        ${checklistHTML('Which holdings does this come from?', 'Tick as many holdings as you like — the withdrawal draws proportionally from whatever is checked. Cash itself isn’t an eligible source.')}
+        ${isas.length>1 ? `<label class="lab-field"><span class="lab-field-label">Into ISA</span><select class="lab-num-input" id="labBedIsa"><option value="">Choose</option>${isas.map(a=>`<option value="${a.id}" ${state.bed.isaId===a.id?'selected':''}>${TEI.data.acctLabel(a)}</option>`).join('')}</select></label>` : `<div class="lab-subhead-note">Into ${TEI.data.acctLabel(isas[0])}.</div>`}
+        ${h ? `<div class="lab-field-row">${numInput('labBedAmount', state.bed.amount, 'Amount to move', '£')}</div>
+          <div class="lab-subhead-note">${cap>0 ? 'Up to '+fmtGBP(cap)+', the smaller of the allowance left and the holding\'s value.' : 'Enter the allowance left first.'}</div>
+          ${bedAmount()>0.5 ? `<div class="lab-auto-note">${gain==null ? 'There is no cost recorded for this holding, so any gain cannot be shown.' : gain>=0 ? `Selling realises a gain of about ${fmtGBP(gain)}. Gains above the annual exempt amount may be taxable.` : `Selling realises a loss of about ${fmtGBP(-gain)}.`}</div>` : ''}` : ''}
+        ${!isa && isas.length>1 ? '<div class="lab-subhead-note">Choose which ISA it goes into.</div>' : ''}
       `;
     }
     if(state.presetType==='target'){
@@ -9798,17 +10029,17 @@ TEI.render = TEI.render || {};
       const ok = Math.abs(sum-100)<0.5;
       return `
         <div class="lab-subhead">Enter target weights</div>
-        <div class="lab-subhead-note">Type a % for each holding — the Lab shows the trades required, it doesn't suggest the split.</div>
+        <div class="lab-subhead-note">Type a share for each holding. The Lab shows the moves needed; it does not suggest the split.</div>
         ${base.map(h=>`<div class="lab-target-row"><span class="tg-name">${h.name}</span><span class="tg-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tg-arrow">→</span><input type="text" inputmode="decimal" class="lab-target-input" data-targetid="${h.id}" value="${state.targetWeights[h.id]!==undefined?state.targetWeights[h.id]:''}" placeholder="0.0"></div>`).join('')}
-        <div class="lab-target-total-row ${ok?'ok':'warn'}"><span>Total allocated</span><span>${fmtPct(sum)}${ok?' ✓':' — must total 100%'}</span></div>
+        <div class="lab-target-total-row ${ok?'ok':'warn'}"><span>Total</span><span>${fmtPct(sum)}${ok?' ✓':', must add up to 100%'}</span></div>
       `;
     }
     if(state.presetType==='consolidate'){
       const targetOpts = base.map(h=>`<option value="${h.id}" ${state.consolidateTargetId===h.id?'selected':''}>${h.name} (${h.account})</option>`).join('');
       return `
-        ${checklistHTML('Holdings to consolidate', 'Tick every holding you want fully merged into the destination below.')}
+        ${checklistHTML('Holdings to consolidate', 'Tick every holding to merge fully into the one chosen below.')}
         <div class="lab-field-row">
-          <div><span class="lab-field-label">Into holding</span><select class="lab-num-input" id="labConsolidateTarget"><option value="">Select…</option>${targetOpts}</select></div>
+          <div><span class="lab-field-label">Into holding</span><select class="lab-num-input" id="labConsolidateTarget"><option value="">Select</option>${targetOpts}</select></div>
         </div>
       `;
     }
@@ -9819,11 +10050,9 @@ TEI.render = TEI.render || {};
     const base = state.holdings;
     const scopeTotal = base.reduce((s,h)=>s+h.value,0);
     let netNew=0, netRealloc=0, withdrawn=0, resulting=scopeTotal;
-    if(state.presetType==='freshcash'){ netNew = state.cashAmount; resulting = scopeTotal+state.cashAmount; }
-    else if(state.presetType==='raisecash'){
-      const cash = findCash(); const targetVal = scopeTotal*state.raiseCashTargetPct/100;
-      withdrawn = Math.max(0, targetVal-(cash?cash.value:0)); resulting = scopeTotal;
-    }
+    if(state.presetType==='freshcash'){ netNew = freshTotal(); resulting = scopeTotal+netNew; }
+    else if(state.presetType==='raisecash'){ withdrawn = raiseAmount(); resulting = scopeTotal; }
+    else if(state.presetType==='bedisa'){ netRealloc = bedAmount(); }
     else if(state.presetType==='cap'){
       const capValue = scopeTotal*state.capPct/100;
       netRealloc = base.filter(h=>h.value>capValue).reduce((s,h)=>s+(h.value-capValue),0);
@@ -9834,20 +10063,21 @@ TEI.render = TEI.render || {};
       <div class="lab-sc-stats">
         <div class="lab-sc-stat"><div class="v pos">${fmtGBP(netNew)}</div><div class="l">Net new cash</div></div>
         <div class="lab-sc-stat"><div class="v">${fmtGBP(netRealloc)}</div><div class="l">Net reallocated</div></div>
-        <div class="lab-sc-stat"><div class="v">${fmtGBP(withdrawn)}</div><div class="l">Withdrawn</div></div>
+        <div class="lab-sc-stat"><div class="v">${fmtGBP(withdrawn)}</div><div class="l">Cash raised</div></div>
         <div class="lab-sc-stat"><div class="v">${fmtGBP(resulting)}</div><div class="l">Resulting total</div></div>
       </div>
     `;
   }
 
   function scenarioLabel(){
-    const meta = PRESET_LIST.find(p=>p.id===state.presetType);
+    const meta = PRESET_LIST.find(p=>p.id===presetCardId(state.presetType));
     if(!meta) return 'Scenario';
     if(state.presetType==='equal') return 'Equal weight';
-    if(state.presetType==='cap') return `Cap at ${state.capPct}%`;
-    if(state.presetType==='move'){ const t=moveTotalRaised(); return t>0.5 ? `Move ${fmtGBP(t)}` : 'Move value'; }
-    if(state.presetType==='freshcash') return `Add ${fmtGBP(state.cashAmount)}`;
-    if(state.presetType==='raisecash') return `Raise cash to ${state.raiseCashTargetPct}%`;
+    if(state.presetType==='cap') return `No holding above ${state.capPct}%`;
+    if(state.presetType==='move'){ const t=moveTotalRaised(); return t>0.5 ? `Reallocate ${fmtGBP(t)}` : 'Reallocate capital'; }
+    if(state.presetType==='freshcash') return `Add ${fmtGBP(freshTotal())}`;
+    if(state.presetType==='raisecash') return `Raise ${fmtGBP(raiseAmount())} cash`;
+    if(state.presetType==='bedisa') return `Bed & ISA ${fmtGBP(bedAmount())}`;
     if(state.presetType==='target') return 'Target allocation';
     if(state.presetType==='consolidate'){
       const target = state.holdings.find(h=>h.id===state.consolidateTargetId);
@@ -9859,10 +10089,13 @@ TEI.render = TEI.render || {};
   function optimiseHTML(){
     const base = state.holdings;
     const canProceed = scenarioCanProceed();
+    const chosen = presetCardId(state.presetType);
+    const chosenMeta = PRESET_LIST.find(p=>p.id===chosen);
     const presetGrid = `
-      <div class="lab-preset-grid">
-        ${PRESET_LIST.map(p=>`<div class="lab-preset-card ${state.presetType===p.id?'selected':''}" data-preset="${p.id}"><div class="pt">${p.title}</div><div class="pd">${p.desc}</div></div>`).join('')}
+      <div class="lab-preset-grid" role="group" aria-label="Presets">
+        ${visiblePresets().map(p=>`<button type="button" class="lab-preset-card ${chosen===p.id?'selected':''}" data-preset="${p.id}" aria-pressed="${chosen===p.id}"><span class="pt">${p.title}</span></button>`).join('')}
       </div>
+      ${chosenMeta ? `<div class="lab-preset-detail"><p class="pt">${chosenMeta.title}</p><p class="pd">${chosenMeta.desc}</p><p class="lab-you-set">You set: ${youSetText()}</p></div>` : ''}
     `;
     let scenarioSection = '';
     if(state.scenarioActive){
@@ -9883,7 +10116,7 @@ TEI.render = TEI.render || {};
     return `
       <div class="lab-eyebrow">Stage II</div>
       <h4 class="lab-stage-title">Optimise</h4>
-      <div class="lab-stage-desc">You choose the objective. The Lab calculates and models what it takes to get there — it never tells you what to do.</div>
+      <div class="lab-stage-desc">You choose the objective. The Lab works out what it takes to get there; it never tells you what to do.</div>
       <div class="lab-subhead">Start from a preset</div>
       <div class="lab-subhead-note">Each preset is a mechanism, not a recommendation.</div>
       ${presetGrid}
@@ -9935,40 +10168,40 @@ TEI.render = TEI.render || {};
   /* ---- Stage IV: Implement ---- */
   function implementHTML(){
     const {sells, buys, netFlow} = scenarioMoves();
-    const {leftWrapper, sippLeft} = crossWrapperFlags(sells, buys);
+    const flags = crossWrapperFlags(sells, buys);
+    // Board (B5.1): SELL / BUY rows with the account name under the holding.
     const moveRow = (icon, verb, name, acct, amt) => `
       <div class="lab-move-row">
-        <div class="lab-move-icon ${icon}">${icon==='sell'?'−':'+'}</div>
-        <div class="lab-move-text">${verb} <b>${fmtGBP(amt)}</b> of ${name} <span style="color:var(--k-ink-softer);">(${acct})</span></div>
+        <span class="lab-move-tag ${icon}">${icon==='sell'?'SELL':'BUY'}</span>
+        <div class="lab-move-text"><span>${name}</span><small>${acct}</small></div>
+        <div class="lab-move-amt">${fmtGBP(amt)}</div>
       </div>`;
-    const groupRows = (list, icon, verb, toggleId, open) => list.length===1
-      ? moveRow(icon, verb, list[0].name, list[0].account, list[0].amount)
+    const groupRows = (list, icon, verb, toggleId, open) => list.length<=4
+      ? list.map(x=> moveRow(icon, verb, x.name, x.account, x.amount)).join('')
       : `
-        <div class="lab-move-row clickable" id="${toggleId}">
-          <div class="lab-move-icon ${icon}">${icon==='sell'?'−':'+'}</div>
-          <div class="lab-move-text">${verb} across <b>${list.length} holdings</b> <span class="lab-ledger-chev">${open?'▲':'▼'}</span></div>
-          <div class="lab-move-amt">${fmtGBP(list.reduce((s,x)=>s+x.amount,0))}</div>
-        </div>
-        ${open ? `<div class="lab-ledger-breakdown" style="margin-bottom:8px;">${list.map(x=>`<div class="br"><span>${x.name} (${x.account})</span><span>${icon==='sell'?'−':'+'}${fmtGBP(x.amount)}</span></div>`).join('')}</div>` : ''}
+        <button type="button" class="lab-move-row clickable" id="${toggleId}" aria-expanded="${open}">
+          <span class="lab-move-tag ${icon}">${icon==='sell'?'SELL':'BUY'}</span>
+          <span class="lab-move-text"><span>${list.length} holdings</span><small>${open?'Hide':'Show'} each one</small></span>
+          <span class="lab-move-amt">${fmtGBP(list.reduce((s,x)=>s+x.amount,0))}</span>
+        </button>
+        ${open ? list.map(x=> moveRow(icon, verb, x.name, x.account, x.amount)).join('') : ''}
       `;
     let sellRows = sells.length ? groupRows(sells, 'sell', 'Sell', 'labImplementToggleSell', state.implementOpen) : '';
     let buyRows = buys.length ? groupRows(buys, 'buy', 'Buy', 'labImplementToggleBuy', state.implementOpen) : '';
     if(netFlow > 0.5 && sells.length===0){
-      sellRows = `<div class="lab-move-row"><div class="lab-move-icon buy">£</div><div class="lab-move-text">New cash into the portfolio <span style="color:var(--k-ink-softer);">(not from an existing holding)</span></div></div>`;
+      sellRows = `<div class="lab-move-row"><span class="lab-move-tag buy">NEW</span><div class="lab-move-text"><span>New money into the portfolio</span><small>Not from an existing holding</small></div><div class="lab-move-amt">${fmtGBP(netFlow)}</div></div>`;
     }
     if(netFlow < -0.5 && buys.length===0){
-      buyRows = `<div class="lab-move-row"><div class="lab-move-icon sell">£</div><div class="lab-move-text">Cash leaves the portfolio <span style="color:var(--k-ink-softer);">(not reinvested)</span></div></div>`;
+      buyRows = `<div class="lab-move-row"><span class="lab-move-tag sell">OUT</span><div class="lab-move-text"><span>Money leaves the portfolio</span><small>Not reinvested</small></div><div class="lab-move-amt">${fmtGBP(-netFlow)}</div></div>`;
     }
-    let crossFlag = '';
-    if(leftWrapper.length) crossFlag += `<div class="lab-cross-flag">⚠ Includes cross-wrapper moves out of ${leftWrapper.join(', ')} — each disposal may have its own tax and allowance consequences. Shown here for illustration only.</div>`;
-    if(sippLeft) crossFlag += `<div class="lab-cross-flag">⚠ Includes a withdrawal from a pension — access rules and tax treatment apply. Shown here for illustration only.</div>`;
     return `
       <div class="lab-eyebrow">Stage IV</div>
       <h4 class="lab-stage-title">Implement</h4>
-      <div class="lab-stage-desc">What the scenario means in practice, described as moves — nothing here places a trade.</div>
+      <div class="lab-stage-desc">What the scenario means in practice, set out as moves. Nothing here places a trade.</div>
       ${sellRows}
       ${buyRows}
-      ${crossFlag}
+      ${movesSummaryHTML(sells, buys)}
+      ${crossFlagsHTML(flags)}
       <div class="lab-stage-actions">
         <button type="button" class="btn-ghost" data-goto="compare">← Compare</button>
         <button type="button" class="btn-primary" data-goto="results">Results →</button>
@@ -9998,35 +10231,44 @@ TEI.render = TEI.render || {};
     const volAfter = illustrativeVol(scenario);
     const effScale = Math.max(effBefore, effAfter, 1) * 1.15;
     const {sells, buys, netFlow} = scenarioMoves();
-    const {leftWrapper, sippLeft} = crossWrapperFlags(sells, buys);
+    const flags = crossWrapperFlags(sells, buys);
     const totalMoved = Math.max(sells.reduce((s,x)=>s+x.amount,0), buys.reduce((s,x)=>s+x.amount,0), Math.abs(netFlow));
+    const n = (k, one, many) => `${k} ${k===1?one:many}`;
+    // Three points (B5.1): what moves, what it does to the mix, what it takes.
+    const mixLine = `Your largest holding goes from ${fmtPct(concBefore.top1)} to ${fmtPct(concAfter.top1)} of the total, and the mix behaves like ${effAfter.toFixed(1)} equal holdings instead of ${effBefore.toFixed(1)}.`;
+    const takesLine = `It takes ${n(sells.length,'sale','sales')} and ${n(buys.length,'purchase','purchases')}${totalMoved>0.5 ? ', '+fmtGBP(totalMoved)+' in all' : ''}.`;
 
     let narrative = [];
     if(state.presetType==='equal'){
-      narrative = [`Every holding in scope moves to an equal weight of ${fmtPct(100/state.holdings.length)}.`, `Implementing this requires ${sells.length} sells and ${buys.length} buys.`];
+      narrative = [`${n(state.selectedIds.size,'holding','holdings')} move to equal shares of their combined value.`, mixLine, takesLine];
     } else if(state.presetType==='cap'){
-      narrative = [`Holdings over ${state.capPct}% are trimmed back to the cap.`, `The excess spreads across ${buys.length} holding${buys.length===1?'':'s'}.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and ${buys.length} buy${buys.length===1?'':'s'} totalling ${fmtGBP(totalMoved)}.`];
+      narrative = [`Holdings over ${state.capPct}% are brought back to ${state.capPct}%, and the excess goes to ${n(buys.length,'holding','holdings')}.`, mixLine, takesLine];
     } else if(state.presetType==='move'){
-      narrative = [`${fmtGBP(totalMoved)} moves from ${sells.length} holding${sells.length===1?'':'s'} into ${buys.length} holding${buys.length===1?'':'s'}.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and ${buys.length} buy${buys.length===1?'':'s'} totalling ${fmtGBP(totalMoved)}.`];
+      narrative = [`${fmtGBP(totalMoved)} moves from ${n(sells.length,'holding','holdings')} into ${n(buys.length,'holding','holdings')}.`, mixLine, takesLine];
     } else if(state.presetType==='freshcash'){
-      narrative = [`${fmtGBP(state.cashAmount)} of new cash is added to the portfolio.`, `It lands in ${buys.length} holding${buys.length===1?'':'s'}.`, `Implementing this requires ${buys.length} buy${buys.length===1?'':'s'} totalling ${fmtGBP(state.cashAmount)}.`];
+      narrative = [`${fmtGBP(freshTotal())} of new money goes into ${n(buys.length,'holding','holdings')}${state.freshMode==='monthly' ? ', '+fmtGBP(Number(state.freshMonthly)||0)+' a month for '+(Number(state.freshMonths)||0)+' months' : ''}. Nothing is sold.`, mixLine, takesLine];
     } else if(state.presetType==='raisecash'){
-      narrative = [`${fmtGBP(totalMoved)} is withdrawn from ${sells.length} holding${sells.length===1?'':'s'} to bring cash to ${state.raiseCashTargetPct}%.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} totalling ${fmtGBP(totalMoved)}.`];
+      narrative = [`${fmtGBP(raiseAmount())} of cash is freed from ${n(sells.length,'holding','holdings')}.`, mixLine, takesLine];
     } else if(state.presetType==='target'){
-      narrative = [`Every holding moves to the weight entered in Optimise.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and ${buys.length} buy${buys.length===1?'':'s'}.`];
+      narrative = [`Every holding moves to the share you entered.`, mixLine, takesLine];
+    } else if(state.presetType==='bedisa'){
+      const h = bedSource(), gain = bedGain();
+      narrative = [
+        `${fmtGBP(bedAmount())} of ${h ? h.name : 'the holding'} moves from ${sells[0] ? sells[0].account : 'your GIA'} to ${buys[0] ? buys[0].account : 'your ISA'}.`,
+        'Your mix of holdings stays the same; only the account it sits in changes.',
+        gain==null ? 'There is no cost recorded for this holding, so any gain on the sale cannot be shown.' : gain>=0 ? `Selling realises a gain of about ${fmtGBP(gain)}. Gains above the annual exempt amount may be taxable.` : `Selling realises a loss of about ${fmtGBP(-gain)}.`
+      ];
     } else if(state.presetType==='consolidate'){
-      narrative = [`${sells.length} holding${sells.length===1?'':'s'} fully liquidate into one destination.`, `Implementing this requires ${sells.length} sell${sells.length===1?'':'s'} and 1 buy totalling ${fmtGBP(totalMoved)}.`];
+      narrative = [`${n(sells.length,'holding','holdings')} merge fully into one.`, mixLine, takesLine];
     }
-    let crossFlag = '';
-    if(leftWrapper.length) crossFlag += `<div class="lab-cross-flag" style="margin-bottom:10px;">⚠ Includes cross-wrapper moves out of ${leftWrapper.join(', ')} — their own tax and allowance consequences aren't reflected here.</div>`;
-    if(sippLeft) crossFlag += `<div class="lab-cross-flag" style="margin-bottom:10px;">⚠ Includes a withdrawal from a pension — access rules aren't reflected here.</div>`;
 
     return `
       <div class="lab-eyebrow">Stage V</div>
       <h4 class="lab-stage-title">Results</h4>
-      <div class="lab-stage-desc">A plain-English summary of what this scenario changes.</div>
+      <div class="lab-stage-desc">What this scenario changes, in plain words.</div>
       <ul class="lab-results-narrative">${narrative.map(l=>`<li>${l}</li>`).join('')}</ul>
-      ${crossFlag}
+      ${crossFlagsHTML(flags)}
+      <p class="lab-not-advice">Scenarios show the mechanics of a change, not a recommendation to make it.</p>
       <div class="lab-ba-legend"><span><i class="ba-before-i"></i>Current</span><span><i class="ba-after-i"></i>${scenarioLabel()}</span></div>
       <div class="lab-ba-stat-grid">
         <div class="lab-ba-stat">${beforeAfterBars(concBefore.top1, concAfter.top1, 100, fmtPct(concBefore.top1), fmtPct(concAfter.top1))}<div class="l">Top 1 concentration</div></div>
@@ -10062,7 +10304,10 @@ TEI.render = TEI.render || {};
       </div>
       <div class="lab-stage-actions">
         <button type="button" class="btn-ghost" data-goto="implement">← Implement</button>
-        <button type="button" class="btn-primary" id="labSaveScenarioBtn">Save scenario for review →</button>
+        <span class="lab-result-btns">
+          <button type="button" class="btn-ghost" id="labDiscussBtn">Discuss with your coach</button>
+          <button type="button" class="btn-primary" id="labSaveScenarioBtn">Save scenario</button>
+        </span>
       </div>
     `;
   }
@@ -10084,9 +10329,14 @@ TEI.render = TEI.render || {};
   function wireStageEvents(){
     document.querySelectorAll('#labStageBody [data-goto]').forEach(b=>b.addEventListener('click', ()=>{ if(!b.disabled) goStage(b.dataset.goto); }));
     document.querySelectorAll('#labStageBody [data-preset]').forEach(b=>b.addEventListener('click', ()=>{
-      const preset = b.dataset.preset;
+      // Reallocate capital runs on the 'move' engine (amount, new share) or 'cap' (maximum weight).
+      const preset = b.dataset.preset==='realloc' ? (state.reallocMode==='cap' ? 'cap' : 'move') : b.dataset.preset;
       state.scenarioActive = true;
       state.presetType = preset;
+      if(preset==='move') state.reallocMode = state.reallocMode==='share' ? 'share' : 'amount';
+      state.freshMode = 'lump'; state.freshLump = '10000'; state.freshMonthly = '500'; state.freshMonths = '12';
+      state.raiseUnit = '£'; state.raiseValue = '5000';
+      state.bed = {holdingId:null, isaId:null, amount:'', allowance: state.bed ? state.bed.allowance : ''};
       state.capPct = 20;
       state.moveUnit = '£';
       state.moveSourceIds = new Set(); state.moveSourceAmounts = {};
@@ -10101,8 +10351,42 @@ TEI.render = TEI.render || {};
         state.holdings.forEach(h=> state.targetWeights[h.id] = Number(w.find(x=>x.id===h.id).weight.toFixed(1)));
       } else state.targetWeights = {};
       if(preset==='consolidate') state.selectedIds = new Set();
+      if(preset==='move' && state.reallocMode==='share') state.moveUnit = 'share';
       renderStageBody();
     }));
+    document.querySelectorAll('#labStageBody [data-reallocmode]').forEach(b=>b.addEventListener('click', ()=>{
+      const mode = b.dataset.reallocmode;
+      state.reallocMode = mode;
+      state.presetType = mode==='cap' ? 'cap' : 'move';
+      state.moveUnit = mode==='share' ? 'share' : '£';
+      state.moveSourceIds = new Set(); state.moveSourceAmounts = {};
+      state.moveDestMode = 'prorata'; state.moveDestIds = new Set(); state.moveDestAmounts = {};
+      state.ledgerOpen = false;
+      state.selectedIds = new Set(mode==='cap' ? scenarioPool().map(h=>h.id) : []);
+      renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-freshmode]').forEach(b=>b.addEventListener('click', ()=>{ state.freshMode = b.dataset.freshmode; renderStageBody(); }));
+    document.querySelectorAll('#labStageBody [data-raiseunit]').forEach(b=>b.addEventListener('click', ()=>{
+      state.raiseUnit = b.dataset.raiseunit; state.raiseValue = state.raiseUnit==='%' ? '10' : '5000'; renderStageBody();
+    }));
+    const textField = (id, set)=>{ const el = document.getElementById(id); if(el) el.addEventListener('input', (e)=>{ set(sanitizeNumericInput(e)); renderStageBody(); }); };
+    textField('labFreshLump', v=> state.freshLump = v);
+    textField('labFreshMonthly', v=> state.freshMonthly = v);
+    textField('labFreshMonths', v=> state.freshMonths = v);
+    textField('labRaiseInput', v=> state.raiseValue = v);
+    textField('labBedAllowance', v=> state.bed.allowance = v);
+    textField('labBedAmount', v=> state.bed.amount = v);
+    document.querySelectorAll('#labStageBody [data-bedsrc]').forEach(r=>r.addEventListener('change', ()=>{ state.bed.holdingId = r.dataset.bedsrc; renderStageBody(); }));
+    const bedIsaSel = document.getElementById('labBedIsa');
+    if(bedIsaSel) bedIsaSel.addEventListener('change', (e)=>{ state.bed.isaId = e.target.value || null; renderStageBody(); });
+    const discussBtn = document.getElementById('labDiscussBtn');
+    if(discussBtn) discussBtn.addEventListener('click', ()=>{
+      // No message channel to the coach yet: copy a plain summary to bring to the next session.
+      const text = [scenarioLabel()].concat(Array.from(document.querySelectorAll('#labStageBody .lab-results-narrative li')).map(li=> '- ' + li.textContent)).join('\n');
+      const done = ()=> showToast('Summary copied. Bring it to your next session or paste it into a message to your coach.');
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, ()=> showToast('Could not copy. Make a note of the points above for your coach.'));
+      else showToast('Make a note of the points above to discuss with your coach.');
+    });
     const capInput = document.getElementById('labCapInput');
     if(capInput) capInput.addEventListener('input', (e)=>{
       state.capPct = Number(sanitizeNumericInput(e))||0;
@@ -10174,7 +10458,7 @@ TEI.render = TEI.render || {};
     const implToggleBuy = document.getElementById('labImplementToggleBuy');
     if(implToggleBuy) implToggleBuy.addEventListener('click', ()=>{ state.implementOpen = !state.implementOpen; renderStageBody(); });
     const saveBtn = document.getElementById('labSaveScenarioBtn');
-    if(saveBtn) saveBtn.addEventListener('click', ()=> showToast('Saving a scenario for review is coming soon.'));
+    if(saveBtn) saveBtn.addEventListener('click', ()=> showToast('Saving scenarios is coming in a later update.'));
 
     const base = withWeights(state.holdings);
     const scenario = withWeights(getScenarioHoldings());
