@@ -346,6 +346,23 @@
     });
   }
 
+  /* Signed in already? The Supabase session lives in an sb-...-auth-token
+     cookie (hub/js/supabase-client.js), so the public header can say
+     "Client Hub" instead of "Log in" without loading Supabase. Same link. */
+  function markSignedIn() {
+    if (isHub || !/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '')) return;
+    var links = document.querySelectorAll('a[href="/hub/index.html"]');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      if (a.classList.contains('tei-hdr-link')) a.textContent = 'Client Hub';
+      else if (a.classList.contains('tei-hdr-hub') || a.classList.contains('tei-mhead-hub')) a.setAttribute('aria-label', 'Open the Client Hub');
+      else {
+        var t = a.querySelector('.tei-smenu-card-t');
+        if (t) t.textContent = 'Client Hub';
+      }
+    }
+  }
+
   function init() {
     root.classList.add('tei-mnav');
     if (!isHub) root.classList.add('tei-site'); // scopes the public-site look in mobile-nav.css
@@ -359,6 +376,7 @@
     buildBar();
     buildMenu();
     setActive(pageOverride || detectPage());
+    markSignedIn();
 
     document.addEventListener('keydown', onKeydown);
     // Leaving mobile width while the menu is open: put the page back.

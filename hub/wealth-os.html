@@ -13218,7 +13218,8 @@ TEI.render = TEI.render || {};
         ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)]]],
       ['Documents and plan', [['documents','Documents', pending ? pending + ' pending' : ''], ['plan','Plan settings', 'Retire at ' + ((c.preferences||{}).retirementAge || 60)]]],
       ['Account', [['membership','Membership', t ? t.name + ' · £' + t.price : ''], ['notifications','Notifications', Object.values(prefs).some(Boolean) ? 'Email on' : 'Email off'], ['security','Security and data','']]],
-      ['Help', [['help','Help and learning',''], ['_message','Message your coach',''], ['_site','Public website','Guides and articles']]]
+      ['Help', [['help','Help and learning',''], ['_message','Message your coach','']]],
+      ['Elsewhere', [['_hub','Client Hub','Learning, guides and videos'], ['_site','Website','The Everyday Investor']]]
     ];
     $s('meGroups').innerHTML = groups.map(g=> `<section class="me-group"><p class="hm-label">${g[0]}</p><ul>${g[1].map(i=>
       `<li><button type="button" data-me="${i[0]}"><span>${i[1]}</span><span class="me-meta${/pending/.test(i[2]) ? ' me-hot' : ''}">${esc(i[2])}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>`).join('')}</ul></section>`).join('');
@@ -13231,7 +13232,8 @@ TEI.render = TEI.render || {};
       const b = e.target.closest('[data-me]'); if(!b) return;
       const k = b.dataset.me;
       if(k === '_message'){ const f = $s('feedbackFabBtn'); if(f) f.click(); }
-      else if(k === '_site') window.open('/', '_blank', 'noopener');
+      else if(k === '_hub') location.href = '/hub/index.html';
+      else if(k === '_site') location.href = '/index.html';
       else openSettings(k);
     });
   }

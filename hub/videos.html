@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en" data-tei-page="hub-videos">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Videos -- Client Hub</title>
+<script>
+/* Theme before first paint (spec B1.5): the shared "tei-theme" choice; light by default. */
+(function () {
+  var t = 'light';
+  try { t = localStorage.getItem('tei-theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Client Hub video library (TEI Video Library Spec, Hub library section).
+   Same shell and tokens as the Client Hub home (B1.2, B2.4). */
+:root {
+  --bg:#F2EFE7; --side:#FFFFFF; --tile:#FFFFFF; --line:#DEDAD0; --text:#13213A; --muted:#4E5B70;
+  --champ:#F0E7D0; --powder:#DFE6F2; --gold:#83661C; --track:#E9E5DA; --chip:#F7F4ED;
+  --navActive:#0F1E36; --navActiveText:#E8D6A8; --feat:#0F1E36; --featLine:transparent;
+  --shadow:0 14px 34px rgba(15,30,54,0.10);
+  --ink:var(--text); --ink-soft:var(--muted);
+  color-scheme:light;
+}
+:root[data-theme="dark"] {
+  --bg:#0B1729; --side:#0F1E36; --tile:#12233D; --line:rgba(232,214,168,0.14); --text:#F7F4ED; --muted:#AAB6C8;
+  --champ:#28303A; --powder:#1C2B45; --gold:#E8D6A8; --track:rgba(255,255,255,0.10); --chip:rgba(255,255,255,0.05);
+  --navActive:#E8D6A8; --navActiveText:#0F1E36; --feat:#1A2C4A; --featLine:rgba(232,214,168,0.28);
+  --shadow:0 14px 34px rgba(0,0,0,0.30);
+  color-scheme:dark;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; }
+body { font-family:'Geist', system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+p, h1, h2, h3, ul { margin:0; }
+a { color:inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.mono { font-family:'Geist Mono', ui-monospace, Menlo, monospace; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* Hub top bar (B2.4) */
+.hb-bar { background:var(--side); border-bottom:1px solid var(--line); }
+.hb-bar-in { padding:14px 32px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; }
+.hb-brand { display:inline-flex; align-items:center; gap:10px; min-height:44px; text-decoration:none; font-weight:500; font-size:16px; }
+.hb-brand svg { flex:none; }
+.hb-nav { display:flex; flex-wrap:wrap; gap:4px; align-items:center; font-size:14px; }
+.hb-nav a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; text-decoration:none; color:var(--muted); }
+.hb-nav a:hover { color:var(--text); background:var(--chip); }
+.hb-nav a[aria-current="page"] { background:var(--chip); color:var(--text); }
+.hb-nav a.hb-open { margin-left:6px; padding:0 18px; font-weight:500; background:var(--navActive); color:var(--navActiveText); }
+.hb-nav a.hb-open:hover { opacity:.9; }
+.hb-icon { display:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--tile); color:var(--text); cursor:pointer; align-items:center; justify-content:center; }
+.hb-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+
+/* Page */
+.hb { padding:28px 32px 40px; max-width:1360px; margin:0 auto; }
+.vl-head { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:22px; }
+.vl-kicker { font-size:12px; color:var(--gold); }
+.vl-title { margin-top:8px; font-size:clamp(30px, 3.6vw, 42px); font-weight:300; letter-spacing:-0.03em; line-height:1.08; max-width:860px; }
+.vl-intro { margin-top:10px; font-size:16px; font-weight:300; color:var(--muted); max-width:620px; }
+.vl-head-side { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.hb-signout { font-family:inherit; font-size:13px; min-height:44px; padding:0 12px; border:0; background:none; color:var(--muted); cursor:pointer; }
+.hb-signout:hover { color:var(--text); text-decoration:underline; }
+.hb-seg { display:inline-flex; padding:4px; border-radius:999px; border:1px solid var(--line); background:var(--tile); }
+.hb-seg button { font-family:inherit; font-size:13px; font-weight:500; min-height:36px; min-width:64px; padding:0 14px; border:0; border-radius:999px; cursor:pointer; background:transparent; color:var(--muted); }
+.hb-seg button[aria-pressed="true"] { background:var(--navActive); color:var(--navActiveText); }
+
+/* Filters tile */
+.vl-filters { background:var(--tile); border:1px solid var(--line); border-radius:26px; padding:20px 22px; display:flex; flex-direction:column; gap:14px; }
+.vl-frow { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+.vl-flabel { flex:none; width:56px; font-size:11px; color:var(--muted); }
+.vl-chips { display:flex; flex-wrap:wrap; gap:6px; flex:1; min-width:0; }
+.vl-chip { font-family:inherit; font-size:13px; min-height:36px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--chip); color:var(--muted); cursor:pointer; }
+.vl-chip:hover { color:var(--text); }
+.vl-chip[aria-pressed="true"] { background:var(--navActive); border-color:var(--navActive); color:var(--navActiveText); }
+.vl-stage-desc { font-size:13px; color:var(--muted); padding-left:68px; margin-top:-4px; }
+.vl-stage-desc:empty { display:none; }
+.vl-search { display:flex; align-items:center; gap:8px; flex:1; max-width:420px; min-height:42px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--chip); }
+.vl-search:focus-within { border-color:var(--gold); }
+.vl-search svg { width:16px; height:16px; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; flex:none; }
+.vl-search input { flex:1; min-width:0; border:0; background:none; color:var(--text); font:inherit; font-size:14px; outline:none; }
+.vl-search input::placeholder { color:var(--muted); }
+.vl-count { margin-left:auto; font-size:12px; color:var(--muted); }
+
+/* Sections */
+.vl-sec { margin-top:28px; }
+.vl-sec-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.vl-sec-h h2 { font-size:20px; font-weight:400; letter-spacing:-0.01em; }
+.vl-sec-h p { font-size:12px; color:var(--muted); }
+
+/* Shorts row: 9:16 cards that swipe sideways */
+.vl-shorts { display:grid; grid-auto-flow:column; grid-auto-columns:160px; gap:12px; overflow-x:auto; padding-bottom:6px; scroll-snap-type:x mandatory; }
+.vl-shorts > * { scroll-snap-align:start; }
+
+/* Cards */
+.vl-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px; }
+.vc { position:relative; display:flex; flex-direction:column; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:22px; overflow:hidden; text-align:left; font:inherit; color:inherit; padding:0; transition:transform .2s ease, box-shadow .2s ease; animation:vl-up .6s cubic-bezier(.2,.8,.2,1) both; }
+button.vc { cursor:pointer; }
+button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.vc-thumb { position:relative; aspect-ratio:16/9; background:var(--powder); overflow:hidden; }
+.vc--short .vc-thumb { aspect-ratio:9/16; }
+.vc-thumb img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.vc-ring { position:absolute; border-radius:50%; border:1px solid var(--gold); opacity:.22; pointer-events:none; }
+.vc-ring.r1 { width:220px; height:220px; right:-70px; top:-90px; }
+.vc-ring.r2 { width:140px; height:140px; right:-30px; top:-50px; border-style:dashed; animation:vl-spin 60s linear infinite; }
+.vc-play { position:absolute; left:14px; bottom:14px; width:40px; height:40px; border-radius:50%; background:#0F1E36; display:flex; align-items:center; justify-content:center; }
+.vc-play svg { width:14px; height:14px; fill:#E8D6A8; margin-left:2px; }
+.vc-badges { position:absolute; left:12px; top:12px; right:12px; display:flex; flex-wrap:wrap; gap:6px; }
+.vc-b { font-size:11px; font-weight:500; padding:3px 9px; border-radius:999px; background:var(--tile); color:var(--text); }
+.vc-b--client { background:#0F1E36; color:#E8D6A8; }
+.vc-b--new { background:var(--champ); color:var(--gold); }
+.vc-b--soon { background:var(--champ); color:var(--gold); }
+.vc-dur { position:absolute; right:12px; bottom:12px; font-size:11px; padding:3px 8px; border-radius:999px; background:rgba(15,30,54,0.82); color:#F7F4ED; }
+.vc-body { padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; }
+.vc-meta { font-size:11px; color:var(--gold); }
+.vc-title { font-size:16px; font-weight:500; line-height:1.3; letter-spacing:-0.01em; }
+.vc-desc { font-size:13px; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.vc--soon .vc-thumb { background:var(--champ); }
+.vc--soon .vc-play { background:transparent; border:1px dashed var(--gold); }
+.vc--soon .vc-play svg { fill:var(--gold); }
+.vc--short .vc-body { padding:10px 12px 12px; }
+.vc--short .vc-title { font-size:14px; }
+
+/* Loading skeleton */
+.vc--skel .vc-thumb, .vc--skel .sk { background:var(--track); }
+.vc--skel .sk { height:12px; border-radius:6px; }
+.vc--skel { animation:vl-pulse 1.4s ease-in-out infinite alternate; }
+
+/* Empty state */
+.vl-empty { background:var(--tile); border:1px dashed var(--line); border-radius:22px; padding:36px 20px; text-align:center; }
+.vl-empty p { color:var(--muted); font-size:14px; }
+.vl-empty b { display:block; color:var(--text); font-size:17px; font-weight:400; margin-bottom:6px; }
+.vl-btn { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 18px; margin-top:14px; border-radius:999px; border:0; background:var(--navActive); color:var(--navActiveText); font:inherit; font-size:14px; font-weight:500; cursor:pointer; text-decoration:none; }
+.vl-btn--ghost { background:var(--tile); color:var(--text); border:1px solid var(--line); }
+
+/* Disclaimer */
+.vl-disc { margin-top:28px; font-size:12px; color:var(--muted); line-height:1.6; max-width:820px; }
+.hb-foot { margin-top:20px; font-size:12px; }
+.hb-foot .tei-boundary { text-align:left; font-family:inherit; }
+.hb-foot .tei-boundary p { max-width:none; margin:0; }
+
+/* Player lightbox */
+.vp { position:fixed; inset:0; z-index:200; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(6,14,28,0.78); }
+.vp.open { display:flex; }
+.vp-box { width:min(980px, 100%); max-height:calc(100vh - 48px); overflow:auto; background:var(--tile); color:var(--text); border-radius:26px; border:1px solid var(--line); }
+.vp-box.short { width:min(420px, 100%); }
+.vp-frame { position:relative; aspect-ratio:16/9; background:#0B1729; }
+.vp-box.short .vp-frame { aspect-ratio:9/16; max-height:70vh; margin:0 auto; }
+.vp-frame iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+.vp-close { position:absolute; right:12px; top:12px; z-index:2; width:40px; height:40px; border-radius:50%; border:0; background:rgba(15,30,54,0.82); color:#F7F4ED; font-size:20px; line-height:1; cursor:pointer; }
+.vp-info { padding:20px 24px 24px; display:flex; flex-direction:column; gap:10px; }
+.vp-topics { font-size:11px; color:var(--gold); }
+.vp-title { font-size:22px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
+.vp-desc { font-size:14px; color:var(--muted); line-height:1.6; }
+.vp-label { font-size:11px; color:var(--muted); margin-top:6px; }
+.vp-chapters { display:flex; flex-direction:column; gap:2px; list-style:none; padding:0; }
+.vp-chapters button { display:flex; gap:12px; width:100%; text-align:left; font:inherit; font-size:14px; padding:8px 10px; border:0; border-radius:10px; background:none; color:var(--text); cursor:pointer; }
+.vp-chapters button:hover, .vp-chapters button[aria-current="true"] { background:var(--chip); }
+.vp-chapters .t { font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--gold); min-width:44px; padding-top:2px; }
+.vp-related { display:flex; flex-wrap:wrap; gap:8px; }
+.vp-related a { display:inline-flex; align-items:center; min-height:38px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--chip); font-size:13px; text-decoration:none; }
+.vp-related a:hover { border-color:var(--muted); }
+.vp-disc { font-size:12px; color:var(--muted); line-height:1.6; border-top:1px solid var(--line); padding-top:12px; margin-top:4px; }
+
+/* Phone bottom bar: the Wealth OS tabs, Library active (spec A5). */
+.hb-tabs { display:none; }
+
+
+@keyframes vl-up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+@keyframes vl-spin { to { transform:rotate(360deg); } }
+@keyframes vl-pulse { from { opacity:.55; } to { opacity:1; } }
+@media (prefers-reduced-motion: reduce) {
+  .vc, .vc-ring.r2, .vc--skel { animation:none; }
+  button.vc:hover { transform:none; }
+}
+
+@media (max-width:860px) {
+  .hb-bar-in { padding:12px 16px; }
+  .hb-nav { display:none; }
+  .hb-icon { display:inline-flex; }
+  .hb { padding:20px 16px calc(84px + 24px); }
+  .vl-head .hb-seg { display:none; }
+  .vl-title { font-size:28px; }
+  .vl-intro { font-size:15px; }
+  .vl-filters { padding:16px; border-radius:22px; }
+  .vl-frow { flex-wrap:nowrap; }
+  .vl-flabel { display:none; }
+  .vl-chips { flex-wrap:nowrap; overflow-x:auto; padding-bottom:2px; scrollbar-width:none; }
+  .vl-chips::-webkit-scrollbar { display:none; }
+  .vl-chip { flex:none; }
+  .vl-stage-desc { padding-left:0; }
+  .vl-search { max-width:none; }
+  .vl-count { display:none; }
+  .vl-shorts { grid-auto-columns:150px; }
+  .vl-grid { grid-template-columns:1fr; gap:12px; }
+  .vp { padding:0; align-items:flex-end; }
+  .vp-box { border-radius:24px 24px 0 0; max-height:100vh; }
+  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; height:84px; padding:8px 8px 18px; background:var(--side); border-top:1px solid var(--line); }
+  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:52px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
+  .hb-tabs a[aria-current="page"] { color:var(--text); }
+  .hb-tabs i { width:22px; height:22px; border-radius:50%; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; }
+  .hb-tabs i::after { content:''; width:8px; height:8px; border-radius:50%; }
+  .hb-tabs a[aria-current="page"] i { border-color:var(--gold); }
+  .hb-tabs a[aria-current="page"] i::after { background:var(--gold); }
+}
+</style>
+</head>
+<body>
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/hub/js/hub-gate.js"></script>
+
+<header class="hb-bar">
+  <div class="hb-bar-in">
+    <a class="hb-brand" href="/hub/index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--gold)" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="var(--gold)" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="var(--gold)"/></svg>Client Hub</a>
+    <nav class="hb-nav" aria-label="Client Hub">
+      <a href="/hub/index.html">Home</a>
+      <a href="/hub/education/index.html">Learn</a>
+      <a href="/hub/videos.html" aria-current="page">Videos</a>
+      <a href="/guides.html?show=Guides">Guides</a>
+      <a href="/guides.html?show=Tools">Tools</a>
+      <a href="/hub/articles.html">Articles</a>
+      <a href="/hub/suite.html">Investment suite</a>
+      <a href="/index.html">Website</a>
+      <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
+    </nav>
+    <button type="button" class="hb-icon" id="hbThemeIcon" aria-label="Switch to dark mode"></button>
+  </div>
+</header>
+
+<main class="hb">
+  <div class="vl-head">
+    <div>
+      <p class="vl-kicker mono">Video library</p>
+      <h1 class="vl-title">Watch it explained, at the stage you are at.</h1>
+      <p class="vl-intro">Short explainers, deep dives and recorded member sessions. Filter by your stage or a topic, and follow the links on to the notes and tools.</p>
+    </div>
+    <div class="vl-head-side">
+      <div class="hb-seg" role="group" aria-label="Theme">
+        <button type="button" data-theme-choice="light" aria-pressed="true">Light</button>
+        <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+      </div>
+      <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
+    </div>
+  </div>
+
+  <section class="vl-filters" aria-label="Filter videos">
+    <div class="vl-frow"><span class="vl-flabel mono">Stage</span><div class="vl-chips" id="vlStages" role="group" aria-label="Stage"></div></div>
+    <p class="vl-stage-desc" id="vlStageDesc" aria-live="polite"></p>
+    <div class="vl-frow"><span class="vl-flabel mono">Topic</span><div class="vl-chips" id="vlTopics" role="group" aria-label="Topic"></div></div>
+    <div class="vl-frow">
+      <label class="vl-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="vlSearch" placeholder="Search titles, topics and chapters" aria-label="Search videos"></label>
+      <span class="vl-count mono" id="vlCount"></span>
+    </div>
+  </section>
+
+  <section class="vl-sec" id="vlShortsSec" hidden>
+    <div class="vl-sec-h"><h2>Shorts</h2><p class="mono">Under a minute</p></div>
+    <div class="vl-shorts" id="vlShorts"></div>
+  </section>
+
+  <section class="vl-sec">
+    <div class="vl-sec-h"><h2 id="vlGridTitle">All videos</h2><p class="mono" id="vlSourceNote"></p></div>
+    <div class="vl-grid" id="vlGrid" aria-live="polite"></div>
+  </section>
+
+  <p class="vl-disc" id="vlDisc"></p>
+  <div class="hb-foot" data-tei-boundary-footer="inherit"></div>
+</main>
+
+<div class="vp" id="vp" role="dialog" aria-modal="true" aria-labelledby="vpTitle">
+  <div class="vp-box" id="vpBox">
+    <div class="vp-frame" id="vpFrame"><button type="button" class="vp-close" id="vpClose" aria-label="Close video">&times;</button></div>
+    <div class="vp-info">
+      <p class="vp-topics mono" id="vpTopics"></p>
+      <h2 class="vp-title" id="vpTitle"></h2>
+      <p class="vp-desc" id="vpDesc"></p>
+      <div id="vpChaptersWrap" hidden><p class="vp-label mono">Chapters</p><ul class="vp-chapters" id="vpChapters"></ul></div>
+      <div id="vpRelatedWrap" hidden><p class="vp-label mono">Related</p><div class="vp-related" id="vpRelated"></div></div>
+      <p class="vp-disc" id="vpDisc"></p>
+    </div>
+  </div>
+</div>
+
+<nav class="hb-tabs" aria-label="Main">
+  <a href="/hub/wealth-os.html"><i></i>Home</a>
+  <a href="/hub/wealth-os.html?page=progress"><i></i>Wealth</a>
+  <a href="/hub/wealth-os.html?page=goals"><i></i>Plan</a>
+  <a href="/hub/index.html" aria-current="page"><i></i>Library</a>
+  <a href="/hub/wealth-os.html?page=menu"><i></i>Me</a>
+</nav>
+
+<script>
+/* Theme: Light | Dark on desktop, an icon on phones, saved under tei-theme. */
+(function () {
+  var root = document.documentElement;
+  var MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>';
+  var SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>';
+  var icon = document.getElementById('hbThemeIcon');
+  function apply(t) {
+    root.setAttribute('data-theme', t);
+    document.querySelectorAll('[data-theme-choice]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-theme-choice') === t ? 'true' : 'false'); });
+    icon.innerHTML = t === 'dark' ? SUN : MOON;
+    icon.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+  function choose(t) { apply(t); try { localStorage.setItem('tei-theme', t); } catch (e) {} }
+  apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  document.querySelectorAll('[data-theme-choice]').forEach(function (b) {
+    b.addEventListener('click', function () { choose(b.getAttribute('data-theme-choice')); });
+  });
+  icon.addEventListener('click', function () { choose(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); });
+})();
+</script>
+<script src="/hub/js/video-library.js"></script>
+</body>
+</html>
