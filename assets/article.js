@@ -34,7 +34,22 @@
     return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  function urlFor(article) { return '/articles/' + article.slug + '.html'; }
+  /* Opened from the Client Hub (?from=hub): same article, with a way back to
+     the Hub's Articles page, and related links that keep it. */
+  var fromHub = /(?:^|[?&])from=hub(?:&|$)/.test(window.location.search);
+  function urlFor(article) { return '/articles/' + article.slug + '.html' + (fromHub ? '?from=hub' : ''); }
+  function addHubBar() {
+    if (!fromHub || document.querySelector('.ar-hubbar')) return;
+    var bar = document.createElement('div');
+    bar.className = 'ar-hubbar';
+    bar.setAttribute('style', 'background:#0F1E36;color:#F7F4ED;font-family:Geist,system-ui,sans-serif;font-size:14px;');
+    bar.innerHTML = '<div style="max-width:1280px;margin:0 auto;padding:10px 32px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">' +
+      '<a href="/hub/articles.html" style="color:#E8D6A8;text-decoration:none;display:inline-flex;align-items:center;min-height:36px">&lsaquo; Client Hub articles</a>' +
+      '<a href="/hub/wealth-os.html" style="color:#AAB6C8;text-decoration:none;display:inline-flex;align-items:center;min-height:36px">Open Wealth OS</a></div>';
+    var hdr = document.querySelector('.tei-hdr');
+    if (hdr && hdr.parentNode) hdr.parentNode.insertBefore(bar, hdr.nextSibling);
+    else document.body.insertBefore(bar, document.body.firstChild);
+  }
 
   window.TeiArticles = { load: load, formatDate: formatDate, readTime: readTime, escapeHtml: escapeHtml, urlFor: urlFor };
 
@@ -111,6 +126,7 @@
   }
 
   function init() {
+    addHubBar();
     Array.prototype.forEach.call(document.querySelectorAll('[data-ar-milestones]'), setUpMilestones);
     var root = document.querySelector('.tei-article[data-slug]');
     if (root) load().then(function (articles) { fillArticle(root, articles); }).catch(function () {});

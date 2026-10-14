@@ -1,0 +1,82 @@
+/* Client Hub shell: tokens (B1.2), top bar (B2.4), phone tab bar (A5) and
+   page frame, shared by the Hub's own pages (Guides & tools, Articles).
+   Light or dark comes from /hub/js/tei-theme.js on <html data-theme>. */
+:root {
+  --bg:#F2EFE7; --side:#FFFFFF; --tile:#FFFFFF; --line:#DEDAD0; --text:#13213A; --muted:#4E5B70;
+  --champ:#F0E7D0; --powder:#DFE6F2; --gold:#83661C; --track:#E9E5DA; --chip:#F7F4ED;
+  --navActive:#0F1E36; --navActiveText:#E8D6A8; --feat:#0F1E36; --featLine:transparent;
+  --shadow:0 14px 34px rgba(15,30,54,0.10);
+  --ink:var(--text); --ink-soft:var(--muted);
+  color-scheme:light;
+}
+:root[data-theme="dark"] {
+  --bg:#0B1729; --side:#0F1E36; --tile:#12233D; --line:rgba(232,214,168,0.14); --text:#F7F4ED; --muted:#AAB6C8;
+  --champ:#28303A; --powder:#1C2B45; --gold:#E8D6A8; --track:rgba(255,255,255,0.10); --chip:rgba(255,255,255,0.05);
+  --navActive:#E8D6A8; --navActiveText:#0F1E36; --feat:#1A2C4A; --featLine:rgba(232,214,168,0.28);
+  --shadow:0 14px 34px rgba(0,0,0,0.30);
+  color-scheme:dark;
+}
+* { box-sizing:border-box; }
+html, body { margin:0; }
+body { font-family:'Geist', system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+p, h1, h2, h3, ul { margin:0; }
+a { color:inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+.mono { font-family:'Geist Mono', ui-monospace, Menlo, monospace; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* Hub top bar (B2.4) */
+.hb-bar { background:var(--side); border-bottom:1px solid var(--line); }
+.hb-bar-in { padding:14px 32px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; }
+.hb-brand { display:inline-flex; align-items:center; gap:10px; min-height:44px; text-decoration:none; font-weight:500; font-size:16px; }
+.hb-brand svg { flex:none; }
+.hb-nav { display:flex; flex-wrap:wrap; gap:4px; align-items:center; font-size:14px; }
+.hb-nav a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; text-decoration:none; color:var(--muted); }
+.hb-nav a:hover { color:var(--text); background:var(--chip); }
+.hb-nav a[aria-current="page"] { background:var(--chip); color:var(--text); }
+.hb-nav a.hb-open { margin-left:6px; padding:0 18px; font-weight:500; background:var(--navActive); color:var(--navActiveText); }
+.hb-nav a.hb-open:hover { opacity:.9; }
+.hb-icon { display:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--tile); color:var(--text); cursor:pointer; align-items:center; justify-content:center; }
+.hb-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Page frame */
+.hb { padding:28px 32px 40px; }
+.hb-head { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
+.hb-kicker { font-size:12px; color:var(--gold); }
+.hb-title { margin-top:8px; font-size:clamp(30px, 3.6vw, 42px); font-weight:300; letter-spacing:-0.03em; line-height:1.08; max-width:860px; }
+.hb-intro { margin-top:10px; font-size:16px; font-weight:300; color:var(--muted); max-width:640px; }
+.hb-signout { font-family:inherit; font-size:13px; min-height:44px; padding:0 12px; border:0; background:none; color:var(--muted); cursor:pointer; }
+.hb-signout:hover { color:var(--text); text-decoration:underline; }
+.hb-foot { margin-top:28px; font-size:12px; }
+.hb-foot .tei-boundary { text-align:left; font-family:inherit; }
+.hb-foot .tei-boundary p { max-width:none; margin:0; }
+.hb-chip { font-family:inherit; font-size:13px; min-height:38px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--tile); color:var(--muted); cursor:pointer; }
+.hb-chip:hover { color:var(--text); }
+.hb-chip[aria-pressed="true"] { background:var(--navActive); border-color:var(--navActive); color:var(--navActiveText); }
+.hb-search { display:flex; align-items:center; gap:8px; flex:1; max-width:420px; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--line); background:var(--tile); }
+.hb-search:focus-within { border-color:var(--gold); }
+.hb-search svg { width:16px; height:16px; fill:none; stroke:var(--muted); stroke-width:1.8; stroke-linecap:round; flex:none; }
+.hb-search input { flex:1; min-width:0; border:0; background:none; color:var(--text); font:inherit; font-size:14px; outline:none; }
+.hb-search input::placeholder { color:var(--muted); }
+.hb-up { animation:hb-up .6s cubic-bezier(.2,.8,.2,1) both; }
+.hb-spin { animation:hb-spin 50s linear infinite; }
+/* Phone bottom bar: the Wealth OS tabs, Library active (spec A5). */
+.hb-tabs { display:none; }
+
+@keyframes hb-up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+@keyframes hb-spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .hb-up, .hb-spin { animation:none; } }
+@media (max-width:860px) {
+  .hb-bar-in { padding:12px 16px; }
+  .hb-nav { display:none; }
+  .hb { padding:20px 16px calc(84px + 24px); }
+  .hb-title { font-size:28px; }
+  .hb-intro { font-size:15px; }
+  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; height:84px; padding:8px 8px 18px; background:var(--side); border-top:1px solid var(--line); }
+  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:52px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
+  .hb-tabs a[aria-current="page"] { color:var(--text); }
+  .hb-tabs i { width:22px; height:22px; border-radius:50%; border:1.5px solid currentColor; display:inline-flex; align-items:center; justify-content:center; }
+  .hb-tabs i::after { content:''; width:8px; height:8px; border-radius:50%; }
+  .hb-tabs a[aria-current="page"] i { border-color:var(--gold); }
+  .hb-tabs a[aria-current="page"] i::after { background:var(--gold); }
+}

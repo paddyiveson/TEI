@@ -1,209 +1,144 @@
 <!DOCTYPE html>
-<html lang="en" data-tei-page="article-index">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Articles -- The Everyday Investor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Articles -- Client Hub</title>
+<script src="/hub/js/tei-theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/hub/css/hub-shell.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
-:root {
-  --navy: #1D3557; --navy-dk: #0f1e3a; --navy-md: #2B4C7E; --navy-tint: #EDF2F8;
-  --cream: #F7F4ED; --cream-dk: #EDE8DA;
-  --gold: #C9A84C; --gold-dk: #b8922d; --gold-lt: #FBF4E0;
-  --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
-  --shadow: 0 4px 28px rgba(29,53,87,.10);
+/* Client Hub Articles (spec D7 board MembersArticles): every TEI article from
+   /articles.json, opened in the article template with a way back here
+   (?from=hub). Members' theme and company articles are not written yet. */
+.ar-grid { display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); gap:16px; }
+.ar-feat { grid-column:span 12; display:flex; flex-wrap:wrap; background:#0F1E36; color:#F7F4ED; border:1px solid var(--featLine); border-radius:26px; overflow:hidden; text-decoration:none; transition:transform .2s ease, box-shadow .2s ease; }
+.ar-feat:hover, .ar-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.ar-feat-l { flex:1 1 420px; min-width:0; padding:32px; display:flex; flex-direction:column; gap:12px; }
+.ar-pill { align-self:flex-start; font-family:'Geist Mono', monospace; font-size:11px; padding:5px 12px; border-radius:999px; background:#E8D6A8; color:#0F1E36; }
+.ar-feat h2 { font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.ar-feat p { font-size:16px; line-height:1.6; font-weight:300; color:#AAB6C8; }
+.ar-feat .meta { margin-top:auto; padding-top:8px; font-family:'Geist Mono', monospace; font-size:12px; }
+.ar-feat-r { flex:1 1 340px; min-height:220px; position:relative; background:#12233D; overflow:hidden; }
+.ar-feat-r .ring { position:absolute; width:280px; height:280px; right:-90px; top:-110px; border-radius:50%; border:1px dashed rgba(232,214,168,0.22); }
+.ar-feat-r svg { position:absolute; inset:24px; width:calc(100% - 48px); height:calc(100% - 48px); }
+.ar-bars rect { transform-box:fill-box; transform-origin:bottom; animation:ar-rise 4.5s cubic-bezier(.3,.8,.3,1) infinite; }
+@keyframes ar-rise { 0% { transform:scaleY(0); } 45%, 100% { transform:scaleY(1); } }
+.ar-row { grid-column:span 12; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+.ar-cats { display:flex; flex-wrap:wrap; gap:8px; }
+.ar-cats .n { font-family:'Geist Mono', monospace; font-size:11px; opacity:.7; margin-left:4px; }
+.ar-suite { font-size:14px; color:var(--gold); }
+.ar-card { grid-column:span 4; display:flex; flex-direction:column; gap:10px; min-height:200px; padding:24px; border-radius:22px; border:1px solid var(--line); background:var(--tile); text-decoration:none; color:inherit; transition:transform .2s ease, box-shadow .2s ease; }
+.ar-card.alt { background:var(--champ); }
+.ar-tag { align-self:flex-start; font-family:'Geist Mono', monospace; font-size:11px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+.ar-card h3 { font-size:21px; font-weight:400; letter-spacing:-0.02em; line-height:1.25; }
+.ar-card p { font-size:14px; line-height:1.5; color:var(--muted); }
+.ar-card .meta { margin-top:auto; font-family:'Geist Mono', monospace; font-size:11px; color:var(--muted); }
+.ar-soon { grid-column:span 12; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; padding:22px 24px; border-radius:22px; border:1px dashed var(--line); background:var(--chip); }
+.ar-soon b { display:block; font-size:17px; font-weight:400; }
+.ar-soon span { font-size:14px; color:var(--muted); }
+.ar-soon .t { font-family:'Geist Mono', monospace; font-size:11px; padding:4px 10px; border-radius:999px; background:var(--champ); color:var(--gold); }
+.ar-note { margin-top:28px; font-size:12px; line-height:1.5; color:var(--muted); }
+@media (max-width:1100px) { .ar-card { grid-column:span 6; } }
+@media (max-width:860px) {
+  .ar-grid > * { grid-column:span 12 !important; }
+  .ar-feat-r { display:none; }
+  .ar-feat-l { padding:24px; }
+  .ar-feat h2 { font-size:26px; }
+  .ar-cats { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; width:100%; }
+  .ar-cats::-webkit-scrollbar { display:none; }
+  .ar-cats .hb-chip { flex:none; }
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
-
-nav {
-  background: var(--navy); width: 100%; height: 68px; display: flex; align-items: center;
-  justify-content: space-between; padding: 0 48px; position: sticky; top: 0; z-index: 200;
-  box-shadow: 0 2px 16px rgba(0,0,0,.2);
-}
-.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
-.nav-logo-text { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; line-height: 1.35; }
-.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-.nav-links a { color: rgba(247,244,237,.65); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .03em; transition: color .2s; }
-.nav-links a:hover, .nav-links a.active { color: var(--gold); }
-.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
-.nav-mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: var(--navy); flex-direction: column; padding: 8px 0; border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
-.nav-mobile-menu a { color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px; font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06); display: block; transition: color .2s; }
-.nav-mobile-menu a:hover { color: var(--gold); }
-.nav-mobile-menu.open { display: flex; }
-.hub-auth-item { display: flex; align-items: center; gap: 10px; }
-.hub-auth-email { font-size: 12px; color: rgba(247,244,237,.45); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hub-auth-signout, .hub-auth-signout-mobile { color: rgba(247,244,237,.65) !important; font-size: 13px !important; }
-.hub-auth-signout:hover, .hub-auth-signout-mobile:hover { color: var(--gold) !important; }
-
-.art-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 20px 0; }
-.art-hero-inner { max-width: 1320px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; gap: 16px; }
-.art-eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; padding-right: 16px; border-right: 1px solid rgba(201,168,76,.4); line-height: 1.2; }
-.art-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px; color: var(--cream); line-height: 1.2; }
-.art-body { max-width: 1320px; margin: 0 auto; padding: 44px 40px 72px; }
-.art-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 22px; }
-.art-card { display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--cream-dk); border-radius: 12px; box-shadow: 0 4px 28px rgba(29,53,87,.08); padding: 26px 30px; text-decoration: none; color: inherit; transition: border-color .18s ease, transform .18s ease; }
-.art-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-.art-cat { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
-.art-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; line-height: 1.25; color: var(--navy); margin-bottom: 10px; }
-.art-dek { font-size: 14px; color: var(--mid); line-height: 1.7; margin-bottom: 10px; }
-.art-dek strong { color: var(--navy); font-weight: 600; }
-.art-foot { margin-top: auto; padding-top: 6px; display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--lt); }
-.art-more { color: var(--gold-dk); font-weight: 600; }
-@media(max-width: 700px) { .art-hero { padding: 16px 0; } .art-hero-inner { padding: 0 16px; flex-direction: column; align-items: flex-start; gap: 6px; } .art-eyebrow { border-right: 0; padding-right: 0; } .art-hero h1 { font-size: 20px; } .art-body { padding: 28px 16px 56px; } .art-list { grid-template-columns: 1fr; } .art-card { padding: 22px 20px; } }
-@media(max-width: 700px) { nav { padding: 0 20px; } .nav-links { display: none; } .nav-mobile-toggle { display: flex; } }
+@media (prefers-reduced-motion: reduce) { .ar-bars rect { animation:none; } }
 </style>
-<link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
-<script>
-/* Safety net: a Supabase password-recovery link can land here instead of
-   /hub/reset-password.html if the project's Site URL falls back to the
-   site root. Forward the code/token on immediately so the reset form still
-   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
-(function () {
-  var search = window.location.search || "";
-  var hash = window.location.hash || "";
-  var params = new URLSearchParams(search);
-  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
-  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
-  if (hasAuthPayload || isRecovery) {
-    window.location.replace("/hub/reset-password.html" + search + hash);
-  }
-})();
-</script>
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
 
-<nav>
-  <a class="nav-logo" href="/hub/index.html">
-    <div class="nav-logo-mark">&#10022;</div>
-    <span class="nav-logo-text">The Everyday<br>Investor</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="/hub/index.html">Dashboard</a></li>
-    <li><a href="/hub/wealth-os.html">Wealth OS</a></li>
-    <li><a href="/hub/suite.html">Investment Suite</a></li>
-    <li><a href="/hub/education/index.html">Education Platform</a></li>
-    <li><a href="/hub/guides.html">Guides &amp; Tools</a></li>
-    <li><a href="/hub/articles.html" class="active">Articles</a></li>
-    <li><a href="/hub/knowledge/index.html">Knowledge Library</a></li>
-    <li style="border-left:1px solid rgba(201,168,76,.25);padding-left:20px;"><a href="/">Visit Website &#8599;</a></li>
-  </ul>
-  <button class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<div class="nav-mobile-menu" id="navMobileMenu">
-  <a href="/hub/index.html" onclick="closeNav()">Dashboard</a>
-  <a href="/hub/wealth-os.html" onclick="closeNav()">Wealth OS</a>
-  <a href="/hub/suite.html" onclick="closeNav()">Investment Suite</a>
-  <a href="/hub/education/index.html" onclick="closeNav()">Education Platform</a>
-  <a href="/hub/guides.html" onclick="closeNav()">Guides &amp; Tools</a>
-  <a href="/hub/articles.html" onclick="closeNav()" class="active">Articles</a>
-  <a href="/hub/knowledge/index.html" onclick="closeNav()">Knowledge Library</a>
-  <a href="/">Visit Website &#8599;</a>
-</div>
+<header class="hb-bar">
+  <div class="hb-bar-in">
+    <a class="hb-brand" href="/hub/index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--gold)" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="var(--gold)" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="var(--gold)"/></svg>Client Hub</a>
+    <nav class="hb-nav" aria-label="Client Hub">
+      <a href="/hub/index.html">Home</a>
+      <a href="/hub/education/index.html">Learn</a>
+      <a href="/hub/videos.html">Videos</a>
+      <a href="/hub/guides.html">Guides &amp; tools</a>
+      <a href="/hub/articles.html" aria-current="page">Articles</a>
+      <a href="/hub/suite.html">Investment suite</a>
+      <a href="/index.html">Website</a>
+      <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
+    </nav>
+  </div>
+</header>
 
-<div class="art-hero">
-  <div class="art-hero-inner">
-    <p class="art-eyebrow">Articles</p>
-    <h1>Investing, explained properly.</h1>
+<main class="hb">
+  <div class="hb-head">
+    <div>
+      <p class="hb-kicker mono">Articles</p>
+      <h1 class="hb-title">Ideas worth understanding, explained in plain English.</h1>
+    </div>
+    <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
   </div>
-</div>
-<div class="art-body">
-  <div class="art-list">
-    <a class="art-card" href="/hub/articles/master-the-principles.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">Master the Principles, Ignore the Noise</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Sorts everyday market headlines into "signal" (a real change in what a business is worth) and "noise" (a price move that changes nothing), and compares reacting on the spot with following a rule set in advance.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Gives you a way to check a headline before acting on it, so decisions come from a rule you chose calmly rather than from the mood of the day.</p>
-      <p class="art-foot"><span>4 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/how-wealth-compounds.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">How Wealth Actually Compounds</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Works out what &pound;200 a month grows to at a steady 7% (about &pound;525k over 40 years), then compares the same saving started at 25, 30, 35 and 40.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Shows why starting earlier beats saving more later, and why even a small yearly fee quietly costs you for as long as you pay it.</p>
-      <p class="art-foot"><span>3 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/good-company-good-investment.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">The Difference Between a Good Company and a Good Investment</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Works out how many years of profit you are paying for at different prices (&pound;75 versus &pound;150 for the same &pound;5 of profit), and maps business quality against price paid.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Helps you ask two separate questions before buying anything: is this a good company, and is this a good price for it.</p>
-      <p class="art-foot"><span>4 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/the-100k-milestone.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">The &pound;100,000 Milestone: Why It Matters</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Splits a &pound;200-a-month, 7% pot into money you put in and money it earned, and times the first &pound;100,000 (about 20 years) against the next (about 8).</p>
-      <p class="art-dek"><strong>How it helps:</strong> Shows why &pound;100,000 is roughly where growth starts doing more of the work than saving, so you can keep going through the slow early years.</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/your-first-10k.html">
-      <p class="art-cat">Wealth Building</p>
-      <h2 class="art-title">Why Your First &pound;10,000 Is So Difficult</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Works out who did the work in the first &pound;10,000 (about &pound;9,000 saved, &pound;1,250 grown, 45 months), how much growth really speeds it up, and what extra money is worth early versus late.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Explains why the first stretch feels so slow, that this is normal, and why every extra pound added early counts for more.</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/pension-vs-lisa.html">
-      <p class="art-cat">Tax / Wrappers</p>
-      <h2 class="art-title">Pension vs LISA: Which Should You Use?</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Compares where each top-up comes from (tax relief plus employer money for a pension, a 25% government bonus for a LISA), when each pot unlocks, and works through an early LISA withdrawal: &pound;4,000 paid in, &pound;3,750 back.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Lets you compare the two on how they actually work rather than a rule of thumb, and shows why an early LISA withdrawal costs you some of your own money, not just the bonus.</p>
-      <p class="art-foot"><span>4 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/missing-the-best-days.html">
-      <p class="art-cat">What Happens If</p>
-      <h2 class="art-title">What Happens If You Miss the 10 Best Days in the Market?</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Follows $10,000 in the S&amp;P 500 over twenty years (about $75,000 fully invested, about $34,000 if the 10 best days were missed), shows that 7 of the 10 best days came within 15 days of one of the worst, and how &pound;200 a month buys more when prices fall.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Explains why stepping out to dodge a fall usually means missing the recovery too, and what it takes to keep investing through one.</p>
-      <p class="art-foot"><span>6 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/how-the-stock-market-works.html">
-      <p class="art-cat">Foundations &amp; Mechanics</p>
-      <h2 class="art-title">How the Stock Market Actually Works</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Follows a share from the company that creates it to the price on your screen: where your money goes at an IPO versus afterwards, how an order travels, and how the order book and its spread set the price.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Lets you tell whether a price move reflects a real change in the business or just a shift between buyers and sellers that day.</p>
-      <p class="art-foot"><span>6 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/oil-and-bond-yields.html">
-      <p class="art-cat">Cycles / Macro</p>
-      <h2 class="art-title">How Oil and Bond Yields Affect Equity Markets</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Traces the chain from a rising oil price to falling share prices, works out why a &pound;100 bond drops to about &pound;92.64 when yields go from 5% to 6%, and why the same rate rise takes 9% off one company's value but 14% off another's.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Gives you a way to follow an oil or interest-rate headline through to your own investments, and to ask whether the news was a surprise or already expected.</p>
-      <p class="art-foot"><span>6 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/buying-the-top.html">
-      <p class="art-cat">Behaviour &amp; Psychology</p>
-      <h2 class="art-title">Why Investors Buy at the Top</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Maps how buying grows with the price through a market cycle, the three forces that all peak at the top (certainty, the crowd, fear of missing out), and the 2024 behaviour gap: the market up 25.0%, the average fund investor 16.5%.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Gives you two questions to ask before buying something that has already risen sharply: has the business changed or only the price, and am I buying on what I know or because others are?</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/hub/articles/selling-winners-too-early.html">
-      <p class="art-cat">Behaviour &amp; Psychology</p>
-      <h2 class="art-title">Why We Sell Winners Too Early</h2>
-      <p class="art-dek"><strong>What it shows:</strong> How the price you paid becomes an anchor, a study where gains were sold about 50% more readily than losses (14.8% versus 9.8%), and Palantir's fall and recovery to show what selling at a 100% gain missed.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Takes the purchase price out of the decision with one question: if I didn't already own this, would I buy it today at this price?</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-  </div>
-</div>
+
+  <div class="ar-grid" id="arGrid" aria-live="polite"></div>
+
+  <p class="ar-note">Education only, not a recommendation to buy, sell or hold. TEI provides financial coaching and education, not regulated financial advice.</p>
+  <div class="hb-foot" data-tei-boundary-footer="inherit"></div>
+</main>
+
+<nav class="hb-tabs" aria-label="Main">
+  <a href="/hub/wealth-os.html"><i></i>Home</a>
+  <a href="/hub/wealth-os.html?page=progress"><i></i>Wealth</a>
+  <a href="/hub/wealth-os.html?page=goals"><i></i>Plan</a>
+  <a href="/hub/index.html" aria-current="page"><i></i>Library</a>
+  <a href="/hub/wealth-os.html?page=menu"><i></i>Me</a>
+</nav>
 
 <script>
-function toggleNav() {
-  document.getElementById('navMobileMenu').classList.toggle('open');
-}
-function closeNav() {
-  document.getElementById('navMobileMenu').classList.remove('open');
-}
+/* Articles from /articles.json (the same list the website uses). */
+(function () {
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var all = [], cat = 'All';
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function when(a) { var d = new Date(a.date); return (isNaN(d) ? '' : d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear() + ' &middot; ') + esc(a.readTime) + ' min read'; }
+  function href(a) { return '/articles/' + encodeURIComponent(a.slug) + '.html?from=hub'; }
+
+  function render() {
+    var feat = all.filter(function (a) { return a.featured; })[0] || all[0];
+    var rest = all.filter(function (a) { return a !== feat; });
+    var cats = ['All'];
+    rest.forEach(function (a) { if (cats.indexOf(a.category) < 0) cats.push(a.category); });
+    var list = rest.filter(function (a) { return cat === 'All' || a.category === cat; });
+    var html = '';
+    if (feat) {
+      html += '<a class="ar-feat hb-up" href="' + href(feat) + '"><div class="ar-feat-l"><span class="ar-pill">Featured &middot; ' + esc(feat.category) + '</span>' +
+        '<h2>' + esc(feat.title) + '</h2><p>' + esc(feat.teaser) + '</p><p class="meta">' + when(feat) + '</p></div>' +
+        '<div class="ar-feat-r" aria-hidden="true"><div class="ring hb-spin"></div><svg viewBox="0 0 400 220"><line x1="20" y1="200" x2="380" y2="200" stroke="rgba(255,255,255,0.12)"/>' +
+        '<g class="ar-bars"><rect x="50" y="130" width="50" height="70" rx="8" fill="#B9CAE6" fill-opacity=".8"/><rect x="130" y="96" width="50" height="104" rx="8" fill="#B9CAE6" fill-opacity=".8" style="animation-delay:.1s"/>' +
+        '<rect x="210" y="60" width="50" height="140" rx="8" fill="#E8D6A8" style="animation-delay:.2s"/><rect x="290" y="30" width="50" height="170" rx="8" fill="#E8D6A8" style="animation-delay:.3s"/></g></svg></div></a>';
+    }
+    html += '<div class="ar-row"><div class="ar-cats" role="group" aria-label="Category">' + cats.map(function (k) {
+      var n = k === 'All' ? rest.length : rest.filter(function (a) { return a.category === k; }).length;
+      return '<button type="button" class="hb-chip" data-cat="' + esc(k) + '" aria-pressed="' + (k === cat ? 'true' : 'false') + '">' + esc(k) + '<span class="n">' + n + '</span></button>';
+    }).join('') + '</div><a class="ar-suite" href="/hub/suite.html">Research notes are in the Investment suite</a></div>';
+    html += list.map(function (a, i) {
+      return '<a class="ar-card hb-up' + (i % 3 === 1 ? ' alt' : '') + '" style="animation-delay:' + Math.min(i, 8) * 40 + 'ms" href="' + href(a) + '"><span class="ar-tag">' + esc(a.category) + '</span>' +
+        '<h3>' + esc(a.title) + '</h3><p>' + esc(a.teaser) + '</p><p class="meta">' + when(a) + '</p></a>';
+    }).join('');
+    html += '<div class="ar-soon"><div><b>Members&rsquo; articles on themes and companies</b><span>In-depth pieces on investment themes and individual companies, for members only. The first ones are being written.</span></div><span class="t">Coming soon</span></div>';
+    $('arGrid').innerHTML = html;
+  }
+
+  $('arGrid').addEventListener('click', function (e) { var b = e.target.closest('[data-cat]'); if (b) { cat = b.getAttribute('data-cat'); render(); } });
+  fetch('/articles.json').then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (list) { all = (list || []).slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }); render(); })
+    .catch(function (err) { console.error('Hub articles: could not load the list', err); $('arGrid').innerHTML = '<div class="ar-soon"><div><b>Articles could not load</b><span>Check your connection and refresh the page.</span></div></div>'; });
+})();
 </script>
 </body>
 </html>

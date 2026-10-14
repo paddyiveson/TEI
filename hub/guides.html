@@ -2,380 +2,184 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guides &amp; Tools -- Client Hub -- The Everyday Investor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Guides and tools -- Client Hub</title>
+<script src="/hub/js/tei-theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/hub/css/hub-shell.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
-
-:root {
-  --navy:    #1D3557;
-  --navy-dk: #0f1e3a;
-  --navy-md: #2B4C7E;
-  --cream:   #F7F4ED;
-  --cream-dk:#EDE8DA;
-  --gold:    #C9A84C;
-  --gold-dk: #b8922d;
-  --gold-lt: #FBF4E0;
-  --text:    #1a1a2e;
-  --mid:     #4a5568;
-  --lt:      #718096;
-  --white:   #ffffff;
-  --green:   #2D7D52;
-  --radius:  10px;
-  --shadow:  0 4px 28px rgba(29,53,87,.10);
+/* Client Hub Guides & tools: the public guides and tools plus the members-only
+   tools (Wealth Forecast, Portfolio Strategy, Optimisation Lab). */
+.gt-filters { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:12px; }
+.gt-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.gt-count { margin-left:auto; font-size:12px; color:var(--muted); }
+.gt-sec { margin-top:28px; }
+.gt-sec-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
+.gt-sec-h h2 { font-size:20px; font-weight:400; letter-spacing:-0.01em; }
+.gt-sec-h p { font-size:12px; color:var(--muted); }
+.gt-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
+.gt-card { display:flex; flex-direction:column; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:22px; overflow:hidden; text-decoration:none; color:inherit; transition:transform .2s ease, box-shadow .2s ease; }
+.gt-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.gt-top { position:relative; height:120px; background:var(--powder); overflow:hidden; }
+.gt-card.members .gt-top { background:#0F1E36; }
+.gt-card.guide .gt-top { background:var(--champ); }
+.gt-ring { position:absolute; border-radius:50%; border:1px solid var(--gold); opacity:.25; }
+.gt-ring.r1 { width:220px; height:220px; right:-70px; top:-100px; }
+.gt-ring.r2 { width:140px; height:140px; right:-30px; top:-60px; border-style:dashed; }
+.gt-card.members .gt-ring { border-color:#E8D6A8; }
+.gt-tags { position:absolute; left:16px; top:14px; display:flex; gap:6px; }
+.gt-tag { font-size:11px; font-weight:500; padding:3px 10px; border-radius:999px; background:var(--tile); color:var(--text); }
+.gt-tag.m { background:#E8D6A8; color:#0F1E36; }
+.gt-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px; flex:1; }
+.gt-body h3 { font-size:18px; font-weight:500; letter-spacing:-0.01em; line-height:1.25; }
+.gt-body p { font-size:14px; color:var(--muted); line-height:1.5; }
+.gt-foot { margin-top:auto; padding-top:10px; display:flex; justify-content:space-between; font-size:13px; }
+.gt-foot span:first-child { color:var(--gold); font-weight:500; }
+.gt-foot span:last-child { font-family:'Geist Mono', monospace; font-size:11px; color:var(--muted); }
+.gt-empty { padding:32px 20px; border:1px dashed var(--line); border-radius:22px; text-align:center; color:var(--muted); }
+.gt-stages { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:12px; }
+.gt-stage { padding:16px; border-radius:18px; background:var(--tile); border:1px solid var(--line); }
+.gt-stage p { font-size:11px; color:var(--gold); }
+.gt-stage b { display:block; margin-top:4px; font-size:15px; font-weight:500; }
+.gt-stage span { display:block; margin-top:4px; font-size:13px; color:var(--muted); line-height:1.45; }
+@media (max-width:1100px) { .gt-stages { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width:860px) {
+  .gt-grid { grid-template-columns:1fr; gap:12px; }
+  .gt-stages { grid-template-columns:1fr; }
+  .gt-chips { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
+  .gt-chips::-webkit-scrollbar { display:none; }
+  .gt-chips .hb-chip { flex:none; }
+  .hb-search { max-width:none; }
+  .gt-count { display:none; }
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; overflow-x: hidden; }
-
-/* NAV */
-nav {
-  background: var(--navy);
-  width: 100%;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 48px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  box-shadow: 0 2px 16px rgba(0,0,0,.2);
-}
-.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
-.nav-logo-text {
-  font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--gold); font-weight: 600; line-height: 1.35;
-}
-.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-.nav-links a {
-  color: rgba(247,244,237,.65); text-decoration: none;
-  font-size: 13px; font-weight: 500; letter-spacing: .03em;
-  transition: color .2s;
-}
-.nav-links a:hover, .nav-links a.active { color: var(--gold); }
-.hub-auth-item { display: flex; align-items: center; gap: 10px; }
-.hub-auth-email { font-size: 12px; color: rgba(247,244,237,.45); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hub-auth-signout, .hub-auth-signout-mobile { color: rgba(247,244,237,.65) !important; font-size: 13px !important; }
-.hub-auth-signout:hover, .hub-auth-signout-mobile:hover { color: var(--gold) !important; }
-.nav-cta {
-  position: relative;
-  width: 44px; height: 44px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  text-decoration: none;
-}
-.nav-cta-ring {
-  position: absolute; inset: 0; border-radius: 50%;
-  border: 1.5px solid var(--gold);
-  animation: pulse-ring 2.5s ease-in-out infinite;
-}
-.nav-cta-ring-2 {
-  position: absolute; inset: -6px; border-radius: 50%;
-  border: 1px solid rgba(201,168,76,.25);
-  animation: pulse-ring 2.5s ease-in-out infinite .6s;
-}
-@keyframes pulse-ring { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.08); opacity: .6; } }
-.nav-cta-tooltip {
-  position: absolute; bottom: -36px; right: 0;
-  background: var(--navy-dk); color: var(--cream);
-  font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 4px;
-  white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s;
-  border: 1px solid rgba(201,168,76,.3);
-}
-.nav-cta:hover .nav-cta-tooltip { opacity: 1; }
-.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
-.nav-mobile-menu {
-  display: none; position: fixed; top: 68px; left: 0; right: 0;
-  background: var(--navy); flex-direction: column; padding: 8px 0;
-  border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199;
-  box-shadow: 0 4px 20px rgba(0,0,0,.3);
-}
-.nav-mobile-menu a {
-  color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px;
-  font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06);
-  display: block; transition: color .2s;
-}
-.nav-mobile-menu a:hover { color: var(--gold); }
-.nav-mobile-menu.open { display: flex; }
-
-/* HERO */
-.thin-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 20px 0; }
-.thin-hero-inner { max-width: 1100px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; gap: 16px; }
-.thin-eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; padding-right: 16px; border-right: 1px solid rgba(201,168,76,.4); line-height: 1.2; }
-.thin-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px; color: var(--cream); line-height: 1.2; }
-@media(max-width: 700px) { .thin-hero { padding: 16px 0; } .thin-hero-inner { padding: 0 16px; flex-direction: column; align-items: flex-start; gap: 6px; } .thin-eyebrow { border-right: 0; padding-right: 0; } .thin-hero h1 { font-size: 20px; } }
-
-/* STORY */
-.story-wrap { max-width: 720px; margin: 0 auto; padding: 72px 32px; }
-.story-wrap p { font-size: 16px; color: var(--mid); line-height: 1.95; margin-bottom: 26px; }
-.story-wrap p:first-of-type { font-size: 18px; color: var(--navy); font-weight: 500; }
-.story-wrap p:last-of-type { margin-bottom: 0; }
-
-.pull-quote {
-  border-left: 3px solid var(--gold);
-  padding: 4px 0 4px 28px;
-  margin: 44px 0;
-  font-family: 'Playfair Display', serif;
-  font-style: italic;
-  font-size: 21px;
-  color: var(--navy);
-  line-height: 1.6;
-}
-
-/* CREDENTIAL STRIP */
-.cred-strip { background: var(--white); border-top: 1px solid var(--cream-dk); border-bottom: 1px solid var(--cream-dk); }
-.cred-inner { max-width: 720px; margin: 0 auto; padding: 40px 32px; text-align: center; }
-.cred-label { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 12px; }
-.cred-text { font-size: 14px; color: var(--mid); line-height: 1.85; max-width: 560px; margin: 0 auto; }
-
-/* FINAL CTA */
-.about-cta { background: var(--navy); text-align: center; padding: 64px 32px; }
-.about-cta h2 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.5vw, 34px); color: var(--cream); margin-bottom: 12px; }
-.about-cta p { font-size: 14px; color: rgba(247,244,237,.55); max-width: 480px; margin: 0 auto 24px; line-height: 1.7; }
-.about-cta-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: var(--gold); color: var(--navy); font-size: 14px; font-weight: 700;
-  padding: 15px 32px; border-radius: 8px; text-decoration: none; transition: background .2s;
-}
-.about-cta-btn:hover { background: var(--gold-dk); }
-
-/* FOOTER */
-footer {
-  background: var(--navy); width: 100%; padding: 36px 48px;
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
-}
-.footer-logo { display: flex; align-items: center; gap: 10px; }
-.footer-logo-mark { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(201,168,76,.5); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--gold); flex-shrink: 0; }
-.footer-logo-text { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,244,237,.3); line-height: 1.4; }
-.footer-disc { font-size: 10px; color: rgba(247,244,237,.22); text-align: right; max-width: 420px; line-height: 1.7; }
-
-@media(max-width: 860px) {
-  nav { padding: 0 24px; }
-  .nav-links { display: none; }
-  .nav-mobile-toggle { display: flex; }
-  footer { flex-direction: column; text-align: center; padding: 28px 24px; }
-  .footer-disc { text-align: center; max-width: 100%; }
-  .story-wrap { padding: 48px 24px; }
-}
-
-@media(max-width:700px) {
-  [style*="grid-template-columns:repeat(2,1fr)"],
-  [style*="grid-template-columns:repeat(3,1fr)"],
-  [style*="grid-template-columns:repeat(4,1fr)"] {
-    grid-template-columns: 1fr !important;
-  }
-}
-* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
 </style>
-<style>
-.section { max-width: 1100px; margin: 0 auto; padding: var(--section-pad-y) 32px; }
-.section-label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 10px; display: block; }
-.section-title { font-family: 'Playfair Display', serif; font-size: clamp(24px, 3.2vw, 36px); color: var(--navy); line-height: 1.15; margin-bottom: 14px; }
-.section-title em { font-style: italic; color: var(--gold-dk); }
-.section-sub { font-size: 14px; color: var(--mid); line-height: 1.8; max-width: 640px; margin-bottom: var(--heading-gap); }
-</style>
-
-<link rel="stylesheet" href="/assets/mobile-nav.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
-<script>
-/* Safety net: a Supabase password-recovery link can land here instead of
-   /hub/reset-password.html if the project's Site URL falls back to the
-   site root. Forward the code/token on immediately so the reset form still
-   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
-(function () {
-  var search = window.location.search || "";
-  var hash = window.location.hash || "";
-  var params = new URLSearchParams(search);
-  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
-  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
-  if (hasAuthPayload || isRecovery) {
-    window.location.replace("/hub/reset-password.html" + search + hash);
-  }
-})();
-</script>
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
 
-<!-- ── NAV ── -->
-<nav>
-  <a class="nav-logo" href="/hub/index.html">
-    <div class="nav-logo-mark">&#10022;</div>
-    <span class="nav-logo-text">The Everyday<br>Investor</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="/hub/index.html">Dashboard</a></li>
-    <li><a href="/hub/suite.html">Investment Suite</a></li>
-    <li><a href="/hub/guides.html" class="active">Guides &amp; Tools</a></li>
-    <li style="border-left:1px solid rgba(201,168,76,.25);padding-left:20px;"><a href="/">Visit Website &#8599;</a></li>
-  </ul>
+<header class="hb-bar">
+  <div class="hb-bar-in">
+    <a class="hb-brand" href="/hub/index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--gold)" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="var(--gold)" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="var(--gold)"/></svg>Client Hub</a>
+    <nav class="hb-nav" aria-label="Client Hub">
+      <a href="/hub/index.html">Home</a>
+      <a href="/hub/education/index.html">Learn</a>
+      <a href="/hub/videos.html">Videos</a>
+      <a href="/hub/guides.html" aria-current="page">Guides &amp; tools</a>
+      <a href="/hub/articles.html">Articles</a>
+      <a href="/hub/suite.html">Investment suite</a>
+      <a href="/index.html">Website</a>
+      <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
+    </nav>
+  </div>
+</header>
 
-  <button class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
+<main class="hb">
+  <div class="hb-head">
+    <div>
+      <p class="hb-kicker mono">Guides &amp; tools &middot; members</p>
+      <h1 class="hb-title">Learn by working it out yourself.</h1>
+      <p class="hb-intro">Every TEI guide and tool, plus the ones only members get: the full Wealth Forecast, our Portfolio Strategy and the Optimisation Lab.</p>
+    </div>
+    <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
+  </div>
+
+  <section aria-label="Filter guides and tools">
+    <div class="gt-filters">
+      <label class="hb-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="gtSearch" placeholder="Search, for example ISA, pension, property" aria-label="Search guides and tools"></label>
+      <div class="gt-chips" id="gtKinds" role="group" aria-label="Show"></div>
+      <span class="gt-count mono" id="gtCount" aria-live="polite"></span>
+    </div>
+    <div class="gt-chips" id="gtTopics" role="group" aria-label="Topics"></div>
+  </section>
+
+  <section class="gt-sec" id="gtMembersSec">
+    <div class="gt-sec-h"><h2>Members only</h2><p class="mono">Included in your membership</p></div>
+    <div class="gt-grid" id="gtMembers"></div>
+  </section>
+
+  <section class="gt-sec" id="gtAllSec">
+    <div class="gt-sec-h"><h2>Guides and tools</h2><p class="mono">Also free on the website</p></div>
+    <div class="gt-grid" id="gtAll"></div>
+  </section>
+
+  <section class="gt-sec">
+    <div class="gt-sec-h"><h2>Start here: the five stages</h2><a class="mono" href="/hub/guides/stages.html" style="font-size:12px;color:var(--gold)">Read the full guide</a></div>
+    <div class="gt-stages">
+      <div class="gt-stage"><p class="mono">Stage 1</p><b>The Foundations</b><span>Never invested. Starting from scratch.</span></div>
+      <div class="gt-stage"><p class="mono">Stage 2</p><b>Building the Base</b><span>First investment made. Now structuring the portfolio properly.</span></div>
+      <div class="gt-stage"><p class="mono">Stage 3</p><b>Growing with Confidence</b><span>Invested and structured. Now developing market understanding and conviction.</span></div>
+      <div class="gt-stage"><p class="mono">Stage 4</p><b>Investment Philosophy</b><span>Developing a personal approach. Going beyond passive.</span></div>
+      <div class="gt-stage"><p class="mono">Stage 5</p><b>The Seasoned Investor</b><span>Advanced portfolio construction, life planning and long-term wealth management.</span></div>
+    </div>
+  </section>
+
+  <div class="hb-foot" data-tei-boundary-footer="inherit"></div>
+</main>
+
+<nav class="hb-tabs" aria-label="Main">
+  <a href="/hub/wealth-os.html"><i></i>Home</a>
+  <a href="/hub/wealth-os.html?page=progress"><i></i>Wealth</a>
+  <a href="/hub/wealth-os.html?page=goals"><i></i>Plan</a>
+  <a href="/hub/index.html" aria-current="page"><i></i>Library</a>
+  <a href="/hub/wealth-os.html?page=menu"><i></i>Me</a>
 </nav>
-<div class="nav-mobile-menu" id="navMobileMenu">
-  <a href="/hub/index.html" onclick="closeNav()">Dashboard</a>
-  <a href="/hub/suite.html" onclick="closeNav()">Investment Suite</a>
-  <a href="/hub/guides.html" onclick="closeNav()" class="active">Guides &amp; Tools</a>
-  <a href="/">Visit Website &#8599;</a>
-</div>
-
-<div class="thin-hero">
-  <div class="thin-hero-inner">
-    <p class="thin-eyebrow">Guides &amp; Tools</p>
-    <h1>The material behind every TEI portfolio.</h1>
-  </div>
-</div>
-
-
-
-<div id="guides" style="background:var(--cream);width:100%;display:block;">
-  <div class="section tei-section--tight-bottom">
-    <span class="section-label">Free resources</span>
-    <h2 class="section-title">Guides and tools built to<br><em>actually teach you something.</em></h2>
-    <p class="section-sub">No email required. No sign up. Read the same material that shapes how every TEI portfolio is built and coached, and try a real tool from the TEI suite.</p>
-
-    <div class="tei-card-grid tei-card-grid--3">
-
-      <div class="tei-card">
-        <div class="tei-card-bar"></div>
-        <div class="tei-card-body">
-          <span class="tei-card-icon tei-card-icon--lg">&#129504;</span>
-          <span class="tei-card-tag tei-card-tag--gold">Investment philosophy</span>
-          <h3 class="tei-card-title">TEI Principles</h3>
-          <p class="tei-card-desc tei-card-desc--grow">Master the principles, ignore the noise. From first principles to the exact framework behind every position in a TEI portfolio, including the conviction matrix and dip-buying rules.</p>
-          <a href="/hub/guides/principles.html" class="tei-card-btn tei-card-btn--lg">Read the guide &#8594;</a>
-        </div>
-      </div>
-
-      <div class="tei-card">
-        <div class="tei-card-bar"></div>
-        <div class="tei-card-body">
-          <span class="tei-card-icon tei-card-icon--lg">&#128506;&#65039;</span>
-          <span class="tei-card-tag tei-card-tag--gold">The learning path</span>
-          <h3 class="tei-card-title">Five Stages to the Seasoned Investor</h3>
-          <p class="tei-card-desc tei-card-desc--grow">The full curriculum, from your first ISA to a fully coordinated financial life. Includes a two-minute self-assessment to find out where you would start.</p>
-          <a href="/hub/guides/stages.html" class="tei-card-btn tei-card-btn--lg">Read the guide &#8594;</a>
-        </div>
-      </div>
-
-      <div class="tei-card">
-        <div class="tei-card-bar"></div>
-        <div class="tei-card-body">
-          <span class="tei-card-icon tei-card-icon--lg">&#127974;</span>
-          <span class="tei-card-tag tei-card-tag--gold">Tax and allowances</span>
-          <h3 class="tei-card-title">The Tax Wrapper Guide</h3>
-          <p class="tei-card-desc tei-card-desc--grow">Every ISA, pension and account type explained, with 2026/27 allowances, the order to use them in, and the advanced strategies most people never hear about.</p>
-          <a href="/hub/guides/tax.html" class="tei-card-btn tei-card-btn--lg">Read the guide &#8594;</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-
-<!-- ── TOOLS ── -->
-<div style="background:var(--white);width:100%;display:block;">
-  <div class="section tei-section--tight-top">
-    <span class="section-label">Client tools</span>
-    <h2 class="section-title">Tools built for<br><em>where you are right now.</em></h2>
-    <p class="section-sub">The full TEI tool suite. Some are ready to use today, others are being built and will appear here as they go live.</p>
-
-    <div class="tei-card-grid tei-card-grid--3">
-      <div class="tei-card tei-card-body">
-        <span class="tei-card-icon">&#9889;</span>
-        <div class="tei-card-tag">Wealth Forecast</div>
-        <div class="tei-card-title">See your financial future</div>
-        <p class="tei-card-desc">Run thousands of simulations of your investment portfolio. Model contributions, returns, inflation, and drawdown in retirement.</p>
-        <a href="/hub/guides/wealthforecast.html" class="tei-card-btn">Open Wealth Forecast &#8594;</a>
-      </div>
-      <div class="tei-card tei-card-body">
-        <span class="tei-card-icon">&#128506;</span>
-        <div class="tei-card-tag">Portfolio Strategy</div>
-        <div class="tei-card-title">How we build your portfolio</div>
-        <p class="tei-card-desc">An interactive framework for portfolio construction, position sizing, conviction tiers, and the balance between growth and stability.</p>
-        <a href="/hub/guides/portfolio.html" class="tei-card-btn">Open Portfolio Strategy &#8594;</a>
-      </div>
-      <div class="tei-card tei-card-body">
-        <span class="tei-card-icon">&#128176;</span>
-        <div class="tei-card-tag">Tax Wrapper Scenario Tool</div>
-        <div class="tei-card-title">Find the easiest saving</div>
-        <p class="tei-card-desc">Put in real numbers and see which wrapper decisions -- ISA, pension, LISA, salary sacrifice, bed-and-ISA -- are actually worth something right now.</p>
-        <a href="/guides/tax-scenario.html" class="tei-card-btn">Open Scenario Tool &#8594;</a>
-      </div>
-      <div class="tei-card tei-card-body">
-        <span class="tei-card-icon">&#127968;</span>
-        <div class="tei-card-tag">Property Investment Calculator</div>
-        <div class="tei-card-title">See how a purchase really works</div>
-        <p class="tei-card-desc">The mortgage, the equity build-up, the tax on selling or letting, and a genuine stress test -- rate rises, voids, and price falls.</p>
-        <a href="/hub/guides/property.html" class="tei-card-btn">Open Property Calculator &#8594;</a>
-      </div>
-      <div class="tei-card tei-card-body">
-        <span class="tei-card-icon">&#128202;</span>
-        <div class="tei-card-tag">Portfolio Optimisation Lab</div>
-        <div class="tei-card-title">Model your own portfolio changes</div>
-        <p class="tei-card-desc">Analyse concentration, build scenarios against presets or your own targets, compare them side by side, and see the exact trades required.</p>
-        <a href="/hub/guides/portfolio-optimisation-lab.html" class="tei-card-btn">Open Optimisation Lab &#8594;</a>
-      </div>
-      <div class="tei-card tei-card-body">
-        <span class="tei-card-icon">&#9889;</span>
-        <div class="tei-card-tag">Cost of Waiting Calculator</div>
-        <div class="tei-card-title">What delay actually costs</div>
-        <p class="tei-card-desc">See what starting today versus waiting a year -- or five -- actually costs you by the time you retire, in real numbers.</p>
-        <a href="/hub/guides/costofwaiting.html" class="tei-card-btn">Open Cost of Waiting &#8594;</a>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-
-<!-- ── FOOTER ── -->
-<footer>
-  <div class="footer-logo">
-    <div class="footer-logo-mark">&#10022;</div>
-    <span class="footer-logo-text">The Everyday<br>Investor</span>
-  </div>
-  <div class="footer-disc">For educational purposes only. Nothing here constitutes financial advice or a personal recommendation. The Everyday Investor is a financial coaching and education service, not a regulated financial adviser. &copy; 2026 The Everyday Investor.</div>
-</footer>
 
 <script>
-function checkDeepLink() {
-  var params = new URLSearchParams(window.location.search);
-  var openKey = params.get("open");
-  if (openKey) {
-    window.location.href = "/hub/guides/" + openKey + ".html";
+/* Guides and tools. Members-only tools first, then the guides and tools also
+   on the public site (opened in their Client Hub copies where one exists). */
+(function () {
+  var ITEMS = [
+    { m: true, kind: 'Tools', title: 'Wealth Forecast', desc: 'Run thousands of simulations of your portfolio. Model contributions, returns, inflation and drawing down in retirement.', href: '/hub/guides/wealthforecast.html', cta: 'Open Wealth Forecast', time: '10 min', topics: ['Investing', 'Pensions'] },
+    { m: true, kind: 'Guides', title: 'Portfolio Strategy', desc: 'How we build portfolios: construction, position sizing, conviction tiers and the balance between growth and stability.', href: '/hub/guides/portfolio.html', cta: 'Read the strategy', time: '15 min read', topics: ['Investing'] },
+    { m: true, kind: 'Tools', title: 'Portfolio Optimisation Lab', desc: 'Analyse concentration, build scenarios against presets or your own targets, compare them and see the trades required.', href: '/hub/guides/portfolio-optimisation-lab.html', cta: 'Open the lab', time: '10 min', topics: ['Investing'] },
+    { kind: 'Guides', title: 'TEI Principles', desc: 'The ideas behind every plan we build, from time in the market to the bear case.', href: '/hub/guides/principles.html', cta: 'Read the guide', time: '8 min read', topics: ['Investing'] },
+    { kind: 'Guides', title: 'Five Stages to the Seasoned Investor', desc: 'Where you are now, and what each next stage asks of you.', href: '/hub/guides/stages.html', cta: 'Read the guide', time: '10 min read', topics: ['Investing', 'Budgeting'] },
+    { kind: 'Guides', title: 'The Tax Wrapper Guide', desc: 'Every ISA, pension and account type, and the order people tend to use them in.', href: '/hub/guides/tax.html', cta: 'Read the guide', time: '12 min read', topics: ['ISAs', 'Pensions'] },
+    { kind: 'Tools', title: 'Cost of Waiting Calculator', desc: 'See what delaying by one year, or five, costs you by retirement.', href: '/hub/guides/costofwaiting.html', cta: 'Open calculator', time: '2 min', topics: ['Investing', 'Pensions'] },
+    { kind: 'Tools', title: 'Property Calculator', desc: 'Mortgage, equity, stamp duty and a stress test on any purchase.', href: '/hub/guides/property.html', cta: 'Open calculator', time: '5 min', topics: ['Property'] },
+    { kind: 'Tools', title: 'Tax Scenario Tool', desc: 'Put in a few real numbers and see which wrapper decisions are worth something for you right now.', href: '/guides/tax-scenario.html', cta: 'Open tool', time: '3 min', topics: ['Pensions', 'ISAs', 'Budgeting'] }
+  ];
+  var KINDS = ['All', 'Guides', 'Tools'];
+  var TOPICS = ['All topics', 'Budgeting', 'ISAs', 'Pensions', 'Property', 'Investing'];
+  var f = { kind: 'All', topic: 'All topics', q: '' };
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  try { var show = new URLSearchParams(location.search).get('show'); if (show === 'Guides' || show === 'Tools') f.kind = show; } catch (e) {}
+
+  function chips(list, cur) { return list.map(function (x) { return '<button type="button" class="hb-chip" data-v="' + esc(x) + '" aria-pressed="' + (x === cur ? 'true' : 'false') + '">' + esc(x) + '</button>'; }).join(''); }
+  function card(it, i) {
+    var cls = 'gt-card hb-up' + (it.m ? ' members' : '') + (it.kind === 'Guides' && !it.m ? ' guide' : '');
+    return '<a class="' + cls + '" style="animation-delay:' + Math.min(i, 8) * 40 + 'ms" href="' + esc(it.href) + '">' +
+      '<div class="gt-top"><span class="gt-ring r1"></span><span class="gt-ring r2 hb-spin"></span><div class="gt-tags">' +
+      (it.m ? '<span class="gt-tag m">Members</span>' : '') + '<span class="gt-tag">' + (it.kind === 'Tools' ? 'Tool' : 'Guide') + '</span></div></div>' +
+      '<div class="gt-body"><h3>' + esc(it.title) + '</h3><p>' + esc(it.desc) + '</p><div class="gt-foot"><span>' + esc(it.cta) + '</span><span>' + esc(it.time) + '</span></div></div></a>';
   }
-}
-function toggleNav() {
-  document.getElementById('navMobileMenu').classList.toggle('open');
-}
-function closeNav() {
-  document.getElementById('navMobileMenu').classList.remove('open');
-}
-document.addEventListener('DOMContentLoaded', function() {
-  checkDeepLink();
-});
+  function match(it) {
+    if (f.kind !== 'All' && it.kind !== f.kind) return false;
+    if (f.topic !== 'All topics' && it.topics.indexOf(f.topic) < 0) return false;
+    if (f.q && (it.title + ' ' + it.desc + ' ' + it.topics.join(' ')).toLowerCase().indexOf(f.q) < 0) return false;
+    return true;
+  }
+  function render() {
+    $('gtKinds').innerHTML = chips(KINDS, f.kind);
+    $('gtTopics').innerHTML = chips(TOPICS, f.topic);
+    var list = ITEMS.filter(match);
+    var mem = list.filter(function (x) { return x.m; }), pub = list.filter(function (x) { return !x.m; });
+    $('gtMembersSec').hidden = !mem.length;
+    $('gtMembers').innerHTML = mem.map(card).join('');
+    $('gtAll').innerHTML = pub.length ? pub.map(card).join('') : (mem.length ? '' : '<div class="gt-empty">Nothing matches. Try another topic or clear the search.</div>');
+    $('gtAllSec').hidden = !pub.length && !!mem.length;
+    $('gtCount').textContent = list.length + (list.length === 1 ? ' guide or tool' : ' guides and tools');
+  }
+  $('gtKinds').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) { f.kind = b.getAttribute('data-v'); render(); } });
+  $('gtTopics').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) { f.topic = b.getAttribute('data-v'); render(); } });
+  $('gtSearch').addEventListener('input', function () { f.q = this.value.trim().toLowerCase(); render(); });
+  render();
+})();
 </script>
-
-<!-- Guide modal overlay -->
-
-
-
-<!-- ── FOOTER ── -->
-
-
-
-<script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>
