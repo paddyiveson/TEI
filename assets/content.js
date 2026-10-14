@@ -105,7 +105,7 @@
 
   /* ---------- Motion ---------- */
   var REVEAL = '.tc-tile, .tc-two, .tc-flow, .tc-steps, .tc-matrix, .tc-feature, .tc-sleeves, .tc-callout, .tc-icons, .tc-timeline, ' +
-    '.tc-inline-link, .tc-related, .tc-cta, .tc-members, .visual-block, .ar-figure, .pull-quote, .ar-takeaways, .ar-not';
+    '.tc-inline-link, .tc-related, .tc-cta, .tc-members, .tc-pcard, .tc-table-wrap, .visual-block, .ar-figure, .pull-quote, .ar-takeaways, .ar-not';
   function reveal() {
     if (calm || !('IntersectionObserver' in window)) return;
     var els = Array.prototype.filter.call(document.querySelectorAll(REVEAL), function (el) {
