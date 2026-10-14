@@ -3,10 +3,8 @@
      1. design tokens (colour, type, shape)
      2. the site header
      3. the footer link row, and the light restyle of each page's legal footer
-   Page content keeps its own <style> block until that page is rebuilt.
-   The homepage's previous styles live in assets/home-legacy.css until the
-   homepage is rebuilt. The mobile bottom bar and Menu are in
-   assets/mobile-nav.css and assets/mobile-nav.js.
+   Page content keeps its own <style> block. The mobile bottom bar and Menu
+   are in assets/mobile-nav.css and assets/mobile-nav.js.
    Every rule here is namespaced tei- so it cannot collide with page styles. */
 
 /* -- 1. Tokens -- */
@@ -50,6 +48,8 @@
 /* Guide and tool pages have their own sticky in-page bars. */
 .tei-hdr--static { position: relative; }
 .tei-hdr *, .tei-ftr * { box-sizing: border-box; }
+/* The container is 1280px of content with the gutter outside it, as on the boards. */
+.tei-hdr .tei-hdr-in, .tei-ftr .tei-ftr-in { box-sizing: content-box; }
 .tei-hdr-in {
   display: flex; align-items: center; justify-content: space-between; gap: 24px;
   max-width: var(--tei-container); height: 100%;
@@ -148,11 +148,11 @@
   text-align: left !important;
   letter-spacing: 0 !important;
 }
-/* Each block lines up with the link row above: the container less its gutters. */
+/* Each block lines up with the link row above. */
 .tei-ftr + footer > * {
   display: block !important;
   width: auto !important;
-  max-width: calc(var(--tei-container) - 2 * var(--tei-gutter)) !important;
+  max-width: var(--tei-container) !important;
   margin-left: auto !important; margin-right: auto !important;
   padding-left: 0 !important; padding-right: 0 !important;
 }

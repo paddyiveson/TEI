@@ -4,14 +4,99 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>The Everyday Investor: Financial Coaching &amp; Education</title>
-  <link rel="stylesheet" href="/assets/home-legacy.css">
-<link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
+<style>
+/* Homepage (redesign phase G2). Section markup below carries the locked
+   board's exact sizes, colours and spacing inline; these rules are its
+   motion and its phone adjustments. Shared header and footer: /style.css. */
+body{margin:0;background:#F7F4ED}
+.tei-home{font-family:'Geist',system-ui,sans-serif;color:#13213A;background:#F7F4ED;overflow-x:clip}
+.tei-home a{color:inherit}
+.tei-home a:hover{opacity:.85}
+.tei-home a:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:10px}
+.tei-home [id]{scroll-margin-top:84px}
+.tei-home [hidden]{display:none !important}
+@keyframes t-draw{from{stroke-dashoffset:1400}to{stroke-dashoffset:0}}
+@keyframes t-fade{from{opacity:0}to{opacity:1}}
+@keyframes t-rise{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes t-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes t-pulseR{0%{r:6;opacity:1}100%{r:22;opacity:0}}
+@keyframes t-pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.6);opacity:0}}
+@keyframes t-up{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+@keyframes t-marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes t-grow{0%{transform:scaleX(0)}70%,100%{transform:scaleX(1)}}
+@keyframes t-glow{0%,100%{opacity:.22;transform:scale(1)}50%{opacity:.4;transform:scale(1.08)}}
+@keyframes t-shim{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes t-spin{to{transform:rotate(360deg)}}
+@keyframes t-unspin{to{transform:rotate(-360deg)}}
+@keyframes t-dot{0%,100%{box-shadow:0 0 0 0 rgba(131,102,28,.35)}50%{box-shadow:0 0 0 8px rgba(131,102,28,0)}}
+.t-draw{stroke-dasharray:1400;animation:t-draw 2.8s cubic-bezier(.6,.05,.2,1) .3s both infinite alternate}
+.t-area{animation:t-fade 1.4s ease 1.6s both}
+.t-bar{transform-box:fill-box;transform-origin:bottom;animation:t-rise 1s cubic-bezier(.3,.8,.3,1) both}
+.t-f1{animation:t-float 5s ease-in-out infinite}
+.t-f2{animation:t-float 6s ease-in-out 1s infinite}
+.t-f3{animation:t-float 5.5s ease-in-out .5s infinite}
+.t-pulseR{animation:t-pulseR 1.8s ease-out infinite}
+.t-pulse{animation:t-pulse 2.2s ease-out infinite}
+.t-up{animation:t-up .9s cubic-bezier(.2,.8,.2,1) both}
+.t-up2{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .15s both}
+.t-up3{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .3s both}
+.t-marquee{display:flex;width:max-content;animation:t-marquee 40s linear infinite}
+.t-grow{transform-origin:left;animation:t-grow 4s cubic-bezier(.3,.8,.3,1) .4s infinite}
+.t-glow{animation:t-glow 8s ease-in-out infinite}
+.t-shim{animation:t-shim 2.4s ease-in-out infinite}
+.t-dot{animation:t-dot 2.4s ease-in-out infinite}
+.t-s90{animation:t-spin 90s linear infinite}
+.t-s60{animation:t-spin 60s linear infinite}.t-u60{animation:t-unspin 60s linear infinite}
+.t-s40{animation:t-spin 40s linear infinite}.t-u40{animation:t-unspin 40s linear infinite}
+.t-s28{animation:t-spin 28s linear infinite}.t-u28{animation:t-unspin 28s linear infinite}
+.t-card{transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease}
+.t-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.14)}
+@keyframes t-growY{0%{transform:scaleY(0)}70%,100%{transform:scaleY(1)}}
+@keyframes t-halo{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.5);opacity:0}}
+@keyframes t-btnhalo{0%{box-shadow:0 0 0 0 rgba(232,214,168,.45)}70%,100%{box-shadow:0 0 0 18px rgba(232,214,168,0)}}
+.t-growY{transform-origin:top;animation:t-growY 4s cubic-bezier(.3,.8,.3,1) .4s infinite}
+.t-halo{animation:t-halo 2.6s ease-out infinite}
+.t-btnhalo{animation:t-btnhalo 2.4s ease-out infinite}
+.t-s20{animation:t-spin 20s linear infinite}
+.t-s32{animation:t-spin 32s linear infinite}
+.t-r120{animation:t-unspin 120s linear infinite}
+@keyframes t-draw2{0%{stroke-dashoffset:420}60%,100%{stroke-dashoffset:0}}
+@keyframes t-riseL{0%{transform:scaleY(0)}45%,100%{transform:scaleY(1)}}
+@keyframes t-fillL{0%{transform:scaleX(0)}40%,100%{transform:scaleX(1)}}
+@keyframes t-blink{0%,100%{opacity:.35}50%{opacity:1}}
+.t-draw2{stroke-dasharray:420;animation:t-draw2 4.5s cubic-bezier(.5,.1,.2,1) infinite}
+.t-riseL{transform-box:fill-box;transform-origin:bottom;animation:t-riseL 4.5s cubic-bezier(.3,.8,.3,1) infinite}
+.t-fillL{transform-box:fill-box;transform-origin:left;animation:t-fillL 4.5s cubic-bezier(.3,.8,.3,1) infinite}
+.t-blink{animation:t-blink 2.4s ease-in-out infinite}
+.t-orbit-wrap{position:relative;height:540px}
+.t-orbit{position:absolute;left:50%;top:50%;width:540px;height:540px;margin:-270px 0 0 -270px}
+.t-fc1{position:absolute;top:0;left:-24px}
+.t-fc2{position:absolute;bottom:36px;left:-40px}
+.t-fc3{position:absolute;top:70px;right:-16px}
+@media (max-width: 640px){
+.t-orbit-wrap{height:360px}
+.t-orbit{transform:scale(.64)}
+.t-fc1{left:8px;top:-8px}
+.t-fc2{left:8px;bottom:8px}
+.t-fc3{right:8px;top:56px}
+.t-desk{right:0 !important}
+.t-phone{display:none !important}
+.t-mside{display:none !important}
+.t-m12{grid-column:span 12 !important}
+.t-vwrap{height:430px !important}
+.t-vframe{left:0 !important}
+}
+@media (prefers-reduced-motion: reduce){.t-draw,.t-area,.t-bar,.t-f1,.t-f2,.t-f3,.t-pulseR,.t-pulse,.t-up,.t-up2,.t-up3,.t-marquee,.t-grow,.t-glow,.t-shim,.t-dot,.t-s90,.t-s60,.t-u60,.t-s40,.t-u40,.t-s28,.t-u28,.t-growY,.t-halo,.t-btnhalo,.t-s20,.t-s32,.t-r120,.t-draw2,.t-riseL,.t-fillL,.t-blink{animation:none}.t-draw2{stroke-dasharray:none}.t-draw{stroke-dasharray:none}}
+@media (max-width: 760px){
+.t-wrap,.t-gut{padding-left:16px !important;padding-right:16px !important}
+}
+</style>
 </head>
 <body>
 <script>
@@ -31,8 +116,7 @@
 })();
 </script>
 
-  <!-- Navigation -->
-  <!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
+<!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
 <div class="tei-hdr" role="banner">
   <div class="tei-hdr-in">
     <a class="tei-hdr-brand" href="/index.html" aria-label="The Everyday Investor, home"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#E8D6A8" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="#E8D6A8" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="#E8D6A8"/></svg><span>The Everyday Investor</span></a>
@@ -50,297 +134,283 @@
   </div>
 </div>
 
-  <main>
+<main class="tei-home">
 
-    <!-- Hero -->
-    <section class="hero" id="top">
-      <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-        <filter id="teiGrain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" result="noise"></feTurbulence>
-          <feColorMatrix in="noise" type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0"></feColorMatrix>
-        </filter>
-      </svg>
-      <div class="hero-mesh" aria-hidden="true"></div>
-      <div class="hero-grain" aria-hidden="true"></div>
+<!-- ================= HERO (dark) ================= -->
 
-      <div class="hero-grid">
+<section style="background: #0B1729; color: #F7F4ED; position: relative; overflow: hidden">
+<div class="t-glow" style="position: absolute; width: 720px; height: 720px; right: -200px; top: -240px; border-radius: 50%; background: #B9CAE6; filter: blur(150px)" aria-hidden="true"></div>
+<div class="t-s90" style="position: absolute; width: 1100px; height: 1100px; left: -520px; bottom: -640px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.10)" aria-hidden="true"></div>
+<div class="t-wrap" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 48px 32px 112px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center">
+<div style="flex: 999 1 520px; min-width: 0">
+<p class="t-up" style="margin: 0 0 26px; display: inline-flex; align-items: center; gap: 10px; font-family: 'Geist Mono', monospace; font-size: 13px; color: #AAB6C8; border: 1px solid rgba(232,214,168,0.18); border-radius: 999px; padding: 8px 14px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #E8D6A8"></span>Financial coaching and education for UK investors</p>
+<h1 class="t-up2" style="margin: 0; font-size: clamp(48px, 6.4vw, 92px); line-height: 1; font-weight: 300; letter-spacing: -0.045em">Everything you own, <span style="color: #E8D6A8">working to one plan.</span></h1>
+<p class="t-up3" style="margin: 28px 0 0; font-size: 19px; line-height: 1.6; font-weight: 300; color: #AAB6C8; max-width: 520px">Your ISAs, pension, savings and goals, pulled together into one written plan. Then coached, step by step, until you can run it with confidence yourself.</p>
+<div class="t-up3" style="margin-top: 36px; display: flex; flex-wrap: wrap; gap: 14px"><a href="/book" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 16px; font-weight: 500; padding: 16px 26px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Book a call</a><a href="#wealth-os" style="display: inline-flex; align-items: center; color: #F7F4ED; text-decoration: none; font-size: 16px; padding: 16px 26px; border-radius: 999px; border: 1px solid rgba(232,214,168,0.3); min-height: 44px; box-sizing: border-box">See Wealth OS</a></div>
+</div>
+<div class="t-orbit-wrap" style="flex: 1 1 520px; min-width: 0" aria-hidden="true">
+<div class="t-orbit">
+<div style="position: absolute; left: 50%; top: 50%; width: 500px; height: 500px; margin: -250px 0 0 -250px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.12)"></div>
+<div style="position: absolute; left: 50%; top: 50%; width: 340px; height: 340px; margin: -170px 0 0 -170px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.18)"></div>
+<div style="position: absolute; left: 50%; top: 50%; width: 180px; height: 180px; margin: -90px 0 0 -90px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.22)"></div>
+<div class="t-s60" style="position: absolute; left: 50%; top: 50%; width: 500px; height: 500px; margin: -250px 0 0 -250px">
+<div class="t-u60" style="position: absolute; left: 50%; top: -18px; margin-left: -56px; width: 112px; text-align: center; background: #1A2C4A; border: 1px solid rgba(232,214,168,0.25); border-radius: 999px; padding: 8px 0; font-size: 13px">Pension</div>
+<div class="t-u60" style="position: absolute; left: 50%; bottom: -18px; margin-left: -56px; width: 112px; text-align: center; background: #1A2C4A; border: 1px solid rgba(232,214,168,0.25); border-radius: 999px; padding: 8px 0; font-size: 13px">Property</div>
+</div>
+<div class="t-s40" style="position: absolute; left: 50%; top: 50%; width: 340px; height: 340px; margin: -170px 0 0 -170px">
+<div class="t-u40" style="position: absolute; top: 50%; left: -50px; margin-top: -18px; width: 100px; text-align: center; background: #E8D6A8; color: #0F1E36; border-radius: 999px; padding: 8px 0; font-size: 13px; font-weight: 500">ISA</div>
+<div class="t-u40" style="position: absolute; top: 50%; right: -60px; margin-top: -18px; width: 120px; text-align: center; background: #B9CAE6; color: #0F1E36; border-radius: 999px; padding: 8px 0; font-size: 13px; font-weight: 500">Lifetime ISA</div>
+</div>
+<div class="t-s28" style="position: absolute; left: 50%; top: 50%; width: 180px; height: 180px; margin: -90px 0 0 -90px">
+<div class="t-u28" style="position: absolute; left: 50%; top: -16px; margin-left: -40px; width: 80px; text-align: center; background: #1A2C4A; border: 1px solid rgba(232,214,168,0.25); border-radius: 999px; padding: 7px 0; font-size: 12px">Cash</div>
+</div>
+<div style="position: absolute; left: 50%; top: 50%; width: 96px; height: 96px; margin: -48px 0 0 -48px"><div class="t-pulse" style="position: absolute; inset: 0; border-radius: 50%; background: #E8D6A8"></div><div style="position: absolute; inset: 0; border-radius: 50%; background: #E8D6A8; color: #0F1E36; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 13px; font-weight: 600; line-height: 1.2">Your<br>plan</div></div>
+</div>
+</div>
+</div>
+</section>
 
-        <div class="hero-copy">
-          <h1>Understand your money.<br> Invest with <em>confidence</em>.</h1>
-          <p class="hero-desc">Whether you are starting from scratch or already investing, we help you understand the why behind every decision, at your own pace. Clear education and real coaching to take control of your money. <strong>Your money. Your decisions. Your future.</strong></p>
-          <div class="hero-ctas">
-            <a
-              href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F"
-              target="_blank" rel="noopener noreferrer" class="hero-btn"
-            >Book a free discovery call</a>
-            <a href="/guides.html#tools" class="hero-link">Try our tools <span aria-hidden="true">&#8594;</span></a>
-          </div>
-          <div class="tei-hww tei-hww--start"><a href="/how-we-work">How we work</a></div>
-        </div>
+<!-- ================= TOPICS STRIP (light) ================= -->
 
-        <div class="hero-feat-wrap">
-          <div class="hero-feat-lead"><span>What you get with The Everyday Investor</span><i></i></div>
-          <div class="hero-feat-list">
-            <div class="hero-feat">
-              <div class="hero-feat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-              <div>
-                <div class="hero-feat-title">1:1 coaching</div>
-                <div class="hero-feat-desc">Regular sessions with a real coach, at a cadence that fits where you are.</div>
-              </div>
-            </div>
-            <div class="hero-feat">
-              <div class="hero-feat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
-              <div>
-                <div class="hero-feat-title">Guides &amp; tools</div>
-                <div class="hero-feat-desc">Guides, tools and research notes that explain the why, the what and the how.</div>
-              </div>
-            </div>
-            <div class="hero-feat">
-              <div class="hero-feat-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
-              <div>
-                <div class="hero-feat-title">Wealth OS</div>
-                <div class="hero-feat-desc">Your own client portal. See your plan, your progress and what to focus on next.</div>
-              </div>
-            </div>
-          </div>
-          <div class="hero-feat-more">And more</div>
-        </div>
+<div style="border-bottom: 1px solid #DEDAD0; overflow: hidden; padding: 20px 0; background: #F7F4ED" aria-label="Topics we cover"><div class="t-marquee" style="font-size: 19px; font-weight: 300; color: #4E5B70; white-space: nowrap"><span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Budgeting<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Safety net<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Stocks and shares ISA<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Lifetime ISA<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Pensions<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Tax wrappers<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">First home<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Investing basics<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Budgeting<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Safety net<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Stocks and shares ISA<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Lifetime ISA<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Pensions<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Tax wrappers<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">First home<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span>
+<span style="padding: 0 26px; display: inline-flex; align-items: center; gap: 26px">Investing basics<span style="width: 7px; height: 7px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span></span></div></div>
 
-        <div class="hero-cta-mobile">
-          <a href="/guides.html#tools" class="hero-btn">Try our tools <span aria-hidden="true">&#8594;</span></a>
-        </div>
+<!-- ================= HOW IT WORKS (light) ================= -->
 
-      </div>
-    </section>
+<section style="position: relative; overflow: hidden; background: #F7F4ED">
+<div style="position: absolute; width: 640px; height: 640px; right: -260px; top: -180px; border-radius: 50%; border: 1px solid #DEDAD0" aria-hidden="true"></div>
+<div style="position: absolute; width: 420px; height: 420px; right: -150px; top: -70px; border-radius: 50%; border: 1px dashed #DEDAD0" aria-hidden="true"></div>
+<div class="t-wrap" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 80px 32px">
+<div style="display: flex; flex-wrap: wrap; gap: 64px; align-items: center">
+<div style="flex: 1 1 440px; min-width: 0"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">How it works</p><h2 style="margin: 14px 0 0; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.04; font-weight: 300; letter-spacing: -0.035em">From first conversation to a plan you understand.</h2><p style="margin: 20px 0 0; font-size: 18px; line-height: 1.6; font-weight: 300; color: #4E5B70; max-width: 420px">Three stages. You set the pace, and you make every decision yourself.</p></div>
+<div style="flex: 1 1 520px; min-width: 0; position: relative; height: 420px">
+<div style="position: absolute; inset: 20px 0 0 0; background: #12233D; border: 1px solid rgba(232,214,168,0.14); border-radius: 20px; padding: 24px; box-sizing: border-box; box-shadow: 0 30px 70px rgba(15,30,54,0.18)">
+<div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 12px; color: #AAB6C8"><span>Wealth forecast</span><span>Illustrative</span></div>
+<svg viewBox="0 0 480 290" aria-hidden="true" style="width: 100%; height: auto; display: block; margin-top: 12px">
+<line x1="10" y1="290" x2="470" y2="290" stroke="rgba(255,255,255,0.12)"></line>
+<rect class="t-bar" x="20" y="250" width="22" height="40" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .2s"></rect>
+<rect class="t-bar" x="76" y="238" width="22" height="52" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .3s"></rect>
+<rect class="t-bar" x="132" y="222" width="22" height="68" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .4s"></rect>
+<rect class="t-bar" x="188" y="200" width="22" height="90" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .5s"></rect>
+<rect class="t-bar" x="244" y="174" width="22" height="116" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .6s"></rect>
+<rect class="t-bar" x="300" y="140" width="22" height="150" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .7s"></rect>
+<rect class="t-bar" x="356" y="100" width="22" height="190" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .8s"></rect>
+<rect class="t-bar" x="412" y="54" width="22" height="236" rx="5" fill="rgba(185,202,230,0.14)" style="animation-delay: .9s"></rect>
+<path class="t-area" d="M10 262 C 120 250, 200 225, 280 180 S 410 70, 470 34 L 470 290 L 10 290 Z" fill="#E8D6A8" fill-opacity="0.10"></path>
+<path class="t-draw" d="M10 262 C 120 250, 200 225, 280 180 S 410 70, 470 34" fill="none" stroke="#E8D6A8" stroke-width="3" stroke-linecap="round"></path>
+<circle class="t-pulseR" cx="470" cy="34" r="6" fill="#E8D6A8"></circle><circle cx="470" cy="34" r="6" fill="#E8D6A8"></circle>
+</svg>
+</div>
+<div class="t-f1 t-fc1" style="background: #FFFFFF; color: #13213A; border: 1px solid #DEDAD0; border-radius: 14px; padding: 14px 18px; box-shadow: 0 12px 30px rgba(15,30,54,0.16); display: flex; gap: 12px; align-items: center; font-size: 14px; font-weight: 500"><span style="width: 28px; height: 28px; border-radius: 50%; background: #B9CAE6; display: inline-flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F1E36" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Safety net complete</div>
+<div class="t-f2 t-fc2" style="background: #FFFFFF; color: #13213A; border: 1px solid #DEDAD0; border-radius: 14px; padding: 14px 18px; box-shadow: 0 12px 30px rgba(15,30,54,0.16); font-size: 14px"><div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">NEXT STEP</div><div style="font-weight: 500; margin-top: 4px">Use this year's ISA allowance</div></div>
+<div class="t-f3 t-fc3" style="background: #FFFFFF; color: #13213A; border: 1px solid #DEDAD0; border-radius: 14px; padding: 12px 16px; box-shadow: 0 12px 30px rgba(15,30,54,0.16); font-size: 14px; font-weight: 500; display: flex; gap: 8px; align-items: center"><span style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #83661C; box-sizing: border-box"></span>Goal: 2035</div>
+</div>
+</div>
+<div style="position: relative; margin-top: 52px">
+<div style="height: 2px; background: #DEDAD0"></div>
+<div class="t-grow" style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #83661C"></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; margin-top: -7px">
+<div><span class="t-dot" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 22px 0 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">01 &middot; Discovery</p><h3 style="margin: 12px 0 8px; font-size: 25px; font-weight: 400; letter-spacing: -0.02em">Free discovery call</h3><p style="margin: 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #4E5B70">30 minutes on where you are and where you want to be. No pitch at the end.</p></div>
+<div><span class="t-dot" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 22px 0 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">02 &middot; Plan</p><h3 style="margin: 12px 0 8px; font-size: 25px; font-weight: 400; letter-spacing: -0.02em">Fact find and your plan</h3><p style="margin: 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #4E5B70">We map everything you have, then you get a written Wealth Plan and Forecast, with the reasoning behind every step.</p></div>
+<div><span class="t-dot" style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 22px 0 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">03 &middot; Coaching</p><h3 style="margin: 12px 0 8px; font-size: 25px; font-weight: 400; letter-spacing: -0.02em">Ongoing coaching</h3><p style="margin: 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #4E5B70">Regular sessions to track progress, adjust the plan as life changes, and build your own confidence.</p></div>
+</div>
+</div>
+</div>
+</section>
 
-    <!-- The Reality (merged with Cost of Waiting hook) -->
-    <section class="problem-bg" aria-labelledby="problem-heading" id="hook">
-      <div class="problem-inner">
-        <span class="section-label section-label--on-dark">The reality</span>
-        <h2 class="problem-heading" id="problem-heading">Your money is losing ground.<br>Every single day.</h2>
-        <p class="problem-intro">Most people know they should be investing, but there is always a reason to delay. Here is what it is costing you&hellip;</p>
+<!-- ================= WEALTH OS (dark) ================= -->
 
-        <figure class="hook-video-wrap">
-          <video
-            class="hook-video"
-            src="assets/videos/hidden-cost.mp4"
-            autoplay
-            muted
-            loop
-            playsinline
-            controls
-            preload="auto"
-          ></video>
-          <figcaption class="hook-video-caption">The Hidden Cost: The Everyday Investor</figcaption>
-        </figure>
+<section id="wealth-os" style="color: #F7F4ED; position: relative; overflow: hidden; background-color: #0f1e36">
+<div class="t-glow" style="position: absolute; width: 640px; height: 640px; left: -260px; top: 120px; border-radius: 50%; background: #E8D6A8; filter: blur(160px)" aria-hidden="true"></div>
+<div class="t-s90" style="position: absolute; width: 900px; height: 900px; right: -420px; top: -300px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.10)" aria-hidden="true"></div>
+<div style="position: absolute; width: 560px; height: 560px; right: -250px; top: -130px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.08)" aria-hidden="true"></div>
+<div class="t-wrap" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 112px 32px">
 
-        <p class="problem-transition">Three reasons this keeps happening:</p>
+<div style="max-width: 780px; margin: 0 auto; text-align: center">
+<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8D6A8">Wealth OS</p>
+<h2 style="margin: 14px 0 0; font-size: clamp(40px, 5.2vw, 68px); line-height: 1.02; font-weight: 300; letter-spacing: -0.04em">Your plan, live, between every session.</h2>
+<p style="margin: 18px auto 0; font-size: 18px; line-height: 1.6; font-weight: 300; color: #AAB6C8; max-width: 460px">Every account, goal and forecast in one private portal, included in every membership.</p>
+<a href="#inside-wealth-os" style="display: inline-flex; align-items: center; margin-top: 30px; color: #0F1E36; background: #E8D6A8; text-decoration: none; font-size: 16px; font-weight: 500; padding: 15px 24px; border-radius: 999px; min-height: 44px; box-sizing: border-box">See what is inside</a>
+</div>
 
-        <div class="problem-grid">
-          <article class="problem-card">
-            <div class="problem-num" aria-hidden="true">01</div>
-            <h3 class="problem-stat">Cash savings lose ground every year</h3>
-            <p class="problem-desc">At 3% inflation, £10,000 in a savings account is worth under £7,400 in ten years. Safe on paper. Shrinking in reality.</p>
-          </article>
-          <article class="problem-card">
-            <div class="problem-num" aria-hidden="true">02</div>
-            <h3 class="problem-stat">Most investors either do too little or too much</h3>
-            <p class="problem-desc">Putting everything into one fund and hoping is not a strategy. Neither is chasing hot tips. Both are common. Neither is deliberate.</p>
-          </article>
-          <article class="problem-card">
-            <div class="problem-num" aria-hidden="true">03</div>
-            <h3 class="problem-stat">The financial industry is not built for everyday investors</h3>
-            <p class="problem-desc">Regulated advice is priced for people who already have significant wealth. Everyone else is left choosing between get-rich-quick schemes that put their money at risk, and professional material that assumes a level of knowledge they do not have yet.</p>
-          </article>
-        </div>
+<div style="position: relative; margin-top: 64px; height: 420px">
+<div class="t-desk" style="position: absolute; left: 0; right: 170px; top: 0; bottom: 0; background: #12233D; border: 1px solid rgba(232,214,168,0.14); border-radius: 18px; padding: 12px; box-sizing: border-box; display: flex; flex-direction: column">
+<div style="display: flex; gap: 6px; padding: 4px 6px 12px" aria-hidden="true"><span style="width: 9px; height: 9px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.4)"></span><span style="width: 9px; height: 9px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.4)"></span><span style="width: 9px; height: 9px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.4)"></span></div>
+<div style="flex: 1; min-height: 0; border-radius: 10px; overflow: hidden; background: #F2EFE7; color: #13213A; display: flex; text-align: left" aria-label="Wealth OS home screen, sample data">
+<div class="t-mside" style="flex: 0 0 148px; box-sizing: border-box; background: #FFFFFF; border-right: 1px solid #DEDAD0; padding: 16px 10px; display: flex; flex-direction: column; gap: 3px">
+<div style="display: flex; align-items: center; gap: 7px; padding: 0 6px 12px; font-size: 13px; font-weight: 500"><svg width="16" height="16" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#83661C" stroke-width="1.6"></circle><circle cx="13" cy="13" r="2.6" fill="#83661C"></circle></svg>Wealth OS</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 9px; font-size: 12px; background: #F7F4ED"><span style="width: 6px; height: 6px; border-radius: 50%; background: #83661C"></span>Home</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; font-size: 12px; color: #4E5B70"><span style="width: 6px; height: 6px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span>Wealth</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; font-size: 12px; color: #4E5B70"><span style="width: 6px; height: 6px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span>Goals</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; font-size: 12px; color: #4E5B70"><span style="width: 6px; height: 6px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span>Forecast</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; font-size: 12px; color: #4E5B70"><span style="width: 6px; height: 6px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span>Cashflow</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 7px 8px; font-size: 12px; color: #4E5B70"><span style="width: 6px; height: 6px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box"></span>Settings</div>
+</div>
+<div style="flex: 1; min-width: 0; box-sizing: border-box; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 8px"><div><div style="font-family: 'Geist Mono', monospace; font-size: 9px; color: #4E5B70">Sample data</div><div style="margin-top: 3px; font-size: 19px; font-weight: 300; letter-spacing: -0.03em">Good afternoon</div></div><span style="font-size: 10px; font-weight: 500; padding: 6px 10px; border-radius: 999px; background: #0F1E36; color: #E8D6A8; white-space: nowrap">Update balances</span></div>
+<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px">
+<div class="t-m12" style="grid-column: span 7; grid-row: span 2; background: #0F1E36; color: #F7F4ED; border-radius: 14px; padding: 14px; position: relative; overflow: hidden; display: flex; flex-direction: column">
+<div class="t-s40" style="position: absolute; width: 200px; height: 200px; right: -70px; top: -90px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.18)" aria-hidden="true"></div>
+<div style="position: relative; font-family: 'Geist Mono', monospace; font-size: 9px; color: #E8D6A8">Total wealth</div>
+<div style="position: relative; margin-top: 8px; font-size: 30px; font-weight: 300; letter-spacing: -0.04em; line-height: 1">£184,250</div>
+<div style="position: relative; margin-top: 6px; font-size: 10px; color: #AAB6C8"><span style="color: #E8D6A8">+£2,140</span> since last month</div>
+<svg viewBox="0 0 300 70" preserveAspectRatio="none" aria-hidden="true" style="position: relative; display: block; width: 100%; height: 58px; margin-top: 10px"><path d="M0 64 C 50 60, 90 54, 130 48 S 210 34, 250 22 S 285 10, 300 6 L 300 70 L 0 70 Z" fill="#E8D6A8" fill-opacity="0.10"></path><path class="t-draw2" d="M0 64 C 50 60, 90 54, 130 48 S 210 34, 250 22 S 285 10, 300 6" fill="none" stroke="#E8D6A8" stroke-width="2.2" stroke-linecap="round"></path></svg>
+<div style="position: relative; margin-top: auto; display: flex; gap: 2px; height: 6px; border-radius: 999px; overflow: hidden"><span style="width: 52%; background: #E8D6A8"></span><span style="width: 23%; background: #B9CAE6"></span><span style="width: 10%; background: #F7F4ED"></span><span style="width: 9%; background: #AAB6C8"></span><span style="width: 6%; background: #83661C"></span></div>
+</div>
+<div class="t-m12" style="grid-column: span 5; background: #F0E7D0; border: 1px solid #DEDAD0; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px"><div style="font-family: 'Geist Mono', monospace; font-size: 9px; color: #83661C">Next step · from your coach</div><div style="font-size: 13px; line-height: 1.25">Use this year's ISA allowance</div><span style="align-self: flex-start; margin-top: 4px; font-size: 9px; font-weight: 500; padding: 5px 9px; border-radius: 999px; background: #0F1E36; color: #E8D6A8">Mark as done</span></div>
+<div class="t-m12" style="grid-column: span 5; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 14px; padding: 12px; display: flex; gap: 10px; align-items: center"><div style="position: relative; width: 48px; height: 48px; flex: none"><svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="#E9E5DA" stroke-width="5"></circle><circle cx="24" cy="24" r="20" fill="none" stroke="#83661C" stroke-width="5" stroke-linecap="round" stroke-dasharray="125.7" stroke-dashoffset="73" transform="rotate(-90 24 24)"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px">42%</span></div><div style="min-width: 0"><div style="font-family: 'Geist Mono', monospace; font-size: 9px; color: #4E5B70">Headline goal</div><div style="margin-top: 3px; font-size: 12px">On track against your forecast</div></div></div>
+<div class="t-m12" style="grid-column: span 8; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 14px; padding: 12px"><div style="display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 9px; color: #4E5B70"><span>Wealth forecast · actual vs plan</span><span>2026 to 2035</span></div><svg viewBox="0 0 320 90" aria-hidden="true" style="display: block; width: 100%; height: auto; margin-top: 6px"><line x1="0" y1="86" x2="320" y2="86" stroke="#DEDAD0"></line><rect class="t-riseL" x="8" y="80" width="14" height="6" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="39" y="77" width="14" height="9" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="70" y="73" width="14" height="13" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="101" y="68" width="14" height="18" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="132" y="62" width="14" height="24" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="163" y="55" width="14" height="31" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="194" y="47" width="14" height="39" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="225" y="38" width="14" height="48" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="256" y="28" width="14" height="58" rx="3" fill="#DFE6F2"></rect><rect class="t-riseL" x="287" y="18" width="14" height="68" rx="3" fill="#DFE6F2"></rect><path d="M6 80 C 70 76, 130 64, 190 48 S 280 16, 314 8" fill="none" stroke="#4E5B70" stroke-width="1.2" stroke-dasharray="4 4"></path><path class="t-draw2" d="M6 81 C 55 78, 100 70, 140 60 S 180 50, 196 46" fill="none" stroke="#83661C" stroke-width="2.4" stroke-linecap="round"></path><circle cx="196" cy="46" r="3.5" fill="#83661C"></circle></svg></div>
+<div class="t-m12" style="grid-column: span 4; background: #DFE6F2; border: 1px solid #DEDAD0; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px"><div style="font-family: 'Geist Mono', monospace; font-size: 9px; color: #4E5B70">Safety net</div><div style="font-size: 18px; font-weight: 300">Complete</div><div style="height: 5px; border-radius: 999px; background: #E9E5DA; overflow: hidden"><div class="t-fillL" style="height: 100%; background: #0F1E36"></div></div><div style="font-size: 10px; color: #4E5B70">6 months of spending covered</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="t-f2 t-phone" style="position: absolute; right: 0; top: 40px; width: 210px; height: 400px; background: #F2EFE7; border-radius: 32px; border: 7px solid #12233D; outline: 1px solid rgba(232,214,168,0.25); box-sizing: border-box; overflow: hidden; color: #13213A; text-align: left" aria-label="Wealth OS on mobile, sample data">
+<div style="padding: 18px 10px 0; display: flex; flex-direction: column; gap: 7px">
+<div style="padding: 0 2px"><div style="font-family: 'Geist Mono', monospace; font-size: 8px; color: #4E5B70">Sample data</div><div style="margin-top: 2px; font-size: 15px; font-weight: 300; letter-spacing: -0.03em">Good afternoon</div></div>
+<div style="position: relative; overflow: hidden; background: #0F1E36; color: #F7F4ED; border-radius: 14px; padding: 11px"><div class="t-s40" style="position: absolute; width: 130px; height: 130px; right: -55px; top: -60px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.18)" aria-hidden="true"></div><div style="position: relative; font-family: 'Geist Mono', monospace; font-size: 8px; color: #E8D6A8">Total wealth</div><div style="position: relative; margin-top: 5px; font-size: 21px; font-weight: 300; letter-spacing: -0.04em; line-height: 1">£184,250</div><div style="position: relative; margin-top: 4px; font-size: 8px; color: #AAB6C8"><span style="color: #E8D6A8">+£2,140</span> since last month</div><svg viewBox="0 0 160 30" preserveAspectRatio="none" aria-hidden="true" style="position: relative; display: block; width: 100%; height: 26px; margin-top: 6px"><path d="M0 27 C 30 25, 55 22, 80 18 S 130 8, 160 3" fill="none" stroke="#E8D6A8" stroke-width="1.8" stroke-linecap="round"></path></svg></div>
+<div style="background: #F0E7D0; border: 1px solid #DEDAD0; border-radius: 12px; padding: 9px"><div style="font-family: 'Geist Mono', monospace; font-size: 8px; color: #83661C">Next step</div><div style="margin-top: 3px; font-size: 11px; line-height: 1.25">Use this year's ISA allowance</div></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px">
+<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px"><div style="position: relative; width: 36px; height: 36px"><svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" fill="none" stroke="#E9E5DA" stroke-width="4"></circle><circle cx="18" cy="18" r="15" fill="none" stroke="#83661C" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="55" transform="rotate(-90 18 18)"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 9px">42%</span></div><div style="font-size: 8px; color: #4E5B70">Goal by 2035</div></div>
+<div style="background: #DFE6F2; border: 1px solid #DEDAD0; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; gap: 4px"><div style="font-family: 'Geist Mono', monospace; font-size: 8px; color: #4E5B70">Safety net</div><div style="font-size: 12px; font-weight: 300">Complete</div><div style="height: 4px; border-radius: 999px; background: #0F1E36"></div></div>
+</div>
+</div>
+<div style="position: absolute; left: 0; right: 0; bottom: 0; height: 46px; background: #FFFFFF; border-top: 1px solid #DEDAD0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; text-align: center; font-size: 7.5px; color: #4E5B70">
+<div style="color: #13213A"><span style="display: block; width: 10px; height: 10px; margin: 0 auto 3px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box; background: #83661C"></span>Home</div>
+<div><span style="display: block; width: 10px; height: 10px; margin: 0 auto 3px; border-radius: 50%; border: 1px solid #4E5B70; box-sizing: border-box"></span>Wealth</div>
+<div><span style="display: block; width: 10px; height: 10px; margin: 0 auto 3px; border-radius: 50%; border: 1px solid #4E5B70; box-sizing: border-box"></span>Plan</div>
+<div><span style="display: block; width: 10px; height: 10px; margin: 0 auto 3px; border-radius: 50%; border: 1px solid #4E5B70; box-sizing: border-box"></span>Library</div>
+<div><span style="display: block; width: 10px; height: 10px; margin: 0 auto 3px; border-radius: 50%; border: 1px solid #4E5B70; box-sizing: border-box"></span>Me</div>
+</div>
+</div>
+</div>
 
-        <p class="hook-video-cta">Here is how TEI changes that &#8595;</p>
-      </div>
-    </section>
+<div id="inside-wealth-os" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 16px">
+<div class="t-card" style="background: transparent; border: 1px solid rgba(232,214,168,0.18); border-radius: 20px; padding: 16px"><div style="aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: #F2EFE7; color: #13213A; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column; gap: 10px" aria-label="Goals and forecast screen, sample data"><div style="display: flex; gap: 12px; align-items: center"><div style="position: relative; width: 52px; height: 52px; flex: none"><svg width="52" height="52" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="22" fill="none" stroke="#E9E5DA" stroke-width="5"></circle><circle cx="26" cy="26" r="22" fill="none" stroke="#83661C" stroke-width="5" stroke-linecap="round" stroke-dasharray="138.2" stroke-dashoffset="80" transform="rotate(-90 26 26)"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px">42%</span></div><div><div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70">Headline goal · 2035</div><div style="margin-top: 3px; font-size: 13px">On track against your forecast</div></div></div><svg viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true" style="display: block; width: 100%; flex: 1; min-height: 0"><line x1="0" y1="78" x2="300" y2="78" stroke="#DEDAD0"></line><path d="M4 72 C 70 68, 130 56, 190 40 S 270 12, 296 6" fill="none" stroke="#4E5B70" stroke-width="1.4" stroke-dasharray="5 5"></path><path class="t-draw2" d="M4 74 C 50 71, 100 63, 140 54 S 175 46, 186 43" fill="none" stroke="#83661C" stroke-width="2.6" stroke-linecap="round"></path><circle cx="186" cy="43" r="4" fill="#83661C"></circle></svg></div><h3 style="margin: 16px 4px 4px; font-size: 18px; font-weight: 400">Goals and forecast</h3><p style="margin: 0 4px 4px; font-size: 14px; line-height: 1.5; font-weight: 300; color: #AAB6C8">Progress against your plan, year by year.</p></div>
+<div class="t-card" style="background: transparent; border: 1px solid rgba(232,214,168,0.18); border-radius: 20px; padding: 16px"><div style="aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: #F2EFE7; color: #13213A; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column" aria-label="Holdings screen, sample data"><div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70; padding-bottom: 6px">Accounts</div><div style="display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid #E8D6A8; box-sizing: border-box"></span><span style="flex: 1">Workplace pension</span><span style="font-weight: 500">£96,400</span></div><div style="display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid #B9CAE6; box-sizing: border-box"></span><span style="flex: 1">Stocks and shares ISA</span><span style="font-weight: 500">£41,800</span></div><div style="display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid #4E5B70; box-sizing: border-box"></span><span style="flex: 1">Lifetime ISA</span><span style="font-weight: 500">£18,650</span></div><div style="display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><span style="width: 8px; height: 8px; border-radius: 50%; border: 2px solid #AAB6C8; box-sizing: border-box"></span><span style="flex: 1">Cash savings</span><span style="font-weight: 500">£15,900</span></div></div><h3 style="margin: 16px 4px 4px; font-size: 18px; font-weight: 400">Holdings</h3><p style="margin: 0 4px 4px; font-size: 14px; line-height: 1.5; font-weight: 300; color: #AAB6C8">Every account and investment, priced and tracked.</p></div>
+<div class="t-card" style="background: transparent; border: 1px solid rgba(232,214,168,0.18); border-radius: 20px; padding: 16px"><div style="aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; background: #F2EFE7; color: #13213A; box-sizing: border-box; padding: 14px; display: flex; flex-direction: column" aria-label="Documents screen, sample data"><div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70; padding-bottom: 6px">Documents</div><div style="display: flex; align-items: center; gap: 9px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"></path><path d="M9 12h7M9 16h7"></path></svg><span style="flex: 1">Wealth Plan</span><span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70">Plan</span></div><div style="display: flex; align-items: center; gap: 9px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"></path><path d="M9 12h7M9 16h7"></path></svg><span style="flex: 1">Forecast to 2035</span><span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70">Forecast</span></div><div style="display: flex; align-items: center; gap: 9px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"></path><path d="M9 12h7M9 16h7"></path></svg><span style="flex: 1">Session notes</span><span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70">Notes</span></div><div style="display: flex; align-items: center; gap: 9px; padding: 7px 0; border-top: 1px solid #DEDAD0; font-size: 12px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"></path><path d="M9 12h7M9 16h7"></path></svg><span style="flex: 1">Fact find summary</span><span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70">Report</span></div></div><h3 style="margin: 16px 4px 4px; font-size: 18px; font-weight: 400">Documents</h3><p style="margin: 0 4px 4px; font-size: 14px; line-height: 1.5; font-weight: 300; color: #AAB6C8">Your Wealth Plan, forecasts and session notes.</p></div>
+</div>
 
-    <!-- About / What TEI Is -->
-    <section class="section-band section-band--pb-0" id="about">
-      <div class="section">
-        <span class="section-label">What we are</span>
-        <h2 class="section-title">Financial coaching<br><em>for the everyday investor.</em></h2>
-        <p class="section-sub">TEI is a financial education and coaching service, designed specifically for everyday people who want to understand financial markets, make better decisions and invest confidently at a stage before regulated advice is accessible, affordable, or even necessary.</p>
+</div>
+</section>
 
-        <div class="pillars-grid">
-          <article class="pillar">
-            <div class="pillar-num" aria-hidden="true">1</div>
-            <h3>Education first</h3>
-            <p>Understanding comes before action. Tax wrappers, risk, time horizons, your goals: TEI makes sure you know what you are doing and why, before deciding what to invest in.</p>
-          </article>
-          <article class="pillar">
-            <div class="pillar-num" aria-hidden="true">2</div>
-            <h3>Strategy over noise</h3>
-            <p>Markets move fast and social media moves faster. TEI helps you develop a strategy, tune out the noise, and stay focused on what actually matters to your plan.</p>
-          </article>
-          <article class="pillar">
-            <div class="pillar-num" aria-hidden="true">3</div>
-            <h3>Accountability that works</h3>
-            <p>TEI puts a coach in your corner: someone to lean on, discuss market events with, and hold you accountable to your plan. Knowing what to do is one thing. Execution is everything.</p>
-          </article>
-        </div>
+<!-- ================= FREE TOOLS (light) ================= -->
 
-        <blockquote class="mission-block">
-          <span class="mission-mark" aria-hidden="true">&ldquo;</span>
-          <p class="mission-text">We believe that investing is not reserved for the wealthy or the well-connected. With the right knowledge, the right framework, and the right support, any everyday investor can build meaningful, lasting wealth.</p>
-          <span class="mission-rule" aria-hidden="true"></span>
-          <p class="mission-attr">The TEI Mission</p>
-        </blockquote>
-      </div>
-    </section>
+<section style="background: #F7F4ED">
+<div class="t-wrap" style="max-width: 1280px; margin: 0 auto; padding: 80px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; justify-content: space-between"><div><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">Free tools</p><h2 style="margin: 14px 0 0; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.04; font-weight: 300; letter-spacing: -0.035em">Learn by working it out yourself.</h2></div><a href="/guides.html" style="display: inline-flex; align-items: center; font-size: 15px; font-weight: 500; color: #83661C; min-height: 44px">All guides and tools</a></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 40px">
+<a href="/guides.html" class="t-card" style="display: block; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden"><div style="position: relative; height: 160px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 150px; height: 150px; right: -35px; top: -55px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div><p style="position: absolute; left: 24px; top: 18px; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #0F1E36; opacity: .7">Start now vs start later</p><svg viewBox="0 0 300 120" aria-hidden="true" style="position: absolute; left: 20px; right: 20px; bottom: 14px; width: calc(100% - 40px); height: 112px"><line x1="10" y1="110" x2="290" y2="110" stroke="#B9CAE6"></line><path class="t-draw2" d="M10 108 C 100 100, 180 70, 280 18" fill="none" stroke="#0F1E36" stroke-width="2.6" stroke-linecap="round"></path><path class="t-draw2" d="M90 109 C 170 104, 220 86, 280 60" fill="none" stroke="#0F1E36" stroke-opacity=".45" stroke-width="2.2" stroke-dasharray="5 5" stroke-linecap="round" style="animation-delay: .5s"></path><line class="t-blink" x1="280" y1="22" x2="280" y2="56" stroke="#83661C" stroke-width="2"></line><circle class="t-blink" cx="280" cy="18" r="4.5" fill="#83661C"></circle><circle cx="280" cy="60" r="4" fill="#FFFFFF" stroke="#0F1E36" stroke-opacity=".5" stroke-width="1.5"></circle></svg></div><div style="padding: 26px 30px 30px"><h3 style="margin: 0 0 8px; font-size: 23px; font-weight: 400; letter-spacing: -0.02em">Cost of Waiting</h3><p style="margin: 0; font-size: 16px; line-height: 1.6; font-weight: 300; color: #4E5B70">See what delaying by one year, or five, costs you by retirement.</p><p style="margin: 22px 0 0; font-size: 15px; font-weight: 500; color: #83661C">Open calculator</p></div></a>
+<a href="/guides.html" class="t-card" style="display: block; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden"><div style="position: relative; height: 160px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 150px; height: 150px; right: -35px; top: -55px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div><p style="position: absolute; left: 24px; top: 18px; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #0F1E36; opacity: .7">Which wrapper, in which order</p><svg viewBox="0 0 300 120" aria-hidden="true" style="position: absolute; left: 20px; right: 20px; bottom: 14px; width: calc(100% - 40px); height: 112px"><text x="10" y="29" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">1 · ISA</text><rect x="80" y="18" width="200" height="14" rx="7" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="18" width="200" height="14" rx="7" fill="#0F1E36" style="animation-delay: 0s"></rect><text x="10" y="63" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">2 · Pension</text><rect x="80" y="52" width="200" height="14" rx="7" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="52" width="150" height="14" rx="7" fill="#0F1E36" style="animation-delay: .5s"></rect><text x="10" y="97" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">3 · LISA</text><rect x="80" y="86" width="200" height="14" rx="7" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="86" width="90" height="14" rx="7" fill="#83661C" style="animation-delay: 1s"></rect></svg></div><div style="padding: 26px 30px 30px"><h3 style="margin: 0 0 8px; font-size: 23px; font-weight: 400; letter-spacing: -0.02em">The Tax Wrapper Guide</h3><p style="margin: 0; font-size: 16px; line-height: 1.6; font-weight: 300; color: #4E5B70">Every ISA, pension and account type, and the order to use them in.</p><p style="margin: 22px 0 0; font-size: 15px; font-weight: 500; color: #83661C">Read the guide</p></div></a>
+<a href="/guides.html" class="t-card" style="display: block; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden"><div style="position: relative; height: 160px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 150px; height: 150px; right: -35px; top: -55px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div><p style="position: absolute; left: 24px; top: 18px; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #0F1E36; opacity: .7">Mortgage, equity and stress test</p><svg viewBox="0 0 300 120" aria-hidden="true" style="position: absolute; left: 20px; right: 20px; bottom: 14px; width: calc(100% - 40px); height: 112px"><line x1="10" y1="110" x2="290" y2="110" stroke="#B9CAE6"></line><path class="t-draw2" d="M30 108 V58 L82 20 L134 58 V108 Z M68 108 V80 H96 V108" fill="none" stroke="#0F1E36" stroke-width="2.4" stroke-linejoin="round"></path><circle class="t-blink" cx="82" cy="46" r="4" fill="#83661C"></circle><rect class="t-riseL" x="176" y="80" width="20" height="30" rx="4" fill="#FFFFFF" style="animation-delay: .3s"></rect><rect class="t-riseL" x="206" y="64" width="20" height="46" rx="4" fill="#FFFFFF" style="animation-delay: .45s"></rect><rect class="t-riseL" x="236" y="46" width="20" height="64" rx="4" fill="#0F1E36" style="animation-delay: .6s"></rect><rect class="t-riseL" x="266" y="26" width="20" height="84" rx="4" fill="#83661C" style="animation-delay: .75s"></rect></svg></div><div style="padding: 26px 30px 30px"><h3 style="margin: 0 0 8px; font-size: 23px; font-weight: 400; letter-spacing: -0.02em">Property Calculator</h3><p style="margin: 0; font-size: 16px; line-height: 1.6; font-weight: 300; color: #4E5B70">Mortgage, equity, tax and a stress test on any purchase.</p><p style="margin: 22px 0 0; font-size: 15px; font-weight: 500; color: #83661C">Open calculator</p></div></a>
+</div>
+</div>
+</section>
 
-    <!-- Outcomes -->
-    <section class="section-band section-band--pt-0" id="outcomes">
-      <div class="outcomes-inner">
-        <span class="section-label">What we can do for you</span>
-        <h2 class="section-title">This is what changes<br><em>when you have a coach.</em></h2>
+<!-- ================= VIDEO LIBRARY (light) ================= -->
 
-        <div class="outcomes-grid">
-          <div class="outcome-lead">
-            <div>
-              <span class="outcome-lead-badge">The human element</span>
-              <h3>Someone in your corner. Not just a tool or a template.</h3>
-              <p>The most valuable part of coaching is not the information. It is the relationship. Someone who knows your situation and holds you accountable to the plan, checks in when life gets in the way, and tells you the truth even when it is not what you want to hear.</p>
-            </div>
-          </div>
+<section style="background: #F7F4ED; position: relative; overflow: hidden">
+<div style="position: absolute; width: 560px; height: 560px; left: -280px; top: 140px; border-radius: 50%; border: 1px solid #DEDAD0" aria-hidden="true"></div>
+<div class="t-s90" style="position: absolute; width: 380px; height: 380px; left: -190px; top: 230px; border-radius: 50%; border: 1px dashed #DEDAD0" aria-hidden="true"></div>
+<div class="t-wrap" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 96px 32px 0">
+<div style="display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+<div style="flex: 1 1 380px; min-width: 0">
+<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">Video library</p>
+<h2 style="margin: 14px 0 0; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.04; font-weight: 300; letter-spacing: -0.035em">Watch it explained, at the stage you are at.</h2>
+<p style="margin: 20px 0 0; font-size: 18px; line-height: 1.6; font-weight: 300; color: #4E5B70; max-width: 480px">Short explainers, company deep dives and recorded member sessions. Some are free for everyone. Members get the full library inside the Client Hub, filtered to their stage.</p>
+<ul style="list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; font-size: 16px; font-weight: 300">
+<li style="display: flex; gap: 14px; align-items: center"><span style="flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center"><span style="width: 6px; height: 6px; border-radius: 50%; background: #83661C"></span></span>Five stages, from The Foundations to The Seasoned Investor</li>
+<li style="display: flex; gap: 14px; align-items: center"><span style="flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center"><span style="width: 6px; height: 6px; border-radius: 50%; background: #83661C"></span></span>Chapters on every deep dive and recorded session</li>
+<li style="display: flex; gap: 14px; align-items: center"><span style="flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center"><span style="width: 6px; height: 6px; border-radius: 50%; background: #83661C"></span></span>Linked to your lessons, notes and tools</li>
+</ul>
+<div style="margin-top: 34px; display: flex; flex-wrap: wrap; gap: 12px"><a href="#free-videos" style="display: inline-flex; align-items: center; background: #0F1E36; color: #E8D6A8; text-decoration: none; font-size: 16px; font-weight: 500; padding: 15px 24px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Watch free videos</a><a href="/membership.html" style="display: inline-flex; align-items: center; color: #13213A; text-decoration: none; font-size: 16px; padding: 15px 24px; border-radius: 999px; border: 1px solid #DEDAD0; min-height: 44px; box-sizing: border-box">What members get</a></div>
+</div>
+<div class="t-vwrap" style="flex: 1 1 600px; min-width: 0; position: relative; height: 470px">
+<div class="t-vframe" style="position: absolute; left: 24px; right: 0; top: 24px; bottom: 0; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 18px; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; box-shadow: 0 30px 70px rgba(15,30,54,0.12)">
+<div style="display: flex; align-items: center; gap: 6px; padding: 2px 6px 10px" aria-hidden="true"><span style="width: 9px; height: 9px; border-radius: 50%; border: 1px solid #DEDAD0"></span><span style="width: 9px; height: 9px; border-radius: 50%; border: 1px solid #DEDAD0"></span><span style="width: 9px; height: 9px; border-radius: 50%; border: 1px solid #DEDAD0"></span><span style="margin-left: 10px; font-family: 'Geist Mono', monospace; font-size: 10px; color: #4E5B70; background: #F7F4ED; border-radius: 999px; padding: 4px 12px">Client Hub · Videos</span></div>
+<div style="flex: 1; min-height: 0; border-radius: 10px; overflow: hidden; background: #F2EFE7; color: #13213A; text-align: left; display: flex; flex-direction: column" aria-label="Client Hub video library, sample content">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px 14px; background: #FFFFFF; border-bottom: 1px solid #DEDAD0"><div style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500"><svg width="14" height="14" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#83661C" stroke-width="1.6"></circle><circle cx="13" cy="13" r="2.6" fill="#83661C"></circle></svg>Client Hub</div><div style="display: flex; align-items: center; gap: 2px; font-size: 9.5px; color: #4E5B70"><span class="t-mside" style="padding: 5px 8px">Home</span><span class="t-mside" style="padding: 5px 8px">Learn</span><span style="padding: 5px 9px; border-radius: 999px; background: #F7F4ED; color: #13213A">Videos</span><span class="t-mside" style="padding: 5px 8px">Guides</span><span class="t-mside" style="padding: 5px 8px">Articles</span><span style="margin-left: 4px; padding: 5px 10px; border-radius: 999px; background: #0F1E36; color: #E8D6A8; font-weight: 500; white-space: nowrap">Open Wealth OS</span></div></div>
+<div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 9px">
+<div><div style="font-family: 'Geist Mono', monospace; font-size: 9px; color: #4E5B70">Videos</div><div style="margin-top: 2px; font-size: 17px; font-weight: 300; letter-spacing: -0.03em">Watch it explained, at your own pace.</div></div>
+<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px">
+<div class="t-m12" style="grid-column: span 8; background: #0F1E36; color: #F7F4ED; border-radius: 14px; padding: 12px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; position: relative; overflow: hidden">
+<div style="display: flex; flex-direction: column; gap: 5px"><div style="font-family: 'Geist Mono', monospace; font-size: 8.5px; color: #E8D6A8">New this week</div><div style="font-size: 14px; font-weight: 300; letter-spacing: -0.02em; line-height: 1.15">How the five stages work</div><div style="font-family: 'Geist Mono', monospace; font-size: 8.5px; color: #AAB6C8">Explainer · 5:10 · Start here</div><span style="align-self: flex-start; margin-top: 6px; font-size: 9px; font-weight: 500; padding: 5px 10px; border-radius: 999px; background: #E8D6A8; color: #0F1E36">Watch now</span></div>
+<div class="t-mside" style="position: relative; min-height: 84px; border-radius: 10px; overflow: hidden; background: rgba(185,202,230,0.10); border: 1px solid rgba(232,214,168,0.14)"><div class="t-s40" style="position: absolute; width: 150px; height: 150px; right: -50px; top: -60px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.18)" aria-hidden="true"></div><span style="position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border-radius: 50%; background: #E8D6A8; display: flex; align-items: center; justify-content: center"><svg width="11" height="11" viewBox="0 0 24 24" fill="#0F1E36" aria-hidden="true" style="margin-left: 2px"><path d="M8 5v14l11-7z"></path></svg></span></div>
+</div>
+<div class="t-mside" style="grid-column: span 4; background: #F0E7D0; border: 1px solid #DEDAD0; border-radius: 14px; padding: 11px"><div style="font-family: 'Geist Mono', monospace; font-size: 8.5px; color: #83661C">Picked for your stage</div><div style="margin-top: 4px; font-size: 12px">Stage 1: The Foundations</div><div style="display: flex; justify-content: space-between; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid #DEDAD0; font-size: 9.5px"><span>Your safety net</span><span style="font-family: 'Geist Mono', monospace; color: #4E5B70">4:05</span></div><div style="display: flex; justify-content: space-between; gap: 6px; margin-top: 5px; padding-top: 6px; border-top: 1px solid #DEDAD0; font-size: 9.5px"><span>Staying invested</span><span style="font-family: 'Geist Mono', monospace; color: #4E5B70">7:15</span></div></div>
+</div>
+<div style="display: flex; gap: 4px; overflow: hidden; font-size: 9px"><span style="flex: none; padding: 5px 9px; border-radius: 999px; background: #0F1E36; color: #E8D6A8">All stages</span><span style="flex: none; padding: 5px 9px; border-radius: 999px; border: 1px solid #DEDAD0; background: #F7F4ED; color: #4E5B70">Start here</span><span style="flex: none; padding: 5px 9px; border-radius: 999px; border: 1px solid #DEDAD0; background: #F7F4ED; color: #4E5B70">Stage 1</span><span style="flex: none; padding: 5px 9px; border-radius: 999px; border: 1px solid #DEDAD0; background: #F7F4ED; color: #4E5B70">Stage 2</span><span style="flex: none; padding: 5px 9px; border-radius: 999px; border: 1px solid #DEDAD0; background: #F7F4ED; color: #4E5B70">Stage 3</span><span style="flex: none; padding: 5px 9px; border-radius: 999px; border: 1px solid #DEDAD0; background: #F7F4ED; color: #4E5B70">Stage 4</span><span style="flex: none; padding: 5px 9px; border-radius: 999px; border: 1px solid #DEDAD0; background: #F7F4ED; color: #4E5B70">Stage 5</span></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 12px; overflow: hidden"><div style="position: relative; height: 54px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 90px; height: 90px; right: -30px; top: -40px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><span style="position: absolute; left: 8px; bottom: 7px; width: 18px; height: 18px; border-radius: 50%; background: #0F1E36; display: flex; align-items: center; justify-content: center"><svg width="7" height="7" viewBox="0 0 24 24" fill="#E8D6A8" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></span></div><div style="padding: 7px 9px 9px"><div style="font-family: 'Geist Mono', monospace; font-size: 7.5px; color: #4E5B70">Explainer &middot; 6:20</div><div style="margin-top: 3px; font-size: 10.5px; line-height: 1.25">Why volatility is normal</div></div></div>
+<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 12px; overflow: hidden"><div style="position: relative; height: 54px; background: #F0E7D0; overflow: hidden"><div style="position: absolute; width: 90px; height: 90px; right: -30px; top: -40px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><span style="position: absolute; left: 8px; bottom: 7px; width: 18px; height: 18px; border-radius: 50%; background: #0F1E36; display: flex; align-items: center; justify-content: center"><svg width="7" height="7" viewBox="0 0 24 24" fill="#E8D6A8" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></span></div><div style="padding: 7px 9px 9px"><div style="font-family: 'Geist Mono', monospace; font-size: 7.5px; color: #4E5B70">Webinar &middot; 24:10</div><div style="margin-top: 3px; font-size: 10.5px; line-height: 1.25">October market commentary</div></div></div>
+<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 12px; overflow: hidden"><div style="position: relative; height: 54px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 90px; height: 90px; right: -30px; top: -40px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><span style="position: absolute; left: 8px; bottom: 7px; width: 18px; height: 18px; border-radius: 50%; background: #0F1E36; display: flex; align-items: center; justify-content: center"><svg width="7" height="7" viewBox="0 0 24 24" fill="#E8D6A8" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></span></div><div style="padding: 7px 9px 9px"><div style="font-family: 'Geist Mono', monospace; font-size: 7.5px; color: #4E5B70">Deep dive &middot; 18:30</div><div style="margin-top: 3px; font-size: 10.5px; line-height: 1.25">Inside the Growth Portfolio</div></div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="t-f1" style="position: absolute; right: 48px; top: -4px; background: #0F1E36; color: #F7F4ED; border-radius: 14px; padding: 12px 16px; box-shadow: 0 14px 30px rgba(15,30,54,0.22); font-size: 13px"><div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: #E8D6A8">Chapters</div><div style="margin-top: 4px; font-weight: 500">Jump to any section</div></div>
+<div class="t-f2" style="position: absolute; left: -8px; bottom: -14px; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 14px; padding: 12px 16px; box-shadow: 0 14px 30px rgba(15,30,54,0.14); display: flex; gap: 10px; align-items: center; font-size: 13px; font-weight: 500"><span style="width: 10px; height: 10px; border-radius: 50%; border: 2px solid #83661C; box-sizing: border-box"></span>Filtered to your stage</div>
+<div class="t-f3" style="position: absolute; right: -6px; bottom: -14px; background: #F0E7D0; border: 1px solid #DEDAD0; border-radius: 14px; padding: 11px 15px; box-shadow: 0 14px 30px rgba(15,30,54,0.14); display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 500"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Members library</div>
+</div>
+</div>
+<div id="free-videos" style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: center; margin-top: 72px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">Free to watch now</p></div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 12px">
+<div style="display: block; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden"><div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 150px; height: 150px; right: -35px; top: -55px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div><p style="position: absolute; left: 22px; top: 16px; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #0F1E36; opacity: .7">Explainer</p><span style="position: absolute; left: 20px; bottom: 16px; width: 44px; height: 44px; border-radius: 50%; background: #0F1E36; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="#E8D6A8" aria-hidden="true" style="margin-left: 2px"><path d="M8 5v14l11-7z"></path></svg></span><span style="position: absolute; right: 16px; bottom: 26px; font-family: 'Geist Mono', monospace; font-size: 11px; color: #F7F4ED; background: rgba(15,30,54,0.82); border-radius: 999px; padding: 4px 9px">5:10</span></div><div style="padding: 18px 22px 22px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Explainer &middot; Foundations</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400; letter-spacing: -0.02em; color: #13213A">How the five stages work</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Five stages, how they fit together, and where most people start.</p></div></div>
+<div style="display: block; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden"><div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 150px; height: 150px; right: -35px; top: -55px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div><p style="position: absolute; left: 22px; top: 16px; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #0F1E36; opacity: .7">Explainer</p><span style="position: absolute; left: 20px; bottom: 16px; width: 44px; height: 44px; border-radius: 50%; background: #0F1E36; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="#E8D6A8" aria-hidden="true" style="margin-left: 2px"><path d="M8 5v14l11-7z"></path></svg></span><span style="position: absolute; right: 16px; bottom: 26px; font-family: 'Geist Mono', monospace; font-size: 11px; color: #F7F4ED; background: rgba(15,30,54,0.82); border-radius: 999px; padding: 4px 9px">6:20</span></div><div style="padding: 18px 22px 22px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Explainer &middot; Investing</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400; letter-spacing: -0.02em; color: #13213A">Why volatility is normal</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">What 18 months of market swings actually looked like, and how to sit through them.</p></div></div>
+<div style="display: block; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden"><div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 150px; height: 150px; right: -35px; top: -55px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div><p style="position: absolute; left: 22px; top: 16px; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #0F1E36; opacity: .7">Explainer</p><span style="position: absolute; left: 20px; bottom: 16px; width: 44px; height: 44px; border-radius: 50%; background: #0F1E36; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="#E8D6A8" aria-hidden="true" style="margin-left: 2px"><path d="M8 5v14l11-7z"></path></svg></span><span style="position: absolute; right: 16px; bottom: 26px; font-family: 'Geist Mono', monospace; font-size: 11px; color: #F7F4ED; background: rgba(15,30,54,0.82); border-radius: 999px; padding: 4px 9px">4:50</span></div><div style="padding: 18px 22px 22px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Explainer &middot; Pensions</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400; letter-spacing: -0.02em; color: #13213A">Pension tax relief, explained</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Basic, higher and additional rate relief in plain English.</p></div></div>
+<a href="/membership.html" class="t-card" style="display: block; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden"><div style="position: relative; height: 150px; background: #F0E7D0; overflow: hidden"><div style="position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; border: 1px solid #DCC894" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 150px; height: 150px; right: -35px; top: -55px; border-radius: 50%; border: 1px dashed #DCC894" aria-hidden="true"></div><p style="position: absolute; left: 22px; top: 16px; margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">Members library</p><span style="position: absolute; left: 20px; bottom: 16px; width: 44px; height: 44px; border-radius: 50%; border: 1px solid #83661C; box-sizing: border-box; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span></div><div style="padding: 18px 22px 22px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">Included in every membership</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400; letter-spacing: -0.02em; color: #13213A">October market commentary</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Recorded webinar, 24 minutes. Rates, UK equities and what moved the growth names this month.</p></div></a>
+</div>
+</div>
+</section>
 
-          <div class="outcome-items">
-            <article class="outcome-item">
-              <span class="outcome-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span>
-              <div>
-                <h4>A strategy you can explain</h4>
-                <p>You will leave every session understanding exactly what you own and why.</p>
-              </div>
-            </article>
-            <article class="outcome-item">
-              <span class="outcome-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M3 10h18"></path><path d="M12 3l9 7H3z"></path><path d="M6 10v8"></path><path d="M10 10v8"></path><path d="M14 10v8"></path><path d="M18 10v8"></path><path d="M4 18h16"></path></svg></span>
-              <div>
-                <h4>Tax efficiency from day one</h4>
-                <p>Most people use the wrong accounts in the wrong order. We make sure yours goes into the right wrappers first.</p>
-              </div>
-            </article>
-            <article class="outcome-item">
-              <span class="outcome-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line><line x1="3" y1="20" x2="21" y2="20"></line></svg></span>
-              <div>
-                <h4>Tools that actually show you the picture</h4>
-                <p>Run 5,000 simulations of your financial future. See what your money could become. Understand the gap between where you are and where you want to be.</p>
-              </div>
-            </article>
-            <article class="outcome-item">
-              <span class="outcome-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg></span>
-              <div>
-                <h4>The discipline to stay invested</h4>
-                <p>The biggest returns do not go to the best stock pickers. They go to the people who stayed invested when everyone else panicked.</p>
-              </div>
-            </article>
-            <article class="outcome-item outcome-item--wide">
-              <span class="outcome-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg></span>
-              <div>
-                <h4>A roadmap, not just advice</h4>
-                <p>Where you are now, where you want to get to, and a clear written plan for how to get there. Reviewed and updated as your life changes.</p>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
+<!-- ================= CLIENT QUOTES (light): SWITCHED OFF =================
+     Hidden until real quotes are supplied, with permission, first name only.
+     To switch on: put each quote in a blockquote and its name in the
+     figcaption span, then remove the hidden attribute. Never add invented
+     or placeholder quotes. -->
+<section id="client-quotes" hidden style="background: #F7F4ED">
+<div class="t-wrap" style="max-width: 1280px; margin: 0 auto; padding: 80px 32px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px">
+<figure class="t-card" style="margin: 0; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; overflow: hidden"><div style="position: relative; height: 96px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 200px; height: 200px; right: -60px; top: -100px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 130px; height: 130px; right: -25px; top: -65px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"><span style="position: absolute; left: 50%; bottom: -4px; margin-left: -4px; width: 8px; height: 8px; border-radius: 50%; background: #83661C"></span></div><svg width="44" height="34" viewBox="0 0 44 34" aria-hidden="true" style="position: absolute; left: 40px; top: 30px"><path d="M2 32 V18 C2 8 8 2 18 1 V8 C12 9 10 13 10 18 H18 V32 Z M25 32 V18 C25 8 31 2 41 1 V8 C35 9 33 13 33 18 H41 V32 Z" fill="#0F1E36"></path></svg></div><div style="padding: 30px 40px 40px"><blockquote style="margin: 0; font-size: 24px; line-height: 1.45; font-weight: 300"></blockquote><figcaption style="margin-top: 22px; display: flex; gap: 10px; align-items: center; font-size: 14px; color: #4E5B70"><span style="width: 7px; height: 7px; border-radius: 50%; background: #83661C"></span><span></span></figcaption></div></figure>
+<figure class="t-card" style="margin: 0; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; overflow: hidden"><div style="position: relative; height: 96px; background: #DFE6F2; overflow: hidden"><div style="position: absolute; width: 200px; height: 200px; right: -60px; top: -100px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div><div class="t-s32" style="position: absolute; width: 130px; height: 130px; right: -25px; top: -65px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"><span style="position: absolute; left: 50%; bottom: -4px; margin-left: -4px; width: 8px; height: 8px; border-radius: 50%; background: #83661C"></span></div><svg width="44" height="34" viewBox="0 0 44 34" aria-hidden="true" style="position: absolute; left: 40px; top: 30px"><path d="M2 32 V18 C2 8 8 2 18 1 V8 C12 9 10 13 10 18 H18 V32 Z M25 32 V18 C25 8 31 2 41 1 V8 C35 9 33 13 33 18 H41 V32 Z" fill="#0F1E36"></path></svg></div><div style="padding: 30px 40px 40px"><blockquote style="margin: 0; font-size: 24px; line-height: 1.45; font-weight: 300"></blockquote><figcaption style="margin-top: 22px; display: flex; gap: 10px; align-items: center; font-size: 14px; color: #4E5B70"><span style="width: 7px; height: 7px; border-radius: 50%; background: #83661C"></span><span></span></figcaption></div></figure>
+</div>
+</section>
 
-    <!-- Tools & Guides Tease -->
-    <section class="section-band" id="tools">
-      <div class="section">
-        <span class="section-label">Try before you commit</span>
-        <h2 class="section-title">Guides and tools built for<br><em>real investors.</em></h2>
-        <p class="section-sub">Everything here is free, with no email and no sign up required. Use the same guides and calculators TEI clients rely on, and get a genuine feel for how TEI thinks before you ever book a call.</p>
+<!-- ================= CLOSING CTA CARD (dark card on light) ================= -->
 
-        <div class="guide-cards">
-          <article class="guide-card">
-            <span class="guide-card-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg></span>
-            <h3 class="guide-card-title">TEI Principles</h3>
-            <p class="guide-card-desc">Master the principles, ignore the noise.</p>
-          </article>
-          <article class="guide-card">
-            <span class="guide-card-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></span>
-            <h3 class="guide-card-title">Cost of Waiting Calculator</h3>
-            <p class="guide-card-desc">See what a delay is really costing you.</p>
-          </article>
-          <article class="guide-card">
-            <span class="guide-card-icon tei-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M3 10h18"></path><path d="M12 3l9 7H3z"></path><path d="M6 10v8"></path><path d="M10 10v8"></path><path d="M14 10v8"></path><path d="M18 10v8"></path><path d="M4 18h16"></path></svg></span>
-            <h3 class="guide-card-title">The Tax Wrapper Guide</h3>
-            <p class="guide-card-desc">Every account type, explained plainly.</p>
-          </article>
-        </div>
+<section class="t-gut" style="background: #F7F4ED; padding: 80px 32px 0">
+<div style="position: relative; max-width: 1280px; margin: 0 auto; background: #0B1729; color: #F7F4ED; border-radius: 32px; overflow: hidden; padding: 96px 24px; text-align: center">
+<div class="t-glow" style="position: absolute; width: 560px; height: 380px; left: 50%; margin-left: -280px; top: 40px; border-radius: 50%; background: #B9CAE6; filter: blur(150px)" aria-hidden="true"></div>
+<div class="t-r120" style="position: absolute; left: 50%; top: 50%; width: 900px; height: 900px; margin: -450px 0 0 -450px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.10)" aria-hidden="true"></div>
+<div style="position: absolute; left: 50%; top: 50%; width: 680px; height: 680px; margin: -340px 0 0 -340px; border-radius: 50%; border: 1px solid rgba(232,214,168,0.08)" aria-hidden="true"></div>
+<div class="t-s32" style="position: absolute; left: 50%; top: 50%; width: 680px; height: 680px; margin: -340px 0 0 -340px" aria-hidden="true"><span style="position: absolute; left: 50%; top: -5px; margin-left: -5px; width: 10px; height: 10px; border-radius: 50%; background: #E8D6A8"></span><span style="position: absolute; left: 50%; bottom: -4px; margin-left: -4px; width: 8px; height: 8px; border-radius: 50%; background: #B9CAE6"></span></div>
+<div style="position: absolute; left: 50%; top: 50%; width: 480px; height: 480px; margin: -240px 0 0 -240px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.16)" aria-hidden="true"></div>
+<div class="t-s20" style="position: absolute; left: 50%; top: 50%; width: 480px; height: 480px; margin: -240px 0 0 -240px" aria-hidden="true"><span style="position: absolute; top: 50%; left: -4px; margin-top: -4px; width: 8px; height: 8px; border-radius: 50%; border: 1px solid #E8D6A8; box-sizing: border-box"></span><span style="position: absolute; top: 50%; right: -3px; margin-top: -3px; width: 6px; height: 6px; border-radius: 50%; background: #E8D6A8; opacity: .7"></span></div>
+<div style="position: relative">
+<div style="position: relative; width: 56px; height: 56px; margin: 0 auto 30px" aria-hidden="true"><div class="t-halo" style="position: absolute; inset: 0; border-radius: 50%; border: 1px solid #E8D6A8"></div><svg class="t-s20" width="56" height="56" viewBox="0 0 26 26" style="display: block"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#E8D6A8" stroke-width="1"></circle><circle cx="13" cy="13" r="6" fill="none" stroke="#E8D6A8" stroke-opacity=".5" stroke-width=".9" stroke-dasharray="3 2"></circle><circle cx="13" cy="13" r="2.4" fill="#E8D6A8"></circle></svg></div>
+<h2 class="t-up" style="margin: 0 auto; font-size: clamp(40px, 5.2vw, 72px); line-height: 1.02; font-weight: 300; letter-spacing: -0.045em; max-width: 860px">Start with a <span style="color: #E8D6A8">free 30-minute call.</span></h2>
+<p class="t-up2" style="margin: 22px auto 0; font-size: 18px; line-height: 1.6; font-weight: 300; color: #AAB6C8; max-width: 520px">Where you are, where you want to be, and whether coaching is the right fit. No pitch at the end.</p>
+<a href="/book" target="_blank" rel="noopener noreferrer" class="t-up3 t-btnhalo" style="display: inline-flex; align-items: center; margin-top: 36px; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 17px; font-weight: 500; padding: 18px 30px; border-radius: 999px; min-height: 44px; box-sizing: border-box">Book a call</a>
+</div>
+</div>
+</section>
 
-        <div class="guide-cards-cta">
-          <a href="/guides.html" class="btn-navy">Explore Guides &amp; Tools &#8594;</a>
-        </div>
-      </div>
-    </section>
+</main>
 
-    <!-- How It Works -->
-    <section class="section-band" id="how">
-      <div class="section">
-        <span class="section-label">The process</span>
-        <h2 class="section-title">Three steps to getting started.</h2>
-        <p class="section-sub">No complicated onboarding. No long contracts. Just a straightforward path from first conversation to long-term strategy.</p>
-
-        <div class="steps-row">
-          <article class="step">
-            <div class="step-circle" aria-hidden="true">1</div>
-            <h3>Discovery call</h3>
-            <p>A free 30-minute conversation to understand where you are, where you want to get to, and whether TEI coaching is the right fit. No obligation. No pressure.</p>
-          </article>
-          <article class="step">
-            <div class="step-circle" aria-hidden="true">2</div>
-            <h3>Build your strategy</h3>
-            <p>We map out your financial situation, agree a wrapper strategy, build your investment approach, and run your Wealth Forecast so you can see exactly what the plan looks like.</p>
-          </article>
-          <article class="step">
-            <div class="step-circle" aria-hidden="true">3</div>
-            <h3>Ongoing coaching</h3>
-            <p>Regular sessions, WhatsApp support, market updates, and access to the full TEI tool suite. Your strategy evolves as your life does.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- Testimonials & Final CTA -->
-    <section class="final-cta final-cta--extended">
-      <div class="testimonials-strip">
-        <span class="section-label section-label--on-dark section-label--center">What clients say</span>
-        <div class="testimonials-strip-grid">
-          <blockquote class="testimonial-card testimonial-card--compact">
-            <span class="testimonial-quote-mark" aria-hidden="true">&ldquo;</span>
-            <p class="testimonial-text">I didn't really understand what I owned before. Now I can explain my entire portfolio and why every position is there.</p>
-            <footer class="testimonial-attr">Core client, 28, first-time investor</footer>
-          </blockquote>
-          <blockquote class="testimonial-card testimonial-card--compact">
-            <span class="testimonial-quote-mark" aria-hidden="true">&ldquo;</span>
-            <p class="testimonial-text">I was investing but had no real strategy, just a collection of things I'd bought over time. TEI helped me build a proper framework.</p>
-            <footer class="testimonial-attr">Momentum client, 34, self-employed</footer>
-          </blockquote>
-        </div>
-      </div>
-
-      <div class="final-cta-inner">
-        <h2>Ready to make your money work for you?</h2>
-        <p>Book a free 30-minute discovery call. No obligation, no sales pitch, just a conversation about where you are and where you want to get to.</p>
-        <a
-          class="cta-btn"
-          href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F"
-          target="_blank"
-          rel="noopener noreferrer"
-        >Book a discovery call</a>
-        <div class="tei-hww"><a href="/how-we-work">How we work</a></div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Footer -->
-  <!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
+<!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
 <div class="tei-ftr" role="navigation" aria-label="Footer">
   <div class="tei-ftr-in">
     <a class="tei-ftr-brand" href="/index.html"><svg width="22" height="22" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#83661C" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="#83661C" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="#83661C"/></svg><span>The Everyday Investor</span></a>
@@ -372,8 +442,19 @@
   <script src="/hub/js/supabase-config.js"></script>
   <script src="/hub/js/supabase-client.js"></script>
   <script src="/admin/js/admin-auth.js"></script>
-  <script>TeiAdminAuth.enhancePublicNav();</script>
-  <script src="js/main.js"></script>
+<script>
+/* A signed-in adviser gets a link to the adviser area in the header. */
+(function () {
+  try {
+    if (!window.TeiAdminAuth) return;
+    TeiAdminAuth.isAdviser().then(function (adviser) {
+      var nav = document.querySelector('.tei-hdr-nav');
+      if (!adviser || !nav) return;
+      nav.insertAdjacentHTML('beforeend', '<a class="tei-hdr-link" href="/admin/index.html">Adviser</a>');
+    }).catch(function () {});
+  } catch (e) {}
+})();
+</script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>
