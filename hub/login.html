@@ -1,83 +1,172 @@
 <!DOCTYPE html>
-<html lang="en" data-tei-page="login">
+<html lang="en" data-tei-page="login" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign in — Client Hub</title>
+<title>Sign in -- Client Hub</title>
+<script>
+/* Theme before first paint. Light is the default (spec B1.5). The same
+   "tei-theme" key is shared by the Client Hub and Wealth OS. */
+(function () {
+  var theme = 'light';
+  try { if (localStorage.getItem('tei-theme') === 'dark') theme = 'dark'; } catch (e) {}
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
-body { margin: 0; font-family: 'Inter', sans-serif; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid #C9A84C; outline-offset: 3px; }
-.login-wrap {
-  min-height: 100vh;
-  background: linear-gradient(160deg, #1D3557 0%, #0f1e3a 100%);
-  display: flex; align-items: center; justify-content: center; padding: 24px;
+/* Sign in (redesign phase G3, B12.2; spec B3.1, board Login.dc.html).
+   Visual only: the sign-in, password reset and redirect logic are unchanged. */
+:root[data-theme="light"] {
+  --bg: #F7F4ED; --tile: #FFFFFF; --line: #DEDAD0; --text: #13213A; --muted: #4E5B70;
+  --powder: #DFE6F2; --gold: #83661C; --act: #0F1E36; --act-text: #E8D6A8; --warn: #9A4A1F;
 }
-.login-card { max-width: 380px; width: 100%; text-align: center; }
-.login-mark {
-  width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid #C9A84C;
-  display: flex; align-items: center; justify-content: center; font-size: 20px;
-  color: #C9A84C; margin: 0 auto 24px;
+:root[data-theme="dark"] {
+  --bg: #0F1E36; --tile: #12233D; --line: rgba(232,214,168,0.18); --text: #F7F4ED; --muted: #AAB6C8;
+  --powder: #1C2B45; --gold: #E8D6A8; --act: #E8D6A8; --act-text: #0F1E36; --warn: #F0A97E;
+  color-scheme: dark;
 }
-.login-title { font-family: 'Playfair Display', serif; font-size: 24px; color: #F7F4ED; margin-bottom: 10px; }
-.login-sub { font-size: 13px; color: rgba(247,244,237,.55); margin-bottom: 28px; line-height: 1.7; }
-.login-field {
-  width: 100%; padding: 13px 16px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.06); color: #F7F4ED; font-size: 14px; font-family: 'Inter', sans-serif;
-  margin-bottom: 12px; outline: none; box-sizing: border-box;
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Geist', system-ui, sans-serif; }
+a { color: inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.lg { min-height: 100vh; display: flex; flex-wrap: wrap; background: var(--bg); color: var(--text); }
+
+/* Brand half */
+.lg-brand {
+  flex: 1 1 520px; min-height: 100vh; box-sizing: border-box;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
+  padding: 40px 48px; background: #0B1729; color: #F7F4ED;
 }
-.login-btn {
-  width: 100%; padding: 13px; border-radius: 8px; border: none; background: #C9A84C;
-  color: #1D3557; font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer;
-  margin-top: 4px;
-}
-.login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-/* Overlay the toggle on the field with CSS Grid (both share grid-area 1/1,
-   align-items:center centers each within the shared row) rather than
-   position:absolute + top:50%/translateY(-50%) -- functionally equivalent
-   in theory, but the absolute+transform version kept rendering with visibly
-   more space above the icon than below (reported live, on a confirmed-
-   fresh deploy -- not a caching issue). Grid overlay is the more robust,
-   more commonly-used pattern for exactly this "icon inside a field" case,
-   so switching to it rather than continuing to guess at the transform
-   approach's cause. */
+.lg-glow { position: absolute; width: 600px; height: 600px; left: -200px; bottom: -260px; border-radius: 50%; background: #B9CAE6; filter: blur(150px); animation: lg-glow 8s ease-in-out infinite; }
+.lg-home { position: relative; align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; font-weight: 500; font-size: 17px; color: #F7F4ED; }
+.lg-home svg { display: block; flex: none; }
+.lg-orbit { position: relative; height: 420px; }
+.lg-ring { position: absolute; left: 50%; top: 50%; border-radius: 50%; }
+.lg-ring--outer { width: 400px; height: 400px; margin: -200px 0 0 -200px; border: 1px solid rgba(232,214,168,0.12); }
+.lg-ring--inner { width: 250px; height: 250px; margin: -125px 0 0 -125px; border: 1px dashed rgba(232,214,168,0.2); }
+.lg-spin50 { animation: lg-spin 50s linear infinite; }
+.lg-unspin50 { animation: lg-unspin 50s linear infinite; }
+.lg-spin32 { animation: lg-spin 32s linear infinite; }
+.lg-unspin32 { animation: lg-unspin 32s linear infinite; }
+.lg-chip { position: absolute; text-align: center; border-radius: 999px; padding: 7px 0; font-size: 13px; }
+.lg-chip--dark { background: #1A2C4A; border: 1px solid rgba(232,214,168,0.25); color: #F7F4ED; }
+.lg-core { position: absolute; left: 50%; top: 50%; width: 84px; height: 84px; margin: -42px 0 0 -42px; }
+.lg-core span { position: absolute; inset: 0; border-radius: 50%; background: #E8D6A8; }
+.lg-core .lg-pulse { animation: lg-pulse 2.2s ease-out infinite; }
+.lg-core .lg-core-label { display: flex; align-items: center; justify-content: center; text-align: center; color: #0F1E36; font-size: 12px; font-weight: 600; line-height: 1.2; }
+.lg-statement { position: relative; margin: 0; max-width: 480px; font-size: clamp(30px, 3.2vw, 44px); font-weight: 300; letter-spacing: -0.035em; line-height: 1.05; }
+.lg-statement span { color: #E8D6A8; }
+
+/* Form half */
+.lg-form-half { flex: 1 1 440px; box-sizing: border-box; display: flex; flex-direction: column; padding: 40px 48px; }
+.lg-theme { align-self: flex-end; display: inline-flex; padding: 4px; border-radius: 999px; border: 1px solid var(--line); background: var(--tile); }
+.lg-theme button { font-family: inherit; font-size: 13px; font-weight: 500; min-height: 44px; min-width: 64px; padding: 0 14px; border: 0; border-radius: 999px; cursor: pointer; background: transparent; color: var(--muted); }
+.lg-theme button[aria-pressed="true"] { background: var(--act); color: var(--act-text); }
+.lg-card { width: 100%; max-width: 420px; align-self: center; margin: auto 0; padding: 40px 0; animation: lg-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.lg-label { margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: var(--gold); }
+.lg-card h1 { margin: 10px 0 0; font-size: 40px; font-weight: 300; letter-spacing: -0.035em; line-height: 1.1; }
+.lg-sub { margin: 12px 0 0; font-size: 16px; line-height: 1.6; color: var(--muted); }
+.lg-fields { margin-top: 32px; display: flex; flex-direction: column; gap: 18px; }
+.lg-field { display: flex; flex-direction: column; gap: 8px; }
+.lg-field label { font-size: 14px; font-weight: 500; }
+.lg-field-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.lg-forgot { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0; font-size: 13px; color: var(--gold); }
+.lg-input { font-family: inherit; font-size: 16px; min-height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--tile); color: var(--text); box-sizing: border-box; width: 100%; }
+.lg-input::placeholder { color: var(--muted); opacity: .8; }
+/* The show-password button sits inside the field (grid overlay, as before). */
 .pw-wrap { display: grid; align-items: center; }
-.pw-wrap .login-field { grid-area: 1/1; padding-right: 44px; }
-.pw-toggle {
-  grid-area: 1/1; justify-self: end; margin-right: 8px;
-  width: 28px; height: 28px; background: none; border: none;
-  color: rgba(247,244,237,.5); cursor: pointer; padding: 0; line-height: 0;
-  display: flex; align-items: center; justify-content: center;
-  appearance: none; -webkit-appearance: none;
-}
+.pw-wrap .lg-input { grid-area: 1/1; padding-right: 52px; }
+.pw-toggle { grid-area: 1/1; justify-self: end; margin-right: 4px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 12px; background: none; color: var(--muted); cursor: pointer; line-height: 0; appearance: none; -webkit-appearance: none; }
 .pw-toggle svg { display: block; flex: none; }
-.pw-toggle:hover { color: rgba(247,244,237,.85); }
-.login-error { font-size: 12px; color: #e07a6f; margin-top: 14px; display: none; }
-.login-forgot { font-size: 12px; color: rgba(247,244,237,.45); margin-top: 18px; }
-.login-forgot a { color: #C9A84C; text-decoration: none; }
-.login-forgot a:hover { text-decoration: underline; }
-.login-msg { font-size: 12px; color: #8fd4a0; margin-top: 14px; display: none; }
+.pw-toggle:hover { color: var(--text); }
+.lg-submit { margin-top: 6px; display: flex; align-items: center; justify-content: center; min-height: 52px; border: 0; border-radius: 999px; background: var(--act); color: var(--act-text); font-family: inherit; font-size: 16px; font-weight: 500; cursor: pointer; }
+.lg-submit:disabled { opacity: .6; cursor: not-allowed; }
+.login-error, .login-msg { display: none; margin: 14px 0 0; font-size: 14px; line-height: 1.5; }
+.login-error { color: var(--warn); }
+.login-msg { color: var(--text); }
+.lg-note { margin-top: 28px; display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border-radius: 16px; background: var(--powder); font-size: 14px; line-height: 1.5; }
+.lg-note-dot { flex: none; margin-top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+.lg-note a { color: var(--gold); }
+.lg-not-advice { margin: 0; font-size: 12px; color: var(--muted); }
+
+@keyframes lg-spin { to { transform: rotate(360deg); } }
+@keyframes lg-unspin { to { transform: rotate(-360deg); } }
+@keyframes lg-pulse { 0% { transform: scale(1); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
+@keyframes lg-glow { 0%, 100% { opacity: .22; } 50% { opacity: .4; } }
+@keyframes lg-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 760px) {
+  .lg-orbit { display: none; }
+  .lg-brand { min-height: 0; padding: 28px 24px; }
+  .lg-form-half { padding: 24px; }
+  .lg-card { padding: 24px 0 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lg-glow, .lg-spin50, .lg-unspin50, .lg-spin32, .lg-unspin32, .lg-core .lg-pulse, .lg-card { animation: none; }
+}
 </style>
 <link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
-<div class="login-wrap">
-  <div class="login-card">
-    <div class="login-mark">&#10022;</div>
-    <p class="login-title">Client Hub</p>
-    <p class="login-sub">This area is for TEI clients. Sign in with the email and password you were given. Contact TEI if you need access.</p>
-    <form id="loginForm">
-      <input type="email" id="email" class="login-field" placeholder="Email" required autocomplete="email">
-      <div class="pw-wrap">
-        <input type="password" id="password" class="login-field" placeholder="Password" required autocomplete="current-password">
-        <button type="button" class="pw-toggle" onclick="toggleShowPassword('password', this)" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      </div>
-      <button type="submit" class="login-btn" id="submitBtn">Sign in</button>
-    </form>
-    <p class="login-error" id="loginError"></p>
-    <p class="login-msg" id="loginMsg"></p>
-    <p class="login-forgot"><a href="#" id="forgotLink">Forgot password?</a></p>
+<div class="lg">
+
+<section class="lg-brand">
+  <div class="lg-glow" aria-hidden="true"></div>
+  <a class="lg-home" href="/index.html" aria-label="The Everyday Investor, website home"><svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#E8D6A8" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="#E8D6A8" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="#E8D6A8"/></svg>The Everyday Investor</a>
+  <div class="lg-orbit" aria-hidden="true">
+    <div class="lg-ring lg-ring--outer"></div>
+    <div class="lg-ring lg-ring--inner"></div>
+    <div class="lg-ring lg-ring--outer lg-spin50" style="border: 0">
+      <div class="lg-chip lg-chip--dark lg-unspin50" style="left: 50%; top: -17px; margin-left: -50px; width: 100px">Pension</div>
+      <div class="lg-chip lg-chip--dark lg-unspin50" style="left: 50%; bottom: -17px; margin-left: -50px; width: 100px">Property</div>
+    </div>
+    <div class="lg-ring lg-ring--inner lg-spin32" style="border: 0">
+      <div class="lg-chip lg-unspin32" style="top: 50%; left: -44px; margin-top: -17px; width: 88px; background: #E8D6A8; color: #0F1E36; font-weight: 500">ISA</div>
+      <div class="lg-chip lg-unspin32" style="top: 50%; right: -52px; margin-top: -17px; width: 104px; background: #B9CAE6; color: #0F1E36; font-weight: 500">Lifetime ISA</div>
+    </div>
+    <div class="lg-core"><span class="lg-pulse"></span><span class="lg-core-label">Your<br>plan</span></div>
   </div>
+  <p class="lg-statement">Everything you own, <span>working to one plan.</span></p>
+</section>
+
+<section class="lg-form-half">
+  <div class="lg-theme" role="group" aria-label="Theme">
+    <button type="button" data-theme-choice="light" aria-pressed="true">Light</button>
+    <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+  </div>
+
+  <main class="lg-card">
+    <p class="lg-label">Client sign in</p>
+    <h1>Welcome back.</h1>
+    <p class="lg-sub">Your plan, accounts and lessons, in one place.</p>
+
+    <form id="loginForm" class="lg-fields">
+      <div class="lg-field">
+        <label for="email">Email</label>
+        <input type="email" id="email" class="lg-input" placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="lg-field">
+        <div class="lg-field-top"><label for="password">Password</label><a href="#" id="forgotLink" class="lg-forgot">Forgotten it?</a></div>
+        <div class="pw-wrap">
+          <input type="password" id="password" class="lg-input" required autocomplete="current-password">
+          <button type="button" class="pw-toggle" onclick="toggleShowPassword('password', this)" aria-label="Show password"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+        </div>
+      </div>
+      <button type="submit" class="lg-submit" id="submitBtn">Sign in</button>
+    </form>
+    <p class="login-error" id="loginError" role="alert"></p>
+    <p class="login-msg" id="loginMsg" role="status"></p>
+
+    <div class="lg-note"><span class="lg-note-dot" aria-hidden="true"></span><span>Logins are set up by TEI when you join. Not a client yet? <a href="/book" target="_blank" rel="noopener noreferrer">Book a free call</a>.</span></div>
+  </main>
+
+  <p class="lg-not-advice">TEI provides financial coaching and education, not regulated financial advice.</p>
+</section>
+
 </div>
 
 <script src="/hub/js/supabase-config.js"></script>
@@ -86,7 +175,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 // Shared by every password field on this page (just the one here, but the
 // same function name/behaviour as the other login/reset/gate pages).
 var PW_EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
-var PW_EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.94 10.94 0 0 1 12 5c7 0 11 7 11 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.53 13.53 0 0 0 1 12s4 7 11 7a10.94 10.94 0 0 0 5.39-1.61"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+var PW_EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
 function toggleShowPassword(fieldId, btn) {
   var el = document.getElementById(fieldId);
   var showing = el.type === "text";
@@ -94,6 +183,26 @@ function toggleShowPassword(fieldId, btn) {
   btn.innerHTML = showing ? PW_EYE : PW_EYE_OFF;
   btn.setAttribute("aria-label", showing ? "Show password" : "Hide password");
 }
+
+/* Light | Dark. Remembered on this device for first paint; Wealth OS also
+   saves the choice to the client record once signed in (spec B1.5). */
+(function () {
+  var buttons = document.querySelectorAll('[data-theme-choice]');
+  function apply(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    Array.prototype.forEach.call(buttons, function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-theme-choice') === theme ? 'true' : 'false');
+    });
+  }
+  apply(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+  Array.prototype.forEach.call(buttons, function (b) {
+    b.addEventListener('click', function () {
+      var theme = b.getAttribute('data-theme-choice');
+      apply(theme);
+      try { localStorage.setItem('tei-theme', theme); } catch (e) {}
+    });
+  });
+})();
 
 (function () {
   var params = new URLSearchParams(window.location.search);
@@ -139,7 +248,7 @@ function toggleShowPassword(fieldId, btn) {
     e.preventDefault();
     var email = document.getElementById("email").value.trim();
     if (!email) {
-      showError("Enter your email above, then click Forgot password.");
+      showError("Enter your email above, then select Forgotten it.");
       return;
     }
     TeiAuth.resetPassword(email).then(function (result) {
