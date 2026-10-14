@@ -149,6 +149,20 @@
     document.body.appendChild(head);
   }
 
+  /* Line icons for the bottom bar, shared with Wealth OS and the Client Hub:
+     each sits in a pill that fills when its tab is the current page. */
+  var TAB_ICONS = {
+    home: '<path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/>',
+    guides: '<path d="M5 5.5A1.5 1.5 0 0 1 6.5 4H18v14H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3"/><path d="M9 8h5"/>',
+    articles: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 9h8M8 12.5h8M8 16h5"/>',
+    membership: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/>',
+    menu: '<path d="M5 7.5h14M5 12h14M5 16.5h14"/>',
+    dashboard: '<path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/>',
+    wealth: '<path d="M4 19h16"/><path d="M5 15.5l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7.5h4v4"/>',
+    education: '<path d="M3 9.5 12 5l9 4.5-9 4.5z"/><path d="M7 11.5v4c1.4 1.4 3.1 2 5 2s3.6-.6 5-2v-4"/>',
+    library: '<path d="M12 6.5C10.3 5 7.8 4.5 4 4.8v13.4c3.8-.3 6.3.2 8 1.6 1.7-1.4 4.2-1.9 8-1.6V4.8c-3.8-.3-6.3.2-8 1.7z"/><path d="M12 6.5v13.3"/>'
+  };
+
   /* ---------------- bottom bar ---------------- */
   function buildBar() {
     var bar = document.createElement('div');
@@ -167,7 +181,7 @@
         el.setAttribute('aria-controls', 'teiMenu');
         menuBtn = el;
       }
-      el.innerHTML = (V.rings ? '<span class="tei-mbar-ring" aria-hidden="true"></span>' : svg(item.icon)) +
+      el.innerHTML = '<span class="tei-mbar-pill" aria-hidden="true">' + (TAB_ICONS[item.id] ? '<svg viewBox="0 0 24 24" focusable="false">' + TAB_ICONS[item.id] + '</svg>' : svg(item.icon)) + '</span>' +
         '<span class="tei-mbar-label">' + item.label + '</span>';
       barItems[item.id] = el;
       bar.appendChild(el);
