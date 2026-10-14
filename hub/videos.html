@@ -4,14 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Videos -- Client Hub</title>
-<script>
-/* Theme before first paint (spec B1.5): the shared "tei-theme" choice; light by default. */
-(function () {
-  var t = 'light';
-  try { t = localStorage.getItem('tei-theme') === 'dark' ? 'dark' : 'light'; } catch (e) {}
-  document.documentElement.setAttribute('data-theme', t);
-})();
-</script>
+<script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -229,7 +222,6 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
       <a href="/index.html">Website</a>
       <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
     </nav>
-    <button type="button" class="hb-icon" id="hbThemeIcon" aria-label="Switch to dark mode"></button>
   </div>
 </header>
 
@@ -241,10 +233,6 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
       <p class="vl-intro">Short explainers, deep dives and recorded member sessions. Filter by your stage or a topic, and follow the links on to the notes and tools.</p>
     </div>
     <div class="vl-head-side">
-      <div class="hb-seg" role="group" aria-label="Theme">
-        <button type="button" data-theme-choice="light" aria-pressed="true">Light</button>
-        <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
-      </div>
       <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
     </div>
   </div>
@@ -295,27 +283,6 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
   <a href="/hub/wealth-os.html?page=menu"><i></i>Me</a>
 </nav>
 
-<script>
-/* Theme: Light | Dark on desktop, an icon on phones, saved under tei-theme. */
-(function () {
-  var root = document.documentElement;
-  var MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>';
-  var SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>';
-  var icon = document.getElementById('hbThemeIcon');
-  function apply(t) {
-    root.setAttribute('data-theme', t);
-    document.querySelectorAll('[data-theme-choice]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-theme-choice') === t ? 'true' : 'false'); });
-    icon.innerHTML = t === 'dark' ? SUN : MOON;
-    icon.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
-  }
-  function choose(t) { apply(t); try { localStorage.setItem('tei-theme', t); } catch (e) {} }
-  apply(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
-  document.querySelectorAll('[data-theme-choice]').forEach(function (b) {
-    b.addEventListener('click', function () { choose(b.getAttribute('data-theme-choice')); });
-  });
-  icon.addEventListener('click', function () { choose(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); });
-})();
-</script>
 <script src="/hub/js/video-library.js"></script>
 </body>
 </html>

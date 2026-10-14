@@ -4,15 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in -- Client Hub</title>
-<script>
-/* Theme before first paint. Light is the default (spec B1.5). The same
-   "tei-theme" key is shared by the Client Hub and Wealth OS. */
-(function () {
-  var theme = 'light';
-  try { if (localStorage.getItem('tei-theme') === 'dark') theme = 'dark'; } catch (e) {}
-  document.documentElement.setAttribute('data-theme', theme);
-})();
-</script>
+<script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
@@ -134,10 +126,6 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 </section>
 
 <section class="lg-form-half">
-  <div class="lg-theme" role="group" aria-label="Theme">
-    <button type="button" data-theme-choice="light" aria-pressed="true">Light</button>
-    <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
-  </div>
 
   <main class="lg-card">
     <p class="lg-label">Client sign in</p>
@@ -183,26 +171,6 @@ function toggleShowPassword(fieldId, btn) {
   btn.innerHTML = showing ? PW_EYE : PW_EYE_OFF;
   btn.setAttribute("aria-label", showing ? "Show password" : "Hide password");
 }
-
-/* Light | Dark. Remembered on this device for first paint; Wealth OS also
-   saves the choice to the client record once signed in (spec B1.5). */
-(function () {
-  var buttons = document.querySelectorAll('[data-theme-choice]');
-  function apply(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    Array.prototype.forEach.call(buttons, function (b) {
-      b.setAttribute('aria-pressed', b.getAttribute('data-theme-choice') === theme ? 'true' : 'false');
-    });
-  }
-  apply(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
-  Array.prototype.forEach.call(buttons, function (b) {
-    b.addEventListener('click', function () {
-      var theme = b.getAttribute('data-theme-choice');
-      apply(theme);
-      try { localStorage.setItem('tei-theme', theme); } catch (e) {}
-    });
-  });
-})();
 
 (function () {
   var params = new URLSearchParams(window.location.search);

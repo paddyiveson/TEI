@@ -420,10 +420,20 @@ window.TEI = window.TEI || {};
     return app && app.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   }
 
+  /* Without a coach request the client can still run it themselves from
+     "Continue setup" (Home), Me or Settings > Help: every empty field, no
+     coach questions. It is saved as a request of their own as they go. */
+  function canSelfServe(c) {
+    return !!(c && c.meta.role === 'client' && !isActive(c) && !c.settings.onboardingComplete && gapsFor(c).length);
+  }
+
   function open(opts) {
     opts = opts || {};
     var c = opts.client || (TEI.app && TEI.app.state && TEI.app.state.client);
     if (!c) return;
+    if (!opts.preview && !isActive(c)) {
+      c.setupRequest = { status: 'in_progress', self: true, off: {}, questions: [], answers: {}, startedAt: nowIso(), total: gapsFor(c).length };
+    }
     W.c = c; W.preview = !!opts.preview; W.d = {}; W.fromOpen = false; W.askedBy = {};
     W.steps = buildSteps(c);
     var req = request(c) || {};
@@ -455,7 +465,7 @@ window.TEI = window.TEI || {};
     var pct = total ? Math.round((total - left) / total * 100) : 100;
     var list = W.steps.filter(function (s) { return s !== 'welcome' && s !== 'done' && s !== 'confirm'; });
     return '<aside class="su-rail" aria-label="Steps"><span class="su-orbit" aria-hidden="true"></span>' +
-      '<div><p class="su-mono su-champ">Filled in by your coach</p><p class="su-rail-n">' + left + ' of ' + total + ' left</p>' +
+      '<div><p class="su-mono su-champ">' + ((request(c) || {}).self ? 'Still to set up' : 'Filled in by your coach') + '</p><p class="su-rail-n">' + left + ' of ' + total + ' left</p>' +
       '<div class="su-bar su-bar--dark"><span style="width:' + pct + '%"></span></div></div>' +
       '<nav class="su-steps">' + list.map(function (s) {
         var idx = W.steps.indexOf(s), cur = idx === W.i, done = idx < W.i;
@@ -500,16 +510,30 @@ window.TEI = window.TEI || {};
     plan: 'Rough figures are fine. Your coach works these through with you.'
   };
 
+  /* Light or dark, chosen once here (B1.5). Clicks go to TEI.theme via the
+     document-wide [data-w-theme] handler in Wealth OS, which saves it. */
+  function appearanceHTML() {
+    var pref = window.TeiTheme ? window.TeiTheme.pref() : 'system';
+    return '<div class="su-card"><p class="su-k">How should Wealth OS look?</p>' +
+      '<div class="su-chips" role="group" aria-label="Theme">' +
+      [['system', 'Match my device'], ['light', 'Light'], ['dark', 'Dark']].map(function (o) {
+        return '<button type="button" class="su-chip" data-w-theme="' + o[0] + '" aria-pressed="' + (pref === o[0] ? 'true' : 'false') + '">' + o[1] + '</button>';
+      }).join('') + '</div><p class="su-help">You can change this any time in Settings.</p></div>';
+  }
+
   function stepHTML() {
     var c = W.c, key = W.steps[W.i], first = (c.personal && c.personal.firstName) || '';
     var total = leftCount(c);
     if (key === 'welcome') {
       var mins = Math.max(5, Math.round(total * 0.8 + 4));
       return '<section class="su-hero"><span class="su-orbit" aria-hidden="true"></span><p class="su-mono su-champ">Welcome' + (first ? ', ' + esc(first) : '') + '</p>' +
-        '<h1>Your coach has done most of this already.</h1><p>We filled in your Wealth OS from your fact find session. There ' + (total === 1 ? 'is 1 thing' : 'are ' + total + ' things') + ' left, plus a few questions about you and investing that are best in your own words.</p></section>' +
+        ((request(c) || {}).self
+          ? '<h1>Let us finish setting up your Wealth OS.</h1><p>There ' + (total === 1 ? 'is 1 thing' : 'are ' + total + ' things') + ' still missing, plus a few questions about you and investing that are best in your own words.</p></section>'
+          : '<h1>Your coach has done most of this already.</h1><p>We filled in your Wealth OS from your fact find session. There ' + (total === 1 ? 'is 1 thing' : 'are ' + total + ' things') + ' left, plus a few questions about you and investing that are best in your own words.</p></section>') +
         '<div class="su-three"><div class="su-card"><p class="su-k">Time</p><p class="su-big">About ' + mins + ' minutes</p></div>' +
         '<div class="su-card"><p class="su-k">Gaps</p><p class="su-big">Skip anything you do not know</p></div>' +
-        '<div class="su-card"><p class="su-k">Changes</p><p class="su-big">Edit anything later in Settings</p></div></div>';
+        '<div class="su-card"><p class="su-k">Changes</p><p class="su-big">Edit anything later in Settings</p></div></div>' +
+        appearanceHTML();
     }
     if (key === 'confirm') {
       var rows = SECTIONS.filter(function (s) { return s.id !== 'you' && s.id !== 'documents'; }).map(function (s) {
@@ -596,7 +620,8 @@ window.TEI = window.TEI || {};
       if (request(c)) {
         c.setupRequest = Object.assign({}, req, patch);
         patch.left = leftCount(c);
-        await saveRequest(c, patch);
+        // Progress only; the answers above are already saved.
+        await saveRequest(c, patch).catch(function (err) { console.warn('Set up Wealth OS: progress not saved', err); });
       }
       W.d = {}; // saved; the record now holds these values
     } catch (err) {
@@ -613,7 +638,7 @@ window.TEI = window.TEI || {};
     if (W.preview) { W.i = W.steps.indexOf('done'); render(); return; }
     try {
       var left = leftCount(c);
-      await saveRequest(c, { status: 'finished', finishedAt: nowIso(), left: left, step: 'done' });
+      await saveRequest(c, { status: 'finished', finishedAt: nowIso(), left: left, step: 'done' }).catch(function (err) { console.warn('Set up Wealth OS: progress not saved', err); });
       if (!c.settings.onboardingComplete) { await W_.setOnboardingComplete(c.meta.clientId); c.settings.onboardingComplete = true; }
       // Let the coach know through the existing feedback alert route.
       var name = [c.personal.firstName, c.personal.lastName].filter(Boolean).join(' ') || 'A client';
@@ -844,7 +869,16 @@ window.TEI = window.TEI || {};
   /* ================= Home tile and auto-open ================= */
   /* Called from Home's renderSetup. Returns true when it took over the tile. */
   function homeTile(c, els) {
-    if (!isActive(c)) return false;
+    if (!isActive(c)) {
+      if (!canSelfServe(c)) return false;
+      var n = gapsFor(c).length;
+      els.show(true);
+      els.title(n + (n === 1 ? ' thing' : ' things') + ' left to set up');
+      els.text('A few details, then some questions about you and investing. Skip anything you do not know.');
+      els.bar(20);
+      els.button(function () { open(); });
+      return true;
+    }
     var left = leftCount(c);
     els.show(true);
     els.title(left ? left + (left === 1 ? ' thing' : ' things') + ' left from your session' : 'Nearly there');
@@ -868,6 +902,6 @@ window.TEI = window.TEI || {};
 
   TEI.setup = {
     open: open, close: close, gapsFor: gapsFor, itemsFor: itemsFor, leftCount: leftCount, isActive: isActive,
-    homeTile: homeTile, maybeAutoOpen: maybeAutoOpen, coachRender: coachRender, settingsRender: settingsRender
+    homeTile: homeTile, canSelfServe: canSelfServe, maybeAutoOpen: maybeAutoOpen, coachRender: coachRender, settingsRender: settingsRender
   };
 })();

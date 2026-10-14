@@ -18,8 +18,14 @@
   // Loading screen in the redesign style (spec B1.2): the page background,
   // the ring mark and Geist, light or dark from the shared "tei-theme" key, so
   // the hand-off to the sign-in page or the Hub never flashes the old look.
+  // Light, dark, or follow the device (hub/js/tei-theme.js holds the same rule).
   var dark = false;
-  try { dark = localStorage.getItem("tei-theme") === "dark"; } catch (e) {}
+  if (window.TeiTheme) dark = window.TeiTheme.resolved() === "dark";
+  else {
+    var pref = null;
+    try { pref = localStorage.getItem("tei-theme"); } catch (e) {}
+    dark = pref === "dark" || (pref !== "light" && !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches));
+  }
   var bg = dark ? "#0F1E36" : "#F7F4ED";
   var ink = dark ? "#F7F4ED" : "#13213A";
   var muted = dark ? "#AAB6C8" : "#4E5B70";

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wealth OS — TEI Client Hub</title>
+<script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -104,7 +105,7 @@ h1,h2,h3,.num{font-family:'Playfair Display',serif;}
    than raising the base .wrap rule, so Adviser Workspace and the client
    list (out of scope for this pass -- see the client list's own redesign
    above) keep their existing width. */
-#clientApp .wrap{max-width:1680px;}
+#clientApp .wrap{max-width:none;}
 /* Re-flow to 4-per-row (from 3) on very wide screens -- scoped to the
    handful of grids that are genuinely repeating collections of same-size
    cards (learning cards),
@@ -201,7 +202,7 @@ a{color:inherit;}
    the bottom of the viewport instead of leaving them stranded mid-page
    under a full-height sidebar. Pages taller than the viewport are
    unaffected -- flex:1 only sets a minimum, content still pushes past it. */
-.main-inner{max-width:1680px; margin:0 auto; display:flex; flex-direction:column; min-height:100vh;}
+.main-inner{max-width:none; margin:0 auto; display:flex; flex-direction:column; min-height:100vh;}
 
 /* Mobile-only sidebar drawer trigger/close (mirrors hub/suite.html's pattern) */
 .menu-btn{display:none; position:sticky; top:16px; left:16px; margin:12px 0 0 16px; background:var(--card-dark); color:var(--cream); border:1px solid rgba(247,244,237,0.14); border-radius:8px; width:38px; height:38px; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:60; -webkit-tap-highlight-color:transparent;}
@@ -2293,7 +2294,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 #clientApp[data-theme="light"]{ --w-powder-bar:#DFE6F2; --w-shadow:0 14px 34px rgba(15,30,54,0.10); }
 #clientApp[data-theme="dark"]{ --w-powder-bar:#22385A; --w-shadow:0 14px 34px rgba(0,0,0,0.30); }
 
-.hm{ max-width:1280px; margin:0 auto; padding:8px 32px 40px; font-family:'Geist', system-ui, sans-serif; color:var(--w-text); }
+.hm{ max-width:none; margin:0 auto; padding:28px 40px 40px; font-family:'Geist', system-ui, sans-serif; color:var(--w-text); }
 .hm p{ margin:0; }
 .hm-head{ display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
 .hm-date{ font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--w-muted); }
@@ -3449,6 +3450,16 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .me-edit{ position:relative; width:44px; height:44px; border-radius:50%; border:1px solid rgba(232,214,168,0.3); background:transparent; color:#E8D6A8; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .me-edit svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
 .me-group{ margin-top:14px; }
+.st-appear{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:6px; }
+.st-appear button{ display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding:14px; border-radius:18px; border:1px solid var(--w-line); background:var(--w-chip); color:var(--w-text); font-family:inherit; text-align:left; cursor:pointer; }
+.st-appear button[aria-pressed="true"]{ border-color:var(--w-gold); box-shadow:0 0 0 1px var(--w-gold) inset; }
+.st-appear b{ font-size:15px; font-weight:500; margin-top:8px; }
+.st-appear small{ font-size:12px; color:var(--w-muted); }
+.st-sw{ width:100%; height:56px; border-radius:12px; border:1px solid var(--w-line); }
+.st-sw-light{ background:#F2EFE7; }
+.st-sw-dark{ background:#0B1729; }
+.st-sw-sys{ background:linear-gradient(115deg, #F2EFE7 50%, #0B1729 50%); }
+@media (max-width:860px){ .st-appear{ grid-template-columns:minmax(0,1fr); } }
 .me-group .hm-label{ margin:0 0 6px 4px !important; }
 .me-group ul{ list-style:none; margin:0; padding:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:20px; overflow:hidden; }
 .me-group li + li{ border-top:1px solid var(--w-line); }
@@ -3488,7 +3499,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 <!-- Loading screen while the sign-in and the client load resolve, in the
      board style (B1.2) and the saved theme, so nothing half-built shows.
      Removed by TEI.wealthOS.hideBoot() once a view or an error is ready. -->
-<div id="woBoot" role="status" aria-live="polite">
+<div id="woBoot" data-tei-theme role="status" aria-live="polite">
   <div class="wb-in">
     <div class="wb-mark">
       <svg width="56" height="56" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-opacity=".35" stroke-width="1"/><circle cx="13" cy="13" r="6" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1"/><circle cx="13" cy="13" r="2.4" fill="currentColor"/></svg>
@@ -3498,14 +3509,14 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
     <p class="wb-sub">Loading your figures&hellip;</p>
   </div>
 </div>
-<script>(function(){ var t = "light"; try { if (localStorage.getItem("tei-theme") === "dark") t = "dark"; } catch (e) {} document.getElementById("woBoot").setAttribute("data-theme", t); })();</script>
+<script>window.TeiTheme && TeiTheme.paint();</script>
 
 <!-- Adviser landing page: shown instead of any client's dashboard until an
      adviser picks (or creates) a client. Clients never see this -- their
      login goes straight into #clientApp. -->
-<div id="clientListApp" class="cla" data-theme="light" style="display:none;">
+<div id="clientListApp" class="cla" data-theme="light" data-tei-theme style="display:none;">
 <script>/* Same saved theme as the client app (B1.5). */
-(function(){ var t = "light"; try { if (localStorage.getItem("tei-theme") === "dark") t = "dark"; } catch (e) {} document.getElementById("clientListApp").setAttribute("data-theme", t); })();</script>
+window.TeiTheme && TeiTheme.paint();</script>
   <header class="cla-bar">
     <a class="cla-brand" href="/index.html" aria-label="The Everyday Investor, website home"><svg width="24" height="24" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="currentColor"/></svg><span>Wealth OS</span></a>
     <nav class="cla-links" aria-label="Adviser">
@@ -3552,11 +3563,11 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 </div>
 
 <!-- Set up Wealth OS (B13): full-screen gap flow, built by hub/js/wealth-setup.js. -->
-<div id="setupApp" class="su" data-theme="light" role="dialog" aria-modal="true" aria-label="Finish setting up" hidden></div>
+<div id="setupApp" class="su" data-theme="light" data-tei-theme role="dialog" aria-modal="true" aria-label="Finish setting up" hidden></div>
 
-<div id="clientApp" data-theme="light">
+<div id="clientApp" data-theme="light" data-tei-theme>
 <script>/* Saved theme before first paint (B1.5). Light is the default. */
-(function(){ var t = "light"; try { if (localStorage.getItem("tei-theme") === "dark") t = "dark"; } catch (e) {} document.getElementById("clientApp").setAttribute("data-theme", t); })();</script>
+window.TeiTheme && TeiTheme.paint();</script>
 
 <!-- Adviser-only bar: real navigation (not the old role-blind "Preview"
      toggle) -- hidden entirely for client-role logins, so a client's
@@ -3672,10 +3683,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   <main class="main">
     <button type="button" class="menu-btn" id="sidebarMenuBtn" aria-label="Open menu">&#9776;</button>
     <div class="main-inner">
-    <div class="w-topbar">
-      <div class="w-theme" role="group" aria-label="Theme"><button type="button" data-w-theme="light" aria-pressed="true">Light</button><button type="button" data-w-theme="dark" aria-pressed="false">Dark</button></div>
-      <button type="button" class="w-theme-icon" id="wThemeIcon" aria-label="Switch to dark theme"></button>
-    </div>
 
 <div id="loadError" style="display:none; background:var(--oxblood-bg); color:#D68992; text-align:center; padding:16px 20px; font-size:13px;">
   Couldn't load this client's dashboard. <span id="loadErrorDetail" style="opacity:0.85;"></span>
@@ -4638,6 +4645,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
       </div>
       <div><p class="hm-label">Account</p>
         <button type="button" data-st="membership">Membership</button>
+        <button type="button" data-st="appearance">Appearance</button>
         <button type="button" data-st="notifications">Notifications</button>
         <button type="button" data-st="security">Security and data</button>
       </div>
@@ -4733,6 +4741,19 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         </section>
       </div>
 
+      <!-- Appearance (B1.5): follows the device unless the client picks one -->
+      <div class="st-sec" data-st-sec="appearance">
+        <section class="hm-tile st-card">
+          <h3 class="hm-h3">Light or dark</h3>
+          <p class="hm-muted hm-small">Used in Wealth OS, the Client Hub and Sign in, on every device you use.</p>
+          <div class="st-appear" role="group" aria-label="Theme">
+            <button type="button" data-w-theme="system" aria-pressed="true"><span class="st-sw st-sw-sys" aria-hidden="true"></span><b>Match my device</b><small>Light or dark, as your phone or computer is set</small></button>
+            <button type="button" data-w-theme="light" aria-pressed="false"><span class="st-sw st-sw-light" aria-hidden="true"></span><b>Light</b><small>Always light</small></button>
+            <button type="button" data-w-theme="dark" aria-pressed="false"><span class="st-sw st-sw-dark" aria-hidden="true"></span><b>Dark</b><small>Always dark</small></button>
+          </div>
+        </section>
+      </div>
+
       <!-- Membership (B9.5, C6) -->
       <div class="st-sec" data-st-sec="membership">
         <section class="hm-tile hm-feat st-member">
@@ -4802,6 +4823,11 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
             <p class="gl-coach-msg">Stuck on something, or want to talk a number through? Message Paddy and he will come back to you.</p>
             <button type="button" class="hm-btn gl-coach-btn" id="stMessage">Message your coach</button>
           </section>
+          <section class="hm-tile st-card">
+            <p class="hm-label">Set up Wealth OS</p>
+            <p class="hm-muted hm-small">Fill in anything still missing from your session, and tell us about you and investing. Skip anything you do not know.</p>
+            <button type="button" class="hm-btn hm-btn-primary" id="stSetupOpen">Open set up</button>
+          </section>
           <section class="hm-tile hm-champ st-card">
             <p class="hm-label hm-gold">Getting started</p>
             <h3 class="hm-h3">How Wealth OS works</h3>
@@ -4858,7 +4884,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   <div id="meGroups"></div>
   <section class="me-group">
     <p class="hm-label">Appearance</p>
-    <div class="me-theme"><span>Theme</span><div class="hb-seg-me" role="group" aria-label="Theme"><button type="button" data-w-theme="light" aria-pressed="true">Light</button><button type="button" data-w-theme="dark" aria-pressed="false">Dark</button></div></div>
+    <div class="me-theme"><span>Theme</span><div class="hb-seg-me" role="group" aria-label="Theme"><button type="button" data-w-theme="system" aria-pressed="true">Device</button><button type="button" data-w-theme="light" aria-pressed="false">Light</button><button type="button" data-w-theme="dark" aria-pressed="false">Dark</button></div></div>
   </section>
   <button type="button" class="me-signout" data-mact="signout">Sign out</button>
   <p class="hm-note me-foot">Coaching and education, not regulated financial advice.</p>
@@ -7907,8 +7933,9 @@ TEI.render = TEI.render || {};
     document.getElementById('whUpdateBtn').onclick = (e)=>{ e.preventDefault(); openAccountsSettings(); };
   }
 
-  /* "Finish setting up" sits first while the record is still thin. The B13
-     gap flow will replace the checklist count with questions left. */
+  /* "Finish setting up" sits first while there is something to finish: the
+     coach's setup request, or the client's own gaps before setup is done.
+     The button opens the set up flow (hub/js/wealth-setup.js). */
   function renderSetup(client){
     // A coach's setup request (B13) takes over the tile while it is open.
     if(TEI.setup && TEI.setup.homeTile(client, {
@@ -7916,15 +7943,7 @@ TEI.render = TEI.render || {};
       bar: pct=> { document.getElementById('whSetupBar').style.width = pct + '%'; },
       button: fn=> { document.getElementById('whSetupBtn').onclick = (e)=>{ e.preventDefault(); fn(); }; }
     })) return;
-    const c = TEI.calc.completion(client);
-    const needed = !(client.settings.onboardingComplete && c.hasRealData);
-    show('whSetup', needed);
-    if(!needed) return;
-    const left = c.missing.length;
-    setText('whSetupTitle', left ? `${left} ${left===1?'step':'steps'} left` : 'Nearly there');
-    setText('whSetupText', left ? 'Next: ' + c.missing[0].label.toLowerCase() + '.' : 'Check your details and you are done.');
-    document.getElementById('whSetupBar').style.width = c.percent + '%';
-    document.getElementById('whSetupBtn').onclick = (e)=>{ e.preventDefault(); TEI.app.showPage('mydetails'); };
+    show('whSetup', false);
   }
 
   /* ---------------- Total wealth (feature) ---------------- */
@@ -13101,7 +13120,7 @@ TEI.render = TEI.render || {};
      sections and each opens as its own screen with "‹ Me" (B9.1). */
   const ST_TITLES = {profile:'Profile', accounts:'Accounts', holdings:'Holdings', property:'Property and debts',
     income:'Income and spending', goals:'Goals', you:'You and investing', documents:'Documents', plan:'Plan settings',
-    membership:'Membership', notifications:'Notifications', security:'Security and data', help:'Help and learning'};
+    membership:'Membership', appearance:'Appearance', notifications:'Notifications', security:'Security and data', help:'Help and learning'};
   const ST_PANELS = {profile:'subtab-profile', accounts:'subtab-accounts', holdings:'subtab-holdings', property:'subtab-wealth', income:'subtab-cashflow'};
   const TIERS = [
     {id:'core', name:'Core', price:25, reply:'a week', suits:'You are confident with your plan and want help when you ask.',
@@ -13401,6 +13420,7 @@ TEI.render = TEI.render || {};
       if(await requestToCoach('account', 'Account: asked to close my account.', 'stCloseState')) $s('stCloseState').textContent = 'Sent. Your coach will be in touch.';
     });
     $s('stMessage').addEventListener('click', ()=>{ const f = $s('feedbackFabBtn'); if(f) f.click(); });
+    $s('stSetupOpen').addEventListener('click', ()=>{ if(TEI.setup) TEI.setup.open(); });
   }
 
   /* Opens Settings on a section (Home's Update balances lands on Accounts, B9.1). */
@@ -13423,7 +13443,7 @@ TEI.render = TEI.render || {};
         ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)], ['you','You and investing','']]],
       ['Documents and plan', [['documents','Documents', pending ? pending + ' pending' : ''], ['plan','Plan settings', 'Retire at ' + ((c.preferences||{}).retirementAge || 60)]]],
       ['Account', [['membership','Membership', t ? t.name + ' · £' + t.price : ''], ['notifications','Notifications', Object.values(prefs).some(Boolean) ? 'Email on' : 'Email off'], ['security','Security and data','']]],
-      ['Help', [['help','Help and learning',''], ['_message','Message your coach','']]],
+      ['Help', [['help','Help and learning',''], ['_setup','Set up Wealth OS', TEI.setup ? (TEI.setup.gapsFor(c).length ? TEI.setup.gapsFor(c).length + ' to do' : 'All done') : ''], ['_message','Message your coach','']]],
       ['Elsewhere', [['_hub','Client Hub','Learning, guides and videos'], ['_site','Website','The Everyday Investor']]]
     ];
     $s('meGroups').innerHTML = groups.map(g=> `<section class="me-group"><p class="hm-label">${g[0]}</p><ul>${g[1].map(i=>
@@ -13437,6 +13457,7 @@ TEI.render = TEI.render || {};
       const b = e.target.closest('[data-me]'); if(!b) return;
       const k = b.dataset.me;
       if(k === '_message'){ const f = $s('feedbackFabBtn'); if(f) f.click(); }
+      else if(k === '_setup'){ if(TEI.setup) TEI.setup.open(); }
       else if(k === '_hub') location.href = '/hub/index.html';
       else if(k === '_site') location.href = '/index.html';
       else openSettings(k);
@@ -20287,10 +20308,11 @@ window.TEI = window.TEI || {};
     if(TEI.wealthOS.hideBoot) TEI.wealthOS.hideBoot();
     document.getElementById('clientListApp').style.display = 'none';
     state.client = loadedClient;
-    // The client's saved theme wins over this device's, and is mirrored to it for first paint (B1.5).
-    if(loadedClient.meta.role === 'client' && (loadedClient.settings.theme === 'dark' || loadedClient.settings.theme === 'light') && TEI.theme){
-      TEI.theme.apply(loadedClient.settings.theme);
-      try { localStorage.setItem('tei-theme', loadedClient.settings.theme); } catch(e) {}
+    // The client's saved choice wins over this device's and is mirrored to it
+    // for first paint (B1.5). No choice on the record means follow the device.
+    if(loadedClient.meta.role === 'client' && window.TeiTheme){
+      const t = loadedClient.settings.theme;
+      if((t === 'dark' || t === 'light' ? t : 'system') !== TeiTheme.pref()) TeiTheme.set(t === 'dark' || t === 'light' ? t : 'system');
     }
     updateAvatar(state.client);
     const wantSetup = new URLSearchParams(location.search).get('page') === 'setup';
@@ -20304,43 +20326,32 @@ window.TEI = window.TEI || {};
   }
 
   /* ================= THEME ================= */
-  /* Dark mode only: the light/dark toggle is gone, and any 'tei-theme' saved by the
-     old toggle is ignored. The light-theme CSS is left in place, just never applied. */
+  /* Device | Light | Dark (spec B1.5), via /hub/js/tei-theme.js. Chosen in
+     Settings > Appearance (Me on phones) or when setting up Wealth OS. Saved
+     on this device under "tei-theme" and, for a client, on their record
+     (clients.theme, null = follow the device). */
   function wireTheme(){
-    /* Light | Dark (spec B1.5). Saved on this device under "tei-theme", the
-       key the Sign in page and Client Hub share; light is the default.
-       A client's choice is also saved to settings.theme on their record
-       (migration 011) and applied when their Wealth OS opens. */
-    const app = document.getElementById('clientApp');
-    const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>';
-    const SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>';
-    const icon = document.getElementById('wThemeIcon');
-    function apply(theme){
-      app.setAttribute('data-theme', theme);
-      document.querySelectorAll('[data-w-theme]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.wTheme === theme ? 'true' : 'false'));
-      if(icon){
-        icon.innerHTML = theme === 'dark' ? SUN : MOON;
-        icon.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
-      }
+    function mark(){
+      const pref = window.TeiTheme ? TeiTheme.pref() : 'system';
+      document.querySelectorAll('[data-w-theme]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.wTheme === pref ? 'true' : 'false'));
     }
-    function choose(theme){
-      apply(theme);
-      try { localStorage.setItem('tei-theme', theme); } catch(e) {}
-      // Saved on the client record too (spec B1.5), when it is the client's own.
+    function apply(){ if(window.TeiTheme) TeiTheme.paint(); mark(); }
+    function choose(pref){
+      if(window.TeiTheme) TeiTheme.set(pref);
+      mark();
       const c = state.client;
-      if(c && c.meta.role === 'client' && c.settings.theme !== theme){
-        c.settings.theme = theme;
-        TEI.wealthOS.saveClientSettings(c.meta.clientId, {theme}).catch(err=> console.warn('Wealth OS: theme not saved to the account', err));
+      const stored = pref === 'light' || pref === 'dark' ? pref : null;
+      if(c && c.meta.role === 'client' && (c.settings.theme || null) !== stored){
+        c.settings.theme = stored || undefined;
+        TEI.wealthOS.saveClientSettings(c.meta.clientId, {theme: stored}).catch(err=> console.warn('Wealth OS: theme not saved to the account', err));
       }
-      // Charts read the theme when they draw, so redraw the page in view.
-      if(typeof rerenderCurrentPage === 'function') rerenderCurrentPage();
     }
     TEI.theme = {choose, apply};
-    let saved = 'light';
-    try { if(localStorage.getItem('tei-theme') === 'dark') saved = 'dark'; } catch(e) {}
-    apply(saved);
-    document.querySelectorAll('[data-w-theme]').forEach(b=> b.addEventListener('click', ()=> choose(b.dataset.wTheme)));
-    if(icon) icon.addEventListener('click', ()=> choose(app.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+    // Charts read the theme when they draw, so redraw the page in view.
+    let last = window.TeiTheme ? TeiTheme.resolved() : 'light';
+    if(window.TeiTheme) TeiTheme.onChange(t=>{ mark(); if(t !== last){ last = t; if(state.client && typeof rerenderCurrentPage === 'function') rerenderCurrentPage(); } });
+    apply();
+    document.addEventListener('click', e=>{ const b = e.target.closest('[data-w-theme]'); if(b) choose(b.dataset.wTheme); });
   }
 
   /* ================= INIT ================= */
