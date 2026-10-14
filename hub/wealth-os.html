@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wealth OS — TEI Client Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* TEI Wealth Dashboard v2 — Design Tokens
    Inherited from TEI's confirmed brand system (UX & Design System v1.0, A2).
@@ -2189,6 +2189,102 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #efCard #efNote, #efCard > div[style*="height:1px"]{display:none;}
   #cfCoachCard > div:last-child{margin-top:12px !important; padding-top:10px !important;}
 }
+
+/* ================================================================
+   REDESIGN B12.1 -- shell and tokens (spec B1, B2.2, B2.3, B1.5).
+   One layer over everything above, scoped to #clientApp so the Adviser
+   Workspace and Onboarding are untouched (spec B0). The --w-* names are the
+   board tokens (B1.2); the existing names are pointed at them so the pages
+   not yet redesigned pick up the new palette. Fonts: Geist only (B1.1).
+   ================================================================ */
+#clientApp{ --font-display:'Geist', system-ui, sans-serif; --font-body:'Geist', system-ui, sans-serif; }
+
+#clientApp[data-theme="light"]{
+  --w-bg:#F2EFE7; --w-side:#FFFFFF; --w-tile:#FFFFFF; --w-line:#DEDAD0; --w-text:#13213A; --w-muted:#4E5B70;
+  --w-champ:#F0E7D0; --w-powder:#DFE6F2; --w-gold:#83661C; --w-track:#E9E5DA; --w-chip:#F7F4ED;
+  --w-nav-active:#0F1E36; --w-nav-active-text:#E8D6A8; --w-feat:#0F1E36; --w-feat-line:transparent;
+  --w-warn:#9A4A1F; --w-third:#C9D3E3;
+  --page-bg:var(--w-bg); --ink:var(--w-text); --ink-soft:var(--w-muted); --ink-soft2:var(--w-muted); --line:var(--w-line);
+  --card-light-bg:var(--w-tile); --card-light-border:var(--w-line);
+  --card-dark:var(--w-feat); --card-dark2:#12233D;
+  --gold:var(--w-gold); --gold-bg:rgba(131,102,28,0.12);
+  --nav-bg-blur:rgba(255,255,255,0.94);
+  --nav-active-bg:var(--w-chip); --nav-active-ink:var(--w-text); --nav-active-border:transparent;
+  color-scheme:light;
+}
+#clientApp[data-theme="dark"]{
+  --w-bg:#0B1729; --w-side:#0F1E36; --w-tile:#12233D; --w-line:rgba(232,214,168,0.14); --w-text:#F7F4ED; --w-muted:#AAB6C8;
+  --w-champ:#28303A; --w-powder:#1C2B45; --w-gold:#E8D6A8; --w-track:rgba(255,255,255,0.10); --w-chip:rgba(255,255,255,0.05);
+  --w-nav-active:#E8D6A8; --w-nav-active-text:#0F1E36; --w-feat:#1A2C4A; --w-feat-line:rgba(232,214,168,0.28);
+  --w-warn:#F0A97E; --w-third:#5D6F8C;
+  --page-bg:var(--w-bg); --ink:var(--w-text); --ink-soft:var(--w-muted); --ink-soft2:var(--w-muted); --line:var(--w-line);
+  --card-light-bg:var(--w-tile); --card-light-border:var(--w-line);
+  --card-dark:var(--w-feat); --card-dark2:#12233D;
+  --gold:var(--w-gold); --gold-bg:rgba(232,214,168,0.14);
+  --nav-bg-blur:rgba(15,30,54,0.94);
+  --nav-active-bg:var(--w-chip); --nav-active-ink:var(--w-text); --nav-active-border:transparent;
+  color-scheme:dark;
+}
+#clientApp{ background:var(--w-bg); color:var(--w-text); }
+/* The older card layer (--k-*) takes the board tile and feature colours. */
+#clientApp[data-theme]{ --k-card-bg:var(--w-tile); --k-card-border:var(--w-line); --k-emphasis-bg:var(--w-feat); }
+/* Navy feature surfaces stay navy in the light theme, so gold text on them is champagne. */
+#clientApp[data-theme="light"] :is(.wealth-hero, .gcard, .dcard.emphasis){ --gold:#E8D6A8; --gold-bg:rgba(232,214,168,0.14); }
+
+/* Buttons: primary fill is navActive (B1.2). */
+#clientApp .btn-primary{ background:var(--w-nav-active); color:var(--w-nav-active-text); font-weight:500; }
+
+/* -- Theme switch: Light | Dark on desktop, an icon button on phones (B1.5) -- */
+.w-topbar{ display:flex; justify-content:flex-end; align-items:center; padding:20px 32px 0; }
+.w-theme{ display:inline-flex; padding:4px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-tile); }
+.w-theme button{ font-family:inherit; font-size:13px; font-weight:500; min-height:44px; min-width:64px; padding:0 14px; border:0; border-radius:999px; cursor:pointer; background:transparent; color:var(--w-muted); }
+.w-theme button[aria-pressed="true"]{ background:var(--w-nav-active); color:var(--w-nav-active-text); }
+.w-theme-icon{ display:none; align-items:center; justify-content:center; width:44px; height:44px; padding:0; border-radius:50%; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); cursor:pointer; }
+.w-theme-icon svg{ display:block; width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+/* -- Desktop sidebar (B2.2): back link, brand, six rows, client card -- */
+#clientApp .sidebar{ width:248px; background:var(--w-side); border-right:1px solid var(--w-line); padding:20px 16px 18px; }
+.w-back{ display:inline-flex; align-items:center; gap:6px; align-self:flex-start; min-height:44px; padding:0 10px; font-size:13px; color:var(--w-muted); text-decoration:none; }
+.w-back:hover{ color:var(--w-text); }
+.w-back svg{ display:block; width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+#clientApp .sidebar-brand{ gap:10px; padding:0 10px; margin:6px 0 22px; min-height:44px; color:var(--w-text); font-size:17px; font-weight:500; }
+#clientApp .sidebar-brand svg{ display:block; flex:none; }
+#clientApp .sidebar-nav{ gap:4px; }
+#clientApp .sidebar-nav a.navlink{ gap:12px; min-height:44px; padding:0 12px; border:0; border-radius:12px; color:var(--w-muted); font-size:15px; font-weight:400; }
+#clientApp .sidebar-nav a.navlink:hover{ background:var(--w-chip); color:var(--w-text); }
+#clientApp .sidebar-nav a.navlink.nav-active{ background:var(--w-chip); color:var(--w-text); font-weight:500; }
+.w-dot{ flex:none; width:7px; height:7px; border-radius:50%; border:1.5px solid var(--w-gold); box-sizing:border-box; }
+#clientApp .navlink.nav-active .w-dot{ background:var(--w-gold); }
+#clientApp .sidebar-foot{ gap:10px; padding:12px; border:1px solid var(--w-line); border-radius:18px; background:var(--w-tile); }
+#clientApp .nav-avatar{ width:36px; height:36px; background:var(--w-powder); color:var(--w-text); font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; font-weight:500; }
+#clientApp .sidebar-who .who-name{ color:var(--w-text); font-size:14px; font-weight:500; }
+#clientApp .sidebar-who .who-role{ color:var(--w-muted); font-size:12px; }
+#clientApp .nav-icon-btn{ width:44px; height:44px; margin-right:-8px; color:var(--w-muted); }
+#clientApp .nav-icon-btn:hover{ background:var(--w-chip); color:var(--w-text); }
+#clientApp .nav-icon-btn svg{ display:block; width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+#clientApp .nav-icon-btn .notif-dot{ top:10px; right:11px; border-color:var(--w-tile); }
+@media (min-width:901px){ #clientApp .main{ margin-left:248px; } }
+#clientApp .menu-btn{ background:var(--w-side); color:var(--w-text); border-color:var(--w-line); }
+#clientApp .sidebar-close{ background:var(--w-chip); color:var(--w-text); border-color:var(--w-line); }
+
+/* -- Phone bottom bar (B2.3): ring icons, Me as the fifth tab -- */
+#clientApp .m-tabs{ background:var(--w-side); border-top:1px solid var(--w-line); box-shadow:none; }
+#clientApp .m-tab{ color:var(--w-muted); font-family:inherit; }
+#clientApp .m-tab.on{ color:var(--w-text); }
+.w-ring{ display:inline-flex; align-items:center; justify-content:center; flex:none; box-sizing:border-box; width:22px; height:22px; border:1.5px solid currentColor; border-radius:50%; }
+.w-ring::after{ content:''; width:8px; height:8px; border-radius:50%; background:transparent; }
+#clientApp .m-tab.on .w-ring{ border-color:var(--w-gold); }
+#clientApp .m-tab.on .w-ring::after{ background:var(--w-gold); }
+
+/* -- Feedback button: an icon, not an emoji (B0) -- */
+#clientApp .feedback-fab{ background:var(--w-nav-active); color:var(--w-nav-active-text); box-shadow:0 10px 24px rgba(11,23,41,0.25); }
+#clientApp .feedback-fab svg{ display:block; width:22px; height:22px; margin:auto; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+@media (max-width:860px){
+  .w-topbar{ padding:12px 16px 0; }
+  .w-theme{ display:none; }
+  .w-theme-icon{ display:inline-flex; }
+}
 </style>
 </head>
 <body>
@@ -2237,7 +2333,9 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   </div>
 </div>
 
-<div id="clientApp" data-theme="dark">
+<div id="clientApp" data-theme="light">
+<script>/* Saved theme before first paint (B1.5). Light is the default. */
+(function(){ var t = "light"; try { if (localStorage.getItem("tei-theme") === "dark") t = "dark"; } catch (e) {} document.getElementById("clientApp").setAttribute("data-theme", t); })();</script>
 
 <!-- Adviser-only bar: real navigation (not the old role-blind "Preview"
      toggle) -- hidden entirely for client-role logins, so a client's
@@ -2256,7 +2354,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
      alive across page swaps. Hidden entirely when an adviser is "Managing
      this client" (see TEI.feedback.refresh / applyRoleChrome) -- feedback
      is a client-only affordance, the inverse of advDashboardBar. -->
-<button type="button" class="feedback-fab" id="feedbackFabBtn" aria-label="Send feedback">💬</button>
+<button type="button" class="feedback-fab" id="feedbackFabBtn" aria-label="Send feedback"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 9h8"/><path d="M8 13h6"/><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z"/></svg></button>
 <div class="feedback-panel" id="feedbackPanel">
   <div class="fp-head">
     <div class="fp-title">Something not right?</div>
@@ -2288,48 +2386,41 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
      wireMobileTabs(); active tab follows showPage() via syncMobileTabs(). -->
 <div class="m-tabs" id="mTabs" role="navigation" aria-label="Primary">
   <button type="button" class="m-tab on" data-mtab="home">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg>
+    <span class="w-ring" aria-hidden="true"></span>
     <span>Home</span>
   </button>
   <button type="button" class="m-tab" data-mtab="wealth">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19l16 0"/><path d="M4 15l4 -6l4 2l4 -5l4 4"/></svg>
+    <span class="w-ring" aria-hidden="true"></span>
     <span>Wealth</span>
   </button>
   <button type="button" class="m-tab" data-mtab="plan">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 7a5 5 0 1 0 5 5"/><path d="M13 3.055a9 9 0 1 0 7.941 7.945"/><path d="M15 6v3h3l3 -3h-3v-3z"/><path d="M15 9l-3 3"/></svg>
+    <span class="w-ring" aria-hidden="true"></span>
     <span>Plan</span>
   </button>
   <button type="button" class="m-tab" data-mtab="library">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"/><path d="M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"/><path d="M5 8h4"/><path d="M9 16h4"/><path d="M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z"/><path d="M14 9l4 -1"/><path d="M16 16l3.923 -.98"/></svg>
+    <span class="w-ring" aria-hidden="true"></span>
     <span>Library</span>
   </button>
   <button type="button" class="m-tab" data-mtab="menu">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6l16 0"/><path d="M4 12l16 0"/><path d="M4 18l16 0"/></svg>
-    <span>Menu</span>
+    <span class="w-ring" aria-hidden="true"></span>
+    <span>Me</span>
   </button>
 </div>
 
 <div class="app-shell">
   <aside class="sidebar" id="sidebar">
     <button type="button" class="sidebar-close" id="sidebarCloseBtn" aria-label="Close menu">&times;</button>
-    <a href="#" class="sidebar-brand" id="navBrandLink">
-      <span class="nb-mark">TEI</span><span class="nb-divider"></span><span class="nb-sub">Wealth OS</span>
-    </a>
-    <nav class="sidebar-nav">
-      <a href="#" class="navlink" data-page="home"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l-2 0l9 -9l9 9l-2 0"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"/><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"/></svg></span>Home</a>
-      <a href="#" class="navlink" data-page="progress"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19l16 0"/><path d="M4 15l4 -6l4 2l4 -5l4 4"/></svg></span>Wealth</a>
-      <a href="#" class="navlink" data-page="goals"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M12 12m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/></svg></span>Goals</a>
-      <a href="#" class="navlink" data-page="portfolio"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"/><path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2"/><path d="M12 12l0 .01"/><path d="M3 13a20 20 0 0 0 18 0"/></svg></span>Portfolio</a>
-      <a href="#" class="navlink" data-page="planning"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6 -6l4 4l8 -8"/><path d="M14 7l7 0l0 7"/></svg></span>Forecast</a>
-      <a href="#" class="navlink" data-page="cashflow"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6l14 0"/><path d="M14 3l3 3l-3 3"/><path d="M20 18l-14 0"/><path d="M10 15l-3 3l3 3"/></svg></span>Cashflow</a>
-      <a href="#" class="navlink" data-page="update"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg></span>Update</a>
-      <a href="#" class="navlink" data-page="mydetails"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"/><path d="M9 10a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855"/></svg></span>My Details</a>
-      <a href="#" class="navlink" data-page="learning"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 9l-10 -4l-10 4l10 4l10 -4v6"/><path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"/></svg></span>Learn</a>
-      <a href="#" class="navlink" data-page="documents"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"/><path d="M9 9l1 0"/><path d="M9 13l6 0"/><path d="M9 17l6 0"/></svg></span>Documents</a>
+    <a href="/hub/index.html" class="w-back"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Client Hub</a>
+    <a href="#" class="sidebar-brand" id="navBrandLink"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke-width="1.4" style="stroke:var(--w-gold)"/><circle cx="13" cy="13" r="6" fill="none" stroke-opacity=".5" stroke-width="1.2" style="stroke:var(--w-gold)"/><circle cx="13" cy="13" r="2.4" style="fill:var(--w-gold)"/></svg><span>Wealth OS</span></a>
+    <nav class="sidebar-nav" aria-label="Wealth OS">
+      <a href="#" class="navlink" data-page="home"><span class="w-dot" aria-hidden="true"></span>Home</a>
+      <a href="#" class="navlink" data-page="progress"><span class="w-dot" aria-hidden="true"></span>Wealth</a>
+      <a href="#" class="navlink" data-page="goals"><span class="w-dot" aria-hidden="true"></span>Goals</a>
+      <a href="#" class="navlink" data-page="planning"><span class="w-dot" aria-hidden="true"></span>Forecast</a>
+      <a href="#" class="navlink" data-page="cashflow"><span class="w-dot" aria-hidden="true"></span>Cashflow</a>
+      <a href="#" class="navlink" data-page="mydetails"><span class="w-dot" aria-hidden="true"></span>Settings</a>
     </nav>
     <div class="sidebar-spacer"></div>
-    <a href="/" class="sidebar-external-link"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"/><path d="M11 13l9 -9"/><path d="M15 4h5v5"/></svg></span>Visit Website</a>
-    <div class="sidebar-divider"></div>
     <div class="sidebar-foot">
       <div class="nav-menu-wrap">
         <button type="button" class="nav-avatar" id="avatarBtn" aria-label="Account menu" data-toggle-dropdown="avatarDropdown">–</button>
@@ -2348,7 +2439,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
       </div>
       <div class="nav-menu-wrap">
         <button type="button" class="nav-icon-btn" id="notifBtn" aria-label="Notifications" data-toggle-dropdown="notifDropdown">
-          🔔<span class="notif-dot" id="notifDot" style="display:none;"></span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"/><path d="M9 17v1a3 3 0 0 0 6 0v-1"/></svg><span class="notif-dot" id="notifDot" style="display:none;"></span>
         </button>
         <div class="nav-dropdown notif-panel nav-dropdown-up" id="notifDropdown">
           <div class="nd-empty">No new notifications</div>
@@ -2360,6 +2451,10 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   <main class="main">
     <button type="button" class="menu-btn" id="sidebarMenuBtn" aria-label="Open menu">&#9776;</button>
     <div class="main-inner">
+    <div class="w-topbar">
+      <div class="w-theme" role="group" aria-label="Theme"><button type="button" data-w-theme="light" aria-pressed="true">Light</button><button type="button" data-w-theme="dark" aria-pressed="false">Dark</button></div>
+      <button type="button" class="w-theme-icon" id="wThemeIcon" aria-label="Switch to dark theme"></button>
+    </div>
 
 <div id="loadError" style="display:none; background:var(--oxblood-bg); color:#D68992; text-align:center; padding:16px 20px; font-size:13px;">
   Couldn't load this client's dashboard. <span id="loadErrorDetail" style="opacity:0.85;"></span>
@@ -18210,7 +18305,32 @@ window.TEI = window.TEI || {};
   /* Dark mode only: the light/dark toggle is gone, and any 'tei-theme' saved by the
      old toggle is ignored. The light-theme CSS is left in place, just never applied. */
   function wireTheme(){
-    document.getElementById('clientApp').setAttribute('data-theme', 'dark');
+    /* Light | Dark (spec B1.5). Saved on this device under "tei-theme", the
+       key the Sign in page and Client Hub share; light is the default.
+       TODO(B12.9): also save it to settings.theme on the client record. */
+    const app = document.getElementById('clientApp');
+    const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>';
+    const SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>';
+    const icon = document.getElementById('wThemeIcon');
+    function apply(theme){
+      app.setAttribute('data-theme', theme);
+      document.querySelectorAll('[data-w-theme]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.wTheme === theme ? 'true' : 'false'));
+      if(icon){
+        icon.innerHTML = theme === 'dark' ? SUN : MOON;
+        icon.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+      }
+    }
+    function choose(theme){
+      apply(theme);
+      try { localStorage.setItem('tei-theme', theme); } catch(e) {}
+      // Charts read the theme when they draw, so redraw the page in view.
+      if(typeof rerenderCurrentPage === 'function') rerenderCurrentPage();
+    }
+    let saved = 'light';
+    try { if(localStorage.getItem('tei-theme') === 'dark') saved = 'dark'; } catch(e) {}
+    apply(saved);
+    document.querySelectorAll('[data-w-theme]').forEach(b=> b.addEventListener('click', ()=> choose(b.dataset.wTheme)));
+    if(icon) icon.addEventListener('click', ()=> choose(app.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
   }
 
   /* ================= INIT ================= */
