@@ -4,10 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Why Investors Buy at the Top | The Everyday Investor</title>
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/assets/mobile-nav.css">
+<link rel="stylesheet" href="/assets/compliance.css">
+<link rel="stylesheet" href="/assets/article.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Spectral:wght@400;500;600&display=swap');
-
+/* This article's own charts and figures. The page frame is /assets/article.css. */
 :root {
   --navy: #1D3557;
   --navy-dk: #0f1e3a;
@@ -25,198 +30,49 @@
   --radius: 10px;
   --shadow: 0 4px 28px rgba(29,53,87,.10);
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--cream);
-  color: var(--text);
-  line-height: 1.75;
-  font-size: 16px;
-}
-
-/* -- HEADER BAR -- */
-nav {
-  background: var(--navy);
-  width: 100%;
-  height: 68px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 48px;
-}
-.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-logo-mark {
-  width: 22px; height: 22px; border-radius: 50%;
-  border: 1px solid var(--gold);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; color: var(--gold); flex-shrink: 0;
-}
-.nav-logo-text {
-  font-size: 11px; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--gold); font-weight: 600; line-height: 1.35;
-}
-.nav-back {
-  color: rgba(247,244,237,.65); text-decoration: none;
-  font-size: 13px; font-weight: 500; letter-spacing: .03em;
-}
-.nav-back:hover { color: var(--gold); }
-
-/* -- ARTICLE HERO -- */
-.article-hero {
-  max-width: 760px; margin: 0 auto; padding: 56px 24px 32px;
-  text-align: left;
-}
-.eyebrow {
-  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
-  letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dk);
-  margin-bottom: 18px;
-}
-.article-hero h1 {
-  font-family: 'Playfair Display', serif; font-weight: 700;
-  font-size: 42px; line-height: 1.15; color: var(--navy);
-  margin-bottom: 18px;
-}
-.article-hero .dek {
-  font-size: 19px; color: var(--mid); max-width: 640px; line-height: 1.55;
-  font-weight: 500;
-}
-.article-meta {
-  display: flex; gap: 18px; margin-top: 24px; padding-top: 20px;
-  border-top: 1px solid var(--cream-dk);
-  font-size: 12.5px; color: var(--lt); letter-spacing: .02em;
-}
-
-/* -- BODY -- */
-.article-body { max-width: 700px; margin: 0 auto; padding: 0 24px 72px; }
-.article-body p { color: var(--text); margin-bottom: 18px; font-size: 16.5px; max-width: 640px; }
-.article-body p.close { color: var(--mid); font-size: 15.5px; }
-
-/* -- VISUAL BLOCKS -- */
-.visual-block {
-  background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 28px 28px 20px; margin: 28px 0 32px;
-}
-.visual-title {
-  font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px;
-  color: var(--navy); margin-bottom: 4px;
-}
-.visual-sub {
-  font-size: 13.5px; color: var(--lt); margin-bottom: 18px;
-}
 .chart-svg { width: 100%; height: auto; display: block; }
-.axis-label { font: 500 11px 'Inter', sans-serif; fill: var(--lt); }
-.data-label { font: 600 13px 'Spectral', serif; fill: var(--navy); }
-.annotation { font: 500 12px 'Inter', sans-serif; fill: var(--blue-grey); }
+.axis-label { font: 500 11px 'Geist', system-ui, sans-serif; fill: var(--lt); }
+.data-label { font: 600 13px 'Geist', system-ui, sans-serif; fill: var(--navy); }
+.annotation { font: 500 12px 'Geist', system-ui, sans-serif; fill: var(--blue-grey); }
 .grid-line { stroke: var(--cream-dk); stroke-width: 1; }
 .curve-line { fill: none; stroke: var(--gold-dk); stroke-width: 3; stroke-linecap: round; }
 .bubble-quiet { fill: var(--blue-grey); opacity: .85; }
 .bubble-loud { fill: var(--gold-dk); opacity: .9; }
 .peak-line { stroke: var(--blue-grey); stroke-width: 1; stroke-dasharray: 4 4; }
-.peak-label { font: 600 11px 'Inter', sans-serif; fill: var(--navy); letter-spacing: .08em; }
+.peak-label { font: 600 11px 'Geist', system-ui, sans-serif; fill: var(--navy); letter-spacing: .08em; }
 .fall-line { fill: none; stroke: var(--blue-grey); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 2 7; }
-.visual-caption {
-  font-size: 12.5px; color: var(--lt); line-height: 1.6; margin-top: 14px;
-  padding-top: 14px; border-top: 1px solid var(--cream-dk);
-}
-
-/* -- STAT PAIR -- */
 .stat-pair { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 4px; }
 .stat-item { flex: 1; min-width: 170px; background: var(--cream); border-radius: 8px; padding: 22px 18px; text-align: center; }
 .stat-item.market { border-top: 3px solid var(--gold-dk); }
 .stat-item.investor { border-top: 3px solid var(--blue-grey); }
-.stat-num { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 32px; color: var(--navy); }
+.stat-num { font-family: var(--ar-font); font-weight: 700; font-size: 32px; color: var(--navy); }
 .stat-label { font-size: 12.5px; color: var(--mid); margin-top: 6px; }
-
-.pull-quote {
-  font-family: 'Spectral', serif; font-style: italic; font-size: 20px;
-  color: var(--navy-md); line-height: 1.5; margin: 8px 0 32px;
-  padding: 4px 0 4px 22px; border-left: 3px solid var(--blue-grey);
-  max-width: 600px;
-}
-.pull-quote cite {
-  display: block; font-family: 'Inter', sans-serif; font-style: normal;
-  font-size: 12.5px; font-weight: 600; color: var(--lt); margin-top: 8px;
-  letter-spacing: .02em;
-}
-
-/* -- FORCES -- */
 .forces { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 4px; }
 .force { background: var(--cream); border-radius: 8px; padding: 18px 16px; border-top: 3px solid var(--gold-dk); }
 .force-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-dk); margin-bottom: 6px; }
-.force h4 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15px; color: var(--navy); line-height: 1.35; margin-bottom: 8px; }
+.force h4 { font-family: var(--ar-font); font-weight: 600; font-size: 15px; color: var(--navy); line-height: 1.35; margin-bottom: 8px; }
 .force p { font-size: 13.5px; color: var(--mid); line-height: 1.6; }
-@media (max-width: 700px) { .forces { grid-template-columns: 1fr; } }
+@media (max-width: 700px) {
+.forces { grid-template-columns: 1fr; }
+}
 .article-body p.bridge { color: var(--mid); font-size: 16px; font-style: italic; }
-
-/* -- FOUNDER NOTE -- */
 .founder-note { background: var(--gold-lt); border-left: 3px solid var(--gold-dk); border-radius: 0 var(--radius) var(--radius) 0; padding: 24px 26px 20px; margin: 28px 0 32px; }
 .founder-note .note-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gold-dk); margin-bottom: 6px; }
-.founder-note .note-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; color: var(--navy); margin-bottom: 12px; }
+.founder-note .note-title { font-family: var(--ar-font); font-weight: 600; font-size: 19px; color: var(--navy); margin-bottom: 12px; }
 .article-body .founder-note p { font-size: 15.5px; color: var(--text); margin-bottom: 14px; }
 .founder-note .note-sign { font-size: 13px; font-weight: 600; color: var(--mid); margin-top: 4px; }
 .founder-note .note-small { font-size: 12px; color: var(--lt); margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(184,146,45,.25); line-height: 1.6; }
-
-/* -- PRINCIPLES -- */
-.principle-list { display: flex; flex-direction: column; gap: 14px; margin: 8px 0 28px; }
-.principle {
-  background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
-  padding: 18px 22px; border-left: 3px solid var(--gold);
-}
-.principle .num {
-  font-family: 'Spectral', serif; font-size: 14px; font-weight: 600;
-  color: var(--gold-dk); letter-spacing: .04em; margin-bottom: 4px; display: block;
-}
-.principle h3 {
-  font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16px;
-  color: var(--navy); margin-bottom: 5px; line-height: 1.35;
-}
-.principle p { margin-bottom: 0; font-size: 14.5px; color: var(--mid); max-width: none; }
-
-/* -- SUMMARY -- */
 .summary { border-top: 2px solid var(--navy); padding-top: 24px; margin-top: 36px; }
 .article-body .summary-lead {
-  font-family: 'Playfair Display', serif; font-weight: 600; font-size: 21px;
+  font-family: var(--ar-font); font-weight: 600; font-size: 21px;
   color: var(--navy); line-height: 1.35; margin-bottom: 14px;
 }
 .article-body .summary p:last-child { margin-bottom: 0; }
-
-/* -- FOOTER / DISCLAIMER -- */
-footer {
-  background: var(--navy-dk); padding: 36px 24px; margin-top: 8px;
-}
-.footer-inner { max-width: 700px; margin: 0 auto; }
-.disclaimer {
-  font-size: 12.5px; color: rgba(247,244,237,.55); line-height: 1.8;
-  margin-bottom: 14px;
-}
-.sources {
-  font-size: 11.5px; color: rgba(247,244,237,.4); line-height: 1.8;
-}
-
-/* -- WIDE DESKTOP -- */
-@media (min-width: 900px) {
-  .article-hero { max-width: 920px; }
-  .article-body { max-width: 920px; }
-  .article-hero .dek, .article-body p { max-width: 760px; }
-}
-
 @media (max-width: 600px) {
-  nav { padding: 0 20px; }
-  .article-hero { padding: 40px 20px 24px; }
-  .article-hero h1 { font-size: 30px; }
-  .visual-block { padding: 20px 16px 16px; }
-  .stat-pair { flex-direction: column; }
+.stat-pair { flex-direction: column; }
 }
 </style>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/style.css">
-<link rel="stylesheet" href="/assets/mobile-nav.css">
-<link rel="stylesheet" href="/assets/compliance.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
 
@@ -238,18 +94,20 @@ footer {
   </div>
 </div>
 
-<article>
-  <div class="article-hero">
-    <div class="eyebrow">Behaviour &amp; Psychology</div>
-    <h1>Why Investors Buy at the Top</h1>
-    <p class="dek">Rising prices feel like proof a decision was right. This article shows the mechanism that turns a price move into rising confidence, and why that confidence tends to peak exactly when a price has moved furthest from where it started.</p>
-    <div class="article-meta">
-      <span>The Everyday Investor</span>
-      <span>Reading time: 5 minutes</span>
-    </div>
+<main class="tei-article" data-slug="buying-the-top">
+<section class="ar-hero">
+  <div class="ar-hero-ring" aria-hidden="true"></div>
+  <div class="ar-hero-in">
+    <a class="ar-back" href="/articles.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>All articles</a>
+    <!-- Category, date, read time and series are filled from /articles.json by /assets/article.js -->
+    <p class="ar-meta"></p>
+    <h1>Why investors buy at the top</h1>
+    <p class="ar-dek">Rising prices feel like proof a decision was right. This article shows the mechanism that turns a price move into rising confidence, and why that confidence tends to peak exactly when a price has moved furthest from where it started.</p>
   </div>
+</section>
 
-  <div class="article-body">
+<article class="article-body">
+
 
     <p>A queue outside a shop is not only a sign of demand. It can create demand on its own. A passer-by sees a long line, assumes the line itself is evidence something worthwhile is inside, and joins. The queue grows for reasons that have nothing to do with what is actually being sold.</p>
 
@@ -337,6 +195,8 @@ footer {
 
     <p>It is simple to say and hard to do, for exactly the reasons above. Acting against the crowd means sitting with the discomfort all three forces create, and it is no guarantee of being right. Sometimes the crowd is right, and a price that looks stretched keeps rising for years. The point is not to bet against every rally, but to notice when a decision is being driven by the feeling rather than by the business.</p>
 
+    <section class="ar-takeaways" aria-label="Key takeaways">
+    <h2 class="ar-takeaways-label">What to take from this</h2>
     <div class="principle-list">
       <div class="principle">
         <span class="num">01</span>
@@ -354,6 +214,7 @@ footer {
         <p>That describes the shape of the pattern. It is not a signal that says a specific price has stopped rising today.</p>
       </div>
     </div>
+    </section>
 
     <p>There is a measurable cost to this pattern, though buying near the top is only part of it. Studies of fund investors compare the return a fund earns with the return its investors actually receive, once the timing of every purchase and sale is counted. The difference is often called the behaviour gap.</p>
 
@@ -378,9 +239,15 @@ footer {
       <p>Each new buyer reads the move as confirmation, and their buying pushes the price further, drawing in the next. Confidence, the pull of the crowd and the fear of missing out all grow with the price, so buying tends to be loudest near the top of a cycle and quietest near the bottom, the opposite of when prices are most attractive.</p>
       <p>So next time something you own, or something everyone is talking about, has risen sharply, you can ask: has anything about the business actually changed, or only the price? Am I buying because of what I know, or because others are buying? Those questions won't tell you whether the top has arrived. They make sure your decision rests on more than a moving price.</p>
     </div>
-
-  </div>
 </article>
+
+<section class="ar-more">
+  <div class="ar-more-head"><h2>Keep reading</h2><a href="/articles.html">All articles</a></div>
+  <!-- Filled from the "related" list in /articles.json -->
+  <div class="ar-related"></div>
+  <div class="ar-cta"><p>Want to see what this looks like for your own numbers?</p><a href="/book" target="_blank" rel="noopener noreferrer">Book a call</a></div>
+</section>
+</main>
 
 <!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
 <div class="tei-ftr" role="navigation" aria-label="Footer">
@@ -407,6 +274,7 @@ footer {
   </div>
 </footer>
 
+<script src="/assets/article.js" defer></script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

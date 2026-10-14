@@ -203,7 +203,7 @@ body{margin:0;background:#F7F4ED}
 <div style="background: #DFE6F2; border-radius: 26px; padding: 32px; display: flex; flex-direction: column; gap: 14px">
 <p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #0F1E36; opacity: .75">The monthly email</p>
 <h2 style="margin: 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">One email a month. What changed, and what it means.</h2>
-<form id="gt-newsletter" novalidate style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px"><label for="nl-email" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email address</label><input id="nl-email" type="email" name="email" autocomplete="email" required placeholder="you@example.com" style="flex: 1 1 220px; font-family: inherit; font-size: 16px; min-height: 50px; padding: 0 18px; border-radius: 999px; border: 1px solid #B9CAE6; background: #FFFFFF; color: #13213A; box-sizing: border-box"><button type="submit" style="font-family: inherit; cursor: pointer; min-height: 50px; padding: 0 22px; border-radius: 999px; border: 0; background: #0F1E36; color: #E8D6A8; font-size: 15px; font-weight: 500">Sign up</button></form>
+<form id="gt-newsletter" data-tei-newsletter="gt-newsletter-msg" novalidate style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px"><label for="nl-email" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email address</label><input id="nl-email" type="email" name="email" autocomplete="email" required placeholder="you@example.com" style="flex: 1 1 220px; font-family: inherit; font-size: 16px; min-height: 50px; padding: 0 18px; border-radius: 999px; border: 1px solid #B9CAE6; background: #FFFFFF; color: #13213A; box-sizing: border-box"><button type="submit" style="font-family: inherit; cursor: pointer; min-height: 50px; padding: 0 22px; border-radius: 999px; border: 0; background: #0F1E36; color: #E8D6A8; font-size: 15px; font-weight: 500">Sign up</button></form>
 <p id="gt-newsletter-msg" role="status" style="margin: 0; font-size: 13px; color: #4E5B70">Education only. Unsubscribe any time.</p>
 </div>
 <div style="background: #0F1E36; color: #F7F4ED; border-radius: 26px; padding: 32px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 14px">
@@ -244,7 +244,8 @@ body{margin:0;background:#F7F4ED}
   </div>
 </footer>
 <script>
-/* Guides & Tools: search and filters over the cards, and the newsletter sign-up. */
+/* Guides & Tools: search and filters over the cards. The newsletter form is
+   handled by /assets/newsletter.js. */
 (function () {
   var each = function (list, fn) { Array.prototype.forEach.call(list, fn); };
   var cards = document.querySelectorAll('.gt-card');
@@ -285,52 +286,9 @@ body{margin:0;background:#F7F4ED}
     b.addEventListener('click', function () { kind = b.textContent; press(kindButtons, b); apply(); });
   });
   search.addEventListener('input', apply);
-
-  /* ---------- Newsletter sign-up ----------
-     Writes to the public.leads table with source "newsletter", the same way
-     the Cost of Waiting calculator records its leads. The key is the public
-     "anon" key; the table only accepts inserts from it. */
-  var LEADS_URL = "https://ztyqijiiayrengvxsqkw.supabase.co/rest/v1/leads";
-  var LEADS_KEY = "sb_publishable_-ufG5z9acIv49A_TSU0YiQ_D2XNDl92";
-  var form = document.getElementById('gt-newsletter');
-  var email = document.getElementById('nl-email');
-  var message = document.getElementById('gt-newsletter-msg');
-  // TODO(copy sheet): approve these three messages.
-  function say(text, isError) {
-    message.textContent = text;
-    message.classList.toggle('is-error', !!isError);
-  }
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var value = email.value.trim();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      say('Enter a valid email address.', true);
-      email.focus();
-      return;
-    }
-    var button = form.querySelector('button');
-    button.disabled = true;
-    fetch(LEADS_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': LEADS_KEY,
-        'Authorization': 'Bearer ' + LEADS_KEY,
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({ contact_method: 'email', contact_value: value, source: 'newsletter' })
-    }).then(function (response) {
-      if (!response.ok) throw new Error('Sign-up failed: ' + response.status);
-      form.reset();
-      say('Thank you. You are on the list.', false);
-    }).catch(function () {
-      say('That did not go through. Please try again.', true);
-    }).then(function () {
-      button.disabled = false;
-    });
-  });
 })();
 </script>
+<script src="/assets/newsletter.js" defer></script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

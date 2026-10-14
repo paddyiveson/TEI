@@ -1,93 +1,63 @@
 <!DOCTYPE html>
-<html lang="en" data-tei-page="article-index">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Articles -- The Everyday Investor</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
-:root {
-  --navy: #1D3557; --navy-dk: #0f1e3a; --cream: #F7F4ED; --cream-dk: #EDE8DA;
-  --gold: #C9A84C; --gold-dk: #b8922d; --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; }
-
-nav {
-  background: var(--navy); width: 100%; height: 68px; display: flex; align-items: center;
-  justify-content: space-between; padding: 0 48px; position: sticky; top: 0; z-index: 200;
-  box-shadow: 0 2px 16px rgba(0,0,0,.2);
-}
-.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
-.nav-logo-text { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; line-height: 1.35; }
-.nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
-.nav-links a { color: rgba(247,244,237,.65); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .03em; transition: color .2s; }
-.nav-links a:hover, .nav-links a.active { color: var(--gold); }
-.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
-.nav-mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: var(--navy); flex-direction: column; padding: 8px 0; border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
-.nav-mobile-menu a { color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px; font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06); display: block; transition: color .2s; }
-.nav-mobile-menu a:hover { color: var(--gold); }
-.nav-mobile-menu.open { display: flex; }
-
-.art-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 20px 0; }
-.art-hero-inner { max-width: 1320px; margin: 0 auto; padding: 0 40px; display: flex; align-items: center; gap: 16px; }
-.art-eyebrow { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; padding-right: 16px; border-right: 1px solid rgba(201,168,76,.4); line-height: 1.2; }
-.art-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px; color: var(--cream); line-height: 1.2; }
-.art-body { max-width: 1320px; margin: 0 auto; padding: 44px 40px 72px; }
-.art-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 22px; }
-.art-card { display: flex; flex-direction: column; background: var(--white); border: 1px solid var(--cream-dk); border-radius: 12px; box-shadow: 0 4px 28px rgba(29,53,87,.08); padding: 26px 30px; text-decoration: none; color: inherit; transition: border-color .18s ease, transform .18s ease; }
-.art-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-.art-cat { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
-.art-title { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 22px; line-height: 1.25; color: var(--navy); margin-bottom: 10px; }
-.art-dek { font-size: 14px; color: var(--mid); line-height: 1.7; margin-bottom: 10px; }
-.art-dek strong { color: var(--navy); font-weight: 600; }
-.art-foot { margin-top: auto; padding-top: 6px; display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; color: var(--lt); }
-.art-more { color: var(--gold-dk); font-weight: 600; }
-@media(max-width: 700px) { .art-hero { padding: 16px 0; } .art-hero-inner { padding: 0 16px; flex-direction: column; align-items: flex-start; gap: 6px; } .art-eyebrow { border-right: 0; padding-right: 0; } .art-hero h1 { font-size: 20px; } .art-body { padding: 28px 16px 56px; } .art-list { grid-template-columns: 1fr; } .art-card { padding: 22px 20px; } }
-
-footer { background: var(--navy); width: 100%; padding: 36px 48px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-.footer-logo { display: flex; align-items: center; gap: 10px; }
-.footer-logo-mark { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(201,168,76,.5); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--gold); flex-shrink: 0; }
-.footer-logo-text { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(247,244,237,.3); line-height: 1.4; }
-.footer-disc { font-size: 10px; color: rgba(247,244,237,.22); text-align: right; max-width: 420px; line-height: 1.7; }
-
-@media(max-width: 700px) {
-  nav { padding: 0 20px; }
-  .nav-links { display: none; }
-  .nav-mobile-toggle { display: flex; }
-  footer { flex-direction: column; text-align: center; padding: 28px 24px; }
-  .footer-disc { text-align: center; max-width: 100%; }
-}
-</style>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
+<style>
+/* Articles list (redesign phase G4, spec C5). The featured card, the
+   category chips and the cards are drawn from /articles.json by the script
+   at the foot of the page. Shared header and footer: /style.css. */
+body{margin:0;background:#F7F4ED}
+.tei-page{font-family:'Geist',system-ui,sans-serif;color:#13213A;background:#F7F4ED}
+:where(.tei-page) a{color:inherit}
+.tei-page a:hover{opacity:.85}
+.tei-page a:focus-visible,.tei-page button:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:10px}
+.tei-page [hidden]{display:none !important}
+@keyframes t-up{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes t-glow{0%,100%{opacity:.22;transform:scale(1)}50%{opacity:.4;transform:scale(1.08)}}
+@keyframes t-spin{to{transform:rotate(360deg)}}
+@keyframes t-draw2{0%{stroke-dashoffset:520}60%,100%{stroke-dashoffset:0}}
+@keyframes t-riseL{0%{transform:scaleY(0)}45%,100%{transform:scaleY(1)}}
+.t-up{animation:t-up .9s cubic-bezier(.2,.8,.2,1) both}
+.t-up2{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .15s both}
+.t-glow{animation:t-glow 8s ease-in-out infinite}
+.t-s90{animation:t-spin 90s linear infinite}
+.t-s32{animation:t-spin 32s linear infinite}
+.t-draw2{stroke-dasharray:520;animation:t-draw2 4.5s cubic-bezier(.5,.1,.2,1) infinite}
+.t-riseL{transform-box:fill-box;transform-origin:bottom;animation:t-riseL 4.5s cubic-bezier(.3,.8,.3,1) infinite}
+.t-card{transition:transform .25s ease, box-shadow .25s ease}
+.t-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.10)}
+.al-cats{display:flex;flex-wrap:wrap;gap:8px}
+.al-cat{font-family:inherit;cursor:pointer;min-height:44px;padding:0 16px;border-radius:999px;font-size:14px;border:1px solid #DEDAD0;background:transparent;color:#13213A}
+.al-cat span{font-family:'Geist Mono',monospace;font-size:11px;opacity:.7}
+.al-cat[aria-pressed="true"]{border-color:#0F1E36;background:#0F1E36;color:#E8D6A8}
+.al-card{display:flex;flex-direction:column;gap:12px;box-sizing:border-box;min-height:230px;padding:26px;border:1px solid #DEDAD0;border-radius:22px;background:#FFFFFF;text-decoration:none}
+.al-card-top{display:flex;justify-content:space-between;align-items:center}
+.al-tag{font-family:'Geist Mono',monospace;font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid #DEDAD0;color:#4E5B70}
+.al-card h3{margin:0;font-size:22px;line-height:1.25;font-weight:400;letter-spacing:-0.02em}
+.al-card p{margin:0;font-size:15px;line-height:1.55;font-weight:300;color:#4E5B70}
+.al-card p.al-card-meta{margin-top:auto;font-family:'Geist Mono',monospace;font-size:11px;font-weight:400}
+.al-card[data-cat="Behaviour"] .al-tag,.al-card[data-cat="Markets"] .al-tag{border-color:#E2D2AA;color:#83661C}
+.al-card[data-cat="ISAs & pensions"]{background:#DFE6F2}
+.al-card[data-cat="ISAs & pensions"] .al-tag{border-color:#B9CAE6;color:#0F1E36}
+.al-card[data-cat="Markets"]{background:#F0E7D0}
+#al-series a{color:#83661C}
+#al-newsletter-msg.is-error{color:#F0A97E}
+@media (max-width: 760px){
+.t-pad{padding-left:16px !important;padding-right:16px !important}
+.t-sec{padding-top:48px !important;padding-bottom:48px !important}
+}
+@media (prefers-reduced-motion: reduce){.t-up,.t-up2,.t-glow,.t-s90,.t-s32,.t-draw2,.t-riseL{animation:none}.t-draw2{stroke-dasharray:none}.t-card{transition:none}}
+</style>
 </head>
 <body>
-<script>
-/* Safety net: a Supabase password-recovery link can land here instead of
-   /hub/reset-password.html if the project's Site URL falls back to the
-   site root. Forward the code/token on immediately so the reset form still
-   works. Mirrors redirectRecoveryCallbackIfNeeded() in hub/js/supabase-client.js. */
-(function () {
-  var search = window.location.search || "";
-  var hash = window.location.hash || "";
-  var params = new URLSearchParams(search);
-  var isRecovery = params.get("type") === "recovery" || hash.indexOf("type=recovery") !== -1;
-  var hasAuthPayload = params.has("code") || hash.indexOf("access_token=") !== -1;
-  if (hasAuthPayload || isRecovery) {
-    window.location.replace("/hub/reset-password.html" + search + hash);
-  }
-})();
-</script>
-
-<!-- ── NAV ── -->
 <!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
 <div class="tei-hdr" role="banner">
   <div class="tei-hdr-in">
@@ -106,96 +76,53 @@ footer { background: var(--navy); width: 100%; padding: 36px 48px; display: flex
   </div>
 </div>
 
-<!-- ARTICLES -->
-<div class="art-hero">
-  <div class="art-hero-inner">
-    <p class="art-eyebrow">Articles</p>
-    <h1>Investing, explained properly.</h1>
-  </div>
-</div>
-<div class="art-body">
-  <div class="art-list">
-    <a class="art-card" href="/articles/master-the-principles.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">Master the Principles, Ignore the Noise</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Sorts everyday market headlines into "signal" (a real change in what a business is worth) and "noise" (a price move that changes nothing), and compares reacting on the spot with following a rule set in advance.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Gives you a way to check a headline before acting on it, so decisions come from a rule you chose calmly rather than from the mood of the day.</p>
-      <p class="art-foot"><span>4 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/how-wealth-compounds.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">How Wealth Actually Compounds</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Works out what &pound;200 a month grows to at a steady 7% (about &pound;525k over 40 years), then compares the same saving started at 25, 30, 35 and 40.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Shows why starting earlier beats saving more later, and why even a small yearly fee quietly costs you for as long as you pay it.</p>
-      <p class="art-foot"><span>3 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/good-company-good-investment.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">The Difference Between a Good Company and a Good Investment</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Works out how many years of profit you are paying for at different prices (&pound;75 versus &pound;150 for the same &pound;5 of profit), and maps business quality against price paid.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Helps you ask two separate questions before buying anything: is this a good company, and is this a good price for it.</p>
-      <p class="art-foot"><span>4 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/the-100k-milestone.html">
-      <p class="art-cat">Principles &amp; Foundations</p>
-      <h2 class="art-title">The &pound;100,000 Milestone: Why It Matters</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Splits a &pound;200-a-month, 7% pot into money you put in and money it earned, and times the first &pound;100,000 (about 20 years) against the next (about 8).</p>
-      <p class="art-dek"><strong>How it helps:</strong> Shows why &pound;100,000 is roughly where growth starts doing more of the work than saving, so you can keep going through the slow early years.</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/your-first-10k.html">
-      <p class="art-cat">Wealth Building</p>
-      <h2 class="art-title">Why Your First &pound;10,000 Is So Difficult</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Works out who did the work in the first &pound;10,000 (about &pound;9,000 saved, &pound;1,250 grown, 45 months), how much growth really speeds it up, and what extra money is worth early versus late.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Explains why the first stretch feels so slow, that this is normal, and why every extra pound added early counts for more.</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/pension-vs-lisa.html">
-      <p class="art-cat">Tax / Wrappers</p>
-      <h2 class="art-title">Pension vs LISA: Which Should You Use?</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Compares where each top-up comes from (tax relief plus employer money for a pension, a 25% government bonus for a LISA), when each pot unlocks, and works through an early LISA withdrawal: &pound;4,000 paid in, &pound;3,750 back.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Lets you compare the two on how they actually work rather than a rule of thumb, and shows why an early LISA withdrawal costs you some of your own money, not just the bonus.</p>
-      <p class="art-foot"><span>4 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/missing-the-best-days.html">
-      <p class="art-cat">What Happens If</p>
-      <h2 class="art-title">What Happens If You Miss the 10 Best Days in the Market?</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Follows $10,000 in the S&amp;P 500 over twenty years (about $75,000 fully invested, about $34,000 if the 10 best days were missed), shows that 7 of the 10 best days came within 15 days of one of the worst, and how &pound;200 a month buys more when prices fall.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Explains why stepping out to dodge a fall usually means missing the recovery too, and what it takes to keep investing through one.</p>
-      <p class="art-foot"><span>6 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/how-the-stock-market-works.html">
-      <p class="art-cat">Foundations &amp; Mechanics</p>
-      <h2 class="art-title">How the Stock Market Actually Works</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Follows a share from the company that creates it to the price on your screen: where your money goes at an IPO versus afterwards, how an order travels, and how the order book and its spread set the price.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Lets you tell whether a price move reflects a real change in the business or just a shift between buyers and sellers that day.</p>
-      <p class="art-foot"><span>6 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/oil-and-bond-yields.html">
-      <p class="art-cat">Cycles / Macro</p>
-      <h2 class="art-title">How Oil and Bond Yields Affect Equity Markets</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Traces the chain from a rising oil price to falling share prices, works out why a &pound;100 bond drops to about &pound;92.64 when yields go from 5% to 6%, and why the same rate rise takes 9% off one company's value but 14% off another's.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Gives you a way to follow an oil or interest-rate headline through to your own investments, and to ask whether the news was a surprise or already expected.</p>
-      <p class="art-foot"><span>6 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/buying-the-top.html">
-      <p class="art-cat">Behaviour &amp; Psychology</p>
-      <h2 class="art-title">Why Investors Buy at the Top</h2>
-      <p class="art-dek"><strong>What it shows:</strong> Maps how buying grows with the price through a market cycle, the three forces that all peak at the top (certainty, the crowd, fear of missing out), and the 2024 behaviour gap: the market up 25.0%, the average fund investor 16.5%.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Gives you two questions to ask before buying something that has already risen sharply: has the business changed or only the price, and am I buying on what I know or because others are?</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-    <a class="art-card" href="/articles/selling-winners-too-early.html">
-      <p class="art-cat">Behaviour &amp; Psychology</p>
-      <h2 class="art-title">Why We Sell Winners Too Early</h2>
-      <p class="art-dek"><strong>What it shows:</strong> How the price you paid becomes an anchor, a study where gains were sold about 50% more readily than losses (14.8% versus 9.8%), and Palantir's fall and recovery to show what selling at a 100% gain missed.</p>
-      <p class="art-dek"><strong>How it helps:</strong> Takes the purchase price out of the decision with one question: if I didn't already own this, would I buy it today at this price?</p>
-      <p class="art-foot"><span>5 min read</span><span class="art-more">Read article &rarr;</span></p>
-    </a>
-  </div>
-</div>
+<main class="tei-page">
 
-<!-- FOOTER -->
+<section style="background: #0B1729; color: #F7F4ED; position: relative; overflow: hidden">
+<div class="t-glow" style="position: absolute; width: 620px; height: 620px; right: -200px; top: -240px; border-radius: 50%; background: #B9CAE6; filter: blur(150px)" aria-hidden="true"></div>
+<div class="t-pad" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 56px 32px 80px">
+<p class="t-up" style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8D6A8">Articles</p>
+<h1 class="t-up2" style="margin: 16px 0 0; max-width: 900px; font-size: clamp(44px, 6vw, 80px); line-height: 1; font-weight: 300; letter-spacing: -0.045em">How money actually <span style="color: #E8D6A8">behaves.</span></h1>
+<!-- The featured article, from /articles.json -->
+<a id="al-featured" class="t-card" hidden href="/articles.html" style="margin-top: 44px; display: flex; flex-wrap: wrap; text-decoration: none; background: #12233D; border: 1px solid rgba(232,214,168,0.16); border-radius: 28px; overflow: hidden">
+<div style="flex: 1 1 420px; min-width: 0; padding: 36px; display: flex; flex-direction: column; gap: 14px">
+<span data-al="tag" style="align-self: flex-start; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 5px 12px; border-radius: 999px; background: #E8D6A8; color: #0F1E36"></span>
+<h2 data-al="title" style="margin: 0; font-size: clamp(28px, 3.2vw, 40px); line-height: 1.1; font-weight: 300; letter-spacing: -0.03em"></h2>
+<p data-al="teaser" style="margin: 0; font-size: 17px; line-height: 1.6; font-weight: 300; color: #AAB6C8"></p>
+<p data-al="meta" style="margin: auto 0 0; padding-top: 10px; font-family: 'Geist Mono', monospace; font-size: 12px; color: #AAB6C8"></p>
+</div>
+<div style="flex: 1 1 380px; min-width: 0; position: relative; min-height: 280px; background: #0F1E36; overflow: hidden">
+<div class="t-s32" style="position: absolute; width: 300px; height: 300px; right: -90px; top: -120px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.22)" aria-hidden="true"></div>
+<svg viewBox="0 0 400 260" aria-hidden="true" style="position: absolute; inset: 24px; width: calc(100% - 48px); height: calc(100% - 48px)"><line x1="20" y1="240" x2="380" y2="240" stroke="rgba(255,255,255,0.12)"></line><rect class="t-riseL" x="40" y="168" width="60" height="72" rx="8" fill="#B9CAE6" fill-opacity=".85"></rect><rect class="t-riseL" x="40" y="156" width="60" height="12" rx="4" fill="#E8D6A8" style="animation-delay: .2s"></rect><rect class="t-riseL" x="130" y="128" width="60" height="112" rx="8" fill="#B9CAE6" fill-opacity=".85" style="animation-delay: .1s"></rect><rect class="t-riseL" x="130" y="98" width="60" height="30" rx="4" fill="#E8D6A8" style="animation-delay: .3s"></rect><rect class="t-riseL" x="220" y="96" width="60" height="144" rx="8" fill="#B9CAE6" fill-opacity=".85" style="animation-delay: .2s"></rect><rect class="t-riseL" x="220" y="44" width="60" height="52" rx="4" fill="#E8D6A8" style="animation-delay: .4s"></rect><rect class="t-riseL" x="310" y="118" width="60" height="122" rx="8" fill="#B9CAE6" fill-opacity=".85" style="animation-delay: .3s"></rect><rect class="t-riseL" x="310" y="20" width="60" height="98" rx="4" fill="#E8D6A8" style="animation-delay: .5s"></rect></svg>
+</div>
+</a>
+</div>
+</section>
+
+<!-- FILTER + GRID (light) -->
+<section style="background: #F7F4ED">
+<div class="t-pad t-sec" style="max-width: 1280px; margin: 0 auto; padding: 64px 32px 80px">
+<div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between">
+<div id="al-cats" class="al-cats" role="group" aria-label="Category"></div>
+<p id="al-shown" aria-live="polite" style="margin: 0; font-size: 14px; color: #4E5B70"></p>
+</div>
+<p id="al-series" hidden style="margin: 20px 0 0; font-size: 15px; color: #4E5B70"></p>
+<div id="al-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 28px"></div>
+<noscript><p style="margin: 28px 0 0; font-size: 16px; color: #4E5B70">The article list needs JavaScript to load.</p></noscript>
+</div>
+</section>
+
+<!-- NEWSLETTER (dark card) -->
+<section class="t-pad" style="background: #F7F4ED; padding: 0 32px 72px">
+<div style="position: relative; max-width: 1280px; margin: 0 auto; background: #0B1729; color: #F7F4ED; border-radius: 32px; overflow: hidden; padding: 56px 40px; display: flex; flex-wrap: wrap; gap: 32px; align-items: center; justify-content: space-between; box-sizing: border-box">
+<div class="t-s90" style="position: absolute; width: 700px; height: 700px; right: -260px; top: -320px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.12)" aria-hidden="true"></div>
+<div style="position: relative; flex: 1 1 380px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">The monthly email</p><h2 style="margin: 12px 0 0; font-size: clamp(30px, 3.6vw, 44px); line-height: 1.08; font-weight: 300; letter-spacing: -0.03em">New articles and what changed this month, in one email.</h2></div>
+<form data-tei-newsletter="al-newsletter-msg" novalidate style="position: relative; flex: 1 1 360px; display: flex; flex-wrap: wrap; gap: 10px"><label for="al-email" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email address</label><input id="al-email" type="email" name="email" autocomplete="email" required placeholder="you@example.com" style="flex: 1 1 220px; font-family: inherit; font-size: 16px; min-height: 52px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(232,214,168,0.25); background: rgba(255,255,255,0.06); color: #F7F4ED; box-sizing: border-box"><button type="submit" style="font-family: inherit; cursor: pointer; min-height: 52px; padding: 0 24px; border-radius: 999px; border: 0; background: #E8D6A8; color: #0F1E36; font-size: 15px; font-weight: 500">Sign up</button><p id="al-newsletter-msg" role="status" style="margin: 0; flex: 0 0 100%; font-size: 13px; color: #AAB6C8">Education only. Unsubscribe any time.</p></form>
+</div>
+</section>
+
+</main>
+
 <!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
 <div class="tei-ftr" role="navigation" aria-label="Footer">
   <div class="tei-ftr-in">
@@ -221,14 +148,82 @@ footer { background: var(--navy); width: 100%; padding: 36px 48px; display: flex
     <p class="tei-compliance-warning">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
   </div>
 </footer>
-
+<script src="/assets/article.js"></script>
+<script src="/assets/newsletter.js" defer></script>
 <script>
-function toggleNav() {
-  document.getElementById('navMobileMenu').classList.toggle('open');
-}
-function closeNav() {
-  document.getElementById('navMobileMenu').classList.remove('open');
-}
+/* Articles list: everything on this page is drawn from /articles.json.
+   ?series=<slug> shows one series (the link in an article's header). */
+(function () {
+  var T = window.TeiArticles;
+  var CATEGORIES = ['All', 'Basics', 'Behaviour', 'ISAs & pensions', 'Markets'];
+  var ARROW = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"></path></svg>';
+  var grid = document.getElementById('al-grid');
+  var chips = document.getElementById('al-cats');
+  var shown = document.getElementById('al-shown');
+  var seriesLine = document.getElementById('al-series');
+  var featuredCard = document.getElementById('al-featured');
+  var seriesSlug = new URLSearchParams(location.search).get('series');
+  var category = 'All';
+  var all = [], list = [];
+
+  function meta(a) { return T.escapeHtml(T.formatDate(a.date)) + ' &middot; ' + T.escapeHtml(T.readTime(a.readTime)); }
+
+  function card(a) {
+    return '<a class="al-card t-card" data-cat="' + T.escapeHtml(a.category) + '" href="' + T.urlFor(a) + '">' +
+      '<div class="al-card-top"><span class="al-tag">' + T.escapeHtml(a.category) + '</span>' + ARROW + '</div>' +
+      '<h3>' + T.escapeHtml(a.title) + '</h3>' +
+      '<p>' + T.escapeHtml(a.teaser) + '</p>' +
+      '<p class="al-card-meta">' + meta(a) + '</p></a>';
+  }
+
+  function draw() {
+    var visible = list.filter(function (a) { return category === 'All' || a.category === category; });
+    grid.innerHTML = visible.map(card).join('');
+    shown.textContent = seriesSlug
+      ? visible.length + (visible.length === 1 ? ' article' : ' articles') + ' in this series'
+      : visible.length + ' of ' + list.length + ' articles, plus the featured one';
+    Array.prototype.forEach.call(chips.querySelectorAll('button'), function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-cat') === category ? 'true' : 'false');
+    });
+  }
+
+  function drawChips() {
+    chips.innerHTML = CATEGORIES.map(function (c) {
+      var n = c === 'All' ? list.length : list.filter(function (a) { return a.category === c; }).length;
+      return '<button type="button" class="al-cat" data-cat="' + T.escapeHtml(c) + '" aria-pressed="false">' +
+        T.escapeHtml(c) + ' <span>' + n + '</span></button>';
+    }).join('');
+    Array.prototype.forEach.call(chips.querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () { category = b.getAttribute('data-cat'); draw(); });
+    });
+  }
+
+  T.load().then(function (articles) {
+    all = articles;
+    var featured = all.filter(function (a) { return a.featured; })[0];
+    if (seriesSlug) {
+      // A series view lists every article in the series, the featured one included.
+      list = all.filter(function (a) { return a.series && a.series.slug === seriesSlug; });
+      var name = list.length ? list[0].series.name : seriesSlug;
+      seriesLine.innerHTML = 'Showing the ' + T.escapeHtml(name) + ' series. <a href="/articles.html">See all articles</a>';
+      seriesLine.hidden = false;
+    } else {
+      list = all.filter(function (a) { return a !== featured; });
+    }
+    if (featured) {
+      featuredCard.href = T.urlFor(featured);
+      featuredCard.querySelector('[data-al="tag"]').innerHTML = 'Featured &middot; ' + T.escapeHtml(featured.category);
+      featuredCard.querySelector('[data-al="title"]').textContent = featured.title;
+      featuredCard.querySelector('[data-al="teaser"]').textContent = featured.teaser;
+      featuredCard.querySelector('[data-al="meta"]').innerHTML = meta(featured);
+      featuredCard.hidden = false;
+    }
+    drawChips();
+    draw();
+  }).catch(function () {
+    shown.textContent = 'The articles could not be loaded. Please try again.';
+  });
+})();
 </script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>

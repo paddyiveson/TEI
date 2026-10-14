@@ -1,0 +1,131 @@
+/* TEI article template (redesign phase G4, spec C5). Shared by every page in
+   /articles/. Link it BEFORE the page's own <style>, which holds only that
+   article's charts and figures: the page's rules can then adjust this
+   template the way they always adjusted the old one.
+
+   Parts: dark header (back link, category, date, read time, series, title,
+   dek), 860px reading column, figure card, pull quote, key takeaways,
+   "What this does not say" box, the milestone figure, Keep reading, CTA strip.
+   Header data and Keep reading are filled from /articles.json by
+   /assets/article.js. Site header and footer: /style.css. */
+
+body { margin: 0; background: #F7F4ED; color: #13213A; font-family: 'Geist', system-ui, sans-serif; font-size: 16px; line-height: 1.6; }
+
+/* The colour names each article's charts were written with, pointed at the
+   new palette: champagne on dark, gold text on light. */
+.tei-article {
+  --navy: #0F1E36; --navy-dk: #0B1729; --navy-md: #13213A;
+  --blue-grey: #4E5B70;
+  --cream: #F7F4ED; --cream-dk: #E9E5DA;
+  --gold: #E8D6A8; --gold-dk: #83661C; --gold-lt: #F0E7D0;
+  --text: #13213A; --mid: #4E5B70; --lt: #4E5B70;
+  --white: #FFFFFF;
+  --radius: 16px;
+  --shadow: 0 0 0 1px #DEDAD0;
+  --ar-font: 'Geist', system-ui, sans-serif;
+  --ar-mono: 'Geist Mono', ui-monospace, Menlo, Consolas, monospace;
+  display: block;
+  font-family: var(--ar-font);
+  color: #13213A;
+  background: #F7F4ED;
+}
+.tei-article [hidden] { display: none !important; }
+.tei-article a:focus-visible, .tei-article button:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; border-radius: 10px; }
+
+/* -- Dark header -- */
+.ar-hero { position: relative; overflow: hidden; background: #0B1729; color: #F7F4ED; }
+.ar-hero-ring { position: absolute; width: 900px; height: 900px; right: -460px; top: -420px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.10); animation: ar-spin 90s linear infinite; }
+.ar-hero-in { position: relative; box-sizing: content-box; max-width: 860px; margin: 0 auto; padding: 32px 32px 72px; }
+.ar-back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 14px; color: #AAB6C8; text-decoration: none; }
+.ar-back:hover { color: #F7F4ED; }
+.ar-meta { margin: 16px 0 0; min-height: 26px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-family: var(--ar-mono); font-size: 12px; line-height: 1.4; color: #AAB6C8; animation: ar-up .9s cubic-bezier(.2,.8,.2,1) both; }
+.ar-cat { padding: 4px 10px; border-radius: 999px; background: #E8D6A8; color: #0F1E36; }
+.ar-series { color: #E8D6A8; text-underline-offset: 3px; }
+.ar-hero h1 { margin: 18px 0 0; font-size: clamp(38px, 5vw, 64px); line-height: 1.04; font-weight: 300; letter-spacing: -0.04em; color: #F7F4ED; animation: ar-up .9s cubic-bezier(.2,.8,.2,1) .15s both; }
+.ar-dek { margin: 22px 0 0; font-size: 20px; line-height: 1.6; font-weight: 300; color: #AAB6C8; animation: ar-up .9s cubic-bezier(.2,.8,.2,1) .15s both; }
+
+/* -- Reading column -- */
+.article-body { box-sizing: content-box; max-width: 860px; margin: 0 auto; padding: 56px 32px 24px; }
+.article-body p { margin: 0 0 18px; font-size: 16px; line-height: 1.6; color: #13213A; }
+.article-body > p { margin: 0 0 22px; font-size: 19px; line-height: 1.7; font-weight: 300; }
+
+/* -- Figure card -- */
+.visual-block { margin: 12px 0 40px; padding: 28px; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; }
+.visual-title { margin-bottom: 4px; font-size: 18px; font-weight: 500; line-height: 1.3; color: #13213A; }
+.visual-sub { margin-bottom: 18px; font-family: var(--ar-mono); font-size: 11px; line-height: 1.5; color: #4E5B70; }
+.visual-caption { margin-top: 16px; padding-top: 14px; border-top: 1px solid #EEEAE0; font-size: 13px; line-height: 1.55; color: #4E5B70; }
+
+/* -- Pull quote -- */
+.pull-quote { margin: 8px 0 40px; padding: 28px 32px; border-radius: 24px; background: #0F1E36; color: #F7F4ED; font-size: 26px; line-height: 1.35; font-weight: 300; letter-spacing: -0.01em; font-style: normal; }
+.pull-quote cite { display: block; margin-top: 14px; font-family: var(--ar-mono); font-size: 12px; font-style: normal; font-weight: 400; letter-spacing: 0; color: #E8D6A8; }
+
+/* -- Key takeaways -- */
+.ar-takeaways { margin: 0 0 40px; border: 1px solid #DEDAD0; border-radius: 24px; overflow: hidden; background: #FFFFFF; }
+.ar-takeaways-label { margin: 0; padding: 18px 28px; background: #DFE6F2; font-family: var(--ar-mono); font-size: 12px; font-weight: 400; line-height: 1.4; color: #0F1E36; }
+.principle-list { display: block; margin: 0; padding: 8px 28px 16px; }
+.principle { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; padding: 14px 0; border-top: 1px solid #EEEAE0; }
+.principle:first-child { border-top-color: transparent; }
+.principle .num { grid-row: 1 / span 2; padding-top: 3px; font-family: var(--ar-mono); font-size: 13px; color: #83661C; }
+.principle h3 { margin: 0; font-size: 16px; line-height: 1.55; font-weight: 500; color: #13213A; }
+.principle p { margin: 4px 0 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70; }
+
+/* -- "What this does not say" -- */
+.ar-not { margin: 0 0 24px; padding: 22px 26px; border-radius: 20px; background: #F0E7D0; font-size: 15px; line-height: 1.6; color: #13213A; }
+.ar-not strong { font-weight: 500; }
+
+/* -- Milestone figure (interactive) -- */
+.ar-figure { margin: 12px 0 40px; padding: 28px; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px; }
+.ar-figure figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ar-figure-title { font-size: 18px; font-weight: 500; }
+.ar-figure-meta { font-family: var(--ar-mono); font-size: 11px; color: #4E5B70; }
+.ar-seg { margin-top: 16px; display: inline-flex; padding: 4px; border-radius: 999px; border: 1px solid #DEDAD0; }
+.ar-seg button { font-family: var(--ar-mono); cursor: pointer; border: 0; min-height: 44px; min-width: 64px; padding: 0 12px; border-radius: 999px; font-size: 13px; background: transparent; color: #4E5B70; }
+.ar-seg button[aria-pressed="true"] { background: #0F1E36; color: #E8D6A8; }
+.ar-bar { margin-top: 22px; display: flex; gap: 3px; height: 26px; border-radius: 999px; overflow: hidden; }
+.ar-bar > div { transition: width .5s cubic-bezier(.3,.8,.3,1); }
+.ar-bar-you { background: #0F1E36; }
+.ar-bar-growth { background: #E8D6A8; }
+.ar-tiles { margin-top: 16px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.ar-tiles > div { border-radius: 16px; padding: 14px; background: #F7F4ED; }
+.ar-tiles > div:nth-child(2) { background: #F0E7D0; }
+.ar-tiles > div:nth-child(3) { background: #DFE6F2; }
+.ar-tiles p { margin: 0; font-size: 12px; line-height: 1.4; font-weight: 400; color: #4E5B70; }
+.ar-tiles p + p { margin-top: 4px; font-size: 24px; line-height: 1.2; font-weight: 300; color: #13213A; }
+.ar-figure-note { margin: 14px 0 0; font-size: 13px; line-height: 1.5; font-weight: 400; color: #4E5B70; }
+.ar-figure-note strong { color: #13213A; font-weight: 600; }
+
+/* -- Keep reading and the CTA strip -- */
+.ar-more { box-sizing: content-box; max-width: 1280px; margin: 0 auto; padding: 56px 32px 72px; }
+.ar-more-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.ar-more-head h2 { margin: 0; font-size: 28px; font-weight: 300; letter-spacing: -0.02em; }
+.ar-more-head a { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; font-weight: 500; color: #83661C; }
+.ar-related { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 20px; }
+.ar-related a { display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; min-height: 170px; padding: 24px; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; color: #13213A; text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; }
+.ar-related a:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0,0,0,.10); }
+.ar-related-cat { font-family: var(--ar-mono); font-size: 11px; color: #83661C; }
+.ar-related h3 { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 400; }
+.ar-related-time { margin-top: auto; font-family: var(--ar-mono); font-size: 11px; color: #4E5B70; }
+.ar-cta { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; padding: 28px 32px; border-radius: 26px; background: #0B1729; color: #F7F4ED; }
+.ar-cta p { margin: 0; flex: 1 1 320px; font-size: 22px; font-weight: 300; line-height: 1.35; }
+.ar-cta a { display: inline-flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 999px; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 15px; font-weight: 500; }
+
+@keyframes ar-up { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes ar-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 760px) {
+  .ar-hero-in { padding: 20px 16px 56px; }
+  .ar-dek { font-size: 18px; }
+  .article-body { padding: 40px 16px 16px; }
+  .article-body > p { font-size: 17px; }
+  .visual-block, .ar-figure { padding: 20px 16px; border-radius: 20px; }
+  .pull-quote { padding: 24px 22px; font-size: 22px; }
+  .ar-takeaways-label { padding: 16px 20px; }
+  .principle-list { padding: 8px 20px 12px; }
+  .ar-tiles p + p { font-size: 20px; }
+  .ar-more { padding: 40px 16px 56px; }
+  .ar-cta { padding: 24px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ar-hero-ring, .ar-meta, .ar-hero h1, .ar-dek { animation: none; }
+  .ar-bar > div, .ar-related a { transition: none; }
+}
