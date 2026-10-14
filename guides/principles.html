@@ -3,568 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TEI Principles: The Everyday Investor</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap');
-
-:root {
-  --navy:    #1D3557;
-  --navy-dk: #0f1e3a;
-  --navy-md: #2B4C7E;
-  --cream:   #F7F4ED;
-  --cream-dk:#EDE8DA;
-  --gold:    #C9A84C;
-  --gold-dk: #b8922d;
-  --gold-lt: #FBF4E0;
-  --text:    #1a1a2e;
-  --mid:     #4a5568;
-  --lt:      #5f6b7a;
-  --white:   #ffffff;
-  --green:   #2D7D52;
-  --red:     #C0392B;
-  --radius:  10px;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; overflow-x: hidden; }
-
-/* HERO */
-.hero {
-  background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%);
-  padding: 80px 40px 60px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-.hero::before {
-  content: '';
-  position: absolute;
-  top: -100px; right: -100px;
-  width: 500px; height: 500px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,168,76,.08) 0%, transparent 70%);
-  pointer-events: none;
-}
-.hero-eyebrow {
-  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--gold); font-weight: 700; margin-bottom: 16px;
-}
-.hero h1 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(36px, 5vw, 60px);
-  color: var(--cream); line-height: 1.1; margin-bottom: 10px;
-}
-.hero h1 em { color: var(--gold); font-style: italic; font-weight: 400; }
-.hero h2 {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(20px, 2.8vw, 32px);
-  color: var(--gold); font-weight: 600; font-style: normal;
-  line-height: 1.3; margin-bottom: 20px;
-}
-.hero-sub {
-  font-size: 16px; color: rgba(247,244,237,.55);
-  max-width: 640px; margin: 0 auto 40px; line-height: 1.8;
-}
-.nav-dots {
-  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
-}
-.nav-dot {
-  padding: 6px 16px; border-radius: 20px;
-  border: 1px solid rgba(201,168,76,.3);
-  color: rgba(247,244,237,.5); font-size: 11px; font-weight: 600;
-  text-decoration: none; letter-spacing: .04em;
-  transition: all .2s; cursor: pointer;
-}
-.nav-dot:hover { border-color: var(--gold); color: var(--gold); }
-
-/* SECTION WRAPPERS */
-.section { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-.section-navy { background: var(--navy); }
-.section-white { background: var(--white); }
-.section-cream { background: var(--cream); }
-
-.section-eyebrow {
-  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-  color: var(--gold); font-weight: 700; margin-bottom: 10px; display: block;
-}
-.section-title {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(26px, 3.5vw, 40px);
-  color: var(--navy); line-height: 1.15; margin-bottom: 14px;
-}
-.section-title-light { color: var(--cream); }
-.section-sub {
-  font-size: 15px; color: var(--mid); line-height: 1.85;
-  max-width: 640px; margin-bottom: 48px;
-}
-.section-sub-light { color: rgba(247,244,237,.55); }
-
-/* INFLATION SECTION */
-.inflation-bg { background: var(--navy); }
-.inflation-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-
-.two-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
-.path-card {
-  border-radius: var(--radius); padding: 24px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
-}
-.path-card-title {
-  font-size: 13px; font-weight: 700; color: var(--cream);
-  margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
-}
-.path-card-icon { font-size: 18px; }
-.path-card-text { font-size: 13px; color: rgba(247,244,237,.5); line-height: 1.7; }
-
-.manifesto-line {
-  border-left: 3px solid var(--gold);
-  padding: 8px 0 8px 20px;
-  margin: 20px 0;
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(16px, 2vw, 19px);
-  font-weight: 600;
-  color: var(--cream); font-style: normal; line-height: 1.6;
-}
-
-/* PHILOSOPHY */
-.philosophy-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-.philosophy-grid { display: flex; flex-direction: column; gap: 32px; }
-.philosophy-text p {
-  font-size: 15px; color: var(--mid); line-height: 1.85; margin-bottom: 16px;
-}
-.philosophy-text strong { color: var(--navy); }
-.philosophy-text-light p { color: rgba(247,244,237,.6); }
-.philosophy-text-light strong { color: var(--cream); }
-.philosophy-card {
-  background: var(--navy); border-radius: var(--radius); padding: 40px 32px;
-  text-align: center;
-}
-.philosophy-mark {
-  display: block;
-  font-family: 'Playfair Display', serif;
-  font-size: 36px; color: var(--gold); line-height: 1; margin-bottom: 8px;
-}
-.philosophy-card-text {
-  font-family: 'Playfair Display', serif;
-  font-size: 19px; color: var(--cream); font-style: normal; font-weight: 500;
-  line-height: 1.6; max-width: 520px; margin: 0 auto 16px;
-}
-.philosophy-rule {
-  display: block;
-  width: 28px; height: 1.5px; background: var(--gold); margin: 0 auto 10px;
-}
-.philosophy-card-attr {
-  font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--gold); font-weight: 700;
-}
-
-/* THREE STEPS */
-.steps-bg { background: var(--navy); }
-.steps-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-.steps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; position: relative; }
-.steps-connector {
-  position: absolute; top: 40px; left: calc(16.67% + 8px); right: calc(16.67% + 8px);
-  height: 2px; background: linear-gradient(to right, var(--gold), rgba(201,168,76,.2));
-  pointer-events: none; z-index: 0;
-}
-.step-card {
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(255,255,255,.08);
-  border-radius: var(--radius); padding: 28px 24px;
-  cursor: pointer; transition: all .25s; position: relative; z-index: 1;
-  text-align: center;
-}
-.step-card:hover, .step-card.open {
-  background: rgba(255,255,255,.1);
-  border-color: var(--gold);
-}
-.step-num {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: var(--navy-dk); border: 2px solid var(--gold);
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 16px;
-  font-family: 'Playfair Display', serif;
-  font-size: 22px; font-weight: 700; color: var(--gold);
-}
-.step-title {
-  font-size: 14px; font-weight: 700; color: var(--cream);
-  margin-bottom: 8px; letter-spacing: .02em;
-}
-.step-preview {
-  font-size: 12px; color: rgba(247,244,237,.4); line-height: 1.6;
-}
-.step-detail {
-  font-size: 13px; color: rgba(247,244,237,.7); line-height: 1.7;
-  margin-top: 14px; display: none; text-align: left;
-  border-top: 1px solid rgba(255,255,255,.1); padding-top: 14px;
-}
-.step-card.open .step-detail { display: block; }
-.step-toggle {
-  font-size: 18px; color: var(--gold); margin-top: 10px; display: block;
-  transition: transform .2s;
-}
-.step-card.open .step-toggle { transform: rotate(45deg); }
-
-/* CONVICTION MATRIX */
-.matrix-bg { background: var(--cream); }
-.matrix-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-.matrix-grid {
-  display: grid; grid-template-columns: 80px 1fr 1fr;
-  grid-template-rows: 40px 1fr 1fr;
-  gap: 3px; margin-bottom: 32px;
-}
-.matrix-label {
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--lt); text-align: center;
-  padding: 4px;
-}
-.matrix-label.vertical {
-  writing-mode: vertical-rl; transform: rotate(180deg);
-  grid-row: 2 / 4; grid-column: 1;
-}
-.matrix-cell {
-  border-radius: 8px; padding: 20px 18px; cursor: pointer;
-  transition: all .2s; min-height: 160px;
-  display: flex; flex-direction: column; justify-content: space-between;
-}
-.matrix-cell.tl { background: rgba(201,168,76,.12); border: 2px solid rgba(201,168,76,.3); }
-.matrix-cell.tr { background: var(--navy); border: 2px solid var(--gold); border-top: 4px solid var(--gold); }
-.matrix-cell.bl { background: rgba(113,128,150,.08); border: 2px solid rgba(113,128,150,.2); }
-.matrix-cell.br { background: rgba(192,57,43,.08); border: 2px solid rgba(192,57,43,.2); }
-.matrix-cell:hover { transform: scale(1.02); }
-.matrix-cell.active.tl { background: rgba(201,168,76,.2); border-color: var(--gold); }
-.matrix-cell.active.tr { background: rgba(29,53,87,.15); border-color: var(--navy); }
-.matrix-cell.active.bl { background: rgba(113,128,150,.15); border-color: var(--lt); }
-.matrix-cell.active.br { background: rgba(192,57,43,.15); border-color: var(--red); }
-.matrix-cell-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
-.matrix-cell-title { font-size: 13px; font-weight: 700; color: var(--navy); line-height: 1.3; }
-.matrix-cell.tl .matrix-cell-title { color: #8B6914; }
-.matrix-cell.tr .matrix-cell-title { color: var(--cream); }
-.matrix-cell.bl .matrix-cell-title { color: var(--lt); }
-.matrix-cell.br .matrix-cell-title { color: var(--red); }
-.matrix-cell-action {
-  font-size: 10px; font-weight: 700; letter-spacing: .1em;
-  text-transform: uppercase; margin-top: 6px;
-}
-.matrix-cell.tl .matrix-cell-action { color: var(--gold); }
-.matrix-cell.tr .matrix-cell-action { color: var(--gold); }
-.matrix-cell.bl .matrix-cell-action { color: var(--lt); }
-.matrix-cell.br .matrix-cell-action { color: var(--red); }
-.matrix-cell-detail {
-  font-size: 12px; color: var(--mid); line-height: 1.65;
-  display: none; margin-top: 10px; border-top: 1px solid rgba(0,0,0,.08);
-  padding-top: 10px;
-}
-.matrix-cell.active .matrix-cell-detail { display: block; }
-  .matrix-cell.tr .matrix-cell-detail { color: rgba(247,244,237,.7); border-top-color: rgba(255,255,255,.15); }
-  .matrix-cell.tr:hover { background: #253f6a; }
-  .matrix-cell.active.tr { background: #253f6a; border-color: var(--gold); border-top-width: 4px; }
-.matrix-rotation {
-  background: var(--navy); border-radius: var(--radius);
-  padding: 28px 32px; margin-bottom: 0;
-}
-.matrix-rotation-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px; color: var(--cream); margin-bottom: 16px;
-}
-.rotation-examples { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
-.rotation-example {
-  background: rgba(255,255,255,.06); border-radius: 8px; padding: 16px;
-  border-left: 3px solid var(--gold);
-}
-.rotation-example-ticker {
-  font-size: 14px; font-weight: 700; color: var(--gold); margin-bottom: 6px;
-}
-.rotation-example-text {
-  font-size: 12px; color: rgba(247,244,237,.6); line-height: 1.65;
-}
-
-/* PORTFOLIO STRUCTURE */
-.structure-bg { background: var(--white); }
-.structure-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-.structure-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
-.sleeve-wrap {
-  border-radius: var(--radius); overflow: hidden;
-  border: 1.5px solid var(--cream-dk);
-}
-.sleeve-header {
-  padding: 18px 22px;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.sleeve-header.growth { background: var(--navy); }
-.sleeve-header.foundation { background: var(--navy-md); }
-.sleeve-header-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px; color: var(--cream);
-}
-.sleeve-header-pct {
-  font-family: 'Playfair Display', serif;
-  font-size: 28px; font-weight: 700; color: var(--gold);
-}
-.sleeve-sub {
-  font-size: 11px; color: rgba(247,244,237,.5); margin-top: 2px;
-}
-.tier {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 22px; border-bottom: 1px solid var(--cream-dk);
-  cursor: pointer; transition: background .15s; background: var(--white);
-}
-.tier:last-child { border-bottom: none; }
-.tier:hover { background: var(--cream); }
-.tier.active { background: var(--gold-lt); }
-.tier-dot {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-}
-.tier-name { font-size: 13px; font-weight: 600; color: var(--navy); flex: 1; }
-.tier-pct { font-size: 12px; color: var(--lt); }
-.tier-detail {
-  font-size: 12px; color: var(--mid); line-height: 1.65;
-  padding: 12px 22px; background: var(--gold-lt);
-  border-bottom: 1px solid rgba(201,168,76,.2); display: none;
-}
-.tier.active + .tier-detail { display: block; }
-.sizing-block {
-  background: var(--navy); border-radius: var(--radius);
-  padding: 28px 32px; margin-top: 32px;
-}
-.sizing-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px; color: var(--cream); margin-bottom: 14px;
-}
-.sizing-text { font-size: 14px; color: rgba(247,244,237,.6); line-height: 1.8; }
-.sizing-text strong { color: var(--gold); }
-
-/* DIP BUYING */
-.dip-bg { background: var(--cream); }
-.dip-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-.dip-grid { display: flex; flex-direction: column; gap: 32px; }
-.dip-text p { font-size: 15px; color: var(--mid); line-height: 1.85; margin-bottom: 16px; }
-.dip-text strong { color: var(--navy); }
-.cash-meter-wrap { margin-bottom: 24px; }
-.cash-meter-label {
-  font-size: 11px; font-weight: 700; letter-spacing: .12em;
-  text-transform: uppercase; color: var(--lt); margin-bottom: 8px;
-}
-.cash-meter-bar {
-  height: 8px; background: var(--cream-dk); border-radius: 4px;
-  overflow: hidden; margin-bottom: 6px;
-}
-.cash-meter-fill {
-  height: 100%; border-radius: 4px;
-  background: linear-gradient(to right, var(--gold), var(--gold-dk));
-  transition: width .6s ease;
-}
-.cash-meter-labels {
-  display: flex; justify-content: space-between;
-  font-size: 10px; color: var(--lt);
-}
-.scenario-tabs {
-  display: flex; gap: 4px; margin-bottom: 0;
-  background: var(--cream-dk); border-radius: 8px; padding: 4px;
-}
-.scenario-tab {
-  flex: 1; padding: 8px 6px; border: none;
-  background: transparent; border-radius: 6px;
-  font-size: 11px; font-weight: 600; color: var(--lt);
-  cursor: pointer; font-family: 'Inter', sans-serif;
-  transition: all .2s; text-align: center;
-}
-.scenario-tab.active { background: var(--navy); color: var(--cream); }
-.scenario-panels { background: var(--white); border-radius: 0 0 var(--radius) var(--radius); border: 1px solid var(--cream-dk); border-top: none; }
-.scenario-panel { padding: 20px; display: none; }
-.scenario-panel.active { display: block; }
-.scenario-panel-title {
-  font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px;
-  display: flex; align-items: center; gap: 8px;
-}
-.scenario-panel-badge {
-  font-size: 10px; padding: 2px 8px; border-radius: 10px;
-  font-weight: 700; letter-spacing: .08em;
-}
-.badge-red { background: rgba(192,57,43,.1); color: var(--red); }
-.badge-orange { background: rgba(230,126,34,.1); color: #e67e22; }
-.badge-gold { background: rgba(201,168,76,.15); color: #8B6914; }
-.scenario-panel-text { font-size: 13px; color: var(--mid); line-height: 1.7; }
-.vs-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; max-width: 600px; }
-.vs-card { border-radius: 0 8px 8px 0; padding: 14px 16px; border-left: 3px solid; }
-.vs-card.volatility { background: #EAF3DE; border-left-color: #639922; }
-.vs-card.thesis { background: #FAECE7; border-left-color: #D85A30; }
-.vs-card-label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
-.vs-card.volatility .vs-card-label { color: #3B6D11; }
-.vs-card.thesis .vs-card-label { color: #993C1D; }
-.vs-card-text { font-size: 12.5px; color: var(--navy); line-height: 1.6; }
-.vs-card--dark.volatility { background: rgba(255,255,255,.05); border-left-color: #639922; }
-.vs-card--dark.thesis { background: rgba(255,255,255,.05); border-left-color: #D85A30; }
-.vs-card--dark.volatility .vs-card-label { color: #97C459; }
-.vs-card--dark.thesis .vs-card-label { color: #F0997B; }
-.vs-card--dark .vs-card-text { color: rgba(247,244,237,.65); }
-
-/* MACHINE TIMELINE */
-.machine-bg { background: var(--navy); }
-.machine-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-.timeline { position: relative; padding-left: 32px; }
-.timeline::before {
-  content: ''; position: absolute; left: 8px; top: 0; bottom: 0;
-  width: 2px; background: linear-gradient(to bottom, var(--gold), rgba(201,168,76,.1));
-}
-.timeline-item { position: relative; margin-bottom: 32px; }
-.timeline-dot {
-  position: absolute; left: -28px; top: 4px;
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--navy-dk); border: 2px solid var(--gold);
-  cursor: pointer; transition: all .2s;
-}
-.timeline-item.active .timeline-dot { background: var(--gold); }
-.timeline-period {
-  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--gold); font-weight: 700; margin-bottom: 4px; cursor: pointer;
-}
-.timeline-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 18px; color: var(--cream); margin-bottom: 6px; cursor: pointer;
-}
-.timeline-text {
-  font-size: 13px; color: rgba(247,244,237,.6); line-height: 1.75;
-  display: none; margin-top: 8px; max-width: 580px;
-}
-.timeline-item.active .timeline-text { display: block; }
-.closing-block {
-  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
-  border-radius: var(--radius); padding: 32px; margin-top: 48px; text-align: center;
-}
-.closing-block p {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(16px, 2vw, 20px); color: var(--cream);
-  font-style: italic; line-height: 1.6; margin-bottom: 8px;
-}
-.closing-block strong { color: var(--gold); font-style: normal; }
-
-/* CTA BLOCK */
-.cta-block {
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dk) 100%);
-  border-radius: var(--radius);
-  padding: 52px;
-  text-align: center;
-}
-.cta-block h2 { font-family: 'Playfair Display', serif; font-size: clamp(22px,3vw,32px); color: var(--cream); margin-bottom: 12px; line-height: 1.25; }
-.cta-block p { font-size: 15px; color: rgba(247,244,237,.62); max-width: 520px; margin: 0 auto 28px; line-height: 1.75; }
-.cta-steps { display: flex; justify-content: center; gap: 32px; margin-bottom: 36px; flex-wrap: wrap; }
-.cta-step { text-align: center; max-width: 160px; }
-.cta-step-num { width: 36px; height: 36px; border-radius: 50%; background: rgba(201,168,76,.2); border: 1.5px solid var(--gold); color: var(--gold); font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
-.cta-step p { font-size: 12px; color: rgba(247,244,237,.55); margin: 0; line-height: 1.6; }
-.cta-btn {
-  display: inline-flex; align-items: center; gap: 10px;
-  background: var(--gold); color: var(--navy);
-  text-decoration: none; font-size: 14px; font-weight: 700;
-  letter-spacing: .06em; padding: 16px 36px; border-radius: 8px;
-  transition: background .2s;
-}
-.cta-btn:hover { background: var(--gold-dk); }
-.cta-wrap { max-width: 1000px; margin: 0 auto; padding: 16px 32px 64px; }
-
-/* SOFT GATE */
-.gate-bg { background: var(--cream); }
-.gate-inner { max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
-
-/* RESPONSIVE */
-@media(max-width:768px) {
-  .hero { padding: 60px 24px 40px; }
-  .inflation-cards { grid-template-columns: repeat(3,1fr); }
-  .two-paths { grid-template-columns: 1fr; }
-  .philosophy-grid { grid-template-columns: 1fr; }
-  .steps-row { grid-template-columns: 1fr; }
-  .steps-connector { display: none; }
-  .matrix-grid { grid-template-columns: 50px 1fr 1fr; }
-  .rotation-examples { grid-template-columns: 1fr; }
-  .structure-grid { grid-template-columns: 1fr; }
-  .dip-grid { grid-template-columns: 1fr; }
-  .vs-cards { grid-template-columns: 1fr; }
-  .section { padding: 36px 20px; }
-  .inflation-inner, .philosophy-inner, .steps-inner, .matrix-inner,
-  .structure-inner, .dip-inner, .machine-inner, .gate-inner { padding: 36px 20px; }
-  .cta-block { padding: 36px 24px; }
-  .cta-steps { gap: 20px; }
-}
-
-/* PART LABELS */
-.part-eyebrow { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 6px; display: block; }
-.part-eyebrow-light { color: var(--gold); }
-.part-question { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; color: var(--lt); margin-bottom: 20px; }
-.part-question-light { color: rgba(247,244,237,.55); }
-.part-outcome { font-size: 12px; color: var(--lt); border-top: 1px solid var(--cream-dk); margin-top: 20px; padding-top: 14px; max-width: 640px; }
-.part-outcome strong { color: var(--navy); }
-.part-outcome-light { color: rgba(247,244,237,.45); border-top-color: rgba(247,244,237,.12); }
-.part-outcome-light strong { color: var(--cream); }
-
-/* COMPOUNDING CHART */
-.compound-wrap { background: var(--white); border-radius: var(--radius); border: 1px solid var(--cream-dk); padding: 28px; margin-top: 8px; }
-.compound-legend { display: flex; gap: 24px; margin-top: 16px; flex-wrap: wrap; }
-.compound-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--mid); }
-.compound-swatch { width: 20px; height: 3px; border-radius: 2px; }
-
-/* HABIT ROW */
-.habit-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin: 24px 0 12px; }
-
-/* SPECTRUM BAR (Part 2) */
-
-
-/* FLOW DIAGRAM (Part 3) */
-.flow-diagram { display: flex; align-items: center; justify-content: space-between; background: var(--cream); border-radius: var(--radius); padding: 28px 24px; margin: 28px 0; }
-.flow-node { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1; }
-.flow-node-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--navy); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 10px; }
-.flow-node-label { font-size: 12px; font-weight: 700; color: var(--navy); }
-.flow-arrow { flex: 0 0 auto; color: var(--gold); font-size: 20px; padding: 0 8px; margin-bottom: 24px; }
-.flow-diagram-dark { background: rgba(255,255,255,.04); }
-.flow-node-icon-dark {
-  background: rgba(201,168,76,.12); border: 1.5px solid var(--gold);
-  position: relative;
-}
-.flow-node-badge {
-  position: absolute; top: -6px; right: -6px; width: 20px; height: 20px;
-  border-radius: 50%; background: var(--gold); color: var(--navy);
-  font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
-.flow-node-label-dark { color: var(--cream); }
-.part3-bridge {
-  font-size: 13px; color: var(--gold); font-weight: 700; text-align: center;
-  margin: 0;
-}
-.part3-sublabel {
-  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-  color: rgba(201,168,76,.7); font-weight: 700; margin-bottom: 8px; display: block;
-}
-@media(max-width:768px) {
-  .flow-diagram { flex-wrap: wrap; }
-  .flow-arrow { transform: rotate(90deg); }
-}
-.habit-card { background: rgba(247,244,237,.04); border: 1px solid rgba(247,244,237,.12); border-radius: var(--radius); padding: 18px 16px; text-align: center; }
-.habit-icon { font-size: 22px; margin-bottom: 8px; }
-.habit-title { font-size: 12px; font-weight: 700; color: var(--gold); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 6px; }
-.habit-text { font-size: 12px; color: rgba(247,244,237,.6); line-height: 1.5; }
-@media(max-width:768px){ .habit-row{ grid-template-columns:1fr 1fr; } }
-
-/* PART NAV */
-.part-nav { position: sticky; top: 0; z-index: 50; background: rgba(29,53,87,.97); backdrop-filter: blur(6px); padding: 12px 20px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-.part-nav a { font-size: 11px; font-weight: 600; letter-spacing: .05em; color: rgba(247,244,237,.55); text-decoration: none; padding: 6px 12px; border-radius: 20px; border: 1px solid rgba(201,168,76,.25); transition: all .2s; }
-.part-nav a:hover { color: var(--gold); border-color: var(--gold); }
-</style>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
+<title>TEI Principles: Investment Philosophy -- The Everyday Investor</title>
+<meta name="description" content="Successful investing is not built on predictions. It is built on disciplined thinking. The philosophy, behaviours and frameworks behind TEI's approach.">
+<!-- Light or dark before anything paints: the device setting, or a member's own choice. -->
+<script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
-<!-- Brand content skin (design spec pilot): new tokens, type and components over the legacy page. -->
+<link rel="stylesheet" href="/assets/article.css">
 <link rel="stylesheet" href="/assets/content.css">
-<script src="/assets/content.js" defer></script>
 </head>
-<body>
+<body class="tc-page" data-hub-back="/hub/guides.html" data-hub-label="Client Hub guides and tools">
+
+<!-- Line icons used on this page -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-trend" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M4 15l4.5-5.5 4 3L17 7l3 3"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 17.5h2"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16"/><path d="M8 20h8"/><path d="M5 7h14"/><path d="M5 7l-2.5 6a2.5 2.5 0 0 0 5 0z"/><path d="M19 7l-2.5 6a2.5 2.5 0 0 0 5 0z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4"/><path d="M4 16l8 4 8-4"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M16 3v4M8 3v4M4 11h16"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5A2.5 2.5 0 0 1 7.5 3H19v15H7.5A2.5 2.5 0 0 0 5 20.5z"/><path d="M5 20.5A2.5 2.5 0 0 1 7.5 18H19v3H7.5"/></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16 9.5"/></symbol>
+  </defs>
+</svg>
+
 <!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
-<div class="tei-hdr tei-hdr--static" role="banner">
+<div class="tei-hdr" role="banner">
   <div class="tei-hdr-in">
     <a class="tei-hdr-brand" href="/index.html" aria-label="The Everyday Investor, home"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#E8D6A8" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="#E8D6A8" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="#E8D6A8"/></svg><span>The Everyday Investor</span></a>
     <div class="tei-hdr-nav" role="navigation" aria-label="Main">
@@ -580,552 +52,348 @@ body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--
     </div>
   </div>
 </div>
-<a href="/guides.html" style="position:fixed;top:14px;left:14px;z-index:9999;display:inline-flex;align-items:center;gap:6px;background:#1D3557;color:#F7F4ED;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:9px 16px;border-radius:20px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.2);">&#8592; Back to Guides &amp; Tools</a>
 
-<!-- HERO -->
-<div class="hero" id="top">
-  <span class="hero-eyebrow">The Everyday Investor</span>
-  <h1>Investment Philosophy</h1>
-  <h2>Master The Principles, Ignore The Noise</h2>
-  <p class="hero-sub">Successful investing is not built on predictions. It is built on disciplined thinking. Discover the timeless philosophy, behaviours and frameworks behind TEI's approach, helping you navigate uncertainty, avoid emotional decisions and become a more confident long-term investor.</p>
-  <div class="nav-dots">
-    <a class="nav-dot" href="#part1">Part 1: Why Invest</a>
-    <a class="nav-dot" href="#part2">Part 2: How to Think</a>
-    <a class="nav-dot" href="#part3">Part 3: How TEI Thinks</a>
-    <a class="nav-dot" href="#part4">Part 4: Building a Portfolio</a>
-    <a class="nav-dot" href="#part5">Part 5: Living the Principles</a>
+<main class="tei-article tc-main">
+<section class="ar-hero" id="top">
+  <div class="ar-hero-ring" aria-hidden="true"></div>
+  <div class="ar-hero-in">
+    <a class="ar-back" data-public href="/guides.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>Guides &amp; Tools</a>
+    <p class="ar-meta"><span class="ar-cat">Guide</span><span>5 parts &middot; 8 min read</span></p>
+    <h1>Investment Philosophy</h1>
+    <p class="tc-hero-sub">Master The Principles, Ignore The Noise</p>
+    <p class="ar-dek">Successful investing is not built on predictions. It is built on disciplined thinking. Discover the timeless philosophy, behaviours and frameworks behind TEI's approach, helping you navigate uncertainty, avoid emotional decisions and become a more confident long-term investor.</p>
   </div>
-</div>
+</section>
 
-<!-- PART 1: WHY INVEST -->
-<div class="inflation-bg" id="part1">
-  <div class="inflation-inner">
-    <span class="part-eyebrow part-eyebrow-light">Part 1</span>
-    <h2 class="section-title section-title-light" style="margin-bottom:6px;">Why invest at all?</h2>
-    <p class="section-sub section-sub-light" style="margin-bottom:32px;">That bank balance you see every time you open your phone is lying to you. The figure might not change, but inflation is eroding it a little more each day. What you can buy today is significantly more than what you will be able to buy years from now.</p>
-
-    <p style="font-size:14px;color:rgba(247,244,237,.65);line-height:1.7;max-width:560px;margin:0 0 20px;">The number on your statement never falls. What it can actually buy does, quietly, every year it sits in cash.</p>
-
-    <div style="background:rgba(255,255,255,.04);border-radius:var(--radius);padding:28px;">
-      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,237,.4);margin-bottom:20px;">Real buying power of &pound;10,000 held in cash, at 3% average inflation</div>
-      <div style="display:flex;align-items:flex-end;gap:20px;height:140px;">
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
-          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">&pound;10,000</div>
-          <div style="width:100%;height:120px;background:var(--gold);border-radius:4px 4px 0 0;"></div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,237,.4);margin-top:8px;">Today</div>
-        </div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
-          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">&pound;8,587</div>
-          <div style="width:100%;height:103px;background:rgba(255,255,255,.25);border-radius:4px 4px 0 0;"></div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,237,.4);margin-top:8px;">5 years</div>
-        </div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
-          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">&pound;7,374</div>
-          <div style="width:100%;height:88px;background:rgba(255,255,255,.25);border-radius:4px 4px 0 0;"></div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,237,.4);margin-top:8px;">10 years</div>
-        </div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
-          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--cream);margin-bottom:6px;">&pound;5,438</div>
-          <div style="width:100%;height:65px;background:rgba(255,255,255,.25);border-radius:4px 4px 0 0;"></div>
-          <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,237,.4);margin-top:8px;">20 years</div>
-        </div>
-      </div>
+<div class="tc-guide">
+  <nav class="tc-rail" aria-label="Contents">
+    <div class="tc-rail-in">
+      <p class="tc-rail-label">Contents</p>
+      <ol></ol>
     </div>
-    <p style="font-size:13px;color:var(--gold);font-weight:600;margin:18px 0 0;">By year 20, that &pound;10,000 buys barely more than half of what it does today.</p>
+  </nav>
 
-    <p style="font-size:14px;color:rgba(247,244,237,.6);margin:28px 0 12px;line-height:1.8;">Investing answers this: put money into productive assets so it grows instead of shrinks. Growth on top of growth is compounding, the single biggest lever an ordinary investor has.</p>
+  <div class="tc-body">
+    <details class="tc-toc-m">
+      <summary>Contents: <span>Why invest at all?</span></summary>
+      <ol></ol>
+    </details>
 
-    <div class="compound-wrap">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);margin-bottom:20px;">The same &pound;10,000, after 20 years</div>
-      <div style="display:flex;align-items:flex-end;gap:40px;height:180px;padding:0 20px;">
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
-          <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px;">~&pound;46,600</div>
-          <div style="width:64px;height:150px;background:linear-gradient(180deg,var(--gold) 0%,var(--gold-dk) 100%);border-radius:6px 6px 0 0;"></div>
+    <!-- ============ PART 1 ============ -->
+    <section class="tc-part" id="part1" data-toc="Why invest at all?">
+      <span class="tc-part-no">Part 1</span>
+      <h2 class="tc-h2">Why invest at all?</h2>
+      <p class="tc-lead">That bank balance you see every time you open your phone is lying to you. The figure might not change, but inflation is eroding it a little more each day. What you can buy today is significantly more than what you will be able to buy years from now.</p>
+      <p>The number on your statement never falls. What it can actually buy does, quietly, every year it sits in cash.</p>
+
+      <figure class="tc-tile" style="margin:24px 0">
+        <figcaption class="tc-label">Real buying power of &pound;10,000 held in cash, at 3% average inflation</figcaption>
+        <div class="tc-bars" role="img" aria-label="Real buying power of 10,000 pounds in cash at 3 percent inflation: 10,000 today, 8,587 after 5 years, 7,374 after 10 years, 5,438 after 20 years">
+          <div class="tc-bar is-main" style="--h:100%"><span class="tc-bar-v">&pound;10,000</span><i class="tc-bar-fill"></i><span class="tc-bar-k">Today</span></div>
+          <div class="tc-bar" style="--h:85.9%"><span class="tc-bar-v">&pound;8,587</span><i class="tc-bar-fill"></i><span class="tc-bar-k">5 years</span></div>
+          <div class="tc-bar" style="--h:73.7%"><span class="tc-bar-v">&pound;7,374</span><i class="tc-bar-fill"></i><span class="tc-bar-k">10 years</span></div>
+          <div class="tc-bar" style="--h:54.4%"><span class="tc-bar-v">&pound;5,438</span><i class="tc-bar-fill"></i><span class="tc-bar-k">20 years</span></div>
         </div>
-        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
-          <div style="font-size:15px;font-weight:700;color:var(--lt);margin-bottom:8px;">&pound;5,438</div>
-          <div style="width:64px;height:18px;background:var(--cream-dk);border:1px solid var(--lt);border-radius:6px 6px 0 0;"></div>
+        <p class="tc-fig-note">By year 20, that &pound;10,000 buys barely more than half of what it does today.</p>
+      </figure>
+
+      <p>Investing answers this: put money into productive assets so it grows instead of shrinks. Growth on top of growth is compounding, the single biggest lever an ordinary investor has.</p>
+
+      <figure class="tc-tile" style="margin:24px 0">
+        <figcaption class="tc-label">The same &pound;10,000, after 20 years</figcaption>
+        <div class="tc-bars is-narrow" role="img" aria-label="The same 10,000 pounds after 20 years: about 46,600 pounds invested and reinvested at an illustrative 8 percent, against 5,438 pounds of real value left as cash">
+          <div class="tc-bar is-main" style="--h:100%"><span class="tc-bar-v">~&pound;46,600</span><i class="tc-bar-fill"></i><span class="tc-bar-k">Invested and reinvested<br>(illustrative, ~8% average annual growth)</span></div>
+          <div class="tc-bar is-quiet" style="--h:11.7%"><span class="tc-bar-v">&pound;5,438</span><i class="tc-bar-fill"></i><span class="tc-bar-k">Left as cash<br>(real value, eroded by inflation)</span></div>
         </div>
-      </div>
-      <div style="display:flex;gap:40px;padding:0 20px;margin-top:10px;border-top:1px solid var(--cream-dk);">
-        <div style="flex:1;text-align:center;font-size:12px;color:var(--mid);padding-top:10px;">Invested and reinvested<br><span style="color:var(--lt);">(illustrative, ~8% average annual growth)</span></div>
-        <div style="flex:1;text-align:center;font-size:12px;color:var(--mid);padding-top:10px;">Left as cash<br><span style="color:var(--lt);">(real value, eroded by inflation)</span></div>
-      </div>
-    </div>
+      </figure>
 
-    <p style="font-size:14px;color:rgba(247,244,237,.6);margin:24px 0 0;line-height:1.8;max-width:640px;">That gap only opens up if the money stays invested. Buying today and selling in six weeks is speculation wearing investing's clothes. Long-term ownership is what gives compounding the years it needs.</p>
+      <p>That gap only opens up if the money stays invested. Buying today and selling in six weeks is speculation wearing investing's clothes. Long-term ownership is what gives compounding the years it needs.</p>
 
-    <div style="background:var(--gold-lt);border-left:4px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 24px;margin-top:32px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:6px;">Outcome</div>
-      <div style="font-size:16px;color:var(--navy);font-weight:600;line-height:1.5;">Members understand why investing matters before learning how investing works.</div>
-    </div>
-  </div>
-</div>
+      <div class="tc-callout is-outcome"><svg aria-hidden="true"><use href="#i-check"/></svg><span class="tc-label">Outcome</span><p>Members understand why investing matters before learning how investing works.</p></div>
+    </section>
 
-<!-- PART 2: HOW SHOULD I THINK -->
-<div id="part2" style="background:var(--white);">
-  <div class="section" style="padding-bottom:64px;">
-    <span class="part-eyebrow">Part 2</span>
-    <h2 class="section-title" style="margin-bottom:6px;">How should I think?</h2>
-    <p class="section-sub" style="margin-bottom:8px;">Most people default to one of two habits. Neither is a strategy.</p>
+    <!-- ============ PART 2 ============ -->
+    <section class="tc-part" id="part2" data-toc="How should I think?">
+      <span class="tc-part-no">Part 2</span>
+      <h2 class="tc-h2">How should I think?</h2>
+      <p class="tc-q">Most people default to one of two habits. Neither is a strategy.</p>
 
-    <div class="two-paths">
-      <div class="path-card" style="background:var(--white);border-top:3px solid #D85A30;">
-        <div class="path-card-title" style="color:var(--navy);"><span class="path-card-icon">&#128200;</span>The passive default</div>
-        <div class="path-card-text" style="color:var(--mid);">Everything into a broad tracker, on autopilot, without weighing it against anything else. You get the market return. Nothing more.</div>
-        <span style="display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#993C1D;background:#FAECE7;padding:4px 10px;border-radius:20px;margin-top:12px;">Not a strategy</span>
-      </div>
-      <div class="path-card" style="background:var(--white);border-top:3px solid #D85A30;">
-        <div class="path-card-title" style="color:var(--navy);"><span class="path-card-icon">&#128241;</span>Chasing the noise</div>
-        <div class="path-card-text" style="color:var(--mid);">Whatever name is trending this week. By the time a story feels obvious, it is usually already priced in.</div>
-        <span style="display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#993C1D;background:#FAECE7;padding:4px 10px;border-radius:20px;margin-top:12px;">Not a strategy either</span>
-      </div>
-    </div>
-
-    <p style="font-size:14px;color:var(--mid);line-height:1.8;margin:20px 0 20px;max-width:640px;">Successful investing is behavioural before it is technical. Patience, discipline and a longer time horizon consistently beat speed, activity and being early to a headline.</p>
-
-    <div style="background:var(--white);border-radius:var(--radius);padding:24px;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);margin-bottom:16px;">Signal vs noise, at a glance</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-        <div>
-          <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#3B6D11;margin-bottom:10px;font-size:13px;"><span style="width:8px;height:8px;border-radius:50%;background:#639922;display:inline-block;"></span>Signal</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="font-size:13px;color:var(--navy);padding:8px 12px;background:#EAF3DE;border-radius:6px;">Earnings reports</div>
-            <div style="font-size:13px;color:var(--navy);padding:8px 12px;background:#EAF3DE;border-radius:6px;">Business execution</div>
-            <div style="font-size:13px;color:var(--navy);padding:8px 12px;background:#EAF3DE;border-radius:6px;">Macro headwinds</div>
-          </div>
+      <div class="tc-two">
+        <div class="tc-card">
+          <span class="tc-card-icon"><svg aria-hidden="true"><use href="#i-trend"/></svg></span>
+          <h3>The passive default</h3>
+          <p>Everything into a broad tracker, on autopilot, without weighing it against anything else. You get the market return. Nothing more.</p>
+          <span class="tc-tag">Not a strategy</span>
         </div>
-        <div>
-          <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#993C1D;margin-bottom:10px;font-size:13px;"><span style="width:8px;height:8px;border-radius:50%;background:#D85A30;display:inline-block;"></span>Noise</div>
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <div style="font-size:13px;color:var(--navy);padding:8px 12px;background:#FAECE7;border-radius:6px;">Headlines</div>
-            <div style="font-size:13px;color:var(--navy);padding:8px 12px;background:#FAECE7;border-radius:6px;">Analyst commentary</div>
-            <div style="font-size:13px;color:var(--navy);padding:8px 12px;background:#FAECE7;border-radius:6px;">Single red days</div>
-          </div>
+        <div class="tc-card">
+          <span class="tc-card-icon"><svg aria-hidden="true"><use href="#i-phone"/></svg></span>
+          <h3>Chasing the noise</h3>
+          <p>Whatever name is trending this week. By the time a story feels obvious, it is usually already priced in.</p>
+          <span class="tc-tag">Not a strategy either</span>
         </div>
       </div>
-    </div>
 
-    <div style="background:var(--navy);border-radius:var(--radius);padding:32px 28px;margin-bottom:20px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px;">
-        <div style="border-left:3px solid #D85A30;padding-left:14px;">
-          <div style="font-weight:700;color:#F09979;font-size:13px;margin-bottom:6px;">Marcus &mdash; Reactive</div>
-          <div style="font-size:13px;color:rgba(247,244,237,.65);line-height:1.65;">Sees a red headline. Sells by lunchtime.</div>
-        </div>
-        <div style="border-left:3px solid #639922;padding-left:14px;">
-          <div style="font-weight:700;color:#97C459;font-size:13px;margin-bottom:6px;">Priya &mdash; Disciplined</div>
-          <div style="font-size:13px;color:rgba(247,244,237,.65);line-height:1.65;">Reads the same headline. Checks whether the thesis actually changed. Does nothing if it has not.</div>
+      <p>Successful investing is behavioural before it is technical. Patience, discipline and a longer time horizon consistently beat speed, activity and being early to a headline.</p>
+
+      <div class="tc-tile">
+        <span class="tc-label">Signal vs noise, at a glance</span>
+        <div class="tc-sort">
+          <div><h4><i></i>Signal</h4><ul><li>Earnings reports</li><li>Business execution</li><li>Macro headwinds</li></ul></div>
+          <div class="is-noise"><h4><i></i>Noise</h4><ul><li>Headlines</li><li>Analyst commentary</li><li>Single red days</li></ul></div>
         </div>
       </div>
-      <div style="font-size:12px;color:rgba(247,244,237,.4);text-align:center;margin-bottom:16px;">Same information. Different outcome.</div>
-      <div style="position:relative;height:32px;">
-        <div style="position:absolute;top:14px;left:0;right:0;height:2px;background:linear-gradient(90deg,#D85A30,#639922);border-radius:1px;"></div>
-        <div style="position:absolute;top:6px;left:14%;width:18px;height:18px;border-radius:50%;background:var(--navy);border:2px solid #D85A30;transform:translateX(-50%);"></div>
-        <div style="position:absolute;top:6px;left:86%;width:18px;height:18px;border-radius:50%;background:var(--navy);border:2px solid #639922;transform:translateX(-50%);"></div>
+
+      <div class="tc-tile">
+        <div class="tc-two" style="margin:0">
+          <div class="tc-who is-react"><span class="tc-who-name">Marcus &middot; Reactive</span><p>Sees a red headline. Sells by lunchtime.</p></div>
+          <div class="tc-who is-calm"><span class="tc-who-name">Priya &middot; Disciplined</span><p>Reads the same headline. Checks whether the thesis actually changed. Does nothing if it has not.</p></div>
+        </div>
+        <p class="tc-scale-note">Same information. Different outcome.</p>
+        <div class="tc-scale" aria-hidden="true"><div class="tc-scale-track"></div><div class="tc-scale-ends"><span>Reactive</span><span>Disciplined</span></div></div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(247,244,237,.4);margin-top:4px;">
-        <span>Reactive</span><span>Disciplined</span>
-      </div>
-    </div>
 
-    <div class="philosophy-card">
-      <span class="philosophy-mark" aria-hidden="true">&ldquo;</span>
-      <p class="philosophy-card-text">Invest in tomorrow. Not today. The largest positions are not simply the highest-conviction ideas. They are the ideas where high conviction and current market favour overlap.</p>
-      <span class="philosophy-rule" aria-hidden="true"></span>
-      <p class="philosophy-card-attr">TEI Principles</p>
-    </div>
+      <blockquote class="pull-quote">Invest in tomorrow. Not today. The largest positions are not simply the highest-conviction ideas. They are the ideas where high conviction and current market favour overlap.<cite>TEI Principles</cite></blockquote>
 
-    <div style="background:var(--gold-lt);border-left:4px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 24px;margin-top:32px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:6px;">Outcome</div>
-      <div style="font-size:16px;color:var(--navy);font-weight:600;line-height:1.5;">Members understand that successful investing is primarily behavioural rather than technical.</div>
-    </div>
-  </div>
-</div>
+      <div class="tc-callout is-outcome"><svg aria-hidden="true"><use href="#i-check"/></svg><span class="tc-label">Outcome</span><p>Members understand that successful investing is primarily behavioural rather than technical.</p></div>
+    </section>
 
-<!-- PART 3: HOW DOES TEI THINK -->
-<div id="part3" style="background:var(--navy);">
-  <div class="philosophy-inner" style="padding-top:56px;padding-bottom:8px;">
-    <span class="part-eyebrow part-eyebrow-light">Part 3</span>
-    <h2 class="section-title section-title-light" style="margin-bottom:6px;">How does TEI think?</h2>
-    <p class="part-question part-question-light">Part 2 covered how an individual investor should think. That discipline is easy to describe and hard to hold onto alone, especially when a headline is telling you to panic. This is how TEI applies it systematically, on every single decision, so it does not depend on willpower in the moment.</p>
-    <div class="philosophy-text philosophy-text-light" style="margin-top:24px;max-width:720px;">
+    <!-- ============ PART 3 ============ -->
+    <section class="tc-part" id="part3" data-toc="How does TEI think?">
+      <span class="tc-part-no">Part 3</span>
+      <h2 class="tc-h2">How does TEI think?</h2>
+      <p class="tc-lead">Part 2 covered how an individual investor should think. That discipline is easy to describe and hard to hold onto alone, especially when a headline is telling you to panic. This is how TEI applies it systematically, on every single decision, so it does not depend on willpower in the moment.</p>
       <p>This way of thinking was refined over years of expensive mistakes: over-investing when timing was wrong, sitting out when conviction should have meant acting, chasing stories that had already peaked.</p>
       <p>The real mispricing rarely lives in the names everyone already owns. It lives in structural shifts the market has not yet fully priced, because the payoff is years away, not months. That is where patient, disciplined capital compounds into something that justifies the process.</p>
       <p><strong>What earns a place:</strong> a strong story with structural tailwinds, numbers that confirm the thesis, and leadership worth backing. <strong>What does not:</strong> excitement, momentum, or the feeling that everyone else is already in.</p>
-    </div>
 
-    <div class="flow-diagram flow-diagram-dark">
-      <div class="flow-node">
-        <div class="flow-node-icon flow-node-icon-dark">&#127917;<span class="flow-node-badge">1</span></div>
-        <div class="flow-node-label flow-node-label-dark">Theme</div>
+      <div class="tc-flow" role="img" aria-label="Process: Theme, then Sized, then Timed, which together build the Portfolio">
+        <div class="tc-flow-step"><span class="tc-flow-ico"><svg aria-hidden="true"><use href="#i-target"/></svg><b>1</b></span>Theme</div>
+        <span class="tc-flow-arrow"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+        <div class="tc-flow-step"><span class="tc-flow-ico"><svg aria-hidden="true"><use href="#i-scale"/></svg><b>2</b></span>Sized</div>
+        <span class="tc-flow-arrow"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+        <div class="tc-flow-step"><span class="tc-flow-ico"><svg aria-hidden="true"><use href="#i-clock"/></svg><b>3</b></span>Timed</div>
+        <span class="tc-flow-arrow"><svg aria-hidden="true"><use href="#i-arrow"/></svg></span>
+        <div class="tc-flow-step is-result"><span class="tc-flow-ico"><svg aria-hidden="true"><use href="#i-layers"/></svg></span>Portfolio</div>
       </div>
-      <div class="flow-arrow">&#8594;</div>
-      <div class="flow-node">
-        <div class="flow-node-icon flow-node-icon-dark">&#9878;&#65039;<span class="flow-node-badge">2</span></div>
-        <div class="flow-node-label flow-node-label-dark">Sized</div>
-      </div>
-      <div class="flow-arrow">&#8594;</div>
-      <div class="flow-node">
-        <div class="flow-node-icon flow-node-icon-dark">&#9201;&#65039;<span class="flow-node-badge">3</span></div>
-        <div class="flow-node-label flow-node-label-dark">Timed</div>
-      </div>
-      <div class="flow-arrow">&#8594;</div>
-      <div class="flow-node" style="opacity:.55;">
-        <div class="flow-node-icon flow-node-icon-dark" style="border-color:rgba(247,244,237,.25);background:rgba(255,255,255,.04);">&#128200;</div>
-        <div class="flow-node-label flow-node-label-dark">Portfolio</div>
-      </div>
-    </div>
-    <p class="part3-bridge">The first three stages break down into a repeatable process:</p>
-  </div>
-</div>
+      <p>The first three stages break down into a repeatable process:</p>
 
-<div class="steps-bg">
-  <div class="steps-inner" style="padding-top:0;padding-bottom:56px;">
-    <span class="part3-sublabel">The framework</span>
-    <h2 class="section-title section-title-light" style="margin-bottom:10px;font-size:clamp(20px,2.5vw,28px);">Three steps. Every decision.</h2>
-    <p class="section-sub section-sub-light" style="margin-bottom:32px;">Run on every decision, no exceptions. Tap each step to explore.</p>
-
-    <div class="steps-row">
-      <div class="steps-connector"></div>
-      <div class="step-card" id="step1" onclick="toggleStep('step1')">
-        <div class="step-num">1</div>
-        <div style="font-size:20px;margin-bottom:6px;">&#127917;</div>
-        <div class="step-title">Thematic Conviction</div>
-        <div class="step-preview">A genuine structural shift, big enough to matter over years, not weeks.</div>
-        <div class="step-detail">What will the world need, use or rely on in five to ten years that it does not fully price in today? Real themes: automation, electrification, AI infrastructure. The theme has to be real, not just a narrative.</div>
-        <span class="step-toggle">+</span>
-      </div>
-      <div class="step-card" id="step2" onclick="toggleStep('step2')">
-        <div class="step-num">2</div>
-        <div style="font-size:20px;margin-bottom:6px;">&#9878;&#65039;</div>
-        <div class="step-title">Sized by Risk</div>
-        <div class="step-preview">Conviction alone does not earn a position its size. Risk determines weight.</div>
-        <div class="step-detail">A pre-revenue business with a transformational product gets a small position. An established business with a proven model gets a larger one. <strong>Historical example:</strong> Apple in 2010, roughly three years after the iPhone launched, was an established business with a proven model, the kind of story that earns a large position. Netflix in the early 2000s, mailing DVDs with no proof its long-term model would work, carried genuine execution risk, the kind of story sized small until it matures.</div>
-        <span class="step-toggle">+</span>
-      </div>
-      <div class="step-card" id="step3" onclick="toggleStep('step3')">
-        <div class="step-num">3</div>
-        <div style="font-size:20px;margin-bottom:6px;">&#9201;&#65039;</div>
-        <div class="step-title">Timed by Catalysts</div>
-        <div class="step-preview">Entries are sequenced around real, verifiable events, not a calendar.</div>
-        <div class="step-detail">Earnings, contract wins, product milestones, regulatory approvals, rather than a reaction to headline noise. <strong>Historical example:</strong> Amazon's cloud business was built quietly for years before the market had any real numbers to judge it by. When Amazon first broke out AWS revenue in its 2015 first-quarter results, that disclosure was the catalyst. Conviction built ahead of it, not chasing the price after the market had already reacted.</div>
-        <span class="step-toggle">+</span>
-      </div>
-    </div>
-    <p class="part3-bridge" style="margin-top:32px;">Step one, thematic conviction, rests on one core mental model &#8595;</p>
-  </div>
-</div>
-
-<div class="matrix-bg" id="matrix">
-  <div class="matrix-inner" style="padding-top:56px;">
-    <span class="part3-sublabel" style="color:var(--gold);">The core mental model</span>
-    <h2 class="section-title" style="margin-bottom:10px;font-size:clamp(20px,2.5vw,28px);">Conviction vs Market Favour</h2>
-    <p class="section-sub" style="margin-bottom:32px;">Conviction and market favour are two separate things. They do not move together. Tap each quadrant to explore.</p>
-
-    <div class="matrix-grid">
-      <div style="grid-row:1;grid-column:1;"></div>
-      <div class="matrix-label" style="grid-row:1;grid-column:2;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);">Low market favour</div>
-      <div class="matrix-label" style="grid-row:1;grid-column:3;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);">High market favour</div>
-      <div class="matrix-label vertical" style="grid-row:2;grid-column:1;">High conviction</div>
-      <div class="matrix-cell tl" style="grid-row:2;grid-column:2;" onclick="toggleMatrix('tl')">
-        <div>
-          <div class="matrix-cell-header"><div class="matrix-cell-title">Quietly accumulate</div><span style="font-size:18px;">&#127919;</span></div>
-          <div class="matrix-cell-action">Build the position</div>
-          <div class="matrix-cell-detail">Strong story, improving numbers, out of favour with the market. Ideal for building a position at a discount. Patience here is the edge most investors do not have. <strong>Historical example:</strong> Amazon through the mid-2000s. Written off by much of the market as an unprofitable online bookstore, while the infrastructure it was quietly building underpinned its next two decades of growth.</div>
+      <div class="tc-sub" id="framework">
+        <span class="tc-sub-label">The framework</span>
+        <h3 class="tc-h3">Three steps. Every decision.</h3>
+        <p class="tc-hint">Run on every decision, no exceptions. Tap each step to explore.</p>
+        <div class="tc-steps" data-tc-one>
+          <details class="tc-x">
+            <summary><span class="tc-x-no">1</span><span class="tc-x-ico"><svg aria-hidden="true"><use href="#i-target"/></svg></span><span class="tc-x-title">Thematic Conviction</span><span class="tc-x-pre">A genuine structural shift, big enough to matter over years, not weeks.</span></summary>
+            <div class="tc-x-body"><p>What will the world need, use or rely on in five to ten years that it does not fully price in today? Real themes: automation, electrification, AI infrastructure. The theme has to be real, not just a narrative.</p></div>
+          </details>
+          <details class="tc-x">
+            <summary><span class="tc-x-no">2</span><span class="tc-x-ico"><svg aria-hidden="true"><use href="#i-scale"/></svg></span><span class="tc-x-title">Sized by Risk</span><span class="tc-x-pre">Conviction alone does not earn a position its size. Risk determines weight.</span></summary>
+            <div class="tc-x-body"><p>A pre-revenue business with a transformational product gets a small position. An established business with a proven model gets a larger one. <strong>Historical example:</strong> Apple in 2010, roughly three years after the iPhone launched, was an established business with a proven model, the kind of story that earns a large position. Netflix in the early 2000s, mailing DVDs with no proof its long-term model would work, carried genuine execution risk, the kind of story sized small until it matures.</p></div>
+          </details>
+          <details class="tc-x">
+            <summary><span class="tc-x-no">3</span><span class="tc-x-ico"><svg aria-hidden="true"><use href="#i-clock"/></svg></span><span class="tc-x-title">Timed by Catalysts</span><span class="tc-x-pre">Entries are sequenced around real, verifiable events, not a calendar.</span></summary>
+            <div class="tc-x-body"><p>Earnings, contract wins, product milestones, regulatory approvals, rather than a reaction to headline noise. <strong>Historical example:</strong> Amazon's cloud business was built quietly for years before the market had any real numbers to judge it by. When Amazon first broke out AWS revenue in its 2015 first-quarter results, that disclosure was the catalyst. Conviction built ahead of it, not chasing the price after the market had already reacted.</p></div>
+          </details>
         </div>
+        <p>Step one, thematic conviction, rests on one core mental model.</p>
       </div>
-      <div class="matrix-cell tr" style="grid-row:2;grid-column:3;" onclick="toggleMatrix('tr')">
-        <div>
-          <div class="matrix-cell-header"><div><span style="font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:6px;">Target</span><div class="matrix-cell-title">Largest positions</div></div><span style="font-size:18px;">&#11088;</span></div>
-          <div class="matrix-cell-action">Maximum weight</div>
-          <div class="matrix-cell-detail">High conviction and current market favour overlap. This is where positions built in the top-left eventually deliver their return. <strong>Historical example:</strong> that same Amazon position, a decade on, once the market finally recognised the cloud infrastructure business it had been building the whole time.</div>
-        </div>
-      </div>
-      <div class="matrix-label vertical" style="grid-row:3;writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);">Low conviction</div>
-      <div class="matrix-cell bl" style="grid-row:3;grid-column:2;" onclick="toggleMatrix('bl')">
-        <div>
-          <div class="matrix-cell-header"><div class="matrix-cell-title">Avoid or exit</div><span style="font-size:18px;">&#128683;</span></div>
-          <div class="matrix-cell-action">Pass</div>
-          <div class="matrix-cell-detail">No compelling story and no market support. The easiest quadrant. Capital is better held as cash or deployed elsewhere.</div>
-        </div>
-      </div>
-      <div class="matrix-cell br" style="grid-row:3;grid-column:3;" onclick="toggleMatrix('br')">
-        <div>
-          <div class="matrix-cell-header"><div class="matrix-cell-title">Trade, do not invest</div><span style="font-size:18px;">&#9888;&#65039;</span></div>
-          <div class="matrix-cell-action">Caution</div>
-          <div class="matrix-cell-detail">Market is excited but the story does not hold up to scrutiny. <strong>Historical example:</strong> Pets.com during the dot-com bubble. Enormous market excitement and a famous advertising campaign, built on a business model that could never support its own economics. Without conviction, there is no framework for knowing when to exit.</div>
-        </div>
-      </div>
-    </div>
 
-    <div class="matrix-rotation" style="margin-left:84px;margin-top:24px;">
-      <p class="matrix-rotation-title">The rotation principle: where returns compound</p>
-      <p style="font-size:14px;color:rgba(247,244,237,.65);line-height:1.8;margin-bottom:14px;">Conviction and market favour rotate independently, and that rotation is where the discipline pays. Money held quietly through a period of low favour, while the thesis keeps strengthening, is what earns the violent re-rating when the market finally catches up. That is the reward for patience.</p>
-      <p style="font-size:14px;color:rgba(247,244,237,.65);line-height:1.8;">But the same principle runs the other way too. Once a position has had its re-rating and now sits high-conviction, high-favour, the gains it has delivered are not automatically safe. Rotating some of that gain into the next high-conviction name that is still quietly out of favour protects what has already been made, rather than leaving it exposed to a name that is due to cool. The discipline is not "buy and hold forever." It is holding through the quiet phase, and then having the discipline to move on once the crowd has arrived.</p>
-      <p style="font-size:13px;color:rgba(247,244,237,.45);line-height:1.7;margin-top:14px;font-style:italic;"><strong style="color:var(--gold);font-style:normal;">Marcus</strong> only buys names already in the news, then wonders why he is always paying the top-right price. <strong style="color:var(--gold);font-style:normal;">Priya</strong> builds quietly in the top-left and is already positioned by the time the crowd arrives.</p>
-
-      <div class="rotation-examples">
-        <div class="rotation-example">
-          <div class="rotation-example-ticker">Amazon, mid-2000s to mid-2010s</div>
-          <div class="rotation-example-text">Written off for years as a low-margin online bookstore. The infrastructure business it was quietly building underneath became the growth engine the market eventually paid up for. The reward for patience.</div>
+      <div class="tc-sub" id="matrix">
+        <span class="tc-sub-label">The core mental model</span>
+        <h3 class="tc-h3">Conviction vs Market Favour</h3>
+        <p class="tc-hint">Conviction and market favour are two separate things. They do not move together. Tap each quadrant to explore.</p>
+        <div class="tc-matrix" data-tc-one>
+          <span></span>
+          <span class="tc-matrix-x">Low market favour</span>
+          <span class="tc-matrix-x">High market favour</span>
+          <span class="tc-matrix-y">High conviction</span>
+          <details class="tc-x">
+            <summary><span class="tc-x-title">Quietly accumulate</span><span class="tc-x-act">Build the position</span></summary>
+            <div class="tc-x-body"><p>Strong story, improving numbers, out of favour with the market. Ideal for building a position at a discount. Patience here is the edge most investors do not have. <strong>Historical example:</strong> Amazon through the mid-2000s. Written off by much of the market as an unprofitable online bookstore, while the infrastructure it was quietly building underpinned its next two decades of growth.</p></div>
+          </details>
+          <details class="tc-x is-target">
+            <summary><span class="tc-pill">Target</span><span class="tc-x-title">Largest positions</span><span class="tc-x-act">Maximum weight</span></summary>
+            <div class="tc-x-body"><p>High conviction and current market favour overlap. This is where positions built in the top-left eventually deliver their return. <strong>Historical example:</strong> that same Amazon position, a decade on, once the market finally recognised the cloud infrastructure business it had been building the whole time.</p></div>
+          </details>
+          <span class="tc-matrix-y">Low conviction</span>
+          <details class="tc-x is-pass">
+            <summary><span class="tc-x-title">Avoid or exit</span><span class="tc-x-act">Pass</span></summary>
+            <div class="tc-x-body"><p>No compelling story and no market support. The easiest quadrant. Capital is better held as cash or deployed elsewhere.</p></div>
+          </details>
+          <details class="tc-x is-risk">
+            <summary><span class="tc-x-title">Trade, do not invest</span><span class="tc-x-act">Caution</span></summary>
+            <div class="tc-x-body"><p>Market is excited but the story does not hold up to scrutiny. <strong>Historical example:</strong> Pets.com during the dot-com bubble. Enormous market excitement and a famous advertising campaign, built on a business model that could never support its own economics. Without conviction, there is no framework for knowing when to exit.</p></div>
+          </details>
         </div>
-        <div class="rotation-example">
-          <div class="rotation-example-ticker">Cisco, from the year 2000</div>
-          <div class="rotation-example-text">The must-own name of the dot-com era, high conviction and maximum favour at once. Investors who never took anything off the table are, decades later, still waiting to see that peak again. The cost of never rotating out.</div>
-        </div>
-      </div>
-    </div>
 
-    <div style="background:var(--gold-lt);border-left:4px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 24px;margin-top:32px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:6px;">Outcome</div>
-      <div style="font-size:16px;color:var(--navy);font-weight:600;line-height:1.5;">Members understand what conviction is, how it is formed and why it matters.</div>
-    </div>
-  </div>
-</div>
-
-<!-- PART 4: BUILDING A PORTFOLIO -->
-<div class="structure-bg" id="part4">
-  <div class="structure-inner">
-    <span class="part-eyebrow">Part 4</span>
-    <h2 class="section-title" style="margin-bottom:6px;">Building a portfolio</h2>
-    <p class="part-question">How do these principles become a portfolio?</p>
-    <p class="section-sub" style="margin-bottom:32px;">Every portfolio is built from a Growth sleeve and a Foundation sleeve, working together. Exact weightings are tailored to individual circumstances; what matters here is the structure. Tap a tier to explore.</p>
-
-    <div class="structure-grid">
-      <div>
-        <div class="sleeve-wrap">
-          <div class="sleeve-header growth"><div><div class="sleeve-header-title">Growth Sleeve</div><div class="sleeve-sub">The engine</div></div><div class="sleeve-header-pct">70%</div></div>
-          <div class="tier" id="tier-anchor" onclick="toggleTier('anchor')"><div class="tier-dot" style="background:#C9A84C;"></div><div class="tier-name">Anchor</div><div class="tier-pct">~50% of Growth</div></div>
-          <div class="tier-detail" id="tier-detail-anchor">Highest conviction, largest positions. Thesis well established, numbers improving, favour high or building.</div>
-          <div class="tier" id="tier-core" onclick="toggleTier('core')"><div class="tier-dot" style="background:#2B4C7E;"></div><div class="tier-name">Core</div><div class="tier-pct">~30% of Growth</div></div>
-          <div class="tier-detail" id="tier-detail-core">Strong conviction, medium positions. Clear catalysts ahead, room to grow into Anchor.</div>
-          <div class="tier" id="tier-tail" onclick="toggleTier('tail')"><div class="tier-dot" style="background:#718096;"></div><div class="tier-name">Tail</div><div class="tier-pct">~20% of Growth</div></div>
-          <div class="tier-detail" id="tier-detail-tail">Earlier stage, smaller positions. Higher risk, asymmetric upside, sized so a full loss does not damage the portfolio.</div>
-        </div>
-      </div>
-      <div>
-        <div class="sleeve-wrap">
-          <div class="sleeve-header foundation"><div><div class="sleeve-header-title">Foundation Sleeve</div><div class="sleeve-sub">The cushion</div></div><div class="sleeve-header-pct">30%</div></div>
-          <div class="tier" id="tier-dev" onclick="toggleTier('dev')"><div class="tier-dot" style="background:#2D7D52;"></div><div class="tier-name">Developed Indices</div><div class="tier-pct">~50% of Foundation</div></div>
-          <div class="tier-detail" id="tier-detail-dev">Broad developed-market exposure. Steady compounding, the bedrock of the sleeve.</div>
-          <div class="tier" id="tier-em" onclick="toggleTier('em')"><div class="tier-dot" style="background:#1D6B8E;"></div><div class="tier-name">Emerging Markets</div><div class="tier-pct">~25% of Foundation</div></div>
-          <div class="tier-detail" id="tier-detail-em">High-growth economies, longer horizon, diversification beyond Western markets.</div>
-          <div class="tier" id="tier-se" onclick="toggleTier('se')"><div class="tier-dot" style="background:#7B4EA0;"></div><div class="tier-name">Strategic Equity</div><div class="tier-pct">~25% of Foundation</div></div>
-          <div class="tier-detail" id="tier-detail-se">Established, predictable holdings selected for resilience. Its job is to hold steady when Growth is under pressure.</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="sizing-block" style="margin-top:16px;">
-      <p class="sizing-title">On position sizing</p>
-      <p class="sizing-text">A position's impact on the portfolio is a function of two things: how much it gains, and how much of the portfolio it represents. A name that doubles is a huge win in isolation, but if it only ever made up 2% of the portfolio, the overall result barely moves. Spreading too thin, too early, across too many names is the most common way well-chosen ideas end up contributing almost nothing. The Anchor, Core and Tail tiers above exist precisely to solve this: conviction earns a position size large enough that, when the thesis plays out, the portfolio actually feels it.</p>
-    </div>
-
-    <div style="background:var(--white);border:1px solid var(--cream-dk);border-radius:var(--radius);padding:24px;margin-top:20px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--lt);margin-bottom:16px;">Same capital, same winning idea, different sizing</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;">Spread across 25 names</div>
-          <div style="display:flex;gap:2px;height:28px;margin-bottom:8px;">
-            <div style="flex:1;background:var(--gold);border-radius:3px;"></div>
-            <div style="flex:6;background:var(--cream-dk);border-radius:3px;"></div>
-          </div>
-          <div style="font-size:12px;color:var(--mid);">One name doubles. Portfolio barely moves. It was 4% to begin with.</div>
-        </div>
-        <div>
-          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:8px;">Concentrated in 8 names</div>
-          <div style="display:flex;gap:2px;height:28px;margin-bottom:8px;">
-            <div style="flex:3;background:var(--gold);border-radius:3px;"></div>
-            <div style="flex:5;background:var(--cream-dk);border-radius:3px;"></div>
-          </div>
-          <div style="font-size:12px;color:var(--mid);">The same name doubles. It was sized to matter, and the portfolio feels it.</div>
-        </div>
-      </div>
-    </div>
-
-    <p style="font-size:14px;color:var(--mid);line-height:1.8;margin:20px 0 20px;max-width:640px;">Conviction should track genuine belief in the story, not just how large a position has grown. A member who checks in honestly, position by position, asking whether they still believe the story, keeps sizing and conviction aligned.</p>
-
-    <div class="vs-cards" style="max-width:none;">
-      <div class="vs-card thesis">
-        <div class="vs-card-label">Marcus</div>
-        <div class="vs-card-text">Holds twenty-five small positions so no single name can hurt him. No single name can meaningfully help him either. A winning idea barely registers.</div>
-      </div>
-      <div class="vs-card volatility">
-        <div class="vs-card-label">Priya</div>
-        <div class="vs-card-text">Holds eight, each sized so that being right actually matters. Fewer decisions, made with more conviction, backed by real weight.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="dip-bg" id="cash">
-  <div class="dip-inner">
-    <span class="section-eyebrow">Cash and volatility</span>
-    <h2 class="section-title">Cash is not dead weight.<br>It is optionality.</h2>
-    <div class="dip-grid">
-      <div>
-        <p style="font-size:15px;color:var(--mid);line-height:1.85;margin-bottom:16px;">A cash allocation of <strong style="color:var(--navy);">5-10%</strong> exists for one purpose: to act decisively when conviction names pull back hard.</p>
-        <div class="cash-meter-wrap">
-          <div class="cash-meter-label">Cash allocation range</div>
-          <div class="cash-meter-bar"><div class="cash-meter-fill" style="width:7.5%;"></div></div>
-          <div class="cash-meter-labels"><span>0%</span><span>5-10% target</span><span>100%</span></div>
-        </div>
-        <p style="font-size:14px;color:var(--mid);line-height:1.8;margin:16px 0 8px;">Volatility and thesis failure look similar in the moment. They require opposite responses.</p>
-        <div class="vs-cards" style="margin-bottom:0;max-width:none;">
-          <div class="vs-card volatility"><div class="vs-card-label">Volatility</div><div class="vs-card-text">Price has changed. Thesis has not. This is the opportunity.</div></div>
-          <div class="vs-card thesis"><div class="vs-card-label">Thesis failure</div><div class="vs-card-text">The investment case has changed. This is an exit, not a dip.</div></div>
-        </div>
-      </div>
-      <div>
-        <div style="background:var(--white);border-radius:var(--radius) var(--radius) 0 0;border:1px solid var(--cream-dk);border-bottom:none;overflow:hidden;">
-          <div style="padding:16px 20px;border-bottom:1px solid var(--cream-dk);">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--lt);margin-bottom:6px;">Response framework</div>
-            <div style="font-size:12px;color:var(--mid);line-height:1.6;">The index and individual holdings do not always move together. Capital rotates between sectors and themes, and growth names carry more beta than the index itself. Three patterns are worth telling apart.</div>
-          </div>
-          <div class="scenario-tabs" style="margin:12px 16px 0;border-radius:6px;">
-            <button class="scenario-tab active" onclick="setScenario('red',this)">Rotation</button>
-            <button class="scenario-tab" onclick="setScenario('heavy',this)">High beta</button>
-            <button class="scenario-tab" onclick="setScenario('macro',this)">Sustained shock</button>
-          </div>
-          <div class="scenario-panels" style="border-radius:0;border:none;border-top:1px solid var(--cream-dk);margin-top:8px;">
-            <div class="scenario-panel active" id="panel-red">
-              <div class="scenario-panel-title" style="font-size:16px;">Rotation <span class="scenario-panel-badge badge-red">Down 5-10%, no news</span></div>
-              <div style="font-size:12px;color:var(--lt);margin:2px 0 12px;">Single names or a cluster fall while the index does not.</div>
-              <div class="scenario-panel-text">The index may be flat or even up, while a handful of holdings, or a group of similar names, are down 5-10% with no company-specific reason behind it. This is usually capital rotating between sectors or themes, not a change in the underlying story. <strong style="color:var(--navy);">Response:</strong> nibble. Add a small amount to names already held with conviction. Keep the bulk of the allocation in reserve, since this kind of rotation can persist longer than it feels like it should.</div>
-            </div>
-            <div class="scenario-panel" id="panel-heavy">
-              <div class="scenario-panel-title" style="font-size:16px;">High Beta <span class="scenario-panel-badge badge-orange">Down 10-20%</span></div>
-              <div style="font-size:12px;color:var(--lt);margin:2px 0 12px;">Growth names fall harder than the index during macro stress.</div>
-              <div class="scenario-panel-text">The broader index falls only a few percent, but higher-beta growth names fall considerably more, as capital rotates toward safer assets during a bout of macro uncertainty. <strong style="color:var(--navy);">Response:</strong> more than a nibble. Deploy more meaningfully into the highest-conviction names, provided the story has not changed. Still hold some cash back, unless further contributions are due soon, in case conditions worsen before they improve.</div>
-            </div>
-            <div class="scenario-panel" id="panel-macro">
-              <div class="scenario-panel-title" style="font-size:16px;">Sustained Shock <span class="scenario-panel-badge badge-gold">Prolonged drawdown</span></div>
-              <div style="font-size:12px;color:var(--lt);margin:2px 0 12px;">A serious macro event drives an extended pullback in growth names.</div>
-              <div class="scenario-panel-text">Occasionally the index falls only modestly while growth names fall heavily and stay down for a sustained period, driven by a serious macro shock. This is the moment to deploy with real conviction, concentrated in the leading, highest-conviction names already sitting in the largest-positions quadrant, and to be patient. Positions built here, in genuine conviction rather than everything indiscriminately, are typically what benefit most when the market eventually turns.</div>
-            </div>
+        <div class="tc-feature">
+          <p class="tc-feature-title">The rotation principle: where returns compound</p>
+          <p>Conviction and market favour rotate independently, and that rotation is where the discipline pays. Money held quietly through a period of low favour, while the thesis keeps strengthening, is what earns the violent re-rating when the market finally catches up. That is the reward for patience.</p>
+          <p>But the same principle runs the other way too. Once a position has had its re-rating and now sits high-conviction, high-favour, the gains it has delivered are not automatically safe. Rotating some of that gain into the next high-conviction name that is still quietly out of favour protects what has already been made, rather than leaving it exposed to a name that is due to cool. The discipline is not "buy and hold forever." It is holding through the quiet phase, and then having the discipline to move on once the crowd has arrived.</p>
+          <p><span class="tc-gold">Marcus</span> only buys names already in the news, then wonders why he is always paying the top-right price. <span class="tc-gold">Priya</span> builds quietly in the top-left and is already positioned by the time the crowd arrives.</p>
+          <div class="tc-examples">
+            <div><b>Amazon, mid-2000s to mid-2010s</b><p>Written off for years as a low-margin online bookstore. The infrastructure business it was quietly building underneath became the growth engine the market eventually paid up for. The reward for patience.</p></div>
+            <div><b>Cisco, from the year 2000</b><p>The must-own name of the dot-com era, high conviction and maximum favour at once. Investors who never took anything off the table are, decades later, still waiting to see that peak again. The cost of never rotating out.</p></div>
           </div>
         </div>
-        <div style="background:var(--navy);border-radius:0 0 var(--radius) var(--radius);padding:16px 20px;">
-          <p style="font-size:12px;color:rgba(247,244,237,.6);line-height:1.7;font-style:italic;">Before adding on any fall, confirm the thesis still holds. A lower price is not automatically an opportunity. The question is always whether the story has changed, not just whether the number has.</p>
+      </div>
+
+      <div class="tc-callout is-outcome"><svg aria-hidden="true"><use href="#i-check"/></svg><span class="tc-label">Outcome</span><p>Members understand what conviction is, how it is formed and why it matters.</p></div>
+    </section>
+
+    <!-- ============ PART 4 ============ -->
+    <section class="tc-part" id="part4" data-toc="Building a portfolio">
+      <span class="tc-part-no">Part 4</span>
+      <h2 class="tc-h2">Building a portfolio</h2>
+      <p class="tc-q">How do these principles become a portfolio?</p>
+      <p>Every portfolio is built from a Growth sleeve and a Foundation sleeve, working together. Exact weightings are tailored to individual circumstances; what matters here is the structure. Tap a tier to explore.</p>
+
+      <div class="tc-sleeves" data-tc-one>
+        <div class="tc-sleeve">
+          <div class="tc-sleeve-head"><div><h3>Growth Sleeve</h3><small>The engine</small></div><span class="tc-sleeve-pct">70%</span></div>
+          <div class="tc-stack" aria-hidden="true"><i class="tc-k1" style="width:50%"></i><i class="tc-k2" style="width:30%"></i><i class="tc-k3" style="width:20%"></i></div>
+          <details><summary><i class="tc-k1"></i>Anchor<small>~50% of Growth</small></summary><p>Highest conviction, largest positions. Thesis well established, numbers improving, favour high or building.</p></details>
+          <details><summary><i class="tc-k2"></i>Core<small>~30% of Growth</small></summary><p>Strong conviction, medium positions. Clear catalysts ahead, room to grow into Anchor.</p></details>
+          <details><summary><i class="tc-k3"></i>Tail<small>~20% of Growth</small></summary><p>Earlier stage, smaller positions. Higher risk, asymmetric upside, sized so a full loss does not damage the portfolio.</p></details>
+        </div>
+        <div class="tc-sleeve">
+          <div class="tc-sleeve-head"><div><h3>Foundation Sleeve</h3><small>The cushion</small></div><span class="tc-sleeve-pct">30%</span></div>
+          <div class="tc-stack" aria-hidden="true"><i class="tc-k1" style="width:50%"></i><i class="tc-k2" style="width:25%"></i><i class="tc-k4" style="width:25%"></i></div>
+          <details><summary><i class="tc-k1"></i>Developed Indices<small>~50% of Foundation</small></summary><p>Broad developed-market exposure. Steady compounding, the bedrock of the sleeve.</p></details>
+          <details><summary><i class="tc-k2"></i>Emerging Markets<small>~25% of Foundation</small></summary><p>High-growth economies, longer horizon, diversification beyond Western markets.</p></details>
+          <details><summary><i class="tc-k4"></i>Strategic Equity<small>~25% of Foundation</small></summary><p>Established, predictable holdings selected for resilience. Its job is to hold steady when Growth is under pressure.</p></details>
         </div>
       </div>
-    </div>
 
-    <div class="vs-cards" style="max-width:none;margin-top:24px;">
-      <div class="vs-card thesis">
-        <div class="vs-card-label">Marcus</div>
-        <div class="vs-card-text">Sees the first red day and deploys all his cash at once, afraid of missing the bottom. If it falls further, he has nothing left to add.</div>
-      </div>
-      <div class="vs-card volatility">
-        <div class="vs-card-label">Priya</div>
-        <div class="vs-card-text">Nibbles on the first red day, adds more if it turns into a heavy one, and still has cash in reserve if it becomes something worse.</div>
-      </div>
-    </div>
+      <div class="tc-callout is-info"><span class="tc-label">On position sizing</span><p>A position's impact on the portfolio is a function of two things: how much it gains, and how much of the portfolio it represents. A name that doubles is a huge win in isolation, but if it only ever made up 2% of the portfolio, the overall result barely moves. Spreading too thin, too early, across too many names is the most common way well-chosen ideas end up contributing almost nothing. The Anchor, Core and Tail tiers above exist precisely to solve this: conviction earns a position size large enough that, when the thesis plays out, the portfolio actually feels it.</p></div>
 
-    <div style="background:var(--gold-lt);border-left:4px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 24px;margin-top:32px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:6px;">Outcome</div>
-      <div style="font-size:16px;color:var(--navy);font-weight:600;line-height:1.5;">Members understand how philosophy becomes a portfolio.</div>
-    </div>
+      <div class="tc-tile">
+        <span class="tc-label">Same capital, same winning idea, different sizing</span>
+        <div class="tc-splits">
+          <div class="tc-split"><h4>Spread across 25 names</h4><div class="tc-split-bar" aria-hidden="true"><i style="flex:1"></i><i style="flex:6"></i></div><p>One name doubles. Portfolio barely moves. It was 4% to begin with.</p></div>
+          <div class="tc-split"><h4>Concentrated in 8 names</h4><div class="tc-split-bar" aria-hidden="true"><i style="flex:3"></i><i style="flex:5"></i></div><p>The same name doubles. It was sized to matter, and the portfolio feels it.</p></div>
+        </div>
+      </div>
+
+      <p>Conviction should track genuine belief in the story, not just how large a position has grown. A member who checks in honestly, position by position, asking whether they still believe the story, keeps sizing and conviction aligned.</p>
+
+      <div class="tc-two">
+        <div class="tc-who is-react"><span class="tc-who-name">Marcus</span><p>Holds twenty-five small positions so no single name can hurt him. No single name can meaningfully help him either. A winning idea barely registers.</p></div>
+        <div class="tc-who is-calm"><span class="tc-who-name">Priya</span><p>Holds eight, each sized so that being right actually matters. Fewer decisions, made with more conviction, backed by real weight.</p></div>
+      </div>
+
+      <div class="tc-sub" id="cash">
+        <span class="tc-sub-label">Cash and volatility</span>
+        <h3 class="tc-h3">Cash is not dead weight. It is optionality.</h3>
+        <p>A cash allocation of <strong>5-10%</strong> exists for one purpose: to act decisively when conviction names pull back hard.</p>
+        <div class="tc-tile">
+          <span class="tc-label">Cash allocation range</span>
+          <div class="tc-meter-track" aria-hidden="true"><i class="tc-meter-band" style="--from:5%;--to:10%"></i></div>
+          <div class="tc-meter-ends"><span>0%</span><b>5-10% target</b><span>100%</span></div>
+        </div>
+        <p>Volatility and thesis failure look similar in the moment. They require opposite responses.</p>
+        <div class="tc-two">
+          <div class="tc-who is-calm"><span class="tc-who-name">Volatility</span><p>Price has changed. Thesis has not. This is the opportunity.</p></div>
+          <div class="tc-who is-react"><span class="tc-who-name">Thesis failure</span><p>The investment case has changed. This is an exit, not a dip.</p></div>
+        </div>
+
+        <div class="tc-tile" data-tc-tabs>
+          <span class="tc-label">Response framework</span>
+          <p style="font-size:15px;font-weight:400">The index and individual holdings do not always move together. Capital rotates between sectors and themes, and growth names carry more beta than the index itself. Three patterns are worth telling apart.</p>
+          <div class="tc-seg" role="tablist" aria-label="Three patterns">
+            <button type="button" role="tab" id="tab-red" aria-controls="panel-red" aria-selected="true">Rotation</button>
+            <button type="button" role="tab" id="tab-heavy" aria-controls="panel-heavy" aria-selected="false" tabindex="-1">High beta</button>
+            <button type="button" role="tab" id="tab-macro" aria-controls="panel-macro" aria-selected="false" tabindex="-1">Sustained shock</button>
+          </div>
+          <div class="tc-panel" id="panel-red" role="tabpanel" aria-labelledby="tab-red">
+            <h4>Rotation <span class="tc-badge">Down 5-10%, no news</span></h4>
+            <p class="tc-panel-sub">Single names or a cluster fall while the index does not.</p>
+            <p>The index may be flat or even up, while a handful of holdings, or a group of similar names, are down 5-10% with no company-specific reason behind it. This is usually capital rotating between sectors or themes, not a change in the underlying story. <strong>Response:</strong> nibble. Add a small amount to names already held with conviction. Keep the bulk of the allocation in reserve, since this kind of rotation can persist longer than it feels like it should.</p>
+          </div>
+          <div class="tc-panel" id="panel-heavy" role="tabpanel" aria-labelledby="tab-heavy" hidden>
+            <h4>High Beta <span class="tc-badge is-mid">Down 10-20%</span></h4>
+            <p class="tc-panel-sub">Growth names fall harder than the index during macro stress.</p>
+            <p>The broader index falls only a few percent, but higher-beta growth names fall considerably more, as capital rotates toward safer assets during a bout of macro uncertainty. <strong>Response:</strong> more than a nibble. Deploy more meaningfully into the highest-conviction names, provided the story has not changed. Still hold some cash back, unless further contributions are due soon, in case conditions worsen before they improve.</p>
+          </div>
+          <div class="tc-panel" id="panel-macro" role="tabpanel" aria-labelledby="tab-macro" hidden>
+            <h4>Sustained Shock <span class="tc-badge is-high">Prolonged drawdown</span></h4>
+            <p class="tc-panel-sub">A serious macro event drives an extended pullback in growth names.</p>
+            <p>Occasionally the index falls only modestly while growth names fall heavily and stay down for a sustained period, driven by a serious macro shock. This is the moment to deploy with real conviction, concentrated in the leading, highest-conviction names already sitting in the largest-positions quadrant, and to be patient. Positions built here, in genuine conviction rather than everything indiscriminately, are typically what benefit most when the market eventually turns.</p>
+          </div>
+          <div class="tc-tile-foot"><p>Before adding on any fall, confirm the thesis still holds. A lower price is not automatically an opportunity. The question is always whether the story has changed, not just whether the number has.</p></div>
+        </div>
+
+        <div class="tc-two">
+          <div class="tc-who is-react"><span class="tc-who-name">Marcus</span><p>Sees the first red day and deploys all his cash at once, afraid of missing the bottom. If it falls further, he has nothing left to add.</p></div>
+          <div class="tc-who is-calm"><span class="tc-who-name">Priya</span><p>Nibbles on the first red day, adds more if it turns into a heavy one, and still has cash in reserve if it becomes something worse.</p></div>
+        </div>
+      </div>
+
+      <div class="tc-callout is-outcome"><svg aria-hidden="true"><use href="#i-check"/></svg><span class="tc-label">Outcome</span><p>Members understand how philosophy becomes a portfolio.</p></div>
+    </section>
+
+    <!-- ============ PART 5 ============ -->
+    <section class="tc-part" id="part5" data-toc="Living the principles">
+      <span class="tc-part-no">Part 5</span>
+      <h2 class="tc-h2">Living the principles</h2>
+      <p class="tc-q">How do I remain a successful investor over decades?</p>
+      <p>The first 18 months build the machine. What comes after determines whether it keeps running. Tap each stage.</p>
+
+      <ol class="tc-timeline" data-tc-one>
+        <li><details class="tc-x" open><summary><span class="tc-x-when">Months 0-6</span><span class="tc-x-title">Build the foundations</span></summary><div class="tc-x-body"><p>Right structures in place. First contributions into highest-conviction names. Resist spreading too thin too early.</p></div></details></li>
+        <li><details class="tc-x"><summary><span class="tc-x-when">Months 6-12</span><span class="tc-x-title">Build the habit</span></summary><div class="tc-x-body"><p>Regular contributions, positions built deliberately. Running red at points is normal texture, not a warning sign.</p></div></details></li>
+        <li><details class="tc-x"><summary><span class="tc-x-when">Months 12-18</span><span class="tc-x-title">The machine takes shape</span></summary><div class="tc-x-body"><p>Positions reach meaningful size. The two-sleeve structure starts to function as designed. Volatility starts to feel like information.</p></div></details></li>
+        <li><details class="tc-x"><summary><span class="tc-x-when">18 months and beyond</span><span class="tc-x-title">Patience becomes the edge</span></summary><div class="tc-x-body"><p>The work shifts from building to sustaining, for decades, not quarters. This is where the next section picks up.</p></div></details></li>
+      </ol>
+
+      <p>Two investors, same starting principles. Marcus checks daily and reacts to every move. Priya reviews on a fixed schedule and only acts when the thesis changes, not the price.</p>
+      <div class="tc-two">
+        <div class="tc-who is-react"><span class="tc-who-name">Marcus</span><p>Checks daily. Reacts to price. Rotates on headlines. Returns fall short of what his ideas were capable of.</p></div>
+        <div class="tc-who is-calm"><span class="tc-who-name">Priya</span><p>Reviews on schedule. Reacts to thesis, not price. Lets compounding run undisturbed.</p></div>
+      </div>
+      <p>The gap between them is not luck. It is behaviour, repeated long enough to compound.</p>
+
+      <div class="tc-icons">
+        <div><svg aria-hidden="true"><use href="#i-calendar"/></svg><h4>Review</h4><p>On a fixed schedule, not on impulse.</p></div>
+        <div><svg aria-hidden="true"><use href="#i-trend"/></svg><h4>Expect</h4><p>Volatility is the cost of admission.</p></div>
+        <div><svg aria-hidden="true"><use href="#i-book"/></svg><h4>Learn</h4><p>Markets change shape. Stay curious.</p></div>
+        <div><svg aria-hidden="true"><use href="#i-compass"/></svg><h4>Return</h4><p>To these principles, especially in doubt.</p></div>
+      </div>
+
+      <blockquote class="pull-quote">There is no point where the work is finished, and no point where every move needs your attention. The discipline is finding the steady middle, and holding it.<cite>That is TEI Principles. It is the same thinking behind every portfolio TEI builds.</cite></blockquote>
+
+      <div class="tc-callout is-outcome"><svg aria-hidden="true"><use href="#i-check"/></svg><span class="tc-label">Outcome</span><p>Members understand that investing is a lifelong discipline rather than a series of individual decisions.</p></div>
+    </section>
+
+    <section aria-labelledby="related-h">
+      <span class="tc-part-no">Keep going</span>
+      <h2 class="tc-h2" id="related-h" style="font-size:28px">Related guides, tools and articles</h2>
+      <div class="tc-related">
+        <a href="/guides/stages.html"><small>Guide</small><b>Five Stages to the Seasoned Investor</b><span>Where you are now, and what each next stage asks of you.</span></a>
+        <a href="/articles/master-the-principles.html"><small>Article</small><b>Master the principles, ignore the noise</b><span>A few ideas that hold up in every market, and why headlines rarely matter.</span></a>
+        <a href="/guides/cost-of-waiting.html"><small>Tool</small><b>Cost of Waiting Calculator</b><span>See what delaying by one year, or five, costs you by retirement.</span></a>
+      </div>
+    </section>
+
+    <section class="tc-cta" style="margin-top:56px">
+      <span class="tc-label">The next step</span>
+      <h2>Understanding the principles is step one.<br>Applying them to your money is coaching.</h2>
+      <p>How much sits in Growth versus Foundation, which names carry real conviction right now, and how each position should be sized depends entirely on your goals, your timeline and what you already hold. That is what a TEI session is for.</p>
+      <ol>
+        <li>Book a free 30-minute discovery call</li>
+        <li>We map your situation against this same framework</li>
+        <li>You leave with a clear, written plan, not just the theory</li>
+      </ol>
+      <div class="tc-cta-row">
+        <a class="tc-btn" href="/book" target="_blank" rel="noopener noreferrer">Book a free discovery call</a>
+        <a class="tc-hww" href="/how-we-work">How we work</a>
+      </div>
+    </section>
+
+    <p class="tc-na">TEI Principles is educational content. It does not constitute regulated financial advice or a recommendation to buy, hold or sell any investment.</p>
   </div>
 </div>
-
-<!-- PART 5: LIVING THE PRINCIPLES -->
-<div class="machine-bg" id="part5">
-  <div class="machine-inner">
-    <span class="part-eyebrow part-eyebrow-light">Part 5</span>
-    <h2 class="section-title section-title-light" style="margin-bottom:6px;">Living the principles</h2>
-    <p class="part-question part-question-light">How do I remain a successful investor over decades?</p>
-    <p class="section-sub section-sub-light" style="margin-bottom:40px;">The first 18 months build the machine. What comes after determines whether it keeps running. Tap each stage.</p>
-
-    <div class="timeline">
-      <div class="timeline-item active" onclick="toggleTimeline(this)">
-        <div class="timeline-dot"></div>
-        <div class="timeline-period">Months 0-6</div>
-        <div class="timeline-title">Build the foundations</div>
-        <div class="timeline-text">Right structures in place. First contributions into highest-conviction names. Resist spreading too thin too early.</div>
-      </div>
-      <div class="timeline-item" onclick="toggleTimeline(this)">
-        <div class="timeline-dot"></div>
-        <div class="timeline-period">Months 6-12</div>
-        <div class="timeline-title">Build the habit</div>
-        <div class="timeline-text">Regular contributions, positions built deliberately. Running red at points is normal texture, not a warning sign.</div>
-      </div>
-      <div class="timeline-item" onclick="toggleTimeline(this)">
-        <div class="timeline-dot"></div>
-        <div class="timeline-period">Months 12-18</div>
-        <div class="timeline-title">The machine takes shape</div>
-        <div class="timeline-text">Positions reach meaningful size. The two-sleeve structure starts to function as designed. Volatility starts to feel like information.</div>
-      </div>
-      <div class="timeline-item" onclick="toggleTimeline(this)">
-        <div class="timeline-dot"></div>
-        <div class="timeline-period">18 months and beyond</div>
-        <div class="timeline-title">Patience becomes the edge</div>
-        <div class="timeline-text">The work shifts from building to sustaining, for decades, not quarters. This is where the next section picks up.</div>
-      </div>
-    </div>
-
-    <p style="font-size:14px;color:rgba(247,244,237,.6);line-height:1.8;margin:36px 0 8px;max-width:640px;">Two investors, same starting principles. Marcus checks daily and reacts to every move. Priya reviews on a fixed schedule and only acts when the thesis changes, not the price.</p>
-
-    <div class="vs-cards" style="max-width:none;">
-      <div class="vs-card thesis vs-card--dark">
-        <div class="vs-card-label">Marcus</div>
-        <div class="vs-card-text">Checks daily. Reacts to price. Rotates on headlines. Returns fall short of what his ideas were capable of.</div>
-      </div>
-      <div class="vs-card volatility vs-card--dark">
-        <div class="vs-card-label">Priya</div>
-        <div class="vs-card-text">Reviews on schedule. Reacts to thesis, not price. Lets compounding run undisturbed.</div>
-      </div>
-    </div>
-
-    <p style="font-size:14px;color:rgba(247,244,237,.6);line-height:1.8;margin:20px 0 4px;max-width:640px;">The gap between them is not luck. It is behaviour, repeated long enough to compound.</p>
-
-    <div class="habit-row">
-      <div class="habit-card"><div class="habit-icon">&#128197;</div><div class="habit-title">Review</div><div class="habit-text">On a fixed schedule, not on impulse.</div></div>
-      <div class="habit-card"><div class="habit-icon">&#128200;</div><div class="habit-title">Expect</div><div class="habit-text">Volatility is the cost of admission.</div></div>
-      <div class="habit-card"><div class="habit-icon">&#128218;</div><div class="habit-title">Learn</div><div class="habit-text">Markets change shape. Stay curious.</div></div>
-      <div class="habit-card"><div class="habit-icon">&#129513;</div><div class="habit-title">Return</div><div class="habit-text">To these principles, especially in doubt.</div></div>
-    </div>
-
-    <div class="closing-block">
-      <p>There is no point where the work is finished, and no point where every move needs your attention. The discipline is finding the steady middle, and holding it.</p>
-      <p style="margin-top:12px;font-family:'Inter',sans-serif;font-style:normal;font-size:13px;color:rgba(247,244,237,.45);">That is TEI Principles. It is the same thinking behind every portfolio TEI builds.</p>
-    </div>
-
-    <div style="background:var(--gold-lt);border-left:4px solid var(--gold);border-radius:0 var(--radius) var(--radius) 0;padding:18px 24px;margin-top:32px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-dk);margin-bottom:6px;">Outcome</div>
-      <div style="font-size:16px;color:var(--navy);font-weight:600;line-height:1.5;">Members understand that investing is a lifelong discipline rather than a series of individual decisions.</div>
-    </div>
-  </div>
-</div>
-
-<!-- CTA -->
-<div class="cta-wrap">
-  <div class="cta-block">
-    <p style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(201,168,76,.7);font-weight:700;margin-bottom:10px;">The next step</p>
-    <h2>Understanding the principles is step one.<br>Applying them to your money is coaching.</h2>
-    <p>How much sits in Growth versus Foundation, which names carry real conviction right now, and how each position should be sized depends entirely on your goals, your timeline and what you already hold. That is what a TEI session is for.</p>
-
-    <div class="cta-steps">
-      <div class="cta-step">
-        <div class="cta-step-num">1</div>
-        <p>Book a free 30-minute discovery call</p>
-      </div>
-      <div class="cta-step">
-        <div class="cta-step-num">2</div>
-        <p>We map your situation against this same framework</p>
-      </div>
-      <div class="cta-step">
-        <div class="cta-step-num">3</div>
-        <p>You leave with a clear, written plan, not just the theory</p>
-      </div>
-    </div>
-
-    <a class="cta-btn" href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank">
-      &#128172; Book a free discovery call
-    </a>
-    <div class="tei-hww"><a href="/how-we-work">How we work</a></div>
-  </div>
-</div>
+</main>
 
 <!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
 <div class="tei-ftr" role="navigation" aria-label="Footer">
@@ -1141,74 +409,16 @@ body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--
     <p class="tei-ftr-copy">&copy; 2026 The Everyday Investor</p>
   </div>
 </div>
-<footer style="background:var(--navy-dk);padding:32px;text-align:center;">
-  <p style="font-size:11px;color:rgba(247,244,237,.35);letter-spacing:.05em;">TEI Principles is educational content. It does not constitute regulated financial advice or a recommendation to buy, hold or sell any investment.</p>
-  <div class="tei-compliance tei-compliance--after tei-compliance--center">
-    <p class="tei-compliance-line">Financial coaching and education, not regulated financial advice. The Everyday Investor is not authorised or regulated by the FCA. <a href="/how-we-work">How we work</a></p>
-    <p class="tei-compliance-warning">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
+<footer>
+  <div class="footer-inner">
+    <div class="tei-compliance tei-compliance--before">
+      <p class="tei-compliance-line">Financial coaching and education, not regulated financial advice. The Everyday Investor is not authorised or regulated by the FCA. <a href="/how-we-work">How we work</a></p>
+      <p class="tei-compliance-warning">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
+    </div>
   </div>
 </footer>
 
-<script>
-function toggleStep(id) {
-  var card = document.getElementById(id);
-  if (!card) return;
-  var isOpen = card.classList.contains("open");
-  ["step1","step2","step3"].forEach(function(s) {
-    var el = document.getElementById(s);
-    if (el) el.classList.remove("open");
-  });
-  if (!isOpen) card.classList.add("open");
-}
-function toggleMatrix(q) {
-  var cells = document.querySelectorAll(".matrix-cell");
-  var cell = null;
-  cells.forEach(function(c) { if (c.classList.contains(q)) cell = c; });
-  if (!cell) return;
-  var isActive = cell.classList.contains("active");
-  cells.forEach(function(c) { c.classList.remove("active"); });
-  if (!isActive) cell.classList.add("active");
-}
-function toggleTier(name) {
-  var tierEl = document.getElementById("tier-" + name);
-  var detailEl = document.getElementById("tier-detail-" + name);
-  if (!tierEl || !detailEl) return;
-  var tiers = ["anchor","core","tail","dev","em","se"];
-  tiers.forEach(function(t) {
-    var te = document.getElementById("tier-" + t);
-    var de = document.getElementById("tier-detail-" + t);
-    if (te) te.classList.remove("active");
-    if (de) de.style.display = "none";
-  });
-  if (!tierEl.classList.contains("active")) {
-    tierEl.classList.add("active");
-    detailEl.style.display = "block";
-  }
-}
-document.addEventListener("DOMContentLoaded", function() {
-  ["anchor","core","tail","dev","em","se"].forEach(function(name) {
-    var detail = document.getElementById("tier-detail-" + name);
-    if (detail) detail.style.display = "none";
-  });
-});
-function setScenario(id, btn) {
-  ["red","heavy","macro"].forEach(function(s) {
-    var p = document.getElementById("panel-" + s);
-    if (p) p.classList.remove("active");
-  });
-  var panel = document.getElementById("panel-" + id);
-  if (panel) panel.classList.add("active");
-  var btns = document.querySelectorAll(".scenario-tab");
-  btns.forEach(function(b) { b.classList.remove("active"); });
-  if (btn) btn.classList.add("active");
-}
-function toggleTimeline(item) {
-  var items = document.querySelectorAll(".timeline-item");
-  var isActive = item.classList.contains("active");
-  items.forEach(function(i) { i.classList.remove("active"); });
-  if (!isActive) item.classList.add("active");
-}
-</script>
+<script src="/assets/content.js" defer></script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>
