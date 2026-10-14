@@ -1734,47 +1734,8 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #clientApp .m-tab.on{color:var(--gold);}
   #clientApp .m-tab:focus-visible{outline:2px solid var(--gold); outline-offset:-3px; border-radius:6px;}
 
-  /* -- Menu page (Stage 1 shell; the full Menu arrives in Stage 6) -- */
+  /* Screen-reader-only text on phone pages. */
   #clientApp .m-sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap;}
-  #clientApp .m-menu{padding-top:var(--space-lg); padding-bottom:var(--space-lg);}
-  #clientApp .m-card{background:var(--card-light-bg); border:1px solid var(--card-light-border, var(--line)); border-radius:var(--radius); padding:4px 14px; margin:0 0 10px; color:var(--ink);}
-  #clientApp .m-card.m-profile{display:flex; align-items:center; gap:12px; padding:12px 14px;}
-  #clientApp .m-avatar{flex:none; width:42px; height:42px; border-radius:50%; background:var(--gold); color:var(--card-dark); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px;}
-  #clientApp .m-profile-name{font-weight:700; font-size:16px; line-height:1.2;}
-  #clientApp .m-profile-role{font-size:12.5px; color:var(--ink-soft);}
-  #clientApp .m-label{font-size:11px; letter-spacing:0.07em; text-transform:uppercase; font-weight:700; color:var(--ink-soft); margin:14px 2px 6px;}
-  #clientApp .m-row{
-    -webkit-appearance:none; appearance:none; box-sizing:border-box; width:100%;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    min-height:48px; margin:0; padding:10px 0; background:none; border:0; border-bottom:1px solid var(--line);
-    color:var(--ink); font:inherit; font-size:15px; text-align:left; cursor:pointer; -webkit-tap-highlight-color:transparent;
-  }
-  #clientApp .m-card > .m-row:last-child{border-bottom:0;}
-  #clientApp .m-row .m-val{font-size:12.5px; color:var(--ink-soft);}
-  #clientApp .m-row .m-chev{flex:none; color:var(--ink-soft2); font-size:18px; line-height:1;}
-  #clientApp .m-row:focus-visible{outline:2px solid var(--gold); outline-offset:-2px; border-radius:6px;}
-  #clientApp .m-row.m-danger{color:#C88F96; justify-content:center; font-weight:700;}
-  #clientApp[data-theme="light"] .m-row.m-danger{color:#9C4F56;}
-
-  /* Monthly update (prominent), Edit everything (progress + steps), inline dark-mode switch. */
-  #clientApp .m-card-head{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0 2px; font-size:15px;}
-  #clientApp .m-highlight{border:1px solid var(--gold); padding:4px 14px 14px;}
-  #clientApp .m-highlight .m-val{margin:4px 0 12px; font-size:13px; line-height:1.4;}
-  #clientApp .m-cta{-webkit-appearance:none; appearance:none; display:block; width:100%; min-height:48px; margin:0; padding:0 16px; border:0; border-radius:999px; background:var(--gold); color:var(--card-dark); font:inherit; font-size:15px; font-weight:700; cursor:pointer; -webkit-tap-highlight-color:transparent;}
-  #clientApp .m-cta:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
-  #clientApp .m-badge{flex:none; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; background:var(--hero-pill-gold-bg); color:var(--hero-pill-gold-ink); border:1px solid var(--hero-pill-gold-border);}
-  #clientApp .m-badge--ok{background:var(--hero-pill-neutral-bg); color:var(--hero-pill-neutral-ink); border-color:var(--hero-pill-neutral-border);}
-  #clientApp .m-bar{height:6px; border-radius:3px; background:var(--k-track-bg); margin:8px 0 4px; overflow:hidden;}
-  #clientApp .m-bar i{display:block; height:100%; background:var(--gold); border-radius:3px;}
-  #clientApp .m-step-row{gap:12px;}
-  #clientApp #mMenuSteps .m-row:last-child{border-bottom:0;}
-  #clientApp .m-step-label{flex:1;}
-  #clientApp .m-check{flex:none; width:22px; height:22px; border-radius:50%; border:1.5px solid var(--ink-soft2); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; line-height:1; color:transparent;}
-  #clientApp .m-step-row.done .m-check{background:var(--gold); border-color:var(--gold); color:var(--card-dark);}
-  #clientApp .m-switch{flex:none; position:relative; width:44px; height:26px; border-radius:13px; background:var(--k-track-bg); border:1px solid var(--line);}
-  #clientApp .m-switch i{position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:var(--ink-soft2); transition:transform .15s, background .15s;}
-  #clientApp [aria-checked="true"] .m-switch{background:var(--gold-bg); border-color:var(--gold);}
-  #clientApp [aria-checked="true"] .m-switch i{transform:translateX(18px); background:var(--gold);}
 
   /* -- Shared: things hidden on mobile, and accordions (JS toggles .m-open) -- */
   #clientApp [data-m="hide"]{display:none;}
@@ -3101,6 +3062,158 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .cf-scen-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .cf-scen-foot .hm-btn{ width:100%; }
 }
+/* ================================================================
+   REDESIGN B12.9 -- Settings / Me (spec B9; boards Settings, MeMobile,
+   MeAccountsMobile, MeDocumentsMobile). Prefixes st- and me-.
+   ================================================================ */
+/* The Manual Entry panels moved in here are drawn with the Adviser
+   Workspace's fixed dark colours (--card-dark, --cream, ...). Inside
+   Settings those names point at the board tokens, so the same forms follow
+   the client's light or dark theme. */
+#stRoot{
+  --card-dark:var(--w-tile); --card-dark2:var(--w-chip); --cream:var(--w-text); --cream-soft:var(--w-muted); --cream-soft2:var(--w-muted);
+  --sage:#4E7A5A; --sage-bg:rgba(78,122,90,0.12); --oxblood-bg:rgba(154,74,31,0.10); --radius:20px;
+}
+#stRoot h3, #stRoot .card h3{ font-family:inherit !important; font-weight:400 !important; letter-spacing:-0.02em; color:var(--w-text) !important; }
+#stRoot .card{ background:var(--w-tile); border:1px solid var(--w-line); border-radius:22px; padding:22px; color:var(--w-text); box-shadow:none; }
+#stRoot .card + .card{ margin-top:16px; }
+#stRoot .form-field span{ color:var(--w-muted); font-family:inherit; }
+#stRoot .form-field input, #stRoot .form-field select, #stRoot .form-field textarea{ background:var(--w-bg); color:var(--w-text); border:1px solid var(--w-line); border-radius:12px; min-height:44px; font-family:inherit; font-size:15px; }
+#stRoot .form-field input:focus, #stRoot .form-field select:focus, #stRoot .form-field textarea:focus{ outline:2px solid var(--w-gold); outline-offset:1px; }
+#stRoot .btn-primary{ background:var(--w-nav-active); color:var(--w-nav-active-text); border-radius:999px; min-height:44px; font-family:inherit; }
+#stRoot .btn-ghost{ border-radius:999px; min-height:36px; color:var(--w-text); border-color:var(--w-line); font-family:inherit; }
+#stRoot .note, #stRoot .sub2, #stRoot .lr-meta, #stRoot .ep-meta{ color:var(--w-muted); }
+#stRoot .entity-pill, #stRoot .list-row{ background:var(--w-chip); border-color:var(--w-line); color:var(--w-text); }
+#stRoot .ep-name, #stRoot .ep-value, #stRoot .lr-main b{ color:var(--w-text); font-family:inherit; }
+#stRoot.st-client [data-adviser-only]{ display:none !important; }
+#stRoot .adv-subtabs{ display:none; }
+.st-hint{ display:block; margin-top:4px; font-size:12px; color:var(--w-muted); }
+
+.st-head{ margin-bottom:20px; }
+.st-back{ display:none; }
+.st-layout{ display:grid; grid-template-columns:220px minmax(0, 1fr); gap:24px; align-items:start; }
+.st-nav{ position:sticky; top:16px; display:flex; flex-direction:column; gap:16px; }
+.st-nav .hm-label{ margin:0 0 4px 12px !important; }
+.st-nav button{ display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; min-height:40px; padding:0 12px; border:0; border-radius:12px; background:transparent; color:var(--w-muted); font-family:inherit; font-size:14px; text-align:left; cursor:pointer; }
+.st-nav button:hover{ color:var(--w-text); background:var(--w-chip); }
+.st-nav button.on{ background:var(--w-chip); color:var(--w-text); font-weight:500; }
+.st-nav button:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; }
+.st-badge{ font-family:'Geist Mono', ui-monospace, monospace; font-size:10px; padding:2px 8px; border-radius:999px; background:var(--w-champ); color:var(--w-gold); }
+.st-body{ min-width:0; }
+.st-title{ margin:0 0 14px; font-family:inherit; font-size:24px; font-weight:400; letter-spacing:-0.02em; color:var(--w-text); }
+.st-sec{ display:flex; flex-direction:column; gap:16px; }
+.st-sec[hidden]{ display:none !important; }
+.st-intro{ margin-top:-6px !important; }
+.st-card{ gap:12px; }
+.st-card:hover, .st-tier:hover, .st-coach:hover, .st-member:hover{ transform:none; box-shadow:none; }
+.st-f2{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+.st-f3{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+.st-grid2{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px; }
+.st-add{ align-self:flex-start; }
+.st-list{ list-style:none; margin:0; padding:0; }
+.st-list li{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--w-line); font-size:14px; color:var(--w-text); }
+.st-list li b{ font-weight:500; }
+.st-list li small{ display:block; margin-top:2px; font-size:12px; color:var(--w-muted); }
+.st-list .st-empty{ color:var(--w-muted); }
+.st-status{ flex:none; font-size:12px; color:var(--w-muted); }
+.st-pending{ color:var(--w-gold); font-weight:500; }
+.st-locked{ display:flex; gap:12px; align-items:flex-start; padding:16px 18px; border:1.5px dashed var(--w-line); border-radius:20px; font-size:13px; line-height:1.5; color:var(--w-text); }
+.st-locked svg{ flex:none; width:18px; height:18px; fill:none; stroke:var(--w-muted); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Profile: your coach */
+.st-coach{ flex-direction:row; align-items:center; gap:14px; }
+.st-coach-mark{ width:48px; height:48px; flex:none; border-radius:50%; background:var(--w-powder); color:var(--w-text); display:inline-flex; align-items:center; justify-content:center; font-weight:500; }
+.st-coach-name{ font-size:17px; color:var(--w-text); }
+
+/* Documents */
+.st-drop{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:24px 16px; border-radius:18px; border:1.5px dashed var(--w-gold); background:var(--w-champ); cursor:pointer; text-align:center; color:var(--w-text); }
+.st-drop svg{ width:26px; height:26px; fill:none; stroke:var(--w-gold); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round; }
+.st-drop small{ font-size:12px; color:var(--w-muted); }
+#stUpFile:focus-visible + * , .st-drop:focus-within{ outline:2px solid var(--w-gold); outline-offset:2px; }
+
+/* Plan settings */
+.st-sliders{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px 24px; }
+.st-sliders .hm-note{ margin-top:2px !important; }
+
+/* Membership */
+.st-member{ flex-direction:row; flex-wrap:wrap; justify-content:space-between; gap:20px; }
+.st-member-tier{ margin-top:6px !important; font-size:32px; font-weight:300; letter-spacing:-0.03em; color:#F7F4ED; }
+.st-member-sub{ margin-top:4px !important; font-size:13px; color:#AAB6C8; }
+.st-tiers{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+.st-tier{ gap:10px; }
+.st-tier.on{ border-color:var(--w-gold); background:var(--w-champ); }
+.st-tier b{ font-size:17px; font-weight:500; color:var(--w-text); }
+.st-tier-price{ font-size:26px; font-weight:300; color:var(--w-text); }
+.st-tier-price small{ font-size:13px; color:var(--w-muted); }
+.st-tier ul{ margin:0; padding-left:18px; font-size:13px; line-height:1.5; color:var(--w-text); }
+.st-tier-btn{ margin-top:auto; }
+
+/* Notifications */
+.st-notif-head{ display:grid; grid-template-columns:minmax(0,1fr) 64px 64px; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-muted); }
+.st-notif-head span:not(:first-child), .st-notif li > span:not(:first-child){ text-align:center; }
+.st-notif{ list-style:none; margin:0; padding:0; }
+.st-notif li{ display:grid; grid-template-columns:minmax(0,1fr) 64px 64px; align-items:center; padding:10px 0; border-top:1px solid var(--w-line); font-size:14px; color:var(--w-text); }
+.st-notif li small{ display:block; font-size:12px; color:var(--w-muted); }
+.st-notif input{ width:22px; height:22px; accent-color:var(--w-gold); cursor:pointer; }
+.st-notif input:disabled{ cursor:not-allowed; opacity:.4; }
+.st-row-card{ flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; }
+.st-a2hs{ flex:0 0 100%; }
+
+/* Security */
+.st-warn-card{ border-color:var(--w-warn); }
+.st-warn-btn{ color:var(--w-warn); border-color:var(--w-warn); align-self:flex-start; }
+.st-card .hm-btn{ align-self:flex-start; }
+
+/* Help */
+.st-how summary, .st-faq summary{ min-height:44px; display:flex; align-items:center; cursor:pointer; font-size:14px; font-weight:500; color:var(--w-text); }
+.st-how ul{ margin:4px 0 0; padding-left:18px; font-size:13px; line-height:1.6; color:var(--w-text); }
+.st-faq{ border-top:1px solid var(--w-line); }
+.st-faq p{ margin:0 0 12px !important; font-size:13px; line-height:1.55; color:var(--w-muted); }
+.st-guides{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; }
+.st-guides a{ display:flex; flex-direction:column; gap:4px; min-height:64px; justify-content:center; padding:10px 14px; border-radius:16px; background:var(--w-chip); text-decoration:none; font-size:14px; color:var(--w-text); }
+.st-guides a .mono{ font-size:11px; color:var(--w-muted); }
+
+/* Me (phones) */
+.me-card{ flex-direction:row; align-items:center; gap:14px; padding:18px; }
+.me-avatar{ width:52px; height:52px; flex:none; border-radius:50%; border:1px solid #E8D6A8; display:inline-flex; align-items:center; justify-content:center; font-size:15px; color:#E8D6A8; position:relative; }
+.me-who{ flex:1; min-width:0; position:relative; }
+.me-name{ font-size:18px; color:#F7F4ED; }
+.me-sub{ margin-top:2px !important; font-size:12px; color:#AAB6C8; }
+.me-edit{ position:relative; width:44px; height:44px; border-radius:50%; border:1px solid rgba(232,214,168,0.3); background:transparent; color:#E8D6A8; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+.me-edit svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+.me-group{ margin-top:14px; }
+.me-group .hm-label{ margin:0 0 6px 4px !important; }
+.me-group ul{ list-style:none; margin:0; padding:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:20px; overflow:hidden; }
+.me-group li + li{ border-top:1px solid var(--w-line); }
+.me-group button{ display:flex; align-items:center; gap:12px; width:100%; min-height:52px; padding:0 16px; border:0; background:transparent; color:var(--w-text); font-family:inherit; font-size:15px; text-align:left; cursor:pointer; }
+.me-group button > span:first-child{ flex:1; }
+.me-meta{ font-size:12px; color:var(--w-muted); }
+.me-hot{ color:var(--w-gold); }
+.me-group button svg{ width:14px; height:14px; fill:none; stroke:var(--w-muted); stroke-width:2; stroke-linecap:round; }
+.me-theme{ display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:52px; padding:6px 8px 6px 16px; background:var(--w-tile); border:1px solid var(--w-line); border-radius:20px; font-size:15px; color:var(--w-text); }
+.hb-seg-me{ display:inline-flex; padding:4px; border-radius:999px; background:var(--w-chip); }
+.hb-seg-me button{ font-family:inherit; cursor:pointer; border:0; font-size:13px; font-weight:500; min-height:36px; min-width:64px; border-radius:999px; background:transparent; color:var(--w-muted); }
+.hb-seg-me button[aria-pressed="true"]{ background:var(--w-nav-active); color:var(--w-nav-active-text); }
+.me-signout{ display:flex; align-items:center; justify-content:center; width:100%; min-height:52px; margin-top:14px; border-radius:20px; border:1px solid var(--w-line); background:transparent; font-family:inherit; font-size:15px; font-weight:500; color:var(--w-warn); cursor:pointer; }
+.me-foot{ margin-top:12px !important; text-align:center; }
+
+@media (max-width:1100px){
+  .st-tiers, .st-guides{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+}
+/* Phones: Settings sections open from Me as their own screen (B9.1). */
+@media (max-width:860px){
+  .st-head, .st-nav{ display:none; }
+  .st-layout{ display:block; }
+  .st-back{ display:inline-flex; align-items:center; gap:4px; min-height:44px; padding:0; margin-bottom:4px; border:0; background:none; color:var(--w-muted); font-family:inherit; font-size:14px; cursor:pointer; }
+  .st-back svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
+  .st-title{ font-size:28px; font-weight:300; letter-spacing:-0.03em; }
+  .st-f2, .st-f3, .st-grid2, .st-sliders, .st-tiers, .st-guides{ grid-template-columns:1fr; }
+  #stRoot .card{ padding:16px; border-radius:20px; }
+  .st-notif-head, .st-notif li{ grid-template-columns:minmax(0,1fr) 52px 52px; }
+}
+@media (min-width:861px){
+  #page-menu .me{ display:none; }
+}
 </style>
 </head>
 <body>
@@ -4198,55 +4311,259 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
      client.meta.role), so client edits surface in the adviser's Client
      Updates tab exactly like they do today for accounts/holdings/goals. -->
 <div id="page-mydetails" class="page">
-<header class="hero wrap k-greeting"><h1>My Details</h1><div class="sub">Keep your personal details, accounts, income, holdings and goals up to date.</div></header>
-<section class="wrap" style="padding-top:var(--space-lg); padding-bottom:var(--space-2xl);">
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-        <div style="display:flex; align-items:center; gap:10px;"><span class="status-pill pending" id="setOnboardingStatus">–</span><a href="#" id="setOnboardingLink" class="btn-ghost" style="text-decoration:none; font-size:11.5px; padding:5px 12px;">Redo onboarding →</a></div>
-        <span class="form-meta">Client ID: <span id="setClientId">–</span> &middot; Last updated: <span id="setLastUpdated">–</span></span>
+<!-- Redesign B12.9 (spec B9, boards Settings, MeMobile, MeAccountsMobile,
+     MeDocumentsMobile). Settings on desktop: a sub-nav with five groups.
+     On phones each section opens from Me as its own screen with "‹ Me".
+     The My details sections hold the Manual Entry panels (the same forms and
+     save code the coach uses, moved in by TEI.settings); the rest are built
+     by TEI.settings. -->
+<div class="hm st" id="stRoot">
+  <header class="hm-head st-head">
+    <div>
+      <p class="hm-date">Settings</p>
+      <h1 class="hm-title">Settings</h1>
+      <p class="hm-muted fc-sub">Everything here feeds your Wealth OS. Changes save as you go.</p>
+    </div>
+  </header>
+  <button type="button" class="st-back" id="stBack"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Me</button>
+
+  <div class="st-layout">
+    <nav class="st-nav" aria-label="Settings sections">
+      <div><p class="hm-label">My details</p>
+        <button type="button" data-st="profile">Profile</button>
+        <button type="button" data-st="accounts">Accounts</button>
+        <button type="button" data-st="holdings">Holdings</button>
+        <button type="button" data-st="property">Property and debts</button>
+        <button type="button" data-st="income">Income and spending</button>
+        <button type="button" data-st="goals">Goals</button>
+      </div>
+      <div><p class="hm-label">Documents</p>
+        <button type="button" data-st="documents">Documents<span class="st-badge" id="stDocBadge" hidden></span></button>
+      </div>
+      <div><p class="hm-label">Plan</p>
+        <button type="button" data-st="plan">Plan settings</button>
+      </div>
+      <div><p class="hm-label">Account</p>
+        <button type="button" data-st="membership">Membership</button>
+        <button type="button" data-st="notifications">Notifications</button>
+        <button type="button" data-st="security">Security and data</button>
+      </div>
+      <div><p class="hm-label">Help</p>
+        <button type="button" data-st="help">Help and learning</button>
+      </div>
+    </nav>
+
+    <div class="st-body">
+      <h2 class="st-title" id="stTitle"></h2>
+
+      <!-- My details: hosts for the Manual Entry panels -->
+      <div class="st-sec" data-st-sec="profile">
+        <div data-st-host="profile"></div>
+        <section class="hm-tile st-coach">
+          <span class="st-coach-mark" aria-hidden="true">PI</span>
+          <div><p class="hm-label">Your coach</p><p class="st-coach-name">Paddy Iveson</p><p class="hm-muted hm-small">Message Paddy from Help and learning.</p></div>
+        </section>
+      </div>
+      <div class="st-sec" data-st-sec="accounts">
+        <p class="hm-muted st-intro" id="stAcctSummary"></p>
+        <div data-st-host="accounts"></div>
+        <p class="hm-note">This month's balances are quickest in Update balances on Wealth. Use the log above for earlier months.</p>
+      </div>
+      <div class="st-sec" data-st-sec="holdings">
+        <p class="hm-muted st-intro">US tickers price automatically. Others: enter the value from your statement.</p>
+        <div data-st-host="holdings"></div>
+      </div>
+      <div class="st-sec" data-st-sec="property">
+        <div data-st-host="property"></div>
+        <section class="st-locked"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span><strong>Mortgage details coming soon.</strong> <span class="fc-muted">Rate, fix end date, payment, early repayment charges and overpayment allowance.</span></span></section>
+      </div>
+      <div class="st-sec" data-st-sec="income">
+        <p class="hm-muted st-intro" id="stSpendSummary"></p>
+        <div data-st-host="income"></div>
+      </div>
+      <div class="st-sec" data-st-sec="goals">
+        <section class="hm-tile st-card">
+          <div class="hm-row hm-row-wrap"><div><h3 class="hm-h3">Goals</h3><p class="hm-muted hm-small">Money goals track progress from the accounts you link.</p></div><a href="#" class="hm-link" id="stGoalsLink">See them on Goals</a></div>
+          <ul class="st-list" id="stGoals"></ul>
+          <button type="button" class="hm-btn st-add" id="stGoalAdd">Add a goal</button>
+        </section>
+      </div>
+
+      <!-- Documents (B9.3) -->
+      <div class="st-sec" data-st-sec="documents">
+        <section class="hm-tile st-card">
+          <h3 class="hm-h3">Send something to your coach</h3>
+          <p class="hm-muted hm-small">Statements, screenshots or PDFs. Your coach checks each one before any figures change.</p>
+          <label class="st-drop" for="stUpFile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg><span id="stUpLabel">Choose a file</span><small>PDF, PNG, JPG, CSV or Excel · up to 20 MB</small></label>
+          <input type="file" id="stUpFile" class="gl-sr" accept=".pdf,.png,.jpg,.jpeg,.csv,.xls,.xlsx,image/*">
+          <div class="st-f2">
+            <label class="gl-field"><span>What is it?</span><select id="stUpType"><option value="statement">Statement</option><option value="screenshot">Screenshot</option><option value="payslip">Payslip</option><option value="other">Other</option></select></label>
+            <label class="gl-field"><span>Which account? (optional)</span><select id="stUpAcct"></select></label>
+          </div>
+          <button type="button" class="hm-btn hm-btn-primary" id="stUpSend">Send to coach</button>
+          <p class="hm-note" id="stUpState" aria-live="polite"></p>
+          <ul class="st-list" id="stUploads"></ul>
+        </section>
+        <section class="hm-tile st-card">
+          <div class="hm-row hm-row-wrap"><div><h3 class="hm-h3">From your coach</h3><p class="hm-muted hm-small">Plans, forecasts and meeting notes. Also in your Library.</p></div><a href="/hub/index.html" class="hm-link" id="stLibLink">Open Library</a></div>
+          <ul class="st-list" id="stShared"></ul>
+        </section>
+      </div>
+
+      <!-- Plan settings (B9.4) -->
+      <div class="st-sec" data-st-sec="plan">
+        <section class="hm-tile st-card">
+          <h3 class="hm-h3">Your plan settings</h3>
+          <p class="hm-muted hm-small">These shape your Forecast, Goals and Cashflow pages.</p>
+          <div class="st-sliders">
+            <div><label for="stRet" class="fc-ret-l"><span>Planned retirement age</span><strong id="stRetV"></strong></label><input type="range" class="gl-range" id="stRet" min="55" max="68" step="1"></div>
+            <div><label for="stYs" class="fc-ret-l"><span>Yearly spending in independence</span><strong id="stYsV"></strong></label><p class="hm-note" id="stYsNote"></p><input type="range" class="gl-range" id="stYs" min="15000" max="60000" step="1000"></div>
+            <div><label for="stWc" class="fc-ret-l"><span>Wealth conversion target</span><strong id="stWcV"></strong></label><p class="hm-note">The share of take-home pay you aim to put into wealth each month.</p><input type="range" class="gl-range" id="stWc" min="5" max="60" step="1"></div>
+            <div><label for="stSn" class="fc-ret-l"><span>Safety net target</span><strong id="stSnV"></strong></label><p class="hm-note">Months of spending kept in cash. TEI default 6.</p><input type="range" class="gl-range" id="stSn" min="3" max="12" step="1"></div>
+          </div>
+          <p class="hm-note" id="stPlanState" aria-live="polite"></p>
+        </section>
+        <section class="hm-tile st-card st-locked-rows">
+          <div class="hm-row"><p class="hm-label">Set by your coach</p><svg class="cf-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+          <div class="st-f3">
+            <div class="fc-box"><p>Growth scenarios</p><b>2% · 5% · 8%</b></div>
+            <div class="fc-box"><p>Inflation</p><b>2.5% a year</b></div>
+            <div class="fc-box"><p>Safe withdrawal</p><b>4% (25×)</b></div>
+          </div>
+          <p class="hm-note">The same rates for every TEI client. Use the toggles on Forecast to see different returns.</p>
+        </section>
+      </div>
+
+      <!-- Membership (B9.5, C6) -->
+      <div class="st-sec" data-st-sec="membership">
+        <section class="hm-tile hm-feat st-member">
+          <div><p class="hm-label">Your membership</p><p class="st-member-tier" id="stTier"></p><p class="st-member-sub" id="stTierSub"></p></div>
+          <div><p class="hm-label">Payments</p><p class="st-member-sub">Direct Debit via GoCardless.</p></div>
+        </section>
+        <div class="st-tiers" id="stTiers"></div>
+        <section class="hm-tile st-card">
+          <h3 class="hm-h3">Changing tier or cancelling</h3>
+          <p class="hm-muted hm-small">Change tier any time, with a month's notice. Cancelling needs one month's notice; in your first three months (setup) the minimum term applies. Either way, your coach gets in touch to sort it with you.</p>
+          <div class="hm-actions"><button type="button" class="hm-btn" id="stCancel">Ask to cancel</button></div>
+          <p class="hm-note" id="stMemberState" aria-live="polite"></p>
+        </section>
+      </div>
+
+      <!-- Notifications (B9.5) -->
+      <div class="st-sec" data-st-sec="notifications">
+        <section class="hm-tile st-card">
+          <h3 class="hm-h3">Notifications</h3>
+          <p class="hm-muted hm-small">Email works now. Phone alerts turn on when you add Wealth OS to your home screen.</p>
+          <div class="st-notif-head" aria-hidden="true"><span>Type</span><span>Email</span><span>Phone</span></div>
+          <ul class="st-notif" id="stNotif"></ul>
+          <p class="hm-note" id="stNotifState" aria-live="polite"></p>
+        </section>
+        <section class="hm-tile st-card st-row-card">
+          <span><strong>Add Wealth OS to your home screen</strong><br><span class="fc-muted">Opens like an app and lets us send phone alerts.</span></span>
+          <button type="button" class="hm-btn" id="stA2hs" aria-expanded="false">Show me how</button>
+          <p class="hm-muted hm-small st-a2hs" id="stA2hsText" hidden>On an iPhone, open Wealth OS in Safari, tap Share, then Add to Home Screen. On Android, open it in Chrome, tap the menu, then Add to Home screen.</p>
+        </section>
+      </div>
+
+      <!-- Security and data (B9.5) -->
+      <div class="st-sec" data-st-sec="security">
+        <div class="st-grid2">
+          <section class="hm-tile st-card">
+            <h3 class="hm-h3">Change password</h3>
+            <p class="hm-muted hm-small">At least 8 characters.</p>
+            <label class="gl-field"><span>New password</span><input type="password" id="stPw1" autocomplete="new-password"></label>
+            <label class="gl-field"><span>Type it again</span><input type="password" id="stPw2" autocomplete="new-password"></label>
+            <button type="button" class="hm-btn hm-btn-primary" id="stPwSave">Change password</button>
+            <p class="hm-note" id="stPwState" aria-live="polite"></p>
+          </section>
+          <section class="hm-tile st-card">
+            <h3 class="hm-h3">Sign out of all devices</h3>
+            <p class="hm-muted hm-small">Signs you out everywhere, including here.</p>
+            <button type="button" class="hm-btn" id="stSignOutAll">Sign out everywhere</button>
+          </section>
+          <section class="hm-tile st-card">
+            <h3 class="hm-h3">Download my data</h3>
+            <p class="hm-muted hm-small">A spreadsheet of your accounts, holdings, cashflow and goals.</p>
+            <button type="button" class="hm-btn" id="stDownload">Download</button>
+          </section>
+          <section class="hm-tile st-card st-warn-card">
+            <h3 class="hm-h3">Close my account</h3>
+            <p class="hm-muted hm-small">Sends a request to your coach, who gets in touch before anything is closed.</p>
+            <button type="button" class="hm-btn st-warn-btn" id="stClose">Ask to close my account</button>
+            <p class="hm-note" id="stCloseState" aria-live="polite"></p>
+          </section>
+        </div>
+      </div>
+
+      <!-- Help and learning (B9.6) -->
+      <div class="st-sec" data-st-sec="help">
+        <div class="st-grid2">
+          <section class="hm-tile hm-feat st-card">
+            <p class="hm-label">Ask your coach</p>
+            <p class="gl-coach-msg">Stuck on something, or want to talk a number through? Message Paddy and he will come back to you.</p>
+            <button type="button" class="hm-btn gl-coach-btn" id="stMessage">Message your coach</button>
+          </section>
+          <section class="hm-tile hm-champ st-card">
+            <p class="hm-label hm-gold">Getting started</p>
+            <h3 class="hm-h3">How Wealth OS works</h3>
+            <details class="st-how"><summary>What each page shows</summary>
+              <ul>
+                <li><b>Home:</b> your total wealth, your next step and a summary of everything else.</li>
+                <li><b>Wealth:</b> every account and holding, and the Portfolio Lab. Update balances lives here.</li>
+                <li><b>Goals:</b> each goal, what it needs a month and the road to your headline goal.</li>
+                <li><b>Forecast:</b> where today's money and habits lead, with your own what-ifs.</li>
+                <li><b>Cashflow:</b> how your monthly money turns into wealth. Update this month lives here.</li>
+                <li><b>Settings:</b> the details behind all of it.</li>
+              </ul>
+            </details>
+          </section>
+        </div>
+        <section class="hm-tile st-card">
+          <div class="hm-row hm-row-wrap"><div><h3 class="hm-h3">Guides and articles</h3><p class="hm-muted hm-small">From the website. Opens in a new tab.</p></div><a href="/guides.html" target="_blank" rel="noopener" class="hm-link">All guides</a></div>
+          <div class="st-guides">
+            <a href="/guides/tax.html" target="_blank" rel="noopener"><span class="mono">Guide</span>The Tax Wrapper Guide</a>
+            <a href="/guides/stages.html" target="_blank" rel="noopener"><span class="mono">Guide</span>The Five Stages</a>
+            <a href="/guides/principles.html" target="_blank" rel="noopener"><span class="mono">Guide</span>TEI Principles</a>
+            <a href="/guides/cost-of-waiting.html" target="_blank" rel="noopener"><span class="mono">Tool</span>Cost of Waiting</a>
+            <a href="/articles/how-wealth-compounds.html" target="_blank" rel="noopener"><span class="mono">Article</span>How wealth compounds</a>
+            <a href="/articles.html" target="_blank" rel="noopener"><span class="mono">Articles</span>All articles</a>
+          </div>
+        </section>
+        <section class="hm-tile st-card">
+          <h3 class="hm-h3">Questions people ask</h3>
+          <details class="st-faq"><summary>Where do my figures come from?</summary><p>From what you and your coach enter: your accounts, balances, income and spending. US-listed shares are priced automatically; everything else is the value you enter from your statements.</p></details>
+          <details class="st-faq"><summary>What should I update each month?</summary><p>Your balances (Update balances on Wealth) and how the month went (Update this month on Cashflow). It takes a few minutes and keeps every projection worth trusting.</p></details>
+          <details class="st-faq"><summary>Is any of this financial advice?</summary><p>No. Wealth OS shows the mechanics of your money so you can make your own decisions. Projections are illustrative, not predictions or recommendations.</p></details>
+        </section>
+        <p class="hm-note">The Everyday Investor provides financial coaching and education. We do not give regulated financial advice, and nothing in Wealth OS is a personal recommendation. If you need advice, we can point you to a regulated adviser.</p>
       </div>
     </div>
-    <div class="span-12" id="mydetailsHost"></div>
   </div>
-</section>
 </div>
 
-<!-- ============================= MENU (mobile only) =============================
-     Reached from the bottom bar's Menu tab; no sidebar link points here, and
-     showPage('home') is forced if the window widens past 860px while it is open. -->
+<!-- Kept for the old header strip's renderer; not shown (redesign B12.9). -->
+<div hidden><span id="setOnboardingStatus"></span><a id="setOnboardingLink"></a><span id="setClientId"></span><span id="setLastUpdated"></span><div id="mydetailsHost"></div></div>
+</div>
+
+<!-- ============================= ME (mobile only) =============================
+     Redesign B12.9 (board MeMobile). Reached from the bottom bar's Me tab.
+     Each row opens its Settings section as a full screen with "‹ Me". -->
 <div id="page-menu" class="page">
-<section class="wrap m-menu">
-  <h1 class="m-sr">Menu</h1>
-  <div class="m-card m-profile">
-    <div class="m-avatar" id="mMenuAvatar" aria-hidden="true">–</div>
-    <div><div class="m-profile-name" id="mMenuName">–</div><div class="m-profile-role">TEI Client</div></div>
-  </div>
-
-  <!-- Monthly update: one prominent card, no balances shown. Opens the existing Update page. -->
-  <div class="m-card m-highlight" id="mMenuUpdate">
-    <div class="m-card-head"><b>Monthly update</b><span class="m-badge" id="mMenuUpdateBadge" hidden></span></div>
-    <div class="m-val" id="mMenuUpdateText">–</div>
-    <button type="button" class="m-cta" data-mgo="update">Update monthly figures</button>
-  </div>
-
-  <!-- Edit everything: the My Details sections, each opening on its own. Rows and the
-       "% set up" bar are built by renderMenu() from the app's own completion() tracker. -->
-  <div class="m-card" id="mMenuSetup">
-    <div class="m-card-head"><b>Edit everything</b><span class="m-val" id="mMenuSetupPct"></span></div>
-    <div class="m-bar" aria-hidden="true"><i id="mMenuSetupBar" style="width:0%;"></i></div>
-    <div id="mMenuSteps"></div>
-  </div>
-
-  <div class="m-card">
-    <div class="m-row" role="presentation" style="cursor:default;"><span>Notifications</span><span class="m-val">None new</span></div>
-    <button type="button" class="m-row" data-msub="cashflow"><span>Preferences</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-msub="profile"><span>Profile</span><span class="m-chev" aria-hidden="true">›</span></button>
-    <button type="button" class="m-row" data-mact="help"><span>Help &amp; support</span><span class="m-chev" aria-hidden="true">›</span></button>
-  </div>
-  <div class="m-card"><a href="/" class="m-row"><span>Visit Website</span><span class="m-chev" aria-hidden="true">↗</span></a></div>
-  <div class="m-card"><button type="button" class="m-row m-danger" data-mact="signout">Sign out</button></div>
-</section>
+<div class="hm me">
+  <header class="hm-head"><div><h1 class="hm-title">Me</h1></div></header>
+  <section class="hm-tile hm-feat me-card">
+    <span class="me-avatar" id="mMenuAvatar" aria-hidden="true">–</span>
+    <div class="me-who"><p class="me-name" id="mMenuName">–</p><p class="me-sub" id="mMenuSub">Coach Paddy Iveson</p></div>
+    <button type="button" class="me-edit" data-me="profile" aria-label="Edit profile"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+  </section>
+  <div id="meGroups"></div>
+  <section class="me-group">
+    <p class="hm-label">Appearance</p>
+    <div class="me-theme"><span>Theme</span><div class="hb-seg-me" role="group" aria-label="Theme"><button type="button" data-w-theme="light" aria-pressed="true">Light</button><button type="button" data-w-theme="dark" aria-pressed="false">Dark</button></div></div>
+  </section>
+  <button type="button" class="me-signout" data-mact="signout">Sign out</button>
+  <p class="hm-note me-foot">Coaching and education, not regulated financial advice.</p>
+</div>
 </div>
 
 <!-- Hub boundary wording. Same wording as hub/js/hub-boundary.js, which does not add its own footer on this page. -->
@@ -4717,6 +5034,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         <label class="form-field"><span>First name</span><input type="text" id="mFirstName"></label>
         <label class="form-field"><span>Last name</span><input type="text" id="mLastName"></label>
         <label class="form-field"><span>Email</span><input type="email" id="mEmail"></label>
+        <label class="form-field"><span>Date of birth</span><input type="date" id="mDob"><span class="st-hint">Your age drives your Forecast.</span></label>
         <label class="form-field"><span>Employment status</span>
           <select id="mEmployment"><option value="">Not set</option><option>Employed</option><option>Self-employed</option><option>Retired</option><option>Business Owner</option><option>Student</option><option>Not Currently Working</option></select>
         </label>
@@ -4724,17 +5042,22 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
           <select id="mRelationship"><option value="">Not set</option><option>Single</option><option>Partnered</option><option>Married</option></select>
           <span style="font-size:11.5px; color:var(--cream-soft2); margin-top:2px;">Partnered/Married clients still keep their own individual accounts and income here — link the two client records into a household from the client list to get a combined household rollup and tag shared costs as joint.</span>
         </label>
-        <label class="form-field" id="mRiskField"><span>Risk profile (self-reported)</span>
-          <select id="mRisk"><option value="">Not set</option><option>Cautious</option><option>Balanced</option><option>Growth</option><option>Aggressive</option></select>
+        <label class="form-field" id="mRiskField"><span>How you feel about risk (self-reported)</span>
+          <select id="mRisk"><option value="">Not set</option><option>Cautious</option><option>Balanced</option><option>Growth</option><option value="Aggressive">Adventurous</option></select>
+          <span class="st-hint">Your coach talks this through with you; it does not change any figures.</span>
         </label>
-        <label class="form-field"><span>Onboarding complete?</span>
+        <label class="form-field" data-adviser-only><span>Membership tier</span>
+          <select id="mTier"><option value="">Not set</option><option value="core">Core £25</option><option value="momentum">Momentum £40</option><option value="inner_circle">Inner Circle £50</option></select>
+        </label>
+        <label class="form-field" data-adviser-only><span>Member since</span><input type="date" id="mMemberSince"></label>
+        <label class="form-field" data-adviser-only><span>Onboarding complete?</span>
           <select id="mOnboarding"><option value="false">No</option><option value="true">Yes</option></select>
         </label>
       </div>
-      <label class="form-field" style="margin-bottom:0;"><span>Notes</span><textarea id="mNotes" rows="2"></textarea></label>
+      <label class="form-field" style="margin-bottom:0;" data-adviser-only><span>Notes</span><textarea id="mNotes" rows="2"></textarea></label>
     </div>
 
-    <div class="card">
+    <div class="card" data-adviser-only>
       <h3 style="margin:0 0 4px; color:var(--cream); font-family:'Playfair Display',serif;">Investor stage</h3>
       <div class="note" style="margin-top:0;">Wealth OS suggests a stage automatically from portfolio size, holdings and accounts. Override it here if needed.</div>
       <div class="form-grid" style="grid-template-columns:1fr; max-width:260px; margin-bottom:0;">
@@ -7249,12 +7572,9 @@ TEI.render = TEI.render || {};
     return 'Good evening';
   }
 
-  /* Settings > Accounts (B4.1). Settings is the mydetails page; its forms
-     open on Profile, so pick the Accounts tab once the page is shown. */
+  /* Settings > Accounts (B4.1, B9.1). */
   function openAccountsSettings(){
-    TEI.app.showPage('mydetails');
-    const tab = document.querySelector('.adv-subtabs button[data-subtab="accounts"]');
-    if(tab) tab.click();
+    if(TEI.settings) TEI.settings.open('accounts'); else TEI.app.showPage('mydetails');
   }
 
   /* Smooth path through points: a cubic per segment with its control
@@ -8454,6 +8774,9 @@ TEI.render = TEI.render || {};
       drawHeadline(client, g, TEI.calc.goalStatus(client, g));
     });
   }
+
+  // Settings > Goals opens the same panel (B9.2).
+  TEI.goalsPage = { open(goalId){ wireOnce(); openPanel(goalId || null); } };
 
   TEI.render.goals = async function(client){
     wireOnce();
@@ -12461,75 +12784,359 @@ TEI.render = TEI.render || {};
     `).join('');
   }
 
-  /* My Details reuses the Adviser Workspace's Manual Entry panel (Profile,
-     Accounts & Balances, Holdings & Dividends, Wealth, Goals, Cashflow,
-     Documents) rather than a second copy of those forms -- see
-     mountMyDetailsPanel below. This function only owns the small
-     client-styled header strip (onboarding status/redo link, client id,
-     last-updated) that used to live on the old Settings page. */
-  function renderMyDetails(client){
-    document.getElementById('setClientId').textContent = client.meta.clientId;
-    document.getElementById('setLastUpdated').textContent = client.personal.lastEditedAt ? new Date(client.personal.lastEditedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : 'Not set';
-    const obStatus = document.getElementById('setOnboardingStatus');
-    if(obStatus){
-      obStatus.textContent = client.settings.onboardingComplete ? 'Complete' : 'Not complete';
-      obStatus.className = client.settings.onboardingComplete ? 'status-pill approved' : 'status-pill pending';
-    }
-    const obLink = document.getElementById('setOnboardingLink');
-    if(obLink) obLink.href = 'onboarding.html?client=' + encodeURIComponent(client.meta.clientId||'');
+  /* ================= SETTINGS / ME (redesign B12.9, spec B9) =================
+     Settings has a sub-nav with five groups. The My details sections hold
+     the Manual Entry panels (the same forms and save code the coach uses):
+     each #subtab-* panel is moved into its section here, and moved back for
+     the Adviser Workspace by restoreMyDetailsPanel. On phones, Me lists the
+     sections and each opens as its own screen with "‹ Me" (B9.1). */
+  const ST_TITLES = {profile:'Profile', accounts:'Accounts', holdings:'Holdings', property:'Property and debts',
+    income:'Income and spending', goals:'Goals', documents:'Documents', plan:'Plan settings',
+    membership:'Membership', notifications:'Notifications', security:'Security and data', help:'Help and learning'};
+  const ST_PANELS = {profile:'subtab-profile', accounts:'subtab-accounts', holdings:'subtab-holdings', property:'subtab-wealth', income:'subtab-cashflow'};
+  const TIERS = [
+    {id:'core', name:'Core', price:25, reply:'a week', suits:'You are confident with your plan and want help when you ask.',
+      points:['Full review session twice a year', 'Wealth Plan and Forecast refreshed yearly', 'Message replies within a week', 'Extra full sessions £50 each']},
+    {id:'momentum', name:'Momentum', price:40, reply:'2 working days', suits:'You want a regular check-in to stay on track.',
+      points:['Full review session every quarter', 'Wealth Plan and Forecast refreshed twice a year', 'Message replies within 2 working days', 'One extra session free a year, then £30']},
+    {id:'inner_circle', name:'Inner Circle', price:50, reply:'1 working day', suits:'You are making bigger changes or want the most support.',
+      points:['Full review session every quarter', 'A 30-minute check-in every month, if needed', 'Plan refreshed quarterly and after any big life change', 'Message replies within 1 working day']}
+  ];
+  const NOTIFS = [
+    {id:'monthly', t:'Monthly update reminder', d:'A nudge to update your balances and month.'},
+    {id:'sessions', t:'Session reminders', d:'Before each session with your coach.'},
+    {id:'documents', t:'New documents', d:'When your coach shares a plan, forecast or note.'},
+    {id:'messages', t:'Messages from your coach', d:'When your coach replies to you.'}
+  ];
+  let stCurrent = 'accounts';
+  const stHome = {}; // where each moved panel lives in the Adviser Workspace
+  function $s(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function stDate(str){ const d = new Date(str); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}); }
+  function isPhone(){ return window.matchMedia('(max-width:860px)').matches; }
 
+  function renderMyDetails(client){
     mountMyDetailsPanel(client);
+    const root = $s('stRoot');
+    root.classList.toggle('st-client', client.meta.role !== 'adviser');
+    root.classList.toggle('st-phone', isPhone());
+    selectSection(client, stCurrent);
   }
 
-  /* Moves the Adviser Workspace's #tab-manual panel (Profile/Accounts/
-     Holdings/Wealth/Goals/Cashflow/Documents, plus its adv-subtabs bar)
-     out of the hidden #adviserApp shell and into this page's host div, so
-     a client-role session gets the exact same forms and save handlers an
-     adviser uses -- no duplicated markup, no separate wiring to keep in
-     sync. TEI.adviser.init/refresh is what actually populates the fields
-     and wires the Add/Save buttons; it's safe to call repeatedly (the
-     module already re-runs it every time an adviser opens a different
-     client). Risk profile stays adviser-only: #mRiskField is hidden for
-     every non-adviser session (savePersonal() also refuses to overwrite
-     it while hidden, so this is belt-and-braces, not the only guard). */
   function mountMyDetailsPanel(client){
-    const host = document.getElementById('mydetailsHost');
-    const panel = document.getElementById('tab-manual');
-    if(!host || !panel) return;
-    if(panel.parentNode !== host) host.appendChild(panel);
-
+    Object.keys(ST_PANELS).forEach(sec=>{
+      const panel = $s(ST_PANELS[sec]);
+      const host = document.querySelector('[data-st-host="'+sec+'"]');
+      if(!panel || !host) return;
+      if(panel.parentNode !== host){
+        if(!stHome[sec]) stHome[sec] = {parent: panel.parentNode, next: panel.nextElementSibling};
+        host.appendChild(panel);
+      }
+      panel.classList.add('active');
+    });
     if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(client);
-
-    panel.classList.add('active');
-    document.querySelectorAll('.adv-subtabs button').forEach(b=> b.classList.toggle('active', b.dataset.subtab === 'profile'));
-    document.querySelectorAll('.subtab-panel').forEach(p=> p.classList.toggle('active', p.id === 'subtab-profile'));
-
-    const riskField = document.getElementById('mRiskField');
-    if(riskField) riskField.style.display = (client.meta.role === 'adviser') ? '' : 'none';
-    // Same for live pricing: clients never trigger Twelve Data calls (US
-    // holdings are repriced on a schedule server-side) and can't switch a
-    // holding between Auto (US) and Manual.
-    panel.querySelectorAll('#subtab-holdings [data-adviser-only]').forEach(el=>{
+    // US pricing controls stay with the coach (clients never trigger price calls).
+    document.querySelectorAll('#stRoot #subtab-holdings [data-adviser-only]').forEach(el=>{
       el.style.display = (client.meta.role === 'adviser') ? '' : 'none';
     });
   }
 
-  /* Puts #tab-manual back where the Adviser Workspace expects it. Only
-     needed for an adviser who used "Preview" to see the client dashboard
-     (which can open My Details) and then clicks back into their real
-     workspace -- a client-role session never calls setMode('adviser') at
-     all, so this is a no-op for every normal client visit. */
+  /* Puts the panels back where the Adviser Workspace expects them, for an
+     adviser who previewed the client dashboard and then went back. */
   function restoreMyDetailsPanel(){
-    const anchor = document.getElementById('tabManualAnchor');
-    const panel = document.getElementById('tab-manual');
-    if(anchor && panel && panel.parentNode !== anchor.parentNode){
-      anchor.parentNode.insertBefore(panel, anchor);
+    Object.keys(stHome).reverse().forEach(sec=>{
+      const panel = $s(ST_PANELS[sec]), home = stHome[sec];
+      if(!panel || !home) return;
+      if(home.next && home.next.parentNode === home.parent) home.parent.insertBefore(panel, home.next);
+      else home.parent.appendChild(panel);
+      panel.classList.toggle('active', sec === 'profile');
+      delete stHome[sec];
+    });
+    document.querySelectorAll('.adv-subtabs button').forEach(b=> b.classList.toggle('active', b.dataset.subtab === 'profile'));
+  }
+
+  function selectSection(client, sec){
+    if(!ST_TITLES[sec]) sec = 'accounts';
+    stCurrent = sec;
+    document.querySelectorAll('#stRoot [data-st]').forEach(b=>{
+      const on = b.dataset.st === sec;
+      b.classList.toggle('on', on);
+      if(on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    document.querySelectorAll('#stRoot [data-st-sec]').forEach(el=> el.hidden = el.dataset.stSec !== sec);
+    $s('stTitle').textContent = ST_TITLES[sec];
+    const fn = ST_RENDER[sec];
+    if(fn) fn(client);
+    renderDocBadge(client);
+  }
+
+  /* ---------- section renderers ---------- */
+  function renderAccountsSummary(client){
+    const total = TEI.calc.latestNetWorth(client);
+    const n = (client.accounts||[]).length;
+    const monthly = TEI.calc.actualTotalSavingInvesting(client);
+    $s('stAcctSummary').textContent = n + (n === 1 ? ' account' : ' accounts') + ' · ' + fmtGBP(total) + ' · ' + fmtGBP(monthly) + ' a month going in';
+  }
+  function renderSpendSummary(client){
+    $s('stSpendSummary').textContent = 'Tag each spending line essential or lifestyle; it drives the split on Cashflow. Essentials ' +
+      fmtGBP(TEI.calc.totalEssentialExpenses(client)) + ' · Lifestyle ' + fmtGBP(TEI.calc.totalLifestyleExpenses(client)) + ' a month.';
+  }
+  function renderGoalsList(client){
+    const goals = client.goals || [];
+    $s('stGoals').innerHTML = goals.length ? goals.map(g=>{
+      const st = TEI.calc.goalStatus(client, g);
+      const tgt = g.progressType === 'income' ? fmtGBP(g.targetIncome||0) + ' a year' : g.progressType === 'completion' ? 'Done or not done' : fmtGBP(g.targetAmount||0);
+      return `<li><span><b>${esc(g.name)}</b><small>${esc(tgt)}${g.targetDate ? ' · ' + esc(stDate(g.targetDate)) : ''} · ${esc(st.label)}</small></span><button type="button" class="hm-link hm-linkbtn" data-st-goal="${esc(g.id)}">Edit<span class="gl-sr"> ${esc(g.name)}</span></button></li>`;
+    }).join('') : '<li class="st-empty">No goals yet.</li>';
+  }
+  function stRenderDocuments(client){
+    const docs = client.documents || [];
+    $s('stUpAcct').innerHTML = '<option value="">Not about one account</option>' + (client.accounts||[]).map(a=> `<option value="${esc(a.id)}">${esc(TEI.data.acctLabel(a))}</option>`).join('');
+    const ups = docs.filter(d=> d.reviewStatus).sort((a,b)=> String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
+    $s('stUploads').innerHTML = ups.map(d=> `<li><span><b>${esc(d.name)}</b><small>Sent ${esc(stDate(d.uploadedAt))}</small></span><span class="st-status${d.reviewStatus === 'pending' ? ' st-pending' : ''}">${d.reviewStatus === 'pending' ? 'Waiting for review' : 'Added to your figures'}</span></li>`).join('');
+    const shared = docs.filter(d=> !d.reviewStatus && ['forecast','note','report','plan'].indexOf(d.type) >= 0)
+      .sort((a,b)=> String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
+    const kind = t => t === 'forecast' ? 'Forecast' : t === 'note' ? 'Meeting note' : t === 'plan' ? 'Plan' : 'Report';
+    $s('stShared').innerHTML = shared.length ? shared.map(d=> `<li><span><b>${esc(d.name)}</b><small>${kind(d.type)} · ${esc(stDate(d.uploadedAt))}</small></span>${d.storagePath ? `<button type="button" class="hm-link hm-linkbtn" data-forecast-open="${esc(d.id)}">Open</button>` : ''}</li>`).join('') : '<li class="st-empty">Nothing shared yet.</li>';
+    $s('stLibLink').href = isPhone() ? '#' : '/hub/index.html';
+  }
+  function renderDocBadge(client){
+    const n = (client.documents||[]).filter(d=> d.reviewStatus === 'pending').length;
+    const b = $s('stDocBadge');
+    b.hidden = !n;
+    b.textContent = n ? n + ' pending' : '';
+  }
+  function renderPlan(client){
+    const p = client.preferences || {};
+    const f = TEI.forecast ? null : null; // Forecast's defaults live in its module; mirror them here.
+    const ret = p.retirementAge != null ? p.retirementAge : 60;
+    const budget = TEI.calc.computeBudgetAndFI(client);
+    const ys = p.yearlySpending != null ? p.yearlySpending : Math.round((budget.annualSpend||0)/1000)*1000;
+    const wc = p.wealthConversionTarget != null ? p.wealthConversionTarget : 20;
+    const sn = p.safetyNetMonths != null ? p.safetyNetMonths : 6;
+    const set = (id, v)=>{ if(document.activeElement !== $s(id)) $s(id).value = String(v); };
+    set('stRet', Math.min(68, Math.max(55, ret))); set('stYs', Math.min(60000, Math.max(15000, ys || 15000)));
+    set('stWc', wc); set('stSn', sn);
+    planLabels(client);
+  }
+  function planLabels(client){
+    const p = client.preferences || {};
+    $s('stRetV').textContent = $s('stRet').value;
+    $s('stYsV').textContent = fmtGBP(Number($s('stYs').value)) + ' a year';
+    const mult = p.fiMultiple || 25;
+    $s('stYsNote').textContent = p.fiOverride != null ? 'Your coach has set your FI number to ' + fmtGBP(p.fiOverride) + '.' : 'Your FI number is ' + mult + ' times this: ' + fmtGBP(Number($s('stYs').value) * mult) + '.';
+    $s('stWcV').textContent = $s('stWc').value + '%';
+    $s('stSnV').textContent = $s('stSn').value + ' months';
+  }
+  function tierOf(client){ return TIERS.find(t=> t.id === client.settings.tier) || null; }
+  function renderMembership(client){
+    const t = tierOf(client);
+    $s('stTier').textContent = t ? t.name : 'Not set up yet';
+    const since = client.settings.memberSince ? ' · member since ' + new Date(client.settings.memberSince).toLocaleDateString('en-GB', {month:'long', year:'numeric'}) : '';
+    $s('stTierSub').textContent = t ? '£' + t.price + ' a month' + since : 'Your coach sets this up when you join.';
+    $s('stTiers').innerHTML = TIERS.map(x=>{
+      const on = t && x.id === t.id;
+      return `<section class="hm-tile st-tier${on ? ' on' : ''}"><div class="hm-row"><b>${x.name}</b>${on ? '<span class="fc-chip fc-chip-on">Your tier</span>' : ''}</div>
+        <p class="st-tier-price">£${x.price} <small>a month</small></p><p class="hm-muted hm-small">${esc(x.suits)}</p>
+        <ul>${x.points.map(pt=> `<li>${esc(pt)}</li>`).join('')}</ul>
+        ${on ? '' : `<button type="button" class="hm-btn st-tier-btn" data-st-tier="${x.id}">Ask to move to ${x.name}</button>`}</section>`;
+    }).join('');
+  }
+  function notifPrefs(client){
+    const e = ((client.settings.notifications||{}).email) || {};
+    const out = {};
+    NOTIFS.forEach(n=>{ out[n.id] = e[n.id] !== false; });
+    return out;
+  }
+  function renderNotifications(client){
+    const prefs = notifPrefs(client);
+    $s('stNotif').innerHTML = NOTIFS.map(n=> `<li><span><b>${n.t}</b><small>${n.d}</small></span>
+      <span><input type="checkbox" data-st-notif="${n.id}" ${prefs[n.id] ? 'checked' : ''} aria-label="${n.t} by email"></span>
+      <span><input type="checkbox" disabled aria-label="${n.t} on your phone: not available yet"></span></li>`).join('');
+  }
+  const ST_RENDER = {
+    accounts: renderAccountsSummary, income: renderSpendSummary, goals: renderGoalsList,
+    documents: stRenderDocuments, plan: renderPlan, membership: renderMembership, notifications: renderNotifications
+  };
+
+  /* ---------- actions ---------- */
+  function client(){ return TEI.app && TEI.app.state && TEI.app.state.client; }
+  async function requestToCoach(area, message, stateId){
+    const c = client(); if(!c) return false;
+    try{
+      await TEI.wealthOS.saveFeedback(c.meta.clientId, area, 'mydetails', message, c.meta.role);
+      return true;
+    } catch(err){
+      console.error('Wealth OS: request not sent', err);
+      if(stateId) $s(stateId).textContent = 'That did not send. Please try again.';
+      return false;
     }
   }
+  let planTimer = null;
+  function onPlanInput(){
+    const c = client(); if(!c) return;
+    const p = c.preferences = c.preferences || {};
+    p.retirementAge = Number($s('stRet').value);
+    p.yearlySpending = Number($s('stYs').value);
+    p.wealthConversionTarget = Number($s('stWc').value);
+    p.safetyNetMonths = Number($s('stSn').value);
+    planLabels(c);
+    $s('stPlanState').textContent = 'Saving...';
+    clearTimeout(planTimer);
+    planTimer = setTimeout(async ()=>{
+      try{ await TEI.wealthOS.saveCashflowSettings(c.meta.clientId, c); $s('stPlanState').textContent = 'Saved'; }
+      catch(err){ console.error('Wealth OS: plan settings not saved', err); $s('stPlanState').textContent = 'That did not save. Please try again.'; }
+    }, 600);
+  }
+  async function sendUpload(){
+    const c = client(); if(!c) return;
+    const file = $s('stUpFile').files && $s('stUpFile').files[0];
+    const btn = $s('stUpSend'), state = $s('stUpState');
+    if(!file){ state.textContent = 'Choose a file first.'; return; }
+    btn.disabled = true;
+    try{
+      let prepared;
+      try{ prepared = await TEI.docView.prepare(file, s=>{ state.textContent = s; }); }
+      catch(err){ state.textContent = err && err.userMessage || 'That file could not be read.'; return; }
+      state.textContent = 'Sending...';
+      const name = file.name.replace(/\.[^.]+$/, '').replace(/_/g, ' ');
+      const saved = await TEI.wealthOS.uploadDocument(c.meta.clientId, file, name, $s('stUpType').value, prepared,
+        {reviewStatus:'pending', accountId: $s('stUpAcct').value || null});
+      c.documents.push(saved);
+      $s('stUpFile').value = '';
+      $s('stUpLabel').textContent = 'Choose a file';
+      state.textContent = 'Sent. Your coach will check it before any figures change.';
+      stRenderDocuments(c); renderDocBadge(c);
+    } catch(err){
+      console.error('Wealth OS: upload failed', err);
+      state.textContent = 'That did not send. Please try again.';
+    } finally { btn.disabled = false; }
+  }
+  function csvCell(v){ const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+  function downloadData(){
+    const c = client(); if(!c) return;
+    const rows = [];
+    const add = r => rows.push(r.map(csvCell).join(','));
+    add(['Accounts']); add(['Account','Type','Value £','Monthly contribution £']);
+    (c.accounts||[]).forEach(a=> add([TEI.data.acctLabel(a), a.type, a.value, TEI.calc.acctContribTotal(a)]));
+    add([]); add(['Holdings']); add(['Holding','Ticker','Account','Value £','Cost £']);
+    (c.holdings||[]).forEach(h=>{ const a = (c.accounts||[]).find(x=> x.id === h.accountId); add([h.name, h.ticker||'', a ? TEI.data.acctLabel(a) : '', h.value, h.costBasis != null ? h.costBasis : '']); });
+    add([]); add(['Income']); add(['Type','Amount £','Frequency']);
+    (c.cashflow.income||[]).forEach(i=> add([i.type, i.amount, i.frequency]));
+    add([]); add(['Spending']); add(['Line','Fixed or variable','Essential or lifestyle','Amount £ a month']);
+    ['fixed','variable'].forEach(k=> (c.cashflow.expenses[k]||[]).forEach(e=> add([e.label, k, e.category === 'lifestyle' ? 'lifestyle' : 'essential', e.amount])));
+    add([]); add(['Monthly cashflow']); add(['Month','Take-home £','Essentials £','Lifestyle £','Wealth building £']);
+    Object.keys(c.cashflowMonths||{}).sort().forEach(k=>{ const m = TEI.calc.cashflowMonth(c, k); add([k, Math.round(m.takeHome), Math.round(m.essentials), Math.round(m.lifestyle), Math.round(m.wealthBuilding)]); });
+    add([]); add(['Goals']); add(['Goal','Target','Target date','Progress %']);
+    (c.goals||[]).forEach(g=>{ const gp = TEI.calc.goalProgress(c, g); add([g.name, g.progressType === 'income' ? g.targetIncome : g.targetAmount, g.targetDate||'', Math.round(gp.pct||0)]); });
+    const blob = new Blob(['﻿' + rows.join('\r\n')], {type:'text/csv;charset=utf-8'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'wealth-os-data-' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 5000);
+  }
+
+  let stWired = false;
+  function wireSettings(){
+    if(stWired) return;
+    stWired = true;
+    document.querySelectorAll('#stRoot [data-st]').forEach(b=> b.addEventListener('click', ()=>{ const c = client(); if(c) selectSection(c, b.dataset.st); }));
+    $s('stBack').addEventListener('click', ()=> TEI.app.showPage('menu'));
+    $s('stGoalsLink').addEventListener('click', e=>{ e.preventDefault(); TEI.app.showPage('goals'); });
+    $s('stGoalAdd').addEventListener('click', ()=>{ TEI.app.showPage('goals'); if(TEI.goalsPage) TEI.goalsPage.open(null); });
+    $s('stGoals').addEventListener('click', e=>{ const b = e.target.closest('[data-st-goal]'); if(!b) return; TEI.app.showPage('goals'); if(TEI.goalsPage) TEI.goalsPage.open(b.dataset.stGoal); });
+    $s('stLibLink').addEventListener('click', e=>{ if(isPhone()){ e.preventDefault(); TEI.app.showPage('documents'); } });
+    $s('stUpFile').addEventListener('change', ()=>{ const f = $s('stUpFile').files[0]; $s('stUpLabel').textContent = f ? f.name + ' ready to send' : 'Choose a file'; $s('stUpState').textContent = ''; });
+    $s('stUpSend').addEventListener('click', sendUpload);
+    ['stRet','stYs','stWc','stSn'].forEach(id=> $s(id).addEventListener('input', onPlanInput));
+    $s('stTiers').addEventListener('click', async e=>{
+      const b = e.target.closest('[data-st-tier]'); if(!b) return;
+      const t = TIERS.find(x=> x.id === b.dataset.stTier), cur = tierOf(client());
+      b.disabled = true;
+      if(await requestToCoach('membership', 'Membership: asked to change tier' + (cur ? ' from ' + cur.name : '') + ' to ' + t.name + '.', 'stMemberState'))
+        $s('stMemberState').textContent = 'Sent. We will be in touch within ' + (cur || t).reply + '.';
+      b.disabled = false;
+    });
+    $s('stCancel').addEventListener('click', async ()=>{
+      if(!confirm('Send a request to cancel your membership? Your coach will be in touch to arrange it.')) return;
+      const cur = tierOf(client());
+      if(await requestToCoach('membership', 'Membership: asked to cancel.', 'stMemberState'))
+        $s('stMemberState').textContent = 'Sent. We will be in touch within ' + (cur ? cur.reply : 'a week') + '.';
+    });
+    $s('stNotif').addEventListener('change', async e=>{
+      const box = e.target.closest('[data-st-notif]'); if(!box) return;
+      const c = client(); if(!c) return;
+      const prefs = notifPrefs(c); prefs[box.dataset.stNotif] = box.checked;
+      c.settings.notifications = {email: prefs};
+      $s('stNotifState').textContent = 'Saving...';
+      try{ await TEI.wealthOS.saveClientSettings(c.meta.clientId, {notification_prefs: c.settings.notifications}); $s('stNotifState').textContent = 'Saved'; }
+      catch(err){ console.error('Wealth OS: notification choices not saved', err); $s('stNotifState').textContent = 'That did not save. Please try again.'; }
+    });
+    $s('stA2hs').addEventListener('click', ()=>{ const t = $s('stA2hsText'); t.hidden = !t.hidden; $s('stA2hs').setAttribute('aria-expanded', t.hidden ? 'false' : 'true'); });
+    $s('stPwSave').addEventListener('click', async ()=>{
+      const a = $s('stPw1').value, b = $s('stPw2').value, st = $s('stPwState');
+      if(a.length < 8){ st.textContent = 'Use at least 8 characters.'; return; }
+      if(a !== b){ st.textContent = 'The two passwords do not match.'; return; }
+      try{ const r = await window.teiSupabase.auth.updateUser({password: a}); if(r.error) throw r.error; st.textContent = 'Password changed.'; $s('stPw1').value = $s('stPw2').value = ''; }
+      catch(err){ console.error('Wealth OS: password not changed', err); st.textContent = (err && err.message) || 'That did not work. Please try again.'; }
+    });
+    $s('stSignOutAll').addEventListener('click', async ()=>{
+      if(!confirm('Sign out on every device, including this one?')) return;
+      try{ await window.teiSupabase.auth.signOut({scope:'global'}); } catch(err){ console.error(err); }
+      location.href = '/hub/login.html';
+    });
+    $s('stDownload').addEventListener('click', downloadData);
+    $s('stClose').addEventListener('click', async ()=>{
+      if(!confirm('Send a request to close your account? Your coach will be in touch before anything is closed.')) return;
+      if(await requestToCoach('account', 'Account: asked to close my account.', 'stCloseState')) $s('stCloseState').textContent = 'Sent. Your coach will be in touch.';
+    });
+    $s('stMessage').addEventListener('click', ()=>{ const f = $s('feedbackFabBtn'); if(f) f.click(); });
+  }
+
+  /* Opens Settings on a section (Home's Update balances lands on Accounts, B9.1). */
+  function openSettings(sec){
+    stCurrent = ST_TITLES[sec] ? sec : 'accounts';
+    TEI.app.showPage('mydetails');
+  }
+
+  /* ---------- Me (phones, board MeMobile) ---------- */
+  function renderMe(c){
+    if(!c) return;
+    const t = tierOf(c);
+    $s('mMenuSub').textContent = (t ? t.name + ' member · ' : '') + 'coach Paddy Iveson';
+    const total = TEI.calc.latestNetWorth(c), n = (c.accounts||[]).length;
+    const liab = ((c.wealth||{}).liabilities||[]).length;
+    const pending = (c.documents||[]).filter(d=> d.reviewStatus === 'pending').length;
+    const prefs = notifPrefs(c);
+    const groups = [
+      ['My details', [['profile','Profile',''], ['accounts','Accounts', n + ' · ' + fmtGBP(total)], ['holdings','Holdings', String((c.holdings||[]).length)],
+        ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)]]],
+      ['Documents and plan', [['documents','Documents', pending ? pending + ' pending' : ''], ['plan','Plan settings', 'Retire at ' + ((c.preferences||{}).retirementAge || 60)]]],
+      ['Account', [['membership','Membership', t ? t.name + ' · £' + t.price : ''], ['notifications','Notifications', Object.values(prefs).some(Boolean) ? 'Email on' : 'Email off'], ['security','Security and data','']]],
+      ['Help', [['help','Help and learning',''], ['_message','Message your coach',''], ['_site','Public website','Guides and articles']]]
+    ];
+    $s('meGroups').innerHTML = groups.map(g=> `<section class="me-group"><p class="hm-label">${g[0]}</p><ul>${g[1].map(i=>
+      `<li><button type="button" data-me="${i[0]}"><span>${i[1]}</span><span class="me-meta${/pending/.test(i[2]) ? ' me-hot' : ''}">${esc(i[2])}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></li>`).join('')}</ul></section>`).join('');
+  }
+  let meWired = false;
+  function wireMe(){
+    if(meWired) return;
+    meWired = true;
+    $s('page-menu').addEventListener('click', e=>{
+      const b = e.target.closest('[data-me]'); if(!b) return;
+      const k = b.dataset.me;
+      if(k === '_message'){ const f = $s('feedbackFabBtn'); if(f) f.click(); }
+      else if(k === '_site') window.open('/', '_blank', 'noopener');
+      else openSettings(k);
+    });
+  }
+
+  TEI.settings = { open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); } };
 
   TEI.render.learning = renderLearning;
   TEI.render.documents = renderDocuments;
-  TEI.render.mydetails = renderMyDetails;
+  TEI.render.mydetails = function(client){ wireSettings(); renderMyDetails(client); };
   TEI.myDetails = { restorePanel: restoreMyDetailsPanel };
 })();
 
@@ -12595,6 +13202,9 @@ window.TEI = window.TEI || {};
     document.getElementById('mFirstName').value = client.personal.firstName||'';
     document.getElementById('mLastName').value = client.personal.lastName||'';
     document.getElementById('mEmail').value = client.personal.email||'';
+    document.getElementById('mDob').value = (client.personal.dob||'').slice(0,10);
+    document.getElementById('mTier').value = client.settings.tier || '';
+    document.getElementById('mMemberSince').value = (client.settings.memberSince||'').slice(0,10);
     document.getElementById('mEmployment').value = client.personal.employmentStatus||'';
     document.getElementById('mRelationship').value = client.personal.relationshipStatus||'';
     document.getElementById('mRisk').value = client.personal.riskProfile||'';
@@ -12607,7 +13217,7 @@ window.TEI = window.TEI || {};
     // the module-level `wired` flag exists to avoid for the Add buttons).
     const personalForm = document.getElementById('subtab-profile');
     if(personalForm && !personalForm.dataset.wired){
-      ['mFirstName','mLastName','mEmail','mEmployment','mRelationship','mRisk','mOnboarding','mNotes'].forEach(id=>{
+      ['mFirstName','mLastName','mEmail','mDob','mEmployment','mRelationship','mRisk','mOnboarding','mNotes','mTier','mMemberSince'].forEach(id=>{
         document.getElementById(id).addEventListener('change', savePersonal);
       });
       personalForm.dataset.wired = '1';
@@ -12624,19 +13234,26 @@ window.TEI = window.TEI || {};
     client.personal.firstName = document.getElementById('mFirstName').value.trim();
     client.personal.lastName = document.getElementById('mLastName').value.trim();
     client.personal.email = document.getElementById('mEmail').value.trim();
+    // Date of birth (spec B9.2): client-editable, drives Forecast's ages.
+    client.personal.dob = document.getElementById('mDob').value || '';
     client.personal.employmentStatus = document.getElementById('mEmployment').value;
     client.personal.relationshipStatus = document.getElementById('mRelationship').value;
-    // Risk profile input is hidden from client-role sessions (see
-    // mountMyDetailsPanel) but the field still exists in the DOM either
-    // way -- only actually overwrite it when the control is visible, so a
-    // client session can never blank out an adviser-set risk profile just
-    // by saving an unrelated field on this form.
-    const riskField = document.getElementById('mRiskField');
-    if(!riskField || riskField.style.display !== 'none'){
-      client.personal.riskProfile = document.getElementById('mRisk').value;
+    // Self-reported risk is client-editable (spec B9.2).
+    client.personal.riskProfile = document.getElementById('mRisk').value;
+    // Onboarding status and notes are adviser-only (spec B0): hidden from a
+    // client session, and never written from one.
+    if(client.meta.role === 'adviser'){
+      client.settings.onboardingComplete = document.getElementById('mOnboarding').value === 'true';
+      client.personal.notes = document.getElementById('mNotes').value.trim();
+      // Membership tier and start date (migration 011): set by the coach only.
+      const tier = document.getElementById('mTier').value || null;
+      const since = document.getElementById('mMemberSince').value || null;
+      if(tier !== (client.settings.tier || null) || since !== ((client.settings.memberSince||'').slice(0,10) || null)){
+        TEI.wealthOS.saveClientSettings(client.meta.clientId, {tier, member_since: since}).then(()=>{
+          client.settings.tier = tier || undefined; client.settings.memberSince = since || undefined;
+        }).catch(err=>{ console.error('Wealth OS: membership not saved', err); showToast('That did not save. Please try again.'); });
+      }
     }
-    client.settings.onboardingComplete = document.getElementById('mOnboarding').value === 'true';
-    client.personal.notes = document.getElementById('mNotes').value.trim();
     TEI.calc.stampEdit(client.personal, client.meta.role);
     const fullName = [client.personal.firstName, client.personal.lastName].filter(Boolean).join(' ');
     document.getElementById('advClientName').textContent = fullName || client.meta.displayName;
@@ -14715,15 +15332,28 @@ window.TEI = window.TEI || {};
       const row = document.createElement('div');
       row.className = 'list-row';
       const kind = stored && !isForecast && TEI.docView ? ' · ' + TEI.docView.formatLabel(d) : (stored ? ' · uploaded file' : '');
-      row.innerHTML = `<div class="lr-main"><b>${d.name}</b><div class="lr-meta">${isForecast ? 'Wealth Plan forecast' : d.type} · ${when}${kind}</div>${isForecast && stored ? `<div class="fc-state" data-fc-state="${d.id}"></div>` : ''}</div>
+      // Sent by the client (Settings > Documents): pending until the figures are keyed in.
+      const review = d.reviewStatus === 'pending' ? ' · <b style="color:var(--gold);">Sent by client, waiting for review</b>' : d.reviewStatus === 'added' ? ' · sent by client, figures added' : '';
+      row.innerHTML = `<div class="lr-main"><b>${d.name}</b><div class="lr-meta">${isForecast ? 'Wealth Plan forecast' : d.type} · ${when}${kind}${review}</div>${isForecast && stored ? `<div class="fc-state" data-fc-state="${d.id}"></div>` : ''}</div>
         <div style="display:flex; gap:8px; flex-none:1;">
           ${stored ? `<button type="button" class="btn-ghost" data-forecast-open="${d.id}" style="padding:5px 12px; font-size:11px;">Open</button>` : ''}
+          ${adviser && d.reviewStatus === 'pending' ? `<button type="button" class="btn-ghost" data-doc-added="${d.id}" style="padding:5px 12px; font-size:11px;">Mark figures added</button>` : ''}
           ${canEdit ? `<button type="button" class="btn-ghost" data-edit-doc="${d.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
           <button type="button" class="btn-ghost" data-del-doc="${d.id}" style="padding:5px 12px; font-size:11px;">Remove</button>` : ''}
         </div>`;
       list.appendChild(row);
     });
     // [data-forecast-open] buttons are handled by TEI.forecastView's single delegated click listener.
+    list.querySelectorAll('[data-doc-added]').forEach(btn=>{
+      btn.addEventListener('click', async function(){
+        const d = client.documents.find(x=>x.id===this.dataset.docAdded); if(!d) return;
+        this.disabled = true;
+        try{ await TEI.wealthOS.setDocumentReviewStatus(d.id, 'added'); }
+        catch(err){ console.error('Wealth OS: could not update the upload', err); showToast('That did not save. Please try again.'); this.disabled = false; return; }
+        d.reviewStatus = 'added';
+        renderDocuments();
+      });
+    });
     list.querySelectorAll('[data-del-doc]').forEach(btn=>{
       btn.addEventListener('click', async function(){
         const id = this.dataset.delDoc;
@@ -17275,7 +17905,12 @@ window.TEI = window.TEI || {};
         partner:{ name: c.partner_name, employmentStatus: c.partner_employment_status, incomeSources:[] },
         lastEditedBy: c.last_edited_by, lastEditedAt: c.last_edited_at
       },
-      settings:{ currency: c.currency, onboardingComplete: c.onboarding_complete },
+      settings:{ currency: c.currency, onboardingComplete: c.onboarding_complete,
+        // Redesign B9 (migration 011). Undefined until set.
+        theme: c.theme || undefined,
+        notifications: c.notification_prefs || undefined,
+        tier: c.tier || undefined,
+        memberSince: c.member_since || undefined },
       estatePlanning: c.estate_planning || {},
 
       accounts: (bundle.accounts||[]).map(a=>({
@@ -17334,7 +17969,9 @@ window.TEI = window.TEI || {};
         wealthConversionTarget: cf.wealth_conversion_target,
         // Plan settings (B9.4, migration 009). Undefined until first saved.
         retirementAge: cf.retirement_age != null ? cf.retirement_age : undefined,
-        yearlySpending: cf.yearly_spending != null ? Number(cf.yearly_spending) : undefined
+        yearlySpending: cf.yearly_spending != null ? Number(cf.yearly_spending) : undefined,
+        // Plan settings safety net target in months (migration 011); safetyNet() reads it.
+        safetyNetMonths: cf.safety_net_months != null ? Number(cf.safety_net_months) : undefined
       },
       monteCarlo: cf.monte_carlo,
 
@@ -17690,7 +18327,8 @@ window.TEI = window.TEI || {};
       // Plan settings (migration 009): only sent once set, so saving the rest
       // of this row keeps working on a database without those columns yet.
       ...(pref.retirementAge != null ? {retirement_age: pref.retirementAge} : {}),
-      ...(pref.yearlySpending != null ? {yearly_spending: pref.yearlySpending} : {})
+      ...(pref.yearlySpending != null ? {yearly_spending: pref.yearlySpending} : {}),
+      ...(pref.safetyNetMonths != null ? {safety_net_months: pref.safetyNetMonths} : {})
     };
   }
 
@@ -17999,11 +18637,14 @@ window.TEI = window.TEI || {};
   const DOCS_BUCKET = 'client-documents';
   function docRowToLocal(d){
     return { id:d.id, name:d.name, type:d.type, storagePath:d.storage_path, uploadedAt:d.uploaded_at,
-             date: d.uploaded_at, url: d.storage_path || null, format:d.format || null, viewPath:d.view_path || null };
+             date: d.uploaded_at, url: d.storage_path || null, format:d.format || null, viewPath:d.view_path || null,
+             // Client uploads (migration 012): 'pending' until the coach adds the figures, then 'added'.
+             reviewStatus: d.review_status || null, accountId: d.account_id || null };
   }
   function cleanDocPath(path){ return String(path||'').replace(/^\/+/, '').replace(/^client-documents\//, ''); }
   // prepared: { format, viewHtml|null } from TEI.docView.prepare(file).
-  async function uploadDocument(clientId, file, name, type, prepared){
+  /* extra (client uploads, migration 012): {reviewStatus, accountId}. */
+  async function uploadDocument(clientId, file, name, type, prepared, extra){
     const safe = String(file.name || 'document').replace(/[^a-zA-Z0-9._-]/g, '_');
     const path = clientId + '/' + Date.now() + '-' + safe;
     const format = prepared && prepared.format || null;
@@ -18023,11 +18664,23 @@ window.TEI = window.TEI || {};
         if(vup.error) throw vup.error;
         uploaded.push(viewPath);
       }
-      return docRowToLocal(await insertRow('documents', { client_id:clientId, name, type, storage_path:path, format, view_path:viewPath }));
+      const row = { client_id:clientId, name, type, storage_path:path, format, view_path:viewPath };
+      if(extra && extra.reviewStatus) row.review_status = extra.reviewStatus;
+      if(extra && extra.accountId) row.account_id = extra.accountId;
+      return docRowToLocal(await insertRow('documents', row));
     } catch(err){
       await bucket.remove(uploaded).catch(()=>{});
       throw err;
     }
+  }
+  /* Client-level settings on the clients row (theme, notification prefs,
+     membership tier and start date, migration 011). Only the fields passed
+     are written. */
+  async function saveClientSettings(clientId, fields){
+    return await updateRow('clients','id',clientId, fields);
+  }
+  async function setDocumentReviewStatus(documentId, status){
+    return docRowToLocal(await updateRow('documents', 'id', documentId, { review_status: status }));
   }
   async function updateDocument(documentId, fields){
     return docRowToLocal(await updateRow('documents', 'id', documentId, { name:fields.name, type:fields.type }));
@@ -18091,6 +18744,7 @@ window.TEI = window.TEI || {};
     saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory, saveMonthlyWins,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
+    saveClientSettings, setDocumentReviewStatus,
     saveFeedback, updateFeedbackStatus, fetchLivePrices, contributionRules
   };
 })();
@@ -18766,61 +19420,13 @@ window.TEI = window.TEI || {};
   }
 
 
-  /* ================= MENU (mobile) =================
-     - Monthly update: one card, no balances. Opens the existing Update page.
-       "Due" = the latest logged month is earlier than the current month.
-     - Edit everything: the My Details sections (the Manual Entry sub-tabs),
-       each opening on its own. Which ones are done, and the "% set up" figure,
-       come from the app's own completion() tracker (same ids as the sub-tabs). */
-  const M_SETUP_STEPS = [
-    {id:'profile',   label:'The basics'},
-    {id:'accounts',  label:'Accounts and balances'},
-    {id:'holdings',  label:'Holdings and dividends'},
-    {id:'wealth',    label:'What you own and owe'},
-    {id:'cashflow',  label:'Money in, money out'},
-    {id:'goals',     label:'Goals'},
-    {id:'documents', label:'Documents'}
-  ];
-
-  function openMyDetails(sub){
-    showPage('mydetails');   // mounts the Manual Entry panel (on its Profile section)
-    const btn = sub && document.querySelector('.adv-subtabs button[data-subtab="'+sub+'"]');
-    if(btn) btn.click();     // then switch to the requested section
-  }
-
-  function renderMenu(client){
-    if(!client) return;
-    const $ = id => document.getElementById(id);
-
-    // Monthly update card.
-    const keys = Object.keys(TEI.calc.buildMergedMonths(client)).sort();
-    const latest = keys[keys.length-1];
-    const badge = $('mMenuUpdateBadge'), text = $('mMenuUpdateText');
-    let label, msg, due = false;
-    if(!latest){ label = 'Not started'; msg = "Log your first month's figures to start tracking your progress."; due = true; }
-    else if(latest < TEI.data.currentMonthKey()){ label = 'Due'; msg = "It's time to update this month's figures."; due = true; }
-    else { label = 'Up to date'; msg = `You're up to date for ${TEI.data.monthLabel(latest)}. You can still log changes.`; }
-    if(badge){ badge.hidden = false; badge.textContent = label; badge.classList.toggle('m-badge--ok', !due); }
-    if(text) text.textContent = msg;
-    const card = $('mMenuUpdate');
-    if(card) card.classList.toggle('m-due', due);
-
-    // Edit everything: progress + one row per My Details section.
-    const c = TEI.calc.completion(client);
-    const missing = new Set(c.missing.map(m=> m.id));
-    const pct = $('mMenuSetupPct'), bar = $('mMenuSetupBar'), steps = $('mMenuSteps');
-    if(pct) pct.textContent = c.percent + '% set up';
-    if(bar) bar.style.width = c.percent + '%';
-    if(steps){
-      steps.innerHTML = M_SETUP_STEPS.map(s=>{
-        const done = !missing.has(s.id);
-        return `<button type="button" class="m-row m-step-row${done ? ' done' : ''}" data-msub="${s.id}">` +
-          `<span class="m-check" aria-hidden="true">${done ? '✓' : ''}</span><span class="m-step-label">${s.label}<span class="m-sr">${done ? ', done' : ', to do'}</span></span>` +
-          `<span class="m-chev" aria-hidden="true">›</span></button>`;
-      }).join('');
-    }
-  }
-  TEI.render.menu = renderMenu;
+  /* ================= ME (mobile, B9.1) =================
+     Built by TEI.settings: grouped rows that open each Settings section. */
+  TEI.render.menu = function(client){
+    if(!TEI.settings) return;
+    TEI.settings.wireMe();
+    TEI.settings.renderMe(client);
+  };
 
   function wireMobileTabs(){
     document.querySelectorAll('#mTabs .m-tab').forEach(b=>{
@@ -18831,14 +19437,6 @@ window.TEI = window.TEI || {};
       });
     });
     buildMobileSegs();
-    // Delegated: the "Edit everything" rows are rebuilt on every render, and Profile / Preferences open a My Details section too.
-    document.getElementById('page-menu').addEventListener('click', e=>{
-      const b = e.target.closest && e.target.closest('[data-msub]');
-      if(b) openMyDetails(b.dataset.msub);
-    });
-    document.querySelectorAll('#page-menu [data-mgo]').forEach(b=>{
-      b.addEventListener('click', ()=> showPage(b.dataset.mgo));
-    });
     document.querySelectorAll('#page-menu [data-mact]').forEach(b=>{
       b.addEventListener('click', ()=>{
         const act = b.dataset.mact;
@@ -18957,9 +19555,9 @@ window.TEI = window.TEI || {};
         const action = el.dataset.avatarAction;
         closeAllDropdowns();
         if(action === 'signout' && window.TeiHubAuth){ TeiHubAuth.signOut(); return; }
-        if(action === 'profile'){ showPage('mydetails'); return; }
+        if(action === 'profile'){ TEI.settings ? TEI.settings.open('profile') : showPage('mydetails'); return; }
         if(action === 'notifications'){ document.getElementById('notifBtn')?.click(); return; }
-        if(action === 'preferences'){ openMyDetails('cashflow'); return; } // same section the mobile menu's Preferences opens
+        if(action === 'preferences'){ TEI.settings ? TEI.settings.open('plan') : showPage('mydetails'); return; } // Plan settings (B9.4)
         if(action === 'help'){ document.getElementById('feedbackFabBtn')?.click(); return; }
       });
     });
@@ -19352,6 +19950,11 @@ window.TEI = window.TEI || {};
   function startClientView(loadedClient){
     document.getElementById('clientListApp').style.display = 'none';
     state.client = loadedClient;
+    // The client's saved theme wins over this device's, and is mirrored to it for first paint (B1.5).
+    if(loadedClient.meta.role === 'client' && (loadedClient.settings.theme === 'dark' || loadedClient.settings.theme === 'light') && TEI.theme){
+      TEI.theme.apply(loadedClient.settings.theme);
+      try { localStorage.setItem('tei-theme', loadedClient.settings.theme); } catch(e) {}
+    }
     updateAvatar(state.client);
     showPage(startPageFromUrl());
     if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(state.client);
@@ -19367,7 +19970,8 @@ window.TEI = window.TEI || {};
   function wireTheme(){
     /* Light | Dark (spec B1.5). Saved on this device under "tei-theme", the
        key the Sign in page and Client Hub share; light is the default.
-       TODO(B12.9): also save it to settings.theme on the client record. */
+       A client's choice is also saved to settings.theme on their record
+       (migration 011) and applied when their Wealth OS opens. */
     const app = document.getElementById('clientApp');
     const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>';
     const SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"/><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"/></svg>';
@@ -19383,9 +19987,16 @@ window.TEI = window.TEI || {};
     function choose(theme){
       apply(theme);
       try { localStorage.setItem('tei-theme', theme); } catch(e) {}
+      // Saved on the client record too (spec B1.5), when it is the client's own.
+      const c = state.client;
+      if(c && c.meta.role === 'client' && c.settings.theme !== theme){
+        c.settings.theme = theme;
+        TEI.wealthOS.saveClientSettings(c.meta.clientId, {theme}).catch(err=> console.warn('Wealth OS: theme not saved to the account', err));
+      }
       // Charts read the theme when they draw, so redraw the page in view.
       if(typeof rerenderCurrentPage === 'function') rerenderCurrentPage();
     }
+    TEI.theme = {choose, apply};
     let saved = 'light';
     try { if(localStorage.getItem('tei-theme') === 'dark') saved = 'dark'; } catch(e) {}
     apply(saved);
