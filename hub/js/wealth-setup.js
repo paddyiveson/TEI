@@ -427,7 +427,7 @@ window.TEI = window.TEI || {};
      investing answers not given yet. Not tied to the old onboarding flag,
      which most existing clients already have set. */
   function canSelfServe(c) {
-    return !!(c && c.meta.role === 'client' && !isActive(c) && leftToDo(c) > 0);
+    return !!(c && !isActive(c) && leftToDo(c) > 0);
   }
   function leftToDo(c) {
     if (!c) return 0;
@@ -439,6 +439,11 @@ window.TEI = window.TEI || {};
     opts = opts || {};
     var c = opts.client || (TEI.app && TEI.app.state && TEI.app.state.client);
     if (!c) return;
+    // A coach viewing a client sees the flow as a preview on a copy: nothing saves.
+    if (!opts.preview && c.meta && c.meta.role === 'adviser') {
+      opts = Object.assign({}, opts, { preview: true, client: Object.assign({}, c, { setupRequest: c.setupRequest ? clone(c.setupRequest) : null }) });
+      c = opts.client;
+    }
     if (!opts.preview && !isActive(c)) {
       c.setupRequest = { status: 'in_progress', self: true, off: {}, questions: [], answers: {}, startedAt: nowIso(), total: gapsFor(c).length };
     }

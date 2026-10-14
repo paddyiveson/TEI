@@ -2176,6 +2176,25 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #clientApp .m-lab-close{-webkit-appearance:none; appearance:none; min-height:36px; padding:0 16px; border:1px solid var(--k-card-border); border-radius:999px; background:var(--k-card-bg); color:var(--k-ink); font:inherit; font-size:13px; font-weight:600; cursor:pointer;}
   #clientApp .m-lab-close:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
   #clientApp #labStepperWrap.open .lab-stepper{overflow-x:auto; flex-wrap:nowrap;}
+  /* Phone wizard (Wealth OS scoping): the Lab opens full screen from the
+     button under the treemap, one stage at a time, Back and Next pinned. */
+  #clientApp #labStepperWrap:not(.open){display:none !important;}
+  #clientApp #wlLab .lab-stepper{display:none;}
+  #clientApp #labCta:not([hidden]){display:flex; justify-content:center;}
+  #clientApp #labStepperWrap.open{padding-bottom:0;}
+  #clientApp #labStepperWrap.open .m-lab-head{flex-wrap:wrap; row-gap:8px;}
+  #clientApp .m-lab-prog{flex:1 1 100%; height:4px; border-radius:999px; background:var(--w-track); overflow:hidden;}
+  #clientApp .m-lab-prog span{display:block; height:100%; background:var(--w-gold); border-radius:999px; transition:width .3s ease;}
+  #clientApp .m-lab-step{display:block; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; font-weight:400; color:var(--w-muted);}
+  #clientApp #labStepperWrap.open .lab-stage-actions{position:sticky; bottom:0; z-index:2; margin:16px -14px 0; padding:12px 14px calc(12px + env(safe-area-inset-bottom)); background:var(--page-bg); border-top:1px solid var(--w-line);}
+  #clientApp #labStepperWrap.open .lab-stage-actions .btn-primary{flex:1;}
+  html.lab-wiz-open .feedback-fab{display:none !important;}
+  #clientApp #labStepperWrap.open .lab-holding-cell .hc-name{display:block; white-space:normal; font-size:11px;}
+  #clientApp #labStepperWrap.open .k-table{table-layout:fixed; width:100%;}
+  #clientApp #labStepperWrap.open .k-table th:nth-child(2){width:96px;}
+  #clientApp #labStepperWrap.open .k-table th:nth-child(3){width:58px;}
+  #clientApp #labStepperWrap.open .lab-wt-mini-track{display:none;}
+  #clientApp #labStepperWrap.open .lab-stat-grid{grid-template-columns:repeat(3, minmax(0,1fr));}
   #clientApp #labStepperWrap.open .lab-step{flex:none;}
   #pfcCard{padding:11px 13px;}
   #pfcMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
@@ -2616,7 +2635,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .wl-lab .wl-lab-panel .k-table th:nth-child(3){ width:64px; }
 .wl-lab .wl-lab-panel .lab-holding-cell{ overflow:hidden; }
 .wl-lab .wl-lab-panel .lab-holding-cell b{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.wl-lab .lab-treemap-host{ height:460px; }
+
 .wl-lab .wl-lab-panel .lab-drivers-grid{ grid-template-columns:minmax(0, 1fr); gap:12px; }
 .wl-lab .wl-lab-panel .lab-driver-row{ min-width:0; }
 .wl-lab .wl-lab-panel .lab-driver-name{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -2624,6 +2643,21 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .wl-lab .wl-lab-panel .lab-holding-cell .hc-name{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
 .wl-lab .wl-lab-panel .lab-more-btn{ margin:6px 0 4px; font-size:13px; }
 .wl-lab .wl-lab-panel .lab-subhead-note{ font-size:12px; }
+/* After Analyse the stage panel takes most of the width; the treemap shrinks
+   and stays in view. Long lists scroll inside a fixed height. */
+/* Stacked: the treemap full width, the stage panel underneath it. */
+.wl-lab .wl-lab-body{ grid-template-columns:minmax(0, 1fr); gap:16px; }
+@media (min-width:861px){ .wl-lab .lab-treemap-host{ height:340px; } }
+.wl-lab .wl-lab-panel .k-table{ table-layout:auto; }
+.wl-lab .wl-lab-panel .lab-checklist{ max-height:236px; overflow-y:auto; overscroll-behavior:contain; }
+.wl-lab .wl-lab-panel .lab-checklist-row{ padding-top:7px; padding-bottom:7px; }
+.wl-lab .wl-lab-panel .lab-preset-grid{ grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:6px; }
+.wl-lab .wl-lab-panel .lab-preset-card{ min-height:44px; padding:8px 12px; }
+.wl-lab .wl-lab-panel .lab-ba-stat-grid, .wl-lab .wl-lab-panel .lab-ba-stat-grid.two{ grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px; margin-bottom:8px; }
+.wl-lab .lab-fold-btn{ margin:6px 0 4px; font-size:13px; }
+.wl-lab .lab-nochange{ margin:4px 0 0 !important; }
+.wl-lab .lab-two{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:0 20px; align-items:start; }
+.wl-lab .lab-two > div{ min-width:0; }
 #clientApp #labCta{ min-height:44px; }
 
 /* Holdings */
@@ -3990,7 +4024,7 @@ window.TeiTheme && TeiTheme.paint();</script>
           <div class="lab-tm-legend" id="labTmLegend"></div>
         </div>
         <div class="lab-stepper-wrap wl-lab-panel" id="labStepperWrap">
-          <div class="m-lab-head" hidden><span class="m-lab-title">Lab</span><button type="button" class="m-lab-close" id="labCloseBtn">Close</button></div>
+          <div class="m-lab-head"><span class="m-lab-title">Portfolio Lab<span class="m-lab-step" id="labWizStep"></span></span><button type="button" class="m-lab-close" id="labCloseBtn">Close</button><div class="m-lab-prog" aria-hidden="true"><span id="labWizBar"></span></div></div>
           <div id="labStageBody"></div>
         </div>
       </div>
@@ -7989,7 +8023,7 @@ TEI.render = TEI.render || {};
   function renderSideSetup(client){
     const btn = document.getElementById('sideSetupBtn');
     if(!btn) return;
-    const n = TEI.setup && client.meta.role === 'client' ? TEI.setup.leftToDo(client) : 0;
+    const n = TEI.setup ? TEI.setup.leftToDo(client) : 0;
     btn.hidden = !n;
     if(n){
       document.getElementById('sideSetupSub').textContent = n + (n === 1 ? ' thing left' : ' things left');
@@ -10500,9 +10534,24 @@ TEI.render = TEI.render || {};
     el.querySelectorAll('.lab-step').forEach(st=>st.addEventListener('click', ()=>{ goStage(st.dataset.stage); }));
   }
   function goStage(id){ state.stage=id; renderStageBody(); renderStepper(); }
+  /* "Show all" for lists that only show what changes (Wealth OS scoping). */
+  function foldBtn(n, what){
+    if(!n) return '';
+    return `<button type="button" class="hm-link hm-linkbtn lab-fold-btn" aria-expanded="false" onclick="var f=this.closest('.lab-fold'); var open=this.getAttribute('aria-expanded')!=='true'; f.querySelectorAll('.lab-same').forEach(function(r){ r.hidden=!open; }); this.setAttribute('aria-expanded', open); this.textContent = open ? 'Show only what changes' : 'Show ${n} unchanged ${what}';">Show ${n} unchanged ${what}</button>`;
+  }
   function renderStageBody(){
     const el = document.getElementById('labStageBody');
     if(!el) return;
+    const labTile = document.getElementById('wlLab');
+    if(labTile) labTile.dataset.stage = state.stage;
+    const WIZ = ['analyse','optimise','compare','implement','results'];
+    const wi = WIZ.indexOf(state.stage);
+    const stepEl = document.getElementById('labWizStep'), barEl = document.getElementById('labWizBar');
+    if(stepEl) stepEl.textContent = 'Step ' + (wi + 1) + ' of ' + WIZ.length + ' · ' + state.stage.charAt(0).toUpperCase() + state.stage.slice(1);
+    if(barEl) barEl.style.width = ((wi + 1) / WIZ.length * 100) + '%';
+    const wizWrap = document.getElementById('labStepperWrap');
+    if(wizWrap && wizWrap.classList.contains('open') && renderStageBody.lastStage !== state.stage) wizWrap.scrollTop = 0;
+    renderStageBody.lastStage = state.stage;
 
     // Every amount/target/cap field re-renders this whole section on each keystroke
     // (the derived totals below it need to react live), which recreates every <input>
@@ -10595,6 +10644,7 @@ TEI.render = TEI.render || {};
         <div class="lab-stat-card"><div class="v">${eff.toFixed(1)}</div><div class="l">Eff. holdings</div></div>
         <div class="lab-stat-card"><div class="v">${fmtPct(vol)}</div><div class="l">Illustrative vol</div></div>
       </div>
+      <div class="lab-two"><div>
       <div class="lab-subhead">Move needed for 1% portfolio impact<span class="lab-approx-flag">Approximate</span></div>
       <div class="lab-subhead-note">The approximate single-holding move (all else equal) required to shift total portfolio value by 1%.</div>
       <div style="overflow-x:auto;">
@@ -10614,7 +10664,9 @@ TEI.render = TEI.render || {};
       </table>
       </div>
       ${weighted.length > 5 ? `<button type="button" class="hm-link hm-linkbtn lab-more-btn" aria-expanded="false" onclick="var t=this.previousElementSibling; var open=this.getAttribute('aria-expanded')!=='true'; t.querySelectorAll('.lab-more-row').forEach(function(r){ r.hidden=!open; }); this.setAttribute('aria-expanded', open); this.textContent = open ? 'Show the top 5' : 'Show all ${weighted.length} holdings';">Show all ${weighted.length} holdings</button>` : ''}
+      </div><div>
       ${driversSectionHTML()}
+      </div></div>
       <div class="lab-stage-actions">
         <div></div>
         <button type="button" class="btn-primary" data-goto="optimise">Optimise →</button>
@@ -10759,14 +10811,19 @@ TEI.render = TEI.render || {};
     }
     const weighted = withWeights(scenarioHoldings);
     const baseWeighted = withWeights(base);
-    return `
+    let same = 0;
+    return `<div class="lab-fold">
       ${weighted.filter(h=>!h.isPending).map(h=>{
         const isZero = h.value===0 && state.presetType==='consolidate' && state.selectedIds.has(h.id);
         const before = baseWeighted.find(b=>b.id===h.id); // absent for "Cash raised", which is new
-        return `<div class="lab-tw-row"><span class="tw-name" style="${isZero?'color:var(--k-ink-softer);text-decoration:line-through;':''}">${h.name}</span><span class="tw-cur">${fmtPct(before ? before.weight : 0)}</span><span class="tw-arrow">→</span><span class="lab-tw-val" style="${isZero?'color:var(--k-ink-softer);':''}">${fmtPct(h.weight)}</span></div>`;
+        const unchanged = before && Math.abs(before.weight - h.weight) < 0.05;
+        if(unchanged) same++;
+        return `<div class="lab-tw-row${unchanged ? ' lab-same' : ''}"${unchanged ? ' hidden' : ''}><span class="tw-name" style="${isZero?'color:var(--k-ink-softer);text-decoration:line-through;':''}">${h.name}</span><span class="tw-cur">${fmtPct(before ? before.weight : 0)}</span><span class="tw-arrow">→</span><span class="lab-tw-val" style="${isZero?'color:var(--k-ink-softer);':''}">${fmtPct(h.weight)}</span></div>`;
       }).join('')}
       ${weighted.find(h=>h.isPending) ? `<div class="lab-tw-row"><span class="tw-name" style="color:var(--k-ink-softer);">Uncommitted</span><span class="tw-cur"></span><span class="tw-arrow"></span><span class="lab-tw-val" style="color:var(--k-ink-softer);">${fmtPct(weighted.find(h=>h.isPending).weight)}</span></div>` : ''}
-    `;
+      ${same === weighted.filter(h=>!h.isPending).length ? '<p class="lab-subhead-note lab-nochange">Nothing changes yet. Pick holdings above.</p>' : ''}
+      ${foldBtn(same, same === 1 ? 'holding' : 'holdings')}
+    </div>`;
   }
 
   function ledgerHTML(){
@@ -10918,13 +10975,16 @@ TEI.render = TEI.render || {};
       const byShare = state.moveUnit==='share';
       return `
         ${modeSeg}
+        <div class="lab-two"><div>
         ${amountChecklistHTML(moveSourcePool(), state.moveSourceIds, state.moveSourceAmounts, 'src', 'Move from',
           byShare ? 'Tick a holding and enter the share you want it to have afterwards.' : 'Tick a holding and enter how much to move from it.',
           h=> byShare ? 'now '+fmtPct(h.value/(scopeTotal||1)*100) : '£0')}
         <div class="lab-raised-note">Total to move<b>${fmtGBP(totalRaised)}</b></div>
+        </div><div>
         <div class="lab-subhead">Move it to</div>
         <div class="lab-subhead-note">Tick where it goes; it is split in proportion to their size.</div>
         ${moveDestChecklistHTML()}
+        </div></div>
       `;
     }
     if(state.presetType==='freshcash'){
@@ -11231,7 +11291,7 @@ TEI.render = TEI.render || {};
       </div>
       <div class="lab-subhead">Move needed for 1% portfolio impact — before / after<span class="lab-approx-flag">Approximate</span></div>
       <div class="lab-subhead-note">The approximate single-holding move required to shift total portfolio value by 1%, before and after this scenario.</div>
-      <div style="overflow-x:auto;">
+      <div class="lab-fold"><div style="overflow-x:auto;">
       <table class="lab-detail-table">
         <thead><tr><th>Holding</th><th>Value</th><th>Weight</th><th>Move for 1%</th></tr></thead>
         <tbody>
@@ -11242,7 +11302,8 @@ TEI.render = TEI.render || {};
             const moveBefore = moveNeededFor1Pct(b.weight);
             const moveAfter = afterWeight>0 ? moveNeededFor1Pct(afterWeight) : null;
             const isZero = afterWeight===0 && b.weight>0;
-            return `<tr>
+            const unchanged = Math.abs(afterVal - b.value) < 0.5;
+            return `<tr${unchanged ? ' class="lab-same" hidden' : ''}>
               <td>${b.name}</td>
               <td><span class="lab-ba-pair"><span class="before">${fmtGBP(b.value)}</span><span class="arrow">→</span><span class="after ${isZero?'strike':''}">${fmtGBP(afterVal)}</span></span></td>
               <td><span class="lab-ba-pair"><span class="before">${fmtPct(b.weight)}</span><span class="arrow">→</span><span class="after">${fmtPct(afterWeight)}</span></span></td>
@@ -11251,6 +11312,8 @@ TEI.render = TEI.render || {};
           }).join('')}
         </tbody>
       </table>
+      </div>
+      ${(()=>{ const n = base.filter(b=>{ const af = scenario.find(x=>x.id===b.id); return Math.abs((af ? af.value : 0) - b.value) < 0.5; }).length; return foldBtn(n, n === 1 ? 'holding' : 'holdings'); })()}
       </div>
       <div class="lab-stage-actions">
         <button type="button" class="btn-ghost" data-goto="implement">← Implement</button>
@@ -11454,7 +11517,11 @@ TEI.render = TEI.render || {};
     // the treemap on desktop and under it on phones; no full-screen mode.
     const wrap = document.getElementById('labStepperWrap');
     if(!wrap) return;
-    wrap.classList.remove('open');
+    const phone = window.matchMedia('(max-width:860px)').matches;
+    wrap.classList.toggle('open', phone && !!state.expanded);
+    document.documentElement.classList.toggle('lab-wiz-open', phone && !!state.expanded);
+    const cta = document.getElementById('labCta');
+    if(cta){ cta.hidden = !phone || !state.holdings.length; if(!state.expanded) cta.textContent = 'Open the Lab: model a change'; }
     if(!state.holdings.length){ document.getElementById('labStepper').innerHTML = ''; document.getElementById('labStageBody').innerHTML = ''; return; }
     renderStepper(); renderStageBody();
   }
@@ -11489,14 +11556,14 @@ TEI.render = TEI.render || {};
     state.fullTotal = anyFilterOn() ? client.holdings.reduce((s,h)=>s+(Number(h.value)||0),0) : null;
     if(state.expanded){
       const cta = document.getElementById('labCta');
-      if(cta) cta.textContent = 'Hide the Lab ←';
+      if(cta) cta.textContent = 'Close the Lab';
     }
     renderLabAll();
     const cta = document.getElementById('labCta');
     if(cta && !cta.dataset.wired){
       cta.addEventListener('click', ()=>{
         state.expanded = !state.expanded;
-        cta.textContent = state.expanded ? 'Hide the Lab ←' : 'Model a change in the Lab →';
+        cta.textContent = state.expanded ? 'Close the Lab' : 'Open the Lab: model a change';
         renderLabAll();
         // Mobile: the Lab is a full-screen panel, so always open it at the top.
         const lw = document.getElementById('labStepperWrap');
