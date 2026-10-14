@@ -2285,6 +2285,209 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .w-theme{ display:none; }
   .w-theme-icon{ display:inline-flex; }
 }
+
+/* ================================================================
+   REDESIGN B12.3 -- Home (spec B4, boards Main and Mobile).
+   Classes are prefixed hm- so nothing here touches other pages.
+   ================================================================ */
+#clientApp[data-theme="light"]{ --w-powder-bar:#DFE6F2; --w-shadow:0 14px 34px rgba(15,30,54,0.10); }
+#clientApp[data-theme="dark"]{ --w-powder-bar:#22385A; --w-shadow:0 14px 34px rgba(0,0,0,0.30); }
+
+.hm{ max-width:1280px; margin:0 auto; padding:8px 32px 40px; font-family:'Geist', system-ui, sans-serif; color:var(--w-text); }
+.hm p{ margin:0; }
+.hm-head{ display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
+.hm-date{ font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--w-muted); }
+.hm-title{ margin:6px 0 0; font-family:inherit; font-size:36px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; color:var(--w-text); }
+.hm-greet-m{ display:none; }
+
+.hm-grid{ display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
+.hm-tile{ position:relative; box-sizing:border-box; min-width:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; transition:transform .2s ease, box-shadow .2s ease; animation:hm-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.hm-tile:hover{ transform:translateY(-2px); box-shadow:var(--w-shadow); }
+.hm-champ{ background:var(--w-champ); }
+.hm-powder{ background:var(--w-powder); }
+
+.hm-t-wealth{ grid-column:span 7; grid-row:span 2; }
+.hm-t-step{ grid-column:span 5; animation-delay:.06s; }
+.hm-t-goal{ grid-column:span 5; flex-direction:row; align-items:center; gap:22px; animation-delay:.12s; }
+.hm-t-forecast{ grid-column:span 8; animation-delay:.18s; }
+.hm-t-safety{ grid-column:span 4; animation-delay:.24s; }
+.hm-t-accounts{ grid-column:span 5; animation-delay:.30s; }
+.hm-t-cashflow{ grid-column:span 4; gap:16px; animation-delay:.36s; }
+.hm-t-session{ grid-column:span 3; animation-delay:.42s; }
+.hm-t-learn{ grid-column:span 6; flex-direction:row; align-items:center; gap:20px; animation-delay:.48s; }
+.hm-t-note{ grid-column:span 6; animation-delay:.54s; }
+
+.hm-label{ font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--w-muted); }
+.hm-gold{ color:var(--w-gold); }
+.hm-h1{ margin:0; font-family:inherit; font-size:30px; font-weight:300; letter-spacing:-0.03em; color:var(--w-text); }
+.hm-h2{ margin:0; font-family:inherit; font-size:26px; font-weight:400; letter-spacing:-0.02em; line-height:1.15; color:var(--w-text); }
+.hm-h3{ margin:0; font-family:inherit; font-size:22px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; color:var(--w-text); }
+.hm-muted{ font-size:14px; line-height:1.55; color:var(--w-muted); }
+.hm-small{ font-size:13px; }
+.hm-mt{ margin-top:10px !important; }
+.hm-foot{ margin-top:auto !important; font-size:14px; line-height:1.5; }
+.hm-note{ font-size:12px; line-height:1.5; color:var(--w-muted); }
+.hm-row{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.hm-row-wrap{ flex-wrap:wrap; }
+.hm-row-tight{ font-size:14px; }
+.hm-row-tight b{ font-weight:500; }
+
+.hm-link{ display:inline-flex; align-items:center; min-height:44px; font-size:13px; color:var(--w-gold); text-decoration:none; }
+.hm-link:hover{ text-decoration:underline; }
+.hm-linkbtn{ background:none; border:0; padding:0; font-family:inherit; cursor:pointer; }
+.hm-btn{ display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--w-line); background:transparent; color:var(--w-text); font-family:inherit; font-size:14px; font-weight:500; text-decoration:none; cursor:pointer; }
+.hm-btn:hover{ background:var(--w-chip); }
+.hm-btn-primary{ border-color:transparent; background:var(--w-nav-active); color:var(--w-nav-active-text); }
+.hm-btn-primary:hover{ background:var(--w-nav-active); opacity:.9; }
+.hm-btn[disabled]{ cursor:default; opacity:.7; }
+.hm-btn-block{ margin-top:auto; width:100%; box-sizing:border-box; }
+.hm-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:auto; }
+.hm-btn:focus-visible, .hm-link:focus-visible, .hm-cover:focus-visible{ outline:2px solid var(--w-gold); outline-offset:3px; }
+.hm-cover{ position:absolute; inset:0; border-radius:inherit; z-index:1; }
+
+/* Bars */
+.hm-bar{ height:8px; border-radius:999px; background:var(--w-track); overflow:hidden; }
+.hm-bar-lg{ height:10px; }
+.hm-bar > span{ display:block; height:100%; width:0; border-radius:999px; background:var(--w-nav-active); }
+.hm-fill-gold{ background:var(--w-gold) !important; }
+.hm-fill-navy{ background:var(--w-nav-active) !important; }
+
+/* Setup tile (B13.5 entry) */
+.hm-setup{ display:grid; grid-template-columns:minmax(0, 1fr) minmax(220px, 320px); align-items:center; gap:20px; margin-bottom:16px; background:var(--w-champ); }
+.hm-setup[hidden]{ display:none; }
+.hm-setup-side{ display:flex; flex-direction:column; gap:14px; }
+
+/* Total wealth (feature, navy in both themes) */
+.hm-feat{ background:#0F1E36; border-color:var(--w-feat-line); color:#F7F4ED; padding:28px; overflow:hidden; }
+.hm-feat .hm-label{ color:#E8D6A8; position:relative; }
+.hm-orbit{ position:absolute; width:280px; height:280px; right:-80px; top:-100px; border-radius:50%; border:1px solid rgba(232,214,168,0.12); pointer-events:none; }
+.hm-orbit.hm-spin{ width:420px; height:420px; right:-150px; top:-170px; border:1px dashed rgba(232,214,168,0.16); }
+.hm-asof{ position:relative; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:#AAB6C8; border:1px solid rgba(255,255,255,0.14); border-radius:999px; padding:4px 10px; }
+.hm-asof:empty{ display:none; }
+.hm-big{ position:relative; margin-top:2px !important; font-size:56px; font-weight:300; letter-spacing:-0.04em; line-height:1; }
+.hm-sub{ position:relative; font-size:15px; color:#AAB6C8; }
+.hm-sub .hm-up{ color:#E8D6A8; }
+.hm-spark{ position:relative; display:block; width:100%; height:130px; flex:1; min-height:110px; margin-top:6px; }
+.hm-spark .hm-spark-fill{ fill:#E8D6A8; fill-opacity:.10; }
+.hm-spark .hm-spark-line{ fill:none; stroke:#E8D6A8; stroke-width:2.6; stroke-linecap:round; }
+.hm-comp{ position:relative; }
+.hm-comp-bar{ display:flex; gap:3px; height:10px; border-radius:999px; overflow:hidden; }
+.hm-comp-bar span{ display:block; min-width:4px; height:100%; transform-origin:left; animation:hm-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
+.hm-comp-key{ display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; font-size:12px; color:#AAB6C8; }
+.hm-comp-key span{ display:inline-flex; align-items:center; gap:6px; }
+.hm-comp-key i{ width:8px; height:8px; border-radius:50%; }
+
+/* Headline goal ring */
+.hm-ringwrap{ position:relative; width:112px; height:112px; flex:none; }
+.hm-ringwrap svg{ display:block; width:112px; height:112px; }
+.hm-ring-track{ fill:none; stroke:var(--w-track); stroke-width:9; }
+.hm-ring-fill{ fill:none; stroke:var(--w-gold); stroke-width:9; stroke-linecap:round; animation:hm-ringfill 1.8s cubic-bezier(.3,.8,.3,1) .3s both; }
+.hm-ring-pct{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:300; letter-spacing:-0.03em; }
+.hm-goal-text{ min-width:0; display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
+
+/* Forecast chart */
+.hm-legend{ display:flex; gap:16px; font-size:12px; color:var(--w-muted); }
+.hm-legend span{ display:inline-flex; align-items:center; gap:6px; }
+.hm-key{ display:inline-block; width:16px; }
+.hm-key-actual{ height:3px; border-radius:2px; background:var(--w-gold); }
+.hm-key-plan{ height:0; border-top:2px dashed var(--w-muted); }
+.hm-fc{ display:block; width:100%; height:auto; margin-top:4px; }
+.hm-fc .hm-fc-base{ stroke:var(--w-line); }
+.hm-fc .hm-fc-bar{ fill:var(--w-powder-bar); transform-box:fill-box; transform-origin:bottom; animation:hm-rise 1s cubic-bezier(.3,.8,.3,1) both; }
+.hm-fc .hm-fc-plan{ fill:none; stroke:var(--w-muted); stroke-width:2; stroke-dasharray:6 6; }
+.hm-fc .hm-fc-actual{ fill:none; stroke:var(--w-gold); stroke-width:3; stroke-linecap:round; }
+.hm-fc .hm-fc-dot{ fill:var(--w-gold); }
+.hm-fc .hm-fc-pulse{ fill:var(--w-gold); animation:hm-pulse 1.8s ease-out infinite; }
+.hm-fc-empty{ font-size:14px; fill:var(--w-muted); }
+.hm-axis{ display:flex; justify-content:space-between; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-muted); }
+
+/* Safety net */
+.hm-tick{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; background:var(--w-nav-active); }
+.hm-tick[hidden]{ display:none; }
+.hm-tick svg{ width:16px; height:16px; fill:none; stroke:var(--w-nav-active-text); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Accounts */
+.hm-accts{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
+.hm-accts li{ display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--w-line); font-size:15px; }
+.hm-accts li i{ flex:none; box-sizing:border-box; width:10px; height:10px; border-radius:50%; border:2px solid var(--w-muted); }
+.hm-accts li span{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.hm-accts li b{ font-weight:500; }
+.hm-accts .hm-empty{ border-top:0; color:var(--w-muted); font-size:14px; }
+
+/* Cashflow */
+.hm-pair{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+.hm-chipbox{ background:var(--w-chip); border-radius:16px; padding:14px; }
+.hm-chipbox p{ font-size:12px; color:var(--w-muted); }
+.hm-chipbox b{ display:block; margin-top:4px; font-size:22px; font-weight:300; }
+
+/* Continue learning */
+.hm-play{ position:relative; width:72px; height:72px; flex:none; }
+.hm-play-ring{ position:absolute; inset:0; border-radius:50%; border:1px dashed var(--w-muted); }
+.hm-play-core{ position:absolute; inset:14px; border-radius:50%; background:var(--w-nav-active); display:flex; align-items:center; justify-content:center; }
+.hm-play-core svg{ width:18px; height:18px; fill:var(--w-nav-active-text); }
+.hm-learn-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+
+.hm [hidden]{ display:none !important; }
+.hm-hold{ display:none; }
+.hm-m-only{ display:none; }
+
+/* Motion (B1.4), all off under reduced motion */
+@keyframes hm-up{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
+@keyframes hm-grow{ from{ transform:scaleX(0); } to{ transform:scaleX(1); } }
+@keyframes hm-rise{ from{ transform:scaleY(0); } to{ transform:scaleY(1); } }
+@keyframes hm-draw{ from{ stroke-dashoffset:900; } to{ stroke-dashoffset:0; } }
+@keyframes hm-ringfill{ from{ stroke-dashoffset:301.6; } }
+@keyframes hm-pulse{ 0%{ r:5; opacity:1; } 100%{ r:18; opacity:0; } }
+@keyframes hm-spin{ to{ transform:rotate(360deg); } }
+.hm-spin{ animation:hm-spin 40s linear infinite; }
+.hm-grow{ transform-origin:left; animation:hm-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
+.hm-draw{ stroke-dasharray:900; animation:hm-draw 2.6s cubic-bezier(.6,.05,.2,1) .2s both; }
+@media (prefers-reduced-motion: reduce){
+  .hm-tile, .hm-spin, .hm-grow, .hm-draw, .hm-comp-bar span, .hm-ring-fill, .hm-fc .hm-fc-bar, .hm-fc .hm-fc-pulse{ animation:none; }
+  .hm-draw{ stroke-dasharray:none; }
+  .hm-tile:hover{ transform:none; }
+}
+
+/* Phones (B4.3): total wealth, next step, goal and safety net side by side,
+   forecast, next session and learning side by side. No Update button. */
+@media (max-width:860px){
+  .hm{ padding:4px 16px 24px; }
+  .hm-head{ margin-bottom:16px; }
+  .hm-title{ font-size:26px; }
+  .hm-greet-d{ display:none; }
+  .hm-greet-m{ display:inline; }
+  .hm-update{ display:none; }
+  .hm-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+  .hm-tile{ border-radius:22px; padding:18px; grid-column:span 2; }
+  .hm-label{ font-size:11px; }
+  .hm-t-accounts, .hm-t-cashflow, .hm-t-note{ display:none; }
+  .hm-t-wealth{ grid-row:auto; padding:20px; }
+  .hm-big{ font-size:40px; }
+  .hm-spark{ height:80px; min-height:80px; flex:none; }
+  .hm-comp{ display:none; }
+  .hm-t-step .hm-h2{ font-size:20px; }
+  .hm-step-why{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .hm-t-wealth{ order:1; } .hm-t-step{ order:2; } .hm-t-goal{ order:3; } .hm-t-safety{ order:4; } .hm-t-forecast{ order:5; } .hm-t-session{ order:6; } .hm-t-learn{ order:7; }
+  .hm-t-goal{ grid-column:span 1; flex-direction:column; align-items:center; text-align:center; gap:10px; }
+  .hm-t-goal .hm-goal-text{ align-items:center; gap:2px; }
+  .hm-t-goal .hm-label, .hm-t-goal .hm-muted{ display:none; }
+  .hm-t-goal .hm-h3{ font-size:14px; }
+  .hm-ringwrap, .hm-ringwrap svg{ width:76px; height:76px; }
+  .hm-ring-pct{ font-size:18px; }
+  .hm-t-safety{ grid-column:span 1; gap:8px; }
+  .hm-t-safety .hm-row{ flex-direction:column-reverse; align-items:flex-start; gap:10px; }
+  .hm-t-safety .hm-h1{ font-size:20px; }
+  .hm-t-safety .hm-muted, .hm-t-safety .hm-foot{ display:none; }
+  .hm-t-forecast .hm-legend, .hm-t-forecast .hm-note{ display:none; }
+  .hm-t-forecast .hm-h3{ display:none; }
+  .hm-t-session, .hm-t-learn{ grid-column:span 1; }
+  .hm-t-session .hm-h3, .hm-t-learn .hm-h3{ font-size:17px; }
+  .hm-t-session .hm-btn{ display:none; }
+  .hm-t-learn{ flex-direction:column; align-items:stretch; gap:8px; }
+  .hm-t-learn .hm-play, .hm-t-learn .hm-btn{ display:none; }
+  .hm-setup{ grid-template-columns:1fr; }
+  .hm-m-only{ display:block; }
+}
 </style>
 </head>
 <body>
@@ -2461,116 +2664,153 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 </div>
 
 <!-- ============================= HOME ============================= -->
+<!-- Redesign B12.3 (spec B4, boards Main and Mobile). Filled by TEI.render.home. -->
 <div id="page-home" class="page active">
-<header class="hero wrap k-greeting">
-  <h1 id="heroTitle">Welcome to your Wealth OS.</h1>
-  <div class="sub" id="heroSubUpdated">Where you stand today, and what to focus on next.</div>
-</header>
+<div class="hm">
+  <header class="hm-head">
+    <div>
+      <p class="hm-date" id="whDate"></p>
+      <h1 class="hm-title" id="heroTitle">Welcome to your Wealth OS</h1>
+    </div>
+    <a href="#" class="hm-btn hm-btn-primary hm-update" id="whUpdateBtn">Update balances</a>
+  </header>
 
-<!-- Empty state: only shown for new / not-yet-onboarded clients -->
-<section class="wrap" style="padding-top:var(--space-lg); display:none;" id="emptyStateSection">
-  <div class="empty-hero-card">
-    <div class="eh-title">Welcome to your Wealth OS</div>
-    <div class="eh-sub" id="ehSub">This is your dashboard for the whole journey — not just onboarding. As you add information, it comes to life.</div>
-    <div class="eh-progress-track"><div class="eh-progress-fill" id="ehProgressFill" style="width:0%;"></div></div>
-    <div class="eh-progress-label" id="ehProgressLabel">0% set up</div>
-    <ul class="dash-checklist" id="ehChecklist"></ul>
-    <a href="#" id="ehContinueLink" class="btn-primary" style="text-decoration:none; display:inline-block;">Continue setup →</a>
-    <div class="cc-message" id="ehCoachNote" style="margin-top:18px; margin-bottom:0; max-width:560px;"></div>
+  <section class="hm-tile hm-setup" id="whSetup" hidden>
+    <div>
+      <p class="hm-label">Finish setting up</p>
+      <h2 class="hm-h3" id="whSetupTitle"></h2>
+      <p class="hm-muted" id="whSetupText"></p>
+    </div>
+    <div class="hm-setup-side">
+      <div class="hm-bar"><span class="hm-grow" id="whSetupBar"></span></div>
+      <a href="#" class="hm-btn hm-btn-primary" id="whSetupBtn">Continue setup</a>
+    </div>
+  </section>
+
+  <div class="hm-grid">
+
+    <section class="hm-tile hm-feat hm-t-wealth" aria-labelledby="whWealthLabel">
+      <div class="hm-orbit hm-spin" aria-hidden="true"></div>
+      <div class="hm-orbit hm-orbit-2" aria-hidden="true"></div>
+      <div class="hm-row"><p class="hm-label" id="whWealthLabel">Total wealth</p><span class="hm-asof" id="whWealthAsOf"></span></div>
+      <p class="hm-big" id="whWealthTotal">£0</p>
+      <p class="hm-sub" id="whWealthChange"></p>
+      <svg class="hm-spark" id="whSpark" viewBox="0 0 600 130" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="hm-comp" id="whComp"></div>
+    </section>
+
+    <section class="hm-tile hm-champ hm-t-step">
+      <p class="hm-label hm-gold" id="whStepLabel">Next step</p>
+      <h2 class="hm-h2" id="whStepTitle"></h2>
+      <p class="hm-muted hm-step-why" id="whStepWhy"></p>
+      <a href="#" class="hm-link" id="whStepLesson" hidden></a>
+      <div class="hm-actions">
+        <button type="button" class="hm-btn hm-btn-primary" id="whStepDone">Mark as done</button>
+        <button type="button" class="hm-btn" id="whStepRead" hidden>Read why</button>
+      </div>
+    </section>
+
+    <section class="hm-tile hm-t-goal">
+      <div class="hm-ringwrap">
+        <svg viewBox="0 0 112 112" role="img" id="whGoalRingSvg" aria-label="Headline goal progress">
+          <circle class="hm-ring-track" cx="56" cy="56" r="48"></circle>
+          <circle class="hm-ring-fill" id="whGoalRing" cx="56" cy="56" r="48" stroke-dasharray="301.6" stroke-dashoffset="301.6" transform="rotate(-90 56 56)"></circle>
+        </svg>
+        <span class="hm-ring-pct" id="whGoalPct">0%</span>
+      </div>
+      <div class="hm-goal-text">
+        <p class="hm-label">Headline goal</p>
+        <h2 class="hm-h3" id="whGoalName"></h2>
+        <p class="hm-muted" id="whGoalStatus"></p>
+        <a href="#" class="hm-link" data-hm-page="goals">See your goals</a>
+      </div>
+    </section>
+
+    <section class="hm-tile hm-t-forecast">
+      <div class="hm-row hm-row-wrap">
+        <div><p class="hm-label">Wealth forecast</p><h2 class="hm-h3">Actual vs plan</h2></div>
+        <a href="#" class="hm-link" data-hm-page="planning">Open forecast</a>
+        <div class="hm-legend" aria-hidden="true"><span><i class="hm-key hm-key-actual"></i>Actual</span><span><i class="hm-key hm-key-plan"></i>Plan</span></div>
+      </div>
+      <svg class="hm-fc" id="whForecast" viewBox="0 0 640 220" role="img" aria-label="Actual against plan"></svg>
+      <div class="hm-axis" id="whForecastAxis"></div>
+      <p class="hm-note" id="whForecastNote"></p>
+    </section>
+
+    <section class="hm-tile hm-powder hm-t-safety">
+      <div class="hm-row"><p class="hm-label">Safety net</p><span class="hm-tick" id="whSafetyTick" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span></div>
+      <h2 class="hm-h1" id="whSafetyStage"></h2>
+      <div>
+        <div class="hm-bar hm-bar-lg"><span class="hm-grow hm-fill-navy" id="whSafetyBar"></span></div>
+        <p class="hm-muted hm-mt" id="whSafetyMonths"></p>
+      </div>
+      <p class="hm-foot" id="whSafetyNote"></p>
+      <a href="#" class="hm-cover" data-hm-page="cashflow" aria-label="Safety net: open Cashflow"></a>
+    </section>
+
+    <section class="hm-tile hm-t-accounts">
+      <div class="hm-row"><p class="hm-label">Accounts</p><a href="#" class="hm-link" data-hm-page="progress">View all</a></div>
+      <ul class="hm-accts" id="whAccounts"></ul>
+    </section>
+
+    <section class="hm-tile hm-t-cashflow">
+      <div class="hm-row"><p class="hm-label">Cashflow · each month</p><a href="#" class="hm-link" data-hm-page="cashflow">Open</a></div>
+      <div class="hm-pair">
+        <div class="hm-chipbox"><p>Take-home</p><b id="whCfIncome">–</b></div>
+        <div class="hm-chipbox"><p>Spending</p><b id="whCfSpend">–</b></div>
+      </div>
+      <div>
+        <div class="hm-row hm-row-tight"><span>Wealth conversion</span><b id="whCfRate">–</b></div>
+        <div class="hm-bar"><span class="hm-grow hm-fill-gold" id="whCfBar"></span></div>
+      </div>
+      <p class="hm-muted hm-small" id="whCfNote"></p>
+    </section>
+
+    <section class="hm-tile hm-t-session">
+      <p class="hm-label">Next session</p>
+      <h2 class="hm-h3" id="whSessionTitle">Not booked yet</h2>
+      <p class="hm-muted" id="whSessionText">Book a time with your coach and it will show here.</p>
+      <a href="/book" class="hm-btn hm-btn-block" id="whSessionBtn">Book a session</a>
+      <a href="/book" class="hm-cover hm-m-only" id="whSessionCover" aria-label="Next session: book a session"></a>
+    </section>
+
+    <section class="hm-tile hm-powder hm-t-learn">
+      <div class="hm-play" aria-hidden="true"><div class="hm-play-ring hm-spin"></div><div class="hm-play-core"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></div></div>
+      <div class="hm-learn-text">
+        <p class="hm-label">Continue learning</p>
+        <h2 class="hm-h3" id="whLearnTitle">Pick up where you left off</h2>
+        <p class="hm-muted hm-small" id="whLearnMeta">Lessons at your own pace, in the Client Hub.</p>
+      </div>
+      <a href="/hub/education/index.html" class="hm-btn hm-btn-primary">Resume</a>
+      <a href="/hub/education/index.html" class="hm-cover hm-m-only" aria-label="Continue learning"></a>
+    </section>
+
+    <section class="hm-tile hm-t-note">
+      <div class="hm-row"><p class="hm-label" id="whNoteLabel">Latest meeting note</p><span id="whNoteOpen"></span></div>
+      <h2 class="hm-h3" id="whNoteTitle">No meeting notes yet</h2>
+      <p class="hm-muted" id="whNoteText">Notes from each session appear here.</p>
+    </section>
+
   </div>
-</section>
 
-<section class="wrap" style="padding-top:var(--space-lg);" id="wealthSnapshotSection">
-  <div class="dgrid">
-
-    <!-- Net worth — sole emphasis card, full width (Section 11) -->
-    <div class="span-12">
-      <div class="dcard emphasis" id="hcNetWorthCard">
-        <div class="k">Net worth</div>
-        <div class="v big" id="hcNetWorth">£0</div>
-        <span class="k-pill neutral" id="hcNetWorthChange">–</span>
-        <div class="k-chart-box"><canvas id="homeNetWorthSpark"></canvas></div>
+  <!-- Financial freedom and next milestone: shown in Plan > Goals on phones
+       (moved there by M_MOVES); not part of the desktop Home board. -->
+  <div class="hm-hold" id="whFFHold">
+    <div class="k-stat-split">
+      <div class="sp">
+        <div class="k">Financial freedom</div>
+        <div class="v" style="font-size:19px;" id="hcFFPct">–</div>
+        <div class="sub2" id="hcFFSub">–</div>
+      </div>
+      <div class="divider"></div>
+      <div class="sp">
+        <div class="k">Next milestone</div>
+        <div class="v" style="font-size:19px;" id="hcMilestoneLabel">–</div>
+        <div class="sub2" id="hcMilestoneSub">–</div>
       </div>
     </div>
-
-    <!-- North Star + Coach's Corner -->
-    <div class="span-6">
-      <div class="dcard advisory northstar" style="height:100%; display:flex; flex-direction:column;">
-        <div class="k">North star</div>
-        <div class="v sm" id="nsGoal" style="font-size:17px; margin-top:8px;">–</div>
-        <!-- Mobile-only (hidden by CSS above 860px): Trajectory + Status merged into one pill, and a progress bar. Filled by renderNorthStar(). -->
-        <span class="k-pill m-ns-pill" id="nsPill">–</span>
-        <div class="k-bar m-ns-bar" id="nsBarWrap"><div class="fill" id="nsBar" style="width:0%;"></div></div>
-        <div class="sub2" id="nsEta" style="margin-top:8px;">–</div>
-        <div class="k-stat-split" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--k-row-border);">
-          <div class="sp"><div class="k">Trajectory</div><div class="v traj-up" style="font-size:16px;" id="nsTrajectory">–</div></div>
-          <div class="divider"></div>
-          <div class="sp"><div class="k">Status</div><div class="v ns-status" style="font-size:16px;" id="nsStatus">–</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard advisory" style="height:100%; display:flex; flex-direction:column;">
-        <div class="k">Coach's corner</div>
-        <div class="line" id="ccMessage" style="flex:1;">–</div>
-        <a href="#" class="btn-primary cc-action" id="ccActionBtn" style="display:none; align-self:flex-start; margin-top:10px;">–</a>
-      </div>
-    </div>
-
-    <!-- Financial Goals (combined) + This Week's Focus
-         (data-m="hide": hidden on mobile -- Financial goals lives in the Plan tab there) -->
-    <div class="span-8" data-m="hide">
-      <div class="dcard">
-        <div class="k">Financial goals</div>
-        <div class="k-stat-split" style="margin-top:10px;">
-          <div class="sp">
-            <div class="k">Financial freedom</div>
-            <div class="v" style="font-size:19px;" id="hcFFPct">–</div>
-            <div class="sub2" id="hcFFSub">–</div>
-          </div>
-          <div class="divider"></div>
-          <div class="sp">
-            <div class="k">Next milestone</div>
-            <div class="v" style="font-size:19px;" id="hcMilestoneLabel">–</div>
-            <div class="sub2" id="hcMilestoneSub">–</div>
-          </div>
-        </div>
-        <div style="margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);">
-          <div class="k">Your goals</div>
-          <div id="homeGoalGrid" style="margin-top:10px;"></div>
-        </div>
-      </div>
-    </div>
-    <div class="span-4">
-      <div class="dcard m-split" style="height:100%; display:flex; flex-direction:column;">
-        <div class="m-focus-card">
-          <div class="k">This week's focus</div>
-          <div id="weeklyFocusList" style="margin-top:8px;"></div>
-        </div>
-        <!-- On mobile this block becomes its own accordion card (data-m-acc). -->
-        <div class="home-wins" data-m-acc>
-          <div class="k" data-m-acc-h>Monthly wins</div>
-          <div class="line" id="monthlyWinsGrid" style="margin-top:6px;"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Your Journey + Quick Access (Quick access hidden on mobile: the bottom bar replaces it) -->
-    <div class="span-6">
-      <div class="dcard" style="height:100%;" data-m-acc>
-        <div class="k" data-m-acc-h>Your journey</div>
-        <div id="journeyRail" style="margin-top:8px;"></div>
-      </div>
-    </div>
-    <div class="span-6" data-m="hide">
-      <div class="dcard" style="height:100%;">
-        <div class="k">Quick access</div>
-        <div class="k-qa-grid" id="quickNavGrid"></div>
-      </div>
-    </div>
-
   </div>
-</section>
+</div>
 </div>
 <!-- ============================= PROGRESS ============================= -->
 <div id="page-progress" class="page">
@@ -5330,6 +5570,36 @@ window.TEI = window.TEI || {};
     return {text:'Update this month’s balances', why:'Keeping the numbers current is what makes the projections worth trusting.'};
   }
 
+  /* Safety net (spec B8): the linked cash account, measured in months of
+     spending (fixed + variable, i.e. essentials and lifestyle). One
+     calculation for Home and Cashflow so the two always agree. Stages: a
+     working buffer of one month, Stage 2 at three months, full at the
+     plan's target (6 months unless preferences.safetyNetMonths says
+     otherwise). */
+  function safetyNet(client){
+    const ef = (client.cashflow && client.cashflow.emergencyFund) || {target:0, current:0};
+    const acc = (client.accounts||[]).find(a=> a.id === ef.accountId);
+    const current = acc ? (Number(acc.value)||0) : 0;
+    const monthlySpend = totalFixedExpenses(client) + totalVariableExpenses(client);
+    const months = monthlySpend > 0 ? current/monthlySpend : null;
+    const fullMonths = Number((client.preferences||{}).safetyNetMonths) || 6;
+    let stage = 'none';
+    if(months != null){
+      if(months >= fullMonths) stage = 'full';
+      else if(months >= 3) stage = 'stage2';
+      else if(months >= 1) stage = 'buffer';
+    }
+    return {current, target:Number(ef.target)||0, monthlySpend, months, fullMonths, stage, linked:!!acc};
+  }
+
+  /* Wealth conversion: the share of take-home pay going into investment
+     accounts each month. Shown on Cashflow and Home; one formula for both. */
+  function wealthConversionRate(client){
+    const income = totalMonthlyIncome(client);
+    if(!income) return 0;
+    return actualInvestmentMonthlyContribution(client)/income*100;
+  }
+
   /* ================= Shared signals engine =================
      Every Coach's Corner and Insights list across the app (Home, Cashflow,
      Portfolio, Forecast, Adviser Workspace) used to be its own hardcoded
@@ -6235,7 +6505,7 @@ window.TEI = window.TEI || {};
     accountHasHoldings, holdingsTotalForAccount, syncAccountValueFromHoldings, stampCryptoAccountUpdated, accrueCashInterest, groupedHoldings,
     computeSignals, pickTopSignal, pickSignals, computeNetWorthFact, computeYtdFact,
     computeBudgetAndFI, computeEoyProjection, computeGoalState, computeSDLT, computeNextBestAction,
-    computePortfolioCoach,
+    computePortfolioCoach, safetyNet, wealthConversionRate,
     financialFreedomPct, nextMilestone, ROUND_MILESTONES, computeJourney, JOURNEY_STAGES,
     /* Phase 1 — Client Foundation derived helpers */
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
@@ -6328,32 +6598,27 @@ window.TEI = window.TEI || {};
 TEI.render = TEI.render || {};
 
 /* ================================================================
-   WEALTH OS v3 — HOMEPAGE
-   Every section below follows the same pattern: compute an auto
-   suggestion from client data first, then let an explicit field on
-   the client object override it. This is what lets Adviser Workspace
-   (or a client action) plug in later without touching this file —
-   see the "override" comment on each render function.
+   WEALTH OS -- HOME (redesign B12.3, spec B4)
+   Ten tiles. Every figure comes from the client record through the
+   shared TEI.calc helpers, so Home agrees with Wealth, Goals, Forecast
+   and Cashflow (wealth conversion and the safety net use the exact
+   functions the Cashflow page uses).
    ================================================================ */
 TEI.render = TEI.render || {};
 
 (function(){
-  const {fmtGBP, monthLabel} = TEI.data;
+  const {fmtGBP, monthLabel, acctLabel, currentMonthKey} = TEI.data;
 
-  /* Quick Access — remapped to client outcomes, not internal page names.
-     Confirmed set: My Wealth / My Goals / My Plan / My Money / My Investments / Learn / My Vault. */
-  const QUICK_NAV = [
-    {tag:'01', page:'progress',  title:'My Wealth',      desc:'Your net worth, assets, liabilities and overall progress.'},
-    {tag:'02', page:'goals',     title:'My Goals',       desc:'Every goal you’re working toward, and how close you are.'},
-    {tag:'03', page:'planning',  title:'My Plan',        desc:'Your roadmap, priorities and future scenarios.'},
-    {tag:'04', page:'cashflow',  title:'My Money',       desc:'Cashflow, budgeting, income and savings rate.'},
-    {tag:'05', page:'portfolio', title:'My Investments',  desc:'Holdings, allocation and your investing journey.'},
-    {tag:'06', page:'learning',  title:'Learn',          desc:'Lessons and insights from the TEI Education Platform.'},
-    {tag:'07', page:'documents', title:'My Vault',       desc:'Statements, reports and meeting notes, kept safe.'},
-    {tag:'08', page:'mydetails', title:'My Details',     desc:'Personal details, accounts, income, holdings and goals.'},
-  ];
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function setText(id, text){ const el = document.getElementById(id); if(el) el.textContent = text; }
+  function fmtDate(v, opts){
+    if(!v) return '';
+    const d = new Date(v);
+    return isNaN(d) ? '' : d.toLocaleDateString('en-GB', opts || {day:'numeric', month:'short', year:'numeric'});
+  }
+  function show(id, on){ const el = document.getElementById(id); if(el) el.hidden = !on; }
 
-  /* financialFreedomPct, nextMilestone and journey stages now live in TEI.calc —
+  /* financialFreedomPct, nextMilestone and journey stages live in TEI.calc --
      shared with the Wealth page so both read the same source of truth. */
   function financialFreedomPct(client){ return TEI.calc.financialFreedomPct(client); }
   function nextMilestone(client){ return TEI.calc.nextMilestone(client); }
@@ -6362,94 +6627,39 @@ TEI.render = TEI.render || {};
     return (client.dividendHoldings||[]).reduce((s,h)=> s + (Number(h.amount)||0)*(Number(h.yield)||0)/100/12, 0);
   }
 
-  /* Now a thin wrapper around TEI.calc.computeNetWorthFact -- the shared
-     "is this net worth change noteworthy" fact also used by computeSignals'
-     Home-native highest-net-worth check, so Hero/North Star and Coach's
-     Corner can no longer disagree about whether this month is a milestone. */
-  function monthlySummary(client){
-    const fact = TEI.calc.computeNetWorthFact(client);
-    const contributions = TEI.calc.totalMonthlyContribution(client);
-    const latestTotal = fact.monthCount ? fact.latestVal : TEI.calc.latestNetWorth(client);
-    return {netWorthChange:fact.netWorthChange, contributions, highest:latestTotal, isHighest:fact.isHighest,
-      latestKey:fact.latestKey, prevKey:fact.prevKey, monthCount:fact.monthCount};
-  }
-
-  /* Shared ETA text used by Financial Freedom, Next Milestone and North Star.
+  /* Shared ETA text used by Financial Freedom and Next Milestone.
      Caps long horizons so the message stays reassuring rather than jarring. */
   function estimateCompletionText(remaining, monthlyContrib){
     if(remaining<=0) return 'Reached';
     if(monthlyContrib<=0) return 'Add regular contributions to see an estimated date';
     const monthsNeeded = Math.ceil(remaining/monthlyContrib);
-    if(monthsNeeded > 600) return 'A long-term horizon at current contributions — increasing them will bring it closer';
+    if(monthsNeeded > 600) return 'A long-term horizon at current contributions. Increasing them will bring it closer';
     const d = new Date(); d.setMonth(d.getMonth()+monthsNeeded);
     return 'Estimated ' + d.toLocaleDateString('en-GB',{month:'short',year:'numeric'});
   }
 
-  /* The goal the North Star tracks: an explicit override, else a goal matching
-     the override label, else the client's first goal. */
+  /* The goal the headline tracks: an explicit override, else a goal matching
+     the override label, else the client's first active goal. */
   function northStarGoalRef(client){
     const ns = client.northStar || {};
+    const goals = client.goals || [];
     if(ns.goalLabel){
-      const match = (client.goals||[]).find(g=>g.name===ns.goalLabel);
+      const match = goals.find(g=>g.name===ns.goalLabel);
       if(match) return match;
     }
-    return (client.goals && client.goals[0]) || null;
+    return goals.find(g=> g.status !== 'completed') || goals[0] || null;
   }
 
-  /* ---------------- Hero: Wealth Snapshot / Financial Freedom / Next Milestone ---------------- */
-  let _homeSparkChart = null;
-  function renderNetWorthSpark(client){
-    const canvas = document.getElementById('homeNetWorthSpark');
-    if(!canvas || typeof Chart==='undefined') return;
-    const months = TEI.calc.buildMergedMonths(client);
-    const keys = Object.keys(months).sort();
-    const last = keys.slice(-6);
-    const labels = last.map(k=>monthLabel(k));
-    const data = last.map(k=>months[k].total);
-    if(_homeSparkChart) _homeSparkChart.destroy();
-    if(data.length < 2) return; // not enough history for a meaningful line
-    _homeSparkChart = new Chart(canvas, {
-      type:'line',
-      data:{ labels, datasets:[{ data, borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.18)', fill:true, tension:0.35, pointRadius:0, borderWidth:2.5 }] },
-      options:{ responsive:true, maintainAspectRatio:false,
-        plugins:{ legend:{display:false}, tooltip:{enabled:false} },
-        scales:{ x:{display:false}, y:{display:false} } }
-    });
-  }
-
-  function renderHero(client){
-    const investableNW = TEI.calc.latestNetWorth(client); // accounts only — used for FI/milestone progress
-    const totalNW = TEI.calc.netWorth(client);             // full wealth incl. wealth.assets/liabilities — headline figure
-    const summary = monthlySummary(client);
-
-    document.getElementById('hcNetWorth').textContent = fmtGBP(totalNW);
-    const changeEl = document.getElementById('hcNetWorthChange');
-    const ytd = TEI.calc.computeYtdFact(client);
-    if(ytd.ytdChange!=null){
-      changeEl.textContent = (ytd.ytdChange>=0?'▲ ':'▼ ') + fmtGBP(Math.abs(ytd.ytdChange)) + ' this year';
-      changeEl.className = 'k-pill ' + (ytd.ytdChange>=0?'up':'down');
-    } else if(summary.netWorthChange!=null){
-      changeEl.textContent = 'First year of history';
-      changeEl.className = 'k-pill neutral';
-    } else {
-      changeEl.textContent = 'Log a second month to see change';
-      changeEl.className = 'k-pill neutral';
-    }
-    renderNetWorthSpark(client);
-    renderFinancialGoalsSummary(client);
-  }
-
-  /* Financial freedom + Next milestone. Split out of renderHero (unchanged
-     logic) so the mobile Plan > Goals view can fill them without rendering
-     the whole of Home -- see TEI.render.financialGoalsSummary below. */
+  /* Financial freedom + Next milestone. Not on the Home board any more, but
+     the mobile Plan > Goals view still shows them (M_MOVES carries the block
+     there), so the renderer stays and is exported as before. */
   function renderFinancialGoalsSummary(client){
-
     const ffPct = financialFreedomPct(client);
     const budgetFi = TEI.calc.computeBudgetAndFI(client);
     const passiveMonthly = passiveIncomeMonthly(client);
     const targetMonthly = budgetFi.totalSpend || 0;
     const monthlyContrib = TEI.calc.totalMonthlyContribution(client);
-    document.getElementById('hcFFPct').textContent = ffPct!=null ? Math.min(100,ffPct).toFixed(0)+'%' : '—';
+    document.getElementById('hcFFPct').textContent = ffPct!=null ? Math.min(100,ffPct).toFixed(0)+'%' : '–';
     document.getElementById('hcFFSub').textContent = ffPct!=null
       ? `${fmtGBP(passiveMonthly)}/mo passive · target ${fmtGBP(targetMonthly)}/mo`
       : 'Add your income and expenses in Cashflow to unlock this';
@@ -6464,264 +6674,368 @@ TEI.render = TEI.render || {};
   }
   TEI.render.financialGoalsSummary = renderFinancialGoalsSummary;
 
-  /* ---------------- North Star ----------------
-     override: client.northStar.goalLabel / .status / .focusOverride */
-  function computeNorthStarStatus(client){
-    const ns = client.northStar || {};
-    if(ns.status) return ns.status; // adviser override
-    const summary = monthlySummary(client);
-    const ffPct = financialFreedomPct(client);
-    if(ffPct!=null && ffPct>=100) return 'ahead';
-    if(summary.netWorthChange!=null && summary.netWorthChange<0) return 'behind';
-    return 'on-track'; // default to calm, confident framing when data is thin
-  }
-
-  function trajectoryText(client){
-    const summary = monthlySummary(client);
-    if(summary.monthCount<2) return 'Just getting started';
-    if(summary.netWorthChange>0) return 'Growing steadily';
-    if(summary.netWorthChange===0) return 'Holding steady';
-    return 'Slowed this month';
-  }
-
-  function renderNorthStar(client){
-    const ns = client.northStar || {};
-    const goalRef = northStarGoalRef(client);
-    const goalLabel = ns.goalLabel || (goalRef ? goalRef.name : 'Set your north star goal in Adviser Workspace');
-    const status = computeNorthStarStatus(client);
-    const monthlyContrib = TEI.calc.totalMonthlyContribution(client);
-
-    document.getElementById('nsGoal').textContent = `"${goalLabel}"`;
-
-    const etaEl = document.getElementById('nsEta');
-    let nsBarPct = 0; // feeds the mobile-only progress bar (#nsBar)
-    if(goalRef){
-      const gp = TEI.calc.goalProgress(client, goalRef);
-      nsBarPct = gp.target ? Math.max(0, Math.min(100, gp.pct)) : (gp.isComplete ? 100 : 0);
-      if(gp.target){
-        etaEl.textContent = gp.pct.toFixed(0) + '% there · ' + estimateCompletionText(Math.max(0, gp.target-gp.current), monthlyContrib);
-      } else {
-        etaEl.textContent = gp.isComplete ? 'Complete' : 'Set a target to track progress';
-      }
-    } else {
-      etaEl.textContent = 'Set a target to track progress';
-    }
-
-    const trajEl = document.getElementById('nsTrajectory');
-    trajEl.textContent = trajectoryText(client);
-    trajEl.className = 'v traj-up';
-    if(status==='behind') trajEl.classList.add('traj-down');
-
-    const statusEl = document.getElementById('nsStatus');
-    statusEl.textContent = status==='ahead' ? 'Ahead' : status==='behind' ? 'Needs attention' : 'On track';
-    statusEl.className = 'v ns-status ' + status;
-
-    /* Mobile-only extras (both elements are display:none above 860px):
-       Trajectory + Status merged into one pill, plus the goal progress bar. */
-    const SHORT_TRAJ = {'Growing steadily':'Growing', 'Holding steady':'Steady', 'Slowed this month':'Slowed', 'Just getting started':'Getting started'};
-    const nsPill = document.getElementById('nsPill');
-    if(nsPill){
-      nsPill.textContent = (SHORT_TRAJ[trajEl.textContent] || trajEl.textContent) + ' · ' + statusEl.textContent;
-      nsPill.className = 'k-pill m-ns-pill ' + (status==='behind' ? 'down' : 'up');
-    }
-    const nsBar = document.getElementById('nsBar');
-    if(nsBar) nsBar.style.width = nsBarPct.toFixed(0) + '%';
-  }
-
-  /* ---------------- Coach's Corner ----------------
-     override: client.coachCorner.message / .actionLabel / .actionPage (mode:'manual' pins it) */
-  function computeCoachMessage(client){
-    const cc = client.coachCorner || {};
-    if(cc.mode==='manual' && cc.message) return {message:cc.message, actionLabel:cc.actionLabel, actionPage:cc.actionPage};
-    // A page-specific issue only surfaces on Home if it's genuinely critical
-    // (severity 80+) -- otherwise Home shows its own native content so it
-    // doesn't just mirror whatever Cashflow or Portfolio already says.
-    const critical = TEI.calc.pickTopSignal(client, 'home', {minSeverity:80});
-    const s = critical || TEI.calc.pickTopSignal(client, 'home-native');
-    const message = s ? s.message : 'Welcome — as you add accounts and goals, I’ll check in here with guidance tailored to your progress.';
-    const nba = TEI.calc.computeNextBestAction(client);
-    return {
-      message: cc.message || message,
-      actionLabel: cc.actionLabel || (s ? s.actionLabel : nba.text),
-      actionPage: cc.actionPage || (s ? s.actionPage : 'goals')
-    };
-  }
-
-  function renderCoachCorner(client){
-    const c = computeCoachMessage(client);
-    document.getElementById('ccMessage').textContent = c.message;
-    const btn = document.getElementById('ccActionBtn');
-    if(c.actionLabel){
-      btn.textContent = c.actionLabel + ' →';
-      btn.style.display = 'inline-block';
-      btn.onclick = (e)=>{ e.preventDefault(); TEI.app.showPage(c.actionPage||'home'); };
-    } else {
-      btn.style.display = 'none';
-    }
-  }
-
-  /* ---------------- Goals (mini progress bars, click through to Goals page) ---------------- */
-  function renderGoals(client){
-    const grid = document.getElementById('homeGoalGrid');
-    if(!client.goals || !client.goals.length){
-      grid.innerHTML = `<div class="line">No goals set yet. Add goals in Adviser Workspace &rarr; Manual Entry, or via the client's onboarding.</div>`;
-      return;
-    }
-    grid.innerHTML = client.goals.map(g=>{
-      const gp = TEI.calc.goalProgress(client, g);
-      const pct = Math.min(100, gp.pct || (gp.isComplete?100:0));
-      return `
-        <div class="k-goal-mini" data-goal-action="goals" style="cursor:pointer;">
-          <div class="gm-top"><b>${g.name}</b><span>${pct.toFixed(0)}%</span></div>
-          <div class="k-bar" style="margin-top:0;"><div class="fill" style="width:${pct}%;"></div></div>
-        </div>`;
-    }).join('');
-    grid.querySelectorAll('[data-goal-action]').forEach(el=>{
-      el.addEventListener('click', ()=> TEI.app.showPage(el.dataset.goalAction));
-    });
-  }
-
-  /* ---------------- This Week's Focus (max 3, mix of manual + auto) ----------------
-     override / addition: client.weeklyFocus = [{id,label,done,linkPage}] */
-  function computeWeeklyFocus(client){
-    const manual = (client.weeklyFocus||[]).map(f=>Object.assign({source:'manual'}, f));
-    if(manual.length >= 3) return manual.slice(0,3);
-    const auto = [];
-    // A client can click through the wizard's non-blocking Finish without
-    // entering anything, leaving onboardingComplete:true on an empty
-    // dashboard -- keep nudging until there's real data, not just a flag.
-    if(!client.settings.onboardingComplete || !TEI.calc.completion(client).hasRealData) auto.push({id:'auto-onboard', label:'Finish setting up your dashboard', linkPage:'mydetails', done:false, source:'auto'});
-    if(!client.cashflow.income.length) auto.push({id:'auto-budget', label:'Add your income and budget', linkPage:'cashflow', done:false, source:'auto'});
-    const ef = client.cashflow.emergencyFund||{};
-    if(ef.target>0 && ef.current<ef.target) auto.push({id:'auto-ef', label:'Top up your emergency fund', linkPage:'cashflow', done:false, source:'auto'});
-    if(!client.goals || !client.goals.length) auto.push({id:'auto-goal', label:'Set your first goal', linkPage:'goals', done:false, source:'auto'});
-    if(!auto.length) auto.push({id:'auto-update', label:'Update this month’s balances', linkPage:'progress', done:false, source:'auto'});
-    const existingIds = new Set(manual.map(m=>m.id));
-    const fill = auto.filter(a=>!existingIds.has(a.id)).slice(0, 3-manual.length);
-    return manual.concat(fill);
-  }
-
-  function renderWeeklyFocus(client){
-    const items = computeWeeklyFocus(client);
-    const list = document.getElementById('weeklyFocusList');
-    if(!items.length){
-      list.innerHTML = `<div class="line">Nothing flagged right now.</div>`;
-      return;
-    }
-    list.innerHTML = items.map(f=>`
-      <div class="k-js-row" data-goto="${f.linkPage||'home'}" style="cursor:pointer;">
-        <span class="jk">${f.done?'✓ ':''}${f.label}</span>
-        <span class="jv" style="font-weight:400; color:var(--k-ink-softer); font-size:10.5px; text-transform:uppercase; letter-spacing:.04em;">${f.source==='manual' ? 'Priority' : 'Suggested'}</span>
-      </div>
-    `).join('');
-    list.querySelectorAll('[data-goto]').forEach(el=>{
-      el.addEventListener('click', ()=> TEI.app.showPage(el.dataset.goto));
-    });
-  }
-
-  /* ---------------- Monthly Wins (system + adviser + client) ----------------
-     override / addition: client.monthlyWins = [{id,label,source,month}] */
-  function computeMonthlyWins(client){
-    const summary = monthlySummary(client);
-    const system = [];
-    if(summary.isHighest && summary.monthCount>0) system.push({label:'Highest net worth achieved', source:'system'});
-    if(summary.netWorthChange>0) system.push({label:`Net worth up ${fmtGBP(summary.netWorthChange)} this month`, source:'system'});
-    const ef = client.cashflow.emergencyFund||{};
-    if(ef.target>0 && ef.current>=ef.target) system.push({label:'Emergency fund fully funded', source:'system'});
-    const added = (client.monthlyWins||[]);
-    return system.concat(added);
-  }
-
-  function renderMonthlyWins(client){
-    const wins = computeMonthlyWins(client);
-    const box = document.getElementById('monthlyWinsGrid');
-    box.innerHTML = wins.length
-      ? wins.map(w=>`✓ ${w.label}`).join('<br>')
-      : 'Your wins will appear here as you make progress.';
-  }
-
-  /* ---------------- Your Journey ----------------
-     override: client.journeyOverrides = {stageId:{complete:true}} — set by adviser confirmation or client self-mark.
-     Computation now lives in TEI.calc.computeJourney, shared with the Wealth page. */
-  function renderJourney(client){
-    const stages = TEI.calc.computeJourney(client);
-    const rail = document.getElementById('journeyRail');
-    rail.innerHTML = `<div class="js-stage-list">` + stages.map(s=>`
-      <div class="js-stage-row ${s.status}">
-        <div class="js-stage-dot"></div>
-        <div>
-          <div class="js-stage-name">${s.name}</div>
-          <div class="js-stage-sub">${s.sub}</div>
-        </div>
-      </div>`).join('') + `</div>`;
-  }
-
-  /* ---------------- Empty state — now driven by the shared Client Foundation
-     completion tracker (TEI.calc.completion), same source used on the
-     onboarding Review step, so the two never disagree. ---------------- */
-  function renderEmptyState(client){
-    const section = document.getElementById('emptyStateSection');
-    const c = TEI.calc.completion(client);
-    // onboardingComplete alone isn't enough -- the wizard's Finish step is
-    // deliberately non-blocking, so a client can reach it without adding a
-    // single account/goal/etc. Keep the empty state up until there's real
-    // data, or it silently leaves them on a blank dashboard forever.
-    if(client.settings.onboardingComplete && c.hasRealData){ section.style.display = 'none'; return; }
-    section.style.display = 'block';
-
-    document.getElementById('ehProgressFill').style.width = c.percent+'%';
-    document.getElementById('ehProgressLabel').textContent = c.percent + '% set up';
-    document.getElementById('ehChecklist').innerHTML = c.missing.length
-      ? c.missing.map(m=>`<li>${m.label}</li>`).join('')
-      : `<li class="done"><div class="dc-check">✓</div>Foundation complete</li>`;
-    document.getElementById('ehCoachNote').textContent = c.percent===0
-      ? 'Start whenever you’re ready — even adding one account gives me something to work with.'
-      : `You're ${c.percent}% of the way there. Keep going — each piece you add makes the picture clearer.`;
-    const link = document.getElementById('ehContinueLink');
-    link.onclick = (e)=>{ e.preventDefault(); TEI.app.showPage('mydetails'); };
-  }
-
-  function renderQuickNav(){
-    const grid = document.getElementById('quickNavGrid');
-    grid.innerHTML = QUICK_NAV.map(item=>{
-      const initial = item.title.replace(/^My\s+/,'').charAt(0).toUpperCase();
-      return `
-        <div class="k-qa-item" data-goto-page="${item.page}">
-          <div class="qa-ic">${initial}</div>
-          <div class="qa-text"><b>${item.title}</b><span>${item.desc.split('.')[0]}</span></div>
-        </div>`;
-    }).join('');
-    grid.querySelectorAll('[data-goto-page]').forEach(el=>{
-      el.addEventListener('click', ()=> TEI.app.showPage(el.dataset.gotoPage));
-    });
-  }
-
   function timeGreeting(){
     const h = new Date().getHours();
     if(h < 12) return 'Good morning';
     if(h < 17) return 'Good afternoon';
     return 'Good evening';
   }
-  TEI.render.home = function(client){
-    document.getElementById('heroTitle').textContent = client.personal.firstName
-      ? `${timeGreeting()}, ${client.personal.firstName}.`
-      : 'Welcome to your Wealth OS.';
 
+  /* Settings > Accounts (B4.1). Settings is the mydetails page; its forms
+     open on Profile, so pick the Accounts tab once the page is shown. */
+  function openAccountsSettings(){
+    TEI.app.showPage('mydetails');
+    const tab = document.querySelector('.adv-subtabs button[data-subtab="accounts"]');
+    if(tab) tab.click();
+  }
+
+  /* Smooth path through points: a cubic per segment with its control
+     points at the horizontal midpoint, so the line never overshoots. */
+  function smoothPath(pts){
+    if(!pts.length) return '';
+    let d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+    for(let i=1; i<pts.length; i++){
+      const [x0,y0] = pts[i-1], [x1,y1] = pts[i], mx = (x0+x1)/2;
+      d += ` C ${mx.toFixed(1)} ${y0.toFixed(1)}, ${mx.toFixed(1)} ${y1.toFixed(1)}, ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+    }
+    return d;
+  }
+  function addMonths(key, n){
+    const [y,m] = key.split('-').map(Number);
+    const d = new Date(y, m-1+n, 1);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  }
+
+  /* ---------------- Header and setup ---------------- */
+  function renderHeader(client){
+    const first = client.personal.firstName;
+    document.getElementById('heroTitle').innerHTML = first
+      ? `<span class="hm-greet-d">${timeGreeting()}, ${esc(first)}</span><span class="hm-greet-m">Hi, ${esc(first)}</span>`
+      : 'Welcome to your Wealth OS';
+    setText('whDate', fmtDate(new Date(), {weekday:'long', day:'numeric', month:'long', year:'numeric'}));
+    document.getElementById('whUpdateBtn').onclick = (e)=>{ e.preventDefault(); openAccountsSettings(); };
+  }
+
+  /* "Finish setting up" sits first while the record is still thin. The B13
+     gap flow will replace the checklist count with questions left. */
+  function renderSetup(client){
+    const c = TEI.calc.completion(client);
+    const needed = !(client.settings.onboardingComplete && c.hasRealData);
+    show('whSetup', needed);
+    if(!needed) return;
+    const left = c.missing.length;
+    setText('whSetupTitle', left ? `${left} ${left===1?'step':'steps'} left` : 'Nearly there');
+    setText('whSetupText', left ? 'Next: ' + c.missing[0].label.toLowerCase() + '.' : 'Check your details and you are done.');
+    document.getElementById('whSetupBar').style.width = c.percent + '%';
+    document.getElementById('whSetupBtn').onclick = (e)=>{ e.preventDefault(); TEI.app.showPage('mydetails'); };
+  }
+
+  /* ---------------- Total wealth (feature) ---------------- */
+  const COMP_GROUPS = [
+    {key:'pension',  label:'Pensions',           col:'#E8D6A8', types:['pension']},
+    {key:'isa',      label:'ISAs',               col:'#B9CAE6', types:['isa']},
+    {key:'lisa',     label:'Lifetime ISA',       col:'#F7F4ED', types:['lisa']},
+    {key:'cash',     label:'Cash',               col:'#AAB6C8', types:['cash','cash_isa']},
+    {key:'gia',      label:'General investment', col:'#83661C', types:['gia']},
+    {key:'crypto',   label:'Crypto',             col:'#9DB59F', types:['crypto']},
+    {key:'property', label:'Property',           col:'#6F86A8', types:[]},
+    {key:'other',    label:'Other',              col:'#D9C9A0', types:[]}
+  ];
+  function groupOfType(type){ return (COMP_GROUPS.find(g=> g.types.includes(type)) || COMP_GROUPS[COMP_GROUPS.length-1]).key; }
+
+  function renderWealth(client){
     const months = TEI.calc.buildMergedMonths(client);
-    const mKeys = Object.keys(months).sort();
-    document.getElementById('heroSubUpdated').textContent = mKeys.length
-      ? `Last updated ${monthLabel(mKeys[mKeys.length-1])}`
-      : 'Where you stand today, and what to focus on next.';
+    const keys = Object.keys(months).sort();
+    const total = TEI.calc.netWorth(client);
+    setText('whWealthTotal', fmtGBP(total));
 
-    renderEmptyState(client);
-    renderHero(client);
-    renderNorthStar(client);
-    renderCoachCorner(client);
-    renderGoals(client);
-    renderWeeklyFocus(client);
-    renderMonthlyWins(client);
-    renderJourney(client);
-    renderQuickNav();
+    const fact = TEI.calc.computeNetWorthFact(client);
+    const change = document.getElementById('whWealthChange');
+    if(fact.netWorthChange != null){
+      const v = fact.netWorthChange;
+      change.innerHTML = `<span class="hm-up">${v<0?'-':'+'}${fmtGBP(Math.abs(v))}</span> since last month`;
+    } else {
+      change.textContent = keys.length ? 'Log a second month to see the change' : 'Add your accounts to see your total';
+    }
+    setText('whWealthAsOf', fact.latestKey ? 'Updated ' + monthLabel(fact.latestKey) : '');
+
+    // Sparkline: the last 12 logged months at the same basis as the headline
+    // (accounts plus property and other assets, less debts -- those have no
+    // history, so the same offset applies to every point, as on Wealth).
+    const spark = document.getElementById('whSpark');
+    const last = keys.slice(-12);
+    if(last.length >= 2){
+      const offset = total - TEI.calc.latestNetWorth(client);
+      const vals = last.map(k=> months[k].total + offset);
+      const lo = Math.min(...vals), hi = Math.max(...vals), span = (hi-lo) || Math.abs(hi) || 1;
+      const pts = vals.map((v,i)=> [i*600/(vals.length-1), 118 - (v-lo)/span*104]);
+      const line = smoothPath(pts);
+      spark.innerHTML = `<path class="hm-spark-fill" d="${line} L 600 130 L 0 130 Z"></path>`
+        + `<path class="hm-spark-line hm-draw" d="${line}" pathLength="900" vector-effect="non-scaling-stroke"></path>`;
+      spark.style.display = '';
+    } else {
+      spark.innerHTML = '';
+      spark.style.display = 'none';
+    }
+
+    // Composition of everything owned (debts are left out of the bar).
+    const b = TEI.calc.latestBreakdown(months);
+    const sums = {};
+    (client.accounts||[]).forEach(a=>{ const v = Number(b[a.id])||0; if(v>0){ const g = groupOfType(a.type); sums[g] = (sums[g]||0) + v; } });
+    ((client.wealth||{}).assets||[]).forEach(a=>{ const v = Number(a.value)||0; if(v>0){ const g = a.type==='property' ? 'property' : 'other'; sums[g] = (sums[g]||0) + v; } });
+    const gross = Object.values(sums).reduce((s,v)=>s+v, 0);
+    const parts = COMP_GROUPS.filter(g=> sums[g.key] > 0).map(g=>{
+      const p = sums[g.key]/gross*100;
+      return Object.assign({value:sums[g.key], pct: p < 1 ? 'under 1' : Math.round(p)}, g);
+    });
+    document.getElementById('whComp').innerHTML = parts.length
+      ? `<div class="hm-comp-bar" role="img" aria-label="${esc(parts.map(p=>p.label+' '+p.pct+'%').join(', '))}">${parts.map(p=>`<span style="flex:${p.value} 1 0; background:${p.col};"></span>`).join('')}</div>`
+        + `<div class="hm-comp-key">${parts.map(p=>`<span><i style="background:${p.col};"></i>${esc(p.label)} ${p.pct}%</span>`).join('')}</div>`
+      : '';
+  }
+
+  /* ---------------- Next step from your coach ----------------
+     computeNextBestAction honours the coach's own entry
+     (client.insights.nextBestAction) before its automatic suggestion.
+     Mark as done records the step as a win for this month on the client
+     record (clients.monthly_wins), so the coach sees it too. */
+  function stepId(text){ return 'step:' + String(text||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+
+  function renderStep(client){
+    const nba = TEI.calc.computeNextBestAction(client) || {};
+    const fromCoach = !!(client.insights && client.insights.nextBestAction);
+    setText('whStepLabel', fromCoach ? 'Next step · from your coach' : 'Next step · suggested');
+    setText('whStepTitle', nba.text || 'Nothing to do right now');
+    const agreed = nba.agreedAt ? ' Agreed ' + fmtDate(nba.agreedAt, {day:'numeric', month:'long', year:'numeric'}) + '.' : '';
+    setText('whStepWhy', (nba.why || '') + agreed);
+
+    const lesson = document.getElementById('whStepLesson');
+    if(nba.lesson && nba.lesson.title){
+      lesson.textContent = 'Read: ' + nba.lesson.title;
+      lesson.href = nba.lesson.url || '/hub/education/index.html';
+      lesson.hidden = false;
+    } else {
+      lesson.hidden = true;
+    }
+
+    // Read why opens the latest Wealth Plan document, where the reasoning lives.
+    const plan = (client.documents||[]).filter(d=> d.type === 'forecast' && d.storagePath)
+      .sort((a,b)=> String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')))[0];
+    const read = document.getElementById('whStepRead');
+    if(plan){ read.setAttribute('data-forecast-open', plan.id); read.hidden = false; }
+    else { read.removeAttribute('data-forecast-open'); read.hidden = true; }
+
+    const btn = document.getElementById('whStepDone');
+    const id = stepId(nba.text);
+    const month = currentMonthKey();
+    const done = (client.monthlyWins||[]).find(w=> w && w.id === id && w.month === month);
+    btn.hidden = !nba.text;
+    if(done){
+      btn.disabled = true;
+      btn.textContent = 'Done';
+      btn.onclick = null;
+      return;
+    }
+    btn.disabled = false;
+    btn.textContent = 'Mark as done';
+    btn.onclick = async ()=>{
+      btn.disabled = true;
+      const win = {id, label: nba.text, source: client.meta.role === 'adviser' ? 'adviser' : 'client', month, doneAt: new Date().toISOString()};
+      const next = (client.monthlyWins||[]).concat([win]);
+      try{
+        if(TEI.wealthOS && TEI.wealthOS.saveMonthlyWins && TEI.data.isRealId(client.meta.clientId)){
+          await TEI.wealthOS.saveMonthlyWins(client.meta.clientId, next);
+        }
+        client.monthlyWins = next;
+        renderStep(client);
+        TEI.app.showToast('Marked as done');
+      }catch(e){
+        console.error('Wealth OS: could not save the done step', e);
+        btn.disabled = false;
+        TEI.app.showToast('That did not save. Please try again.');
+      }
+    };
+  }
+
+  /* ---------------- Headline goal ----------------
+     On-track rule is the Goals page's own: reached, past its target date,
+     or on track. */
+  function renderGoal(client){
+    const g = northStarGoalRef(client);
+    const ring = document.getElementById('whGoalRing');
+    let pct = 0;
+    if(!g){
+      setText('whGoalName', 'No goals yet');
+      setText('whGoalStatus', 'Your coach will set your first goal with you.');
+    } else {
+      const gp = TEI.calc.goalProgress(client, g);
+      pct = Math.max(0, Math.min(100, gp.pct || (gp.isComplete ? 100 : 0)));
+      const year = g.targetDate ? new Date(g.targetDate).getFullYear() : null;
+      setText('whGoalName', g.name + (year ? ' by ' + year : ''));
+      const past = g.targetDate && new Date(g.targetDate) < new Date();
+      setText('whGoalStatus', gp.isComplete ? 'Reached' : past ? 'Past its target date' : 'On track');
+    }
+    setText('whGoalPct', Math.round(pct) + '%');
+    ring.setAttribute('stroke-dashoffset', (301.6 * (1 - pct/100)).toFixed(1));
+    document.getElementById('whGoalRingSvg').setAttribute('aria-label', (g ? g.name : 'Headline goal') + ', ' + Math.round(pct) + ' percent complete');
+  }
+
+  /* ---------------- Wealth forecast: actual vs plan ----------------
+     Accounts only, as on Forecast. Actual = each logged month. Plan = the
+     first logged total growing at Forecast's expected rate plus the current
+     monthly contributions, with accounts added to tracking later counted in
+     the month they arrived (they are not growth). Runs 12 months ahead.
+     Saving a plan of your own in Forecast (B12.7) will replace this line. */
+  function renderForecast(client){
+    const svg = document.getElementById('whForecast');
+    const axis = document.getElementById('whForecastAxis');
+    const note = document.getElementById('whForecastNote');
+    const months = TEI.calc.buildMergedMonths(client);
+    const keys = Object.keys(months).sort();
+    if(keys.length < 2){
+      svg.innerHTML = '<line class="hm-fc-base" x1="0" y1="200" x2="640" y2="200"></line><text class="hm-fc-empty" x="0" y="110">The chart starts once two months are logged.</text>';
+      svg.setAttribute('aria-label', 'Not enough history yet');
+      axis.innerHTML = ''; note.textContent = '';
+      return;
+    }
+    const rate = TEI.calc.EXPECTED_RATE || 0.08;
+    const r = Math.pow(1+rate, 1/12) - 1;
+    const contrib = TEI.calc.totalMonthlyContribution(client);
+    const joined = TEI.calc.joinedByMonth(client, months);
+    const all = keys.concat(Array.from({length:12}, (_,i)=> addMonths(keys[keys.length-1], i+1)));
+    const actual = keys.map(k=> months[k].total);
+    const plan = [actual[0]];
+    for(let i=1; i<all.length; i++) plan.push(plan[i-1]*(1+r) + contrib + (joined[all[i]]||0));
+
+    const maxV = Math.max(...plan, ...actual, 1) * 1.06;
+    const n = all.length;
+    const x = i=> 14 + i*(612/(n-1));
+    const y = v=> 200 - Math.max(0, v)/maxV*184;
+    const w = Math.max(4, Math.min(28, 612/(n-1)*0.6));
+    const bars = actual.map((v,i)=> `<rect class="hm-fc-bar" x="${(x(i)-w/2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${w.toFixed(1)}" height="${(200-y(v)).toFixed(1)}" rx="${Math.min(6, w/2).toFixed(1)}" style="animation-delay:${(0.1+i*0.04).toFixed(2)}s"></rect>`).join('');
+    const planD = smoothPath(plan.map((v,i)=> [x(i), y(v)]));
+    const actD = smoothPath(actual.map((v,i)=> [x(i), y(v)]));
+    const li = actual.length-1, dx = x(li).toFixed(1), dy = y(actual[li]).toFixed(1);
+    svg.innerHTML = `<line class="hm-fc-base" x1="0" y1="200" x2="640" y2="200"></line>${bars}`
+      + `<path class="hm-fc-plan" d="${planD}"></path>`
+      + `<path class="hm-fc-actual hm-draw" d="${actD}" pathLength="900"></path>`
+      + `<circle class="hm-fc-pulse" cx="${dx}" cy="${dy}" r="5"></circle><circle class="hm-fc-dot" cx="${dx}" cy="${dy}" r="5"></circle>`;
+    const gap = actual[li] - plan[li];
+    svg.setAttribute('aria-label', `${monthLabel(keys[li])}: actual ${fmtGBP(actual[li])}, plan ${fmtGBP(plan[li])}, ${gap>=0?'ahead by':'behind by'} ${fmtGBP(Math.abs(gap))}`);
+    const ticks = [0, Math.round((n-1)/4), Math.round((n-1)/2), Math.round(3*(n-1)/4), n-1];
+    axis.innerHTML = ticks.map(i=> `<span>${monthLabel(all[i])}</span>`).join('');
+    note.textContent = `Accounts only. The plan line grows your first logged total at ${Math.round(rate*100)}% a year, the Forecast's expected case, plus ${fmtGBP(contrib)} a month.`;
+  }
+
+  /* ---------------- Safety net ----------------
+     TEI.calc.safetyNet is the same calculation the Cashflow page shows. */
+  const SAFETY_STAGE = {full:'Complete', stage2:'Stage 2', buffer:'Working buffer', none:'Building'};
+  function renderSafety(client){
+    const sn = TEI.calc.safetyNet(client);
+    const pct = sn.months!=null ? Math.min(100, sn.months/sn.fullMonths*100) : 0;
+    setText('whSafetyStage', sn.months==null ? 'Not measured yet' : SAFETY_STAGE[sn.stage]);
+    show('whSafetyTick', sn.stage === 'full');
+    document.getElementById('whSafetyBar').style.width = pct.toFixed(0) + '%';
+    setText('whSafetyMonths', sn.months!=null
+      ? `${sn.months.toFixed(1)} ${sn.months.toFixed(1)==='1.0'?'month':'months'} of spending covered`
+      : 'Add your spending in Cashflow to measure this');
+    let noteText;
+    if(!sn.linked) noteText = 'Link a cash account to your safety net in Cashflow to track it here.';
+    else if(sn.stage === 'full') noteText = 'Stage 2: new savings now go to wealth building.';
+    else if(sn.stage === 'stage2') noteText = `Three months covered. Building to the full ${sn.fullMonths}.`;
+    else if(sn.stage === 'buffer') noteText = 'Working buffer in place. Next, three months of spending.';
+    else noteText = 'Stage 1: a working buffer of one month of spending.';
+    setText('whSafetyNote', noteText);
+  }
+
+  /* ---------------- Accounts: the five largest ---------------- */
+  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'var(--w-muted)', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#9DB59F'};
+  function renderAccounts(client){
+    const b = TEI.calc.latestBreakdown(TEI.calc.buildMergedMonths(client));
+    const top = (client.accounts||[]).map(a=> ({a, v: Number(b[a.id])||0})).filter(x=> x.v > 0)
+      .sort((p,q)=> q.v - p.v).slice(0,5);
+    document.getElementById('whAccounts').innerHTML = top.length
+      ? top.map(x=> `<li><i style="border-color:${ACCT_RING[x.a.type]||'var(--w-muted)'};"></i><span>${esc(acctLabel(x.a))}</span><b>${fmtGBP(x.v)}</b></li>`).join('')
+      : '<li class="hm-empty">No accounts yet.</li>';
+  }
+
+  /* ---------------- Cashflow ----------------
+     Wealth conversion is TEI.calc.wealthConversionRate, the Cashflow page's
+     own figure. Spending is the same total the safety net is measured in. */
+  function renderCashflow(client){
+    const income = TEI.calc.totalMonthlyIncome(client);
+    const spend = TEI.calc.totalFixedExpenses(client) + TEI.calc.totalVariableExpenses(client);
+    const rate = TEI.calc.wealthConversionRate(client);
+    const invested = TEI.calc.actualInvestmentMonthlyContribution(client);
+    setText('whCfIncome', income > 0 ? fmtGBP(income) : '–');
+    setText('whCfSpend', spend > 0 ? fmtGBP(spend) : '–');
+    setText('whCfRate', income > 0 ? Math.round(rate) + '%' : '–');
+    document.getElementById('whCfBar').style.width = Math.max(0, Math.min(100, rate)).toFixed(0) + '%';
+    setText('whCfNote', income > 0
+      ? `${fmtGBP(invested)} a month turned into wealth`
+      : 'Add your income in Cashflow to see this.');
+  }
+
+  /* ---------------- Continue learning (a shortcut to the Hub) ----------------
+     Lesson progress belongs to the signed-in person, so it is only read for
+     a client viewing their own Wealth OS, never for a coach. */
+  let learnCount = null, learnAsked = false;
+  function renderLearn(client){
+    if(client.meta.role !== 'client'){ return; }
+    if(learnCount != null){
+      setText('whLearnMeta', learnCount ? `${learnCount} ${learnCount===1?'lesson':'lessons'} completed so far.` : 'Your first lesson is waiting in the Client Hub.');
+      return;
+    }
+    if(learnAsked || !window.teiSupabase || !window.TeiAuth) return;
+    learnAsked = true;
+    TeiAuth.getUser().then(res=>{
+      const user = res && res.data && res.data.user;
+      if(!user) return null;
+      return window.teiSupabase.from('education_progress').select('completed_lessons').eq('user_id', user.id).maybeSingle();
+    }).then(res=>{
+      if(!res || res.error) return;
+      learnCount = Object.keys((res.data && res.data.completed_lessons) || {}).length;
+      renderLearn(client);
+    }).catch(()=>{});
+  }
+
+  /* ---------------- Latest meeting note (a shortcut) ---------------- */
+  function renderNote(client){
+    const notes = (client.documents||[]).filter(d=> d.type === 'note')
+      .sort((a,b)=> String(b.date||'').localeCompare(String(a.date||'')));
+    const open = document.getElementById('whNoteOpen');
+    const n = notes[0];
+    if(!n){
+      setText('whNoteLabel', 'Latest meeting note');
+      setText('whNoteTitle', 'No meeting notes yet');
+      setText('whNoteText', 'Notes from each session appear here.');
+      open.innerHTML = '';
+      return;
+    }
+    setText('whNoteLabel', 'Latest meeting note' + (n.date ? ' · ' + fmtDate(n.date) : ''));
+    setText('whNoteTitle', n.name || 'Meeting note');
+    setText('whNoteText', notes.length > 1 ? `${notes.length} notes in your documents.` : 'Kept in your documents.');
+    open.innerHTML = n.storagePath
+      ? `<button type="button" class="hm-link hm-linkbtn" data-forecast-open="${esc(n.id)}">Open</button>`
+      : `<a class="hm-link" href="${esc(n.url||'#')}" target="_blank" rel="noopener">Open</a>`;
+  }
+
+  TEI.render.home = function(client){
+    renderHeader(client);
+    renderSetup(client);
+    renderWealth(client);
+    renderStep(client);
+    renderGoal(client);
+    renderForecast(client);
+    renderSafety(client);
+    renderAccounts(client);
+    renderCashflow(client);
+    renderLearn(client);
+    renderNote(client);
+    renderFinancialGoalsSummary(client);
+    document.querySelectorAll('#page-home [data-hm-page]').forEach(a=>{
+      a.onclick = (e)=>{ e.preventDefault(); TEI.app.showPage(a.dataset.hmPage); };
+    });
   };
 })();
 
@@ -10506,6 +10820,7 @@ TEI.render = TEI.render || {};
 (function(){
   const {fmtGBP} = TEI.data;
   const EXPECTED_RATE = 0.08;
+  TEI.calc.EXPECTED_RATE = EXPECTED_RATE; // Home's actual-vs-plan line uses the same expected case
   const INFLATION_RATE = 0.03;         // general cost-of-living growth applied to the FI target
   const SPENDING_INCREASE_RATE = 0.035; // lifestyle creep on top of inflation -- spending tends to rise faster than prices alone
   const PAY_RISE_RATE = 0.035;         // assumed annual growth in contributions, modelling typical pay rises
@@ -11213,11 +11528,7 @@ TEI.render = TEI.render || {};
   // calculation rather than three copies that can drift apart.
   function investmentMonthlyContribution(client){ return TEI.calc.actualInvestmentMonthlyContribution(client); }
   function cashMonthlyContribution(client){ return TEI.calc.actualCashMonthlyContribution(client); }
-  function wealthConversionRate(client){
-    const income = TEI.calc.totalMonthlyIncome(client);
-    if(!income) return 0;
-    return investmentMonthlyContribution(client)/income*100;
-  }
+  function wealthConversionRate(client){ return TEI.calc.wealthConversionRate(client); }
   function cfYearsToFI(fiTarget, current, annualContribution, rate){
     if(!fiTarget || fiTarget<=0) return null;
     let value = current, yrs = 0;
@@ -11392,8 +11703,8 @@ TEI.render = TEI.render || {};
     progressEl.textContent = pct.toFixed(0)+'%';
     progressEl.className = pct>=100 ? 'up' : 'gold';
 
-    const monthlyEssential = TEI.calc.totalFixedExpenses(client) + TEI.calc.totalVariableExpenses(client);
-    const monthsCovered = monthlyEssential>0 ? ef.current/monthlyEssential : null;
+    // Same months figure as Home's safety net tile (TEI.calc.safetyNet).
+    const monthsCovered = TEI.calc.safetyNet(client).months;
     document.getElementById('efMonthsCovered').textContent = monthsCovered!=null ? monthsCovered.toFixed(1)+' mo' : '—';
 
     const remaining = Math.max(0, (ef.target||0) - (ef.current||0));
@@ -11405,7 +11716,7 @@ TEI.render = TEI.render || {};
 
     const noteEl = document.getElementById('efNote');
     if(monthsCovered!=null){
-      noteEl.textContent = `That is ${monthsCovered.toFixed(1)} months of essential spending covered. A typical safety net holds three to six months.`;
+      noteEl.textContent = `That is ${monthsCovered.toFixed(1)} months of spending covered. A typical safety net holds three to six months.`;
     } else {
       noteEl.textContent = 'Add your fixed and variable expenses in Cashflow to see this in months of cover.';
     }
@@ -16965,6 +17276,11 @@ window.TEI = window.TEI || {};
   async function saveDividendHistory(clientId, historyArray){
     return await updateRow('clients','id',clientId, { dividend_history: historyArray, last_updated: new Date().toISOString() });
   }
+  /* monthlyWins is a jsonb array on the clients row (clients.monthly_wins);
+     Home's "Mark as done" appends to it. Writes the whole array back. */
+  async function saveMonthlyWins(clientId, winsArray){
+    return await updateRow('clients','id',clientId, { monthly_wins: winsArray, last_updated: new Date().toISOString() });
+  }
 
   async function importHoldingsRows(accountId, localHoldings){
     const rows = localHoldings.map(h=>holdingToRow(accountId, h));
@@ -17206,7 +17522,7 @@ window.TEI = window.TEI || {};
     saveIncome, deleteIncome, saveExpense, deleteExpense,
     saveAccountMonth, saveHoldingMonth, saveGoalMonth, saveAccountDeposit, saveCashflowMonth,
     saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
-    saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory,
+    saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory, saveMonthlyWins,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
     saveFeedback, updateFeedbackStatus, fetchLivePrices, contributionRules
   };
