@@ -1688,7 +1688,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 /* Mobile-only Wealth additions (segmented switch, ranked lists, Journey stage host). */
 #clientApp .m-lab-head, #clientApp .m-seg, #clientApp #mTopHoldings, #clientApp #mCompaniesAcc, #clientApp #mJourneyStageHost{display:none;}
 /* Mobile-only Plan additions (merged next-steps card, hosts for moved blocks, conversion legend, accordion title). */
-#clientApp .m-nextsteps, #clientApp #wcdLegend{display:none;}
 /* Mobile-only Library additions (Learn cards, Meeting notes filter). */
 #clientApp #mLearnHost, #clientApp .m-chips, #clientApp .m-docs-empty{display:none;}
 /* Was an inline style on the Home "Monthly wins" block; moved to a class so
@@ -1956,74 +1955,11 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #mTopList, #mCompaniesList{margin-top:6px;}
   #mCompaniesList{margin-top:8px;}
 
-  /* ================= Plan tab: merged Next best steps + Goals | Forecast | Cashflow ================= */
+  /* ================= Plan tab: Goals | Forecast | Cashflow =================
+     Each page lays itself out (B6, B7, B8); this only stacks the page and
+     puts the switch at the top. */
   #clientApp[data-mview] #page-goals.active, #clientApp[data-mview] #page-planning.active, #clientApp[data-mview] #page-cashflow.active{display:flex; flex-direction:column; gap:8px; padding:12px 14px 0;}
-  #clientApp[data-mview] #page-goals > header.hero, #clientApp[data-mview] #page-planning > header.hero, #clientApp[data-mview] #page-cashflow > header.hero{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; padding:0;}
-  #page-goals .k-section-label, #page-planning .k-section-label, #page-cashflow .k-section-label{display:none;}
-  #page-goals .dcard, #page-planning .dcard, #page-cashflow .dcard{height:auto !important; padding:11px 13px;}
-  #clientApp{--m-bulb:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7'/%3E%3Cpath d='M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3'/%3E%3Cpath d='M9.7 17l4.6 0'/%3E%3C/svg%3E");}
-
-  /* Shared "Next best steps" card, above the switch on all three Plan views. */
-  #clientApp .m-nextsteps{display:block; order:-1;}
-  /* The switch sits at the very top of every Plan view (as on Wealth); Next best steps sits directly under it. */
   #page-goals > .m-seg, #page-planning > .m-seg, #page-cashflow > .m-seg{order:-2;}
-  .m-nextsteps .k-simple-list{margin:6px 0 0; gap:6px;}
-  .m-nextsteps .k-simple-list li{font-size:13.5px; line-height:1.4;}
-  .m-nextsteps .k-simple-list li .dot{background:var(--gold);}
-
-  /* Coach's corner card (Cashflow): 2 lines + full-width action. */
-  #cfcMessage{display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-top:4px; font-size:13.5px; line-height:1.4;}
-  #cfcActionBtn{align-self:stretch !important; width:100%; box-sizing:border-box; text-align:center; text-decoration:none; margin-top:8px !important; padding:9px 14px; font-size:13px;}
-
-  /* ================= Library: Plan | Learn | Meeting notes ================= */
-  #clientApp[data-mview] #page-libplan.active, #clientApp[data-mview] #page-learning.active, #clientApp[data-mview] #page-documents.active{display:flex; flex-direction:column; gap:8px; padding:12px 14px 0;}
-  #clientApp[data-mview] #page-learning > header.hero, #clientApp[data-mview] #page-documents > header.hero{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; padding:0;}
-  #page-libplan .dcard, #page-learning .dcard, #page-documents .dcard{padding:11px 13px;}
-
-  /* Plan */
-  #page-libplan .lp-title{font-family:var(--font-display); font-size:19px; font-weight:600; line-height:1.25; margin-top:6px; color:var(--k-ink);}
-  #page-libplan #lpAlloc .k-comp-bar{margin-top:8px;}
-  #page-libplan #lpAlloc .k-comp-legend{gap:6px 12px;}
-
-  /* Learn: the three mobile cards replace the desktop "Recommended for you" grid. */
-  #page-learning > section{display:none;}
-  #clientApp #mLearnHost{display:flex; flex-direction:column; gap:8px; order:10;}
-  #mLearnHost a.k-js-row{text-decoration:none; color:inherit; gap:12px; min-height:44px;}
-  #mLearnHost a.k-js-row .jk{color:var(--k-ink); font-weight:500;}
-  #mLearnHost .m-ext{flex:none; width:18px; height:18px; fill:none; stroke:var(--k-ink-softer); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
-  #mLearnHost .btn-primary{padding:11px 16px;}
-
-  /* Meeting notes: filter chips, then the list. Notes first; "All documents" shows everything. */
-  #page-documents > section, #page-documents > section > .dgrid, #page-documents > section > .dgrid > div{display:contents;}
-  #clientApp .m-chips{display:flex; gap:6px; order:5;}
-  #clientApp .m-chips button{-webkit-appearance:none; appearance:none; min-height:36px; margin:0; padding:0 14px; background:none; border:1px solid var(--k-card-border, var(--line)); border-radius:999px; color:var(--k-ink-softer); font:inherit; font-size:13px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent;}
-  #clientApp .m-chips button.on{background:var(--gold); border-color:var(--gold); color:var(--card-dark);}
-  #clientApp .m-chips button:focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
-  #clientApp .m-chips .n{font-weight:400; opacity:0.85;}
-  #page-documents #documentsList{order:20;}
-  #clientApp .m-docs-empty{display:block; order:20;}
-  #clientApp .m-docs-empty[hidden]{display:none;}
-  #page-documents:not(.m-docs-all) .k-doc-row:not([data-doctype="note"]):not([data-doctype="forecast"]){display:none;}
-  #page-documents .k-doc-name{font-size:14.5px;}
-
-  /* -- Plan > Cashflow (page: cashflow) -- */
-  #page-cashflow > section, #page-cashflow > section > .dgrid, #page-cashflow > section > .dgrid > div:not([data-m="hide"]){display:contents;}
-  #page-cashflow > section:nth-of-type(1), #page-cashflow > section:nth-of-type(6){display:none;}  /* update nudge; "Coming soon" */
-  #cfHealthCard{order:10;}
-  #cfGlanceCard{order:20;}
-  #page-cashflow .dcard.emphasis{order:30;}
-  #efCard{order:40;}
-  #cfSavingsCard{order:50;}
-  #cfCoachCard{order:60;}
-  #cfBehaviourCard{order:70;}
-  #cfScenarioCard{order:80;}
-  #cfHealthCard > .sub2{display:none;}
-  #cfHealthCard .k-rowstats{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:10px;}
-  #cfGlanceCard .k-chart-box{height:150px !important; margin-top:8px;}
-  #clientApp #wcdLegend{display:flex; margin-top:10px;}
-  #page-cashflow .dcard.emphasis .k-comp-legend .lg{color:rgba(247,244,237,0.8);}
-  #efCard #efNote, #efCard > div[style*="height:1px"]{display:none;}
-  #cfCoachCard > div:last-child{margin-top:12px !important; padding-top:10px !important;}
 }
 
 /* ================================================================
@@ -3014,6 +2950,157 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .fc-pair{ gap:8px; }
   .fc-box b{ font-size:22px; }
 }
+/* ================================================================
+   REDESIGN B12.8 -- Cashflow (spec B8, boards Cashflow and CashflowMobile).
+   Builds on the hm- tiles; Cashflow-only parts are prefixed cf-.
+   ================================================================ */
+#clientApp[data-theme="light"] .cf-snap, #clientApp[data-theme="light"] .cf-coach{ --gold:#E8D6A8; }
+#clientApp[data-theme="light"]{ --cf-e:#0F1E36; --cf-l:#C9D3E3; }
+#clientApp[data-theme="dark"]{ --cf-e:#2F4466; --cf-l:#5D6F8C; }
+.cf .mono{ font-family:'Geist Mono', ui-monospace, monospace; }
+.cf-snap{ grid-column:span 8; flex-direction:row; flex-wrap:wrap; gap:24px; align-items:center; padding:22px 24px; }
+.cf-snap:hover, .cf-trend:hover{ transform:none; box-shadow:none; }
+.cf-month{ grid-column:span 4; gap:4px; padding:22px 24px; animation-delay:.06s; }
+.cf-trend{ grid-column:span 8; animation-delay:.1s; }
+.cf-net{ grid-column:span 4; gap:16px; animation-delay:.14s; }
+.cf-scen{ grid-column:span 7; gap:16px; animation-delay:.18s; }
+.cf-habits{ grid-column:span 5; animation-delay:.22s; }
+.cf-locked{ grid-column:span 4; }
+.cf-coach{ grid-column:span 4; min-height:200px; animation-delay:.3s; }
+
+/* Snapshot (navy) */
+.cf-snap-rate{ position:relative; flex:0 0 auto; }
+.cf-conv{ margin-top:6px !important; font-size:56px; font-weight:300; letter-spacing:-0.04em; line-height:1; color:#F7F4ED; }
+.cf-conv-sub{ margin-top:6px !important; font-size:13px; color:#AAB6C8; }
+.cf-snap-flow{ position:relative; flex:1 1 320px; min-width:0; display:flex; flex-direction:column; gap:10px; }
+.cf-snap-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13px; color:#AAB6C8; }
+.cf-health{ flex:none; font-size:12px; font-weight:500; padding:4px 10px; border-radius:999px; }
+.cf-health--ok{ background:#E8D6A8; color:#0F1E36; }
+.cf-health--steady, .cf-health--none{ background:rgba(255,255,255,0.12); color:#F7F4ED; }
+.cf-health--attn, .cf-health--over{ background:#F0A97E; color:#0F1E36; }
+.cf-flow{ display:flex; gap:3px; height:14px; border-radius:999px; overflow:hidden; }
+.cf-flow span{ display:block; min-width:2px; height:100%; transform-origin:left; animation:hm-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
+.cf-snap .cf-e{ background:#2F4466; } .cf-snap .cf-l{ background:#7F95B8; } .cf-snap .cf-w{ background:#E8D6A8; }
+.cf-flow-key{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; }
+.cf-flow-key p{ display:flex; align-items:center; gap:6px; font-size:12px; color:#AAB6C8; }
+.cf-flow-key i{ width:8px; height:8px; flex:none; border-radius:2px; }
+.cf-flow-key b{ display:block; margin-top:4px; font-size:20px; font-weight:300; color:#F7F4ED; }
+.cf-flow-key small{ font-size:11px; color:#AAB6C8; }
+
+/* This month */
+.cf-updated{ font-size:11px; color:var(--w-muted); }
+.cf-rows{ margin:6px 0 0; }
+.cf-rows div{ display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--w-line); font-size:14px; }
+.cf-rows div:last-child{ border-bottom:0; }
+.cf-rows dt{ color:var(--w-muted); }
+.cf-rows dd{ margin:0; font-family:'Geist Mono', ui-monospace, monospace; color:var(--w-text); }
+.cf-rows .cf-gold dd{ color:var(--w-gold); font-weight:500; }
+.cf-rows .cf-warn dt, .cf-rows .cf-warn dd, .cf-warn{ color:var(--w-warn) !important; }
+
+/* Trend */
+.cf-trend-top{ display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:flex-end; }
+.cf-keys{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:11px; color:var(--w-muted); }
+.cf-keys span{ display:inline-flex; align-items:center; gap:6px; }
+.cf-keys i{ width:8px; height:8px; border-radius:2px; }
+.cf-k-w, .cf-trend .cf-w{ background:var(--w-gold); }
+.cf-k-l, .cf-trend .cf-l{ background:var(--cf-l); }
+.cf-k-e, .cf-trend .cf-e{ background:var(--cf-e); }
+.cf-bars{ display:flex; align-items:flex-end; gap:8px; height:230px; margin-top:12px; }
+.cf-bar{ flex:1 1 0; min-width:0; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:6px; }
+.cf-bar > span{ font-size:10px; color:var(--w-muted); }
+.cf-bar-now > span{ color:var(--w-gold); font-weight:600; }
+.cf-stack{ width:100%; max-width:28px; max-height:180px; display:flex; flex-direction:column; border-radius:6px; overflow:hidden; transform-origin:bottom; animation:hm-rise 1s cubic-bezier(.3,.8,.3,1) both; }
+.cf-bar-now .cf-stack{ outline:2px solid var(--w-gold); outline-offset:2px; }
+.cf-stack i{ display:block; width:100%; }
+.cf-bar small{ font-size:10px; color:var(--w-muted); }
+.cf-empty{ align-self:center; width:100%; text-align:center; font-size:14px; color:var(--w-muted); }
+
+/* Safety net */
+.cf-net-bar{ display:flex; gap:4px; }
+.cf-net-bar span{ display:block; height:8px; border-radius:999px; background:var(--w-track); overflow:hidden; }
+.cf-net-bar i{ display:block; height:100%; border-radius:999px; background:var(--w-gold); }
+.cf-net-bar i.done{ background:var(--w-nav-active); }
+.cf-stages{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.cf-stages li{ display:grid; grid-template-columns:22px minmax(0,1fr) auto; align-items:center; gap:10px; font-size:13px; color:var(--w-muted); }
+.cf-stages b{ font-weight:500; color:var(--w-text); }
+.cf-stages .mono{ font-size:11px; }
+.cf-tick{ width:20px; height:20px; border-radius:50%; border:1.5px solid var(--w-line); display:inline-flex; align-items:center; justify-content:center; }
+.cf-tick svg{ width:11px; height:11px; fill:none; stroke:transparent; stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; }
+.cf-stages li.done .cf-tick{ background:var(--w-nav-active); border-color:var(--w-nav-active); }
+.cf-stages li.done .cf-tick svg{ stroke:var(--w-nav-active-text); }
+.cf-net-note{ margin-top:auto !important; padding:12px 14px; border-radius:14px; background:var(--w-tile); font-size:13px; line-height:1.5; color:var(--w-text); }
+
+/* Scenario corner */
+.cf-scen-grid{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; }
+.cf-scen-grid div{ background:var(--w-tile); border-radius:14px; padding:12px; min-width:0; }
+.cf-scen-grid p{ font-size:11px; color:var(--w-muted); }
+.cf-scen-grid s{ display:block; margin-top:4px; font-size:12px; color:var(--w-muted); }
+.cf-scen-grid b{ display:block; margin-top:2px; font-size:18px; font-weight:400; color:var(--w-text); }
+.cf-scen-foot{ display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center; margin-top:auto; }
+.cf-scen-link{ gap:8px; }
+.cf-scen-link svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Habits */
+.cf-habit-list{ list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.cf-habit-list li{ display:flex; gap:14px; align-items:center; padding:12px 14px; border-radius:14px; background:var(--w-chip); font-size:13px; line-height:1.45; color:var(--w-text); }
+.cf-habit-list strong{ font-weight:500; }
+.cf-big{ flex:none; min-width:64px; font-size:20px; font-weight:300; color:var(--w-gold); white-space:nowrap; }
+
+/* Locked */
+.cf-locked{ box-sizing:border-box; min-width:0; border:1.5px dashed var(--w-line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:10px; color:var(--w-text); animation:hm-up .7s cubic-bezier(.2,.8,.2,1) .26s both; }
+.cf-locked h2{ margin:0; font-family:inherit; font-size:20px; font-weight:400; letter-spacing:-0.02em; }
+.cf-locked p{ font-size:13px; line-height:1.5; color:var(--w-muted); }
+.cf-locked ul{ list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px; }
+.cf-locked li{ font-family:'Geist Mono', ui-monospace, monospace; font-size:10px; padding:4px 9px; border-radius:999px; border:1px solid var(--w-line); color:var(--w-muted); }
+.cf-lock{ width:16px; height:16px; fill:none; stroke:var(--w-muted); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Update this month panel */
+.cf-fields{ display:flex; flex-direction:column; gap:14px; }
+.cf-f label{ font-size:14px; font-weight:500; color:var(--w-text); }
+.cf-f p{ margin:2px 0 6px !important; font-size:12px; color:var(--w-muted); }
+.cf-money{ display:flex; align-items:center; gap:8px; border:1px solid var(--w-line); border-radius:12px; background:var(--w-bg); padding:0 12px; }
+.cf-money span{ color:var(--w-muted); }
+.cf-money input{ flex:1; min-width:0; min-height:44px; border:0; background:transparent; color:var(--w-text); font-family:'Geist Mono', ui-monospace, monospace; font-size:16px; }
+.cf-money:focus-within{ outline:2px solid var(--w-gold); outline-offset:1px; }
+.cf-money input:focus{ outline:none; }
+.cf-panel-sum{ display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--w-line); font-size:14px; color:var(--w-muted); }
+.cf-panel-sum b{ font-family:'Geist Mono', ui-monospace, monospace; font-weight:500; color:var(--w-text); }
+.cf-panel-done{ min-height:48px; margin-top:auto; }
+.cf-panel-state:empty{ display:none; }
+
+@media (prefers-reduced-motion: reduce){
+  .cf-flow span, .cf-stack, .cf-locked{ animation:none; }
+}
+@media (max-width:1100px){
+  .cf-snap, .cf-trend, .cf-scen{ grid-column:span 12; }
+  .cf-month, .cf-net, .cf-habits{ grid-column:span 6; }
+  .cf-locked, .cf-coach{ grid-column:span 6; }
+  .cf-scen-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+}
+
+/* Phones (B8): snapshot, this month, safety net, coach, habits, scenario,
+   trend, locked items. */
+@media (max-width:860px){
+  #clientApp[data-mview] #page-cashflow.active{ padding:4px 16px 24px; gap:12px; }
+  #page-cashflow .cf{ display:contents; }
+  #page-cashflow .cf-head{ order:-3; margin-bottom:0; }
+  #page-cashflow .hm-date, #page-cashflow .fc-sub{ display:none; }
+  #page-cashflow .cf-grid{ order:0; }
+  #page-cashflow .gl-foot{ order:1; margin-top:4px !important; }
+  #page-cashflow > .m-seg{ margin:0; }
+  .cf-grid > *{ grid-column:1 / span 2 !important; }
+  .cf-snap{ order:1; padding:20px; gap:16px; } .cf-month{ order:2; } .cf-net{ order:3; } .cf-coach{ order:4; min-height:0; }
+  .cf-habits{ order:5; } .cf-scen{ order:6; } .cf-trend{ order:7; } .cf-locked{ order:8; border-radius:24px; padding:18px; }
+  .cf-conv{ font-size:44px; }
+  .cf-flow-key b{ font-size:16px; }
+  .cf-bars{ gap:4px; height:180px; }
+  .cf-bar > span{ font-size:9px; }
+  .cf-bar:not(:first-child):not(:last-child) > span{ visibility:hidden; }
+  .cf-stack{ max-height:130px; }
+  .cf-keys{ display:none; }
+  .cf-scen-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .cf-scen-foot .hm-btn{ width:100%; }
+}
 </style>
 </head>
 <body>
@@ -3833,180 +3920,115 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 </div>
 <!-- ============================= CASHFLOW ============================= -->
 <div id="page-cashflow" class="page">
-<header class="hero wrap k-greeting"><h1>Cashflow</h1><div class="sub">Income, spending, and how effectively it's becoming future wealth.</div></header>
-
-<section class="wrap" style="padding-top:var(--space-lg); padding-bottom:0;">
-  <div class="dgrid">
-    <div class="span-12">
-      <a href="#" class="navlink dcard update-nudge" data-page="update" data-direct style="display:flex; align-items:center; justify-content:space-between; gap:12px; text-decoration:none;">
-        <div>
-          <div class="k">Had a month that differed from usual?</div>
-          <div class="sub2" id="cashflowUpdateSummary">–</div>
-        </div>
-        <span class="btn-primary" style="pointer-events:none;">Update →</span>
-      </a>
+<!-- Redesign B12.8 (spec B8, boards Cashflow and CashflowMobile). Filled by
+     TEI.render.cashflow from TEI.calc.cashflowMonth, the same figures Home
+     shows. Update this month saves through saveCashflowMonth. -->
+<div class="hm cf">
+  <header class="hm-head cf-head">
+    <div>
+      <p class="hm-date">Plan</p>
+      <h1 class="hm-title"><span class="hm-greet-d">Cashflow</span><span class="hm-greet-m">Plan</span></h1>
+      <p class="hm-muted fc-sub">How your monthly money turns into wealth.</p>
     </div>
+    <button type="button" class="hm-btn hm-btn-primary wl-update-btn" id="cfUpdateBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.8 2.8 0 0 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg><span class="wl-update-long">Update this month</span><span class="wl-update-short">Update</span></button>
+  </header>
+
+  <div class="hm-grid cf-grid">
+
+    <section class="hm-tile hm-feat cf-snap" aria-labelledby="cfConvK">
+      <div class="cf-snap-rate">
+        <p class="hm-label" id="cfConvK">Wealth conversion rate</p>
+        <p class="cf-conv" id="cfConv"></p>
+        <p class="cf-conv-sub">of take-home goes into wealth</p>
+      </div>
+      <div class="cf-snap-flow">
+        <div class="cf-snap-row"><span id="cfSnapMonth"></span><span class="cf-health" id="cfHealth"></span></div>
+        <div class="cf-flow" id="cfFlow" role="img"></div>
+        <div class="cf-flow-key" id="cfFlowKey"></div>
+      </div>
+    </section>
+
+    <section class="hm-tile cf-month" aria-labelledby="cfMonthK">
+      <div class="hm-row"><p class="hm-label" id="cfMonthK">This month</p><span class="mono cf-updated" id="cfUpdated"></span></div>
+      <dl class="cf-rows" id="cfRows"></dl>
+    </section>
+
+    <section class="hm-tile cf-trend" aria-labelledby="cfTrendHead">
+      <div class="cf-trend-top">
+        <div><p class="hm-label">Last 12 months</p><h2 class="hm-h3" id="cfTrendHead"></h2></div>
+        <div class="cf-keys" aria-hidden="true"><span><i class="cf-k-w"></i>Wealth building</span><span><i class="cf-k-l"></i>Lifestyle</span><span><i class="cf-k-e"></i>Essentials</span></div>
+      </div>
+      <div class="cf-bars" id="cfBars" role="img"></div>
+      <p class="hm-note" id="cfTrendNote">Built from your monthly updates. Wealth building sits on top; the % above each bar is that month's conversion rate.</p>
+    </section>
+
+    <section class="hm-tile hm-powder cf-net" aria-labelledby="cfNetHead">
+      <div><p class="hm-label">Safety net</p><h2 class="hm-h3" id="cfNetHead"></h2><p class="hm-muted hm-small" id="cfNetSub"></p></div>
+      <div class="cf-net-bar" id="cfNetBar" role="img"></div>
+      <ol class="cf-stages" id="cfStages"></ol>
+      <p class="cf-net-note" id="cfNetNote"></p>
+    </section>
+
+    <section class="hm-tile hm-champ cf-scen" aria-labelledby="cfScenTitle">
+      <div><p class="hm-label hm-gold">Scenario corner</p><h2 class="hm-h3" id="cfScenTitle">What if you moved more into wealth?</h2></div>
+      <label for="cfScenInc" class="gl-q">Move <strong id="cfScenIncFmt"></strong> a month from lifestyle into wealth building</label>
+      <input id="cfScenInc" class="gl-range" type="range" min="0" max="500" step="25" value="150">
+      <div class="cf-scen-grid" id="cfScenGrid"></div>
+      <div class="cf-scen-foot">
+        <p class="hm-note">Growth figures use 5% a year in today's money, as on Forecast.</p>
+        <a href="#" class="hm-btn hm-btn-primary cf-scen-link" id="cfScenLink">See it on Forecast<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </section>
+
+    <section class="hm-tile cf-habits" aria-labelledby="cfHabitsTitle">
+      <p class="hm-label">Your habits</p>
+      <h2 class="hm-h3" id="cfHabitsTitle">What the last year shows</h2>
+      <ul class="cf-habit-list" id="cfHabits"></ul>
+    </section>
+
+    <section class="cf-locked">
+      <div class="hm-row"><p class="hm-label">Coming soon</p><svg class="cf-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+      <h2>Spending categories</h2>
+      <p>Where lifestyle money goes: food, transport, subscriptions and more. Needs itemised spending, so it unlocks once that can be added.</p>
+      <ul><li>Itemised spending</li><li>Monthly</li></ul>
+    </section>
+    <section class="cf-locked">
+      <div class="hm-row"><p class="hm-label">Coming soon</p><svg class="cf-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+      <h2>Debts and mortgage</h2>
+      <p>Balances, rates, fix end dates and overpayments, alongside what each debt costs against investing.</p>
+      <ul><li>Mortgage</li><li>Loans</li><li>Cards</li></ul>
+    </section>
+
+    <section class="hm-tile hm-feat cf-coach">
+      <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
+      <p class="hm-label">Coach's corner</p>
+      <p class="gl-coach-msg" id="cfcMessage"></p>
+      <a href="/book" class="hm-btn gl-coach-btn">Discuss next session</a>
+    </section>
+
   </div>
-</section>
+  <p class="hm-note gl-foot">Figures are what you enter each month. Projections are illustrative and for education only. TEI provides financial coaching and education, not regulated financial advice.</p>
 
-<section class="wrap" style="padding-top:var(--space-lg);">
-  <div class="dgrid">
-    <div class="span-6">
-      <div class="dcard" id="cfHealthCard" style="height:100%;">
-        <div class="k">Cashflow health</div>
-        <div class="k-pill-toggle" id="scenarioToggle" style="margin-top:10px;">
-          <button type="button" data-scenario="best">Best case</button>
-          <button type="button" data-scenario="base">Base case</button>
-          <button type="button" data-scenario="worst">Worst case</button>
-        </div>
-        <div style="margin-top:12px; display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-          <div class="v sm" id="cfWealthConvHeadline" style="color:var(--k-accent);">–</div>
-          <span class="delta-pill" id="cfVsTargetPill" style="display:none;">–</span>
-        </div>
-        <div class="k-rowstats">
-          <div class="rs">Income<b id="cfIncome">–</b></div>
-          <div class="rs">Actual saving &amp; investing<b id="cfCommitted">–</b></div>
-          <div class="rs">Monthly surplus<b class="up" id="cfSurplus">–</b></div>
-          <div class="rs">Annual savings<b id="cfAnnual">–</b></div>
-        </div>
-        <div class="sub2" style="margin-top:10px;">Every figure here is calculated from your actual account contributions -- cash and investment accounts, plus personal (not salary sacrifice) pension contributions, since sacrifice never reaches take-home pay. This rate includes cash saving as well as investing, which is why it reads higher than the investing-only Wealth conversion rate further down the page.</div>
-      </div>
+  <!-- Update this month: a side panel on desktop, a bottom sheet on phones. -->
+  <div class="wl-scrim" id="cfPanelScrim" hidden></div>
+  <div class="wl-panel cf-panel" id="cfPanel" role="dialog" aria-modal="true" aria-labelledby="cfPanelTitle" hidden>
+    <div class="wl-panel-head">
+      <div><p class="hm-label" id="cfPanelMonth"></p><h2 class="hm-h3" id="cfPanelTitle">Update this month</h2></div>
+      <button type="button" class="wl-x" id="cfPanelClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
     </div>
-    <div class="span-6">
-      <div class="dcard advisory" id="cfCoachCard" style="height:100%; display:flex; flex-direction:column;">
-        <div class="k">Cashflow coach's corner</div>
-        <div class="line" id="cfcMessage" style="flex:1;">–</div>
-        <a href="#" class="btn-primary cc-action" id="cfcActionBtn" style="display:none; align-self:flex-start; margin-top:10px;">–</a>
-
-        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--k-row-border);">
-          <div class="k">Behavioural insights</div>
-          <ul class="k-simple-list" id="cfInsightsList"></ul>
-        </div>
-      </div>
+    <p class="hm-muted hm-small">Round figures are fine. Changes save as you go.</p>
+    <div class="cf-fields">
+      <div class="cf-f"><label for="cfInT">Take-home pay</label><p>After tax, pension and deductions.</p><div class="cf-money"><span>£</span><input id="cfInT" type="number" inputmode="decimal" min="0" step="50"></div></div>
+      <div class="cf-f"><label for="cfInE">Essentials</label><p>Rent or mortgage, bills, food, transport.</p><div class="cf-money"><span>£</span><input id="cfInE" type="number" inputmode="decimal" min="0" step="50"></div></div>
+      <div class="cf-f"><label for="cfInL">Lifestyle</label><p>Everything else you spent.</p><div class="cf-money"><span>£</span><input id="cfInL" type="number" inputmode="decimal" min="0" step="50"></div></div>
+      <div class="cf-f"><label for="cfInW">Wealth building</label><p>ISAs, pension top-ups, investing, safety net.</p><div class="cf-money"><span>£</span><input id="cfInW" type="number" inputmode="decimal" min="0" step="50"></div></div>
     </div>
+    <div class="cf-panel-sum"><span>Conversion rate</span><b id="cfPanelConv"></b></div>
+    <div class="cf-panel-sum"><span id="cfPanelLeftK"></span><b id="cfPanelLeft"></b></div>
+    <p class="hm-note cf-panel-state" id="cfPanelState" aria-live="polite"></p>
+    <button type="button" class="hm-btn hm-btn-primary cf-panel-done" id="cfPanelDone">Done</button>
   </div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label strong">Snapshot</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard" id="cfGlanceCard">
-        <div class="k">This month, at a glance</div>
-        <div class="k-chart-box" style="height:200px;"><canvas id="chartIncomeSpend"></canvas></div>
-        <div class="sub2">"Disposable income" is what's left after living costs and your calculated saving &amp; investing commitment — money with no destination yet.</div>
-        <div class="line" data-m="hide"><span class="k-badge-soon">Coming soon</span> A full trend timeline (income, expenses, disposable income and contributions over time) once monthly cashflow logging is in place.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="dgrid" style="margin-top:12px;">
-    <div class="span-12">
-      <div class="dcard emphasis">
-        <div class="k">Wealth conversion dashboard <span style="font-size:9px; opacity:0.7; text-transform:none; letter-spacing:0; font-weight:600;">&middot; signature metric</span></div>
-        <div class="line">Every £1 you earn, split by where it goes.</div>
-        <div class="k-chart-box" style="height:70px; margin-top:12px;"><canvas id="chartWealthConv"></canvas></div>
-        <!-- Mobile only (hidden above 860px): legend for the stacked bar, filled from the same buckets as the chart. -->
-        <div class="k-comp-legend" id="wcdLegend"></div>
-        <div class="k-rowstats">
-          <div class="rs">Target rate<b class="gold" id="wcdTarget">–</b></div>
-          <div class="rs">Actual rate<b class="up" id="wcdActual">–</b></div>
-        </div>
-        <div class="sub2" style="margin-top:10px;">Actual rate is investment accounts only, from your logged contributions -- personal pension counted, salary sacrifice excluded since it never reached take-home pay. It excludes cash saving, which is why it reads lower than the Cashflow health rate above.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label strong">Interpretation</div>
-  <div class="dgrid">
-    <div class="span-4">
-      <div class="dcard" id="cfBehaviourCard" style="height:100%;">
-        <div class="k">Behaviour of the month</div>
-        <div class="k-stage-badge" id="cfBehaviourBadge">–</div>
-        <div class="k-insight-note" id="cfBehaviourText"></div>
-      </div>
-    </div>
-    <div class="span-4">
-      <div class="dcard" id="efCard" style="height:100%;">
-        <div class="k">Emergency fund</div>
-        <div class="k-bar"><div class="fill" id="efBar" style="width:0%;"></div></div>
-        <div class="k-rowstats">
-          <div class="rs">Current<b id="efCurrent">–</b></div>
-          <div class="rs">Target<b class="gold" id="efTarget">–</b></div>
-          <div class="rs">Progress<b class="up" id="efProgress">–</b></div>
-        </div>
-        <div style="height:1px; background:var(--k-row-border); margin:12px 0;"></div>
-        <div class="k-rowstats">
-          <div class="rs">Months covered<b id="efMonthsCovered">–</b></div>
-          <div class="rs">Time to target<b id="efTimeToTarget">–</b></div>
-        </div>
-        <div class="sub2" style="margin-top:10px;" id="efNote">–</div>
-      </div>
-    </div>
-    <div class="span-4">
-      <div class="dcard" id="cfNextStepsCard" style="height:100%;" data-m="hide">
-        <div class="k">Your next best steps</div>
-        <ul class="k-simple-list clickable" id="cfNextStepsList"></ul>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap">
-  <div class="k-section-label strong">What if?</div>
-  <div class="dgrid">
-    <div class="span-6">
-      <div class="dcard" id="cfSavingsCard" style="height:100%;">
-        <div class="k">Savings goals</div>
-        <div id="cfSavingsGoalsList" style="margin-top:10px;"></div>
-        <div class="k-rowstats" id="cfSavingsGoalImpactStats" style="margin-top:14px; padding-top:12px; border-top:1px solid var(--k-row-border);"></div>
-      </div>
-    </div>
-    <div class="span-6">
-      <div class="dcard" id="cfScenarioCard" style="height:100%; display:flex; flex-direction:column;">
-        <div class="k">Scenario corner</div>
-        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:14px; margin:6px 0;">
-          <label class="k-form-field" style="max-width:100%;"><span style="font-size:11.5px;">Increase monthly investing by £</span><input type="number" id="scnExtra" value="100" step="10" style="padding:12px 14px; font-size:16px;"></label>
-          <div style="display:flex; gap:10px;">
-            <div class="k-boxed-stat">
-              <div class="rs" style="font-size:10.5px;">New savings rate</div>
-              <b class="up" id="scnRate" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
-            </div>
-            <div class="k-boxed-stat">
-              <div class="rs" style="font-size:10.5px;">FI year, with this change</div>
-              <b class="gold" id="scnFiYear" style="display:block; font-family:var(--font-display); font-size:21px; margin-top:4px; font-weight:700;">–</b>
-            </div>
-          </div>
-        </div>
-        <a href="#" class="btn-primary" id="scnForecastLink" style="text-decoration:none; display:inline-block; align-self:flex-start;">Open in Forecast &rarr;</a>
-        <div class="k-insight-note" id="scnInsight"></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="wrap" style="padding-bottom:var(--space-2xl);">
-  <div class="dgrid" style="margin-top:8px;">
-    <div class="span-12">
-      <div class="dcard">
-        <div class="k">Coming soon <span class="k-badge-soon">In development</span></div>
-        <div class="line">The next layer of Cashflow — automatic, not manual. Category-level spending breakdown, plus deeper automation once Open Banking is connected.</div>
-        <div class="k-locked-row">
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Housing</div>
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Food</div>
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Transport</div>
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Lifestyle</div>
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Open Banking</div>
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Smart spending analysis</div>
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Subscription detection</div>
-          <div class="lritem"><svg class="k-lock-icon" viewBox="0 0 24 24" fill="none"><path d="M6 10V8a6 6 0 0 1 12 0v2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4" y="10" width="16" height="11" rx="2" fill="currentColor"/></svg>Financial health score</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+</div>
 </div>
 
 <!-- ============================= LEARNING ============================= -->
@@ -4976,6 +4998,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         <label class="form-field"><span>What is it?</span><input type="text" id="advNewFixedLabel" placeholder="e.g. Mortgage"></label>
         <label class="form-field"><span>£/month</span><input type="number" id="advNewFixedAmount" placeholder="0"></label>
         <label class="form-field" id="advNewFixedOwnerField" style="display:none;"><span>Whose cost?</span><select id="advNewFixedOwner"><option value="client">Individual</option><option value="joint">Joint / shared</option></select></label>
+        <label class="form-field"><span>Essential or lifestyle?</span><select id="advNewFixedSpend"><option value="essential">Essential</option><option value="lifestyle">Lifestyle</option></select></label>
         <button type="button" class="btn-primary" id="advAddFixedBtn">Add</button>
       </div>
       <div class="note">Variable</div>
@@ -4984,6 +5007,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
         <label class="form-field"><span>What is it?</span><input type="text" id="advNewVariableLabel" placeholder="e.g. Everyday spending"></label>
         <label class="form-field"><span>£/month</span><input type="number" id="advNewVariableAmount" placeholder="0"></label>
         <label class="form-field" id="advNewVariableOwnerField" style="display:none;"><span>Whose cost?</span><select id="advNewVariableOwner"><option value="client">Individual</option><option value="joint">Joint / shared</option></select></label>
+        <label class="form-field"><span>Essential or lifestyle?</span><select id="advNewVariableSpend"><option value="essential">Essential</option><option value="lifestyle">Lifestyle</option></select></label>
         <button type="button" class="btn-primary" id="advAddVariableBtn">Add</button>
       </div>
       <div class="note">One-off costs — irregular items (e.g. car repair, annual insurance renewal) included in this month's plan only while enabled. Untick to keep the record without counting it.</div>
@@ -6002,12 +6026,52 @@ window.TEI = window.TEI || {};
     return {current, target:Number(ef.target)||0, monthlySpend, months, fullMonths, stage, linked:!!acc};
   }
 
-  /* Wealth conversion: the share of take-home pay going into investment
-     accounts each month. Shown on Cashflow and Home; one formula for both. */
+  /* Essentials and lifestyle (spec B9.7): the standing expense lines summed
+     by their tag. Lines with no tag count as essential. */
+  function totalEssentialExpenses(client){
+    const e = client.cashflow.expenses || {};
+    return (e.fixed||[]).concat(e.variable||[]).filter(x=> x.category !== 'lifestyle').reduce((s,x)=> s + (Number(x.amount)||0), 0);
+  }
+  function totalLifestyleExpenses(client){
+    const e = client.cashflow.expenses || {};
+    return (e.fixed||[]).concat(e.variable||[]).filter(x=> x.category === 'lifestyle').reduce((s,x)=> s + (Number(x.amount)||0), 0);
+  }
+
+  /* One month's cashflow (spec B8): take-home, essentials, lifestyle and
+     wealth building (everything saved or invested, cash included). What was
+     logged for that month wins (Cashflow's Update this month, or the older
+     Update page); anything not logged comes from the standing figures. An
+     older log with one spending figure is split as the standing lines are.
+     Home and Cashflow both read this, so they always agree. */
+  function cashflowMonth(client, key){
+    key = key || TEI.data.currentMonthKey();
+    const std = {
+      takeHome: totalMonthlyIncome(client),
+      essentials: totalEssentialExpenses(client),
+      lifestyle: totalLifestyleExpenses(client),
+      wealthBuilding: actualTotalSavingInvesting(client)
+    };
+    const rec = (client.cashflowMonths||{})[key];
+    if(!rec) return Object.assign({key, logged:false, split:false, lastEditedAt:null}, std);
+    const takeHome = rec.actualIncome != null ? Number(rec.actualIncome)||0 : std.takeHome;
+    let essentials = std.essentials, lifestyle = std.lifestyle, split = false;
+    if(rec.essentials != null || rec.lifestyle != null){
+      essentials = Number(rec.essentials)||0; lifestyle = Number(rec.lifestyle)||0; split = true;
+    } else if(rec.actualExpenses != null){
+      const tot = std.essentials + std.lifestyle, spent = Number(rec.actualExpenses)||0;
+      const share = tot > 0 ? std.essentials/tot : 1;
+      essentials = spent*share; lifestyle = spent - essentials;
+    }
+    const wealthBuilding = rec.wealthBuilding != null ? Number(rec.wealthBuilding)||0 : std.wealthBuilding;
+    return {key, logged:true, split, lastEditedAt: rec.lastEditedAt || null, takeHome, essentials, lifestyle, wealthBuilding};
+  }
+
+  /* Wealth conversion: the share of this month's take-home that goes into
+     wealth (saving and investing, cash included, as the Cashflow board
+     defines it). Shown on Cashflow and Home; one formula for both. */
   function wealthConversionRate(client){
-    const income = totalMonthlyIncome(client);
-    if(!income) return 0;
-    return actualInvestmentMonthlyContribution(client)/income*100;
+    const m = cashflowMonth(client);
+    return m.takeHome > 0 ? m.wealthBuilding/m.takeHome*100 : 0;
   }
 
   /* ================= Shared signals engine =================
@@ -7006,6 +7070,7 @@ window.TEI = window.TEI || {};
     computeSignals, pickTopSignal, pickSignals, computeNetWorthFact, computeYtdFact,
     computeBudgetAndFI, computeEoyProjection, computeGoalState, computeSDLT, computeNextBestAction,
     computePortfolioCoach, safetyNet, wealthConversionRate,
+    totalEssentialExpenses, totalLifestyleExpenses, cashflowMonth,
     financialFreedomPct, nextMilestone, ROUND_MILESTONES, computeJourney, JOURNEY_STAGES,
     /* Phase 1 — Client Foundation derived helpers */
     toMonthlyAmount, totalMonthlyIncome, totalFixedExpenses, totalVariableExpenses,
@@ -7463,13 +7528,14 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------- Cashflow ----------------
-     Wealth conversion is TEI.calc.wealthConversionRate, the Cashflow page's
-     own figure. Spending is the same total the safety net is measured in. */
+     This month's figures come from TEI.calc.cashflowMonth and wealth
+     conversion from TEI.calc.wealthConversionRate, exactly as on Cashflow. */
   function renderCashflow(client){
-    const income = TEI.calc.totalMonthlyIncome(client);
-    const spend = TEI.calc.totalFixedExpenses(client) + TEI.calc.totalVariableExpenses(client);
+    const m = TEI.calc.cashflowMonth(client);
+    const income = m.takeHome;
+    const spend = m.essentials + m.lifestyle;
     const rate = TEI.calc.wealthConversionRate(client);
-    const invested = TEI.calc.actualInvestmentMonthlyContribution(client);
+    const invested = m.wealthBuilding;
     setText('whCfIncome', income > 0 ? fmtGBP(income) : '–');
     setText('whCfSpend', spend > 0 ? fmtGBP(spend) : '–');
     setText('whCfRate', income > 0 ? Math.round(rate) + '%' : '–');
@@ -12011,13 +12077,26 @@ TEI.render = TEI.render || {};
     document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeSheet(); });
   }
 
-  // Shared with the phone Plan tab's "Next best steps" card on Cashflow (buildMobilePlanExtras), until B12.8.
-  const FORECAST_NEXT_STEPS = [
-    {text:'Test what happens if you increase your investment contributions.', page:'planning'},
-    {text:'Understand the impact of sequence of returns on long-term outcomes.', page:'learning'},
-    {text:'Review your current financial independence pathway.', page:'planning'},
-  ];
-  TEI.planNextSteps = Object.assign(TEI.planNextSteps || {}, {forecast: FORECAST_NEXT_STEPS});
+  /* Forecast's model for other pages (Cashflow's Scenario corner, B8): the
+     client's own figures, not this session's what-ifs, at 5% a year in
+     today's money. monthly replaces the monthly saving. Returns the value at
+     retirement, the months until the FI number and how to label them. */
+  TEI.forecast = {
+    project(client, monthly){
+      const f = myFigures(client);
+      const prefs = client.preferences || {};
+      const age = ageNow(client);
+      const years = age != null ? Math.max(1, f.ret - age) : f.years;
+      const N = years*12;
+      const FI = prefs.fiOverride != null ? Number(prefs.fiOverride) : f.ys * (prefs.fiMultiple || 25);
+      const series = TEI.calc.projectSeries(f.p0, monthly, EXPECTED_RATE/12, LONG_MONTHS);
+      const real = m => series[m] / Math.pow(1+INFLATION, m/12);
+      let fiM = -1;
+      if(FI > 0) for(let m=0; m<=LONG_MONTHS; m++){ if(real(m) >= FI){ fiM = m; break; } }
+      return {age, years, retireAge: age != null ? f.ret : null, atRetire: real(N), fiMonth: fiM,
+        fiLabel: fiM < 0 ? (FI > 0 ? 'Not within ' + (LONG_MONTHS/12) + ' years' : 'No FI number yet') : (age != null ? 'Age ' + (age + Math.floor(fiM/12)) : 'In ' + Math.floor(fiM/12) + ' yrs')};
+    }
+  };
 
   TEI.render.planning = function(client){
     wireOnce();
@@ -12033,354 +12112,289 @@ window.TEI = window.TEI || {};
 TEI.render = TEI.render || {};
 
 (function(){
-  const {fmtGBP, monthLabel, currentMonthKey, monthsBetweenInclusive} = TEI.data;
-  const CF_INV_TYPES = ['isa','gia','lisa','pension','crypto'];
+  /* Cashflow (redesign B12.8, spec B8, boards Cashflow and CashflowMobile).
+     Behavioural coaching around the wealth conversion rate. Every figure is
+     TEI.calc.cashflowMonth (this month: logged figures win over the standing
+     ones) and TEI.calc.safetyNet, which Home reads too. */
+  const {fmtGBP, currentMonthKey} = TEI.data;
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MON_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const $ = id => document.getElementById(id);
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function setText(id, t){ const el = $(id); if(el) el.textContent = t; }
+  function money(n){ return (n < 0 ? '-' : '') + fmtGBP(Math.abs(Math.round(n))); }
+  function k(n){ const a = Math.abs(n); return (n < 0 ? '-' : '') + (a >= 1e6 ? '£' + (a/1e6).toFixed(2) + 'm' : a >= 1000 ? '£' + Math.round(a/1000) + 'k' : '£' + Math.round(a)); }
+  function pct(x){ return Math.round(x*100) + '%'; }
+  function keyParts(key){ const [y,m] = key.split('-').map(Number); return {y, m}; }
+  function monShort(key){ return MON[keyParts(key).m - 1]; }
+  function monLong(key){ const p = keyParts(key); return MON_LONG[p.m - 1] + ' ' + p.y; }
+  function target(client){ const t = Number((client.preferences||{}).wealthConversionTarget); return t > 0 ? t : 20; }
 
-  // Thin aliases onto the canonical actual-accounts helpers in TEI.calc, so
-  // every cashflow stat -- this rate, the wealth conversion rate, and
-  // disposable income inside computeBudgetAndFI -- reads from the exact same
-  // calculation rather than three copies that can drift apart.
-  function investmentMonthlyContribution(client){ return TEI.calc.actualInvestmentMonthlyContribution(client); }
-  function cashMonthlyContribution(client){ return TEI.calc.actualCashMonthlyContribution(client); }
-  function wealthConversionRate(client){ return TEI.calc.wealthConversionRate(client); }
-  function cfYearsToFI(fiTarget, current, annualContribution, rate){
-    if(!fiTarget || fiTarget<=0) return null;
-    let value = current, yrs = 0;
-    while(value < fiTarget && yrs < 60){ value = value*(1+rate) + annualContribution; yrs++; }
-    return (yrs>=60 && value<fiTarget) ? null : yrs;
+  /* Health chip (thresholds decided 13 Oct 2026), against the client's own
+     wealth conversion target. Overspending overrides the rest. */
+  function health(client, m){
+    const rate = m.takeHome > 0 ? m.wealthBuilding/m.takeHome*100 : 0;
+    const t = target(client);
+    if(m.essentials + m.lifestyle > m.takeHome && m.takeHome >= 0 && (m.essentials + m.lifestyle) > 0) return {key:'over', label:'Overspending'};
+    if(rate >= t) return {key:'ok', label:'Healthy'};
+    if(rate >= t - 5) return {key:'steady', label:'Steady'};
+    return {key:'attn', label:'Needs attention'};
   }
 
-  function renderBudgetStats(client){
-    const r = TEI.calc.computeBudgetAndFI(client);
-    const income = TEI.calc.totalMonthlyIncome(client);
-    const rate = income ? (r.committedSaving/income*100) : 0;
-    document.getElementById('cfWealthConvHeadline').textContent = income>0
-      ? `Saving ${rate.toFixed(0)}% of take-home pay`
-      : 'Add your income and expenses to see your wealth conversion rate';
-
-    const target = (client.preferences||{}).wealthConversionTarget;
-    const pillEl = document.getElementById('cfVsTargetPill');
-    if(income>0 && target!=null && target>0){
-      const delta = rate - target;
-      const rounded = Math.round(Math.abs(delta));
-      pillEl.style.display = 'inline-flex';
-      pillEl.className = 'delta-pill ' + (delta>=0 ? 'up' : 'down');
-      pillEl.textContent = delta>=0
-        ? `${rounded} pt${rounded===1?'':'s'} above your ${target}% target`
-        : `${rounded} pt${rounded===1?'':'s'} below your ${target}% target`;
-    } else {
-      pillEl.style.display = 'none';
-    }
-
-    document.getElementById('cfIncome').textContent = income>0 ? fmtGBP(income) : '—';
-    document.getElementById('cfCommitted').textContent = fmtGBP(r.committedSaving);
-    const surplusEl = document.getElementById('cfSurplus');
-    surplusEl.textContent = fmtGBP(r.savings);
-    surplusEl.className = r.savings>=0 ? 'up' : 'down';
-    document.getElementById('cfAnnual').textContent = fmtGBP(r.savings*12);
-    document.querySelectorAll('#scenarioToggle button').forEach(btn=>{
-      btn.classList.toggle('active', btn.dataset.scenario === client.cashflow.scenario);
-    });
+  /* ---------- snapshot and this month ---------- */
+  function renderSnapshot(client, m){
+    const rate = m.takeHome > 0 ? m.wealthBuilding/m.takeHome : 0;
+    setText('cfConv', m.takeHome > 0 ? pct(rate) : '–');
+    setText('cfSnapMonth', MON_LONG[keyParts(m.key).m - 1] + ' · ' + money(m.takeHome) + ' take-home');
+    const h = health(client, m);
+    const chip = $('cfHealth');
+    chip.textContent = m.takeHome > 0 ? h.label : 'Add your take-home';
+    chip.className = 'cf-health cf-health--' + (m.takeHome > 0 ? h.key : 'none');
+    const tot = Math.max(m.takeHome, m.essentials + m.lifestyle + m.wealthBuilding, 1);
+    const parts = [[m.essentials, 'Essentials', 'cf-e'], [m.lifestyle, 'Lifestyle', 'cf-l'], [m.wealthBuilding, 'Wealth building', 'cf-w']];
+    $('cfFlow').innerHTML = parts.map(p=> `<span class="${p[2]}" style="width:${(Math.max(0,p[0])/tot*100).toFixed(1)}%"></span>`).join('');
+    $('cfFlow').setAttribute('aria-label', parts.map(p=> p[1] + ' ' + money(p[0])).join(', '));
+    $('cfFlowKey').innerHTML = parts.map(p=> `<div><p><i class="${p[2]}"></i>${p[1]}</p><b>${money(p[0])} <small>${pct(Math.max(0,p[0])/tot)}</small></b></div>`).join('');
   }
-
-  function renderIncomeVsSpending(client){
-    const r = TEI.calc.computeBudgetAndFI(client);
-    const {GRID, makeChart} = TEI.charts;
-    const theme = document.getElementById('clientApp').getAttribute('data-theme');
-    const tickColor = theme==='light' ? '#44608A' : 'rgba(247,244,237,0.7)';
-    const gridColor = theme==='light' ? '#E9E4D6' : 'rgba(247,244,237,0.1)';
-    makeChart('chartIncomeSpend', {
-      type:'bar',
-      data:{labels:['Fixed','Variable','One-offs','Saving & investing','Disposable income'],
-        datasets:[{data:[TEI.calc.totalFixedExpenses(client), TEI.calc.totalVariableExpenses(client)*r.mult, r.oneOffTotal, r.committedSaving, Math.max(0,r.savings)],
-          backgroundColor:['#4A7A96','#C97B4C','#B5525F','#6B9A78','#C9A84C'], borderRadius:6}]},
-      options:{maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>fmtGBP(c.raw)}}},
-        scales:{y:{ticks:{color:tickColor, font:{size:10}, callback:v=>'£'+v}, grid:{color:gridColor}}, x:{ticks:{color:tickColor, font:{size:10}}, grid:{display:false}}}}
-    });
-  }
-
-  /* ---------- Wealth conversion dashboard ---------- */
-  function wealthConversionBuckets(client){
-    const income = TEI.calc.totalMonthlyIncome(client);
-    const r = TEI.calc.computeBudgetAndFI(client);
-    const investments = investmentMonthlyContribution(client);
-    const cash = cashMonthlyContribution(client);
-    const lifestyle = TEI.calc.totalVariableExpenses(client)*r.mult;
-    const otherCommitments = TEI.calc.totalFixedExpenses(client) + r.oneOffTotal;
-    const allocated = investments + cash + lifestyle + otherCommitments;
-    // The four buckets above only cover money with a stated destination. Any
-    // gap between that and income is genuinely disposable -- not yet directed
-    // anywhere -- and needs its own slice, or the bar reads short of 100% and
-    // looks like money has gone missing rather than simply being unallocated.
-    const disposable = Math.max(0, income - allocated);
-    const total = Math.max(income, allocated, 1);
-    const buckets = [
-      {key:'investments', label:'Investments', value:investments, color:'#6B9A78'},
-      {key:'cash', label:'Cash savings', value:cash, color:'#4A7A96'},
-      {key:'lifestyle', label:'Lifestyle', value:lifestyle, color:'#C9A84C'},
-      {key:'other', label:'Other commitments', value:otherCommitments, color:'#B5525F'},
+  function renderThisMonth(client, m){
+    const left = m.takeHome - m.essentials - m.lifestyle - m.wealthBuilding;
+    const rows = [
+      ['Money in', money(m.takeHome), ''],
+      ['Essentials', money(-m.essentials), ''],
+      ['Lifestyle', money(-m.lifestyle), ''],
+      ['Wealth building', money(m.wealthBuilding), 'cf-gold'],
+      [left >= 0 ? 'Not yet allocated' : (m.essentials + m.lifestyle > m.takeHome ? 'Overspent' : 'Over take-home'), money(left), left < 0 ? 'cf-warn' : '']
     ];
-    if(disposable > 0) buckets.push({key:'disposable', label:'Surplus', value:disposable, color:'#A79C86'});
-    return buckets.map(b=>({...b, pct: total? b.value/total*100 : 0}));
-  }
-  function renderWealthConversionDashboard(client){
-    const buckets = wealthConversionBuckets(client);
-    const {makeChart} = TEI.charts;
-    makeChart('chartWealthConv', {
-      type:'bar',
-      data:{labels:['Split'], datasets: buckets.map(b=>({label:b.label, data:[b.pct], backgroundColor:b.color, borderWidth:0}))},
-      options:{indexAxis:'y', maintainAspectRatio:false,
-        plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.x.toFixed(0)}%`}}},
-        scales:{x:{stacked:true, display:false, max:100}, y:{stacked:true, display:false}}
-      }
-    });
-    // Legend for the bar (shown on mobile only): same buckets and colours as the chart.
-    const wcdLegend = document.getElementById('wcdLegend');
-    if(wcdLegend){
-      wcdLegend.innerHTML = buckets.map(b=>`<div class="lg"><span class="sw" style="background:${b.color};"></span>${b.label} · ${b.pct.toFixed(0)}%</div>`).join('');
-    }
-    const wcr = wealthConversionRate(client);
-    const target = client.preferences.wealthConversionTarget||20;
-    document.getElementById('wcdTarget').textContent = target+'%';
-    const actualEl = document.getElementById('wcdActual');
-    actualEl.textContent = wcr.toFixed(0)+'%';
-    actualEl.className = wcr>=target ? 'up' : 'down';
+    $('cfRows').innerHTML = rows.map(r=> `<div class="${r[2]}"><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('');
+    if(m.logged && m.lastEditedAt){
+      const d = new Date(m.lastEditedAt);
+      setText('cfUpdated', isNaN(d) ? 'Updated' : 'Updated ' + d.getDate() + ' ' + MON[d.getMonth()]);
+    } else setText('cfUpdated', m.logged ? 'Updated' : 'Your usual figures');
   }
 
-  /* ---------- Cashflow Coach's Corner (own slot) ---------- */
+  /* ---------- 12-month trend: logged months, plus this month ---------- */
+  function trendMonths(client){
+    const now = currentMonthKey();
+    const n = new Date(); const from = new Date(n.getFullYear(), n.getMonth()-11, 1);
+    const fromKey = from.getFullYear() + '-' + String(from.getMonth()+1).padStart(2,'0');
+    const keys = Object.keys(client.cashflowMonths||{}).filter(x=> x >= fromKey && x <= now).sort();
+    if(keys.indexOf(now) < 0) keys.push(now);
+    return keys.map(x=> TEI.calc.cashflowMonth(client, x));
+  }
+  function renderTrend(client, months){
+    const bars = $('cfBars');
+    if(months.length < 2){
+      setText('cfTrendHead', 'Your trend starts with your second month');
+      bars.innerHTML = '<p class="cf-empty">Use Update this month each month and the last year builds up here.</p>';
+      bars.setAttribute('aria-label', 'Not enough months logged yet');
+      return;
+    }
+    const conv = x => x.takeHome > 0 ? x.wealthBuilding/x.takeHome : 0;
+    const first = conv(months[0]), last = conv(months[months.length-1]);
+    const pts = Math.round((last - first)*100);
+    setText('cfTrendHead', pts >= 0 ? 'Conversion up ' + pts + (pts === 1 ? ' point' : ' points') + ' since ' + monLong(months[0].key) : 'Conversion down ' + Math.abs(pts) + (pts === -1 ? ' point' : ' points') + ' since ' + monLong(months[0].key));
+    const hmax = Math.max(...months.map(x=> x.essentials + x.lifestyle + x.wealthBuilding), 1);
+    bars.innerHTML = months.map((x,i)=>{
+      const used = x.essentials + x.lifestyle + x.wealthBuilding || 1;
+      const lastBar = i === months.length-1;
+      return `<div class="cf-bar${lastBar ? ' cf-bar-now' : ''}"><span class="mono">${pct(conv(x))}</span><div class="cf-stack" style="height:${(used/hmax*100).toFixed(1)}%; animation-delay:${(i*0.04).toFixed(2)}s"><i class="cf-w" style="height:${(x.wealthBuilding/used*100).toFixed(1)}%"></i><i class="cf-l" style="height:${(x.lifestyle/used*100).toFixed(1)}%"></i><i class="cf-e" style="height:${(x.essentials/used*100).toFixed(1)}%"></i></div><small class="mono">${monShort(x.key)}</small></div>`;
+    }).join('');
+    bars.setAttribute('aria-label', 'Monthly spending and wealth building, ' + monLong(months[0].key) + ' to ' + monLong(months[months.length-1].key) + '. Conversion rate from ' + pct(first) + ' to ' + pct(last) + '.');
+  }
+
+  /* ---------- safety net: three stages, months of spending ---------- */
+  function renderSafetyNet(client){
+    const sn = TEI.calc.safetyNet(client);
+    const spend = sn.monthlySpend;
+    if(!sn.linked){
+      setText('cfNetHead', 'No safety net account linked');
+      setText('cfNetSub', 'Choose which cash account holds your safety net in Settings.');
+    } else {
+      setText('cfNetHead', sn.months != null ? sn.months.toFixed(1) + ' months covered' : 'Add your spending');
+      setText('cfNetSub', money(sn.current) + ' cash · ' + money(spend) + ' a month of spending');
+    }
+    const months = sn.months || 0;
+    const defs = [['Working buffer', 1], ['Stage 2', 3], ['Full', sn.fullMonths]];
+    let prev = 0;
+    const st = defs.map(d=>{ const span = Math.max(0.0001, d[1]-prev), f = Math.max(0, Math.min(1, (months-prev)/span)); prev = d[1]; return {name:d[0], months:d[1], span, f, done: sn.linked && f >= 1}; });
+    $('cfNetBar').innerHTML = st.map(s=> `<span style="flex:${s.span}"><i class="hm-grow${s.done ? ' done' : ''}" style="width:${(s.f*100).toFixed(0)}%"></i></span>`).join('');
+    $('cfNetBar').setAttribute('aria-label', (sn.months != null ? sn.months.toFixed(1) : '0') + ' months of spending covered across three stages');
+    $('cfStages').innerHTML = st.map(s=> `<li class="${s.done ? 'done' : ''}"><span class="cf-tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><span><b>${s.name}</b> · ${s.months} ${s.months === 1 ? 'month' : 'months'}${s.done ? '<span class="gl-sr"> (done)</span>' : ''}</span><span class="mono">${spend > 0 ? money(spend*s.months) : '–'}</span></li>`).join('');
+    let note;
+    if(!sn.linked) note = 'Savings goals stay on Goals; this tile is the cash you keep for the unexpected.';
+    else if(months >= sn.fullMonths) note = 'Complete. Cash above ' + money(spend*sn.fullMonths) + ' could be redirected into wealth building.';
+    else if(months >= 3) note = 'Stage 2 done. Keep a small top-up going while most new money goes to wealth.';
+    else note = 'Building the buffer comes first. Most spare cash goes here until Stage 2.';
+    setText('cfNetNote', note);
+  }
+
+  /* ---------- scenario corner: Forecast's model ---------- */
+  let scenInc = 150;
+  function renderScenario(client, m){
+    const inc = Math.min(scenInc, Math.max(0, Math.floor(m.lifestyle/25)*25));
+    setText('cfScenIncFmt', money(inc));
+    const before = TEI.forecast ? TEI.forecast.project(client, m.wealthBuilding) : null;
+    const after = TEI.forecast ? TEI.forecast.project(client, m.wealthBuilding + inc) : null;
+    const rate = w => m.takeHome > 0 ? pct(w/m.takeHome) : '–';
+    const byWhat = before && before.retireAge != null ? 'Extra by ' + before.retireAge : 'Extra at retirement';
+    let fiTo = after ? after.fiLabel : '–';
+    if(before && after && before.fiMonth >= 0 && after.fiMonth >= 0 && before.fiMonth > after.fiMonth) fiTo += ' (' + (before.fiMonth - after.fiMonth) + ' mo sooner)';
+    const cells = [
+      ['Conversion rate', rate(m.wealthBuilding), rate(m.wealthBuilding + inc)],
+      ['Wealth building', money(m.wealthBuilding), money(m.wealthBuilding + inc)],
+      [byWhat, '£0', before && after ? '+' + k(after.atRetire - before.atRetire) : '–'],
+      ['Financial independence', before ? before.fiLabel : '–', fiTo]
+    ];
+    $('cfScenGrid').innerHTML = cells.map(c=> `<div><p>${esc(c[0])}</p><s>${esc(c[1])}</s><b>${esc(c[2])}</b></div>`).join('');
+    if(inc < scenInc && document.activeElement !== $('cfScenInc')) $('cfScenInc').value = String(inc);
+  }
+
+  /* ---------- your habits ---------- */
+  function renderHabits(client, months){
+    const rows = [];
+    const conv = x => x.takeHome > 0 ? x.wealthBuilding/x.takeHome : 0;
+    if(months.length >= 2){
+      const first = conv(months[0]), last = conv(months[months.length-1]);
+      const pts = Math.round((last-first)*100);
+      rows.push([(pts >= 0 ? '+' : '') + pts + ' pts', pts >= 0 ? 'Conversion rate is climbing.' : 'Conversion rate has slipped.', 'From ' + pct(first) + ' in ' + monLong(months[0].key) + ' to ' + pct(last) + ' now.']);
+      const t = target(client)/100;
+      let streak = 0; for(let i=months.length-1; i>=0; i--){ if(conv(months[i]) >= t) streak++; else break; }
+      rows.push([streak + ' mo', 'Months in a row at your ' + Math.round(t*100) + '% target or more.', 'Consistency matters more than any single month.']);
+      const wTot = months.reduce((s,x)=> s + x.wealthBuilding, 0);
+      const lifeAvg = months.reduce((s,x)=> s + x.lifestyle, 0) / months.length;
+      const half = Math.floor(months.length/2);
+      const a = months.slice(0, half).reduce((s,x)=> s + x.lifestyle, 0) / Math.max(1, half);
+      const b = months.slice(half).reduce((s,x)=> s + x.lifestyle, 0) / Math.max(1, months.length - half);
+      const drift = b < a*0.97 ? ' and is drifting down.' : b > a*1.03 ? ' and is creeping up.' : ' and is holding steady.';
+      rows.push([money(wTot), months.length >= 12 ? 'Moved into wealth this year.' : 'Moved into wealth in ' + months.length + ' months.', 'Lifestyle averaged ' + money(lifeAvg) + ' a month' + drift]);
+    } else {
+      // Too early for a trend: the Cashflow signals from the shared engine.
+      TEI.calc.pickSignals(client, 'cashflow', 3).forEach(s=> rows.push(['', s.message, '']));
+      if(!rows.length) rows.push(['', 'Add your take-home and spending to see your habits here.', '']);
+    }
+    $('cfHabits').innerHTML = rows.map(r=> `<li>${r[0] ? `<span class="cf-big">${esc(r[0])}</span>` : ''}<span><strong>${esc(r[1])}</strong>${r[2] ? `<br><span class="fc-muted">${esc(r[2])}</span>` : ''}</span></li>`).join('');
+  }
+
+  /* ---------- coach's corner ---------- */
   function computeCashflowCoach(client){
     const cc = client.cashflowCoach || {};
-    if(cc.mode==='manual' && cc.message) return {message:cc.message, actionLabel:cc.actionLabel||'Open Forecast', actionPage:cc.actionPage||'planning'};
+    if(cc.mode==='manual' && cc.message) return cc.message;
     const s = TEI.calc.pickTopSignal(client, 'cashflow');
-    if(!s) return {message:'Add your income and budget to see how effectively your money is converting into future wealth.', actionLabel:'Update in Adviser Workspace', actionPage:'cashflow'};
-    return {message:s.message, actionLabel:s.actionLabel, actionPage:s.actionPage};
-  }
-  function renderCashflowCoach(client){
-    const cc = computeCashflowCoach(client);
-    document.getElementById('cfcMessage').textContent = cc.message;
-    const btn = document.getElementById('cfcActionBtn');
-    btn.textContent = cc.actionLabel + ' →';
-    btn.style.display = 'inline-block';
-    btn.onclick = function(e){ e.preventDefault(); if(TEI.app) TEI.app.showPage(cc.actionPage); };
+    return s ? s.message : 'Add your income and spending to see how your money is turning into future wealth.';
   }
 
-  /* ---------- Behavioural insights ---------- */
-  function renderCashflowInsights(client){
-    const list = document.getElementById('cfInsightsList');
-    // Exclude whatever Coach's Corner just said above, so this list adds
-    // context rather than repeating the same sentence on the same page.
-    const coachSignal = TEI.calc.pickTopSignal(client, 'cashflow');
-    const excludeIds = coachSignal ? [coachSignal.id] : [];
-    const signals = TEI.calc.pickSignals(client, 'cashflow', 4, {excludeIds});
-    const lines = signals.map(s=>s.message);
-    list.innerHTML = (lines.length?lines:['Add income and budget details to see behavioural insights here.']).map(l=>`<li><div class="dot"></div>${l}</li>`).join('');
+  function renderAll(client){
+    const m = TEI.calc.cashflowMonth(client);
+    const months = trendMonths(client);
+    renderSnapshot(client, m);
+    renderThisMonth(client, m);
+    renderTrend(client, months);
+    renderSafetyNet(client);
+    renderScenario(client, m);
+    renderHabits(client, months);
+    setText('cfcMessage', computeCashflowCoach(client));
   }
 
-  /* ---------- Behaviour of the month (auto only) ---------- */
-  const BEHAVIOURS = {
-    emergencyFund:{badge:'Emergency fund', text:'You\'re close to your emergency fund target. One more month of saving could complete it — a strong foundation before directing more towards investing.'},
-    payYourselfFirstStart:{badge:'Pay yourself first', text:'Set up a regular monthly contribution before discretionary spending. Even a small amount, paid first, builds a habit that compounds.'},
-    consistency:{badge:'Consistency', text:'Your savings rate is at or above the typical benchmark. Consistency, repeated, matters more than any single decision.'},
-    payYourselfFirst:{badge:'Pay yourself first', text:'Continue prioritising investments before discretionary spending — this is the habit that does the most long-term work.'},
-  };
-  function renderBehaviourOfMonth(client){
-    const ef = client.cashflow.emergencyFund||{target:0,current:0};
-    const efPct = ef.target ? ef.current/ef.target*100 : 0;
-    const r = TEI.calc.computeBudgetAndFI(client);
-    const income = TEI.calc.totalMonthlyIncome(client);
-    const rate = income ? (r.committedSaving/income*100) : 0;
-    let key;
-    if(ef.target>0 && efPct>=80 && efPct<100) key = 'emergencyFund';
-    else if(investmentMonthlyContribution(client)<=0) key = 'payYourselfFirstStart';
-    else if(rate>=20) key = 'consistency';
-    else key = 'payYourselfFirst';
-    const b = BEHAVIOURS[key];
-    document.getElementById('cfBehaviourBadge').textContent = b.badge;
-    document.getElementById('cfBehaviourText').textContent = b.text;
+  /* ---------- Update this month: live, saves as you go ---------- */
+  let saveTimer = null, saving = Promise.resolve(), lastFocus = null;
+  function panelValues(){
+    const v = id => { const x = parseFloat($(id).value); return isNaN(x) ? 0 : Math.max(0, x); };
+    return {T: v('cfInT'), E: v('cfInE'), L: v('cfInL'), W: v('cfInW')};
   }
-
-  function renderEmergencyFund(client){
-    const ef = client.cashflow.emergencyFund || {target:0,current:0};
-    // Recomputed fresh here (not just trusted from mergeDefaults at load
-    // time) so an in-session balance change on the linked account --
-    // refreshing live prices, logging a balance, editing the account --
-    // shows up immediately on this, the most-visible emergency fund figure,
-    // same reasoning as syncAccountValueFromHoldings for holdings-derived
-    // account values.
-    const efAcc = client.accounts.find(a=> a.id === ef.accountId);
-    ef.current = efAcc ? (Number(efAcc.value)||0) : 0;
-    const pct = ef.target ? Math.min(100, ef.current/ef.target*100) : 0;
-    document.getElementById('efBar').style.width = pct + '%';
-    document.getElementById('efCurrent').textContent = fmtGBP(ef.current);
-    document.getElementById('efTarget').textContent = fmtGBP(ef.target);
-    const progressEl = document.getElementById('efProgress');
-    progressEl.textContent = pct.toFixed(0)+'%';
-    progressEl.className = pct>=100 ? 'up' : 'gold';
-
-    // Same months figure as Home's safety net tile (TEI.calc.safetyNet).
-    const monthsCovered = TEI.calc.safetyNet(client).months;
-    document.getElementById('efMonthsCovered').textContent = monthsCovered!=null ? monthsCovered.toFixed(1)+' mo' : '—';
-
-    const remaining = Math.max(0, (ef.target||0) - (ef.current||0));
-    const monthlyEF = cashMonthlyContribution(client);
-    const timeEl = document.getElementById('efTimeToTarget');
-    if(remaining<=0 && ef.target>0){ timeEl.textContent = 'Funded'; timeEl.className='up'; }
-    else if(monthlyEF>0){ timeEl.textContent = Math.ceil(remaining/monthlyEF)+' mo'; timeEl.className=''; }
-    else { timeEl.textContent = '—'; timeEl.className=''; }
-
-    const noteEl = document.getElementById('efNote');
-    if(monthsCovered!=null){
-      noteEl.textContent = `That is ${monthsCovered.toFixed(1)} months of spending covered. A typical safety net holds three to six months.`;
-    } else {
-      noteEl.textContent = 'Add your fixed and variable expenses in Cashflow to see this in months of cover.';
-    }
+  function renderPanelSums(){
+    const p = panelValues();
+    setText('cfPanelConv', p.T > 0 ? pct(p.W/p.T) : '–');
+    const left = p.T - p.E - p.L - p.W;
+    setText('cfPanelLeftK', left >= 0 ? 'Not yet allocated' : (p.E + p.L > p.T ? 'Overspent' : 'Over take-home'));
+    setText('cfPanelLeft', money(left));
+    $('cfPanelLeft').className = left < 0 ? 'cf-warn' : '';
   }
-
-  function isCashOrIncomeGoal(g, client){
-    if(g.status==='completed' || g.progressType==='completion') return false;
-    if(g.progressType==='income') return true; // income goals are inherently cashflow-relevant
-    // Monetary goal: relevant to Cashflow only if it isn't being funded through an
-    // investment-type account — those goals (e.g. Retirement linked to a pension)
-    // are tracked properly on Wealth/Portfolio/Forecast, not here.
-    const linkedInvestment = (g.linkedAccountIds||[]).some(id=>{
-      const acc = client.accounts.find(a=>a.id===id);
-      return acc && CF_INV_TYPES.includes(acc.type);
+  function onPanelInput(){
+    const client = TEI.app.state.client;
+    if(!client) return;
+    const p = panelValues(), key = currentMonthKey();
+    client.cashflowMonths = client.cashflowMonths || {};
+    const prev = client.cashflowMonths[key] || {};
+    client.cashflowMonths[key] = Object.assign({}, prev, {actualIncome: p.T, actualExpenses: p.E + p.L, essentials: p.E, lifestyle: p.L, wealthBuilding: p.W, lastEditedAt: new Date().toISOString()});
+    renderPanelSums();
+    renderAll(client);
+    setText('cfPanelState', 'Saving...');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=> save(client, key, p), 700);
+  }
+  function save(client, key, p){
+    saving = saving.then(async ()=>{
+      try{
+        await TEI.wealthOS.saveCashflowMonth(client.meta.clientId, key, p.T, p.E + p.L, client.meta.role, {essentials: p.E, lifestyle: p.L, wealthBuilding: p.W});
+        setText('cfPanelState', 'Saved');
+      } catch(err){
+        console.error('Wealth OS: could not save this month', err);
+        setText('cfPanelState', 'That did not save. Please try again.');
+        TEI.app.showToast('That did not save. Please try again.');
+      }
     });
-    return !linkedInvestment;
+    return saving;
   }
-  function renderSavingsGoals(client){
-    const listEl = document.getElementById('cfSavingsGoalsList');
-    const impactEl = document.getElementById('cfSavingsGoalImpactStats');
-    // Derived from the main Goals feature, filtered to cash/income-relevant goals
-    // only (see isCashOrIncomeGoal) — this used to read a separate, never-populated
-    // cashflow.savingsGoals array, and before that showed every goal regardless of
-    // whether it was actually cashflow-relevant.
-    const goals = (client.goals||[]).filter(g=> isCashOrIncomeGoal(g, client));
-    let totalMonthly = 0, fundedCount = 0, totalSaved = 0, totalRemaining = 0;
-    if(!goals.length){
-      listEl.innerHTML = `<div class="line">No cash or income goals set — goals funded through an investment account show on Wealth/Portfolio instead.</div>`;
-    } else {
-      listEl.innerHTML = goals.map(g=>{
-        const gp = TEI.calc.goalProgress(client, g);
-        const pct = Math.min(100, gp.pct || 0);
-        if(pct>=100) fundedCount++;
-        const monthsLeft = g.targetDate ? monthsBetweenInclusive(currentMonthKey(), g.targetDate) : null;
-        const active = monthsLeft == null || monthsLeft > 0;
-        const remaining = Math.max(0, (gp.target||0) - (gp.current||0));
-        // remaining is an annual income shortfall (£/yr) for income-type
-        // goals, not a cash amount -- dividing it by monthsLeft and adding
-        // it into totalMonthly (a £/mo "going to goals this month" figure)
-        // corrupted that stat the same way the Goals-page ETA was corrupted
-        // (see goalMetric above). totalSaved/totalRemaining already
-        // excluded income goals; totalMonthly now does too.
-        const monthly = (active && monthsLeft && g.progressType!=='income') ? remaining/monthsLeft : 0;
-        if(active) totalMonthly += monthly;
-        if(g.progressType!=='income'){ totalSaved += (gp.current||0); totalRemaining += remaining; }
-        const targetText = g.progressType==='income' ? fmtGBP(gp.target)+'/yr' : fmtGBP(gp.target);
-        return `
-          <div class="k-goal-mini">
-            <div class="gm-top"><b>${g.name}</b><span>${fmtGBP(gp.current||0)} / ${targetText}</span></div>
-            <div class="k-bar" style="margin-top:0;"><div class="fill" style="width:${pct}%;"></div></div>
-          </div>`;
-      }).join('');
-    }
-    impactEl.innerHTML = `
-      <div class="rs">Going to goals this month<b class="up">${fmtGBP(totalMonthly)}</b></div>
-      <div class="rs">Goals fully funded<b>${fundedCount} of ${goals.length}</b></div>
-      <div class="rs">Total saved so far<b>${fmtGBP(totalSaved)}</b></div>
-      <div class="rs">Total still needed<b class="gold">${fmtGBP(totalRemaining)}</b></div>
-    `;
+  function flush(){
+    if(!saveTimer) return;
+    clearTimeout(saveTimer); saveTimer = null;
+    const client = TEI.app.state.client;
+    if(client) save(client, currentMonthKey(), panelValues());
+  }
+  function openPanel(){
+    const client = TEI.app.state.client;
+    if(!client) return;
+    const m = TEI.calc.cashflowMonth(client);
+    setText('cfPanelMonth', monLong(m.key));
+    $('cfInT').value = String(Math.round(m.takeHome));
+    $('cfInE').value = String(Math.round(m.essentials));
+    $('cfInL').value = String(Math.round(m.lifestyle));
+    $('cfInW').value = String(Math.round(m.wealthBuilding));
+    setText('cfPanelState', m.logged ? '' : 'These are your usual figures. Change any that were different this month.');
+    renderPanelSums();
+    lastFocus = document.activeElement;
+    $('cfPanelScrim').hidden = false;
+    $('cfPanel').hidden = false;
+    $('cfInT').focus();
+  }
+  function closePanel(){
+    if($('cfPanel').hidden) return;
+    flush();
+    $('cfPanel').hidden = true;
+    $('cfPanelScrim').hidden = true;
+    if(lastFocus && document.body.contains(lastFocus) && lastFocus.offsetParent) lastFocus.focus(); else $('cfUpdateBtn').focus();
   }
 
-  /* ---------- Scenario corner (lightweight Forecast link) ---------- */
-  function renderScenarioCorner(client){
-    const extra = parseFloat(document.getElementById('scnExtra').value)||0;
-    const r = TEI.calc.computeBudgetAndFI(client);
-    const income = TEI.calc.totalMonthlyIncome(client);
-    const latestTotal = TEI.calc.latestNetWorth(client);
-    const baseAnnual = TEI.calc.totalMonthlyContribution(client)*12;
-    const newAnnual = baseAnnual + extra*12;
-    const afterYrs = cfYearsToFI(r.fiTarget, latestTotal, newAnnual, 0.08);
-    const thisYear = new Date().getFullYear();
-
-    const baseInvesting = investmentMonthlyContribution(client);
-    const newRate = income>0 ? Math.min(100, (baseInvesting+extra)/income*100) : 0;
-    document.getElementById('scnRate').textContent = income>0 ? newRate.toFixed(0)+'%' : '—';
-    document.getElementById('scnFiYear').textContent = afterYrs!=null ? String(thisYear+afterYrs) : '—';
-
-    const note = document.getElementById('scnInsight');
-    if(extra===0){
-      note.textContent = 'Adjust the field above to see how an extra monthly contribution shifts your savings rate and FI timeline.';
-    } else if(income>0){
-      const pctOfIncome = income ? (extra/income*100) : 0;
-      note.textContent = `An extra ${fmtGBP(extra)}/month is a ${pctOfIncome.toFixed(0)}% shift in your take-home pay — small enough to barely notice month to month, and it compounds every year it's kept up.`;
-    } else {
-      note.textContent = 'Add your income in Adviser Workspace to see this scenario in context.';
-    }
-
-    const link = document.getElementById('scnForecastLink');
-    link.onclick = function(e){ e.preventDefault(); TEI.app.showPage('planning'); };
-  }
-
-  /* ---------- Next best steps ---------- */
-  const CF_NEXT_STEPS = [
-    {text:'Increase your monthly investments.', page:'planning'},
-    {text:'Understand lifestyle inflation, and why it quietly erodes disposable income.', page:'learning'},
-    {text:'Building an emergency fund, step by step.', page:'guides'},
-    {text:'Model a full scenario in the Forecast planner.', page:'planning'},
-  ];
-  TEI.planNextSteps = Object.assign(TEI.planNextSteps || {}, {cashflow: CF_NEXT_STEPS});
-  function renderCfNextSteps(){
-    const steps = CF_NEXT_STEPS;
-    const list = document.getElementById('cfNextStepsList');
-    list.innerHTML = steps.map((s,i)=>`<li data-cf-step-idx="${i}"><div class="dot"></div>${s.text}</li>`).join('');
-    list.querySelectorAll('[data-cf-step-idx]').forEach(li=>{
-      li.addEventListener('click', function(){ const s = steps[this.dataset.cfStepIdx]; if(TEI.app) TEI.app.showPage(s.page); });
+  let wired = false;
+  function wireOnce(){
+    if(wired) return;
+    wired = true;
+    $('cfUpdateBtn').addEventListener('click', openPanel);
+    $('cfPanelClose').addEventListener('click', closePanel);
+    $('cfPanelDone').addEventListener('click', closePanel);
+    $('cfPanelScrim').addEventListener('click', closePanel);
+    ['cfInT','cfInE','cfInL','cfInW'].forEach(id=> $(id).addEventListener('input', onPanelInput));
+    document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closePanel(); });
+    $('cfPanel').addEventListener('keydown', e=>{
+      if(e.key !== 'Tab') return;
+      const f = Array.from(e.currentTarget.querySelectorAll('input, button')).filter(el=> !el.disabled && el.offsetParent);
+      if(!f.length) return;
+      if(e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length-1].focus(); }
+      else if(!e.shiftKey && document.activeElement === f[f.length-1]){ e.preventDefault(); f[0].focus(); }
     });
+    $('cfScenInc').addEventListener('input', e=>{
+      scenInc = parseInt(e.target.value, 10) || 0;
+      const client = TEI.app.state.client;
+      if(client) renderScenario(client, TEI.calc.cashflowMonth(client));
+    });
+    $('cfScenLink').addEventListener('click', e=>{ e.preventDefault(); TEI.app.showPage('planning'); });
   }
 
-  /* Compact "keep it current" nudge card -- the actual log lives on the
-     Update page (TEI.render.update) now, not inline here. */
-  function renderCashflowUpdateSummary(client){
-    const el = document.getElementById('cashflowUpdateSummary');
-    if(!el) return;
-    const keys = Object.keys(client.cashflowMonths||{}).sort();
-    el.textContent = keys.length
-      ? `Last logged for ${TEI.data.monthLabel(keys[keys.length-1])}`
-      : 'Not logged yet';
-  }
-
+  TEI.cashflowPage = { openUpdate: openPanel };
   TEI.render.cashflow = function(client){
-    renderCashflowUpdateSummary(client);
-    renderBudgetStats(client);
-    renderIncomeVsSpending(client);
-    renderWealthConversionDashboard(client);
-    renderCashflowCoach(client);
-    renderCashflowInsights(client);
-    renderBehaviourOfMonth(client);
-    renderEmergencyFund(client);
-    renderSavingsGoals(client);
-    renderScenarioCorner(client);
-    renderCfNextSteps();
-
-    document.querySelectorAll('#scenarioToggle button').forEach(btn=>{
-      if(btn.dataset.wired) return;
-      btn.addEventListener('click', function(){
-        client.cashflow.scenario = this.dataset.scenario;
-        renderBudgetStats(client); renderIncomeVsSpending(client); renderWealthConversionDashboard(client); renderScenarioCorner(client);
-      });
-      btn.dataset.wired = '1';
-    });
-    const scnExtraEl = document.getElementById('scnExtra');
-    if(!scnExtraEl.dataset.wired){
-      scnExtraEl.addEventListener('input', ()=>renderScenarioCorner(client));
-      scnExtraEl.dataset.wired = '1';
-    }
-    const scnLink = document.getElementById('scnForecastLink');
-    if(!scnLink.dataset.wired){
-      scnLink.addEventListener('click', function(e){ e.preventDefault(); if(TEI.app) TEI.app.showPage('planning'); });
-      scnLink.dataset.wired = '1';
-    }
+    wireOnce();
+    $('cfScenInc').value = String(scenInc);
+    renderAll(client);
   };
 })();
 
@@ -14395,7 +14409,7 @@ window.TEI = window.TEI || {};
     items.forEach(e=>{
       const row = document.createElement('div');
       row.className = 'list-row';
-      row.innerHTML = `<div class="lr-main"><b>${e.label}</b>${e.owner==='joint' ? ' <span class="tag-pill">Joint</span>' : ''}<div class="lr-meta">${fmtGBP(e.amount)}/mo</div></div>
+      row.innerHTML = `<div class="lr-main"><b>${e.label}</b>${e.owner==='joint' ? ' <span class="tag-pill">Joint</span>' : ''}<div class="lr-meta">${fmtGBP(e.amount)}/mo · ${e.category==='lifestyle' ? 'Lifestyle' : 'Essential'}</div></div>
         <div style="display:flex; gap:8px; flex-none:1;">
           <button type="button" class="btn-ghost" data-edit-adv-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
           <button type="button" class="btn-ghost" data-del-adv-exp="${kind}:${e.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
@@ -14429,6 +14443,7 @@ window.TEI = window.TEI || {};
         document.getElementById(labelId).value = e.label;
         document.getElementById(amtId).value = e.amount;
         document.getElementById(k==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value = e.owner || 'client';
+        document.getElementById(k==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value = e.category === 'lifestyle' ? 'lifestyle' : 'essential';
         document.getElementById(k==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Save changes';
         document.getElementById(amtId).scrollIntoView({behavior:'smooth', block:'center'});
       });
@@ -14450,6 +14465,7 @@ window.TEI = window.TEI || {};
     document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Add';
     clearFieldsAdv([labelId, amtId]);
     document.getElementById(kind==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value = 'client';
+    document.getElementById(kind==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value = 'essential';
   }
   async function addAdvExpense(kind){
     const labelId = kind==='fixed' ? 'advNewFixedLabel' : 'advNewVariableLabel';
@@ -14461,13 +14477,15 @@ window.TEI = window.TEI || {};
     // a household (the field's hidden otherwise) -- everyone else's expenses
     // stay implicitly individual, same as before this feature existed.
     const owner = client.meta.householdId ? document.getElementById(kind==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value : 'client';
+    // Essential or lifestyle (spec B9.7): sums into Cashflow's two spending totals.
+    const category = document.getElementById(kind==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value === 'lifestyle' ? 'lifestyle' : 'essential';
     const editKey = 'advExp'+kind;
     const btn = document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn');
     btn.disabled = true;
     if(editing[editKey]){
       const e = client.cashflow.expenses[kind].find(x=>x.id===editing[editKey]);
       if(!e){ cancelAdvExpenseEdit(kind); btn.disabled = false; return; }
-      const merged = Object.assign({}, e, {label, amount, owner});
+      const merged = Object.assign({}, e, {label, amount, owner, category});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveExpense(client.meta.clientId, e.id, merged, kind);
@@ -14482,7 +14500,7 @@ window.TEI = window.TEI || {};
       cancelAdvExpenseEdit(kind);
       showToast('Expense updated');
     } else {
-      const e = TEI.calc.stampEdit({id:uid(), label, amount, owner}, 'adviser');
+      const e = TEI.calc.stampEdit({id:uid(), label, amount, owner, category}, 'adviser');
       try{
         e.id = await TEI.wealthOS.saveExpense(client.meta.clientId, null, e, kind);
       } catch(err){
@@ -14494,6 +14512,7 @@ window.TEI = window.TEI || {};
       btn.disabled = false;
       client.cashflow.expenses[kind].push(e);
       clearFieldsAdv([labelId, amtId]);
+      document.getElementById(kind==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value = 'essential';
       showToast('Expense added');
     }
     renderAdvExpenseList(kind);
@@ -17174,6 +17193,10 @@ window.TEI = window.TEI || {};
       state, runs: raw.runs||[], flags: raw.flags||[]
     };
   }
+  function expenseRowToLocal(e){
+    return {id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client',
+      category: e.spend_category === 'lifestyle' ? 'lifestyle' : 'essential', hasSpendCategory: e.spend_category != null};
+  }
   function adaptClientBundle(bundle, role){
     const c = bundle.client || {};
     const cf = bundle.cashflowSettings || {};
@@ -17222,7 +17245,12 @@ window.TEI = window.TEI || {};
     // recordId-keyed shape the other monthly tables use.
     const cashflowMonths = {};
     (bundle.cashflowMonths||[]).forEach(row=>{
-      cashflowMonths[row.month_key] = { actualIncome: row.actual_income, actualExpenses: row.actual_expenses };
+      cashflowMonths[row.month_key] = { actualIncome: row.actual_income, actualExpenses: row.actual_expenses,
+        // Update this month (B8, migration 010): the split, when logged.
+        essentials: row.essentials != null ? Number(row.essentials) : null,
+        lifestyle: row.lifestyle != null ? Number(row.lifestyle) : null,
+        wealthBuilding: row.wealth_building != null ? Number(row.wealth_building) : null,
+        lastEditedAt: row.last_edited_at || null };
     });
 
     const loaded = {
@@ -17290,8 +17318,11 @@ window.TEI = window.TEI || {};
           lastEditedBy: i.last_edited_by, lastEditedAt: i.last_edited_at
         })),
         expenses:{
-          fixed: (bundle.expenses||[]).filter(e=>e.category==='fixed').map(e=>({id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client'})),
-          variable: (bundle.expenses||[]).filter(e=>e.category==='variable').map(e=>({id:e.id, label:e.label, amount:e.amount, owner:e.owner||'client'}))
+          // category: 'essential' | 'lifestyle' (spec B9.7, migration 010's
+          // spend_category). The expenses table's own `category` column is the
+          // fixed/variable split, hence the different column name.
+          fixed: (bundle.expenses||[]).filter(e=>e.category==='fixed').map(expenseRowToLocal),
+          variable: (bundle.expenses||[]).filter(e=>e.category==='variable').map(expenseRowToLocal)
         },
         saving:{ monthlySavings: cf.monthly_savings, monthlyInvesting: cf.monthly_investing },
         emergencyFund:{ target: cf.emergency_fund_target, current: cf.emergency_fund_current, accountId: cf.emergency_fund_account_id },
@@ -17747,8 +17778,15 @@ window.TEI = window.TEI || {};
   }
   async function deleteIncome(id){ await deleteRow('income','id',id); }
 
+  /* spend_category is only sent when it is 'lifestyle' or the row already
+     had one, so saving expenses keeps working before migration 010 is
+     applied (every row reads as essential until then). */
   async function saveExpense(clientId, existingId, local, category){
     const row = { client_id: clientId, category: category, label: local.label, amount: local.amount, owner: local.owner || 'client' };
+    if(local.category === 'lifestyle' || local.hasSpendCategory){
+      row.spend_category = local.category === 'lifestyle' ? 'lifestyle' : 'essential';
+      local.hasSpendCategory = true;
+    }
     const saved = existingId ? await updateRow('expenses','id',existingId,row) : await insertRow('expenses', row);
     return saved.id;
   }
@@ -17917,10 +17955,18 @@ window.TEI = window.TEI || {};
     }
   };
 
-  async function saveCashflowMonth(clientId, monthKey, actualIncome, actualExpenses, source){
+  /* split (optional): {essentials, lifestyle, wealthBuilding} from Cashflow's
+     Update this month panel (B8, migration 010). actual_expenses is kept as
+     essentials + lifestyle so older readers still see the month's spending. */
+  async function saveCashflowMonth(clientId, monthKey, actualIncome, actualExpenses, source, split){
     const row = { client_id: clientId, month_key: monthKey,
       actual_income: actualIncome, actual_expenses: actualExpenses,
       last_edited_by: source || 'adviser', last_edited_at: new Date().toISOString() };
+    if(split){
+      row.essentials = split.essentials;
+      row.lifestyle = split.lifestyle;
+      row.wealth_building = split.wealthBuilding;
+    }
     const { data, error } = await wo(window.teiSupabase).from('cashflow_months')
       .upsert(row, { onConflict: 'client_id,month_key' }).select().single();
     if(error) throw error;
@@ -18719,28 +18765,6 @@ window.TEI = window.TEI || {};
     }
   }
 
-  /* Plan tab: one merged "Next best steps" card above the segmented switch,
-     built from the two existing lists (Forecast's and Cashflow's) -- top 2.
-     Built once per Plan page (no ids, so copies are fine). Not on Goals or
-     Forecast: their boards have no such card (B6, B7). */
-  function buildMobilePlanExtras(){
-    const ns = TEI.planNextSteps || {};
-    const f = ns.forecast || [], c = ns.cashflow || [];
-    // Forecast's first step, then Cashflow's lifestyle-inflation step: one from each page, no overlap.
-    const steps = [f[0], c[1]].filter(Boolean);
-    ['cashflow'].forEach(pid=>{
-      const page = document.getElementById('page-'+pid);
-      if(!page || page.querySelector('.m-nextsteps')) return;
-      const card = document.createElement('div');
-      card.className = 'dcard m-nextsteps';
-      card.innerHTML = `<div class="k">Next best steps</div><ul class="k-simple-list clickable">` +
-        steps.map((s,i)=>`<li data-step-idx="${i}"><div class="dot"></div>${s.text}</li>`).join('') + `</ul>`;
-      card.querySelectorAll('[data-step-idx]').forEach(li=>{
-        li.addEventListener('click', ()=>{ const s = steps[li.dataset.stepIdx]; if(s) showPage(s.page); });
-      });
-      page.appendChild(card);
-    });
-  }
 
   /* ================= MENU (mobile) =================
      - Monthly update: one card, no balances. Opens the existing Update page.
@@ -18807,7 +18831,6 @@ window.TEI = window.TEI || {};
       });
     });
     buildMobileSegs();
-    buildMobilePlanExtras();
     // Delegated: the "Edit everything" rows are rebuilt on every render, and Profile / Preferences open a My Details section too.
     document.getElementById('page-menu').addEventListener('click', e=>{
       const b = e.target.closest && e.target.closest('[data-msub]');
