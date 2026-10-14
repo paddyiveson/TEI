@@ -2560,8 +2560,39 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .wl-comp .k-cliab-row{ border-top:1px solid var(--w-line); padding-top:12px; color:var(--w-text); }
 .wl-comp-note{ margin-top:auto !important; }
 
-/* Portfolio Lab */
+/* Portfolio Lab (board: stepper in the header, treemap left, stage panel right) */
+.wl-lab{ padding:26px; gap:20px; }
+.wl-lab-top{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:16px; }
 .wl-lab-head{ display:flex; flex-direction:column; gap:6px; }
+.wl-lab-title{ margin:0; font-family:inherit; font-size:26px; font-weight:300; letter-spacing:-0.02em; color:var(--w-text); }
+.wl-lab .lab-stepper{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:0; padding:0; border:0; }
+.wl-lab .lab-step{ display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 14px 0 6px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; }
+.wl-lab .lab-step::after{ display:none; }
+.wl-lab .lab-step-num{ width:28px; height:28px; border-radius:50%; background:var(--w-chip); color:var(--w-muted); font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; font-weight:400; }
+.wl-lab .lab-step-label{ font-size:13px; font-weight:500; color:inherit; }
+.wl-lab .lab-step.done .lab-step-num{ background:var(--w-chip); color:var(--w-text); }
+.wl-lab .lab-step.active{ background:var(--w-nav-active); border-color:transparent; color:var(--w-nav-active-text); }
+.wl-lab .lab-step.active .lab-step-num{ background:var(--w-nav-active-text); color:var(--w-nav-active); }
+.wl-lab .lab-step.active .lab-step-label{ color:inherit; font-weight:500; }
+.wl-lab .lab-step:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; }
+.wl-lab-body{ display:grid; grid-template-columns:minmax(0, 7fr) minmax(0, 5fr); gap:24px; align-items:start; }
+.wl-lab-left{ display:flex; flex-direction:column; gap:12px; min-width:0; }
+.wl-tm-head{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:10px; }
+.wl-tm-title{ font-size:15px; font-weight:500; }
+.wl-lab .lab-filter-row{ margin:0; }
+.wl-switch{ display:inline-flex; align-items:center; gap:10px; min-height:44px; padding:0 14px 0 8px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-chip); color:var(--w-text); font-family:inherit; font-size:13px; cursor:pointer; }
+.wl-switch-track{ position:relative; width:30px; height:18px; border-radius:999px; background:#C9CDD6; transition:background .2s; }
+#clientApp[data-theme="dark"] .wl-switch-track{ background:rgba(255,255,255,0.18); }
+.wl-switch-track span{ position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:#FFFFFF; transition:left .2s; }
+.wl-switch[aria-checked="true"] .wl-switch-track{ background:var(--w-nav-active); }
+.wl-switch[aria-checked="true"] .wl-switch-track span{ left:14px; }
+.wl-switch:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; }
+.wl-lab .lab-filter-note{ margin:0 !important; }
+.wl-lab .lab-treemap-host{ height:380px; border-radius:0; background:transparent; }
+.wl-lab .lab-tm-legend{ margin-top:0; gap:8px 16px; font-size:12px; color:var(--w-muted); }
+.wl-lab .lab-tm-legend .sw{ width:10px; height:10px; border-radius:3px; }
+.wl-lab .wl-lab-panel{ display:block; margin:0; padding:22px; border:0; border-radius:20px; background:var(--w-chip); min-width:0; }
+.wl-lab .wl-lab-panel .m-lab-head{ display:none; }
 #clientApp #labCta{ min-height:44px; }
 
 /* Holdings */
@@ -2582,7 +2613,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .wl-h-name > span{ display:inline-flex; flex-direction:column; vertical-align:middle; }
 .wl-h-name b{ font-weight:500; }
 .wl-h-name small{ display:none; font-size:12px; color:var(--w-muted); }
-.wl-h-name i{ display:inline-block; vertical-align:middle; box-sizing:border-box; width:10px; height:10px; margin-right:10px; border-radius:50%; border:2px solid var(--w-muted); }
+.wl-h-name i{ display:inline-block; vertical-align:middle; box-sizing:border-box; width:10px; height:10px; margin-right:10px; border-radius:3px; background:var(--w-muted); }
 .wl-h-ticker{ font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--w-muted); }
 
 .wl-ret{ display:inline-block; padding:2px 8px; border-radius:999px; font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; background:var(--w-chip); }
@@ -2665,6 +2696,12 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .wl-h-name small{ display:block; }
   .wl-panel{ top:auto; left:0; width:100%; max-height:88vh; border-left:0; border-top:1px solid var(--w-line); border-radius:22px 22px 0 0; padding:20px 16px calc(20px + env(safe-area-inset-bottom)); box-shadow:0 -20px 50px rgba(11,23,41,0.18); }
   .wl-coach{ min-height:0; }
+  .wl-lab{ padding:18px; }
+  .wl-lab-title{ font-size:20px; }
+  .wl-lab-body{ grid-template-columns:1fr; gap:16px; }
+  .wl-lab .lab-stepper{ flex-wrap:nowrap; overflow-x:auto; width:100%; padding-bottom:2px; }
+  .wl-lab .lab-step{ flex:none; }
+  .wl-lab .wl-lab-panel{ padding:16px; }
   /* Board order (B5.3). The old phone rules order these by id, so these beat them. */
   #clientApp .wl-hero{ order:1; } #clientApp #wealthCompCard{ order:2; } #clientApp #wlLab{ order:3; } #clientApp #wlHoldings{ order:4; }
   #clientApp #wlHealth{ order:5; } #clientApp #wealthInsightsCard{ order:6; } #clientApp .wl-div{ order:7; } #clientApp #pfcCard{ order:8; }
@@ -3068,32 +3105,39 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
     </section>
 
     <section class="hm-tile wl-lab" id="wlLab">
-      <div class="wl-lab-head">
-        <p class="hm-label">Portfolio Lab</p>
-        <h2 class="hm-h3" id="labSectionLabel">Portfolio analysis and optimisation</h2>
-      </div>
-      <div id="labTopRow" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-        <!-- Only shown once >=2 accounts have holdings (see TEI.render.portfolio):
-             scopes the Lab, the coach's note and the portfolio insights to one account. -->
-        <div id="analysisScopeRow" style="display:none;">
-          <div class="k-pill-toggle" id="analysisScopeToggle"></div>
+      <div class="wl-lab-top">
+        <div class="wl-lab-head">
+          <p class="hm-label">Portfolio Lab</p>
+          <h2 class="wl-lab-title" id="labSectionLabel">Portfolio analysis and optimisation</h2>
         </div>
-        <button type="button" class="btn-primary lab-cta" id="labCta" style="margin-left:auto;">Model a change in the Lab →</button>
+        <nav class="lab-stepper" id="labStepper" aria-label="Lab stages"></nav>
       </div>
-      <!-- "Hide set-and-forget" / "Hide earmarked" chips. See renderLabFilters(). -->
-      <div id="labFilterRow" class="lab-filter-row" hidden>
-        <div class="lab-filter-chips" id="labFilterChips"></div>
-        <div class="lab-filter-note" id="labFilterNote"></div>
-      </div>
-      <div id="labTreemapEmpty"></div>
-      <div id="labTreemapHost" class="lab-treemap-host">
-        <div class="lab-tm-tooltip" id="labTmTooltip"></div>
-      </div>
-      <div class="lab-tm-legend" id="labTmLegend"></div>
-      <div class="lab-stepper-wrap" id="labStepperWrap">
-        <div class="m-lab-head"><span class="m-lab-title">Lab</span><button type="button" class="m-lab-close" id="labCloseBtn">Close</button></div>
-        <div class="lab-stepper" id="labStepper"></div>
-        <div id="labStageBody"></div>
+      <div class="wl-lab-body">
+        <div class="wl-lab-left">
+          <div class="wl-tm-head">
+            <span class="wl-tm-title" id="wlTmTitle">Everything you own</span>
+            <!-- Set-and-forget / Earmarked switches. See renderLabFilters(). -->
+            <div id="labFilterRow" class="lab-filter-row" hidden><div class="lab-filter-chips" id="labFilterChips"></div></div>
+          </div>
+          <div id="labTopRow" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <!-- Only shown once >=2 accounts have holdings (see TEI.render.portfolio):
+                 scopes the Lab, the coach's note and the portfolio insights to one account. -->
+            <div id="analysisScopeRow" style="display:none;">
+              <div class="k-pill-toggle" id="analysisScopeToggle"></div>
+            </div>
+            <button type="button" class="btn-primary lab-cta" id="labCta" hidden>Model a change in the Lab</button>
+          </div>
+          <p class="hm-note lab-filter-note" id="labFilterNote"></p>
+          <div id="labTreemapEmpty"></div>
+          <div id="labTreemapHost" class="lab-treemap-host">
+            <div class="lab-tm-tooltip" id="labTmTooltip"></div>
+          </div>
+          <div class="lab-tm-legend" id="labTmLegend"></div>
+        </div>
+        <div class="lab-stepper-wrap wl-lab-panel" id="labStepperWrap">
+          <div class="m-lab-head" hidden><span class="m-lab-title">Lab</span><button type="button" class="m-lab-close" id="labCloseBtn">Close</button></div>
+          <div id="labStageBody"></div>
+        </div>
       </div>
     </section>
 
@@ -7442,20 +7486,21 @@ TEI.render = TEI.render || {};
     }
     // Gold fade under the line (strong at the top, clear at the baseline) rather than a flat
     // 14% gold wash, which read as a muddy grey block over the navy card.
+    // Board palette (B5): champagne value line, pale blue "money paid in".
     const netWorthFill = ({chart})=>{
       const area = chart.chartArea;
-      if(!area) return 'rgba(201,168,76,0.14)';
+      if(!area) return 'rgba(232,214,168,0.12)';
       const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
-      g.addColorStop(0, 'rgba(201,168,76,0.32)');
-      g.addColorStop(1, 'rgba(201,168,76,0)');
+      g.addColorStop(0, 'rgba(232,214,168,0.26)');
+      g.addColorStop(1, 'rgba(232,214,168,0)');
       return g;
     };
-    const datasets = [{label: hasOther ? 'Investable' : 'Net worth', data:filteredKeys.map(k=>series[k]), borderColor:'#C9A84C', backgroundColor:netWorthFill, fill:true, tension:0.3, pointRadius:0, pointHoverRadius:5, borderWidth:2.5}];
+    const datasets = [{label: hasOther ? 'Investable' : 'Value', data:filteredKeys.map(k=>series[k]), borderColor:'#E8D6A8', backgroundColor:netWorthFill, fill:true, tension:0.3, pointRadius:0, pointHoverRadius:5, borderWidth:2.6}];
     if(view === 'total'){
       datasets.push({label:'Total incl. property & debts', data:filteredKeys.map(k=>totalSeries[k]), borderColor:'rgba(247,244,237,0.6)', backgroundColor:'rgba(247,244,237,0.08)', fill:'-1', tension:0.3, pointRadius:0, pointHoverRadius:5, borderWidth:2});
     }
     if(showContrib){
-      datasets.push({label:'Contributions', data:filteredKeys.map(k=>contribSeries[k]), borderColor:'rgba(247,244,237,0.55)', backgroundColor:'transparent', borderDash:[5,4], fill:false, tension:0.3, pointRadius:0, borderWidth:2});
+      datasets.push({label:'Money paid in', data:filteredKeys.map(k=>contribSeries[k]), borderColor:'#B9CAE6', backgroundColor:'rgba(185,202,230,0.16)', borderDash:[5,5], fill:'origin', tension:0.3, pointRadius:0, borderWidth:1.6});
     }
     const showLegend = datasets.length > 1;
     // Phones: fewer, flat date labels (not ~7 labels rotated 45°, which ate the plot's height)
@@ -7533,7 +7578,9 @@ TEI.render = TEI.render || {};
      allowance nudges (isaAccounts, "Race to £100k" liquidTotal, INV_TYPES/CF_INV_TYPES) since
      those track Stocks & Shares ISA holdings specifically -- worth revisiting with the adviser
      if Cash ISA should also count toward the annual ISA allowance headline. */
-  const COMP_PALETTE = { property:'#4A7A96', investments:'#C9A84C', pension:'#6B9A78', cash:'#A8A08C', crypto:'#C97A4C', other:'#B5525F' };
+  // Board palette (B5): pension champagne, investments pale blue, cash gold;
+  // property, crypto and other take the remaining palette tones.
+  const COMP_PALETTE = { property:'#6F7F98', investments:'#B9CAE6', pension:'#E8D6A8', cash:'#83661C', crypto:'#AAB6C8', other:'#D9C9A0' };
   function renderComposition(client){
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);
@@ -8696,8 +8743,6 @@ TEI.render = TEI.render || {};
   }
 
   const OTHER_THRESHOLD = 3; // % -- below this, a holding folds into "Other" on the small Compare treemaps (the main one folds to fit)
-  const PALETTE = ['#1D3557','#274674','#C9A84C','#8FA0C2','#B4923A'];
-  const OTHER_COLOR = '#A8A08C';
   const CASH_TICKER = 'CASH';
 
   // Illustrative-volatility heuristic -- ports the standalone Lab's calc-engine assumption
@@ -8735,8 +8780,9 @@ TEI.render = TEI.render || {};
     selectedIds:new Set(), consolidateTargetId:null,
     targetWeights:{},
     ledgerOpen:false, implementOpen:false,
-    // Treemap filter chips -- in memory only, both off by default (see FILTERS below).
-    hide:{setAndForget:false, earmarked:false},
+    // Treemap switches -- in memory only. hide:true = switch off, that money left out.
+    // Off by default, so the Lab opens on actively managed money (B5.1 board).
+    hide:{setAndForget:true, earmarked:true},
     filterAvail:{}, filterKey:'', fullTotal:null,
     client:null, scopeId:null // last render's inputs, so a chip click can re-render itself
   };
@@ -8795,17 +8841,26 @@ TEI.render = TEI.render || {};
       const isPension = !!(acc && acc.type==='pension');
       return client.holdings.filter(h=>h.accountId===scopeId).map(h=>({
         id:h.id, ticker:(h.ticker||'').toUpperCase(), name:h.name, value:Number(h.value)||0,
-        account:label, accountPension:isPension, vol: illustrativeVolFor(h)
+        account:label, accountPension:isPension, accountType: acc ? acc.type : null, vol: illustrativeVolFor(h)
       }));
     }
     const grouped = TEI.calc.groupedHoldings(client);
     return grouped.map(g=>{
       const involved = (g.accountIds||[]).map(id=>client.accounts.find(a=>a.id===id)).filter(Boolean);
       const anyPension = involved.some(a=>a.type==='pension');
+      // Tile colour follows the account type (B5 palette); a holding held in
+      // several accounts takes the type of the account holding most of it.
+      const byAcct = {};
+      client.holdings.forEach(h=>{
+        const key = (h.ticker && h.ticker.trim()) ? h.ticker.trim().toUpperCase() : 'name:'+h.name.trim().toLowerCase();
+        if(key === g.key) byAcct[h.accountId] = (byAcct[h.accountId]||0) + (Number(h.value)||0);
+      });
+      const mainId = Object.keys(byAcct).sort((a,b)=> byAcct[b]-byAcct[a])[0];
+      const mainAcc = client.accounts.find(a=>a.id===mainId);
       return {
         id:g.key, ticker:(g.ticker||'').toUpperCase(), name:g.name, value:g.value,
         account: (g.accountNames||[]).length>1 ? `${g.accountNames.length} accounts` : ((g.accountNames||[])[0]||'—'),
-        accountPension:anyPension, vol: illustrativeVolFor(g)
+        accountPension:anyPension, accountType: mainAcc ? mainAcc.type : null, vol: illustrativeVolFor(g)
       };
     });
   }
@@ -9159,31 +9214,25 @@ TEI.render = TEI.render || {};
      are near-identical side by side, so neighbours avoid the same colour *family* where
      possible (else just the exact colour), and ties go to the least-used colour so the
      treemap doesn't end up mostly navy. Index-only colouring put e.g. two gold tiles together. */
-  const PALETTE_FAMILY = {'#1D3557':'navy', '#274674':'navy', '#C9A84C':'gold', '#B4923A':'gold', '#8FA0C2':'blue'};
-  function treemapColors(tiles){
-    const e = 0.5;
-    const touch = (a,b)=>{
-      const xOverlap = Math.min(a.x1,b.x1) - Math.max(a.x0,b.x0) > e;
-      const yOverlap = Math.min(a.y1,b.y1) - Math.max(a.y0,b.y0) > e;
-      const xAdj = Math.abs(a.x1-b.x0) <= e || Math.abs(b.x1-a.x0) <= e;
-      const yAdj = Math.abs(a.y1-b.y0) <= e || Math.abs(b.y1-a.y0) <= e;
-      return (xAdj && yOverlap) || (yAdj && xOverlap);
-    };
-    const colors = [], uses = {};
-    const leastUsed = list => list.reduce((best,c)=> (uses[c]||0) < (uses[best]||0) ? c : best, list[0]);
-    tiles.forEach((d,i)=>{
-      if(d.isOther){ colors.push(OTHER_COLOR); return; }
-      const near = [];
-      for(let j=0;j<i;j++) if(touch(d,tiles[j])) near.push(colors[j]);
-      const nearFamilies = new Set(near.map(c=>PALETTE_FAMILY[c]));
-      const byFamily = PALETTE.filter(c=>!nearFamilies.has(PALETTE_FAMILY[c]));
-      const byColor = PALETTE.filter(c=>!near.includes(c));
-      const c = byFamily.length ? leastUsed(byFamily) : (byColor.length ? leastUsed(byColor) : PALETTE[i%PALETTE.length]);
-      uses[c] = (uses[c]||0)+1;
-      colors.push(c);
-    });
-    return colors;
+  /* Tiles are coloured by account type, as on the Wealth board (B5): the
+     same colour means the same kind of account. Each entry is [fill, text].
+     The 3px gap between tiles keeps neighbours of one type apart. */
+  const TYPE_TILE = {
+    pension:['#E8D6A8','#13213A'], isa:['#B9CAE6','#13213A'], lisa:['#DFE6F2','#13213A'],
+    gia:['#83661C','#FFFFFF'], cash:['#AAB6C8','#13213A'], cash_isa:['#AAB6C8','#13213A'],
+    crypto:['#6F7F98','#FFFFFF'], other:['#C9D3E3','#13213A']
+  };
+  const TYPE_LABEL = {pension:'Pension', isa:'S&S ISA', lisa:'Lifetime ISA', gia:'GIA', cash:'Cash', cash_isa:'Cash', crypto:'Crypto', other:'Other accounts'};
+  const OTHER_TILE = ['#E9E5DA','#13213A'];
+  function tileTypeOf(d){
+    if(d.isOther) return null;
+    const t = d.accountType === 'cash_isa' ? 'cash' : d.accountType;
+    return TYPE_TILE[t] ? t : 'other';
   }
+  function treemapColors(tiles){
+    return tiles.map(d=> d.isOther ? OTHER_TILE[0] : TYPE_TILE[tileTypeOf(d)][0]);
+  }
+  function tileInk(d){ return d.isOther ? OTHER_TILE[1] : TYPE_TILE[tileTypeOf(d)][1]; }
   function renderTreemapInto(hostEl, tooltipEl, weighted, opts={}){
     if(!hostEl) return [];
     hostEl.querySelectorAll('svg').forEach(s=>s.remove());
@@ -9201,20 +9250,21 @@ TEI.render = TEI.render || {};
     hostEl.insertBefore(svg, hostEl.firstChild);
     const small = opts.small;
     laidOut.forEach((d,i)=>{
-      const pad=small?1:2;
+      const pad=small?1:3;
+      const ink = tileInk(d);
       const rx=d.x0+pad, ry=d.y0+pad, rw=Math.max(0,(d.x1-d.x0)-pad*2), rh=Math.max(0,(d.y1-d.y0)-pad*2);
       const g=document.createElementNS(svgNS,'g');
       const rect=document.createElementNS(svgNS,'rect');
       rect.setAttribute('x',rx); rect.setAttribute('y',ry); rect.setAttribute('width',rw); rect.setAttribute('height',rh);
-      rect.setAttribute('rx',small?3:4); rect.setAttribute('fill', colors[i]);
+      rect.setAttribute('rx',small?3:12); rect.setAttribute('fill', colors[i]);
       g.appendChild(rect);
       const minLabelW = small?24:34, minLabelH = small?18:24;
       if(rw>=minLabelW && rh>=minLabelH){
         const t1=document.createElementNS(svgNS,'text');
-        t1.setAttribute('x',rx+(small?5:10)); t1.setAttribute('y', ry+(small?13:22));
-        t1.setAttribute('fill','#F7F4ED'); t1.setAttribute('font-weight','700');
-        const t1Size = small? Math.min(10,rw/6) : (opts.mobileTiles ? Math.max(11, Math.min(15,rw/6)) : Math.min(16,rw/6));
-        t1.setAttribute('font-size', t1Size+'px'); t1.setAttribute('font-family','Inter,sans-serif');
+        t1.setAttribute('x',rx+(small?5:12)); t1.setAttribute('y', ry+(small?13:22));
+        t1.setAttribute('fill', ink); t1.setAttribute('font-weight', small ? '600' : '500');
+        const t1Size = small? Math.min(10,rw/6) : (opts.mobileTiles ? Math.max(11, Math.min(13,rw/6)) : Math.min(13,rw/6));
+        t1.setAttribute('font-size', t1Size+'px'); t1.setAttribute('font-family',"Geist,system-ui,sans-serif");
         let inlinePct = null;
         let t1Text = d.ticker || d.name; // some holdings genuinely have no ticker on file -- fall back to name rather than a blank tile
         if(opts.mobileTiles){
@@ -9228,22 +9278,25 @@ TEI.render = TEI.render || {};
         t1.textContent = t1Text;
         if(inlinePct){
           const ts=document.createElementNS(svgNS,'tspan');
-          ts.setAttribute('font-weight','400'); ts.setAttribute('fill','rgba(247,244,237,0.85)');
+          ts.setAttribute('font-weight','300'); ts.setAttribute('fill', ink);
           ts.textContent = ' ' + inlinePct;
           t1.appendChild(ts);
         }
         g.appendChild(t1);
         if(!small && rh>44){
+          // Share at the foot of the tile, large and light (B5 board); short tiles keep it under the name.
+          const big = rh >= 72 && rw >= 56;
           const t2=document.createElementNS(svgNS,'text');
-          t2.setAttribute('x',rx+10); t2.setAttribute('y',ry+42);
-          t2.setAttribute('fill','rgba(247,244,237,0.85)'); t2.setAttribute('font-size','11.5px'); t2.setAttribute('font-family','Inter,sans-serif');
+          t2.setAttribute('x',rx+12); t2.setAttribute('y', big ? ry+rh-12 : ry+40);
+          t2.setAttribute('fill', ink); t2.setAttribute('font-weight','300');
+          t2.setAttribute('font-size', big ? Math.min(20, rw/4)+'px' : '12px'); t2.setAttribute('font-family',"Geist,system-ui,sans-serif");
           t2.textContent = fmtPct(d.weight);
           g.appendChild(t2);
         }
         if(small && rh>=30){
           const t2=document.createElementNS(svgNS,'text');
           t2.setAttribute('x',rx+5); t2.setAttribute('y',ry+25);
-          t2.setAttribute('fill','rgba(247,244,237,0.85)'); t2.setAttribute('font-size','9px'); t2.setAttribute('font-family','Inter,sans-serif');
+          t2.setAttribute('fill', ink); t2.setAttribute('font-size','9px'); t2.setAttribute('font-family',"Geist,system-ui,sans-serif");
           t2.textContent = fmtPct(d.weight);
           g.appendChild(t2);
         }
@@ -9285,7 +9338,12 @@ TEI.render = TEI.render || {};
     const weighted = withWeights(state.holdings);
     // Only holdings too small to label fold into "Other" (see foldToFit); mobile also gets "Other (n)" labels.
     const folded = renderTreemapInto(host, tooltip, weighted, isMobileWidth() ? {fitTiles:true, mobileTiles:true} : {fitTiles:true});
-    legendEl.innerHTML = folded.map(d=>`<div class="lg"><span class="sw" style="background:${d.color}"></span>${d.isOther?`Other (${d.members.length})`:d.name} · ${fmtPct(d.weight)}</div>`).join('');
+    // Legend by account type (B5 board), in the order the types first appear.
+    const types = [];
+    folded.forEach(d=>{ const t = d.isOther ? 'folded' : tileTypeOf(d); if(!types.includes(t)) types.push(t); });
+    legendEl.innerHTML = types.map(t=> t === 'folded'
+      ? `<div class="lg"><span class="sw" style="background:${OTHER_TILE[0]}"></span>Smaller holdings</div>`
+      : `<div class="lg"><span class="sw" style="background:${TYPE_TILE[t][0]}"></span>${TYPE_LABEL[t]}</div>`).join('');
   }
 
   function isMobileWidth(){ return !!(window.matchMedia && window.matchMedia('(max-width:860px)').matches); }
@@ -9315,8 +9373,8 @@ TEI.render = TEI.render || {};
     const curIdx = stageIndex(state.stage);
     el.innerHTML = STAGES.map((s,i)=>{
       const cls = i<curIdx ? 'done' : (i===curIdx ? 'active' : '');
-      const num = i<curIdx ? '✓' : (i+1);
-      return `<div class="lab-step ${cls}" data-stage="${s.id}"><div class="lab-step-num">${num}</div><div class="lab-step-label">${s.label}</div></div>`;
+      const num = String(i+1).padStart(2,'0');
+      return `<button type="button" class="lab-step ${cls}" data-stage="${s.id}"${i===curIdx?' aria-current="step"':''}><span class="lab-step-num">${num}</span><span class="lab-step-label">${s.label}</span></button>`;
     }).join('');
     el.querySelectorAll('.lab-step').forEach(st=>st.addEventListener('click', ()=>{ goStage(st.dataset.stage); }));
   }
@@ -10124,15 +10182,23 @@ TEI.render = TEI.render || {};
     document.querySelectorAll('#labStageBody [data-mini="scenario"]').forEach(el=> renderTreemapInto(el, null, scenario, {small:true, height:130}));
   }
 
+  /* Board (B5.1): two switches, on = that money is included in the treemap
+     and the Lab. Shown only when an account in scope has the setting. The
+     treemap title follows them: "Everything you own", "Actively managed
+     money" (both off) or "Filtered view" (one of two off). */
+  const SWITCH_LABEL = {setAndForget:'Set-and-forget', earmarked:'Earmarked'};
   function renderLabFilters(){
     const row = document.getElementById('labFilterRow');
     if(!row) return;
     const shown = FILTERS.filter(f=> state.filterAvail[f.key]);
     row.hidden = !shown.length;
+    const off = shown.filter(f=> state.hide[f.key]).length;
+    const title = document.getElementById('wlTmTitle');
+    if(title) title.textContent = !off ? 'Everything you own' : (off === shown.length ? 'Actively managed money' : 'Filtered view');
     const chips = document.getElementById('labFilterChips');
     chips.innerHTML = shown.map(f=>{
-      const on = !!state.hide[f.key];
-      return `<button type="button" class="lab-sc-chip${on?' active':''}" data-lab-filter="${f.key}" aria-pressed="${on}">${f.label}</button>`;
+      const included = !state.hide[f.key];
+      return `<button type="button" class="wl-switch" role="switch" data-lab-filter="${f.key}" aria-checked="${included}"><span class="wl-switch-track" aria-hidden="true"><span></span></span>${SWITCH_LABEL[f.key] || f.label}</button>`;
     }).join('');
     chips.querySelectorAll('[data-lab-filter]').forEach(b=> b.addEventListener('click', ()=>{
       const key = b.dataset.labFilter;
@@ -10150,10 +10216,13 @@ TEI.render = TEI.render || {};
     renderLabFilters();
     renderTreemapSection();
     renderMobileHoldings();
+    // The stepper and stage panel are always shown now (B5.1 board), beside
+    // the treemap on desktop and under it on phones; no full-screen mode.
     const wrap = document.getElementById('labStepperWrap');
     if(!wrap) return;
-    wrap.classList.toggle('open', state.expanded);
-    if(state.expanded){ renderStepper(); renderStageBody(); }
+    wrap.classList.remove('open');
+    if(!state.holdings.length){ document.getElementById('labStepper').innerHTML = ''; document.getElementById('labStageBody').innerHTML = ''; return; }
+    renderStepper(); renderStageBody();
   }
 
   /* ---------------------------- mount ---------------------------- */
@@ -10165,9 +10234,9 @@ TEI.render = TEI.render || {};
     const scopeKey = scopeId || 'all';
     state.client = client; state.scopeId = scopeId;
     state.filterAvail = filterAvailability(client, scopeId);
-    // A setting switched off on every account (in All accounts) also switches its chip off,
-    // so it doesn't come back already on if the setting is turned on again later.
-    if(!scopeId) FILTERS.forEach(f=>{ if(!state.filterAvail[f.key]) state.hide[f.key] = false; });
+    // A setting no account has any more resets its switch to the default (off), so
+    // it comes back in the default state if the setting is turned on again later.
+    if(!scopeId) FILTERS.forEach(f=>{ if(!state.filterAvail[f.key]) state.hide[f.key] = true; });
     const filterKey = FILTERS.map(f=> state.hide[f.key] && state.filterAvail[f.key] ? 1 : 0).join('');
     if(state.scopeKey !== scopeKey) resetScenarioState();
     else if(state.filterKey !== filterKey){
@@ -17763,7 +17832,8 @@ TEI.render = TEI.render || {};
   const {fmtGBP, acctLabel, currentMonthKey} = TEI.data;
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function setText(id, text){ const el = document.getElementById(id); if(el) el.textContent = text; }
-  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'var(--w-muted)', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#9DB59F'};
+  // Account colours, the same as the Lab treemap (B5 board palette).
+  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#6F7F98'};
   const CASH_TYPES = ['cash', 'cash_isa'];
 
   /* One row per holding; accounts without holdings appear as one row of
@@ -17824,7 +17894,7 @@ TEI.render = TEI.render || {};
         const flags = [r.acc.setAndForget ? 'Set and forget' : '', r.acc.earmarked ? 'Earmarked' : '', r.kind === 'holding' && r.manual ? 'Manual price' : ''].filter(Boolean);
         const sub = acctLabel(r.acc) + (r.cost ? ' · paid ' + fmtGBP(r.cost) : '');
         return `<tr>
-          <th scope="row" class="wl-h-name"><i style="border-color:${ACCT_RING[r.acc.type]||'var(--w-muted)'};"></i><span><b>${esc(r.name)}</b><small>${esc(sub)}</small></span></th>
+          <th scope="row" class="wl-h-name"><i style="background:${ACCT_RING[r.acc.type]||'#C9D3E3'};"></i><span><b>${esc(r.name)}</b><small>${esc(sub)}</small></span></th>
           <td class="wl-h-ticker">${esc(r.ticker || '–')}</td>
           <td class="wl-h-acct">${esc(acctLabel(r.acc))}</td>
           <td class="num wl-h-val">${fmtGBP(r.value)}</td>
