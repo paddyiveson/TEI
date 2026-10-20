@@ -3664,7 +3664,13 @@ button.hm-cover:disabled{ cursor:default; }
 #stRoot.st-v2 .sl-body > [data-sl-src]{ display:flex !important; }
 #stRoot.st-v2 [data-sl-card]{ display:none; }
 #stRoot.st-v2.sl-show-months [data-sl-card="months"], #stRoot.st-v2.sl-show-hmonths [data-sl-card="hmonths"],
-#stRoot.st-v2.sl-show-divs [data-sl-card="divs"], #stRoot.st-v2.sl-show-oneoff [data-sl-card="oneoff"]{ display:block; }
+#stRoot.st-v2.sl-show-divs [data-sl-card="divs"], #stRoot.st-v2.sl-show-oneoff [data-sl-card="oneoff"],
+#stRoot.st-v2.sl-show-deposits [data-sl-card="deposits"]{ display:block; }
+.st-dep-head{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; }
+.st-dep-head h3{ margin:0; }
+.st-dep-month{ display:flex; align-items:center; gap:8px; font-size:13px; color:var(--w-muted); }
+.st-dep-month input{ min-height:40px; padding:0 10px; border:1px solid var(--w-line); border-radius:10px; background:var(--w-bg); color:var(--w-text); font-family:inherit; }
+[data-sl-card="deposits"] .btn-primary{ margin-top:12px; }
 #stRoot.st-v2 [data-sl-card] + [data-sl-card]{ margin-top:16px; }
 .sl-host{ display:flex; flex-direction:column; gap:16px; }
 .sl-head{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; }
@@ -4298,7 +4304,7 @@ window.TeiTheme && TeiTheme.paint();</script>
     <p class="hm-muted hm-small">Type today's value from each provider. Each figure saves when you leave the box.</p>
     <div class="wl-upd-list" id="wlUpdList"></div>
     <p class="hm-note" id="wlUpdPrices"></p>
-    <a href="#" class="hm-link" id="wlUpdMore">Deposits, earlier months and cashflow</a>
+    <a href="#" class="hm-link" id="wlUpdMore">Money paid in and earlier months</a>
   </div>
 </div>
 </div>
@@ -4773,83 +4779,8 @@ window.TeiTheme && TeiTheme.paint();</script>
 </div>
 </div>
 
-<!-- ============================= UPDATE ============================= -->
-<div id="page-update" class="page">
-<header class="hero wrap k-greeting"><h1>Update</h1><div class="sub">Log what happened this month — balances, deposits, holdings and cashflow.</div></header>
-<section class="wrap" style="padding-top:var(--space-lg);">
-  <div class="k-section-label">Account balances</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:2px;">
-          <div class="k">Update your account balances</div>
-          <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);">Month <input type="month" id="balancesMonthPicker" style="border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:'Inter',sans-serif; font-size:13px;"></label>
-        </div>
-        <div class="sub2" style="margin-bottom:12px;">Pick any month, past or present, to add or correct it. Accounts backed by logged holdings are calculated automatically for the current month — edit those in Holdings below.</div>
-        <div id="balancesMonthlyFields" class="form-grid"></div>
-        <button type="button" class="btn-primary" id="balancesMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
-        <div id="balancesMonthlyHistory"></div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="wrap">
-  <div class="k-section-label">Deposits</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:2px;">
-          <div class="k">What did you deposit this month?</div>
-          <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);">Month <input type="month" id="depositsMonthPicker" style="border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:'Inter',sans-serif; font-size:13px;"></label>
-        </div>
-        <div class="sub2" style="margin-bottom:12px;">Money paid in, separate from the balance itself — this is what lets us track how much of your growth is new money vs. performance.</div>
-        <div id="depositsMonthlyFields" class="form-grid"></div>
-        <button type="button" class="btn-primary" id="depositsMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
-        <div class="sub2" id="depositsTotalSummary" style="margin-top:14px;"></div>
-        <div id="depositsMonthlyHistory"></div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="wrap">
-  <div class="k-section-label">Holdings</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:2px;">
-          <div class="k">Update your holding values</div>
-          <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);">Month <input type="month" id="holdingsMonthPicker" style="border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:'Inter',sans-serif; font-size:13px;"></label>
-        </div>
-        <div class="sub2" style="margin-bottom:12px;">Pick any month, past or present, to add or correct a holding's value.</div>
-        <div id="holdingsMonthlyFields" class="form-grid"></div>
-        <button type="button" class="btn-primary" id="holdingsMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
-        <div id="holdingsMonthlyHistory"></div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="wrap" style="padding-bottom:var(--space-2xl);">
-  <div class="k-section-label">Cashflow</div>
-  <div class="dgrid">
-    <div class="span-12">
-      <div class="dcard">
-        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:2px;">
-          <div class="k">Did this month differ from usual?</div>
-          <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft);">Month <input type="month" id="cashflowMonthPicker" style="border:1px solid var(--line); border-radius:6px; padding:4px 8px; font-family:'Inter',sans-serif; font-size:13px;"></label>
-        </div>
-        <div class="sub2" style="margin-bottom:12px;" id="cashflowStatedHint">Log this month's actual income and expenses if they differed from your usual stated amounts.</div>
-        <div class="form-grid">
-          <label class="form-field on-light"><span>Actual income this month £</span><input type="number" step="0.01" id="cashflowActualIncome" placeholder="0.00"></label>
-          <label class="form-field on-light"><span>Actual expenses this month £</span><input type="number" step="0.01" id="cashflowActualExpenses" placeholder="0.00"></label>
-        </div>
-        <button type="button" class="btn-primary" id="cashflowMonthlySaveBtn" style="margin-top:12px;">Save this month</button>
-        <div id="cashflowMonthlyHistory"></div>
-      </div>
-    </div>
-  </div>
-</section>
-<!-- Goals moved to the goal panel on the Goals page (B12.6). -->
-</div>
+
+
 
 <!-- ============================= DOCUMENTS ============================= -->
 <div id="page-documents" class="page">
@@ -5018,6 +4949,18 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="st-sec" data-st-sec="accounts">
         <p class="hm-muted st-intro" id="stAcctSummary"></p>
         <div data-st-host="accounts"></div>
+        <!-- Money paid in: the deposits log that used to sit on the old Update page (same ids, same save code). -->
+        <div class="card" data-sl-card="deposits">
+          <div class="st-dep-head">
+            <h3>Money paid in</h3>
+            <label class="st-dep-month">Month <input type="month" id="depositsMonthPicker"></label>
+          </div>
+          <p class="note">What you paid into each account in a month, separate from its balance, so your growth can be split into new money and performance.</p>
+          <div id="depositsMonthlyFields" class="form-grid"></div>
+          <button type="button" class="btn-primary" id="depositsMonthlySaveBtn">Save this month</button>
+          <p class="note" id="depositsTotalSummary"></p>
+          <div id="depositsMonthlyHistory"></div>
+        </div>
         <p class="hm-note">This month's balances are quickest in Update balances. Use Earlier months to add or correct a past month.</p>
       </div>
       <div class="st-sec" data-st-sec="holdings">
@@ -12008,20 +11951,13 @@ TEI.render = TEI.render || {};
 window.TEI = window.TEI || {};
 TEI.render = TEI.render || {};
 
-/* ================= UPDATE PAGE (both roles) =================
-   Account balances and holdings, each with a month picker + editable
-   history, both writing through TEI.wealthOS.save*Month against the
-   client.months/holdingsMonths objects. Reached via the "Update →" nudge
-   cards on Progress/Portfolio (or the sidebar nav directly) rather than
-   sitting inline on those pages -- keeps the day-to-day pages focused on
-   reading, with editing as a deliberate, separate destination. Available
-   to whoever is viewing this page -- client on their own dashboard, or an
-   adviser viewing a client's -- no extra role gate needed since RLS
-   already allows a client to write their own rows. */
+/* ================= UPDATE MODULE (both roles) =================
+   The save code behind Wealth's Update balances panel (persistAccount-
+   Balances, persistHoldingValues), the deposits log (Settings > Accounts >
+   Money paid in) and the goal form (Goals panel). RLS already lets a
+   client write their own rows, so no extra role gate is needed. */
 (function(){
   const {fmtGBP} = TEI.data;
-  let balancesMonthKey = null;
-  let holdingsMonthKey = null;
   /* Every month ever logged used to render in full below each "log this
      month" widget -- reported live as a "huge pointless list" once an
      account had a couple of years of history (Adviser Workspace's
@@ -12034,86 +11970,6 @@ TEI.render = TEI.render || {};
     return keys.length > MONTH_HISTORY_CAP
       ? `<button type="button" class="btn-ghost on-light" data-toggle-month-history style="margin-top:8px; width:100%;">${expanded ? 'Show fewer' : 'Show all ' + keys.length + ' months'}</button>`
       : '';
-  }
-
-  function renderBalancesMonthlyHistory(client){
-    const el = document.getElementById('balancesMonthlyHistory');
-    if(!el) return;
-    const monthsObj = client.months || {};
-    const keys = Object.keys(monthsObj).sort().reverse();
-    if(!keys.length){ el.innerHTML = ''; return; }
-    const expanded = el.dataset.expanded === '1';
-    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
-    const rows = visibleKeys.map(k=>{
-      const isSelected = k === balancesMonthKey;
-      return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
-        <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
-        <button type="button" class="btn-ghost on-light" data-balances-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
-      </div>`;
-    }).join('');
-    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + rows + monthHistoryToggleHtml(keys, expanded);
-    el.querySelectorAll('[data-balances-edit-month]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        balancesMonthKey = btn.dataset.balancesEditMonth;
-        renderBalancesMonthlyWidget(TEI.app.state.client);
-      });
-    });
-    const toggleBtn = el.querySelector('[data-toggle-month-history]');
-    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderBalancesMonthlyHistory(client); });
-  }
-
-  function renderBalancesMonthlyWidget(client){
-    if(!balancesMonthKey) balancesMonthKey = TEI.data.currentMonthKey();
-    const picker = document.getElementById('balancesMonthPicker');
-    if(picker) picker.value = balancesMonthKey;
-    const wrap = document.getElementById('balancesMonthlyFields');
-    const accounts = client.accounts || [];
-    if(!accounts.length){
-      wrap.innerHTML = `<div class="empty-state on-light" style="padding:10px 0; grid-column:1/-1;"><div class="small">No accounts yet.</div></div>`;
-      renderBalancesMonthlyHistory(client);
-      return;
-    }
-    const existing = (client.months && client.months[balancesMonthKey]) || {};
-    const meta = (client.monthsMeta && client.monthsMeta[balancesMonthKey]) || {};
-    const isCurrent = balancesMonthKey === TEI.data.currentMonthKey();
-    wrap.innerHTML = accounts.map(acc=>{
-      const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
-      if(hasHoldings && isCurrent){
-        const total = TEI.calc.holdingsTotalForAccount(client, acc.id);
-        return `<label class="form-field on-light"><span>${TEI.data.acctLabel(acc)}</span>
-          <input type="text" disabled value="${fmtGBP(total)}" style="opacity:0.6;" title="Calculated from logged holdings">
-          <span class="note" style="margin-top:2px;">From holdings — edit below</span></label>`;
-      }
-      // Phase 22: this figure was written automatically (carried forward
-      // from the last logged/confirmed value) rather than typed in -- flag
-      // it so it doesn't read as a confirmed balance.
-      const autoNote = meta[acc.id] ? `<span class="note" style="margin-top:2px; color:var(--gold);">Carried forward automatically — confirm or correct if it's changed</span>` : '';
-      const hint = hasHoldings ? `<span class="note" style="margin-top:2px;">Historical value — the current month is calculated from holdings instead</span>` : autoNote;
-      return `<label class="form-field on-light"><span>${TEI.data.acctLabel(acc)}</span><input type="number" step="0.01" data-balances-month-field="${acc.id}" value="${existing[acc.id]!=null?existing[acc.id]:''}" placeholder="0.00">${hint}</label>`;
-    }).join('');
-    renderBalancesMonthlyHistory(client);
-  }
-
-  async function saveBalancesMonthly(){
-    const client = TEI.app.state.client;
-    const key = balancesMonthKey;
-    const btn = document.getElementById('balancesMonthlySaveBtn');
-    const toSave = Array.from(document.querySelectorAll('[data-balances-month-field]'))
-      .map(el=>({id:el.dataset.balancesMonthField, v:parseFloat(el.value)}))
-      .filter(x=>!isNaN(x.v));
-    if(!toSave.length){ TEI.app.showToast('Nothing to save'); return; }
-    btn.disabled = true;
-    try{
-      await persistAccountBalances(client, key, toSave);
-    } catch(err){
-      console.error('Wealth OS: failed to save monthly balance', err);
-      TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
-      btn.disabled = false;
-      return;
-    }
-    btn.disabled = false;
-    renderBalancesMonthlyWidget(client);
-    TEI.app.showToast('Saved ' + key);
   }
 
   /* The save itself: [{id: accountId, v: value}] for month `key`, written
@@ -12145,78 +12001,6 @@ TEI.render = TEI.render || {};
       try{ await TEI.wealthOS.saveAccount(client.meta.clientId, acc.id, acc); }
       catch(err){ console.error('Wealth OS: failed to sync account value from monthly balance', err); }
     }
-  }
-
-  function renderHoldingsMonthlyHistory(client){
-    const el = document.getElementById('holdingsMonthlyHistory');
-    if(!el) return;
-    const monthsObj = client.holdingsMonths || {};
-    const keys = Object.keys(monthsObj).sort().reverse();
-    if(!keys.length){ el.innerHTML = ''; return; }
-    const expanded = el.dataset.expanded === '1';
-    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
-    const rows = visibleKeys.map(k=>{
-      const isSelected = k === holdingsMonthKey;
-      return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
-        <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b></div>
-        <button type="button" class="btn-ghost on-light" data-holdings-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
-      </div>`;
-    }).join('');
-    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + rows + monthHistoryToggleHtml(keys, expanded);
-    el.querySelectorAll('[data-holdings-edit-month]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        holdingsMonthKey = btn.dataset.holdingsEditMonth;
-        renderHoldingsMonthlyWidget(TEI.app.state.client);
-      });
-    });
-    const toggleBtn = el.querySelector('[data-toggle-month-history]');
-    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderHoldingsMonthlyHistory(client); });
-  }
-
-  function renderHoldingsMonthlyWidget(client){
-    if(!holdingsMonthKey) holdingsMonthKey = TEI.data.currentMonthKey();
-    const picker = document.getElementById('holdingsMonthPicker');
-    if(picker) picker.value = holdingsMonthKey;
-    const wrap = document.getElementById('holdingsMonthlyFields');
-    const holdings = client.holdings || [];
-    if(!holdings.length){
-      wrap.innerHTML = `<div class="empty-state on-light" style="padding:10px 0; grid-column:1/-1;"><div class="small">Add holdings first.</div></div>`;
-      renderHoldingsMonthlyHistory(client);
-      return;
-    }
-    const existing = (client.holdingsMonths && client.holdingsMonths[holdingsMonthKey]) || {};
-    const meta = (client.holdingsMonthsMeta && client.holdingsMonthsMeta[holdingsMonthKey]) || {};
-    const isCurrent = holdingsMonthKey === TEI.data.currentMonthKey();
-    wrap.innerHTML = holdings.map(h=>{
-      const fallback = existing[h.id]!=null ? existing[h.id] : (isCurrent && h.value!=null ? h.value : '');
-      // Phase 22: flag values the monthly auto-snapshot carried forward
-      // rather than something logged or refreshed from a live price.
-      const autoNote = meta[h.id] ? `<span class="note" style="margin-top:2px; color:var(--gold);">Carried forward automatically — refresh live prices or confirm if it's changed</span>` : '';
-      return `<label class="form-field on-light"><span>${h.name}</span><input type="number" step="0.01" data-holdings-month-field="${h.id}" value="${fallback}" placeholder="0.00">${autoNote}</label>`;
-    }).join('');
-    renderHoldingsMonthlyHistory(client);
-  }
-
-  async function saveHoldingsMonthly(){
-    const client = TEI.app.state.client;
-    const key = holdingsMonthKey;
-    const btn = document.getElementById('holdingsMonthlySaveBtn');
-    const toSave = Array.from(document.querySelectorAll('[data-holdings-month-field]'))
-      .map(el=>({id:el.dataset.holdingsMonthField, v:parseFloat(el.value)}))
-      .filter(x=>!isNaN(x.v));
-    if(!toSave.length){ TEI.app.showToast('Nothing to save'); return; }
-    btn.disabled = true;
-    try{
-      await persistHoldingValues(client, key, toSave);
-    } catch(err){
-      console.error('Wealth OS: failed to save monthly holding value', err);
-      TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
-      btn.disabled = false;
-      return;
-    }
-    btn.disabled = false;
-    renderHoldingsMonthlyWidget(client);
-    TEI.app.showToast('Saved ' + key);
   }
 
   /* Same split as persistAccountBalances: [{id: holdingId, v: value}] for
@@ -12400,85 +12184,6 @@ TEI.render = TEI.render || {};
     toSave.forEach(item=>{ entry[item.id] = { amount: item.amount, sacrificeAmount: item.sacrificeAmount, reliefAmount: item.reliefAmount }; });
     client.contribLog[key] = entry;
     renderDepositsMonthlyWidget(client);
-    TEI.app.showToast('Saved ' + key);
-  }
-
-  /* ---------- Cashflow actuals: one figure per month for income and for
-     expenses, logged only when they differed from the stated regular
-     amounts -- not itemised, just "how did this month actually go". ---------- */
-  let cashflowMonthKey = null;
-
-  function renderCashflowMonthlyHistory(client){
-    const el = document.getElementById('cashflowMonthlyHistory');
-    if(!el) return;
-    const monthsObj = client.cashflowMonths || {};
-    const keys = Object.keys(monthsObj).sort().reverse();
-    if(!keys.length){ el.innerHTML = ''; return; }
-    const expanded = el.dataset.expanded === '1';
-    const visibleKeys = expanded ? keys : keys.slice(0, MONTH_HISTORY_CAP);
-    const rows = visibleKeys.map(k=>{
-      const isSelected = k === cashflowMonthKey;
-      const entry = monthsObj[k] || {};
-      const parts = [];
-      if(entry.actualIncome!=null) parts.push('Income ' + fmtGBP(entry.actualIncome));
-      if(entry.actualExpenses!=null) parts.push('Expenses ' + fmtGBP(entry.actualExpenses));
-      return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
-        <div class="lr-main"><b>${TEI.data.monthLabel(k)}</b><div class="lr-meta">${parts.join(' · ')||'–'}</div></div>
-        <button type="button" class="btn-ghost on-light" data-cashflow-edit-month="${k}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
-      </div>`;
-    }).join('');
-    el.innerHTML = `<div class="sub2" style="margin:12px 0 6px;">Previously logged months</div>` + rows + monthHistoryToggleHtml(keys, expanded);
-    el.querySelectorAll('[data-cashflow-edit-month]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        cashflowMonthKey = btn.dataset.cashflowEditMonth;
-        renderCashflowMonthlyWidget(TEI.app.state.client);
-      });
-    });
-    const toggleBtn = el.querySelector('[data-toggle-month-history]');
-    if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderCashflowMonthlyHistory(client); });
-  }
-
-  function renderCashflowMonthlyWidget(client){
-    if(!cashflowMonthKey) cashflowMonthKey = TEI.data.currentMonthKey();
-    const picker = document.getElementById('cashflowMonthPicker');
-    if(picker) picker.value = cashflowMonthKey;
-    const existing = (client.cashflowMonths && client.cashflowMonths[cashflowMonthKey]) || {};
-    const incomeEl = document.getElementById('cashflowActualIncome');
-    const expensesEl = document.getElementById('cashflowActualExpenses');
-    if(incomeEl) incomeEl.value = existing.actualIncome!=null ? existing.actualIncome : '';
-    if(expensesEl) expensesEl.value = existing.actualExpenses!=null ? existing.actualExpenses : '';
-    const hint = document.getElementById('cashflowStatedHint');
-    if(hint){
-      const statedIncome = TEI.calc.totalMonthlyIncome ? TEI.calc.totalMonthlyIncome(client) : null;
-      hint.textContent = statedIncome!=null
-        ? `Your stated monthly income is ${fmtGBP(statedIncome)}. Log this month's actual figures only if they differed.`
-        : `Log this month's actual income and expenses if they differed from your usual stated amounts.`;
-    }
-    renderCashflowMonthlyHistory(client);
-  }
-
-  async function saveCashflowMonthly(){
-    const client = TEI.app.state.client;
-    const key = cashflowMonthKey;
-    const btn = document.getElementById('cashflowMonthlySaveBtn');
-    const incomeVal = parseFloat(document.getElementById('cashflowActualIncome').value);
-    const expensesVal = parseFloat(document.getElementById('cashflowActualExpenses').value);
-    const actualIncome = isNaN(incomeVal) ? null : incomeVal;
-    const actualExpenses = isNaN(expensesVal) ? null : expensesVal;
-    if(actualIncome==null && actualExpenses==null){ TEI.app.showToast('Nothing to save'); return; }
-    btn.disabled = true;
-    try{
-      await TEI.wealthOS.saveCashflowMonth(client.meta.clientId, key, actualIncome, actualExpenses, client.meta.role);
-    } catch(err){
-      console.error('Wealth OS: failed to save monthly cashflow actuals', err);
-      TEI.app.showToast("Couldn't save — " + (err.message || 'try again'));
-      btn.disabled = false;
-      return;
-    }
-    btn.disabled = false;
-    client.cashflowMonths = client.cashflowMonths || {};
-    client.cashflowMonths[key] = { actualIncome, actualExpenses };
-    renderCashflowMonthlyHistory(client);
     TEI.app.showToast('Saved ' + key);
   }
 
@@ -12713,27 +12418,23 @@ TEI.render = TEI.render || {};
       const el = document.getElementById(id);
       if(el && !el.dataset.wired){ el.dataset.wired = '1'; el.addEventListener('click', handler); }
     };
-    wire('balancesMonthPicker', e=>{ if(!e.target.value) return; balancesMonthKey = e.target.value; renderBalancesMonthlyWidget(TEI.app.state.client); });
-    wire('holdingsMonthPicker', e=>{ if(!e.target.value) return; holdingsMonthKey = e.target.value; renderHoldingsMonthlyWidget(TEI.app.state.client); });
     wire('depositsMonthPicker', e=>{ if(!e.target.value) return; depositsMonthKey = e.target.value; renderDepositsMonthlyWidget(TEI.app.state.client); });
-    wire('cashflowMonthPicker', e=>{ if(!e.target.value) return; cashflowMonthKey = e.target.value; renderCashflowMonthlyWidget(TEI.app.state.client); });
-    wireBtn('balancesMonthlySaveBtn', saveBalancesMonthly);
-    wireBtn('holdingsMonthlySaveBtn', saveHoldingsMonthly);
     wireBtn('depositsMonthlySaveBtn', saveDepositsMonthly);
-    wireBtn('cashflowMonthlySaveBtn', saveCashflowMonthly);
     wireClGoalForm();
   }
 
+  /* The old Update page is gone (clean-up, 20 Oct 2026): balances and
+     holdings are in Wealth's Update balances panel (persist* below), the
+     month's cashflow in Cashflow's panel, goals in the Goals panel. What
+     stays here is the deposits log, shown in Settings > Accounts > Money
+     paid in, and the goal form behind the Goals panel. */
   TEI.render.update = function(client){
     wireUpdatePage();
-    renderBalancesMonthlyWidget(client);
-    renderHoldingsMonthlyWidget(client);
     renderDepositsMonthlyWidget(client);
     if(!editingGoalId) toggleClGoalProgressFields();
     refreshClGoalLinkedAccountOptions(client);
     refreshClGoalLinkedIncomeOptions(client);
     renderClGoalsList(client);
-    renderCashflowMonthlyWidget(client);
   };
   TEI.update = { persistAccountBalances, persistHoldingValues };
 
@@ -14100,6 +13801,7 @@ TEI.render = TEI.render || {};
   /* Coach-only widgets kept under a fold: [section, fold id, label, hint]. */
   const SL_FOLDS = [
     ['accounts', 'months', 'Earlier months', 'Add or correct the balances for a past month.'],
+    ['accounts', 'deposits', 'Money paid in', 'What you paid into each account each month.'],
     ['holdings', 'hmonths', 'Earlier months', 'Add or correct holding values for a past month.'],
     ['holdings', 'divs', 'Dividends', 'Dividends received each year, and holdings that pay them.'],
     ['income', 'oneoff', 'One-off costs', 'Irregular costs, such as a car repair, counted only in the month you choose.']
@@ -14220,6 +13922,7 @@ TEI.render = TEI.render || {};
   }
   function slRender(c, sec){
     if(!slReady || !SL_SECS[sec]) return;
+    if(sec === 'accounts' && TEI.render.update) TEI.render.update(c); // the Money paid in log
     const secEl = document.querySelector('#stRoot [data-st-sec="'+sec+'"]');
     let host = secEl.querySelector('.sl-host');
     if(!host){ host = document.createElement('div'); host.className = 'sl-host'; secEl.insertBefore(host, secEl.querySelector('[data-st-host]')); }
@@ -14425,7 +14128,8 @@ TEI.render = TEI.render || {};
   });
   function setTextIn(id, t){ const el = $s(id); if(el) el.textContent = t; }
 
-  TEI.settings = { open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); } };
+  TEI.settings = { open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); },
+    fold: f=> $s('stRoot').classList.add('sl-show-' + f) };
 
   /* ================= LIBRARY (phones, spec B10) =================
      Plan: the latest Wealth Plan (an uploaded forecast document) with Open
@@ -20473,7 +20177,7 @@ TEI.render = TEI.render || {};
     document.getElementById('wlUpdateBtn').addEventListener('click', openUpdate);
     document.getElementById('wlUpdClose').addEventListener('click', closeUpdate);
     document.getElementById('wlUpdScrim').addEventListener('click', closeUpdate);
-    document.getElementById('wlUpdMore').addEventListener('click', (e)=>{ e.preventDefault(); closeUpdate(); TEI.app.showPage('update', {direct:true}); });
+    document.getElementById('wlUpdMore').addEventListener('click', (e)=>{ e.preventDefault(); closeUpdate(); TEI.settings.fold('deposits'); TEI.settings.fold('months'); TEI.settings.open('accounts'); });
     document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeUpdate(); });
     // Keep keyboard focus inside the open panel.
     document.getElementById('wlUpdPanel').addEventListener('keydown', (e)=>{
@@ -20500,7 +20204,7 @@ TEI.render = TEI.render || {};
 window.TEI = window.TEI || {};
 
 (function(){
-  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails','menu','libplan','library'];
+  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','learning','documents','mydetails','menu','libplan','library'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -20528,7 +20232,7 @@ window.TEI = window.TEI || {};
     let after = null;
     if(LIB_OLD[pageId] && window.matchMedia('(max-width:860px)').matches){ mPendingView = LIB_OLD[pageId]; pageId = 'library'; }
     if(pageId === 'portfolio'){ pageId = 'progress'; after = 'lab'; }
-    else if(pageId === 'update' && !(opts && opts.direct)){ pageId = 'progress'; after = 'update'; }
+    else if(pageId === 'update'){ pageId = 'progress'; after = 'update'; }
     if(PAGES.indexOf(pageId) === -1) pageId = 'home';
     state.currentPage = pageId;
     document.querySelectorAll('.page').forEach(el=> el.classList.toggle('active', el.id === 'page-'+pageId));
