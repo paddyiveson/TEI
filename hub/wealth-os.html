@@ -3582,6 +3582,8 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
    Everything is scoped to #stRoot, so the Adviser Workspace is unchanged.
    ================================================================ */
 #stRoot.st-v2 [data-sl-src]{ display:none !important; }
+/* A coach form tagged as hidden (income, spending) shows again once it is in the panel. */
+#stRoot.st-v2 .sl-body > [data-sl-src]{ display:flex !important; }
 #stRoot.st-v2 [data-sl-card]{ display:none; }
 #stRoot.st-v2.sl-show-months [data-sl-card="months"], #stRoot.st-v2.sl-show-hmonths [data-sl-card="hmonths"],
 #stRoot.st-v2.sl-show-divs [data-sl-card="divs"], #stRoot.st-v2.sl-show-oneoff [data-sl-card="oneoff"]{ display:block; }
@@ -3602,14 +3604,22 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .sl-val .sl-up{ color:var(--k-up-ink); }
 .sl-val .sl-down{ color:var(--w-warn); }
 .sl-chev{ flex:none; width:14px; height:14px; fill:none; stroke:var(--w-muted); stroke-width:2; stroke-linecap:round; }
-.sl-grp{ border-top:1px solid var(--w-line); }
+/* Category headings (Paddy, 20 Oct 2026: "the categories are not clear"):
+   each is its own shaded band with a colour marker; its rows sit inside. */
+.sl-head + .sl-grp{ margin-top:6px; }
+.sl-grp{ border:1px solid var(--w-line); border-radius:16px; background:var(--w-chip); padding:0 16px; }
+.sl-grp + .sl-grp{ margin-top:10px; }
+.sl-dot{ flex:none; width:12px; height:12px; border-radius:4px; background:var(--w-muted); }
+.sl-dot-essential{ background:var(--w-nav-active); }
+.sl-dot-lifestyle{ background:var(--w-gold); }
 .sl-grp-head{ display:flex; align-items:center; gap:12px; width:100%; min-height:60px; padding:10px 0; border:0; background:transparent; color:var(--w-text); font-family:inherit; text-align:left; cursor:pointer; }
 .sl-grp-head:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; border-radius:10px; }
-.sl-grp-head .sl-main b{ font-size:16px; white-space:normal; overflow-wrap:anywhere; }
+.sl-grp-head .sl-main b{ font-size:16px; font-weight:600; white-space:normal; overflow-wrap:anywhere; }
+.sl-grp-head .sl-val{ font-size:15px; font-weight:500; }
 .sl-grp-head .sl-chev{ transform:rotate(90deg); transition:transform .2s; }
 .sl-grp.open .sl-grp-head .sl-chev{ transform:rotate(-90deg); }
 .sl-grp-note{ color:var(--w-warn); }
-.sl-grp > .sl-list{ margin:0 0 8px; padding-left:14px; border-left:2px solid var(--w-line); }
+.sl-grp > .sl-list{ margin:0 -16px; padding:0 16px; background:var(--w-tile); border-top:1px solid var(--w-line); border-radius:0 0 15px 15px; }
 .sl-grp > .sl-list[hidden]{ display:none; }
 .sl-grp > .sl-list > .sl-item:first-child{ border-top:0; }
 .sl-none{ padding:12px 0; list-style:none; }
@@ -3646,11 +3656,22 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .sl-remove{ align-self:flex-start; min-height:44px; color:var(--w-warn); border-color:var(--w-warn); }
 .sl-remove[hidden]{ display:none; }
 .st-ef{ margin-top:6px; max-width:420px; }
+/* Menu group labels read as headings; the open section has a gold marker. */
+#stRoot .st-nav{ gap:22px; }
+#stRoot .st-nav > div{ display:flex; flex-direction:column; gap:2px; }
+#stRoot .st-nav .hm-label, .me-group > .hm-label{ font-family:inherit; font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--w-text); }
+#stRoot .st-nav .hm-label{ margin:0 0 6px 12px !important; }
+#stRoot .st-nav button{ min-height:44px; color:var(--w-text); font-size:15px; }
+#stRoot .st-nav button.on{ box-shadow:inset 3px 0 0 var(--w-gold); }
 .st-ef select{ box-sizing:border-box; width:100%; min-height:44px; padding:0 12px; border:1px solid var(--w-line); border-radius:12px; background:var(--w-bg); color:var(--w-text); font-family:inherit; font-size:15px; }
 @media (max-width:860px){
   .sl-head .hm-btn{ flex:1 1 auto; }
   .sl-val{ font-size:13px; }
   .sl-chip{ min-width:84px; padding:0 10px; }
+  /* Spending rows: the name gets the full width, the amount sits under it. */
+  .sl-has-chip .sl-row{ display:grid; grid-template-columns:minmax(0,1fr); gap:2px; }
+  .sl-has-chip .sl-val{ align-items:flex-start; }
+  .sl-has-chip .sl-chev{ display:none; }
 }
 </style>
 </head>
@@ -5293,7 +5314,7 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="conditional-block" id="obAccountsBlock" style="margin-top:16px;">
         <div id="obAccountsList"></div>
         <div class="mini-form">
-          <label class="form-field on-light"><span>Wrapper type</span><select id="obNewAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="lisa">LISA</option><option value="pension">Pension</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="crypto">Crypto</option><option value="other">Other</option></select></label>
+          <label class="form-field on-light"><span>Wrapper type</span><select id="obNewAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="lisa">Stocks &amp; Shares LISA</option><option value="cash_lisa">Cash LISA</option><option value="pension">Pension</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="crypto">Crypto</option><option value="other">Other</option></select></label>
           <label class="form-field on-light"><span>Provider</span><input type="text" id="obNewAcctProvider" placeholder="e.g. Vanguard"></label>
           <label class="form-field on-light"><span>Current value £</span><input type="number" id="obNewAcctBalance" placeholder="0"></label>
           <label class="form-field on-light" id="obAcctContribField"><span>Add £/month, if any</span><input type="number" id="obNewAcctContrib" placeholder="0"></label>
@@ -5578,7 +5599,7 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="note" style="margin-top:0;">ISA, GIA, pension, LISA, Cash ISA, current/deposit or other. Current value seeds this month's balance automatically — adjust it below for later months.</div>
       <div id="accountsList"></div>
       <div class="mini-form">
-        <label class="form-field"><span>Type</span><select id="newAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="pension">Pension</option><option value="lisa">LISA</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="crypto">Crypto</option><option value="other">Other</option></select></label>
+        <label class="form-field"><span>Type</span><select id="newAcctType"><option value="isa">ISA</option><option value="gia">GIA</option><option value="pension">Pension</option><option value="lisa">Stocks &amp; Shares LISA</option><option value="cash_lisa">Cash LISA</option><option value="cash">Current / Deposit Account</option><option value="cash_isa">Cash ISA</option><option value="crypto">Crypto</option><option value="other">Other</option></select></label>
         <label class="form-field"><span>Current value £</span><input type="number" id="newAcctBalance" placeholder="0"></label>
         <label class="form-field" id="advAcctContribField"><span>Contribution £/mo</span><input type="number" id="newAcctContrib" placeholder="0"></label>
         <label class="form-field" id="advAcctContribPersonalField" style="display:none;"><span>Personal contribution £/mo</span><input type="number" id="newAcctContribPersonal" placeholder="0"></label>
@@ -6171,7 +6192,7 @@ window.TEI = window.TEI || {};
      Most type codes read fine uppercased as-is (ISA, GIA, CASH, OTHER) --
      ACCT_TYPE_WORD only needs an entry where that's not true, e.g. a
      compound code like cash_isa which would otherwise show as "CASH_ISA". */
-  const ACCT_TYPE_WORD = {cash_isa:'Cash ISA'};
+  const ACCT_TYPE_WORD = {cash_isa:'Cash ISA', lisa:'S&S LISA', cash_lisa:'Cash LISA'};
   function acctTypeWord(type){ return ACCT_TYPE_WORD[type] || String(type||'').toUpperCase(); }
   function acctLabel(a){ return a.provider ? a.provider+' '+acctTypeWord(a.type) : acctTypeWord(a.type); }
   function monthLabel(key){ const [y,m] = key.split('-').map(Number); return MONTH_ABBR[m-1] + " '" + String(y).slice(2); }
@@ -6248,7 +6269,7 @@ window.TEI = window.TEI || {};
   function accrueCashInterest(client, accountId){
     const acc = client.accounts.find(a=>a.id===accountId);
     if(!acc) return;
-    if(acc.type !== 'cash' && acc.type !== 'cash_isa') return;
+    if(acc.type !== 'cash' && acc.type !== 'cash_isa' && acc.type !== 'cash_lisa') return;
     if(accountHasHoldings(client, accountId)) return; // priced holdings drive value instead
     const rate = Number(acc.interestRate);
     if(!rate || !acc.lastUpdated) return;
@@ -6434,7 +6455,7 @@ window.TEI = window.TEI || {};
     // Wealth OS now shows £0 for that portion instead of a guess; the fix is
     // to log a cash account, not to infer one from a Cashflow-page total
     // that may or may not already be captured elsewhere.
-    return client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa').reduce((s,a)=>s+acctContribTotal(a),0);
+    return client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa'||a.type==='cash_lisa').reduce((s,a)=>s+acctContribTotal(a),0);
   }
   function actualTotalSavingInvesting(client){
     return actualInvestmentMonthlyContribution(client) + actualCashMonthlyContribution(client);
@@ -7483,7 +7504,7 @@ window.TEI = window.TEI || {};
      £4k/year cap enforcement. Shared by the monthly Deposits widget and the
      "before tracking started" lump sum below. */
   const RELIEF_RATE = 0.25;
-  function isReliefEligible(acc){ return !!acc && (acc.type === 'lisa' || acc.type === 'pension'); }
+  function isReliefEligible(acc){ return !!acc && (acc.type === 'lisa' || acc.type === 'cash_lisa' || acc.type === 'pension'); }
   /* The "before tracking started" lump sum is entered as NET deposits (the
      form says so for LISA/pension), so the bonus/relief is added on top at
      the same rate as monthly deposits. A salary-sacrifice-only pension
@@ -7506,6 +7527,7 @@ window.TEI = window.TEI || {};
      sacrifice arrives with payroll, so it's never pending. */
   const RELIEF_PENDING_WINDOW = {
     lisa:    { months: 2, label: 'LISA bonus',  note: 'usually lands 4–8 weeks after deposit' },
+    cash_lisa: { months: 2, label: 'LISA bonus', note: 'usually lands 4 to 8 weeks after deposit' },
     pension: { months: 3, label: 'tax relief', note: 'usually lands within 11 weeks of the contribution' }
   };
   function isReliefPending(acc, monthKey, nowKey){
@@ -7725,7 +7747,7 @@ window.TEI = window.TEI || {};
       // Cash is meant to be spent: money paid into a cash account and later
       // used reads as "unaccounted for" against what is left, so cash and
       // Cash ISA accounts are never reconciled against contributions.
-      if(a.type === 'cash' || a.type === 'cash_isa') return;
+      if(a.type === 'cash' || a.type === 'cash_isa' || a.type === 'cash_lisa') return;
       // Bonus/relief still inside its landing window isn't expected in the
       // account yet (see RELIEF_PENDING_WINDOW) -- checked on what should
       // have arrived by now, not everything contributed.
@@ -8139,7 +8161,7 @@ TEI.render = TEI.render || {};
   const COMP_GROUPS = [
     {key:'pension',  label:'Pensions',           col:'#E8D6A8', types:['pension']},
     {key:'isa',      label:'ISAs',               col:'#B9CAE6', types:['isa']},
-    {key:'lisa',     label:'Lifetime ISA',       col:'#F7F4ED', types:['lisa']},
+    {key:'lisa',     label:'Lifetime ISA',       col:'#F7F4ED', types:['lisa','cash_lisa']},
     {key:'cash',     label:'Cash',               col:'#AAB6C8', types:['cash','cash_isa']},
     {key:'gia',      label:'General investment', col:'#83661C', types:['gia']},
     {key:'crypto',   label:'Crypto',             col:'#9DB59F', types:['crypto']},
@@ -8354,7 +8376,7 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------- Accounts: the five largest ---------------- */
-  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'var(--w-muted)', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#9DB59F'};
+  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'var(--w-muted)', cash_lisa:'var(--w-muted)', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#9DB59F'};
   function renderAccounts(client){
     const b = TEI.calc.latestBreakdown(TEI.calc.buildMergedMonths(client));
     const top = (client.accounts||[]).map(a=> ({a, v: Number(b[a.id])||0})).filter(x=> x.v > 0)
@@ -8466,7 +8488,7 @@ TEI.render = TEI.render || {};
   /* ---------- asset / liability / composition math, shared across this page's sections ---------- */
   function investTotal(client, b){ return client.accounts.filter(a=>['isa','gia','lisa'].includes(a.type)).reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function pensionTotal(client, b){ return client.accounts.filter(a=>a.type==='pension').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
-  function cashAcctTotal(client, b){ return client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
+  function cashAcctTotal(client, b){ return client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa'||a.type==='cash_lisa').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function cryptoTotal(client, b){ return client.accounts.filter(a=>a.type==='crypto').reduce((s,a)=>s+(Number(b[a.id])||0),0); }
   function otherAssetsTotal(client){ return (client.wealth.assets||[]).filter(a=>a.type!=='property').reduce((s,a)=>s+(Number(a.value)||0),0); }
   function propertyValue(client){ return (client.wealth.assets||[]).filter(a=>a.type==='property').reduce((s,a)=>s+(Number(a.value)||0),0); }
@@ -8534,7 +8556,7 @@ TEI.render = TEI.render || {};
     return (parts[0][0] + (parts[1]?parts[1][0]:'')).toUpperCase();
   }
 
-  const ACCOUNT_TYPE_LABEL = {isa:'ISA', gia:'GIA', pension:'Pension', lisa:'LISA', cash:'Current / Deposit Account', cash_isa:'Cash ISA', crypto:'Crypto'};
+  const ACCOUNT_TYPE_LABEL = {isa:'ISA', gia:'GIA', pension:'Pension', lisa:'S&S LISA', cash_lisa:'Cash LISA', cash:'Current / Deposit Account', cash_isa:'Cash ISA', crypto:'Crypto'};
 
   /* Milestones: auto-detected round net-worth figures reached, plus adviser-added custom ones
      from client.insights.milestones (same field the previous build of this page used). Feeds
@@ -8895,7 +8917,7 @@ TEI.render = TEI.render || {};
       {key:'property', label:'Property', value:propertyValue(client), color:COMP_PALETTE.property, accounts:[]},
       {key:'investments', label:'Investments', value:investTotal(client,b), color:COMP_PALETTE.investments, accounts:client.accounts.filter(a=>['isa','gia','lisa'].includes(a.type))},
       {key:'pension', label:'Pension', value:pensionTotal(client,b), color:COMP_PALETTE.pension, accounts:client.accounts.filter(a=>a.type==='pension')},
-      {key:'cash', label:'Cash', value:cashAcctTotal(client,b), color:COMP_PALETTE.cash, accounts:client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa')},
+      {key:'cash', label:'Cash', value:cashAcctTotal(client,b), color:COMP_PALETTE.cash, accounts:client.accounts.filter(a=>a.type==='cash'||a.type==='cash_isa'||a.type==='cash_lisa')},
       // Crypto is deliberately its own category, never folded into Investments or
       // Other -- unlike GIA/ISA/LISA it isn't a tax wrapper around equities, and
       // lumping it into "Other" (which is manually-declared assets, not accounts)
@@ -9380,7 +9402,7 @@ TEI.render = TEI.render || {};
 (function(){
   const {fmtGBP} = TEI.data;
   const INV_TYPES = ['isa','gia','lisa','pension','crypto'];
-  const ACCT_TYPE_LABEL = {isa:'Stocks & Shares ISA', gia:'GIA', lisa:'LISA', pension:'Pension', cash:'Current / Deposit Account', cash_isa:'Cash ISA', crypto:'Crypto'};
+  const ACCT_TYPE_LABEL = {isa:'Stocks & Shares ISA', gia:'GIA', lisa:'Stocks & Shares LISA', cash_lisa:'Cash LISA', pension:'Pension', cash:'Current / Deposit Account', cash_isa:'Cash ISA', crypto:'Crypto'};
 
   function investmentAccounts(client){ return client.accounts.filter(a=> INV_TYPES.includes(a.type)); }
 
@@ -10420,8 +10442,8 @@ TEI.render = TEI.render || {};
     return {
       leftWrapper, intoAccounts,
       sippLeft: leftWrapper.some(a=>pensionByAccount[a]),
-      isaLeft: leftWrapper.some(a=> ['isa','lisa','cash_isa'].includes(typeByAccount[a])),
-      otherLeft: leftWrapper.filter(a=> !pensionByAccount[a] && !['isa','lisa','cash_isa'].includes(typeByAccount[a]))
+      isaLeft: leftWrapper.some(a=> ['isa','lisa','cash_isa','cash_lisa'].includes(typeByAccount[a])),
+      otherLeft: leftWrapper.filter(a=> !pensionByAccount[a] && !['isa','lisa','cash_isa','cash_lisa'].includes(typeByAccount[a]))
     };
   }
   /* Cross-wrapper wording (B5.1), shared by Implement and Results. Stated as
@@ -10522,14 +10544,14 @@ TEI.render = TEI.render || {};
      The 3px gap between tiles keeps neighbours of one type apart. */
   const TYPE_TILE = {
     pension:['#E8D6A8','#13213A'], isa:['#B9CAE6','#13213A'], lisa:['#DFE6F2','#13213A'],
-    gia:['#83661C','#FFFFFF'], cash:['#AAB6C8','#13213A'], cash_isa:['#AAB6C8','#13213A'],
+    gia:['#83661C','#FFFFFF'], cash:['#AAB6C8','#13213A'], cash_isa:['#AAB6C8','#13213A'], cash_lisa:['#AAB6C8','#13213A'],
     crypto:['#6F7F98','#FFFFFF'], other:['#C9D3E3','#13213A']
   };
-  const TYPE_LABEL = {pension:'Pension', isa:'S&S ISA', lisa:'Lifetime ISA', gia:'GIA', cash:'Cash', cash_isa:'Cash', crypto:'Crypto', other:'Other accounts'};
+  const TYPE_LABEL = {pension:'Pension', isa:'S&S ISA', lisa:'Lifetime ISA', gia:'GIA', cash:'Cash', cash_isa:'Cash', cash_lisa:'Cash', crypto:'Crypto', other:'Other accounts'};
   const OTHER_TILE = ['#E9E5DA','#13213A'];
   function tileTypeOf(d){
     if(d.isOther) return null;
-    const t = d.accountType === 'cash_isa' ? 'cash' : d.accountType;
+    const t = (d.accountType === 'cash_isa' || d.accountType === 'cash_lisa') ? 'cash' : d.accountType;
     return TYPE_TILE[t] ? t : 'other';
   }
   function treemapColors(tiles){
@@ -12048,7 +12070,7 @@ TEI.render = TEI.render || {};
     if(toggleBtn) toggleBtn.addEventListener('click', ()=>{ el.dataset.expanded = expanded ? '0' : '1'; renderDepositsMonthlyHistory(client); });
   }
 
-  function reliefPreviewLabel(acc){ return acc.type === 'lisa' ? 'Government bonus added' : 'Tax relief added'; }
+  function reliefPreviewLabel(acc){ return (acc.type === 'lisa' || acc.type === 'cash_lisa') ? 'Government bonus added' : 'Tax relief added'; }
 
   function renderDepositsMonthlyWidget(client){
     if(!depositsMonthKey) depositsMonthKey = TEI.data.currentMonthKey();
@@ -13760,8 +13782,8 @@ TEI.render = TEI.render || {};
      "More detail". The coach's lists stay in the page, hidden, and their
      buttons do the editing and removing; when one re-renders after a save
      or a removal, the panel closes and the list here redraws. */
-  const ACCT_TYPES = {isa:'Stocks and shares ISA', gia:'General investment account', pension:'Pension', lisa:'Lifetime ISA',
-    cash:'Cash savings', cash_isa:'Cash ISA', crypto:'Crypto', other:'Other account'};
+  const ACCT_TYPES = {isa:'Stocks and shares ISA', gia:'General investment account', pension:'Pension', lisa:'Stocks and shares LISA',
+    cash:'Cash savings', cash_isa:'Cash ISA', cash_lisa:'Cash LISA', crypto:'Crypto', other:'Other account'};
   const ASSET_TYPES = {property:'Property', vehicle:'Vehicle', collectibles:'Collectibles', business:'Business interests', other:'Other asset'};
   const LIAB_TYPES = {mortgage:'Mortgage', loan:'Loan', credit:'Credit card', other:'Other debt'};
   const FREQ = {monthly:'a month', annual:'a year', weekly:'a week', fourweekly:'every 4 weeks'};
@@ -13900,11 +13922,13 @@ TEI.render = TEI.render || {};
      account, accounts by kind, spending by essential and lifestyle. Closed
      by default; what is open is remembered while Settings is in use. */
   const slOpenGrps = {};
-  const SL_KINDS = [['cash', 'Cash savings', ['cash','cash_isa']], ['invest', 'Investments', ['isa','gia','lisa','crypto','other']], ['pension', 'Pensions', ['pension']]];
-  function slSubHTML(key, title, meta, total, rows, note){
+  const SL_KINDS = [['cash', 'Cash savings', ['cash','cash_isa','cash_lisa']], ['invest', 'Investments', ['isa','gia','lisa','crypto','other']], ['pension', 'Pensions', ['pension']]];
+  /* Marker colours: the account-type colours used on Wealth (B5). */
+  const SL_DOT = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash_lisa:'#DFE6F2', gia:'#83661C', cash:'#AAB6C8', cash_isa:'#AAB6C8', crypto:'#6F7F98', other:'#C9D3E3', invest:'#B9CAE6'};
+  function slSubHTML(key, title, meta, total, rows, note, dot){
     const open = !!slOpenGrps[key];
     return `<div class="sl-grp${open ? ' open' : ''}"><button type="button" class="sl-grp-head" data-sl-grp="${esc(key)}" aria-expanded="${open}">
-      <span class="sl-main"><b>${esc(title)}</b><small>${esc(meta)}${note ? ` · <span class="sl-grp-note">${esc(note)}</span>` : ''}</small></span>
+      <i class="sl-dot${dot && dot.charAt(0) !== '#' ? ' sl-dot-' + dot : ''}"${dot && dot.charAt(0) === '#' ? ` style="background:${dot}"` : ''} aria-hidden="true"></i><span class="sl-main"><b>${esc(title)}</b><small>${esc(meta)}${note ? ` · <span class="sl-grp-note">${esc(note)}</span>` : ''}</small></span>
       <span class="sl-val">${esc(total)}</span>${CHEV}</button><ul class="sl-list"${open ? '' : ' hidden'}>${rows}</ul></div>`;
   }
   const slCount = (n, one, many)=> n + ' ' + (n === 1 ? one : many);
@@ -13919,7 +13943,7 @@ TEI.render = TEI.render || {};
       body = Object.keys(by).map(k=>{
         const a = (c.accounts||[]).find(x=> x.id === k);
         const tot = by[k].reduce((s,h)=> s + (Number(h.value)||0), 0);
-        return slSubHTML('hold:' + k, a ? acctTitle(a) : 'No account', slCount(by[k].length, 'holding', 'holdings'), money(tot), rows(by[k]));
+        return slSubHTML('hold:' + k, a ? acctTitle(a) : 'No account', slCount(by[k].length, 'holding', 'holdings'), money(tot), rows(by[k]), '', SL_DOT[a ? a.type : 'other'] || SL_DOT.other);
       }).join('');
     } else if(gid === 'acct'){
       const known = [].concat(...SL_KINDS.map(k=> k[2]));
@@ -13928,13 +13952,13 @@ TEI.render = TEI.render || {};
         if(!list.length) return '';
         const tot = list.reduce((s,a)=> s + (Number(a.value)||0), 0);
         const flagged = list.filter(a=> slFlag(a, c)).length;
-        return slSubHTML('acct:' + k, title, slCount(list.length, 'account', 'accounts'), money(tot), rows(list), flagged ? slCount(flagged, 'to check', 'to check') : '');
+        return slSubHTML('acct:' + k, title, slCount(list.length, 'account', 'accounts'), money(tot), rows(list), flagged ? slCount(flagged, 'to check', 'to check') : '', SL_DOT[k] || SL_DOT.other);
       }).join('');
     } else if(gid === 'spend'){
       body = [['essential', 'Essential'], ['lifestyle', 'Lifestyle']].map(([k, title])=>{
         const list = items.filter(x=> (x.category === 'lifestyle' ? 'lifestyle' : 'essential') === k);
         const tot = list.reduce((s,x)=> s + (Number(x.amount)||0), 0);
-        return slSubHTML('spend:' + k, title, slCount(list.length, 'line', 'lines'), money(tot) + ' a month', list.length ? rows(list) : '<li class="sl-none hm-muted hm-small">Nothing here yet.</li>');
+        return slSubHTML('spend:' + k, title, slCount(list.length, 'line', 'lines'), money(tot) + ' a month', list.length ? rows(list) : '<li class="sl-none hm-muted hm-small">Nothing here yet.</li>', '', k);
       }).join('');
     } else body = `<ul class="sl-list">${rows(items)}</ul>`;
     const extra = gid === 'acct' ? `<button type="button" class="hm-btn" data-sl-update>Update balances</button>` : '';
@@ -14280,7 +14304,7 @@ window.TEI = window.TEI || {};
         const parts = [];
         if(cbPaidIn) parts.push(fmtGBP(cbPaidIn)+' paid in');
         if(cb.sacrifice) parts.push(fmtGBP(cb.sacrifice)+' via salary sacrifice');
-        parts.push(fmtGBP(cb.relief)+(acc.type==='lisa' ? ' bonus' : ' tax relief'));
+        parts.push(fmtGBP(cb.relief)+((acc.type==='lisa'||acc.type==='cash_lisa') ? ' bonus' : ' tax relief'));
         cbDetail = parts.join(' + ');
       } else if(cb.sacrifice){
         cbDetail = cbPaidIn ? fmtGBP(cbPaidIn)+' paid in + '+fmtGBP(cb.sacrifice)+' via salary sacrifice' : 'via salary sacrifice';
@@ -14434,11 +14458,12 @@ window.TEI = window.TEI || {};
     // Lump sum is net deposits for LISA/pension -- TEI.calc.openingReliefFor
     // adds the bonus/relief on top, so the wording has to say so.
     const openingHelp = {
+      cash_lisa: "Net deposits only, before the 25% government bonus. The bonus is added on top. Only needed if monthly history doesn't go back to the start.",
       lisa: "Net deposits only, before the 25% government bonus. The bonus is added on top. Only needed if monthly history doesn't go back to the start.",
       pension: "Your own net contributions, before 20% tax relief. Relief is added on top (not for salary-sacrifice-only pensions). Only needed if monthly history doesn't go back to the start."
     };
     document.getElementById('newAcctOpeningHelp').textContent = openingHelp[type] || "Only needed if monthly history doesn't go back to the start.";
-    const isCash = type === 'cash' || type === 'cash_isa';
+    const isCash = type === 'cash' || type === 'cash_isa' || type === 'cash_lisa';
     document.getElementById('advAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctJointField').style.display = client.meta.householdId ? 'flex' : 'none';
@@ -14446,7 +14471,7 @@ window.TEI = window.TEI || {};
   }
   function toggleAdvAcctMaturityField(){
     const type = document.getElementById('newAcctType').value;
-    const isCash = type === 'cash' || type === 'cash_isa';
+    const isCash = type === 'cash' || type === 'cash_isa' || type === 'cash_lisa';
     const isFixed = document.getElementById('newAcctRateType').value === 'fixed';
     document.getElementById('advAcctMaturityField').style.display = (isCash && isFixed) ? 'flex' : 'none';
   }
@@ -14461,7 +14486,7 @@ window.TEI = window.TEI || {};
     const openingContributions = openingContribInput ? parseFloat(openingContribInput) : null;
     const cashBalanceInput = document.getElementById('newAcctCashBalance').value;
     const cashBalance = cashBalanceInput ? parseFloat(cashBalanceInput) : null;
-    const isCashType = type === 'cash' || type === 'cash_isa';
+    const isCashType = type === 'cash' || type === 'cash_isa' || type === 'cash_lisa';
     const interestRateInput = document.getElementById('newAcctInterestRate').value;
     const interestRate = isCashType && interestRateInput ? parseFloat(interestRateInput) : null;
     const rateType = isCashType && interestRate!=null ? document.getElementById('newAcctRateType').value : null;
@@ -18059,14 +18084,14 @@ window.TEI = window.TEI || {};
     document.getElementById('obAcctContribField').style.display = isPension ? 'none' : 'flex';
     document.getElementById('obAcctContribPersonalField').style.display = isPension ? 'flex' : 'none';
     document.getElementById('obAcctContribEmployerField').style.display = isPension ? 'flex' : 'none';
-    const isCash = type === 'cash' || type === 'cash_isa';
+    const isCash = type === 'cash' || type === 'cash_isa' || type === 'cash_lisa';
     document.getElementById('obAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('obAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
     toggleAcctMaturityField();
   }
   function toggleAcctMaturityField(){
     const type = document.getElementById('obNewAcctType').value;
-    const isCash = type === 'cash' || type === 'cash_isa';
+    const isCash = type === 'cash' || type === 'cash_isa' || type === 'cash_lisa';
     const isFixed = document.getElementById('obNewAcctRateType').value === 'fixed';
     document.getElementById('obAcctMaturityField').style.display = (isCash && isFixed) ? 'flex' : 'none';
   }
@@ -18081,7 +18106,7 @@ window.TEI = window.TEI || {};
     const contrib = parseFloat(document.getElementById('obNewAcctContrib').value)||0;
     const contribPersonal = parseFloat(document.getElementById('obNewAcctContribPersonal').value)||0;
     const contribEmployer = parseFloat(document.getElementById('obNewAcctContribEmployer').value)||0;
-    const isCashType = type === 'cash' || type === 'cash_isa';
+    const isCashType = type === 'cash' || type === 'cash_isa' || type === 'cash_lisa';
     const interestRateInput = document.getElementById('obNewAcctInterestRate').value;
     const interestRate = isCashType && interestRateInput ? parseFloat(interestRateInput) : null;
     const rateType = isCashType && interestRate!=null ? document.getElementById('obNewAcctRateType').value : null;
@@ -19872,8 +19897,8 @@ TEI.render = TEI.render || {};
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function setText(id, text){ const el = document.getElementById(id); if(el) el.textContent = text; }
   // Account colours, the same as the Lab treemap (B5 board palette).
-  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#6F7F98'};
-  const CASH_TYPES = ['cash', 'cash_isa'];
+  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash_lisa:'#DFE6F2', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#6F7F98'};
+  const CASH_TYPES = ['cash', 'cash_isa', 'cash_lisa'];
 
   /* One row per holding; accounts without holdings appear as one row of
      their own, so the table adds up to every account. Cost is the cost
