@@ -3602,6 +3602,18 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .sl-val .sl-up{ color:var(--k-up-ink); }
 .sl-val .sl-down{ color:var(--w-warn); }
 .sl-chev{ flex:none; width:14px; height:14px; fill:none; stroke:var(--w-muted); stroke-width:2; stroke-linecap:round; }
+.sl-grp{ border-top:1px solid var(--w-line); }
+.sl-grp-head{ display:flex; align-items:center; gap:12px; width:100%; min-height:60px; padding:10px 0; border:0; background:transparent; color:var(--w-text); font-family:inherit; text-align:left; cursor:pointer; }
+.sl-grp-head:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; border-radius:10px; }
+.sl-grp-head .sl-main b{ font-size:16px; white-space:normal; overflow-wrap:anywhere; }
+.sl-grp-head .sl-chev{ transform:rotate(90deg); transition:transform .2s; }
+.sl-grp.open .sl-grp-head .sl-chev{ transform:rotate(-90deg); }
+.sl-grp-note{ color:var(--w-warn); }
+.sl-grp > .sl-list{ margin:0 0 8px; padding-left:14px; border-left:2px solid var(--w-line); }
+.sl-grp > .sl-list[hidden]{ display:none; }
+.sl-grp > .sl-list > .sl-item:first-child{ border-top:0; }
+.sl-none{ padding:12px 0; list-style:none; }
+@media (prefers-reduced-motion:reduce){ .sl-grp-head .sl-chev{ transition:none; } }
 .sl-sub{ display:flex; justify-content:space-between; gap:12px; margin:14px 0 2px !important; }
 .sl-sub:first-of-type{ margin-top:4px !important; }
 .sl-empty{ padding:6px 0; }
@@ -13884,8 +13896,21 @@ TEI.render = TEI.render || {};
       <span class="sl-main"><b>${esc(r.title)}</b>${r.sub ? `<small>${esc(r.sub)}</small>` : ''}</span>
       <span class="sl-val">${esc(r.value)}${r.extra ? `<small class="${/^-/.test(r.extra) ? 'sl-down' : 'sl-up'}">${esc(r.extra)}</small>` : ''}</span>${CHEV}</button>${chip}${gid === 'acct' ? slFlag(x, c) : ''}</li>`;
   }
+  /* Collapsible headings inside a list (Paddy, 20 Oct 2026): holdings by
+     account, accounts by kind, spending by essential and lifestyle. Closed
+     by default; what is open is remembered while Settings is in use. */
+  const slOpenGrps = {};
+  const SL_KINDS = [['cash', 'Cash savings', ['cash','cash_isa']], ['invest', 'Investments', ['isa','gia','lisa','crypto','other']], ['pension', 'Pensions', ['pension']]];
+  function slSubHTML(key, title, meta, total, rows, note){
+    const open = !!slOpenGrps[key];
+    return `<div class="sl-grp${open ? ' open' : ''}"><button type="button" class="sl-grp-head" data-sl-grp="${esc(key)}" aria-expanded="${open}">
+      <span class="sl-main"><b>${esc(title)}</b><small>${esc(meta)}${note ? ` · <span class="sl-grp-note">${esc(note)}</span>` : ''}</small></span>
+      <span class="sl-val">${esc(total)}</span>${CHEV}</button><ul class="sl-list"${open ? '' : ' hidden'}>${rows}</ul></div>`;
+  }
+  const slCount = (n, one, many)=> n + ' ' + (n === 1 ? one : many);
   function slGroupHTML(gid, c){
     const g = SL[gid], items = g.items(c);
+    const rows = list=> list.map(x=> slRowHTML(gid, g, x, c)).join('');
     let body;
     if(!items.length) body = `<p class="hm-muted hm-small sl-empty">${esc(g.empty || 'Nothing added yet.')}</p>`;
     else if(gid === 'hold'){
@@ -13894,9 +13919,24 @@ TEI.render = TEI.render || {};
       body = Object.keys(by).map(k=>{
         const a = (c.accounts||[]).find(x=> x.id === k);
         const tot = by[k].reduce((s,h)=> s + (Number(h.value)||0), 0);
-        return `<p class="hm-label sl-sub"><span>${esc(a ? acctTitle(a) : 'No account')}</span><span>${money(tot)}</span></p><ul class="sl-list">${by[k].map(x=> slRowHTML(gid, g, x, c)).join('')}</ul>`;
+        return slSubHTML('hold:' + k, a ? acctTitle(a) : 'No account', slCount(by[k].length, 'holding', 'holdings'), money(tot), rows(by[k]));
       }).join('');
-    } else body = `<ul class="sl-list">${items.map(x=> slRowHTML(gid, g, x, c)).join('')}</ul>`;
+    } else if(gid === 'acct'){
+      const known = [].concat(...SL_KINDS.map(k=> k[2]));
+      body = SL_KINDS.concat([['other', 'Other accounts', null]]).map(([k, title, types])=>{
+        const list = items.filter(a=> types ? types.indexOf(a.type) >= 0 : known.indexOf(a.type) < 0);
+        if(!list.length) return '';
+        const tot = list.reduce((s,a)=> s + (Number(a.value)||0), 0);
+        const flagged = list.filter(a=> slFlag(a, c)).length;
+        return slSubHTML('acct:' + k, title, slCount(list.length, 'account', 'accounts'), money(tot), rows(list), flagged ? slCount(flagged, 'to check', 'to check') : '');
+      }).join('');
+    } else if(gid === 'spend'){
+      body = [['essential', 'Essential'], ['lifestyle', 'Lifestyle']].map(([k, title])=>{
+        const list = items.filter(x=> (x.category === 'lifestyle' ? 'lifestyle' : 'essential') === k);
+        const tot = list.reduce((s,x)=> s + (Number(x.amount)||0), 0);
+        return slSubHTML('spend:' + k, title, slCount(list.length, 'line', 'lines'), money(tot) + ' a month', list.length ? rows(list) : '<li class="sl-none hm-muted hm-small">Nothing here yet.</li>');
+      }).join('');
+    } else body = `<ul class="sl-list">${rows(items)}</ul>`;
     const extra = gid === 'acct' ? `<button type="button" class="hm-btn" data-sl-update>Update balances</button>` : '';
     return `<section class="hm-tile st-card sl-group"><div class="sl-head"><h3 class="hm-h3">${esc(g.heading)}</h3><div class="sl-acts">${extra}<button type="button" class="hm-btn hm-btn-primary" data-sl-add="${gid}">${esc(g.add)}</button></div></div>${body}</section>`;
   }
@@ -14030,6 +14070,14 @@ TEI.render = TEI.render || {};
   function slClick(e){
     const t = e.target;
     let b;
+    if((b = t.closest('[data-sl-grp]'))){
+      const open = !slOpenGrps[b.dataset.slGrp];
+      slOpenGrps[b.dataset.slGrp] = open;
+      b.setAttribute('aria-expanded', open ? 'true' : 'false');
+      b.parentNode.classList.toggle('open', open);
+      b.nextElementSibling.hidden = !open;
+      return;
+    }
     if((b = t.closest('[data-sl-open]'))) return slOpen(b.dataset.slOpen, b.dataset.slId);
     if((b = t.closest('[data-sl-add]'))) return slOpen(b.dataset.slAdd, null);
     if((b = t.closest('[data-sl-spend]'))) return slToggleSpend(b.dataset.slSpend);
