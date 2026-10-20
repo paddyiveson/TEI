@@ -757,7 +757,7 @@ TEI.render = TEI.render || {};
      A coach previewing a client's Wealth OS sends nothing. */
   const WO_REQUESTS = {
     session: b=>{
-      const m = b.closest('section') && b.closest('section').querySelector('.gl-coach-msg');
+      const m = b.closest('section') && b.closest('section').querySelector('.gl-coach-msg, .wl-coach-msg');
       const said = m ? m.textContent.trim() : '';
       return {text: 'Would like to talk about this at the next session' + (said ? ': "' + said + '"' : '.'),
         sent: 'Sent. Your coach will bring this to your next session.'};

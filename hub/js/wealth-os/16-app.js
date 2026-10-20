@@ -1,7 +1,7 @@
 window.TEI = window.TEI || {};
 
 (function(){
-  const PAGES = ['home','progress','goals','planning','cashflow','documents','mydetails','menu','library'];
+  const PAGES = ['home','progress','lab','goals','planning','cashflow','documents','mydetails','menu','library'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -19,7 +19,7 @@ window.TEI = window.TEI || {};
   }
 
   /* Removed pages land on their new homes (spec B2.2): Portfolio is part of
-     Wealth now (scrolled to the Lab), and Update opens Wealth's Update
+     Wealth now (scrolled to Your portfolio; the full Lab is its own screen, B5.4), and Update opens Wealth's Update
      balances panel. opts.direct still opens the old Update page, which the
      Cashflow "Update" link uses until Cashflow gets its own panel (B12.8);
      it goes in the B12.11 clean-up. Goals has its own panel (B12.6). */
@@ -28,17 +28,17 @@ window.TEI = window.TEI || {};
   function showPage(pageId, opts){
     let after = null;
     if(LIB_OLD[pageId] && window.matchMedia('(max-width:860px)').matches){ mPendingView = LIB_OLD[pageId]; pageId = 'library'; }
-    if(pageId === 'portfolio'){ pageId = 'progress'; after = 'lab'; }
+    if(pageId === 'portfolio'){ pageId = 'progress'; after = 'pf'; }
     else if(pageId === 'update'){ pageId = 'progress'; after = 'update'; }
     if(PAGES.indexOf(pageId) === -1) pageId = 'home';
     state.currentPage = pageId;
     document.querySelectorAll('.page').forEach(el=> el.classList.toggle('active', el.id === 'page-'+pageId));
-    document.querySelectorAll('.navlink').forEach(el=> el.classList.toggle('nav-active', el.dataset.page === pageId));
+    document.querySelectorAll('.navlink').forEach(el=> el.classList.toggle('nav-active', el.dataset.page === (pageId === 'lab' ? 'progress' : pageId)));
     syncMobileTabs(pageId);
     document.getElementById('clientApp').scrollTo ? null : null;
     window.scrollTo({top:0, behavior:'auto'});
     renderPage(pageId);
-    if(after === 'lab'){ const lab = document.getElementById('wlLab'); if(lab) lab.scrollIntoView({block:'start'}); }
+    if(after === 'pf'){ const pf = document.getElementById('wlPortfolio'); if(pf) pf.scrollIntoView({block:'start'}); }
     if(after === 'update' && TEI.wealthPage) TEI.wealthPage.openUpdate();
   }
 
@@ -49,7 +49,7 @@ window.TEI = window.TEI || {};
      is visible on desktop. Pages, renderers and showPage() are unchanged:
      a tab just opens one of the existing pages. Stage 1 = one page per tab;
      later stages add the segmented switches inside Wealth / Plan / Library. */
-  const M_TAB_OF = {home:'home', progress:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', libplan:'library', library:'library', update:'menu', mydetails:'menu', menu:'menu'};
+  const M_TAB_OF = {home:'home', progress:'wealth', lab:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', libplan:'library', library:'library', update:'menu', mydetails:'menu', menu:'menu'};
   const M_TAB_TARGET = {home:'home', wealth:'progress', plan:'goals', library:'library', menu:'menu'};
 
   /* Merged tabs: a segmented switch over views of the EXISTING pages (no data

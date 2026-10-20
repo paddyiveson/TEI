@@ -87,120 +87,37 @@ TEI.render = TEI.render || {};
 
   const ACCOUNT_TYPE_LABEL = {isa:'ISA', gia:'GIA', pension:'Pension', lisa:'S&S LISA', cash_lisa:'Cash LISA', cash:'Current / Deposit Account', cash_isa:'Cash ISA', crypto:'Crypto'};
 
-  /* Milestones: auto-detected round net-worth figures reached, plus adviser-added custom ones
-     from client.insights.milestones (same field the previous build of this page used). Feeds
-     both the timeline strip and the Wealth Journey card's completed-milestones list. */
-  function computeMilestones(client){
-    const series = totalNetWorthSeries(client);
-    const keys = Object.keys(series).sort();
-    const auto = [];
-    const roundMarks = TEI.calc.ROUND_MILESTONES; // same steps as the Next Milestone card
-    let seen = new Set();
-    keys.forEach(k=>{
-      const total = series[k];
-      roundMarks.forEach(mark=>{ if(total>=mark && !seen.has(mark)){ seen.add(mark); auto.push({label:'Passed '+fmtGBP(mark)+' net worth', date:k}); } });
-    });
-    const manual = (client.insights.milestones||[]).map(m=>({label:m.label, date:m.date, amount:m.amount}));
-    return auto.concat(manual).sort((a,b)=> (b.date||'').localeCompare(a.date||''));
-  }
-
-  /* ---------------- 1. Wealth Overview ---------------- */
+  /* ---------------- 1. Net worth hero: total, as-of chip, annual return ----------------
+     The total counts up (TEI.ui.countUp, in the Wealth board wrapper). The
+     stats line (B5.1) is gain and return for the selected range (set in
+     renderTimeline) and the annualised return, which always covers all time. */
   function renderOverview(client){
     const months = TEI.calc.buildMergedMonths(client);
     const keys = Object.keys(months).sort();
-    document.getElementById('whNet').textContent = fmtGBP(totalNetWorth(client));
+    const netEl = document.getElementById('whNet');
+    if(TEI.ui && TEI.ui.countUp) TEI.ui.countUp(netEl, totalNetWorth(client), v=> fmtGBP(Math.round(v)));
+    else netEl.textContent = fmtGBP(totalNetWorth(client));
+    document.getElementById('whUpdated').textContent = keys.length ? 'Your figures · ' + monthLabel(keys[keys.length-1]) : '';
 
-    const ytdEl = document.getElementById('whYtdChange');
-    const moEl = document.getElementById('whMonthChange');
-    const updatedEl = document.getElementById('whUpdated');
-
-    if(!keys.length){
-      ytdEl.textContent = 'No history yet'; ytdEl.className = 'k-pill neutral';
-      moEl.style.display = 'none';
-      updatedEl.textContent = 'Not yet logged';
-    } else {
-      moEl.style.display = 'inline-flex';
-      const latestKey = keys[keys.length-1];
-      const nwFact = TEI.calc.computeNetWorthFact(client);
-      const monthChange = nwFact.netWorthChange;
-      const flat = v => Math.abs(v) < 0.5; // e.g. a month where the only movement was accounts being added
-      moEl.textContent = monthChange==null ? 'First month logged' : flat(monthChange) ? 'No change this month' : (monthChange>=0?'▲ ':'▼ ')+fmtGBP(Math.abs(monthChange))+' this month';
-      moEl.className = 'k-pill ' + (monthChange==null||flat(monthChange)?'neutral':(monthChange>=0?'up':'down'));
-
-      const ytd = TEI.calc.computeYtdFact(client);
-      ytdEl.textContent = !ytd.hasFullYear ? 'First year of history' : flat(ytd.ytdChange) ? 'No change this year' : (ytd.ytdChange>=0?'▲ ':'▼ ')+fmtGBP(Math.abs(ytd.ytdChange))+' this year';
-      ytdEl.className = 'k-pill ' + (!ytd.hasFullYear||flat(ytd.ytdChange)?'neutral':(ytd.ytdChange>=0?'up':'down'));
-
-      updatedEl.textContent = 'Last updated ' + monthLabel(latestKey)
-        + (nwFact.joinedThisMonth ? ' · plus '+fmtGBP(nwFact.joinedThisMonth)+' from accounts added this month (not counted as growth)' : '');
-    }
-    // Performance stats are money-weighted on investable money (accounts
-    // only -- property/debts have no history, see renderTimeline): growth
-    // is what the money earned, with deposits and newly added accounts
-    // counted as money in rather than return (TEI.calc.moneyWeightedReturn).
+    // Money-weighted on investable money (accounts only -- property and
+    // debts have no history): deposits and newly added accounts are money
+    // in, not return (TEI.calc.moneyWeightedReturn).
     const series = TEI.calc.buildUnifiedTotals(months);
     const moneyIn = TEI.calc.moneyInByMonth(client, months);
-
-    // Calendar years, not a trailing 12 months -- "last year" read as the
-    // previous calendar year, but a trailing window in September is mostly
-    // the current year (a good 2025 and a down 2026 netted to a loss).
-    const lastYearValueEl = document.getElementById('whLastYearValue');
-    const lastYearSubEl = document.getElementById('whLastYearSub');
-    const prevYearEl = document.getElementById('whPrevYearSub');
-    const pctText = p => p!=null ? (p>=0?'+':'')+p.toFixed(1)+'%' : '';
-    const gbpSigned = v => (v<0?'-':'+')+fmtGBP(Math.abs(v));
-    const latestYear = keys.length ? Number(keys[keys.length-1].slice(0,4)) : null;
-    const ytdWin = latestYear ? TEI.calc.calendarYearWindow(series, latestYear) : null;
-    if(!ytdWin){
-      lastYearValueEl.textContent = '–';
-      lastYearValueEl.className = 'v';
-      lastYearSubEl.textContent = keys.length<2 ? 'Log at least two months to see this.' : 'Log another month this year to see this.';
-    } else {
-      const r = TEI.calc.moneyWeightedReturn(series, moneyIn, ytdWin.fromKey, ytdWin.toKey);
-      lastYearValueEl.textContent = gbpSigned(r.growth);
-      lastYearValueEl.className = 'v ' + (r.growth>=0?'traj-up':'traj-down');
-      lastYearSubEl.textContent = (r.periodPct!=null ? pctText(r.periodPct)+' growth · ' : '')
-        + (Math.abs(r.paidIn)>=0.5 ? 'plus '+(r.paidIn<0?'-':'')+fmtGBP(Math.abs(r.paidIn))+' new money · ' : '')
-        + 'since '+monthLabel(ytdWin.fromKey);
-    }
-    const prevWin = latestYear ? TEI.calc.calendarYearWindow(series, latestYear-1) : null;
-    if(prevWin){
-      const p = TEI.calc.moneyWeightedReturn(series, moneyIn, prevWin.fromKey, prevWin.toKey);
-      const partial = !prevWin.fromKey.startsWith(String(latestYear-2)) || !prevWin.toKey.endsWith('-12');
-      prevYearEl.style.display = 'block';
-      prevYearEl.textContent = `${latestYear-1}${partial?' (part year)':''}: ${gbpSigned(p.growth)} growth${p.periodPct!=null ? ' ('+pctText(p.periodPct)+')' : ''}`;
-    } else {
-      prevYearEl.style.display = 'none';
-    }
-
-    const cagrValueEl = document.getElementById('whCagrValue');
-    const cagrSubEl = document.getElementById('whCagrSub');
-    const ann = TEI.calc.annualisedReturnPct(series, moneyIn);
-    const span = keys.length>1 ? TEI.calc.monthsBetween(keys[0], keys[keys.length-1]) : 0;
-    if(keys.length<2){
-      cagrValueEl.textContent = '–';
-      cagrValueEl.className = 'v';
-      cagrSubEl.textContent = 'Log at least two months to see this.';
-    } else if(ann==null){
-      cagrValueEl.textContent = '–';
-      cagrValueEl.className = 'v';
-      cagrSubEl.textContent = span < TEI.calc.MIN_ANNUALISED_MONTHS ? TEI.calc.annualisedPendingText(series) : "Cannot be worked out from this history yet.";
-    } else {
-      cagrValueEl.textContent = ann.toFixed(1)+'% a year';
-      cagrValueEl.className = 'v ' + (ann>=0?'traj-up':'traj-down');
-      cagrSubEl.textContent = 'What your money has earned, allowing for when you paid it in (money-weighted).';
-    }
+    const annEl = document.getElementById('wlStatAnn');
+    const ann = keys.length > 1 ? TEI.calc.annualisedReturnPct(series, moneyIn) : null;
+    annEl.textContent = ann != null ? ann.toFixed(1) + '% a year'
+      : keys.length < 2 ? 'Annual return once two months are logged' : 'Annual return ' + TEI.calc.annualisedPendingText(series).charAt(0).toLowerCase() + TEI.calc.annualisedPendingText(series).slice(1);
+    annEl.className = ann == null ? 'wl-st-wait' : '';
   }
 
   /* ---------------- 3. Net Worth Timeline ---------------- */
   let currentRange = null;
 
-  function defaultRange(keys){
-    if(keys.length<2) return '1y';
-    const [sy,sm] = keys[0].split('-').map(Number);
-    const [ly,lm] = keys[keys.length-1].split('-').map(Number);
-    return ((ly-sy)*12+(lm-sm)) >= 12 ? 'all' : '1y';
-  }
+  // All is the default range (B5.1).
+  function defaultRange(){ return 'all'; }
+  // The period the stats line names (B5.1).
+  const RANGE_WORDS = {'1m':'over 1M', '3m':'over 3M', 'ytd':'this year', '1y':'over 1Y', '3y':'over 3Y', '5y':'over 5Y'};
 
   /* Cumulative "new money in" line for the timeline chart -- lets the gap
      between it and the Net worth line read as growth from performance
@@ -265,15 +182,14 @@ TEI.render = TEI.render || {};
     if(!currentRange) currentRange = defaultRange(allKeys);
     document.querySelectorAll('#timelineRangeToggle button').forEach(btn=> btn.classList.toggle('active', btn.dataset.range===currentRange));
 
-    const periodValueEl = document.getElementById('whPeriodReturn');
-    const periodSubEl = document.getElementById('whPeriodSub');
+    const gainEl = document.getElementById('wlStatGain');
+    const periodEl = document.getElementById('wlStatPeriod');
 
     if(!allKeys.length){
-      document.getElementById('timelineMilestones').innerHTML = '';
       makeChart('chartWealthTimeline', {type:'line', data:{labels:[],datasets:[]}, options:{maintainAspectRatio:false}});
       document.getElementById('timelineEmpty').style.display = 'block';
-      periodValueEl.textContent = '–'; periodValueEl.className = 'v';
-      periodSubEl.textContent = 'No history yet.';
+      gainEl.textContent = '–'; gainEl.className = '';
+      periodEl.textContent = 'No history yet'; periodEl.className = 'wl-st-wait';
       return;
     }
     document.getElementById('timelineEmpty').style.display = 'none';
@@ -287,7 +203,7 @@ TEI.render = TEI.render || {};
     if(contribNoteEl){
       const n = contrib.assumedCount;
       contribNoteEl.style.display = (showContrib && n) ? 'block' : 'none';
-      contribNoteEl.textContent = n ? `Contributions include the starting balance of ${n} account${n===1?'':'s'} with no contribution data yet, so the gap shows growth since tracking began. Add their contributions before tracking started (My Details → Accounts) for the full picture.` : '';
+      contribNoteEl.textContent = n ? `Contributions include the starting balance of ${n} account${n===1?'':'s'} with no contribution data yet, so the gap shows growth since tracking began. Add their contributions before tracking started (Settings, under Accounts) for the full picture.` : '';
     }
     // Gold fade under the line (strong at the top, clear at the baseline) rather than a flat
     // 14% gold wash, which read as a muddy grey block over the navy card.
@@ -296,18 +212,42 @@ TEI.render = TEI.render || {};
       const area = chart.chartArea;
       if(!area) return 'rgba(232,214,168,0.12)';
       const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
-      g.addColorStop(0, 'rgba(232,214,168,0.26)');
+      g.addColorStop(0, 'rgba(232,214,168,0.36)');
       g.addColorStop(1, 'rgba(232,214,168,0)');
       return g;
     };
-    const datasets = [{label: hasOther ? 'Investable' : 'Value', data:filteredKeys.map(k=>series[k]), borderColor:'#E8D6A8', backgroundColor:netWorthFill, fill:true, tension:0.3, pointRadius:0, pointHoverRadius:5, borderWidth:2.6}];
+    // Value against paid in (B5.1): a champagne line with a gradient under
+    // it, and paid in as a dashed pale-blue stepped line. No plan line.
+    const hover = c=> ({pointHoverRadius:5, pointHoverBackgroundColor:c, pointHoverBorderColor:'#14376E', pointHoverBorderWidth:2});
+    const datasets = [Object.assign({label: hasOther ? 'Investable' : 'Value', data:filteredKeys.map(k=>series[k]), borderColor:'#E8D6A8', backgroundColor:netWorthFill, fill:true, tension:0.3, pointRadius:0, borderWidth:2.6}, hover('#E8D6A8'))];
     if(view === 'total'){
-      datasets.push({label:'Total incl. property & debts', data:filteredKeys.map(k=>totalSeries[k]), borderColor:'rgba(247,244,237,0.6)', backgroundColor:'rgba(247,244,237,0.08)', fill:'-1', tension:0.3, pointRadius:0, pointHoverRadius:5, borderWidth:2});
+      datasets.push(Object.assign({label:'Total incl. property and debts', data:filteredKeys.map(k=>totalSeries[k]), borderColor:'rgba(247,244,237,0.6)', backgroundColor:'rgba(247,244,237,0.08)', fill:'-1', tension:0.3, pointRadius:0, borderWidth:2}, hover('#F7F4ED')));
     }
     if(showContrib){
-      datasets.push({label:'Money paid in', data:filteredKeys.map(k=>contribSeries[k]), borderColor:'#B9CAE6', backgroundColor:'rgba(185,202,230,0.16)', borderDash:[5,5], fill:'origin', tension:0.3, pointRadius:0, borderWidth:1.6});
+      datasets.push(Object.assign({label:'Paid in', data:filteredKeys.map(k=>contribSeries[k]), borderColor:'#B9CAE6', borderDash:[5,5], fill:false, stepped:'before', pointRadius:0, borderWidth:1.6}, hover('#B9CAE6')));
     }
-    const showLegend = datasets.length > 1;
+    // Scrubbing (B5.1): a crosshair, a dot on each line and a glass readout
+    // with the month, value and paid in. Leaving restores the today point.
+    const scrub = document.getElementById('wlScrub');
+    const scrubTo = ({chart, tooltip})=>{
+      if(!scrub) return;
+      const pts = tooltip && tooltip.opacity !== 0 ? (tooltip.dataPoints || []) : [];
+      if(!pts.length){ scrub.hidden = true; return; }
+      scrub.innerHTML = `<b class="wl-scrub-m">${monthLabel(filteredKeys[pts[0].dataIndex])}</b>`
+        + pts.map(p=> `<span><i style="background:${p.dataset.borderColor}"></i>${p.dataset.label}<b>${fmtGBP(p.raw)}</b></span>`).join('');
+      scrub.hidden = false;
+      const w = scrub.offsetWidth;
+      scrub.style.left = Math.max(0, Math.min(chart.width - w, tooltip.caretX - w/2)) + 'px';
+    };
+    const crosshair = {id:'wlCrosshair', afterDatasetsDraw(chart){
+      const act = chart.tooltip && chart.tooltip.getActiveElements ? chart.tooltip.getActiveElements() : [];
+      if(!act.length) return;
+      const x = act[0].element.x, a = chart.chartArea, ctx = chart.ctx;
+      ctx.save(); ctx.strokeStyle = 'rgba(247,244,237,0.38)'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke(); ctx.restore();
+    }};
+    // Axis: the first, middle and last month only (B5.1).
+    const lastI = filteredKeys.length - 1, midI = Math.round(lastI/2);
     const shortNote = document.getElementById('whRangeNote');
     if(shortNote){
       shortNote.hidden = !(currentRange==='1w' || currentRange==='1m');
@@ -321,25 +261,24 @@ TEI.render = TEI.render || {};
     const tlChart = makeChart('chartWealthTimeline', {
       type:'line',
       data:{labels:filteredKeys.map(k=>monthLabel(k)), datasets},
-      plugins:[wipeInPlugin(reduceMotion)],
+      plugins:[wipeInPlugin(reduceMotion), crosshair],
       options:{maintainAspectRatio:false,
         animation: reduceMotion ? false : {duration:700, easing:'easeOutCubic'},
         interaction:{mode:'index', intersect:false},
         plugins:{
-          /* Fixed light-cream, not currentInk() -- this chart lives in a
-             .dcard.emphasis card, which stays dark navy in both themes (see
-             the .dcard.emphasis comment), so the theme-flipping ink token
-             was unreadable (dark-on-dark) in light theme. Matches the axis
-             ticks' own fixed rgba(247,244,237,...) a few lines below. */
-          legend:{display:showLegend, position:'top', align:'end', labels:{boxWidth:10, font:{size:11}, color:'rgba(247,244,237,0.75)'}},
-          tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmtGBP(c.raw)}}
+          // The hero is brand navy in both themes, so the chart's colours are
+          // the fixed on-navy ones. Legend and readout are HTML (B5.1).
+          legend:{display:false},
+          tooltip:{enabled:false, external:scrubTo}
         },
         scales:{
-          y:{ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, maxTicksLimit: narrow?5:undefined, callback:v=>'£'+(v/1000)+'k'}, grid:{color:'rgba(247,244,237,0.12)'}},
-          x:{grid:{display:false}, ticks:{color:'rgba(247,244,237,0.6)', font:{size:10}, maxTicksLimit: narrow?4:10, maxRotation: narrow?0:50, autoSkipPadding:8}}
+          y:{border:{display:false}, ticks:{display:false}, grid:{color:'rgba(247,244,237,0.10)'}},
+          x:{border:{display:false}, grid:{display:false}, ticks:{color:'rgba(247,244,237,0.66)', font:{size:11, family:"'Geist Mono', ui-monospace, monospace"}, autoSkip:false, maxRotation:0,
+            callback:(v, i)=> (i === 0 || i === midI || i === lastI) ? monthLabel(filteredKeys[i]) : ''}}
         }
       }
     });
+    if(scrub) scrub.hidden = true;
 
     // Return for the selected period, computed live from this chart's own
     // start/end, not hardcoded per range. Money-weighted on investable money
@@ -349,18 +288,15 @@ TEI.render = TEI.render || {};
       const startKey = filteredKeys[0], endKey = filteredKeys[filteredKeys.length-1];
       const r = TEI.calc.moneyWeightedReturn(series, TEI.calc.moneyInByMonth(client, months), startKey, endKey);
       const pct = r.periodPct || 0;
-      const signed = v => (v<0?'-':'+')+fmtGBP(Math.abs(v));
-      periodValueEl.textContent = (pct>=0?'+':'')+pct.toFixed(1)+'%';
-      periodValueEl.className = 'v ' + (pct>=0?'traj-up':'traj-down');
-      periodSubEl.textContent = `${fmtGBP(r.start)} → ${fmtGBP(r.end)}: ${signed(r.growth)} growth${Math.abs(r.paidIn)>=0.5 ? ', '+signed(r.paidIn)+' new money' : ''}`;
+      // Gain or loss: end value minus start value minus net money paid in.
+      gainEl.textContent = (r.growth<0?'-':'+') + fmtGBP(Math.abs(r.growth)) + (r.growth<0 ? ' loss' : ' gain');
+      gainEl.className = r.growth<0 ? 'wl-neg' : 'wl-pos';
+      periodEl.textContent = (pct<0?'-':'') + Math.abs(pct).toFixed(1) + '% ' + (currentRange === 'all' ? 'since ' + monthLabel(startKey) : RANGE_WORDS[currentRange] || '');
+      periodEl.className = '';
     } else {
-      periodValueEl.textContent = '–'; periodValueEl.className = 'v';
-      periodSubEl.textContent = 'Not enough history for this range yet.';
+      gainEl.textContent = '–'; gainEl.className = '';
+      periodEl.textContent = 'Not enough history for this range yet'; periodEl.className = 'wl-st-wait';
     }
-
-    document.getElementById('timelineMilestones').innerHTML = computeMilestones(client).slice(0,6).map(m=>
-      `<div class="tm-chip"><b>${m.label}</b> · ${m.date ? monthLabel(m.date.length>7?m.date.slice(0,7):m.date) : ''}</div>`
-    ).join('');
   }
 
   /* Reveals the chart left to right, then pulses the last point of the
@@ -387,6 +323,8 @@ TEI.render = TEI.render || {};
       afterDatasetsDraw(chart){
         if(clipped){ chart.ctx.restore(); clipped = false; return; }
         if(reduceMotion || start === null) return;
+        // While scrubbing, the readout takes over; leaving brings the pulse back.
+        if(chart.tooltip && chart.tooltip.getActiveElements && chart.tooltip.getActiveElements().length){ again(chart); return; }
         // After the reveal: a slow pulse on the latest value.
         const meta = chart.getDatasetMeta(0);
         const pt = meta && meta.data && meta.data[meta.data.length - 1];
@@ -434,9 +372,10 @@ TEI.render = TEI.render || {};
      allowance nudges (isaAccounts, "Race to £100k" liquidTotal, INV_TYPES/CF_INV_TYPES) since
      those track Stocks & Shares ISA holdings specifically -- worth revisiting with the adviser
      if Cash ISA should also count toward the annual ISA allowance headline. */
-  // Board palette (B5): pension champagne, investments pale blue, cash slate;
-  // property, crypto and other take the remaining palette tones.
-  const COMP_PALETTE = { property:'#6F7F98', investments:'#B9CAE6', pension:'#E8D6A8', cash:'var(--w-acc-cash)', crypto:'#9DB59F', other:'#D9C9A0' };
+  // Account colours (B1.2), with their light-ground variants in light so
+  // every segment and dot stays visible on a white tile; property, crypto
+  // and other take the remaining palette tones.
+  const COMP_PALETTE = { property:'#6F7F98', investments:'var(--w-acc-isa)', pension:'var(--w-acc-pension)', cash:'var(--w-acc-cash)', crypto:'#9DB59F', other:'#C9D3E3' };
   function renderComposition(client){
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);
@@ -465,8 +404,8 @@ TEI.render = TEI.render || {};
     if(!gross || !categories.length){
       bar.innerHTML = '';
       legend.innerHTML = `<div class="line">Add accounts, property or other assets to see your wealth composition.</div>`;
-      acctGrid.innerHTML = '';
-      note.textContent = '';
+      if(acctGrid) acctGrid.innerHTML = '';
+      if(note) note.textContent = '';
       liabWrap.innerHTML = '';
       debtFreePill.style.display = 'none';
       return;
@@ -480,10 +419,9 @@ TEI.render = TEI.render || {};
       return `<div class="lg"><span class="sw" style="background:${c.color};"></span>${c.label} · ${pct.toFixed(0)}%</div>`;
     }).join('');
 
-    // One row per category (B5.1); each opens to show the accounts in it.
-    // Categories without individual accounts (property, other) show their
-    // description instead, if there is one.
-    acctGrid.innerHTML = sorted.map(c=>{
+    // Wealth now lists accounts grouped by type (15-wealth-board.js); the
+    // category rows and note below stay for any page that still has them.
+    if(acctGrid) acctGrid.innerHTML = sorted.map(c=>{
       const rows = c.accounts.length
         ? c.accounts.map(acc=>{
             const value = Number(b[acc.id])||0;
@@ -500,7 +438,7 @@ TEI.render = TEI.render || {};
 
     const top = sorted[0];
     const topPct = (top.value/gross*100);
-    note.textContent = topPct>=50
+    if(note) note.textContent = topPct>=50
       ? `Your wealth is currently concentrated in ${top.label.toLowerCase()}.`
       : `Your wealth is spread across ${categories.length} categories, with ${top.label.toLowerCase()} the largest at ${topPct.toFixed(0)}%.`;
 
@@ -522,14 +460,12 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------- 5. Wealth Guidance ---------------- */
-  function renderWealthInsights(client){
+  /* The Wealth insight sentences: the coach's own list when set, otherwise
+     the net worth narrative below. Wealth's "What this means" cards read
+     them through TEI.render.wealthInsightItems (B5.1). */
+  function wealthInsightItems(client){
     const wi = client.wealthInsights || {};
-    const list = document.getElementById('wealthInsightsList');
-    const renderItems = items => list.innerHTML = items.map(t=>
-      `<div class="insight-item" style="display:flex; gap:8px; font-size:12.5px; line-height:1.55; margin-bottom:8px; color:var(--k-ink);"><div style="width:5px; height:5px; border-radius:50%; background:var(--k-ink-softer); flex:none; margin-top:6px;"></div>${t}</div>`
-    ).join('');
-
-    if(wi.mode==='manual' && wi.items && wi.items.length){ renderItems(wi.items); return; }
+    if(wi.mode==='manual' && wi.items && wi.items.length) return wi.items.slice();
 
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);
@@ -563,8 +499,15 @@ TEI.render = TEI.render || {};
     }
     const liabTotal = liabilitiesTotal(client);
     if(gross>0 && liabTotal===0) items.push(`You are debt free, which frees up capacity most people at your stage do not have yet.`);
-
-    renderItems(items);
+    return items;
+  }
+  TEI.render.wealthInsightItems = wealthInsightItems;
+  function renderWealthInsights(client){
+    const list = document.getElementById('wealthInsightsList');
+    if(!list) return;
+    list.innerHTML = wealthInsightItems(client).map(t=>
+      `<div class="insight-item" style="display:flex; gap:8px; font-size:12.5px; line-height:1.55; margin-bottom:8px; color:var(--k-ink);"><div style="width:5px; height:5px; border-radius:50%; background:var(--k-ink-softer); flex:none; margin-top:6px;"></div>${t}</div>`
+    ).join('');
   }
 
   TEI.render.progress = function(client){

@@ -3724,3 +3724,180 @@ button.hm-cover:disabled{ cursor:default; }
   .sl-has-chip .sl-val{ align-items:flex-start; }
   .sl-has-chip .sl-chev{ display:none; }
 }
+
+/* ================================================================
+   REDESIGN Batch 4 B12.4 -- Wealth, Bold (spec B5, boards DirWealth,
+   DirWealthMobile and their light pairs). Sections top to bottom: net
+   worth hero, What this means, Your accounts, Your portfolio (read only),
+   Dividends. The full Portfolio Lab is its own screen (#page-lab, B5.4).
+   ================================================================ */
+#page-progress .wl-grid > *{ grid-column:span 12; }
+#page-progress .wl-hero{ grid-column:span 12 !important; gap:18px; padding:28px; }
+#page-progress .wl-hero:hover, #page-progress .wl-accts:hover, #page-progress .wl-pf:hover, #page-progress .wl-health:hover{ transform:none; }
+#page-progress .wl-sec{ margin-top:18px; }
+#page-progress .wl-coach, #page-progress .wl-lead{ grid-column:span 5 !important; }
+#page-progress .wl-ins{ grid-column:span 7; display:grid; grid-template-columns:repeat(var(--wl-cards, 3), minmax(0, 1fr)); gap:16px; }
+#page-progress .wl-coach[hidden] ~ .wl-lead[hidden] ~ .wl-ins{ grid-column:span 12; }
+#page-progress .wl-ins[hidden], #page-progress .wl-lead[hidden], #page-progress .wl-coach[hidden]{ display:none; }
+#page-progress .wl-pf{ grid-column:span 8 !important; }
+#page-progress .wl-move{ grid-column:span 4 !important; }
+.wl-past{ margin:6px 0 0 !important; font-size:13px; color:var(--w-muted); }
+.wl-h2{ margin:0; font-family:inherit; font-size:28px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; color:var(--w-text); }
+.wl-sec .hm-muted{ margin-top:6px !important; }
+.hm-tile .wl-h2{ margin-top:4px; font-size:22px; font-weight:400; letter-spacing:-0.02em; }
+
+/* Hero: the total, the fluid stats line, ranges, chart, legend (B5.1) */
+.wl-hero-k{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+.wl-big{ display:flex; align-items:flex-start; gap:4px; margin-top:8px !important; font-size:68px; letter-spacing:-0.045em; }
+.wl-statline{ position:relative; display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; margin:0; font-size:18px; color:var(--w-on-feat-text); }
+.wl-st{ display:inline-flex; align-items:center; gap:2px; }
+.wl-st b{ font-weight:400; }
+.wl-st .wl-pos{ color:var(--w-on-feat-pos); }
+.wl-st .wl-neg{ color:var(--w-on-feat-neg); }
+.wl-st .wl-st-wait{ font-size:14px; color:var(--w-on-feat-muted); }
+.wl-st-sep{ color:var(--w-on-feat-muted); }
+#page-progress .wl-chart{ height:300px; }
+.wl-legend{ position:relative; display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; font-size:12px; color:var(--w-on-feat-muted); }
+.wl-legend > span{ display:inline-flex; align-items:center; gap:6px; }
+.wl-key{ display:inline-block; width:16px; }
+.wl-key-v{ height:3px; border-radius:2px; background:#E8D6A8; }
+.wl-key-p{ height:0; border-top:2px dashed #B9CAE6; }
+.wl-hint-m{ display:none; }
+/* Scrub readout: glass over the navy hero (B14.3); fixed on-navy colours. */
+.wl-scrub{ position:absolute; top:0; z-index:2; display:flex; flex-direction:column; gap:4px; min-width:150px; padding:10px 12px; border-radius:12px; background:rgba(10,22,40,0.72); border:1px solid rgba(255,255,255,0.12); -webkit-backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); color:#F7F4ED; font-size:12px; white-space:nowrap; pointer-events:none; }
+.wl-scrub[hidden]{ display:none; }
+.wl-scrub-m{ font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; font-weight:400; color:#E8D6A8; }
+.wl-scrub span{ display:flex; align-items:center; gap:6px; color:#C9D3E3; }
+.wl-scrub span i{ width:8px; height:8px; border-radius:50%; }
+.wl-scrub span b{ margin-left:auto; padding-left:14px; font-weight:500; color:#F7F4ED; }
+/* Info symbols: a level-3 popover on hover (desktop) or tap (phone). */
+.wl-i{ position:relative; display:inline-flex; }
+.wl-i-btn{ display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; margin:-12px -10px; padding:0; border:0; border-radius:50%; background:transparent; color:inherit; opacity:.7; cursor:pointer; }
+.wl-i-btn:hover, .wl-i.open .wl-i-btn{ opacity:1; }
+.wl-i-btn:focus-visible{ outline:2px solid #E8D6A8; outline-offset:-8px; }
+.wl-i-btn svg{ width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+.wl-big .wl-i-btn{ margin-top:-2px; }
+.wl-big .wl-i-btn svg{ width:20px; height:20px; }
+.wl-pop{ position:absolute; z-index:40; left:50%; top:calc(100% + 4px); transform:translateX(-50%); width:max-content; max-width:280px; padding:12px 14px; border-radius:14px; background:var(--w-overlay); border:1px solid var(--w-line); box-shadow:var(--w-shadow-2); color:var(--w-text); font-size:13px; font-weight:400; line-height:1.5; letter-spacing:0; text-align:left; white-space:normal; opacity:0; visibility:hidden; pointer-events:none; transition:opacity .15s ease; }
+.wl-i:hover .wl-pop, .wl-i-btn:focus-visible + .wl-pop, .wl-i.open .wl-pop{ opacity:1; visibility:visible; }
+
+/* What this means: coach's corner leads, insight cards, health signals */
+#pfcActionBtn{ display:none !important; }
+.wl-coach-from{ position:relative; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-on-feat-muted); }
+.wl-coach-acts{ position:relative; display:flex; flex-wrap:wrap; gap:10px; margin-top:auto; }
+#page-progress .wl-coach{ min-height:0; }
+.wl-lead{ background:var(--w-raised); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-2); }
+.wl-lead-msg{ font-size:20px; font-weight:300; line-height:1.4; }
+.wl-card{ padding:22px; gap:14px; }
+.wl-card p{ font-size:15px; line-height:1.5; }
+.wl-mark{ align-self:flex-start; display:inline-flex; align-items:center; gap:6px; min-height:26px; padding:0 10px; border-radius:999px; border:1px solid currentColor; font-size:12px; font-weight:500; }
+.wl-mark i{ width:6px; height:6px; border-radius:50%; background:currentColor; }
+.wl-mark-warn{ color:var(--w-warn); }
+.wl-mark-pos{ color:var(--w-pos); }
+.wl-mark-muted{ color:var(--w-muted); }
+.wl-signals{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+.wl-sig{ display:flex; flex-direction:column; gap:6px; min-width:0; padding:16px; border-radius:16px; background:var(--w-raised); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.wl-sig-k{ font-size:13px; color:var(--w-muted); }
+.wl-sig-v{ font-size:22px; font-weight:300; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; }
+.wl-sig-bar{ display:block; height:4px; border-radius:999px; background:var(--w-track); overflow:hidden; }
+.wl-sig-bar span{ display:block; height:100%; border-radius:999px; background:var(--w-gold); }
+.wl-sig-st{ display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; }
+.wl-sig-st i{ width:8px; height:8px; border-radius:50%; background:currentColor; }
+.wl-sig-ok .wl-sig-st{ color:var(--w-pos); }
+.wl-sig-look .wl-sig-st, .wl-sig-none .wl-sig-st{ color:var(--w-muted); }
+.wl-sig-warn .wl-sig-st{ color:var(--w-warn); }
+.wl-sig-note{ font-size:13px; line-height:1.45; color:var(--w-muted); }
+
+/* Your accounts: composition, then grouped accounts with folded holdings */
+.wl-compbar{ display:flex; gap:3px; height:10px; margin-top:4px; border-radius:999px; overflow:hidden; background:transparent; }
+.wl-compbar span{ display:block; height:100%; min-width:4px; border-radius:999px; }
+.wl-complegend{ display:flex; flex-wrap:wrap; gap:6px 18px; font-size:13px; color:var(--w-muted); }
+.wl-complegend .lg{ display:inline-flex; align-items:center; gap:6px; }
+.wl-complegend .sw{ width:8px; height:8px; border-radius:50%; }
+.wl-groups{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px 32px; align-items:start; }
+.wl-grp{ min-width:0; }
+.wl-grp-h{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; margin:0; padding:14px 0 8px; border-bottom:1px solid var(--w-line); }
+.wl-grp-h b{ font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; font-weight:400; color:var(--w-gold); }
+.wl-grp-h span{ font-size:14px; font-weight:500; font-variant-numeric:tabular-nums; }
+.wl-grp-h em{ margin-left:8px; font-style:normal; font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; font-weight:400; color:var(--w-muted); }
+.wl-acc{ border-bottom:1px solid var(--w-line); }
+.wl-acc > summary, .wl-acc-flat{ display:grid; grid-template-columns:10px minmax(0, 1fr) auto 18px; align-items:center; gap:12px; min-height:56px; padding:8px 0; list-style:none; cursor:pointer; }
+.wl-acc-flat{ cursor:default; }
+.wl-acc > summary::-webkit-details-marker, .wl-hold > summary::-webkit-details-marker{ display:none; }
+.wl-acc > summary:focus-visible, .wl-hold > summary:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; border-radius:8px; }
+.wl-dot{ width:10px; height:10px; border-radius:50%; }
+.wl-acc-n{ display:flex; flex-direction:column; min-width:0; }
+.wl-acc-n b{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:15px; font-weight:500; }
+.wl-acc-n small{ font-size:12px; color:var(--w-muted); }
+.wl-flags{ display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+.wl-acc-v{ font-weight:500; font-variant-numeric:tabular-nums; }
+.wl-chev{ width:16px; height:16px; fill:none; stroke:var(--w-muted); stroke-width:2; stroke-linecap:round; transition:transform .2s ease; }
+.wl-acc[open] > summary .wl-chev{ transform:rotate(90deg); }
+.wl-holds{ list-style:none; margin:0 0 10px; padding:0 0 0 22px; }
+.wl-hold > summary, .wl-hold-cash{ display:grid; grid-template-columns:minmax(0, 1fr) auto 70px; gap:10px; align-items:center; min-height:44px; list-style:none; font-size:14px; }
+.wl-hold > summary{ cursor:pointer; }
+.wl-hold-n{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wl-hold > summary b, .wl-hold-cash b{ font-weight:400; font-variant-numeric:tabular-nums; }
+.wl-hold > summary em{ justify-self:end; font-style:normal; }
+.wl-hold p{ margin:0 0 10px !important; font-size:12px; line-height:1.5; color:var(--w-muted); }
+.wl-hold-cash{ color:var(--w-muted); }
+.wl-hold-cash b{ color:var(--w-text); }
+#page-progress .wl-ret{ padding:0; background:transparent; }
+#page-progress .wl-ret.up{ color:var(--w-pos); }
+#page-progress .wl-ret.down{ color:var(--w-warn); }
+.wl-accts .k-cliab-row{ border-top:1px solid var(--w-line); padding-top:12px; color:var(--w-text); }
+
+/* Your portfolio: treemap in navy steps, and the move for a 1% impact */
+.wl-pf-head{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-end; gap:12px; }
+.wl-pf-switches{ display:flex; flex-wrap:wrap; gap:8px; }
+.wl-tm{ min-height:200px; }
+.wl-tm svg{ display:block; }
+.wl-pf-note{ margin-top:auto !important; }
+.wl-pf-note .wl-lab-link{ display:inline; min-height:0; font-size:inherit; text-decoration:underline; }
+.wl-movelist{ list-style:none; margin:0; padding:0; }
+.wl-movelist li{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--w-line); }
+.wl-mv-n{ display:flex; flex-direction:column; min-width:0; }
+.wl-mv-n b{ font-weight:500; }
+.wl-mv-n small{ font-size:12px; color:var(--w-muted); }
+.wl-mv-v{ flex:none; font-family:'Geist Mono', ui-monospace, monospace; font-size:13px; color:var(--w-gold); }
+.wl-mv-empty{ font-size:14px; color:var(--w-muted); }
+
+/* Dividends (champagne tile) */
+.wl-div-top{ display:flex; flex-wrap:wrap; gap:16px 40px; }
+.wl-div-k{ font-size:13px; color:var(--w-muted); }
+.wl-div-big{ margin-top:4px !important; font-size:40px; font-weight:300; letter-spacing:-0.04em; line-height:1; }
+.wl-div-mid{ margin-top:4px !important; font-size:24px; font-weight:300; letter-spacing:-0.02em; line-height:1.2; }
+.wl-divlist{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0 32px; }
+.wl-divlist li{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:10px 0; border-top:1px solid var(--w-champ-line); }
+.wl-divlist span{ display:flex; flex-direction:column; min-width:0; }
+.wl-divlist small{ font-size:12px; color:var(--w-muted); }
+.wl-divlist b{ font-weight:500; }
+
+/* Portfolio Lab screen (B5.4): the Lab as it was, under its own header */
+.wl-back{ display:inline-flex; align-items:center; gap:6px; min-height:44px; margin:-12px 0 -6px -2px; font-size:13px; color:var(--w-muted); text-decoration:none; }
+.wl-back:hover{ color:var(--w-text); }
+.wl-back svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+#page-lab .wl-lab{ grid-column:span 12 !important; }
+#page-lab .wl-past{ margin-top:16px !important; }
+
+@media (max-width:860px){
+  #page-progress .wl-grid > *, #page-lab .wl-grid > *{ grid-column:span 2 !important; order:0 !important; }
+  #page-progress .wl-hero{ padding:20px; }
+  .wl-big{ font-size:46px; }
+  .wl-statline{ font-size:16px; }
+  .wl-st-sep{ display:none; }
+  .wl-statline{ gap:2px 18px; }
+  #page-progress .wl-toggles{ width:100%; }
+  #page-progress #timelineRangeToggle{ display:flex; width:100%; justify-content:space-between; overflow-x:auto; border-radius:999px; }
+  #page-progress #timelineRangeToggle button{ flex:1 0 auto; min-width:44px; min-height:44px; }
+  #page-progress .wl-chart{ height:220px; }
+  .wl-hint-d{ display:none; }
+  .wl-hint-m{ display:inline; }
+  /* On phones the popover sits above the tab bar, clear of the screen edges. */
+  .wl-pop{ position:fixed; left:16px; right:16px; top:auto; bottom:calc(84px + 16px); transform:none; width:auto; max-width:none; }
+  #page-progress .wl-ins{ display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:12px; margin:0 -16px; padding:2px 16px 8px; }
+  #page-progress .wl-ins > .wl-card{ flex:0 0 82%; scroll-snap-align:start; }
+  .wl-signals{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .wl-groups, .wl-divlist{ grid-template-columns:minmax(0, 1fr); }
+  .wl-h2{ font-size:24px; }
+}

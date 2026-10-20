@@ -334,7 +334,7 @@ window.TeiTheme && TeiTheme.paint();</script>
 <div class="hm wl">
   <header class="hm-head">
     <div>
-      <p class="hm-date">Wealth and portfolio</p>
+      <p class="hm-date">How much you have, and where it is</p>
       <h1 class="hm-title">Wealth</h1>
     </div>
     <button type="button" class="hm-btn hm-btn-primary wl-update-btn" id="wlUpdateBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.8 2.8 0 0 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg><span class="wl-update-long">Update balances</span><span class="wl-update-short">Update</span></button>
@@ -342,18 +342,15 @@ window.TeiTheme && TeiTheme.paint();</script>
 
   <div class="hm-grid wl-grid">
 
+    <!-- 1. Net worth hero (B5.1). Figures from TEI.render.progress. -->
     <section class="hm-tile hm-feat wl-hero" aria-labelledby="wlNetLabel">
-      <div class="hm-orbit hm-spin" aria-hidden="true"></div>
       <div class="wl-hero-top">
         <div class="wl-hero-fig">
-          <p class="hm-label" id="wlNetLabel">Net worth</p>
-          <p class="hm-big" id="whNet">£0</p>
-          <div class="wl-pills"><span class="k-pill neutral" id="whMonthChange">–</span><span class="k-pill neutral" id="whYtdChange">–</span></div>
-          <p class="wl-updated" id="whUpdated">–</p>
+          <div class="wl-hero-k"><p class="hm-label" id="wlNetLabel">Net worth</p><span class="hm-asof" id="whUpdated"></span></div>
+          <p class="hm-big wl-big"><span id="whNet">£0</span><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About your net worth" aria-describedby="wlTipTotal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipTotal">Everything you own across all your accounts, at the latest prices and balances, minus any debts.</span></span></p>
         </div>
         <div class="wl-toggles">
           <div class="wl-seg" id="timelineRangeToggle" role="group" aria-label="Chart range">
-            <button type="button" data-range="1w">1W</button>
             <button type="button" data-range="1m">1M</button>
             <button type="button" data-range="3m">3M</button>
             <button type="button" data-range="ytd">YTD</button>
@@ -368,40 +365,124 @@ window.TeiTheme && TeiTheme.paint();</script>
           </div>
         </div>
       </div>
-      <div class="wl-stats" id="whChips">
-        <div class="wl-stat">
-          <p class="wl-stat-k" id="whLastYearLabel">This year so far</p>
-          <p class="v" id="whLastYearValue">–</p>
-          <p class="wl-stat-s" id="whLastYearSub">–</p>
-          <p class="wl-stat-s" id="whPrevYearSub" style="display:none;"></p>
-        </div>
-        <div class="wl-stat">
-          <p class="wl-stat-k">Annualised</p>
-          <p class="v" id="whCagrValue">–</p>
-          <p class="wl-stat-s" id="whCagrSub">–</p>
-        </div>
-        <div class="wl-stat">
-          <p class="wl-stat-k">Return, selected period</p>
-          <p class="v" id="whPeriodReturn">–</p>
-          <p class="wl-stat-s" id="whPeriodSub">–</p>
-        </div>
-      </div>
-      <div class="wl-chart"><canvas id="chartWealthTimeline"></canvas></div>
+      <!-- Fluid stats line (B5.1): gain for the period, money-weighted return
+           for the period, annualised return over all time. -->
+      <p class="wl-statline">
+        <span class="wl-st"><b id="wlStatGain">–</b><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About the gain" aria-describedby="wlTipGain"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipGain">How much your money grew or fell over the selected period, after taking out the money you paid in or withdrew.</span></span></span>
+        <span class="wl-st-sep" aria-hidden="true">·</span>
+        <span class="wl-st"><b id="wlStatPeriod">–</b><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About the period return" aria-describedby="wlTipPeriod"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipPeriod">Your return for the selected period. It is money-weighted, so new money you pay in never counts as growth.</span></span></span>
+        <span class="wl-st-sep" aria-hidden="true">·</span>
+        <span class="wl-st"><b id="wlStatAnn">–</b><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About the annual return" aria-describedby="wlTipAnn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipAnn">Your average yearly return since you started tracking, money-weighted. It always covers all time, whatever range you pick.</span></span></span>
+      </p>
+      <div class="wl-chart"><canvas id="chartWealthTimeline"></canvas><div class="wl-scrub" id="wlScrub" aria-hidden="true" hidden></div></div>
       <div class="empty-state" id="timelineEmpty" style="display:none;"><div class="big">No history logged yet</div><div class="small">Your net worth history appears here once monthly balances are logged.</div></div>
+      <div class="wl-legend"><span><i class="wl-key wl-key-v" aria-hidden="true"></i>Value</span><span><i class="wl-key wl-key-p" aria-hidden="true"></i>Paid in</span><span class="wl-legend-hint"><span class="wl-hint-d">Move across the chart to see any month</span><span class="wl-hint-m">Drag across the chart to see any month</span></span></div>
       <p class="wl-note" id="whRangeNote" hidden></p>
       <p class="wl-note" id="whContribNote" style="display:none;"></p>
       <p class="wl-note" id="whPricesStatus"></p>
-      <div class="timeline-milestones" id="timelineMilestones"></div>
     </section>
 
-    <section class="hm-tile wl-comp" id="wealthCompCard">
-      <div class="hm-row"><p class="hm-label">Wealth composition</p><span class="k-debtfree-pill" id="compDebtFreePill" style="display:none;">Debt free</span></div>
-      <div class="k-comp-bar" id="compBar"></div>
-      <div class="k-comp-legend" id="compLegend" hidden></div>
-      <div class="wl-cats" id="compAccountsGrid"></div>
-      <div id="compLiabilities"></div>
-      <p class="hm-note wl-comp-note" id="compNote"></p>
+    <!-- 2. What this means (B5.1): coach's corner leads, then up to three
+         insights, then four health signals. TODO(H2 #7): wording and
+         priority rules come from the insight engine session; the cards
+         use the existing signals engine until then. -->
+    <div class="wl-sec">
+      <h2 class="wl-h2">What this means</h2>
+      <p class="hm-muted">Your coach's view first, then what stands out in your figures.</p>
+    </div>
+
+    <section class="hm-tile hm-feat wl-coach" id="pfcCard">
+      <p class="hm-label" id="pfcHeading">Coach's corner</p>
+      <p class="wl-coach-msg" id="pfcMessage">–</p>
+      <p class="wl-coach-from" id="wlCoachFrom" hidden>From your coach</p>
+      <div class="wl-coach-acts">
+        <button type="button" class="hm-btn wl-coach-btn" data-wo-request="session">Discuss next session</button>
+        <a href="#" class="hm-link wl-coach-link" id="pfcActionBtn" style="display:none;">–</a>
+      </div>
+      <p class="hm-note wo-req-state" aria-live="polite"></p>
     </section>
+    <section class="hm-tile wl-lead" id="wlLead" hidden></section>
+
+    <div class="wl-ins" id="wlInsights"></div>
+
+    <section class="hm-tile wl-health" id="wlHealth" aria-labelledby="wlHealthK">
+      <div class="hm-row hm-row-wrap"><p class="hm-label" id="wlHealthK">Health</p><span class="hm-note">Simple signals, not a score</span></div>
+      <ul class="wl-signals" id="wlHealthList"></ul>
+    </section>
+
+    <!-- 3. Your accounts (B5.1): composition, then accounts grouped by
+         type with their holdings folded. -->
+    <section class="hm-tile wl-accts" id="wealthCompCard" aria-labelledby="wlAcctTitle">
+      <div class="hm-row hm-row-wrap">
+        <div><p class="hm-label">Your accounts</p><h2 class="wl-h2" id="wlAcctTitle">Your accounts</h2></div>
+        <span class="k-debtfree-pill" id="compDebtFreePill" style="display:none;">Debt free</span>
+      </div>
+      <div class="k-comp-bar wl-compbar" id="compBar"></div>
+      <div class="k-comp-legend wl-complegend" id="compLegend"></div>
+      <div class="wl-groups" id="wlAcctGroups"></div>
+      <div id="compLiabilities"></div>
+      <p class="hm-note" id="poPricesStatus"></p>
+      <p class="hm-note wl-warn" id="poDiscrepancy" style="display:none;"></p>
+    </section>
+
+    <!-- 4. Your portfolio, read only (B5.1). The full Portfolio Lab has its
+         own screen (B5.4). -->
+    <section class="hm-tile wl-pf" id="wlPortfolio" aria-labelledby="wlPfTitle">
+      <div class="wl-pf-head">
+        <div><p class="hm-label">Your portfolio</p><h2 class="wl-h2" id="wlPfTitle">Everything you own</h2></div>
+        <div class="wl-pf-switches" id="wlPfSwitches" role="group" aria-label="Include in the view"></div>
+      </div>
+      <div class="wl-tm" id="wlTreemap"></div>
+      <p class="hm-note wl-pf-note">Planning changes happen with your coach in <a href="#" class="hm-link wl-lab-link" data-wl-lab>Portfolio Lab</a>.</p>
+    </section>
+    <section class="hm-tile wl-move" aria-labelledby="wlMoveK">
+      <p class="hm-label" id="wlMoveK">Move needed for a 1% impact</p>
+      <p class="hm-muted hm-small">How far each of your six largest holdings would have to move to change your portfolio by 1%.</p>
+      <ol class="wl-movelist" id="wlMoveList"></ol>
+    </section>
+
+    <!-- 5. Dividends (B5.1), only when there are dividend-paying holdings.
+         TODO(H2 #12): "This tax year so far" and the next expected date need
+         dated payments linked to accounts; until then this shows the
+         expected income a year from the dividend holdings on record. -->
+    <section class="hm-tile hm-champ wl-div" id="wlDividends" hidden>
+      <p class="hm-label">Dividends</p>
+      <div class="wl-div-top"><div><p class="wl-div-k">Expected a year</p><p class="wl-div-big" id="wlDivTotal">–</p></div><div><p class="wl-div-k">A month, on average</p><p class="wl-div-mid" id="wlDivMonthly">–</p></div></div>
+      <ul class="wl-divlist" id="wlDivList"></ul>
+    </section>
+
+    <p class="wl-past">Past returns do not tell you what future returns will be.</p>
+
+  </div>
+
+  <!-- Update balances: a side panel on desktop, a bottom sheet on phones (B5). -->
+  <div class="wl-scrim" id="wlUpdScrim" hidden></div>
+  <div class="wl-panel" id="wlUpdPanel" role="dialog" aria-modal="true" aria-labelledby="wlUpdTitle" hidden>
+    <div class="wl-panel-head">
+      <div><p class="hm-label" id="wlUpdMonth"></p><h2 class="hm-h3" id="wlUpdTitle">Update balances</h2></div>
+      <button type="button" class="wl-x" id="wlUpdClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
+    </div>
+    <p class="hm-muted hm-small">Type today's value from each provider. Each figure saves when you leave the box.</p>
+    <div class="wl-upd-list" id="wlUpdList"></div>
+    <p class="hm-note" id="wlUpdPrices"></p>
+    <a href="#" class="hm-link" id="wlUpdMore">Money paid in and earlier months</a>
+  </div>
+</div>
+</div>
+
+<!-- ============================= PORTFOLIO LAB ============================= -->
+<!-- Portfolio Lab on its own screen (spec B5.4): the planning tool, working
+     as before and filled by TEI.render.portfolio. Its visual redesign waits
+     for its own design round. -->
+<div id="page-lab" class="page">
+<div class="hm wl lab-page">
+  <header class="hm-head">
+    <div>
+      <a href="#" class="wl-back" data-wl-back><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Wealth</a>
+      <h1 class="hm-title">Portfolio Lab</h1>
+    </div>
+  </header>
+  <div class="hm-grid wl-grid">
 
     <section class="hm-tile wl-lab" id="wlLab">
       <div class="wl-lab-top">
@@ -441,69 +522,8 @@ window.TeiTheme && TeiTheme.paint();</script>
       </div>
     </section>
 
-    <section class="hm-tile wl-holdings" id="wlHoldings">
-      <div class="hm-row hm-row-wrap">
-        <div><p class="hm-label">Holdings</p><h2 class="hm-h3" id="wlHoldTitle">All holdings</h2></div>
-        <div class="wl-chips" id="wlHoldChips" role="group" aria-label="Show one account"></div>
-      </div>
-      <p class="hm-note" id="poPricesStatus"></p>
-      <p class="hm-note wl-warn" id="poDiscrepancy" style="display:none;"></p>
-      <div class="wl-hlist" id="wlHoldList"></div>
-    </section>
-
-    <section class="hm-tile wl-health" id="wlHealth">
-      <p class="hm-label">Portfolio health</p>
-      <h2 class="hm-h3" id="wlHealthTitle"></h2>
-      <ul class="wl-checks" id="wlHealthList"></ul>
-    </section>
-
-    <section class="hm-tile hm-powder wl-insights" id="wealthInsightsCard">
-      <p class="hm-label">Insights</p>
-      <div id="wealthInsightsList"></div>
-      <p class="hm-label wl-sub-label" id="portfolioInsightsHeading">Portfolio insights</p>
-      <div id="portfolioInsightsList"></div>
-    </section>
-
-    <section class="hm-tile wl-div">
-      <div class="hm-row hm-row-wrap">
-        <p class="hm-label">Dividends</p>
-        <label class="k-toggle-switch" id="divReinvestToggle">
-          <input type="checkbox" id="divReinvestCheckbox">
-          <span class="track"></span>
-          <span class="toggle-label">Show reinvested growth</span>
-        </label>
-      </div>
-      <div class="k-rowstats" id="divStatsRow"></div>
-      <div class="k-chart-box wl-div-chart"><canvas id="chartDivIncome"></canvas></div>
-      <p class="hm-note" id="divViewNote"></p>
-      <details class="wl-details">
-        <summary>Dividend contributors</summary>
-        <div style="overflow-x:auto;"><table class="k-table"><thead><tr><th>Holding</th><th style="text-align:right;">Annual dividend</th><th style="text-align:right;">% of income</th></tr></thead><tbody id="divContributorsBody"></tbody></table></div>
-      </details>
-    </section>
-
-    <section class="hm-tile hm-feat wl-coach" id="pfcCard">
-      <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
-      <p class="hm-label" id="pfcHeading">Coach's corner</p>
-      <p class="wl-coach-msg" id="pfcMessage">–</p>
-      <a href="#" class="hm-btn wl-coach-btn" id="pfcActionBtn" style="display:none;">–</a>
-    </section>
-
   </div>
-
-
-  <!-- Update balances: a side panel on desktop, a bottom sheet on phones (B5). -->
-  <div class="wl-scrim" id="wlUpdScrim" hidden></div>
-  <div class="wl-panel" id="wlUpdPanel" role="dialog" aria-modal="true" aria-labelledby="wlUpdTitle" hidden>
-    <div class="wl-panel-head">
-      <div><p class="hm-label" id="wlUpdMonth"></p><h2 class="hm-h3" id="wlUpdTitle">Update balances</h2></div>
-      <button type="button" class="wl-x" id="wlUpdClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
-    </div>
-    <p class="hm-muted hm-small">Type today's value from each provider. Each figure saves when you leave the box.</p>
-    <div class="wl-upd-list" id="wlUpdList"></div>
-    <p class="hm-note" id="wlUpdPrices"></p>
-    <a href="#" class="hm-link" id="wlUpdMore">Money paid in and earlier months</a>
-  </div>
+  <p class="wl-past">Scenarios show the mechanics of a change, not a recommendation to make it.</p>
 </div>
 </div>
 

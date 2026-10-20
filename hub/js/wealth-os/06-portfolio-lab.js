@@ -167,7 +167,8 @@ TEI.render = TEI.render || {};
   function applyAnalysisScope(client){
     const scopeId = analysisScopeAccountId;
     const suffix = acctHeadingSuffix(client, scopeId);
-    document.getElementById('portfolioInsightsHeading').textContent = 'Portfolio insights' + suffix;
+    const insHead = document.getElementById('portfolioInsightsHeading');
+    if(insHead) insHead.textContent = 'Portfolio insights' + suffix;
     if(TEI.render.portfolioLab) TEI.render.portfolioLab(client, scopeId); // Portfolio Analysis & Optimisation -- reads scope itself (needs both the full client, for groupedHoldings, and scopeId, to pick ungrouped-per-account holdings); Performance Drivers now lives inside its Analyse stage, see that file section
     renderInsights(client, scopeId);
     renderPortfolioCoach(client, scopeId);
@@ -226,6 +227,7 @@ TEI.render = TEI.render || {};
   }
 
   function renderDivStats(client){
+    if(!document.getElementById('divStatsRow')) return; // Wealth has its own Dividends tile now (B5.1)
     const annual = dividendAnnualIncome(client);
     const growth = dividendGrowthRate(client);
     document.getElementById('divStatsRow').innerHTML = `
@@ -237,6 +239,7 @@ TEI.render = TEI.render || {};
   }
 
   function renderDivIncomeChart(client, showReinvested){
+    if(!document.getElementById('chartDivIncome')) return;
     const {GOLD, FOREST, GRID, makeChart} = TEI.charts;
     const historySorted = [...client.dividendHistory].sort((a,b)=>a.year-b.year);
     const historyYears = historySorted.map(y=>y.year);
@@ -317,6 +320,7 @@ TEI.render = TEI.render || {};
 
   function renderDivContributors(client){
     const body = document.getElementById('divContributorsBody');
+    if(!body) return;
     const holdings = client.dividendHoldings||[];
     if(!holdings.length){
       body.innerHTML = `<tr><td colspan="3"><div class="line">No dividend holdings yet. Add these in Adviser Workspace to model income.</div></td></tr>`;
@@ -329,6 +333,7 @@ TEI.render = TEI.render || {};
 
   function wireDivToggle(client){
     const checkbox = document.getElementById('divReinvestCheckbox');
+    if(!checkbox) return;
     document.getElementById('divViewNote').textContent = DIV_NOTES.base;
     if(checkbox.dataset.wired) return;
     checkbox.addEventListener('change', function(){
@@ -347,6 +352,7 @@ TEI.render = TEI.render || {};
      against Coach's Corner. */
   function renderInsights(client, scopeAccountId){
     const list = document.getElementById('portfolioInsightsList');
+    if(!list) return; // Wealth shows these as cards now (15-wealth-board.js)
     const scoped = scopedClientView(client, scopeAccountId);
     // De-dupe against whatever Coach's Corner is actually showing --
     // mirrors renderPortfolioCoach's own branching exactly (same call,
@@ -2169,6 +2175,9 @@ TEI.render = TEI.render || {};
     if(!state.holdings.length){ document.getElementById('labStepper').innerHTML = ''; document.getElementById('labStageBody').innerHTML = ''; return; }
     renderStepper(); renderStageBody();
   }
+
+  // The read-only "Your portfolio" treemap on Wealth (B5.1) uses the same layout.
+  TEI.lab = { layoutTreemap, treemapOrder, moveNeededFor1Pct };
 
   /* ---------------------------- mount ---------------------------- */
   // Called from applyAnalysisScope on every full render and every scope-pill switch.
