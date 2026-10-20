@@ -3610,6 +3610,37 @@ button.hm-cover:disabled{ cursor:default; }
   #clientApp .main-inner > footer{ padding:2px 16px 24px; text-align:left; }
 }
 
+/* Library (phones, spec B10). One page, three views; the switch sits under the title. */
+#page-library.active{ display:flex; flex-direction:column; gap:14px; padding:4px 16px 24px; }
+#page-library > .lib-head{ order:-3; margin:0; }
+#page-library > .m-seg{ order:-2; }
+#page-library .lib{ padding:0; display:flex; flex-direction:column; gap:14px; }
+#page-library .lib-view{ display:none; flex-direction:column; gap:14px; }
+#clientApp[data-mview="lplan"] #page-library [data-lib="plan"], #clientApp[data-mview="llearn"] #page-library [data-lib="learn"],
+#clientApp[data-mview="lnotes"] #page-library [data-lib="notes"]{ display:flex; }
+.lib-plan{ gap:10px; }
+.lib-plan-t{ position:relative; margin:0; font-size:24px; font-weight:300; letter-spacing:-0.02em; color:#F7F4ED; }
+.lib-plan-s{ position:relative; margin:0; font-size:14px; color:#AAB6C8; }
+.lib-plan .hm-label{ position:relative; color:#E8D6A8; }
+.lib-plan .hm-actions{ position:relative; display:flex; flex-wrap:wrap; gap:10px; }
+.lib-plan-open{ background:#E8D6A8; color:#0F1E36; border-color:transparent; }
+.lib-plan-fc{ background:transparent; color:#F7F4ED; border-color:rgba(247,244,237,0.3); }
+.lib-steps li small{ white-space:normal; }
+.lib-shelf ul li a, .lib-learn + .lib-shelf a{ color:var(--w-text); text-decoration:none; }
+.lib-shelf .st-list li a{ display:flex; flex-direction:column; width:100%; min-height:28px; justify-content:center; }
+.lib-shelf .st-list li small{ font-size:12px; color:var(--w-muted); }
+.lib-learn .hm-btn{ align-self:flex-start; }
+.lib-search input{ box-sizing:border-box; width:100%; min-height:44px; padding:0 14px; border:1px solid var(--w-line); border-radius:999px; background:var(--w-bg); color:var(--w-text); font-family:inherit; font-size:15px; }
+.lib-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.lib-chips a, .lib-chips button{ display:inline-flex; align-items:center; min-height:44px; padding:0 16px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); font-family:inherit; font-size:14px; text-decoration:none; cursor:pointer; }
+.lib-chips button[aria-pressed="true"]{ background:var(--w-nav-active); color:var(--w-nav-active-text); border-color:var(--w-nav-active); }
+.lib-notes{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; }
+.lib-note{ gap:6px; }
+.lib-note .k-doc-open{ align-self:flex-start; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--w-line); background:transparent; color:var(--w-text); font-family:inherit; font-size:14px; text-decoration:none; display:inline-flex; align-items:center; cursor:pointer; }
+.lib-latest{ border-color:var(--w-gold); }
+.lib-badge{ font-size:12px; font-weight:500; padding:3px 10px; border-radius:999px; background:var(--w-champ); color:var(--w-gold); }
+#libEarlier .k-doc-open{ min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--w-line); background:transparent; color:var(--w-text); font-family:inherit; }
+
 /* Home safety net tile: the three stages with £ targets (20 Oct 2026). */
 .hm-sn-stages{ list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; }
 .hm-sn-stages:empty{ display:none; }
@@ -4836,6 +4867,79 @@ window.TeiTheme && TeiTheme.paint();</script>
      Reached from the Library tab's Plan view; no sidebar link points here (desktop never
      shows it). Filled by renderLibPlan() from the client's ACTIVE investment plan
      (wealth_os.investment_plans / plan_investments / plan_investment_accounts). -->
+<!-- ============================= LIBRARY (phones) ============================= -->
+<!-- Spec B10 (board LibraryMobile), built 20 Oct 2026. The Library tab on
+     phones: a switch over Plan | Learn | Meeting notes (one page, three
+     views; #clientApp[data-mview] picks the view). On desktop the same
+     content lives in the Client Hub. Filled by TEI.render.library. -->
+<div id="page-library" class="page lib-page">
+  <header class="hm-head lib-head"><div><p class="hm-date">Library</p><h1 class="hm-title">Your library</h1></div></header>
+  <div class="hm lib">
+    <div class="lib-view" data-lib="plan">
+      <section class="hm-tile hm-feat lib-plan" id="libPlan"></section>
+      <section class="hm-tile st-card">
+        <h2 class="hm-h3">Agreed next steps</h2>
+        <ul class="st-list lib-steps" id="libSteps"></ul>
+      </section>
+      <section class="hm-tile st-card" id="libEarlierWrap" hidden>
+        <h2 class="hm-h3">Earlier versions</h2>
+        <ul class="st-list" id="libEarlier"></ul>
+      </section>
+    </div>
+    <div class="lib-view" data-lib="learn">
+      <section class="hm-tile hm-powder lib-learn">
+        <p class="hm-label">Continue learning</p>
+        <h2 class="hm-h3">Pick up where you left off</h2>
+        <p class="hm-muted hm-small" id="libLearnMeta"></p>
+        <a class="hm-btn hm-btn-primary" href="/hub/education/index.html">Resume</a>
+      </section>
+      <section class="hm-tile st-card lib-shelf">
+        <div class="hm-row"><h2 class="hm-h3">Guides</h2><a class="hm-link" href="/hub/guides.html?show=Guides">See all</a></div>
+        <ul class="st-list">
+          <li><a href="/guides/tax.html?from=hub">The Tax Wrapper Guide</a></li>
+          <li><a href="/hub/guides/stages.html">The Five Stages</a></li>
+          <li><a href="/guides/principles.html?from=hub">TEI Principles</a></li>
+        </ul>
+      </section>
+      <section class="hm-tile st-card lib-shelf">
+        <div class="hm-row"><h2 class="hm-h3">Tools</h2><a class="hm-link" href="/hub/guides.html?show=Tools">See all</a></div>
+        <ul class="st-list">
+          <li><a href="/hub/guides/costofwaiting.html">Cost of Waiting</a></li>
+          <li><a href="/hub/guides/property.html">Property Calculator</a></li>
+          <li><a href="#" data-lib-page="planning">Wealth Forecast</a></li>
+        </ul>
+      </section>
+      <section class="hm-tile hm-powder st-card lib-shelf">
+        <div class="hm-row"><h2 class="hm-h3">Members' articles</h2><a class="hm-link" href="/hub/articles.html">See all</a></div>
+        <p class="hm-muted hm-small">Themes and company deep dives. The first members' articles are on their way.</p>
+      </section>
+      <section class="hm-tile hm-champ st-card lib-shelf">
+        <div class="hm-row"><h2 class="hm-h3">Investment suite</h2><a class="hm-link" href="/hub/suite/index.html">See all</a></div>
+        <ul class="st-list" id="libSuite"><li><a href="/hub/suite/index.html">How to read a note</a></li></ul>
+      </section>
+      <section class="hm-tile st-card lib-know">
+        <h2 class="hm-h3">Knowledge library</h2>
+        <form action="/hub/knowledge/glossary.html" method="get" class="lib-search" role="search">
+          <label class="gl-sr" for="libKnowQ">Search the glossary</label>
+          <input id="libKnowQ" name="q" type="search" placeholder="For example, compounding" autocomplete="off">
+        </form>
+        <div class="lib-chips">
+          <a href="/hub/knowledge/glossary.html">Glossary</a><a href="/hub/knowledge/mental-models.html">Mental models</a>
+          <a href="/hub/knowledge/quote-library.html">Quote library</a><a href="/hub/knowledge/book-library.html">Book library</a>
+        </div>
+      </section>
+    </div>
+    <div class="lib-view" data-lib="notes">
+      <div class="lib-chips lib-filter" role="group" aria-label="Show">
+        <button type="button" data-lib-docs="notes" aria-pressed="true">Meeting notes</button>
+        <button type="button" data-lib-docs="all" aria-pressed="false">All documents</button>
+      </div>
+      <ul class="lib-notes" id="libNotes"></ul>
+    </div>
+    <p class="hm-note">Coaching and education, not regulated financial advice.</p>
+  </div>
+</div>
+
 <div id="page-libplan" class="page">
   <h1 class="m-sr">Investment plan</h1>
   <div class="dcard" id="lpHead"></div>
@@ -8331,6 +8435,8 @@ TEI.render = TEI.render || {};
     const doneIds = new Set((client.monthlyWins||[]).filter(w=> w && w.month === key).map(w=> w.id));
     return out.filter(s=> !doneIds.has(s.id));
   }
+
+  TEI.homeSteps = homeSteps; // the Library's Agreed next steps (spec B10)
 
   function renderStep(client){
     const steps = homeSteps(client);
@@ -14320,6 +14426,57 @@ TEI.render = TEI.render || {};
   function setTextIn(id, t){ const el = $s(id); if(el) el.textContent = t; }
 
   TEI.settings = { open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); } };
+
+  /* ================= LIBRARY (phones, spec B10) =================
+     Plan: the latest Wealth Plan (an uploaded forecast document) with Open
+     plan and View forecast, this month's agreed next steps (Home's list),
+     and earlier versions. Learn: continue learning and the shelves. Meeting
+     notes: note documents, newest first, the latest marked; a chip shows
+     every document. No summary field exists on documents yet, so a card
+     shows the title and date. */
+  let libDocs = 'notes', libSuiteLoaded = false;
+  function libDate(d){ return TEI.forecastView ? TEI.forecastView.fmtDate(d.uploadedAt || d.date) : (d.date || ''); }
+  function renderLibrary(client){
+    const docs = (client.documents || []).slice().sort((a,b)=> String(b.uploadedAt || b.date || '').localeCompare(String(a.uploadedAt || a.date || '')));
+    const plans = docs.filter(d=> d.type === 'forecast' && d.storagePath);
+    const latest = plans[0];
+    $s('libPlan').innerHTML = `<div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
+      <p class="hm-label">Your plan</p><h2 class="lib-plan-t">Wealth Plan and Forecast</h2>
+      <p class="lib-plan-s">${latest ? 'Updated ' + esc(libDate(latest)) : 'Your coach adds your Wealth Plan here after your plan session.'}</p>
+      <div class="hm-actions">${latest ? `<button type="button" class="hm-btn lib-plan-open" data-forecast-open="${esc(latest.id)}">Open plan</button>` : ''}<button type="button" class="hm-btn lib-plan-fc" data-lib-page="planning">View forecast</button></div>`;
+    const steps = TEI.homeSteps ? TEI.homeSteps(client) : [];
+    $s('libSteps').innerHTML = steps.length ? steps.map((s, i)=> `<li><span><b>${esc(s.text)}</b><small>${s.coach ? 'Agreed with your coach' + (s.agreedAt ? ' · ' + esc(stDate(s.agreedAt)) : '') : esc(s.why || '')}</small></span>${s.act ? `<button type="button" class="hm-link hm-linkbtn" data-lib-step="${i}">${esc(s.act[0])}</button>` : ''}</li>`).join('')
+      : '<li class="st-empty">Nothing to do right now.</li>';
+    $s('libSteps').onclick = e=>{ const b = e.target.closest('[data-lib-step]'); if(b && steps[b.dataset.libStep]) steps[b.dataset.libStep].act[1](); };
+    $s('libEarlierWrap').hidden = plans.length < 2;
+    $s('libEarlier').innerHTML = plans.slice(1).map(d=> `<li><span><b>${esc(d.name || 'Wealth Plan')}</b><small>${esc(libDate(d))}</small></span>${docOpenHTML(d)}</li>`).join('');
+    const meta = $s('whLearnMeta');
+    $s('libLearnMeta').textContent = meta && meta.textContent ? meta.textContent : 'Lessons at your own pace, stage by stage.';
+    if(!libSuiteLoaded){
+      libSuiteLoaded = true;
+      fetch('/hub/suite/notes/manifest.json').then(r=> r.ok ? r.json() : []).then(list=>{
+        const top = (list || []).filter(n=> n.category === 'Growth Portfolio').slice(0, 3);
+        $s('libSuite').insertAdjacentHTML('beforeend', top.map(n=> `<li><a href="/hub/suite.html?note=${encodeURIComponent(n.slug)}">${esc(n.name)}<small>${esc(n.summary || '')}</small></a></li>`).join(''));
+      }).catch(()=>{});
+    }
+    renderLibNotes(docs);
+  }
+  function renderLibNotes(docs){
+    const show = libDocs === 'all' ? docs : docs.filter(d=> d.type === 'note');
+    document.querySelectorAll('[data-lib-docs]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.libDocs === libDocs ? 'true' : 'false'));
+    $s('libNotes').innerHTML = show.length ? show.map((d, i)=> `<li class="hm-tile lib-note${i === 0 && libDocs === 'notes' ? ' lib-latest' : ''}">
+        <div class="hm-row"><span class="hm-label">${esc(libDate(d))}</span>${i === 0 && libDocs === 'notes' ? '<span class="lib-badge">Latest</span>' : ''}</div>
+        <h3 class="hm-h3">${esc(d.name || 'Document')}</h3>
+        <p class="hm-muted hm-small">${esc(docMetaText(d))}</p>${docOpenHTML(d)}</li>`).join('')
+      : `<li class="hm-muted hm-small lib-empty">${libDocs === 'notes' ? 'Notes from each session appear here after it.' : 'No documents yet.'}</li>`;
+  }
+  document.addEventListener('click', e=>{
+    const p = e.target.closest('[data-lib-page]');
+    if(p){ e.preventDefault(); TEI.app.showPage(p.dataset.libPage); return; }
+    const f = e.target.closest('[data-lib-docs]');
+    if(f){ libDocs = f.dataset.libDocs; const c = client(); if(c) renderLibNotes((c.documents||[]).slice().sort((a,b)=> String(b.uploadedAt || b.date || '').localeCompare(String(a.uploadedAt || a.date || '')))); }
+  });
+  TEI.render.library = renderLibrary;
 
   TEI.render.learning = renderLearning;
   TEI.render.documents = renderDocuments;
@@ -20343,7 +20500,7 @@ TEI.render = TEI.render || {};
 window.TEI = window.TEI || {};
 
 (function(){
-  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails','menu','libplan'];
+  const PAGES = ['home','progress','goals','portfolio','planning','cashflow','update','learning','documents','mydetails','menu','libplan','library'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -20365,8 +20522,11 @@ window.TEI = window.TEI || {};
      balances panel. opts.direct still opens the old Update page, which the
      Cashflow "Update" link uses until Cashflow gets its own panel (B12.8);
      it goes in the B12.11 clean-up. Goals has its own panel (B12.6). */
+  // On phones the old Library pages open the Library (spec B10) on the matching view.
+  const LIB_OLD = {libplan:'lplan', learning:'llearn', documents:'lnotes'};
   function showPage(pageId, opts){
     let after = null;
+    if(LIB_OLD[pageId] && window.matchMedia('(max-width:860px)').matches){ mPendingView = LIB_OLD[pageId]; pageId = 'library'; }
     if(pageId === 'portfolio'){ pageId = 'progress'; after = 'lab'; }
     else if(pageId === 'update' && !(opts && opts.direct)){ pageId = 'progress'; after = 'update'; }
     if(PAGES.indexOf(pageId) === -1) pageId = 'home';
@@ -20388,8 +20548,8 @@ window.TEI = window.TEI || {};
      is visible on desktop. Pages, renderers and showPage() are unchanged:
      a tab just opens one of the existing pages. Stage 1 = one page per tab;
      later stages add the segmented switches inside Wealth / Plan / Library. */
-  const M_TAB_OF = {home:'home', progress:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', libplan:'library', update:'menu', mydetails:'menu', menu:'menu'};
-  const M_TAB_TARGET = {home:'home', wealth:'progress', plan:'goals', library:'documents', menu:'menu'};
+  const M_TAB_OF = {home:'home', progress:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', libplan:'library', library:'library', update:'menu', mydetails:'menu', menu:'menu'};
+  const M_TAB_TARGET = {home:'home', wealth:'progress', plan:'goals', library:'library', menu:'menu'};
 
   /* Merged tabs: a segmented switch over views of the EXISTING pages (no data
      logic is duplicated). A view names the page that renders it; the switch is
@@ -20404,9 +20564,9 @@ window.TEI = window.TEI || {};
       {id:'cashflow', label:'Cashflow', page:'cashflow'}
     ],
     library: [
-      {id:'plan',  label:'Plan',          page:'libplan'},
-      {id:'learn', label:'Learn',         page:'learning'},
-      {id:'notes', label:'Meeting notes', page:'documents'}
+      {id:'lplan',  label:'Plan',          page:'library'},
+      {id:'llearn', label:'Learn',         page:'library'},
+      {id:'lnotes', label:'Meeting notes', page:'library'}
     ]
   };
   const mLastView = {};      // tab -> last view used, so tapping a tab returns to it
@@ -20711,7 +20871,7 @@ window.TEI = window.TEI || {};
     wireDocsMobile(mq);
     // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
     const onChange = ()=>{
-      if(!mq.matches && (state.currentPage === 'menu' || state.currentPage === 'libplan')) showPage('home');
+      if(!mq.matches && (state.currentPage === 'menu' || state.currentPage === 'libplan' || state.currentPage === 'library')) showPage('home');
       placeMoves(mq.matches);
       applyMobileA11y(mq);
     };
