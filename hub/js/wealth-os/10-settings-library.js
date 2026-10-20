@@ -542,8 +542,9 @@ TEI.render = TEI.render || {};
      by default; what is open is remembered while Settings is in use. */
   const slOpenGrps = {};
   const SL_KINDS = [['cash', 'Cash savings', ['cash','cash_isa','cash_lisa']], ['invest', 'Investments', ['isa','gia','lisa','crypto','other']], ['pension', 'Pensions', ['pension']]];
-  /* Marker colours: the account-type colours used on Wealth (B5). */
-  const SL_DOT = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash_lisa:'#DFE6F2', gia:'var(--w-acc-gia)', cash:'#AAB6C8', cash_isa:'#AAB6C8', crypto:'#6F7F98', other:'#C9D3E3', invest:'#B9CAE6'};
+  /* Marker colours: the account-type colours used on Wealth (B5), with their
+     light-ground variants in light (B1.2). */
+  const SL_DOT = {pension:'var(--w-acc-pension)', isa:'var(--w-acc-isa)', lisa:'var(--w-acc-lisa)', cash_lisa:'var(--w-acc-lisa)', gia:'var(--w-acc-gia)', cash:'var(--w-acc-cash)', cash_isa:'var(--w-acc-cash)', crypto:'#6F7F98', other:'#C9D3E3', invest:'var(--w-acc-isa)'};
   function slSubHTML(key, title, meta, total, rows, note, dot){
     const open = !!slOpenGrps[key];
     return `<div class="sl-grp${open ? ' open' : ''}"><button type="button" class="sl-grp-head" data-sl-grp="${esc(key)}" aria-expanded="${open}">
