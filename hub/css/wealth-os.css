@@ -2304,23 +2304,27 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .hm-greet-m{ display:none; }
 
 .hm-grid{ display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
-.hm-tile{ position:relative; box-sizing:border-box; min-width:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; transition:transform .2s ease, box-shadow .2s ease; animation:hm-up .7s cubic-bezier(.2,.8,.2,1) both; }
-.hm-tile:hover{ transform:translateY(-2px); box-shadow:var(--w-shadow); }
+/* Tile recipe (B1.2): a lit top edge and the level-1 shadow; level 2 on hover. */
+.hm-tile{ position:relative; box-sizing:border-box; min-width:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); transition:transform .2s ease, box-shadow .2s ease; animation:hm-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.hm-tile:hover{ transform:translateY(-2px); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-2); }
+.hm-tile:active{ transform:scale(0.985); }
 .hm-champ{ background:var(--w-champ); }
 .hm-powder{ background:var(--w-powder); }
 
-.hm-t-wealth{ grid-column:span 7; grid-row:span 2; }
-.hm-t-step{ grid-column:span 5; animation-delay:.06s; }
-.hm-t-goal{ grid-column:span 5; flex-direction:row; align-items:center; gap:22px; animation-delay:.12s; }
-.hm-t-forecast{ grid-column:span 8; animation-delay:.18s; }
-.hm-t-safety{ grid-column:span 4; animation-delay:.24s; }
-.hm-t-accounts{ grid-column:span 5; animation-delay:.30s; }
-.hm-t-cashflow{ grid-column:span 4; gap:16px; animation-delay:.36s; }
-.hm-t-session{ grid-column:span 3; animation-delay:.42s; }
-.hm-t-learn{ grid-column:span 6; flex-direction:row; align-items:center; gap:20px; animation-delay:.48s; }
-.hm-t-note{ grid-column:span 6; animation-delay:.54s; }
+/* Desktop tiles (B4.2): total wealth spans two rows beside next step and
+   the goal; then safety net, cashflow and next session; then learning and
+   the latest note. */
+.hm-t-wealth{ grid-column:span 8; grid-row:span 2; }
+.hm-t-step{ grid-column:span 4; animation-delay:.05s; }
+.hm-t-goal{ grid-column:span 4; flex-direction:row; align-items:center; gap:22px; animation-delay:.10s; }
+.hm-t-safety{ grid-column:span 4; animation-delay:.15s; }
+.hm-t-cashflow{ grid-column:span 4; gap:16px; animation-delay:.20s; }
+.hm-t-session{ grid-column:span 4; animation-delay:.25s; }
+.hm-t-learn{ grid-column:span 6; flex-direction:row; align-items:center; gap:20px; animation-delay:.30s; }
+.hm-t-note{ grid-column:span 6; animation-delay:.35s; }
 
-.hm-label{ font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--w-muted); }
+/* Tile labels are gold on ordinary tiles (B1.1, Bold). */
+.hm-label{ font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; color:var(--w-gold); }
 .hm-gold{ color:var(--w-gold); }
 .hm-h1{ margin:0; font-family:inherit; font-size:30px; font-weight:300; letter-spacing:-0.03em; color:var(--w-text); }
 .hm-h2{ margin:0; font-family:inherit; font-size:26px; font-weight:400; letter-spacing:-0.02em; line-height:1.15; color:var(--w-text); }
@@ -2357,6 +2361,9 @@ button.hm-cover:disabled{ cursor:default; }
 .hm-bar{ height:8px; border-radius:999px; background:var(--w-track); overflow:hidden; }
 .hm-bar-lg{ height:10px; }
 .hm-bar > span{ display:block; height:100%; width:0; border-radius:999px; background:var(--w-nav-active); }
+/* A bar with a tick at a target (Home's wealth conversion). */
+.hm-bar-tick{ position:relative; overflow:visible; }
+.hm-tickmark{ position:absolute; top:-4px; bottom:-4px; width:2px; margin-left:-1px; border-radius:1px; background:var(--w-text); }
 .hm-fill-gold{ background:var(--w-gold) !important; }
 .hm-fill-navy{ background:var(--w-nav-active) !important; }
 
@@ -2365,19 +2372,30 @@ button.hm-cover:disabled{ cursor:default; }
 .hm-setup[hidden]{ display:none; }
 .hm-setup-side{ display:flex; flex-direction:column; gap:14px; }
 
-/* Total wealth (feature, navy in both themes) */
-.hm-feat{ background:var(--w-feat); border-color:var(--w-feat-line); color:#F7F4ED; padding:28px; overflow:hidden; }
-.hm-feat .hm-label{ color:#E8D6A8; position:relative; }
-.hm-orbit{ position:absolute; width:280px; height:280px; right:-80px; top:-100px; border-radius:50%; border:1px solid rgba(232,214,168,0.12); pointer-events:none; }
-.hm-orbit.hm-spin{ width:420px; height:420px; right:-150px; top:-170px; border:1px dashed rgba(232,214,168,0.16); }
-.hm-asof{ position:relative; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:#AAB6C8; border:1px solid rgba(255,255,255,0.14); border-radius:999px; padding:4px 10px; }
+/* Featured tiles (Home total wealth, the Wealth hero, coach's corner):
+   brand navy in both themes, a champagne glow behind the top corner and a
+   softer pale-blue one at the opposite corner (B1.2, B14.2). The glow
+   replaces the old dashed rings. Text on them uses the fixed on-navy colours. */
+.hm-feat{ isolation:isolate; background:var(--w-feat); border-color:var(--w-feat-line); color:var(--w-on-feat-text); padding:28px; overflow:hidden; box-shadow:var(--w-feat-shadow); }
+.hm-feat:hover{ box-shadow:var(--w-feat-shadow); }
+.hm-feat::before{ content:''; position:absolute; z-index:-1; width:700px; height:700px; right:-260px; top:-360px; border-radius:50%; background:var(--w-glow); pointer-events:none; }
+.hm-feat::after{ content:''; position:absolute; z-index:-1; width:520px; height:520px; left:-240px; bottom:-320px; border-radius:50%; background:var(--w-glow-soft); pointer-events:none; }
+.hm-feat .hm-label{ color:var(--w-on-feat-accent); position:relative; }
+.hm-orbit{ display:none; }
+.hm-asof{ position:relative; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-on-feat-muted); border:1px solid rgba(255,255,255,0.14); border-radius:999px; padding:4px 10px; }
 .hm-asof:empty{ display:none; }
-.hm-big{ position:relative; margin-top:2px !important; font-size:56px; font-weight:300; letter-spacing:-0.04em; line-height:1; }
-.hm-sub{ position:relative; font-size:15px; color:#AAB6C8; }
-.hm-sub .hm-up{ color:#E8D6A8; }
-.hm-spark{ position:relative; display:block; width:100%; height:130px; flex:1; min-height:110px; margin-top:6px; }
-.hm-spark .hm-spark-fill{ fill:#E8D6A8; fill-opacity:.10; }
+.hm-big{ position:relative; margin-top:2px !important; font-size:60px; font-weight:300; letter-spacing:-0.045em; line-height:1; font-variant-numeric:tabular-nums; }
+.hm-sub{ position:relative; font-size:15px; color:var(--w-on-feat-muted); }
+.hm-sub .hm-up{ color:var(--w-on-feat-pos); }
+.hm-sub .hm-neg{ color:var(--w-on-feat-neg); }
+.hm-sparkwrap{ position:relative; flex:1; min-height:110px; margin-top:6px; }
+.hm-spark{ position:relative; display:block; width:100%; height:100%; min-height:110px; }
 .hm-spark .hm-spark-line{ fill:none; stroke:#E8D6A8; stroke-width:2.6; stroke-linecap:round; }
+/* The latest month: a glowing, pulsing point (B14.6). */
+.hm-spark-dot{ position:absolute; width:10px; height:10px; margin:-5px 0 0 -5px; border-radius:50%; background:#E8D6A8; box-shadow:0 0 12px rgba(232,214,168,0.9); }
+.hm-spark-dot::after{ content:''; position:absolute; inset:0; border-radius:50%; background:#E8D6A8; animation:hm-dotpulse 2.2s ease-out infinite; }
+.hm-feat-link{ position:relative; align-self:flex-start; gap:6px; color:var(--w-on-feat-accent); font-size:14px; }
+.hm-feat-link svg{ width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
 .hm-comp{ position:relative; }
 .hm-comp-bar{ display:flex; gap:3px; height:10px; border-radius:999px; overflow:hidden; }
 .hm-comp-bar span{ display:block; min-width:4px; height:100%; transform-origin:left; animation:hm-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
@@ -2390,47 +2408,26 @@ button.hm-cover:disabled{ cursor:default; }
 .hm-ringwrap svg{ display:block; width:112px; height:112px; }
 .hm-ring-track{ fill:none; stroke:var(--w-track); stroke-width:9; }
 .hm-ring-fill{ fill:none; stroke:var(--w-gold); stroke-width:9; stroke-linecap:round; animation:hm-ringfill 1.8s cubic-bezier(.3,.8,.3,1) .3s both; }
+#clientApp[data-theme="dark"] .hm-ring-fill{ filter:drop-shadow(0 0 6px rgba(232,214,168,0.55)); }
 .hm-ring-pct{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:300; letter-spacing:-0.03em; }
 .hm-goal-text{ min-width:0; display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
-
-/* Forecast chart */
-.hm-legend{ display:flex; gap:16px; font-size:12px; color:var(--w-muted); }
-.hm-legend span{ display:inline-flex; align-items:center; gap:6px; }
-.hm-key{ display:inline-block; width:16px; }
-.hm-key-actual{ height:3px; border-radius:2px; background:var(--w-gold); }
-.hm-key-plan{ height:0; border-top:2px dashed var(--w-muted); }
-.hm-fc{ display:block; width:100%; height:auto; margin-top:4px; }
-.hm-fc .hm-fc-base{ stroke:var(--w-line); }
-.hm-fc .hm-fc-bar{ fill:var(--w-powder-bar); transform-box:fill-box; transform-origin:bottom; animation:hm-rise 1s cubic-bezier(.3,.8,.3,1) both; }
-.hm-fc .hm-fc-plan{ fill:none; stroke:var(--w-muted); stroke-width:2; stroke-dasharray:6 6; }
-.hm-fc .hm-fc-actual{ fill:none; stroke:var(--w-gold); stroke-width:3; stroke-linecap:round; }
-.hm-fc .hm-fc-dot{ fill:var(--w-gold); }
-.hm-fc .hm-fc-pulse{ fill:var(--w-gold); animation:hm-pulse 1.8s ease-out infinite; }
-.hm-fc-empty{ font-size:14px; fill:var(--w-muted); }
-.hm-axis{ display:flex; justify-content:space-between; font-family:'Geist Mono', ui-monospace, monospace; font-size:11px; color:var(--w-muted); }
 
 /* Safety net */
 .hm-tick{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; background:var(--w-nav-active); }
 .hm-tick[hidden]{ display:none; }
 .hm-tick svg{ width:16px; height:16px; fill:none; stroke:var(--w-nav-active-text); stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
 
-/* Accounts */
-.hm-accts{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; }
-.hm-accts li{ display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--w-line); font-size:15px; }
-.hm-accts li i{ flex:none; box-sizing:border-box; width:10px; height:10px; border-radius:50%; border:2px solid var(--w-muted); }
-.hm-accts li span{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.hm-accts li b{ font-weight:500; }
-.hm-accts .hm-empty{ border-top:0; color:var(--w-muted); font-size:14px; }
-
-/* Cashflow */
+/* Cashflow this month: take-home and into wealth as raised panels (B4.2) */
 .hm-pair{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
-.hm-chipbox{ background:var(--w-chip); border-radius:16px; padding:14px; }
+.hm-chipbox{ background:var(--w-raised); border-radius:16px; padding:14px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.hm-link-foot{ margin-top:auto; align-self:flex-start; }
+.hm-t-cashflow .cf-health{ flex:none; }
 .hm-chipbox p{ font-size:12px; color:var(--w-muted); }
 .hm-chipbox b{ display:block; margin-top:4px; font-size:22px; font-weight:300; }
 
 /* Continue learning */
 .hm-play{ position:relative; width:72px; height:72px; flex:none; }
-.hm-play-ring{ position:absolute; inset:0; border-radius:50%; border:1px dashed var(--w-muted); }
+.hm-play-ring{ position:absolute; inset:0; border-radius:50%; border:1.5px solid var(--w-gold); opacity:.5; }
 .hm-play-core{ position:absolute; inset:14px; border-radius:50%; background:var(--w-nav-active); display:flex; align-items:center; justify-content:center; }
 .hm-play-core svg{ width:18px; height:18px; fill:var(--w-nav-active-text); }
 .hm-learn-text{ flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
@@ -2446,39 +2443,37 @@ button.hm-cover:disabled{ cursor:default; }
 @keyframes hm-draw{ from{ stroke-dashoffset:900; } to{ stroke-dashoffset:0; } }
 @keyframes hm-ringfill{ from{ stroke-dashoffset:301.6; } }
 @keyframes hm-pulse{ 0%{ r:5; opacity:1; } 100%{ r:18; opacity:0; } }
+@keyframes hm-dotpulse{ 0%{ transform:scale(1); opacity:.6; } 100%{ transform:scale(3.4); opacity:0; } }
 @keyframes hm-spin{ to{ transform:rotate(360deg); } }
 .hm-spin{ animation:hm-spin 40s linear infinite; }
 .hm-grow{ transform-origin:left; animation:hm-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
 .hm-draw{ stroke-dasharray:900; animation:hm-draw 2.6s cubic-bezier(.6,.05,.2,1) .2s both; }
 @media (prefers-reduced-motion: reduce){
-  .hm-tile, .hm-spin, .hm-grow, .hm-draw, .hm-comp-bar span, .hm-ring-fill, .hm-fc .hm-fc-bar, .hm-fc .hm-fc-pulse{ animation:none; }
+  .hm-tile, .hm-spin, .hm-grow, .hm-draw, .hm-comp-bar span, .hm-ring-fill, .hm-spark-dot::after{ animation:none; }
   .hm-draw{ stroke-dasharray:none; }
-  .hm-tile:hover{ transform:none; }
+  .hm-tile:hover, .hm-tile:active{ transform:none; }
 }
 
-/* Phones (B4.3): total wealth, next step, goal and safety net side by side,
-   forecast, next session and learning side by side. No Update button. */
+/* Phones (B4.3): total wealth; next step; goal and safety net side by side;
+   cashflow this month; next session and learning side by side; latest note. */
 @media (max-width:860px){
   .hm{ padding:4px 16px 24px; }
   .hm-head{ margin-bottom:16px; }
   .hm-title{ font-size:26px; }
   .hm-greet-d{ display:none; }
   .hm-greet-m{ display:inline; }
-  .hm-update{ display:none; }
   .hm-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
-  .hm-tile{ border-radius:22px; padding:18px; grid-column:span 2; }
+  .hm-tile{ border-radius:24px; padding:18px; grid-column:span 2; }
   .hm-label{ font-size:11px; }
-  .hm-t-accounts, .hm-t-cashflow, .hm-t-note{ display:none; }
   .hm-t-wealth{ grid-row:auto; padding:20px; }
-  .hm-big{ font-size:40px; }
-  .hm-spark{ height:80px; min-height:80px; flex:none; }
-  .hm-comp{ display:none; }
+  .hm-big{ font-size:44px; }
+  .hm-sparkwrap, .hm-spark{ height:80px; min-height:80px; flex:none; }
   .hm-t-step .hm-h2{ font-size:20px; }
   .hm-step-why{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .hm-t-wealth{ order:1; } .hm-t-step{ order:2; } .hm-t-goal{ order:3; } .hm-t-safety{ order:4; } .hm-t-forecast{ order:5; } .hm-t-session{ order:6; } .hm-t-learn{ order:7; }
+  .hm-t-wealth{ order:1; } .hm-t-step{ order:2; } .hm-t-goal{ order:3; } .hm-t-safety{ order:4; } .hm-t-cashflow{ order:5; } .hm-t-session{ order:6; } .hm-t-learn{ order:7; } .hm-t-note{ order:8; }
   .hm-t-goal{ grid-column:span 1; flex-direction:column; align-items:center; text-align:center; gap:10px; }
   .hm-t-goal .hm-goal-text{ align-items:center; gap:2px; }
-  .hm-t-goal .hm-label, .hm-t-goal .hm-muted{ display:none; }
+  .hm-t-goal .hm-muted{ font-size:12px; }
   .hm-t-goal .hm-h3{ font-size:14px; }
   .hm-ringwrap, .hm-ringwrap svg{ width:76px; height:76px; }
   .hm-ring-pct{ font-size:18px; }
@@ -2486,8 +2481,6 @@ button.hm-cover:disabled{ cursor:default; }
   .hm-t-safety .hm-row{ flex-direction:column-reverse; align-items:flex-start; gap:10px; }
   .hm-t-safety .hm-h1{ font-size:20px; }
   .hm-t-safety .hm-muted, .hm-t-safety .hm-foot{ display:none; }
-  .hm-t-forecast .hm-legend, .hm-t-forecast .hm-note{ display:none; }
-  .hm-t-forecast .hm-h3{ display:none; }
   .hm-t-session, .hm-t-learn{ grid-column:span 1; }
   .hm-t-session .hm-h3, .hm-t-learn .hm-h3{ font-size:17px; }
   .hm-t-session .hm-btn{ display:none; }

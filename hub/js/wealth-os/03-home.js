@@ -63,11 +63,6 @@ TEI.render = TEI.render || {};
     return 'Good evening';
   }
 
-  /* Settings > Accounts (B4.1, B9.1). */
-  function openAccountsSettings(){
-    if(TEI.settings) TEI.settings.open('accounts'); else TEI.app.showPage('mydetails');
-  }
-
   /* Smooth path through points: a cubic per segment with its control
      points at the horizontal midpoint, so the line never overshoots. */
   function smoothPath(pts){
@@ -79,11 +74,6 @@ TEI.render = TEI.render || {};
     }
     return d;
   }
-  function addMonths(key, n){
-    const [y,m] = key.split('-').map(Number);
-    const d = new Date(y, m-1+n, 1);
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-  }
 
   /* ---------------- Header and setup ---------------- */
   function renderHeader(client){
@@ -92,8 +82,25 @@ TEI.render = TEI.render || {};
       ? `<span class="hm-greet-d">${timeGreeting()}, ${esc(first)}</span><span class="hm-greet-m">Hi, ${esc(first)}</span>`
       : 'Welcome to your Wealth OS';
     setText('whDate', fmtDate(new Date(), {weekday:'long', day:'numeric', month:'long', year:'numeric'}));
-    document.getElementById('whUpdateBtn').onclick = (e)=>{ e.preventDefault(); openAccountsSettings(); };
   }
+
+  /* Headline figures count up over 1.1s (B1.4); under reduced motion they
+     show their final value at once. Shared with Wealth (TEI.ui.countUp). */
+  const reducedMotion = ()=> !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  function countUp(el, value, fmt){
+    if(!el) return;
+    if(el._countRaf) cancelAnimationFrame(el._countRaf);
+    if(reducedMotion() || !isFinite(value) || value === 0){ el.textContent = fmt(value); return; }
+    const t0 = performance.now(), dur = 1100;
+    const step = now=>{
+      const p = Math.min(1, (now - t0)/dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(p < 1 ? value*e : value);
+      if(p < 1) el._countRaf = requestAnimationFrame(step); else el._countRaf = null;
+    };
+    el._countRaf = requestAnimationFrame(step);
+  }
+  TEI.ui = TEI.ui || {};
+  TEI.ui.countUp = countUp;
 
   /* "Finish setting up" sits first while there is something to finish: the
      coach's setup request, or the client's own gaps before setup is done.
@@ -138,13 +145,13 @@ TEI.render = TEI.render || {};
     const months = TEI.calc.buildMergedMonths(client);
     const keys = Object.keys(months).sort();
     const total = TEI.calc.netWorth(client);
-    setText('whWealthTotal', fmtGBP(total));
+    countUp(document.getElementById('whWealthTotal'), total, v=> fmtGBP(Math.round(v)));
 
     const fact = TEI.calc.computeNetWorthFact(client);
     const change = document.getElementById('whWealthChange');
     if(fact.netWorthChange != null){
       const v = fact.netWorthChange;
-      change.innerHTML = `<span class="hm-up">${v<0?'-':'+'}${fmtGBP(Math.abs(v))}</span> since last month`;
+      change.innerHTML = `<span class="${v<0?'hm-neg':'hm-up'}">${v<0?'-':'+'}${fmtGBP(Math.abs(v))}</span> ${v<0?'down':'up'} since last month`;
     } else {
       change.textContent = keys.length ? 'Log a second month to see the change' : 'Add your accounts to see your total';
     }
@@ -153,7 +160,9 @@ TEI.render = TEI.render || {};
     // Sparkline: the last 12 logged months at the same basis as the headline
     // (accounts plus property and other assets, less debts -- those have no
     // history, so the same offset applies to every point, as on Wealth).
+    // A gradient fills under the line and the latest month glows (B14.6).
     const spark = document.getElementById('whSpark');
+    const dot = document.getElementById('whSparkDot');
     const last = keys.slice(-12);
     if(last.length >= 2){
       const offset = total - TEI.calc.latestNetWorth(client);
@@ -161,12 +170,18 @@ TEI.render = TEI.render || {};
       const lo = Math.min(...vals), hi = Math.max(...vals), span = (hi-lo) || Math.abs(hi) || 1;
       const pts = vals.map((v,i)=> [i*600/(vals.length-1), 118 - (v-lo)/span*104]);
       const line = smoothPath(pts);
-      spark.innerHTML = `<path class="hm-spark-fill" d="${line} L 600 130 L 0 130 Z"></path>`
+      spark.innerHTML = `<defs><linearGradient id="whSparkGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D6A8" stop-opacity=".36"></stop><stop offset="1" stop-color="#E8D6A8" stop-opacity="0"></stop></linearGradient></defs>`
+        + `<path class="hm-spark-fill" d="${line} L 600 130 L 0 130 Z" fill="url(#whSparkGrad)"></path>`
         + `<path class="hm-spark-line hm-draw" d="${line}" pathLength="900" vector-effect="non-scaling-stroke"></path>`;
-      spark.style.display = '';
+      spark.parentNode.style.display = '';
+      const p = pts[pts.length-1];
+      dot.style.left = (p[0]/600*100).toFixed(2) + '%';
+      dot.style.top = (p[1]/130*100).toFixed(2) + '%';
+      dot.hidden = false;
     } else {
       spark.innerHTML = '';
-      spark.style.display = 'none';
+      spark.parentNode.style.display = 'none';
+      dot.hidden = true;
     }
 
     // Composition of everything owned (debts are left out of the bar).
@@ -309,59 +324,13 @@ TEI.render = TEI.render || {};
       const year = g.targetDate ? new Date(g.targetDate).getFullYear() : null;
       setText('whGoalName', g.name + (year ? ' by ' + year : ''));
       const st = TEI.calc.goalStatus(client, g);
-      setText('whGoalStatus', st.key === 'complete' ? 'Reached' : st.past ? 'Past its target date' : st.label);
+      const state = st.key === 'complete' ? 'Reached' : st.past ? 'Past its target date' : st.label;
+      const isMoney = gp.target > 0 && gp.current != null && g.progressType !== 'income';
+      setText('whGoalStatus', isMoney ? fmtGBP(gp.current) + ' of ' + fmtGBP(gp.target) + ' · ' + state : state);
     }
     setText('whGoalPct', Math.round(pct) + '%');
     ring.setAttribute('stroke-dashoffset', (301.6 * (1 - pct/100)).toFixed(1));
     document.getElementById('whGoalRingSvg').setAttribute('aria-label', (g ? g.name : 'Headline goal') + ', ' + Math.round(pct) + ' percent complete');
-  }
-
-  /* ---------------- Wealth forecast: actual vs plan ----------------
-     Accounts only, as on Forecast. Actual = each logged month. Plan = the
-     first logged total growing at Forecast's middle growth rate (5%) plus
-     the current monthly contributions, with accounts added to tracking later
-     counted in the month they arrived (they are not growth). Runs 12 months
-     ahead. Forecast's Save as my plan keeps only retirement age and yearly
-     spending (B7.2), so it does not change this line. */
-  function renderForecast(client){
-    const svg = document.getElementById('whForecast');
-    const axis = document.getElementById('whForecastAxis');
-    const note = document.getElementById('whForecastNote');
-    const months = TEI.calc.buildMergedMonths(client);
-    const keys = Object.keys(months).sort();
-    if(keys.length < 2){
-      svg.innerHTML = '<line class="hm-fc-base" x1="0" y1="200" x2="640" y2="200"></line><text class="hm-fc-empty" x="0" y="110">The chart starts once two months are logged.</text>';
-      svg.setAttribute('aria-label', 'Not enough history yet');
-      axis.innerHTML = ''; note.textContent = '';
-      return;
-    }
-    const rate = TEI.calc.EXPECTED_RATE || 0.05;
-    const r = Math.pow(1+rate, 1/12) - 1;
-    const contrib = TEI.calc.totalMonthlyContribution(client);
-    const joined = TEI.calc.joinedByMonth(client, months);
-    const all = keys.concat(Array.from({length:12}, (_,i)=> addMonths(keys[keys.length-1], i+1)));
-    const actual = keys.map(k=> months[k].total);
-    const plan = [actual[0]];
-    for(let i=1; i<all.length; i++) plan.push(plan[i-1]*(1+r) + contrib + (joined[all[i]]||0));
-
-    const maxV = Math.max(...plan, ...actual, 1) * 1.06;
-    const n = all.length;
-    const x = i=> 14 + i*(612/(n-1));
-    const y = v=> 200 - Math.max(0, v)/maxV*184;
-    const w = Math.max(4, Math.min(28, 612/(n-1)*0.6));
-    const bars = actual.map((v,i)=> `<rect class="hm-fc-bar" x="${(x(i)-w/2).toFixed(1)}" y="${y(v).toFixed(1)}" width="${w.toFixed(1)}" height="${(200-y(v)).toFixed(1)}" rx="${Math.min(6, w/2).toFixed(1)}" style="animation-delay:${(0.1+i*0.04).toFixed(2)}s"></rect>`).join('');
-    const planD = smoothPath(plan.map((v,i)=> [x(i), y(v)]));
-    const actD = smoothPath(actual.map((v,i)=> [x(i), y(v)]));
-    const li = actual.length-1, dx = x(li).toFixed(1), dy = y(actual[li]).toFixed(1);
-    svg.innerHTML = `<line class="hm-fc-base" x1="0" y1="200" x2="640" y2="200"></line>${bars}`
-      + `<path class="hm-fc-plan" d="${planD}"></path>`
-      + `<path class="hm-fc-actual hm-draw" d="${actD}" pathLength="900"></path>`
-      + `<circle class="hm-fc-pulse" cx="${dx}" cy="${dy}" r="5"></circle><circle class="hm-fc-dot" cx="${dx}" cy="${dy}" r="5"></circle>`;
-    const gap = actual[li] - plan[li];
-    svg.setAttribute('aria-label', `${monthLabel(keys[li])}: actual ${fmtGBP(actual[li])}, plan ${fmtGBP(plan[li])}, ${gap>=0?'ahead by':'behind by'} ${fmtGBP(Math.abs(gap))}`);
-    const ticks = [0, Math.round((n-1)/4), Math.round((n-1)/2), Math.round(3*(n-1)/4), n-1];
-    axis.innerHTML = ticks.map(i=> `<span>${monthLabel(all[i])}</span>`).join('');
-    note.textContent = `Accounts only. The plan line grows your first logged total at ${Math.round(rate*100)}% a year, the Forecast's expected case, plus ${fmtGBP(contrib)} a month.`;
   }
 
   /* ---------------- Safety net ----------------
@@ -396,33 +365,29 @@ TEI.render = TEI.render || {};
     setText('whSafetyNote', noteText);
   }
 
-  /* ---------------- Accounts: the five largest ---------------- */
-  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'var(--w-muted)', cash_lisa:'var(--w-muted)', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'var(--w-acc-gia)', crypto:'#9DB59F'};
-  function renderAccounts(client){
-    const b = TEI.calc.latestBreakdown(TEI.calc.buildMergedMonths(client));
-    const top = (client.accounts||[]).map(a=> ({a, v: Number(b[a.id])||0})).filter(x=> x.v > 0)
-      .sort((p,q)=> q.v - p.v).slice(0,5);
-    document.getElementById('whAccounts').innerHTML = top.length
-      ? top.map(x=> `<li><i style="border-color:${ACCT_RING[x.a.type]||'var(--w-muted)'};"></i><span>${esc(acctLabel(x.a))}</span><b>${fmtGBP(x.v)}</b></li>`).join('')
-      : '<li class="hm-empty">No accounts yet.</li>';
-  }
-
   /* ---------------- Cashflow ----------------
      This month's figures come from TEI.calc.cashflowMonth and wealth
      conversion from TEI.calc.wealthConversionRate, exactly as on Cashflow. */
+  const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   function renderCashflow(client){
     const m = TEI.calc.cashflowMonth(client);
     const income = m.takeHome;
-    const spend = m.essentials + m.lifestyle;
     const rate = TEI.calc.wealthConversionRate(client);
-    const invested = m.wealthBuilding;
+    const target = TEI.cashflowPage ? TEI.cashflowPage.target(client) : 20;
+    setText('whCfLabel', 'Cashflow · ' + MONTHS_LONG[Number(String(m.key).split('-')[1]) - 1]);
     setText('whCfIncome', income > 0 ? fmtGBP(income) : '–');
-    setText('whCfSpend', spend > 0 ? fmtGBP(spend) : '–');
+    setText('whCfInto', income > 0 ? fmtGBP(m.wealthBuilding) : '–');
     setText('whCfRate', income > 0 ? Math.round(rate) + '%' : '–');
+    setText('whCfTarget', '· target ' + Math.round(target) + '%');
     document.getElementById('whCfBar').style.width = Math.max(0, Math.min(100, rate)).toFixed(0) + '%';
-    setText('whCfNote', income > 0
-      ? `${fmtGBP(invested)} a month turned into wealth`
-      : 'Add your income in Cashflow to see this.');
+    const tick = document.getElementById('whCfTick');
+    tick.style.left = Math.max(0, Math.min(100, target)).toFixed(0) + '%';
+    tick.hidden = false;
+    // The health chip is the Cashflow page's own rule (B8), so both agree.
+    const chip = document.getElementById('whCfHealth');
+    const h = income > 0 && TEI.cashflowPage ? TEI.cashflowPage.health(client, m) : null;
+    chip.hidden = !h;
+    if(h){ chip.textContent = h.label; chip.className = 'cf-health cf-health--' + h.key; }
   }
 
   /* ---------------- Continue learning (a shortcut to the Hub) ----------------
@@ -475,9 +440,7 @@ TEI.render = TEI.render || {};
     renderWealth(client);
     renderStep(client);
     renderGoal(client);
-    renderForecast(client);
     renderSafety(client);
-    renderAccounts(client);
     renderCashflow(client);
     renderLearn(client);
     renderNote(client);

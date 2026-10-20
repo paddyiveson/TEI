@@ -215,7 +215,6 @@ window.TeiTheme && TeiTheme.paint();</script>
       <p class="hm-date" id="whDate"></p>
       <h1 class="hm-title" id="heroTitle">Welcome to your Wealth OS</h1>
     </div>
-    <a href="#" class="hm-btn hm-btn-primary hm-update" id="whUpdateBtn">Update balances</a>
   </header>
 
   <section class="hm-tile hm-setup" id="whSetup" hidden>
@@ -233,13 +232,15 @@ window.TeiTheme && TeiTheme.paint();</script>
   <div class="hm-grid">
 
     <section class="hm-tile hm-feat hm-t-wealth" aria-labelledby="whWealthLabel">
-      <div class="hm-orbit hm-spin" aria-hidden="true"></div>
-      <div class="hm-orbit hm-orbit-2" aria-hidden="true"></div>
       <div class="hm-row"><p class="hm-label" id="whWealthLabel">Total wealth</p><span class="hm-asof" id="whWealthAsOf"></span></div>
       <p class="hm-big" id="whWealthTotal">£0</p>
       <p class="hm-sub" id="whWealthChange"></p>
-      <svg class="hm-spark" id="whSpark" viewBox="0 0 600 130" preserveAspectRatio="none" aria-hidden="true"></svg>
+      <div class="hm-sparkwrap">
+        <svg class="hm-spark" id="whSpark" viewBox="0 0 600 130" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <span class="hm-spark-dot" id="whSparkDot" aria-hidden="true" hidden></span>
+      </div>
       <div class="hm-comp" id="whComp"></div>
+      <a href="#" class="hm-link hm-feat-link" data-hm-page="progress">See your wealth<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
     </section>
 
     <section class="hm-tile hm-champ hm-t-step">
@@ -270,17 +271,6 @@ window.TeiTheme && TeiTheme.paint();</script>
       </div>
     </section>
 
-    <section class="hm-tile hm-t-forecast">
-      <div class="hm-row hm-row-wrap">
-        <div><p class="hm-label">Wealth forecast</p><h2 class="hm-h3">Actual vs plan</h2></div>
-        <a href="#" class="hm-link" data-hm-page="planning">Open forecast</a>
-        <div class="hm-legend" aria-hidden="true"><span><i class="hm-key hm-key-actual"></i>Actual</span><span><i class="hm-key hm-key-plan"></i>Plan</span></div>
-      </div>
-      <svg class="hm-fc" id="whForecast" viewBox="0 0 640 220" role="img" aria-label="Actual against plan"></svg>
-      <div class="hm-axis" id="whForecastAxis"></div>
-      <p class="hm-note" id="whForecastNote"></p>
-    </section>
-
     <section class="hm-tile hm-powder hm-t-safety">
       <div class="hm-row"><p class="hm-label">Safety net</p><span class="hm-tick" id="whSafetyTick" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span></div>
       <h2 class="hm-h1" id="whSafetyStage"></h2>
@@ -294,22 +284,17 @@ window.TeiTheme && TeiTheme.paint();</script>
       <a href="#" class="hm-cover" data-hm-page="cashflow" aria-label="Safety net: open Cashflow"></a>
     </section>
 
-    <section class="hm-tile hm-t-accounts">
-      <div class="hm-row"><p class="hm-label">Accounts</p><a href="#" class="hm-link" data-hm-page="progress">View all</a></div>
-      <ul class="hm-accts" id="whAccounts"></ul>
-    </section>
-
     <section class="hm-tile hm-t-cashflow">
-      <div class="hm-row"><p class="hm-label">Cashflow · each month</p><a href="#" class="hm-link" data-hm-page="cashflow">Open</a></div>
+      <div class="hm-row"><p class="hm-label" id="whCfLabel">Cashflow</p><span class="cf-health" id="whCfHealth" hidden></span></div>
       <div class="hm-pair">
         <div class="hm-chipbox"><p>Take-home</p><b id="whCfIncome">–</b></div>
-        <div class="hm-chipbox"><p>Spending</p><b id="whCfSpend">–</b></div>
+        <div class="hm-chipbox"><p>Into wealth</p><b id="whCfInto">–</b></div>
       </div>
       <div>
-        <div class="hm-row hm-row-tight"><span>Wealth conversion</span><b id="whCfRate">–</b></div>
-        <div class="hm-bar"><span class="hm-grow hm-fill-gold" id="whCfBar"></span></div>
+        <div class="hm-row hm-row-tight"><span>Wealth conversion</span><span><b id="whCfRate">–</b> <span class="hm-muted hm-small" id="whCfTarget"></span></span></div>
+        <div class="hm-bar hm-bar-tick"><span class="hm-grow hm-fill-gold" id="whCfBar"></span><i class="hm-tickmark" id="whCfTick" aria-hidden="true" hidden></i></div>
       </div>
-      <p class="hm-muted hm-small" id="whCfNote"></p>
+      <a href="#" class="hm-link hm-link-foot" data-hm-page="cashflow">Open cashflow</a>
     </section>
 
     <section class="hm-tile hm-t-session">
@@ -321,7 +306,7 @@ window.TeiTheme && TeiTheme.paint();</script>
     </section>
 
     <section class="hm-tile hm-powder hm-t-learn">
-      <div class="hm-play" aria-hidden="true"><div class="hm-play-ring hm-spin"></div><div class="hm-play-core"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></div></div>
+      <div class="hm-play" aria-hidden="true"><div class="hm-play-ring"></div><div class="hm-play-core"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg></div></div>
       <div class="hm-learn-text">
         <p class="hm-label">Continue learning</p>
         <h2 class="hm-h3" id="whLearnTitle">Pick up where you left off</h2>

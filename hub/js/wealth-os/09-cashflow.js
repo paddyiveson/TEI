@@ -282,7 +282,8 @@ TEI.render = TEI.render || {};
     $('cfScenLink').addEventListener('click', e=>{ e.preventDefault(); TEI.app.showPage('planning'); });
   }
 
-  TEI.cashflowPage = { openUpdate: openPanel };
+  // Home's Cashflow tile reads the same target and health rule.
+  TEI.cashflowPage = { openUpdate: openPanel, target, health };
   TEI.render.cashflow = function(client){
     wireOnce();
     $('cfScenInc').value = String(scenInc);
