@@ -3574,6 +3574,72 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 @media (min-width:861px){
   #page-menu .me{ display:none; }
 }
+
+/* ================================================================
+   SETTINGS: My details as plain lists (20 Oct 2026). Prefix sl-.
+   The coach's Manual Entry cards stay in the page but are hidden here
+   (data-sl-src); their forms open one at a time in the side panel.
+   Everything is scoped to #stRoot, so the Adviser Workspace is unchanged.
+   ================================================================ */
+#stRoot.st-v2 [data-sl-src]{ display:none !important; }
+#stRoot.st-v2 [data-sl-card]{ display:none; }
+#stRoot.st-v2.sl-show-months [data-sl-card="months"], #stRoot.st-v2.sl-show-hmonths [data-sl-card="hmonths"],
+#stRoot.st-v2.sl-show-divs [data-sl-card="divs"], #stRoot.st-v2.sl-show-oneoff [data-sl-card="oneoff"]{ display:block; }
+#stRoot.st-v2 [data-sl-card] + [data-sl-card]{ margin-top:16px; }
+.sl-host{ display:flex; flex-direction:column; gap:16px; }
+.sl-head{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; }
+.sl-acts{ display:flex; flex-wrap:wrap; gap:8px; }
+.sl-list{ list-style:none; margin:0; padding:0; }
+.sl-item{ border-top:1px solid var(--w-line); }
+.sl-item.sl-has-chip{ display:flex; align-items:center; gap:8px; }
+.sl-row{ display:flex; align-items:center; gap:12px; width:100%; min-height:56px; padding:10px 0; border:0; background:transparent; color:var(--w-text); font-family:inherit; text-align:left; cursor:pointer; }
+.sl-has-chip .sl-row{ flex:1; min-width:0; }
+.sl-row:focus-visible, .sl-fold:focus-visible, .sl-chip:focus-visible{ outline:2px solid var(--w-gold); outline-offset:2px; border-radius:10px; }
+.sl-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.sl-main b{ font-size:15px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.sl-main small, .sl-val small{ font-size:12px; color:var(--w-muted); }
+.sl-val{ flex:none; display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-family:'Geist Mono', ui-monospace, monospace; font-size:14px; }
+.sl-val .sl-up{ color:var(--k-up-ink); }
+.sl-val .sl-down{ color:var(--w-warn); }
+.sl-chev{ flex:none; width:14px; height:14px; fill:none; stroke:var(--w-muted); stroke-width:2; stroke-linecap:round; }
+.sl-sub{ display:flex; justify-content:space-between; gap:12px; margin:14px 0 2px !important; }
+.sl-sub:first-of-type{ margin-top:4px !important; }
+.sl-empty{ padding:6px 0; }
+.sl-flag{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:0 0 12px; font-size:13px; line-height:1.45; color:var(--w-muted); }
+.sl-flag span{ flex:1 1 240px; }
+.sl-ok{ min-height:44px; }
+.sl-chip{ flex:none; min-height:44px; min-width:92px; padding:0 14px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-chip); color:var(--w-text); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; }
+.sl-chip-lifestyle{ background:var(--w-champ); border-color:transparent; }
+.sl-fold{ display:flex; align-items:center; gap:12px; width:100%; min-height:64px; padding:12px 18px; border:1px solid var(--w-line); border-radius:20px; background:var(--w-tile); color:var(--w-text); font-family:inherit; text-align:left; cursor:pointer; }
+.sl-fold > span{ flex:1; display:flex; flex-direction:column; gap:2px; }
+.sl-fold b{ font-size:15px; font-weight:500; }
+.sl-fold small{ font-size:12px; color:var(--w-muted); }
+.sl-fold[aria-expanded="true"] .sl-chev{ transform:rotate(90deg); }
+/* The panel: the Update balances panel's look (side panel, bottom sheet on phones). */
+.sl-drawer .hb-seg-me{ align-self:flex-start; }
+.sl-sum[hidden]{ display:none; }
+.sl-body .mini-form{ display:flex !important; flex-direction:column; gap:12px; margin:0; padding:0; background:none; border:0; }
+.sl-body .mini-form > *{ order:0; }
+.sl-body .form-field{ width:100%; margin:0; }
+.sl-body [data-sl-more]{ order:2; }
+.sl-body [data-sl-hide]{ display:none !important; }
+#stRoot .sl-body input:disabled, #stRoot .sl-body select:disabled{ opacity:.55; cursor:not-allowed; }
+.sl-drawer:not(.sl-more-on) [data-sl-more]{ display:none !important; }
+.sl-more{ order:1; align-self:flex-start; min-height:44px; padding:0; border:0; background:none; color:var(--w-gold); font-family:inherit; font-size:14px; font-weight:500; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.sl-more[hidden]{ display:none; }
+.sl-body .mini-form > .btn-primary{ order:3; width:100%; min-height:48px; margin-top:6px; }
+.sl-body .acct-more{ border:0; padding:0; }
+.sl-body .acct-more > summary{ display:none; }
+.sl-body .acct-more .acct-more-body{ display:flex; flex-direction:column; gap:12px; }
+.sl-remove{ align-self:flex-start; min-height:44px; color:var(--w-warn); border-color:var(--w-warn); }
+.sl-remove[hidden]{ display:none; }
+.st-ef{ margin-top:6px; max-width:420px; }
+.st-ef select{ box-sizing:border-box; width:100%; min-height:44px; padding:0 12px; border:1px solid var(--w-line); border-radius:12px; background:var(--w-bg); color:var(--w-text); font-family:inherit; font-size:15px; }
+@media (max-width:860px){
+  .sl-head .hm-btn{ flex:1 1 auto; }
+  .sl-val{ font-size:13px; }
+  .sl-chip{ min-width:84px; padding:0 10px; }
+}
 </style>
 </head>
 <body>
@@ -4719,20 +4785,22 @@ window.TeiTheme && TeiTheme.paint();</script>
 
   <div class="st-layout">
     <nav class="st-nav" aria-label="Settings sections">
-      <div><p class="hm-label">My details</p>
-        <button type="button" data-st="profile">Profile</button>
+      <div><p class="hm-label">Your money</p>
         <button type="button" data-st="accounts">Accounts</button>
         <button type="button" data-st="holdings">Holdings</button>
         <button type="button" data-st="property">Property and debts</button>
         <button type="button" data-st="income">Income and spending</button>
         <button type="button" data-st="goals">Goals</button>
-        <button type="button" data-st="you">You and investing</button>
       </div>
-      <div><p class="hm-label">Documents</p>
-        <button type="button" data-st="documents">Documents<span class="st-badge" id="stDocBadge" hidden></span></button>
+      <div><p class="hm-label">About you</p>
+        <button type="button" data-st="profile">Profile</button>
+        <button type="button" data-st="you">You and investing</button>
       </div>
       <div><p class="hm-label">Plan</p>
         <button type="button" data-st="plan">Plan settings</button>
+      </div>
+      <div><p class="hm-label">Documents</p>
+        <button type="button" data-st="documents">Documents<span class="st-badge" id="stDocBadge" hidden></span></button>
       </div>
       <div><p class="hm-label">Account</p>
         <button type="button" data-st="membership">Membership</button>
@@ -4759,7 +4827,7 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="st-sec" data-st-sec="accounts">
         <p class="hm-muted st-intro" id="stAcctSummary"></p>
         <div data-st-host="accounts"></div>
-        <p class="hm-note">This month's balances are quickest in Update balances on Wealth. Use the log above for earlier months.</p>
+        <p class="hm-note">This month's balances are quickest in Update balances. Use Earlier months to add or correct a past month.</p>
       </div>
       <div class="st-sec" data-st-sec="holdings">
         <p class="hm-muted st-intro">US tickers price automatically. Others: enter the value from your statement.</p>
@@ -4819,6 +4887,7 @@ window.TeiTheme && TeiTheme.paint();</script>
             <div><label for="stWc" class="fc-ret-l"><span>Wealth conversion target</span><strong id="stWcV"></strong></label><p class="hm-note">The share of take-home pay you aim to put into wealth each month.</p><input type="range" class="gl-range" id="stWc" min="5" max="60" step="1"></div>
             <div><label for="stSn" class="fc-ret-l"><span>Safety net target</span><strong id="stSnV"></strong></label><p class="hm-note">Months of spending kept in cash. TEI default 6.</p><input type="range" class="gl-range" id="stSn" min="3" max="12" step="1"></div>
           </div>
+          <label class="gl-field st-ef"><span>Where your safety net is kept</span><select id="stEf"></select><small class="hm-note">The cash account counted towards your safety net on Home and Cashflow.</small></label>
           <p class="hm-note" id="stPlanState" aria-live="polite"></p>
         </section>
         <section class="hm-tile st-card st-locked-rows">
@@ -5460,7 +5529,7 @@ window.TeiTheme && TeiTheme.paint();</script>
         </label>
         <label class="form-field"><span>Relationship status</span>
           <select id="mRelationship"><option value="">Not set</option><option>Single</option><option>Partnered</option><option>Married</option></select>
-          <span style="font-size:11.5px; color:var(--cream-soft2); margin-top:2px;">Partnered/Married clients still keep their own individual accounts and income here — link the two client records into a household from the client list to get a combined household rollup and tag shared costs as joint.</span>
+          <span data-adviser-only style="font-size:11.5px; color:var(--cream-soft2); margin-top:2px;">Partnered/Married clients still keep their own individual accounts and income here — link the two client records into a household from the client list to get a combined household rollup and tag shared costs as joint.</span>
         </label>
         <label class="form-field" id="mRiskField"><span>How you feel about risk (self-reported)</span>
           <select id="mRisk"><option value="">Not set</option><option>Cautious</option><option>Balanced</option><option>Growth</option><option value="Aggressive">Adventurous</option></select>
@@ -13367,11 +13436,13 @@ TEI.render = TEI.render || {};
     document.querySelectorAll('#stRoot #subtab-holdings [data-adviser-only]').forEach(el=>{
       el.style.display = (client.meta.role === 'adviser') ? '' : 'none';
     });
+    slPrepare();
   }
 
   /* Puts the panels back where the Adviser Workspace expects them, for an
      adviser who previewed the client dashboard and then went back. */
   function restoreMyDetailsPanel(){
+    slClose();
     Object.keys(stHome).reverse().forEach(sec=>{
       const panel = $s(ST_PANELS[sec]), home = stHome[sec];
       if(!panel || !home) return;
@@ -13395,6 +13466,7 @@ TEI.render = TEI.render || {};
     $s('stTitle').textContent = ST_TITLES[sec];
     const fn = ST_RENDER[sec];
     if(fn) fn(client);
+    slRender(client, sec);
     renderDocBadge(client);
   }
 
@@ -13446,6 +13518,7 @@ TEI.render = TEI.render || {};
     set('stRet', Math.min(68, Math.max(55, ret))); set('stYs', Math.min(60000, Math.max(15000, ys || 15000)));
     set('stWc', wc); set('stSn', sn);
     planLabels(client);
+    renderEfPicker(client);
   }
   function planLabels(client){
     const p = client.preferences || {};
@@ -13578,6 +13651,7 @@ TEI.render = TEI.render || {};
     $s('stUpFile').addEventListener('change', ()=>{ const f = $s('stUpFile').files[0]; $s('stUpLabel').textContent = f ? f.name + ' ready to send' : 'Choose a file'; $s('stUpState').textContent = ''; });
     $s('stUpSend').addEventListener('click', sendUpload);
     ['stRet','stYs','stWc','stSn'].forEach(id=> $s(id).addEventListener('input', onPlanInput));
+    $s('stEf').addEventListener('change', onEfChange);
     $s('stTiers').addEventListener('click', async e=>{
       const b = e.target.closest('[data-st-tier]'); if(!b) return;
       const t = TIERS.find(x=> x.id === b.dataset.stTier), cur = tierOf(client());
@@ -13639,9 +13713,10 @@ TEI.render = TEI.render || {};
     const pending = (c.documents||[]).filter(d=> d.reviewStatus === 'pending').length;
     const prefs = notifPrefs(c);
     const groups = [
-      ['My details', [['profile','Profile',''], ['accounts','Accounts', n + ' · ' + fmtGBP(total)], ['holdings','Holdings', String((c.holdings||[]).length)],
-        ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)], ['you','You and investing','']]],
-      ['Documents and plan', [['documents','Documents', pending ? pending + ' pending' : ''], ['plan','Plan settings', 'Retire at ' + ((c.preferences||{}).retirementAge || 60)]]],
+      ['Your money', [['accounts','Accounts', n + ' · ' + fmtGBP(total)], ['holdings','Holdings', String((c.holdings||[]).length)],
+        ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)]]],
+      ['About you', [['profile','Profile',''], ['you','You and investing','']]],
+      ['Plan and documents', [['plan','Plan settings', 'Retire at ' + ((c.preferences||{}).retirementAge || 60)], ['documents','Documents', pending ? pending + ' pending' : '']]],
       ['Account', [['membership','Membership', t ? t.name + ' · £' + t.price : ''], ['notifications','Notifications', Object.values(prefs).some(Boolean) ? 'Email on' : 'Email off'], ['security','Security and data','']]],
       ['Help', [['help','Help and learning',''], ['_setup','Set up Wealth OS', TEI.setup ? (TEI.setup.leftToDo(c) ? TEI.setup.leftToDo(c) + ' to do' : 'All done') : ''], ['_message','Message your coach','']]],
       ['Elsewhere', [['_hub','Client Hub','Learning, guides and videos'], ['_site','Website','The Everyday Investor']]]
@@ -13662,6 +13737,324 @@ TEI.render = TEI.render || {};
       else if(k === '_site') location.href = '/index.html';
       else openSettings(k);
     });
+  }
+
+  /* ---------- My details as plain lists (20 Oct 2026) ----------
+     The Manual Entry forms showed every record and every field at once.
+     Each My details section now shows a plain list; a row (or "Add") opens
+     a side panel, a bottom sheet on phones, holding the same Manual Entry
+     form, so saving still runs through the coach's code (TEI.adviser) and
+     the Adviser Workspace is unchanged. Less common fields sit under
+     "More detail". The coach's lists stay in the page, hidden, and their
+     buttons do the editing and removing; when one re-renders after a save
+     or a removal, the panel closes and the list here redraws. */
+  const ACCT_TYPES = {isa:'Stocks and shares ISA', gia:'General investment account', pension:'Pension', lisa:'Lifetime ISA',
+    cash:'Cash savings', cash_isa:'Cash ISA', crypto:'Crypto', other:'Other account'};
+  const ASSET_TYPES = {property:'Property', vehicle:'Vehicle', collectibles:'Collectibles', business:'Business interests', other:'Other asset'};
+  const LIAB_TYPES = {mortgage:'Mortgage', loan:'Loan', credit:'Credit card', other:'Other debt'};
+  const FREQ = {monthly:'a month', annual:'a year', weekly:'a week', fourweekly:'every 4 weeks'};
+  const CHEV = '<svg class="sl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+  const money = v=> fmtGBP(Number(v)||0);
+  function acctMonthly(a){ return a.type === 'pension' ? (Number(a.contributionPersonal)||0) + (Number(a.contributionSacrifice)||0) : (Number(a.contribution)||0); }
+  function acctTitle(a){ return a.provider ? a.provider + ' ' + (ACCT_TYPES[a.type] || '') : (ACCT_TYPES[a.type] || 'Account'); }
+  function holdingReturn(h){
+    const cost = Number(h.costBasis)||0;
+    if(cost <= 0) return '';
+    const r = ((Number(h.value)||0) - cost) / cost * 100;
+    return (r >= 0 ? '+' : '') + r.toFixed(1) + '%';
+  }
+
+  /* One entry per list. btn: the coach form's save button (its form is what
+     the panel holds). cancel: TEI.adviser.forms.cancel key. more: fields
+     under "More detail". */
+  const SL = {
+    acct: { sec:'accounts', heading:'Your accounts', add:'Add account', btn:'addAcctBtn', list:'accountsList', cancel:'account', owns:true,
+      items: c=> c.accounts || [],
+      edit: x=> '[data-edit-acct="'+x.id+'"]', del: x=> '[data-del-acct="'+x.id+'"]',
+      label: x=> acctTitle(x),
+      row: x=> ({ title: x.provider || ACCT_TYPES[x.type] || 'Account',
+        sub: [x.provider ? ACCT_TYPES[x.type] : '', acctMonthly(x) ? money(acctMonthly(x)) + ' a month in' : '', x.isJoint ? 'Joint' : '', x.setAndForget ? 'Set and forget' : '', x.earmarked ? 'Earmarked' : ''].filter(Boolean).join(' · '),
+        value: money(x.value) }),
+      more: ['newAcctOpeningContrib','newAcctCashBalance','advAcctInterestRateField','advAcctRateTypeField','advAcctMaturityField','advAcctJointField','acctMoreOptions'] },
+    hold: { sec:'holdings', heading:'Your holdings', add:'Add holding', btn:'addHoldingBtn', list:'holdingsList', cancel:'holding',
+      items: c=> c.holdings || [],
+      edit: x=> '[data-edit-holding="'+x.id+'"]', del: x=> '[data-del-holding="'+x.id+'"]',
+      label: x=> x.name || 'Holding',
+      row: x=> ({ title: x.name || 'Holding', sub: [x.ticker || '', x.units != null ? x.units + ' units' : ''].filter(Boolean).join(' · '),
+        value: money(x.value), extra: holdingReturn(x) }),
+      more: ['newHoldingPriceSource','newHoldingUnits','newHoldingAvgOpen','newHoldingCostBasisField','newHoldingSector','newHoldingTheme'] },
+    asset: { sec:'property', heading:'Property and other assets', add:'Add an asset', btn:'advAddAssetBtn', list:'advAssetsList', cancel:'asset',
+      items: c=> (c.wealth && c.wealth.assets) || [],
+      edit: x=> '[data-edit-asset="'+x.id+'"]', del: x=> '[data-del-asset="'+x.id+'"]',
+      label: x=> x.notes || ASSET_TYPES[x.type] || 'Asset',
+      row: x=> ({ title: x.notes || ASSET_TYPES[x.type] || 'Asset', sub: x.notes ? ASSET_TYPES[x.type] || '' : '', value: money(x.value) }) },
+    liab: { sec:'property', heading:'Debts', add:'Add a debt', btn:'advAddLiabBtn', list:'advLiabilitiesList', cancel:'liability',
+      items: c=> (c.wealth && c.wealth.liabilities) || [],
+      edit: x=> '[data-edit-liab="'+x.id+'"]', del: x=> '[data-del-liab="'+x.id+'"]',
+      label: x=> LIAB_TYPES[x.type] || 'Debt',
+      row: (x, c)=>{ const a = ((c.wealth && c.wealth.assets) || []).find(y=> y.id === x.linkedAssetId);
+        return { title: LIAB_TYPES[x.type] || 'Debt', sub: a ? 'Against ' + (a.notes || ASSET_TYPES[a.type] || 'an asset') : '', value: money(x.balance) }; },
+      empty: 'No debts. Debt free.' },
+    inc: { sec:'income', heading:'Income', add:'Add income', btn:'advAddIncomeBtn', list:'advIncomeList', cancel:'income',
+      items: c=> (c.cashflow && c.cashflow.income) || [],
+      edit: x=> '[data-edit-adv-income="'+x.id+'"]', del: x=> '[data-del-adv-income="'+x.id+'"]',
+      label: x=> x.type || 'Income',
+      row: x=> ({ title: x.type || 'Income', sub: x.owner === 'partner' ? 'Partner' : '', value: money(x.amount) + ' ' + (FREQ[x.frequency] || '') }) },
+    spend: { sec:'income', heading:'Spending', add:'Add spending', list:'advFixedList', list2:'advVariableList', cancel:'expense',
+      items: c=>{ const e = (c.cashflow && c.cashflow.expenses) || {};
+        return (e.fixed||[]).map(x=> Object.assign({kind:'fixed'}, x)).concat((e.variable||[]).map(x=> Object.assign({kind:'variable'}, x))); },
+      key: x=> x.kind + ':' + x.id,
+      edit: x=> '[data-edit-adv-exp="'+x.kind+':'+x.id+'"]', del: x=> '[data-del-adv-exp="'+x.kind+':'+x.id+'"]',
+      label: x=> x.label || 'Spending',
+      row: x=> ({ title: x.label || 'Spending', sub: x.owner === 'joint' ? 'Joint' : '', value: money(x.amount) + ' a month', spend: x.category === 'lifestyle' ? 'lifestyle' : 'essential' }) }
+  };
+  const SL_SECS = { accounts:['acct'], holdings:['hold'], property:['asset','liab'], income:['inc','spend'] };
+  /* Coach-only widgets kept under a fold: [section, fold id, label, hint]. */
+  const SL_FOLDS = [
+    ['accounts', 'months', 'Earlier months', 'Add or correct the balances for a past month.'],
+    ['holdings', 'hmonths', 'Earlier months', 'Add or correct holding values for a past month.'],
+    ['holdings', 'divs', 'Dividends', 'Dividends received each year, and holdings that pay them.'],
+    ['income', 'oneoff', 'One-off costs', 'Irregular costs, such as a car repair, counted only in the month you choose.']
+  ];
+  const slKey = (g, x)=> String(g.key ? g.key(x) : x.id);
+  const slSpendBtn = kind=> kind === 'fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn';
+  const slSpendSel = kind=> kind === 'fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend';
+  function slFormOf(btnId){ const b = $s(btnId); return b && b.closest('.mini-form'); }
+  function slField(id){ const el = $s(id); if(!el) return null; return el.matches('.form-field, details') ? el : (el.closest('.form-field') || el); }
+
+  /* Once: tag the coach widgets so CSS can hide them in Settings, set up the
+     panel, and watch each coach list for the redraw that follows a save. */
+  let slReady = false, sl = null;
+  function slPrepare(){
+    if(slReady) return;
+    const root = $s('stRoot');
+    if(!$s('accountsList') || !root.contains($s('accountsList'))) return;
+    slReady = true;
+    root.classList.add('st-v2');
+    ['accountsList','holdingsList','advAssetsList','advLiabilitiesList','saveCashflowBtn'].forEach(id=>{ const c = $s(id) && $s(id).closest('.card'); if(c) c.setAttribute('data-sl-src', ''); });
+    const cf = $s('subtab-cashflow');
+    if(cf){
+      for(const el of Array.from(cf.children)){ if(el.classList.contains('card')) break; el.setAttribute('data-sl-src', ''); }
+      const exp = $s('advFixedList').closest('.card');
+      exp.setAttribute('data-sl-card', 'oneoff');
+      for(const el of Array.from(exp.children)){ if(el.contains($s('advOneOffList')) || el === $s('advOneOffList').previousElementSibling) break; el.setAttribute('data-sl-src', ''); }
+    }
+    const card = (id, fold)=>{ const c = $s(id) && $s(id).closest('.card'); if(c) c.setAttribute('data-sl-card', fold); };
+    card('curMonthPicker', 'months'); card('curMonthPickerHoldings', 'hmonths'); card('dividendHistoryList', 'divs'); card('dividendList', 'divs');
+    Object.keys(SL).forEach(k=>{
+      (SL[k].more || []).forEach(id=>{ const f = slField(id); if(f) f.setAttribute('data-sl-more', ''); });
+    });
+    ['advNewFixedSpend','advNewVariableSpend'].forEach(id=>{ const f = slField(id); if(f) f.setAttribute('data-sl-hide', ''); });
+    root.insertAdjacentHTML('beforeend', `<div class="wl-scrim" id="slScrim" hidden></div>
+      <div class="wl-panel sl-drawer" id="slDrawer" role="dialog" aria-modal="true" aria-labelledby="slTitle" hidden>
+        <div class="wl-panel-head"><div><p class="hm-label" id="slKicker"></p><h2 class="hm-h3" id="slTitle"></h2></div>
+          <button type="button" class="wl-x" id="slClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button></div>
+        <div class="hb-seg-me sl-seg" id="slSeg" role="group" aria-label="Essential or lifestyle" hidden><button type="button" data-sl-seg="essential">Essential</button><button type="button" data-sl-seg="lifestyle">Lifestyle</button></div>
+        <div class="sl-sum hm-muted hm-small" id="slSum"></div>
+        <div class="sl-body" id="slBody"></div>
+        <button type="button" class="hm-btn sl-remove" id="slRemove" hidden>Remove</button>
+      </div>`);
+    const more = document.createElement('button');
+    more.type = 'button'; more.className = 'sl-more'; more.id = 'slMore'; more.setAttribute('aria-expanded', 'false'); more.textContent = 'More detail';
+    more.addEventListener('click', ()=>{ const on = !$s('slDrawer').classList.contains('sl-more-on'); $s('slDrawer').classList.toggle('sl-more-on', on); more.setAttribute('aria-expanded', on ? 'true' : 'false'); more.textContent = on ? 'Fewer details' : 'More detail'; });
+    sl = { more };
+    $s('slClose').addEventListener('click', ()=> slClose());
+    $s('slScrim').addEventListener('click', ()=> slClose());
+    $s('slDrawer').addEventListener('keydown', e=>{ if(e.key === 'Escape') slClose(); });
+    $s('slRemove').addEventListener('click', slRemove);
+    $s('slSeg').addEventListener('click', e=>{ const b = e.target.closest('[data-sl-seg]'); if(b) slSetSpend(b.dataset.slSeg); });
+    root.addEventListener('click', slClick);
+    const watch = new MutationObserver(muts=>{
+      const ids = new Set(muts.map(m=> m.target.id));
+      if(slState && (ids.has(slState.g.list) || ids.has(slState.g.list2))) slClose();
+      const c = client(); if(c && SL_SECS[stCurrent]) slRender(c, stCurrent);
+    });
+    Object.keys(SL).forEach(k=> [SL[k].list, SL[k].list2].forEach(id=>{ if(id && $s(id)) watch.observe($s(id), {childList:true}); }));
+  }
+
+  function slFlag(a, c){
+    const d = TEI.calc.contributionDiscrepancy(c, [a.id]);
+    if(!TEI.calc.isDiscrepancyFlaggable(d) || TEI.calc.isDiscrepancyDismissed(a, d.diff)) return '';
+    return `<div class="sl-flag"><span>Your balance and what you have paid in differ by ${money(Math.abs(d.diff))}. Worth a check.</span><button type="button" class="hm-btn sl-ok" data-sl-ok="${esc(a.id)}">Looks right</button></div>`;
+  }
+  function slRowHTML(gid, g, x, c){
+    const r = g.row(x, c), key = slKey(g, x);
+    const chip = r.spend ? `<button type="button" class="sl-chip sl-chip-${r.spend}" data-sl-spend="${esc(key)}" aria-label="${r.spend === 'lifestyle' ? 'Lifestyle' : 'Essential'}. Change to ${r.spend === 'lifestyle' ? 'essential' : 'lifestyle'}">${r.spend === 'lifestyle' ? 'Lifestyle' : 'Essential'}</button>` : '';
+    return `<li class="sl-item${chip ? ' sl-has-chip' : ''}"><button type="button" class="sl-row" data-sl-open="${gid}" data-sl-id="${esc(key)}">
+      <span class="sl-main"><b>${esc(r.title)}</b>${r.sub ? `<small>${esc(r.sub)}</small>` : ''}</span>
+      <span class="sl-val">${esc(r.value)}${r.extra ? `<small class="${/^-/.test(r.extra) ? 'sl-down' : 'sl-up'}">${esc(r.extra)}</small>` : ''}</span>${CHEV}</button>${chip}${gid === 'acct' ? slFlag(x, c) : ''}</li>`;
+  }
+  function slGroupHTML(gid, c){
+    const g = SL[gid], items = g.items(c);
+    let body;
+    if(!items.length) body = `<p class="hm-muted hm-small sl-empty">${esc(g.empty || 'Nothing added yet.')}</p>`;
+    else if(gid === 'hold'){
+      const by = {};
+      items.forEach(h=>{ (by[h.accountId || '_'] = by[h.accountId || '_'] || []).push(h); });
+      body = Object.keys(by).map(k=>{
+        const a = (c.accounts||[]).find(x=> x.id === k);
+        const tot = by[k].reduce((s,h)=> s + (Number(h.value)||0), 0);
+        return `<p class="hm-label sl-sub"><span>${esc(a ? acctTitle(a) : 'No account')}</span><span>${money(tot)}</span></p><ul class="sl-list">${by[k].map(x=> slRowHTML(gid, g, x, c)).join('')}</ul>`;
+      }).join('');
+    } else body = `<ul class="sl-list">${items.map(x=> slRowHTML(gid, g, x, c)).join('')}</ul>`;
+    const extra = gid === 'acct' ? `<button type="button" class="hm-btn" data-sl-update>Update balances</button>` : '';
+    return `<section class="hm-tile st-card sl-group"><div class="sl-head"><h3 class="hm-h3">${esc(g.heading)}</h3><div class="sl-acts">${extra}<button type="button" class="hm-btn hm-btn-primary" data-sl-add="${gid}">${esc(g.add)}</button></div></div>${body}</section>`;
+  }
+  function slRender(c, sec){
+    if(!slReady || !SL_SECS[sec]) return;
+    const secEl = document.querySelector('#stRoot [data-st-sec="'+sec+'"]');
+    let host = secEl.querySelector('.sl-host');
+    if(!host){ host = document.createElement('div'); host.className = 'sl-host'; secEl.insertBefore(host, secEl.querySelector('[data-st-host]')); }
+    const root = $s('stRoot');
+    host.innerHTML = SL_SECS[sec].map(gid=> slGroupHTML(gid, c)).join('') +
+      SL_FOLDS.filter(f=> f[0] === sec).map(f=>{ const on = root.classList.contains('sl-show-' + f[1]);
+        return `<button type="button" class="sl-fold" data-sl-fold="${f[1]}" aria-expanded="${on}"><span><b>${f[2]}</b><small>${f[3]}</small></span>${CHEV}</button>`; }).join('');
+  }
+
+  let slState = null;
+  function slCancel(g){
+    const f = (TEI.adviser && TEI.adviser.forms && TEI.adviser.forms.cancel) || {};
+    if(g.cancel === 'expense'){ if(f.expense){ f.expense('fixed'); f.expense('variable'); } }
+    else if(f[g.cancel]) f[g.cancel]();
+  }
+  /* Plainer labels while a form is in the panel; the coach's wording comes
+     back when it returns to the Adviser Workspace. */
+  const SL_LABELS = {
+    newAcctContrib:'Paid in each month £', newAcctContribPersonal:'You pay in each month £', newAcctContribEmployer:'Employer or salary sacrifice each month £',
+    newAcctOpeningContrib:'Paid in before Wealth OS started £', newAcctCashBalance:'Cash not yet invested £',
+    newHoldingTicker:'Ticker', newHoldingUnits:'Units', newHoldingValue:'Value £', newHoldingCostBasis:'What you paid £',
+    newHoldingSector:'Sector', newHoldingTheme:'Themes', advNewAssetNotes:'Description', advNewLiabLinkedAsset:'Secured against',
+    advNewIncomeOwner:'Whose income', advNewFixedLabel:'What is it?', advNewVariableLabel:'What is it?'
+  };
+  function slLabels(form, on){
+    Object.keys(SL_LABELS).forEach(id=>{
+      const f = form.contains($s(id)) && slField(id), span = f && f.querySelector(':scope > span');
+      if(!span) return;
+      if(on){ if(span.dataset.slOrig == null) span.dataset.slOrig = span.textContent; span.textContent = SL_LABELS[id]; }
+      else if(span.dataset.slOrig != null){ span.textContent = span.dataset.slOrig; delete span.dataset.slOrig; }
+    });
+  }
+  function slMount(btnId){
+    const form = slFormOf(btnId); if(!form) return null;
+    const ph = document.createComment('settings panel');
+    form.parentNode.insertBefore(ph, form);
+    $s('slBody').appendChild(form);
+    form.appendChild(sl.more);
+    sl.more.hidden = !form.querySelector('[data-sl-more]');
+    slLabels(form, true);
+    return {form, ph};
+  }
+  function slUnmount(s){
+    if(!s || !s.form) return;
+    slLabels(s.form, false);
+    if(s.ph.parentNode) s.ph.parentNode.insertBefore(s.form, s.ph);
+    s.ph.remove();
+    if(sl.more.parentNode) sl.more.remove();
+  }
+  function slOpen(gid, key){
+    const c = client(); if(!c) return;
+    const g = SL[gid];
+    const item = key == null ? null : g.items(c).find(x=> slKey(g, x) === key);
+    if(slState) slClose(true);
+    slCancel(g);
+    const kind = gid === 'spend' ? (item ? item.kind : 'fixed') : null;
+    if(item){ const eb = document.querySelector(g.edit(item)); if(eb) eb.click(); }
+    const m = slMount(kind ? slSpendBtn(kind) : g.btn); if(!m) return;
+    // The account's set-and-forget / earmarked switches sit in a <details>;
+    // "More detail" shows or hides them, so it stays open in the panel.
+    const det = m.form.querySelector('details.acct-more'); if(det) det.open = true;
+    slState = Object.assign({g, gid, item, kind, opener: document.activeElement}, m);
+    const d = $s('slDrawer');
+    d.classList.remove('sl-more-on'); sl.more.setAttribute('aria-expanded', 'false'); sl.more.textContent = 'More detail';
+    $s('slKicker').textContent = ST_TITLES[g.sec] || '';
+    $s('slTitle').textContent = item ? g.label(item) : g.add;
+    $s('slRemove').hidden = !item;
+    $s('slSeg').hidden = gid !== 'spend';
+    if(gid === 'spend') slSegState(item ? item.category === 'lifestyle' ? 'lifestyle' : 'essential' : 'essential');
+    let sum = '';
+    if(gid === 'acct' && item){
+      const cb = TEI.calc.acctContributionBreakdown(c, item.id);
+      sum = cb.recorded ? 'Paid in to date: ' + money(cb.total) + '.' : '';
+      if(TEI.calc.accountHasHoldings(c, item.id)) sum += ' The value comes from your holdings; change it in Holdings.';
+      if(item.hasContributionRule) sum += ' Your coach set the monthly amount with a contribution rule.';
+    }
+    $s('slSum').textContent = sum.trim();
+    $s('slSum').hidden = !sum;
+    $s('slScrim').hidden = false; d.hidden = false;
+    const first = m.form.querySelector('input:not([type=hidden]):not(:disabled), select:not(:disabled)');
+    (first || $s('slClose')).focus();
+  }
+  function slClose(){
+    if(!slState) return;
+    const s = slState; slState = null;
+    slUnmount(s);
+    slCancel(s.g);
+    $s('slDrawer').hidden = true; $s('slScrim').hidden = true;
+    if(s.opener && document.contains(s.opener)) s.opener.focus();
+  }
+  function slRemove(){
+    const s = slState; if(!s || !s.item) return;
+    if(!s.g.owns && !confirm('Remove ' + s.g.label(s.item) + '?')) return;
+    const b = document.querySelector(s.g.del(s.item)); if(b) b.click();
+  }
+  function slSegState(v){ $s('slSeg').querySelectorAll('[data-sl-seg]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.slSeg === v ? 'true' : 'false')); }
+  /* Essential or lifestyle. A new line goes in the coach's Fixed list when
+     essential and Variable when lifestyle (Paddy, 20 Oct 2026: variable
+     spending is lifestyle); an existing line keeps its list, only its tag
+     changes. */
+  function slSetSpend(v){
+    const s = slState; if(!s || s.gid !== 'spend') return;
+    slSegState(v);
+    if(!s.item){
+      const want = v === 'lifestyle' ? 'variable' : 'fixed';
+      if(want !== s.kind){
+        const from = s.kind === 'fixed' ? ['advNewFixedLabel','advNewFixedAmount'] : ['advNewVariableLabel','advNewVariableAmount'];
+        const to = want === 'fixed' ? ['advNewFixedLabel','advNewFixedAmount'] : ['advNewVariableLabel','advNewVariableAmount'];
+        to.forEach((id, i)=> $s(id).value = $s(from[i]).value);
+        slUnmount(s);
+        Object.assign(s, slMount(slSpendBtn(want)), {kind: want});
+      }
+    }
+    $s(slSpendSel(s.kind)).value = v;
+  }
+  /* The chip on a spending row: switches the tag and saves straight away. */
+  function slToggleSpend(key){
+    const c = client(); if(!c) return;
+    const x = SL.spend.items(c).find(i=> slKey(SL.spend, i) === key); if(!x) return;
+    slCancel(SL.spend);
+    const eb = document.querySelector(SL.spend.edit(x)); if(!eb) return;
+    eb.click();
+    $s(slSpendSel(x.kind)).value = x.category === 'lifestyle' ? 'essential' : 'lifestyle';
+    $s(slSpendBtn(x.kind)).click();
+  }
+  function slClick(e){
+    const t = e.target;
+    let b;
+    if((b = t.closest('[data-sl-open]'))) return slOpen(b.dataset.slOpen, b.dataset.slId);
+    if((b = t.closest('[data-sl-add]'))) return slOpen(b.dataset.slAdd, null);
+    if((b = t.closest('[data-sl-spend]'))) return slToggleSpend(b.dataset.slSpend);
+    if((b = t.closest('[data-sl-ok]'))){ const m = document.querySelector('[data-mark-reviewed="'+b.dataset.slOk+'"]'); if(m) m.click(); return; }
+    if(t.closest('[data-sl-update]')) return TEI.app.showPage('update');
+    if((b = t.closest('[data-sl-fold]'))){
+      const on = $s('stRoot').classList.toggle('sl-show-' + b.dataset.slFold);
+      b.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+  }
+  function renderEfPicker(c){
+    const ef = (c.cashflow && c.cashflow.emergencyFund) || {};
+    const cash = (c.accounts||[]).filter(a=> a.type === 'cash' || a.type === 'cash_isa');
+    $s('stEf').innerHTML = '<option value="">Not chosen yet</option>' + cash.map(a=> `<option value="${esc(a.id)}">${esc(acctTitle(a))} · ${money(a.value)}</option>`).join('');
+    $s('stEf').value = ef.accountId || '';
+  }
+  async function onEfChange(){
+    const c = client(); if(!c) return;
+    const id = $s('stEf').value || null;
+    const acc = (c.accounts||[]).find(a=> a.id === id);
+    const ef = (c.cashflow.emergencyFund || {});
+    c.cashflow.emergencyFund = TEI.calc.stampEdit({target: Number(ef.target)||0, accountId: id, current: acc ? (Number(acc.value)||0) : 0}, c.meta.role);
+    $s('stPlanState').textContent = 'Saving...';
+    try{ await TEI.wealthOS.saveCashflowSettings(c.meta.clientId, c); $s('stPlanState').textContent = 'Saved'; }
+    catch(err){ console.error('Wealth OS: safety net account not saved', err); $s('stPlanState').textContent = 'That did not save. Please try again.'; }
   }
 
   TEI.settings = { open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); } };
@@ -15829,7 +16222,9 @@ window.TEI = window.TEI || {};
       <div class="range-stat"><span class="rs-label">Emergency fund current (from linked account)</span><b>${efAcc ? fmtGBP(efAcc.value) : 'No account linked'}</b></div>
     `;
   }
-  function saveCashflow(){
+  /* Writes the row as well: this used to change the figures in memory only,
+     so they were lost on reload unless something else saved the row. */
+  async function saveCashflow(){
     client.preferences.fiMultiple = parseFloat(document.getElementById('cfFiMultiple').value)||25;
     const efAccountId = document.getElementById('cfEfAccount').value || null;
     const efAcc = client.accounts.find(a=>a.id===efAccountId);
@@ -15840,7 +16235,15 @@ window.TEI = window.TEI || {};
     }, 'adviser');
     client.preferences.wealthConversionTarget = parseFloat(document.getElementById('cfWcTarget').value)||20;
     renderCalculatedSavingStats();
-    showToast('Cashflow saved');
+    const btn = document.getElementById('saveCashflowBtn');
+    btn.disabled = true;
+    try{
+      await TEI.wealthOS.saveCashflowSettings(client.meta.clientId, client);
+      showToast('Cashflow saved');
+    } catch(err){
+      console.error('Wealth OS: failed to save cashflow settings', err);
+      showToast("Couldn't save — " + (err.message || 'try again'));
+    } finally { btn.disabled = false; }
   }
 
   /* ================= DOCUMENTS ================= */
@@ -17108,7 +17511,14 @@ window.TEI = window.TEI || {};
     enhanceMobileCollapse();
   }
 
-  TEI.adviser = { init, refresh, refreshLivePrices };
+  /* Settings shows these forms to clients one record at a time in a side
+     panel (TEI.settings): it resets a form before filling or adding, so an
+     abandoned edit never makes "Add" overwrite the record being edited. */
+  const forms = {
+    cancel: { account: cancelAcctEdit, holding: cancelHoldingEdit, asset: cancelAssetEdit, liability: cancelLiabEdit,
+      income: cancelAdvIncomeEdit, expense: cancelAdvExpenseEdit }
+  };
+  TEI.adviser = { init, refresh, refreshLivePrices, forms };
 })();
 
 </script>
