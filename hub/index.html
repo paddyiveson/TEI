@@ -8,24 +8,20 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/hub/css/hub-tokens.css">
 <style>
 /* Client Hub home (redesign B12.2, spec B2.4 and B3.2, board Hub).
-   Tokens are the Wealth OS ones (B1.2). */
+   Colours come from the shared members' tokens (/hub/css/hub-tokens.css);
+   the page's own names point at them. */
 :root {
-  --bg:#F2EFE7; --side:#FFFFFF; --tile:#FFFFFF; --line:#DEDAD0; --text:#13213A; --muted:#4E5B70;
-  --champ:#F0E7D0; --powder:#DFE6F2; --gold:#83661C; --track:#E9E5DA; --chip:#F7F4ED;
-  --navActive:#0F1E36; --navActiveText:#E8D6A8; --feat:#0F1E36; --featLine:transparent;
-  --shadow:0 14px 34px rgba(15,30,54,0.10);
+  --bg:var(--w-bg); --side:var(--w-side); --tile:var(--w-tile); --line:var(--w-line); --text:var(--w-text); --muted:var(--w-muted);
+  --champ:var(--w-champ); --powder:var(--w-powder); --gold:var(--w-gold); --track:var(--w-track); --chip:var(--w-chip);
+  --navActive:var(--w-nav-active); --navActiveText:var(--w-nav-active-text); --feat:var(--w-feat); --featLine:var(--w-feat-line);
+  --shadow:var(--w-shadow-2);
   --ink:var(--text); --ink-soft:var(--muted);
   color-scheme:light;
 }
-:root[data-theme="dark"] {
-  --bg:#0B1729; --side:#0F1E36; --tile:#12233D; --line:rgba(232,214,168,0.14); --text:#F7F4ED; --muted:#AAB6C8;
-  --champ:#28303A; --powder:#1C2B45; --gold:#E8D6A8; --track:rgba(255,255,255,0.10); --chip:rgba(255,255,255,0.05);
-  --navActive:#E8D6A8; --navActiveText:#0F1E36; --feat:#1A2C4A; --featLine:rgba(232,214,168,0.28);
-  --shadow:0 14px 34px rgba(0,0,0,0.30);
-  color-scheme:dark;
-}
+:root[data-theme="dark"] { color-scheme:dark; }
 * { box-sizing:border-box; }
 html, body { margin:0; }
 body { font-family:'Geist', system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
@@ -35,8 +31,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .mono { font-family:'Geist Mono', ui-monospace, Menlo, monospace; }
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-/* Hub top bar (B2.4) */
-.hb-bar { background:var(--side); border-bottom:1px solid var(--line); }
+/* Hub top bar (B2.4): sticky glass on desktop (B14) */
+.hb-bar { position:sticky; top:0; z-index:40; background:var(--w-glass); border-bottom:1px solid var(--w-glass-line); -webkit-backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); }
 .hb-bar-in { padding:14px 32px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; }
 .hb-brand { display:inline-flex; align-items:center; gap:10px; min-height:44px; text-decoration:none; font-weight:500; font-size:16px; }
 .hb-brand svg { flex:none; }
@@ -46,6 +42,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .hb-nav a[aria-current="page"] { background:var(--chip); color:var(--text); }
 .hb-nav a.hb-open { margin-left:6px; padding:0 18px; font-weight:500; background:var(--navActive); color:var(--navActiveText); }
 .hb-nav a.hb-open:hover { opacity:.9; }
+:root[data-theme="dark"] .hb-nav a.hb-open { box-shadow:0 0 0 1px rgba(232,214,168,0.25), 0 8px 24px rgba(232,214,168,0.20); }
 .hb-icon { display:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--tile); color:var(--text); cursor:pointer; align-items:center; justify-content:center; }
 .hb-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 
@@ -62,17 +59,21 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .hb-signout:hover { color:var(--text); text-decoration:underline; }
 
 .hb-grid { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
-.t { position:relative; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; transition:transform .2s ease, box-shadow .2s ease; animation:hb-up .7s cubic-bezier(.2,.8,.2,1) both; }
-.t:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
-.t-champ { background:var(--champ); }
+.t { position:relative; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); transition:transform .2s ease, box-shadow .2s ease; animation:hb-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.t:hover { transform:translateY(-2px); box-shadow:inset 0 1px 0 var(--w-edge), var(--shadow); }
+.t-champ { background:var(--champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
 .t-setup { grid-column:span 12; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; text-decoration:none; }
 .t-setup[hidden] { display:none; }
 .t-setup .lab { font-size:12px; color:var(--gold); }
 .t-setup-h { margin-top:6px; font-size:22px; font-weight:400; letter-spacing:-0.02em; }
 .t-setup-p { margin-top:4px; font-size:14px; color:var(--muted); }
 .t-powder { background:var(--powder); }
-.t-feat { background:var(--feat); border-color:var(--featLine); color:#F7F4ED; overflow:hidden; }
-.lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--muted); }
+/* Featured navy tiles: identical in both themes, with the champagne glow
+   in place of the old dashed rings (B1.2, B14). */
+.t-feat { background:var(--feat); border-color:var(--featLine); color:var(--w-on-feat-text); overflow:hidden; box-shadow:var(--w-feat-shadow); }
+.t-feat:hover { box-shadow:var(--w-feat-shadow); }
+.t-feat > .orbit { border:0; animation:none; background:var(--w-glow); }
+.lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--gold); }
 .lab-gold { color:var(--gold); }
 .t-feat .lab { color:#E8D6A8; position:relative; }
 .row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
@@ -90,15 +91,17 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .orbit { position:absolute; border-radius:50%; pointer-events:none; }
 
 /* Open Wealth OS (navy, span 8) */
-.t-wos { grid-column:span 8; background:#0F1E36; padding:28px; flex-direction:row; flex-wrap:wrap; gap:24px; align-items:flex-end; justify-content:space-between; text-decoration:none; }
-.t-wos .orbit { width:380px; height:380px; right:-120px; top:-160px; border:1px dashed rgba(232,214,168,0.16); animation:hb-spin 40s linear infinite; }
+.t-wos { grid-column:span 8; padding:28px; flex-direction:row; flex-wrap:wrap; gap:24px; align-items:flex-end; justify-content:space-between; text-decoration:none; }
+.t-wos .orbit { width:700px; height:700px; right:-240px; top:-360px; }
+.t-wos::before { content:''; position:absolute; width:520px; height:520px; left:-220px; bottom:-320px; border-radius:50%; background:var(--w-glow-soft); pointer-events:none; }
 .t-wos-text { position:relative; flex:1 1 260px; }
 .t-wos h2 { margin-top:10px; font-size:32px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
 .t-wos .btn { margin-top:20px; font-size:15px; }
 .t-wos svg { position:relative; flex:1 1 260px; max-width:340px; height:auto; }
 .wos-bar { fill:rgba(185,202,230,0.18); transform-box:fill-box; transform-origin:bottom; animation:hb-rise 1s cubic-bezier(.3,.8,.3,1) both; }
 .wos-line { fill:none; stroke:#E8D6A8; stroke-width:2.6; stroke-linecap:round; stroke-dasharray:900; animation:hb-draw 2.6s cubic-bezier(.6,.05,.2,1) .2s both; }
-.wos-dot { fill:#E8D6A8; }
+.wos-area { animation:hb-fade 1.2s ease .9s both; }
+.wos-dot { fill:#E8D6A8; filter:drop-shadow(0 0 6px rgba(232,214,168,0.9)); }
 .wos-pulse { fill:#E8D6A8; animation:hb-pulse 1.8s ease-out infinite; }
 
 .t-session { grid-column:span 4; gap:10px; animation-delay:.06s; }
@@ -106,9 +109,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .t-session .btn { margin-top:auto; }
 
 .t-plan { grid-column:span 6; padding:26px; animation-delay:.1s; }
-.t-plan .orbit { width:260px; height:260px; right:-90px; bottom:-120px; border:1px solid rgba(232,214,168,0.16); }
+.t-plan .orbit { width:480px; height:480px; right:-180px; bottom:-240px; }
 .t-plan h2 { position:relative; font-size:28px; font-weight:300; letter-spacing:-0.03em; }
-.t-plan p.sub { position:relative; font-size:14px; color:#AAB6C8; }
+.t-plan p.sub { position:relative; font-size:14px; color:var(--w-on-feat-muted); }
 .t-plan .acts { position:relative; display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
 
 .t-learn { grid-column:span 6; padding:26px; gap:14px; animation-delay:.14s; }
@@ -169,8 +172,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 @keyframes hb-draw { from { stroke-dashoffset:900; } to { stroke-dashoffset:0; } }
 @keyframes hb-pulse { 0% { r:5; opacity:1; } 100% { r:16; opacity:0; } }
 @keyframes hb-grow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@keyframes hb-fade { from { opacity:0; } to { opacity:1; } }
 @media (prefers-reduced-motion: reduce) {
-  .t, .t-wos .orbit, .wos-bar, .wos-line, .wos-pulse, .bar span { animation:none; }
+  .t, .t-wos .orbit, .wos-bar, .wos-line, .wos-pulse, .wos-area, .bar span { animation:none; }
   .wos-line { stroke-dasharray:none; }
   .t:hover { transform:none; }
 }
@@ -182,6 +186,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 }
 /* Phones (A5, B1.3): the pill nav hides and the bottom bar takes over. */
 @media (max-width:860px) {
+  .hb-bar { position:static; }
   .hb-bar-in { padding:12px 16px; }
   .hb-nav { display:none; }
   .hb-icon { display:inline-flex; }
@@ -274,7 +279,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
         <span class="btn btn-champ">Open Wealth OS</span>
       </div>
       <svg viewBox="0 0 300 140" aria-hidden="true">
+        <defs><linearGradient id="hbWosFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D6A8" stop-opacity=".36"/><stop offset="1" stop-color="#E8D6A8" stop-opacity="0"/></linearGradient></defs>
         <rect class="wos-bar" x="10" y="110" width="20" height="30" rx="5" style="animation-delay:.2s"/><rect class="wos-bar" x="50" y="98" width="20" height="42" rx="5" style="animation-delay:.3s"/><rect class="wos-bar" x="90" y="84" width="20" height="56" rx="5" style="animation-delay:.4s"/><rect class="wos-bar" x="130" y="68" width="20" height="72" rx="5" style="animation-delay:.5s"/><rect class="wos-bar" x="170" y="50" width="20" height="90" rx="5" style="animation-delay:.6s"/><rect class="wos-bar" x="210" y="32" width="20" height="108" rx="5" style="animation-delay:.7s"/><rect class="wos-bar" x="250" y="12" width="20" height="128" rx="5" style="animation-delay:.8s"/>
+        <path class="wos-area" d="M6 124 C 80 116, 140 96, 190 70 S 262 24, 292 12 L 292 140 L 6 140 Z" fill="url(#hbWosFill)"/>
         <path class="wos-line" d="M6 124 C 80 116, 140 96, 190 70 S 262 24, 292 12"/><circle class="wos-pulse" cx="292" cy="12" r="5"/><circle class="wos-dot" cx="292" cy="12" r="5"/>
       </svg>
     </a>

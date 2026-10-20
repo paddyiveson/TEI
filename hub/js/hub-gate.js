@@ -18,18 +18,19 @@
   // Loading screen in the redesign style (spec B1.2): the page background,
   // the ring mark and Geist, light or dark from the shared "tei-theme" key, so
   // the hand-off to the sign-in page or the Hub never flashes the old look.
-  // Light, dark, or follow the device (hub/js/tei-theme.js holds the same rule).
+  // Light, dark, or follow the device; dark when nothing is saved, as in
+  // hub/js/tei-theme.js (which normally loads first and decides).
   var dark = false;
   if (window.TeiTheme) dark = window.TeiTheme.resolved() === "dark";
   else {
     var pref = null;
     try { pref = localStorage.getItem("tei-theme"); } catch (e) {}
-    dark = pref === "dark" || (pref !== "light" && !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches));
+    dark = pref === "dark" || (pref !== "light" && (pref !== "system" || !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)));
   }
-  var bg = dark ? "#0F1E36" : "#F7F4ED";
+  var bg = dark ? "#08111F" : "#EEEAE1";
   var ink = dark ? "#F7F4ED" : "#13213A";
   var muted = dark ? "#AAB6C8" : "#4E5B70";
-  var gold = dark ? "#E8D6A8" : "#83661C";
+  var gold = dark ? "#E8D6A8" : "#14376E";
   var overlay = document.createElement("div");
   overlay.id = "hubGate";
   overlay.setAttribute("role", "status");
