@@ -2914,6 +2914,10 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .gl-result-d{ margin-top:6px !important; font-size:14px; font-weight:500; color:var(--w-gold); }
 .gl-result-d:empty{ display:none; }
 .gl-whatif-foot{ margin-top:auto !important; }
+.gl-pick{ display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--w-muted); }
+.gl-pick[hidden]{ display:none; }
+.gl-pick select{ box-sizing:border-box; width:100%; min-height:44px; padding:0 12px; border:1px solid var(--w-line); border-radius:12px; background:var(--w-tile); color:var(--w-text); font-family:inherit; font-size:15px; }
+.gl-pick select:focus-visible{ outline:2px solid var(--w-gold); outline-offset:1px; }
 
 /* Goal cards */
 .gl-card--complete{ background:var(--w-powder); }
@@ -2937,6 +2941,14 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 /* Add a goal (dashed) */
 .gl-addcard{ box-sizing:border-box; min-height:220px; padding:22px; border:1.5px dashed var(--w-line); border-radius:26px; background:transparent; color:var(--w-text); font-family:inherit; text-align:center; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; animation:hm-up .7s cubic-bezier(.2,.8,.2,1) .3s both; transition:transform .2s ease; }
 .gl-addcard:hover{ transform:translateY(-2px); background:var(--w-chip); }
+/* Desktop: fill the rest of the last row of goal cards; a full row gets a slim bar. */
+@media (min-width:861px){
+  .gl-addcard[data-fill="1"]{ grid-column:span 9; } .gl-addcard[data-fill="2"]{ grid-column:span 6; }
+  .gl-addcard[data-fill="0"]{ grid-column:span 12; min-height:64px; flex-direction:row; gap:12px; padding:12px 22px; }
+  .gl-addcard[data-fill="0"] .gl-addcard-ring{ width:36px; height:36px; }
+  .gl-addcard[data-fill="1"], .gl-addcard[data-fill="2"]{ flex-direction:row; gap:16px; }
+  .gl-addcard[data-fill="1"] .gl-addcard-s, .gl-addcard[data-fill="2"] .gl-addcard-s{ max-width:280px; text-align:left; }
+}
 .gl-addcard:focus-visible{ outline:2px solid var(--w-gold); outline-offset:3px; }
 .gl-addcard-ring{ width:52px; height:52px; border-radius:50%; border:1px solid var(--w-gold); display:inline-flex; align-items:center; justify-content:center; color:var(--w-gold); }
 .gl-addcard-ring svg{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; }
@@ -3575,6 +3587,31 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #page-menu .me{ display:none; }
 }
 
+/* Footer (20 Oct 2026: "the footers look messy"): one quiet block that sits
+   at the bottom of the screen on short pages, not a dark band and a
+   separate copyright line floating mid-page. */
+#clientApp .main-inner > .disclaimer{ margin-top:auto; background:transparent; border-top:1px solid var(--w-line); color:var(--w-muted); font-size:12.5px; line-height:1.6; padding:22px 32px 4px; }
+#clientApp .main-inner > .disclaimer strong{ color:var(--w-text); font-weight:600; }
+#clientApp .main-inner > .disclaimer a{ color:var(--w-text); }
+#clientApp .main-inner > footer{ padding:2px 32px 24px; font-size:12px; color:var(--w-muted); }
+#clientApp .main-inner > footer p{ margin:0; }
+@media (max-width:860px){
+  #clientApp .main-inner > .disclaimer{ padding:20px 16px 4px; text-align:left; }
+  #clientApp .main-inner > footer{ padding:2px 16px calc(var(--m-bar-total, 60px) + 24px); text-align:left; }
+}
+
+/* Home safety net tile: the three stages with £ targets (20 Oct 2026). */
+.hm-sn-stages{ list-style:none; margin:4px 0 0; padding:0; display:flex; flex-direction:column; }
+.hm-sn-stages:empty{ display:none; }
+.hm-sn-stages li{ display:grid; grid-template-columns:22px minmax(0,1fr) auto; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--w-line); font-size:14px; color:var(--w-text); }
+.hm-sn-stages li span small{ display:block; font-size:12px; color:var(--w-muted); }
+.hm-sn-stages li b{ font-family:'Geist Mono', ui-monospace, monospace; font-weight:500; font-size:13px; }
+.hm-sn-stages li i{ width:20px; height:20px; border-radius:50%; border:1.5px solid var(--w-line); display:inline-flex; align-items:center; justify-content:center; }
+.hm-sn-stages li.ok i{ background:var(--w-nav-active); border-color:var(--w-nav-active); color:var(--w-nav-active-text); }
+.hm-sn-stages li i svg{ width:12px; height:12px; fill:none; stroke:currentColor; stroke-width:2.6; stroke-linecap:round; stroke-linejoin:round; }
+.hm-sn-held:empty{ display:none; }
+@media (max-width:860px){ .hm-t-safety .hm-sn-stages, .hm-t-safety .hm-sn-held{ display:none; } }
+
 /* ================================================================
    SETTINGS: My details as plain lists (20 Oct 2026). Prefix sl-.
    The coach's Manual Entry cards stay in the page but are hidden here
@@ -3913,7 +3950,8 @@ window.TeiTheme && TeiTheme.paint();</script>
       <p class="hm-muted hm-step-why" id="whStepWhy"></p>
       <a href="#" class="hm-link" id="whStepLesson" hidden></a>
       <div class="hm-actions">
-        <button type="button" class="hm-btn hm-btn-primary" id="whStepDone">Mark as done</button>
+        <button type="button" class="hm-btn hm-btn-primary" id="whStepAct" hidden></button>
+        <button type="button" class="hm-btn" id="whStepDone">Mark as done</button>
         <button type="button" class="hm-btn" id="whStepRead" hidden>Read why</button>
       </div>
     </section>
@@ -3952,6 +3990,8 @@ window.TeiTheme && TeiTheme.paint();</script>
         <div class="hm-bar hm-bar-lg"><span class="hm-grow hm-fill-navy" id="whSafetyBar"></span></div>
         <p class="hm-muted hm-mt" id="whSafetyMonths"></p>
       </div>
+      <ul class="hm-sn-stages" id="whSafetyStages"></ul>
+      <p class="hm-muted hm-small hm-sn-held" id="whSafetyHeld"></p>
       <p class="hm-foot" id="whSafetyNote"></p>
       <a href="#" class="hm-cover" data-hm-page="cashflow" aria-label="Safety net: open Cashflow"></a>
     </section>
@@ -4250,7 +4290,7 @@ window.TeiTheme && TeiTheme.paint();</script>
           <div class="gl-ring-text"><span id="glRingPct">0%</span><small>of target</small></div>
         </div>
         <div class="gl-hero-text">
-          <p class="hm-label">Headline goal</p>
+          <p class="hm-label" id="glHeroLabel">Headline goal</p>
           <h2 class="gl-hero-name" id="glHeroName"></h2>
           <p class="gl-hero-sub" id="glHeroSub"></p>
         </div>
@@ -4263,9 +4303,10 @@ window.TeiTheme && TeiTheme.paint();</script>
 
     <section class="hm-tile hm-champ gl-whatif" id="glWhatIf">
       <p class="hm-label hm-gold">What if?</p>
+      <label class="gl-field gl-pick" id="glPickWrap"><span>For which goal</span><select id="glPick"></select></label>
       <label for="glPmt" class="gl-q">If I put away <strong id="glPmtFmt"></strong> a month</label>
-      <input id="glPmt" class="gl-range" type="range" min="500" max="2500" step="50" value="1000">
-      <div class="gl-ends" aria-hidden="true"><span>£500</span><span>£2,500</span></div>
+      <input id="glPmt" class="gl-range" type="range" min="0" max="2500" step="50" value="1000">
+      <div class="gl-ends" aria-hidden="true"><span>£0</span><span>£2,500</span></div>
       <div class="gl-result">
         <p class="hm-muted hm-small gl-result-k">You would reach your target</p>
         <p class="gl-result-v" id="glHit" aria-live="polite"></p>
@@ -4312,7 +4353,7 @@ window.TeiTheme && TeiTheme.paint();</script>
     <div class="gl-form">
       <label class="gl-field"><span>Goal type</span><select id="clNewGoalType">
         <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
-        <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+        <option value="Financial Independence">Freedom fund</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
         <option value="Build a Business">Build a Business</option>
         <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
       </select></label>
@@ -5359,7 +5400,7 @@ window.TeiTheme && TeiTheme.paint();</script>
             <option value="Build Wealth">Build Wealth</option>
             <option value="Buy a Home">Buy a Home</option>
             <option value="Retirement">Retirement</option>
-            <option value="Financial Independence">Financial Independence</option>
+            <option value="Financial Independence">Freedom fund</option>
             <option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
             <option value="Build a Business">Build a Business</option>
             <option value="Education">Education</option>
@@ -5795,7 +5836,7 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="mini-form">
         <label class="form-field"><span>Goal type</span><select id="newGoalType">
           <option value="Build Wealth">Build Wealth</option><option value="Buy a Home">Buy a Home</option><option value="Retirement">Retirement</option>
-          <option value="Financial Independence">Financial Independence</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
+          <option value="Financial Independence">Freedom fund</option><option value="Improve Tax Efficiency">Improve Tax Efficiency</option>
           <option value="Build a Business">Build a Business</option>
           <option value="Education">Education</option><option value="Lifestyle">Lifestyle</option><option value="Other">Other</option>
         </select></label>
@@ -6189,12 +6230,18 @@ window.TEI = window.TEI || {};
      surfaces and correctly in others. */
   /* Account display name is always derived, never manually entered — the
      accounts table has no "name" column (see accountToRow's comment).
-     Most type codes read fine uppercased as-is (ISA, GIA, CASH, OTHER) --
+     Acronyms read fine uppercased as-is (ISA, GIA); words read as words --
      ACCT_TYPE_WORD only needs an entry where that's not true, e.g. a
      compound code like cash_isa which would otherwise show as "CASH_ISA". */
-  const ACCT_TYPE_WORD = {cash_isa:'Cash ISA', lisa:'S&S LISA', cash_lisa:'Cash LISA'};
+  const ACCT_TYPE_WORD = {cash_isa:'Cash ISA', lisa:'S&S LISA', cash_lisa:'Cash LISA', pension:'Pension', cash:'Cash', crypto:'Crypto', other:'Other'};
   function acctTypeWord(type){ return ACCT_TYPE_WORD[type] || String(type||'').toUpperCase(); }
   function acctLabel(a){ return a.provider ? a.provider+' '+acctTypeWord(a.type) : acctTypeWord(a.type); }
+  /* Goal categories as clients read them. "Financial Independence" is shown
+     as "Freedom fund" (Paddy, 20 Oct 2026) so it is not confused with
+     Forecast's FI number; the stored value is unchanged, so the live site
+     keeps working on the same records. */
+  const GOAL_TYPE_WORD = {'Financial Independence':'Freedom fund'};
+  function goalTypeLabel(t){ return GOAL_TYPE_WORD[t] || t || ''; }
   function monthLabel(key){ const [y,m] = key.split('-').map(Number); return MONTH_ABBR[m-1] + " '" + String(y).slice(2); }
   function currentMonthKey(){ const n=new Date(); return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
   function monthsBetweenInclusive(fromKey, toKey){
@@ -7828,7 +7875,7 @@ window.TEI = window.TEI || {};
   TEI.data = {
     defaultClient, mergeDefaults, getEmbeddedClient,
     fmtGBP, uid, isRealId, monthLabel, currentMonthKey, monthsBetweenInclusive,
-    MONTH_ABBR, acctLabel, monthInputToDate,
+    MONTH_ABBR, acctLabel, goalTypeLabel, monthInputToDate,
     lookupTickerInfo, SECTOR_OPTIONS,
     DIVIDEND_FREQUENCY_OPTIONS, dividendPeriodsPerYear, dividendFrequencyLabel
   };
@@ -8228,13 +8275,65 @@ TEI.render = TEI.render || {};
      record (clients.monthly_wins), so the coach sees it too. */
   function stepId(text){ return 'step:' + String(text||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
 
+  /* The steps for this month, in order (Paddy, 20 Oct 2026: "Mark as done
+     needs to actually do something"). The coach's own step comes first,
+     then what the record shows is still to do. Each has a button that does
+     it; Mark as done records it (clients.monthly_wins) and moves on to the
+     next. A month carried forward by the auto-snapshot does not count as
+     updated. */
+  function homeSteps(client){
+    const key = currentMonthKey(), out = [];
+    const coach = client.insights && client.insights.nextBestAction;
+    if(coach && coach.text) out.push(Object.assign({id: stepId(coach.text), coach: true}, coach));
+    const accts = client.accounts || [];
+    if(!accts.length){
+      out.push({id:'step:first-account', text:'Add your first account', why:'Start with the account you check most often.',
+        act:['Add an account', ()=> TEI.settings.open('accounts')]});
+    } else {
+      const m = (client.months||{})[key] || {}, meta = (client.monthsMeta||{})[key] || {};
+      const stale = accts.filter(a=> m[a.id] == null || meta[a.id] === true);
+      if(stale.length) out.push({id:'step:balances:' + key, text:"Update this month's balances",
+        why: stale.length === accts.length ? 'Keeping the numbers current is what makes your projections worth trusting.'
+          : stale.length + (stale.length === 1 ? ' account has' : ' accounts have') + ' not been updated this month.',
+        act:['Update balances', ()=> TEI.app.showPage('update')]});
+    }
+    if(!(client.cashflowMonths||{})[key]) out.push({id:'step:cashflow:' + key, text:"Log this month's cashflow",
+      why:'Take-home, essentials, lifestyle and what went into wealth. It keeps your wealth conversion rate up to date.',
+      act:['Update this month', ()=>{ TEI.app.showPage('cashflow'); if(TEI.cashflowPage) TEI.cashflowPage.openUpdate(); }]});
+    const sn = TEI.calc.safetyNet(client);
+    if(!sn.linked && accts.some(a=> a.type === 'cash' || a.type === 'cash_isa')){
+      out.push({id:'step:safety-account', text:'Choose where your safety net is kept',
+        why:'Pick the cash account that holds it, so Home and Cashflow can track it.', act:['Choose the account', ()=> TEI.settings.open('plan')]});
+    } else if(sn.linked && sn.stage !== 'full' && sn.monthlySpend > 0){
+      const gap = Math.max(0, sn.fullMonths * sn.monthlySpend - sn.current);
+      out.push({id:'step:safety:' + key, text:'Build your safety net',
+        why: fmtGBP(gap) + ' more would cover ' + sn.fullMonths + ' months of spending.', act:['See your safety net', ()=> TEI.app.showPage('cashflow')]});
+    }
+    const left = TEI.setup ? TEI.setup.leftToDo(client) : 0;
+    if(left) out.push({id:'step:setup', text:'Finish setting up Wealth OS',
+      why: left + (left === 1 ? ' thing is' : ' things are') + ' still missing. Skip anything you do not know.', act:['Continue setup', ()=> TEI.setup.open()]});
+    const behind = (client.goals||[]).filter(g=> g.status !== 'completed').find(g=> TEI.calc.goalStatus(client, g).key === 'behind');
+    if(behind) out.push({id:'step:goal:' + behind.id + ':' + key, text:'Look at your ' + behind.name + ' goal',
+      why:'It is behind for its target date. Goals shows what a month would close the gap.', act:['See Goals', ()=> TEI.app.showPage('goals')]});
+    if(TEI.calc.computeBudgetAndFI(client).savings < 0) out.push({id:'step:budget:' + key, text:'Review your spending',
+      why:'Spending and saving commitments are more than your take-home pay.', act:['Open Cashflow', ()=> TEI.app.showPage('cashflow')]});
+    const doneIds = new Set((client.monthlyWins||[]).filter(w=> w && w.month === key).map(w=> w.id));
+    return out.filter(s=> !doneIds.has(s.id));
+  }
+
   function renderStep(client){
-    const nba = TEI.calc.computeNextBestAction(client) || {};
-    const fromCoach = !!(client.insights && client.insights.nextBestAction);
-    setText('whStepLabel', fromCoach ? 'Next step · from your coach' : 'Next step · suggested');
-    setText('whStepTitle', nba.text || 'Nothing to do right now');
+    const steps = homeSteps(client);
+    const nba = steps[0] || {};
+    const month = new Date().toLocaleDateString('en-GB', {month:'long'});
+    const wins = (client.monthlyWins||[]).filter(w=> w && w.month === currentMonthKey()).length;
+    setText('whStepLabel', !steps.length ? 'Next step' : (nba.coach ? 'Next step · from your coach' : 'Next step') + (steps.length > 1 ? ' · 1 of ' + steps.length : ''));
+    setText('whStepTitle', nba.text || 'You are up to date for ' + month);
     const agreed = nba.agreedAt ? ' Agreed ' + fmtDate(nba.agreedAt, {day:'numeric', month:'long', year:'numeric'}) + '.' : '';
-    setText('whStepWhy', (nba.why || '') + agreed);
+    setText('whStepWhy', steps.length ? (nba.why || '') + agreed
+      : wins ? wins + (wins === 1 ? ' step' : ' steps') + ' done this month. Nothing else needs doing right now.' : 'Nothing needs doing right now.');
+    const act = document.getElementById('whStepAct');
+    if(nba.act){ act.textContent = nba.act[0]; act.onclick = nba.act[1]; act.hidden = false; }
+    else { act.hidden = true; act.onclick = null; }
 
     const lesson = document.getElementById('whStepLesson');
     if(nba.lesson && nba.lesson.title){
@@ -8253,21 +8352,15 @@ TEI.render = TEI.render || {};
     else { read.removeAttribute('data-forecast-open'); read.hidden = true; }
 
     const btn = document.getElementById('whStepDone');
-    const id = stepId(nba.text);
-    const month = currentMonthKey();
-    const done = (client.monthlyWins||[]).find(w=> w && w.id === id && w.month === month);
+    const id = nba.id || stepId(nba.text);
+    const monthKey = currentMonthKey();
     btn.hidden = !nba.text;
-    if(done){
-      btn.disabled = true;
-      btn.textContent = 'Done';
-      btn.onclick = null;
-      return;
-    }
     btn.disabled = false;
     btn.textContent = 'Mark as done';
+    btn.classList.toggle('hm-btn-primary', !nba.act);
     btn.onclick = async ()=>{
       btn.disabled = true;
-      const win = {id, label: nba.text, source: client.meta.role === 'adviser' ? 'adviser' : 'client', month, doneAt: new Date().toISOString()};
+      const win = {id, label: nba.text, source: client.meta.role === 'adviser' ? 'adviser' : 'client', month: monthKey, doneAt: new Date().toISOString()};
       const next = (client.monthlyWins||[]).concat([win]);
       try{
         if(TEI.wealthOS && TEI.wealthOS.saveMonthlyWins && TEI.data.isRealId(client.meta.clientId)){
@@ -8275,7 +8368,7 @@ TEI.render = TEI.render || {};
         }
         client.monthlyWins = next;
         renderStep(client);
-        TEI.app.showToast('Marked as done');
+        TEI.app.showToast(steps.length > 1 ? 'Done. Here is your next step.' : 'Done. You are up to date.');
       }catch(e){
         console.error('Wealth OS: could not save the done step', e);
         btn.disabled = false;
@@ -8366,12 +8459,23 @@ TEI.render = TEI.render || {};
     setText('whSafetyMonths', sn.months!=null
       ? `${sn.months.toFixed(1)} ${sn.months.toFixed(1)==='1.0'?'month':'months'} of spending covered`
       : 'Add your spending in Cashflow to measure this');
+    // The three stages with their £ targets (as on Cashflow), where the cash
+    // is held, and how much more reaches the next stage.
+    const spend = sn.monthlySpend || 0;
+    const stages = [['Working buffer', 1], ['Three months', 3], ['Full safety net', sn.fullMonths]];
+    document.getElementById('whSafetyStages').innerHTML = spend > 0
+      ? stages.map(([name, n])=>{ const ok = sn.months != null && sn.months >= n;
+          return `<li class="${ok ? 'ok' : ''}"><i aria-hidden="true">${ok ? '<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"></path></svg>' : ''}</i><span>${name}<small>${n} ${n === 1 ? 'month' : 'months'}</small></span><b>${fmtGBP(n * spend)}</b><span class="gl-sr">${ok ? 'reached' : 'not reached yet'}</span></li>`; }).join('')
+      : '';
+    const acc = (client.accounts||[]).find(a=> a.id === ((client.cashflow||{}).emergencyFund||{}).accountId);
+    setText('whSafetyHeld', acc ? 'Held in ' + acctLabel(acc) : '');
+    const more = n=> fmtGBP(Math.max(0, n * spend - sn.current));
     let noteText;
-    if(!sn.linked) noteText = 'Link a cash account to your safety net in Cashflow to track it here.';
-    else if(sn.stage === 'full') noteText = 'Stage 2: new savings now go to wealth building.';
-    else if(sn.stage === 'stage2') noteText = `Three months covered. Building to the full ${sn.fullMonths}.`;
-    else if(sn.stage === 'buffer') noteText = 'Working buffer in place. Next, three months of spending.';
-    else noteText = 'Stage 1: a working buffer of one month of spending.';
+    if(!sn.linked) noteText = 'Choose the cash account that holds it in Settings, under Plan settings.';
+    else if(sn.stage === 'full') noteText = 'Complete. New savings can now go to wealth building.';
+    else if(sn.stage === 'stage2') noteText = `${more(sn.fullMonths)} more reaches the full ${sn.fullMonths} months.`;
+    else if(sn.stage === 'buffer') noteText = `${more(3)} more reaches three months.`;
+    else noteText = spend > 0 ? `${more(1)} more builds a working buffer of one month.` : 'Add your spending to measure this.';
     setText('whSafetyNote', noteText);
   }
 
@@ -9123,7 +9227,16 @@ TEI.render = TEI.render || {};
      starting point is always their real figure. The chart's length is set
      from the target date and today's pace, so it holds still while the
      slider moves. */
-  const whatIf = {goalId:null, pmt:null, actual:0};
+  /* pick: the goal chosen in What if? (Paddy, 20 Oct 2026: "what goal is
+     that linking to? Can we select a goal?"). Empty means the headline goal.
+     The slider starts at what goes into the goal's linked accounts each
+     month (or everything put away, for a goal with no linked accounts) and
+     its range is sized to the goal. */
+  const whatIf = {goalId:null, pmt:null, actual:0, pick:null};
+  function chartableGoal(client, g){
+    const st = TEI.calc.goalStatus(client, g);
+    return st.monetary && st.gp.target > 0 && st.key !== 'complete';
+  }
 
   function headlineFigures(client, g, st){
     const gp = st.gp;
@@ -9178,9 +9291,19 @@ TEI.render = TEI.render || {};
     setText('glDiff', diff);
   }
 
+  function renderPicker(client, head, g){
+    const opts = (client.goals||[]).filter(x=> chartableGoal(client, x));
+    const sel = $('glPick');
+    sel.innerHTML = opts.map(x=> `<option value="${esc(x.id)}">${esc(x.name)}${head && x.id === head.id ? ' (headline)' : ''}</option>`).join('');
+    sel.value = g ? g.id : '';
+    $('glPickWrap').hidden = opts.length < 2;
+  }
   function renderHeadline(client){
-    const g = TEI.calc.northStarGoalRef ? TEI.calc.northStarGoalRef(client) : null;
+    const head = TEI.calc.northStarGoalRef ? TEI.calc.northStarGoalRef(client) : null;
+    const picked = whatIf.pick && (client.goals||[]).find(x=> x.id === whatIf.pick);
+    const g = picked && chartableGoal(client, picked) ? picked : head;
     const hero = $('glHero'), wi = $('glWhatIf');
+    setText('glHeroLabel', g && head && g.id !== head.id ? 'Goal' : 'Headline goal');
     const showChart = on => ['glChart','glAxis','glLegend'].forEach(id=> $(id).toggleAttribute('hidden', !on)); // the chart is an svg, which has no .hidden property
     const note = $('glHeroNote');
     let pct = 0;
@@ -9198,14 +9321,19 @@ TEI.render = TEI.render || {};
       if(chartable){
         if(whatIf.goalId !== g.id){
           whatIf.goalId = g.id;
-          whatIf.actual = Math.max(0, TEI.calc.actualTotalSavingInvesting(client));
-          whatIf.pmt = Math.min(Math.max(500, Math.round(whatIf.actual/50)*50), Math.max(2500, Math.ceil(whatIf.actual/50)*50));
+          const linked = (g.linkedAccountIds||[]).length ? TEI.calc.goalLinkedMonthly(client, g) : null;
+          whatIf.actual = Math.max(0, linked != null ? linked : TEI.calc.actualTotalSavingInvesting(client));
+          const base = Math.max(whatIf.actual, st.needed || 0, 50);
+          whatIf.max = Math.max(500, Math.ceil(base*2/50)*50);
+          whatIf.step = whatIf.max <= 1000 ? 10 : 50;
+          whatIf.pmt = Math.round(whatIf.actual/whatIf.step)*whatIf.step;
         }
         const range = $('glPmt');
-        const max = Math.max(2500, Math.ceil(whatIf.actual/50)*50);
-        range.max = String(max);
-        $('glWhatIf').querySelector('.gl-ends span:last-child').textContent = fmtGBP(max);
+        range.max = String(whatIf.max);
+        range.step = String(whatIf.step);
+        $('glWhatIf').querySelector('.gl-ends span:last-child').textContent = fmtGBP(whatIf.max);
         range.value = String(whatIf.pmt);
+        renderPicker(client, head, g);
         showChart(true); note.hidden = true; wi.hidden = false;
         drawHeadline(client, g, st);
       } else {
@@ -9272,6 +9400,9 @@ TEI.render = TEI.render || {};
         <div class="gl-card-foot"><div class="gl-accts">${accts}</div><button type="button" class="hm-link hm-linkbtn" data-gl-edit="${esc(g.id)}">Edit<span class="gl-sr"> ${esc(g.name)}</span></button></div>
       </section>`;
     }).join('');
+    // Add a goal fills what is left of the last row of cards (four to a
+    // row), and becomes a slim full-width bar when that row is full.
+    $('glAddCard').dataset.fill = String(order.length % 4);
   }
 
   /* ---------------- Milestones ----------------
@@ -9361,6 +9492,12 @@ TEI.render = TEI.render || {};
       else if(!e.shiftKey && document.activeElement === f[f.length-1]){ e.preventDefault(); f[0].focus(); }
     });
     if(TEI.goalForm) TEI.goalForm.onDone = closePanel;
+    $('glPick').addEventListener('change', e=>{
+      const client = TEI.app.state.client; if(!client) return;
+      whatIf.pick = e.target.value || null;
+      whatIf.goalId = null;
+      renderHeadline(client);
+    });
     $('glPmt').addEventListener('input', e=>{
       const client = TEI.app.state.client;
       const g = client && (client.goals||[]).find(x=> x.id === whatIf.goalId);
@@ -12331,7 +12468,7 @@ TEI.render = TEI.render || {};
     wrap.innerHTML = `<div class="sub2" style="margin-bottom:6px;">Your goals</div>` + goals.map(g=>{
       const isSelected = g.id === editingGoalId;
       return `<div class="list-row on-light"${isSelected ? ' style="background:var(--gold-bg,rgba(201,168,76,.1)); border-radius:8px; padding-left:10px; padding-right:10px;"' : ''}>
-        <div class="lr-main"><b>${g.name}</b><div class="lr-meta">${g.type}</div></div>
+        <div class="lr-main"><b>${g.name}</b><div class="lr-meta">${TEI.data.goalTypeLabel(g.type)}</div></div>
         <div style="display:flex; gap:8px; flex-none:1;">
           <button type="button" class="btn-ghost on-light" data-goal-edit="${g.id}" style="padding:5px 12px; font-size:11px;">${isSelected ? 'Editing' : 'Edit'}</button>
           <button type="button" class="btn-ghost on-light" data-goal-delete="${g.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
@@ -14986,7 +15123,7 @@ window.TEI = window.TEI || {};
           <span class="tag-pill">${g.status}</span>
         </div>
         <div class="ep-value">${targetText}</div>
-        <div class="ep-meta">${g.type}${linkedNames?' · tracks '+linkedNames:''}${g.targetDate?' · by '+g.targetDate:''}</div>
+        <div class="ep-meta">${TEI.data.goalTypeLabel(g.type)}${linkedNames?' · tracks '+linkedNames:''}${g.targetDate?' · by '+g.targetDate:''}</div>
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-goal="${g.id}">Edit</button>
           <button type="button" class="btn-ghost" data-toggle-complete-goal="${g.id}">${g.status==='completed'?'Reopen':'Mark complete'}</button>
@@ -18322,7 +18459,7 @@ window.TEI = window.TEI || {};
       if(g.progressType==='completion') progressLabel = g.completed ? 'Complete' : 'Not yet';
       else if(g.progressType==='income') progressLabel = 'Target ' + fmtGBP(g.targetIncome) + '/yr';
       else progressLabel = 'Target ' + fmtGBP(g.targetAmount);
-      return `<div class="lr-main"><b>${g.name}</b> <span class="tag-pill">${g.type}</span><div class="lr-meta">${progressLabel}${g.targetDate?' · by '+g.targetDate:''}</div></div>
+      return `<div class="lr-main"><b>${g.name}</b> <span class="tag-pill">${TEI.data.goalTypeLabel(g.type)}</span><div class="lr-meta">${progressLabel}${g.targetDate?' · by '+g.targetDate:''}</div></div>
        <div class="lr-actions">
          <button type="button" class="btn-ghost on-light" data-edit-goal="${g.id}" style="padding:5px 12px; font-size:11px;">Edit</button>
          <button type="button" class="btn-ghost on-light" data-del-ob-goal="${g.id}" style="padding:5px 12px; font-size:11px;">Remove</button>
