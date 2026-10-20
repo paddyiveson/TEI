@@ -543,11 +543,11 @@ TEI.render = TEI.render || {};
   const slOpenGrps = {};
   const SL_KINDS = [['cash', 'Cash savings', ['cash','cash_isa','cash_lisa']], ['invest', 'Investments', ['isa','gia','lisa','crypto','other']], ['pension', 'Pensions', ['pension']]];
   /* Marker colours: the account-type colours used on Wealth (B5). */
-  const SL_DOT = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash_lisa:'#DFE6F2', gia:'#83661C', cash:'#AAB6C8', cash_isa:'#AAB6C8', crypto:'#6F7F98', other:'#C9D3E3', invest:'#B9CAE6'};
+  const SL_DOT = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash_lisa:'#DFE6F2', gia:'var(--w-acc-gia)', cash:'#AAB6C8', cash_isa:'#AAB6C8', crypto:'#6F7F98', other:'#C9D3E3', invest:'#B9CAE6'};
   function slSubHTML(key, title, meta, total, rows, note, dot){
     const open = !!slOpenGrps[key];
     return `<div class="sl-grp${open ? ' open' : ''}"><button type="button" class="sl-grp-head" data-sl-grp="${esc(key)}" aria-expanded="${open}">
-      <i class="sl-dot${dot && dot.charAt(0) !== '#' ? ' sl-dot-' + dot : ''}"${dot && dot.charAt(0) === '#' ? ` style="background:${dot}"` : ''} aria-hidden="true"></i><span class="sl-main"><b>${esc(title)}</b><small>${esc(meta)}${note ? ` · <span class="sl-grp-note">${esc(note)}</span>` : ''}</small></span>
+      <i class="sl-dot${dot && !/^(#|var\()/.test(dot) ? ' sl-dot-' + dot : ''}"${dot && /^(#|var\()/.test(dot) ? ` style="background:${dot}"` : ''} aria-hidden="true"></i><span class="sl-main"><b>${esc(title)}</b><small>${esc(meta)}${note ? ` · <span class="sl-grp-note">${esc(note)}</span>` : ''}</small></span>
       <span class="sl-val">${esc(total)}</span>${CHEV}</button><ul class="sl-list"${open ? '' : ' hidden'}>${rows}</ul></div>`;
   }
   const slCount = (n, one, many)=> n + ' ' + (n === 1 ? one : many);

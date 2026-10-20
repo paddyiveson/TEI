@@ -977,9 +977,9 @@ html.su-open, html.su-open body{ overflow:hidden; }
 @media (max-width:900px){ #advSetupHost .cs-grid{ grid-template-columns:minmax(0,1fr); } }
 /* Loading screen (#woBoot) */
 #woBoot{position:fixed; inset:0; z-index:6000; display:flex; align-items:center; justify-content:center; padding:24px; background:#F2EFE7; color:#13213A; font-family:'Geist',system-ui,sans-serif; transition:opacity .2s ease;}
-#woBoot[data-theme="dark"]{background:#0B1729; color:#F7F4ED;}
+#woBoot[data-theme="dark"]{background:#08111F; color:#F7F4ED;}
 #woBoot .wb-in{text-align:center;}
-#woBoot .wb-mark{position:relative; width:56px; height:56px; margin:0 auto 22px; color:#83661C;}
+#woBoot .wb-mark{position:relative; width:56px; height:56px; margin:0 auto 22px; color:#14376E;}
 #woBoot[data-theme="dark"] .wb-mark{color:#E8D6A8;}
 #woBoot .wb-spin{position:absolute; inset:0; animation:woBootSpin 1.4s linear infinite;}
 #woBoot .wb-name{margin:0; font-size:15px; letter-spacing:-0.01em;}
@@ -2184,24 +2184,18 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
    ================================================================ */
 #clientApp{ --font-display:'Geist', system-ui, sans-serif; --font-body:'Geist', system-ui, sans-serif; }
 
+/* The --w-* values live in /hub/css/hub-tokens.css (shared with Sign in and
+   the Client Hub). Only the older names are pointed at them here. */
 #clientApp[data-theme="light"]{
-  --w-bg:#F2EFE7; --w-side:#FFFFFF; --w-tile:#FFFFFF; --w-line:#DEDAD0; --w-text:#13213A; --w-muted:#4E5B70;
-  --w-champ:#F0E7D0; --w-powder:#DFE6F2; --w-gold:#83661C; --w-track:#E9E5DA; --w-chip:#F7F4ED;
-  --w-nav-active:#0F1E36; --w-nav-active-text:#E8D6A8; --w-feat:#0F1E36; --w-feat-line:transparent;
-  --w-warn:#9A4A1F; --w-third:#C9D3E3;
   --page-bg:var(--w-bg); --ink:var(--w-text); --ink-soft:var(--w-muted); --ink-soft2:var(--w-muted); --line:var(--w-line);
   --card-light-bg:var(--w-tile); --card-light-border:var(--w-line);
   --card-dark:var(--w-feat); --card-dark2:#12233D;
-  --gold:var(--w-gold); --gold-bg:rgba(131,102,28,0.12);
+  --gold:var(--w-gold); --gold-bg:rgba(20,55,110,0.10);
   --nav-bg-blur:rgba(255,255,255,0.94);
   --nav-active-bg:var(--w-chip); --nav-active-ink:var(--w-text); --nav-active-border:transparent;
   color-scheme:light;
 }
 #clientApp[data-theme="dark"]{
-  --w-bg:#0B1729; --w-side:#0F1E36; --w-tile:#12233D; --w-line:rgba(232,214,168,0.14); --w-text:#F7F4ED; --w-muted:#AAB6C8;
-  --w-champ:#28303A; --w-powder:#1C2B45; --w-gold:#E8D6A8; --w-track:rgba(255,255,255,0.10); --w-chip:rgba(255,255,255,0.05);
-  --w-nav-active:#E8D6A8; --w-nav-active-text:#0F1E36; --w-feat:#1A2C4A; --w-feat-line:rgba(232,214,168,0.28);
-  --w-warn:#F0A97E; --w-third:#5D6F8C;
   --page-bg:var(--w-bg); --ink:var(--w-text); --ink-soft:var(--w-muted); --ink-soft2:var(--w-muted); --line:var(--w-line);
   --card-light-bg:var(--w-tile); --card-light-border:var(--w-line);
   --card-dark:var(--w-feat); --card-dark2:#12233D;
@@ -2237,9 +2231,9 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 #clientApp .sidebar-nav{ gap:4px; }
 #clientApp .sidebar-nav a.navlink{ gap:12px; min-height:44px; padding:0 12px; border:0; border-radius:12px; color:var(--w-muted); font-size:15px; font-weight:400; }
 #clientApp .sidebar-nav a.navlink:hover{ background:var(--w-chip); color:var(--w-text); }
-#clientApp .sidebar-nav a.navlink.nav-active{ background:var(--w-chip); color:var(--w-text); font-weight:500; }
+#clientApp .sidebar-nav a.navlink.nav-active{ background:var(--w-row-active-bg); color:var(--w-row-active-text); font-weight:500; box-shadow:var(--w-row-active-shadow); }
 .w-dot{ flex:none; width:7px; height:7px; border-radius:50%; border:1.5px solid var(--w-gold); box-sizing:border-box; }
-#clientApp .navlink.nav-active .w-dot{ background:var(--w-gold); }
+#clientApp .navlink.nav-active .w-dot{ background:var(--w-row-active-dot); border-color:var(--w-row-active-dot); box-shadow:var(--w-row-active-glow); }
 #clientApp .sidebar-foot{ gap:10px; padding:12px; border:1px solid var(--w-line); border-radius:18px; background:var(--w-tile); }
 #clientApp .nav-avatar{ width:36px; height:36px; background:var(--w-powder); color:var(--w-text); font-family:'Geist Mono', ui-monospace, monospace; font-size:12px; font-weight:500; }
 #clientApp .sidebar-who .who-name{ color:var(--w-text); font-size:14px; font-weight:500; }
@@ -2262,7 +2256,8 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 #clientApp .m-tab.on .w-ring::after{ background:var(--w-gold); }
 /* Redesigned bar: line icons in a pill that fills when the tab is active. */
 @media (max-width:860px){
-  #clientApp .m-tabs{ background:color-mix(in srgb, var(--w-side) 97%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); padding-top:6px; }
+  /* Glass (B14): content scrolls under the bar. */
+  #clientApp .m-tabs{ background:var(--w-glass); border-top-color:var(--w-glass-line); -webkit-backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); padding-top:6px; }
   #clientApp .m-tab{ gap:4px; font-size:11px; font-weight:500; letter-spacing:0; }
   #clientApp .m-tab.on{ color:var(--w-text); font-weight:600; }
   #clientApp .m-tab .tab-pill{ display:flex; align-items:center; justify-content:center; flex:none; width:56px; height:30px; max-width:none; overflow:visible; border-radius:999px; transition:background .2s ease, color .2s ease; }
@@ -2274,7 +2269,21 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 #clientApp .feedback-fab{ background:var(--w-nav-active); color:var(--w-nav-active-text); box-shadow:0 10px 24px rgba(11,23,41,0.25); }
 #clientApp .feedback-fab svg{ display:block; width:22px; height:22px; margin:auto; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 
+/* -- Sticky glass page headers (B14): content scrolls under them. Each page's
+   .hm-head spans the main area edge to edge, cancelling the .hm padding. -- */
+#clientApp .hm > .hm-head{ position:sticky; top:0; z-index:30; margin:-28px -40px 24px; padding:24px 40px 18px; background:var(--w-glass); border-bottom:1px solid var(--w-glass-line); -webkit-backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); }
+#clientApp .st-nav{ top:156px; }
+
+/* -- Champagne tiles: raised navy with a champagne edge in dark, pale
+   champagne with a champagne border in light (no browns, 20 Oct 2026) -- */
+#clientApp :is(.hm-champ, .hm-setup, .gl-card--behind, .fc-box-champ, .fc-steps-list li.fc-step-champ){ border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
+
+/* -- The accent as a chart series next to a navy one: its own fill, so the
+   two stay apart in light, where the accent is navy too -- */
+#clientApp :is(.fc-c2, .cf-k-w, .cf-trend .cf-w, .sl-dot-lifestyle){ background:var(--w-gold-fill) !important; }
+
 @media (max-width:860px){
+  #clientApp .hm > .hm-head{ margin:-4px -16px 16px; padding:14px 16px 12px; }
   .w-topbar{ padding:12px 16px 0; }
   .w-theme{ display:none; }
   .w-theme-icon{ display:inline-flex; }
@@ -2357,7 +2366,7 @@ button.hm-cover:disabled{ cursor:default; }
 .hm-setup-side{ display:flex; flex-direction:column; gap:14px; }
 
 /* Total wealth (feature, navy in both themes) */
-.hm-feat{ background:#0F1E36; border-color:var(--w-feat-line); color:#F7F4ED; padding:28px; overflow:hidden; }
+.hm-feat{ background:var(--w-feat); border-color:var(--w-feat-line); color:#F7F4ED; padding:28px; overflow:hidden; }
 .hm-feat .hm-label{ color:#E8D6A8; position:relative; }
 .hm-orbit{ position:absolute; width:280px; height:280px; right:-80px; top:-100px; border-radius:50%; border:1px solid rgba(232,214,168,0.12); pointer-events:none; }
 .hm-orbit.hm-spin{ width:420px; height:420px; right:-150px; top:-170px; border:1px dashed rgba(232,214,168,0.16); }

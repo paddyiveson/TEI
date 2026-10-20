@@ -1,8 +1,9 @@
 /* Light or dark for the Client Hub, Sign in and Wealth OS (spec B1.5).
  *
  * One choice, saved on this device under "tei-theme": "light", "dark" or
- * "system". "system" (and no saved choice at all) follows the device, so a
- * phone or browser set to dark mode opens these pages dark. Clients change it
+ * "system". "system" follows the device. With no saved choice at all, the
+ * members' pages (/hub/) open dark (Paddy, 20 Oct 2026); the public pages
+ * that load this file keep following the device. Clients change it
  * in Wealth OS Settings > Appearance, or when they set up Wealth OS; that
  * choice is also kept on their record (clients.theme, null = follow device).
  *
@@ -15,11 +16,12 @@
   var KEY = 'tei-theme';
   var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   var listeners = [];
+  var DEFAULT = /^\/hub(\/|$)/.test(location.pathname) ? 'dark' : 'system';
 
   function pref() {
     var v = null;
     try { v = localStorage.getItem(KEY); } catch (e) {}
-    return v === 'light' || v === 'dark' ? v : 'system';
+    return v === 'light' || v === 'dark' || v === 'system' ? v : DEFAULT;
   }
   function resolved() {
     var p = pref();

@@ -736,10 +736,12 @@ window.TEI = window.TEI || {};
     document.getElementById('clientListApp').style.display = 'none';
     state.client = loadedClient;
     // The client's saved choice wins over this device's and is mirrored to it
-    // for first paint (B1.5). No choice on the record means follow the device.
+    // for first paint (B1.5). No choice on the record (clients.theme holds
+    // only light or dark) leaves this device's choice: dark if it has none,
+    // or the device's own setting if they picked Match my device here.
     if(loadedClient.meta.role === 'client' && window.TeiTheme){
       const t = loadedClient.settings.theme;
-      if((t === 'dark' || t === 'light' ? t : 'system') !== TeiTheme.pref()) TeiTheme.set(t === 'dark' || t === 'light' ? t : 'system');
+      if((t === 'dark' || t === 'light') && t !== TeiTheme.pref()) TeiTheme.set(t);
     }
     updateAvatar(state.client);
     if(TEI.render && TEI.render.sideSetup) TEI.render.sideSetup(state.client);
@@ -759,7 +761,8 @@ window.TEI = window.TEI || {};
   /* Device | Light | Dark (spec B1.5), via /hub/js/tei-theme.js. Chosen in
      Settings > Appearance (Me on phones) or when setting up Wealth OS. Saved
      on this device under "tei-theme" and, for a client, on their record
-     (clients.theme, null = follow the device). */
+     (clients.theme: light or dark; null = this device's choice, dark by
+     default). */
   function wireTheme(){
     function mark(){
       const pref = window.TeiTheme ? TeiTheme.pref() : 'system';
@@ -778,7 +781,7 @@ window.TEI = window.TEI || {};
     }
     TEI.theme = {choose, apply};
     // Charts read the theme when they draw, so redraw the page in view.
-    let last = window.TeiTheme ? TeiTheme.resolved() : 'light';
+    let last = window.TeiTheme ? TeiTheme.resolved() : 'dark';
     if(window.TeiTheme) TeiTheme.onChange(t=>{ mark(); if(t !== last){ last = t; if(state.client && typeof rerenderCurrentPage === 'function') rerenderCurrentPage(); } });
     apply();
     document.addEventListener('click', e=>{ const b = e.target.closest('[data-w-theme]'); if(b) choose(b.dataset.wTheme); });

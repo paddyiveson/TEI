@@ -13,7 +13,7 @@ TEI.render = TEI.render || {};
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
   function setText(id, text){ const el = document.getElementById(id); if(el) el.textContent = text; }
   // Account colours, the same as the Lab treemap (B5 board palette).
-  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash_lisa:'#DFE6F2', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#6F7F98'};
+  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'#DFE6F2', cash_lisa:'#DFE6F2', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'var(--w-acc-gia)', crypto:'#6F7F98'};
   const CASH_TYPES = ['cash', 'cash_isa', 'cash_lisa'];
 
   /* One row per holding; accounts without holdings appear as one row of

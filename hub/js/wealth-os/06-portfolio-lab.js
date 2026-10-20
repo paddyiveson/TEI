@@ -1039,7 +1039,7 @@ TEI.render = TEI.render || {};
      The 3px gap between tiles keeps neighbours of one type apart. */
   const TYPE_TILE = {
     pension:['#E8D6A8','#13213A'], isa:['#B9CAE6','#13213A'], lisa:['#DFE6F2','#13213A'],
-    gia:['#83661C','#FFFFFF'], cash:['#AAB6C8','#13213A'], cash_isa:['#AAB6C8','#13213A'], cash_lisa:['#AAB6C8','#13213A'],
+    gia:['#2E7F7B','#FFFFFF'], cash:['#AAB6C8','#13213A'], cash_isa:['#AAB6C8','#13213A'], cash_lisa:['#AAB6C8','#13213A'],
     crypto:['#6F7F98','#FFFFFF'], other:['#C9D3E3','#13213A']
   };
   const TYPE_LABEL = {pension:'Pension', isa:'S&S ISA', lisa:'Lifetime ISA', gia:'GIA', cash:'Cash', cash_isa:'Cash', cash_lisa:'Cash', crypto:'Crypto', other:'Other accounts'};

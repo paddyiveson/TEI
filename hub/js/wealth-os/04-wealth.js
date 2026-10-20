@@ -434,9 +434,9 @@ TEI.render = TEI.render || {};
      allowance nudges (isaAccounts, "Race to £100k" liquidTotal, INV_TYPES/CF_INV_TYPES) since
      those track Stocks & Shares ISA holdings specifically -- worth revisiting with the adviser
      if Cash ISA should also count toward the annual ISA allowance headline. */
-  // Board palette (B5): pension champagne, investments pale blue, cash gold;
+  // Board palette (B5): pension champagne, investments pale blue, cash slate;
   // property, crypto and other take the remaining palette tones.
-  const COMP_PALETTE = { property:'#6F7F98', investments:'#B9CAE6', pension:'#E8D6A8', cash:'#83661C', crypto:'#AAB6C8', other:'#D9C9A0' };
+  const COMP_PALETTE = { property:'#6F7F98', investments:'#B9CAE6', pension:'#E8D6A8', cash:'var(--w-acc-cash)', crypto:'#9DB59F', other:'#D9C9A0' };
   function renderComposition(client){
     const months = TEI.calc.buildMergedMonths(client);
     const b = TEI.calc.latestBreakdown(months);

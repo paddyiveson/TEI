@@ -127,7 +127,7 @@ TEI.render = TEI.render || {};
     {key:'isa',      label:'ISAs',               col:'#B9CAE6', types:['isa']},
     {key:'lisa',     label:'Lifetime ISA',       col:'#F7F4ED', types:['lisa','cash_lisa']},
     {key:'cash',     label:'Cash',               col:'#AAB6C8', types:['cash','cash_isa']},
-    {key:'gia',      label:'General investment', col:'#83661C', types:['gia']},
+    {key:'gia',      label:'General investment', col:'#6FB3AE', types:['gia']},
     {key:'crypto',   label:'Crypto',             col:'#9DB59F', types:['crypto']},
     {key:'property', label:'Property',           col:'#6F86A8', types:[]},
     {key:'other',    label:'Other',              col:'#D9C9A0', types:[]}
@@ -397,7 +397,7 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------- Accounts: the five largest ---------------- */
-  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'var(--w-muted)', cash_lisa:'var(--w-muted)', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'#83661C', crypto:'#9DB59F'};
+  const ACCT_RING = {pension:'#E8D6A8', isa:'#B9CAE6', lisa:'var(--w-muted)', cash_lisa:'var(--w-muted)', cash:'#AAB6C8', cash_isa:'#AAB6C8', gia:'var(--w-acc-gia)', crypto:'#9DB59F'};
   function renderAccounts(client){
     const b = TEI.calc.latestBreakdown(TEI.calc.buildMergedMonths(client));
     const top = (client.accounts||[]).map(a=> ({a, v: Number(b[a.id])||0})).filter(x=> x.v > 0)
