@@ -2373,6 +2373,11 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 .hm-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:auto; }
 .hm-btn:focus-visible, .hm-link:focus-visible, .hm-cover:focus-visible{ outline:2px solid var(--w-gold); outline-offset:3px; }
 .hm-cover{ position:absolute; inset:0; border-radius:inherit; z-index:1; }
+button.hm-cover{ margin:0; padding:0; border:0; background:transparent; cursor:pointer; }
+button.hm-cover:disabled{ cursor:default; }
+.gl-coach-btn:disabled, #whSessionBtn:disabled{ opacity:.75; cursor:default; }
+.wo-req-state{ position:relative; margin:0 !important; color:#AAB6C8 !important; }
+.wo-req-state:empty{ display:none; }
 
 /* Bars */
 .hm-bar{ height:8px; border-radius:999px; background:var(--w-track); overflow:hidden; }
@@ -4023,8 +4028,8 @@ window.TeiTheme && TeiTheme.paint();</script>
       <p class="hm-label">Next session</p>
       <h2 class="hm-h3" id="whSessionTitle">Not booked yet</h2>
       <p class="hm-muted" id="whSessionText">Book a time with your coach and it will show here.</p>
-      <a href="/book" class="hm-btn hm-btn-block" id="whSessionBtn">Book a session</a>
-      <a href="/book" class="hm-cover hm-m-only" id="whSessionCover" aria-label="Next session: book a session"></a>
+      <button type="button" class="hm-btn hm-btn-block" id="whSessionBtn" data-wo-request="book">Book a session</button>
+      <button type="button" class="hm-cover hm-m-only" id="whSessionCover" data-wo-request="book" aria-label="Next session: ask your coach to book a session"></button>
     </section>
 
     <section class="hm-tile hm-powder hm-t-learn">
@@ -4341,7 +4346,8 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
       <p class="hm-label">Coach's corner</p>
       <p class="gl-coach-msg" id="glCoachMsg"></p>
-      <a href="/book" class="hm-btn gl-coach-btn">Discuss next session</a>
+      <button type="button" class="hm-btn gl-coach-btn" data-wo-request="session">Discuss next session</button>
+      <p class="hm-note wo-req-state" aria-live="polite"></p>
     </section>
 
   </div>
@@ -4559,7 +4565,8 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
       <p class="hm-label">Coach's corner</p>
       <p class="gl-coach-msg" id="fcMessage"></p>
-      <a href="/book" class="hm-btn gl-coach-btn">Discuss next session</a>
+      <button type="button" class="hm-btn gl-coach-btn" data-wo-request="session">Discuss next session</button>
+      <p class="hm-note wo-req-state" aria-live="polite"></p>
     </section>
 
   </div>
@@ -4651,7 +4658,8 @@ window.TeiTheme && TeiTheme.paint();</script>
       <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
       <p class="hm-label">Coach's corner</p>
       <p class="gl-coach-msg" id="cfcMessage"></p>
-      <a href="/book" class="hm-btn gl-coach-btn">Discuss next session</a>
+      <button type="button" class="hm-btn gl-coach-btn" data-wo-request="session">Discuss next session</button>
+      <p class="hm-note wo-req-state" aria-live="polite"></p>
     </section>
 
   </div>
@@ -14268,6 +14276,48 @@ TEI.render = TEI.render || {};
     try{ await TEI.wealthOS.saveCashflowSettings(c.meta.clientId, c); $s('stPlanState').textContent = 'Saved'; }
     catch(err){ console.error('Wealth OS: safety net account not saved', err); $s('stPlanState').textContent = 'That did not save. Please try again.'; }
   }
+
+  /* Request buttons outside Settings (Paddy, 20 Oct 2026: "any buttons which
+     make a request need functionality"). Discuss next session on the
+     coach's corners and Book a session on Home send the coach a request
+     (wealth_os.feedback; its trigger emails Paddy with the client's name,
+     email and a link, migration 016) instead of opening the booking link.
+     A coach previewing a client's Wealth OS sends nothing. */
+  const WO_REQUESTS = {
+    session: b=>{
+      const m = b.closest('section') && b.closest('section').querySelector('.gl-coach-msg');
+      const said = m ? m.textContent.trim() : '';
+      return {text: 'Would like to talk about this at the next session' + (said ? ': "' + said + '"' : '.'),
+        sent: 'Sent. Your coach will bring this to your next session.'};
+    },
+    book: ()=> ({text: 'Asked to book a session.', sent: 'Sent. Your coach will be in touch to arrange a time.'})
+  };
+  document.addEventListener('click', async e=>{
+    const b = e.target.closest('[data-wo-request]');
+    if(!b || b.disabled || !WO_REQUESTS[b.dataset.woRequest]) return;
+    e.preventDefault();
+    const c = client(); if(!c) return;
+    const r = WO_REQUESTS[b.dataset.woRequest](b);
+    const book = b.dataset.woRequest === 'book';
+    const tile = b.closest('section');
+    const state = tile && tile.querySelector('.wo-req-state');
+    const say = t=>{ if(book){ setTextIn('whSessionText', t); } else if(state) state.textContent = t; };
+    if(c.meta.role === 'adviser'){ say('Clients send this to you. Nothing is sent while you preview.'); return; }
+    const page = ((b.closest('.page') || {}).id || '').replace('page-', '');
+    const btns = book ? [$s('whSessionBtn'), $s('whSessionCover')] : [b];
+    btns.forEach(x=>{ if(x) x.disabled = true; });
+    try{
+      await TEI.wealthOS.saveFeedback(c.meta.clientId, 'session', page, r.text, c.meta.role);
+      if(book){ setTextIn('whSessionTitle', 'Request sent'); $s('whSessionBtn').textContent = 'Sent to your coach'; }
+      else b.textContent = 'Sent to your coach';
+      say(r.sent);
+    } catch(err){
+      console.error('Wealth OS: request not sent', err);
+      btns.forEach(x=>{ if(x) x.disabled = false; });
+      say('That did not send. Please try again.');
+    }
+  });
+  function setTextIn(id, t){ const el = $s(id); if(el) el.textContent = t; }
 
   TEI.settings = { open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); } };
 

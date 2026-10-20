@@ -285,8 +285,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     <section class="t t-champ t-session" aria-labelledby="hbSessionTitle">
       <p class="lab lab-gold">Next session</p>
       <h2 id="hbSessionTitle">Not booked yet</h2>
-      <p class="muted">Book a time with your coach and it will show here.</p>
-      <a class="btn" href="/book">Book a session</a>
+      <p class="muted" id="hbSessionText">Book a time with your coach and it will show here.</p>
+      <a class="btn" href="/book" id="hbSessionBtn">Book a session</a>
     </section>
 
     <section class="t t-feat t-plan" aria-labelledby="hbPlanTitle">
@@ -478,6 +478,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
                 var name = (pr && pr.data && pr.data.first_name) || (client && client.first_name);
                 if (name) $('hubHeroGreeting').textContent = 'Welcome back, ' + name;
                 if (!client) return;
+                wireSessionRequest(client.id);
                 // Setup request (migration 013); fails soft before it is applied.
                 w().from('clients').select('setup_request').eq('id', client.id).maybeSingle()
                   .then(function (sr) {
@@ -494,8 +495,38 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       })
       .catch(function (err) { console.error('Client Hub: could not load your details', err); });
   }
+  /* Book a session asks the coach for a time (wealth_os.feedback, which
+     emails Paddy with the client's details, migration 016) instead of
+     opening the booking link, once a client record is found. Advisers and
+     anyone without a client record keep the link. */
+  function wireSessionRequest(clientId) {
+    var btn = $('hbSessionBtn');
+    if (!btn) return;
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (btn.getAttribute('aria-disabled') === 'true') return;
+      btn.setAttribute('aria-disabled', 'true');
+      w().from('feedback').insert({ client_id: clientId, area: 'session', page_context: 'hub', message: 'Asked to book a session.', submitted_by: 'client' })
+        .then(function (r) {
+          if (r && r.error) throw r.error;
+          $('hbSessionTitle').textContent = 'Request sent';
+          $('hbSessionText').textContent = 'Sent. Your coach will be in touch to arrange a time.';
+          btn.textContent = 'Sent to your coach';
+        })
+        .catch(function (err) {
+          console.error('Client Hub: request not sent', err);
+          btn.removeAttribute('aria-disabled');
+          $('hbSessionText').textContent = 'That did not send. Please try again.';
+        });
+    });
+  }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
 </script>
+<!-- Phones: the shared website and Client Hub bar (assets/mobile-nav.js),
+     not the Wealth OS tabs (Paddy, 20 Oct 2026). -->
+<style>.hb-tabs{ display:none !important; }</style>
+<link rel="stylesheet" href="/assets/mobile-nav.css">
+<script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

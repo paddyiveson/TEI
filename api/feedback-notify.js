@@ -55,6 +55,9 @@ module.exports = async function handler(req, res) {
   const siteUrl = process.env.SITE_URL || "";
   const area = record.area || "general";
   const page = record.page_context ? ` (on ${record.page_context})` : "";
+  // Since migration 016 the trigger adds who sent it (client_name,
+  // client_email, client_link) and starts the message with those details.
+  const who = record.client_name ? ` from ${record.client_name}` : "";
   const message = String(record.message).slice(0, 2000);
 
   try {
@@ -67,9 +70,10 @@ module.exports = async function handler(req, res) {
       body: JSON.stringify({
         from,
         to,
-        subject: `Wealth OS feedback: ${area}${page}`,
+        subject: `Wealth OS: ${area}${who}${page}`,
+        reply_to: record.client_email || undefined,
         text:
-          `New client feedback (${area}${page}):\n\n${message}\n\n` +
+          `New request (${area}${page}):\n\n${message}\n\n` +
           (siteUrl ? `Open the inbox: ${siteUrl}/hub/wealth-os.html\n` : ""),
       }),
     });
