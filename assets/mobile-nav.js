@@ -207,7 +207,7 @@
       '</div>' +
       '<div class="tei-smenu-body">' +
         // Signed in, the Client Hub's sections come first.
-        (V.members ? '' : '') +
+        (V.members ? membersMenuHTML() : '') +
         '<div role="navigation" aria-label="Pages">' +
           '<p class="tei-smenu-label">Pages</p>' +
           '<ul class="tei-smenu-pages">' + pages + '</ul>' +
