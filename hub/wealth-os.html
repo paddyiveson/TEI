@@ -2753,6 +2753,11 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   .wl-update-long{ display:none; }
   .wl-update-short{ display:inline; }
   .wl-hero-top{ grid-template-columns:1fr; }
+  .wl-hero-top > *{ min-width:0; }
+  /* Eight range buttons do not fit one row on a phone: two rows of four. */
+  .wl-toggles{ width:100%; }
+  .wl-seg{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); width:100%; box-sizing:border-box; border-radius:18px; }
+  .wl-seg button{ min-width:0; padding:0 4px; }
   .wl-toggles{ align-items:flex-start; }
   .wl-toggles{ flex-direction:row; flex-wrap:wrap; align-items:center; }
   .wl-stats{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
@@ -3597,7 +3602,7 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
 #clientApp .main-inner > footer p{ margin:0; }
 @media (max-width:860px){
   #clientApp .main-inner > .disclaimer{ padding:20px 16px 4px; text-align:left; }
-  #clientApp .main-inner > footer{ padding:2px 16px calc(var(--m-bar-total, 60px) + 24px); text-align:left; }
+  #clientApp .main-inner > footer{ padding:2px 16px 24px; text-align:left; }
 }
 
 /* Home safety net tile: the three stages with £ targets (20 Oct 2026). */
@@ -8309,9 +8314,7 @@ TEI.render = TEI.render || {};
       out.push({id:'step:safety:' + key, text:'Build your safety net',
         why: fmtGBP(gap) + ' more would cover ' + sn.fullMonths + ' months of spending.', act:['See your safety net', ()=> TEI.app.showPage('cashflow')]});
     }
-    const left = TEI.setup ? TEI.setup.leftToDo(client) : 0;
-    if(left) out.push({id:'step:setup', text:'Finish setting up Wealth OS',
-      why: left + (left === 1 ? ' thing is' : ' things are') + ' still missing. Skip anything you do not know.', act:['Continue setup', ()=> TEI.setup.open()]});
+    // Setting up is not repeated here: Home has its own Finish setting up tile.
     const behind = (client.goals||[]).filter(g=> g.status !== 'completed').find(g=> TEI.calc.goalStatus(client, g).key === 'behind');
     if(behind) out.push({id:'step:goal:' + behind.id + ':' + key, text:'Look at your ' + behind.name + ' goal',
       why:'It is behind for its target date. Goals shows what a month would close the gap.', act:['See Goals', ()=> TEI.app.showPage('goals')]});
