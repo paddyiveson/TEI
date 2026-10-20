@@ -432,7 +432,11 @@ window.TEI = window.TEI || {};
   function leftToDo(c) {
     if (!c) return 0;
     if (isActive(c)) return Math.max(leftCount(c), 1);
-    return gapsFor(c).length + (profileAnswered(c) < PROFILE_Q.length ? 1 : 0);
+    // The same number the flow shows ("16 things still missing, plus a few
+    // questions"); You and investing counts as one only once it is all
+    // that is left.
+    var gaps = gapsFor(c).length;
+    return gaps || (profileAnswered(c) < PROFILE_Q.length ? 1 : 0);
   }
 
   function open(opts) {

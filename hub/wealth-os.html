@@ -5750,7 +5750,7 @@ window.TeiTheme && TeiTheme.paint();</script>
         <label class="form-field"><span>What is it?</span><input type="text" id="advNewVariableLabel" placeholder="e.g. Everyday spending"></label>
         <label class="form-field"><span>£/month</span><input type="number" id="advNewVariableAmount" placeholder="0"></label>
         <label class="form-field" id="advNewVariableOwnerField" style="display:none;"><span>Whose cost?</span><select id="advNewVariableOwner"><option value="client">Individual</option><option value="joint">Joint / shared</option></select></label>
-        <label class="form-field"><span>Essential or lifestyle?</span><select id="advNewVariableSpend"><option value="essential">Essential</option><option value="lifestyle">Lifestyle</option></select></label>
+        <label class="form-field"><span>Essential or lifestyle?</span><select id="advNewVariableSpend"><option value="essential">Essential</option><option value="lifestyle" selected>Lifestyle</option></select></label>
         <button type="button" class="btn-primary" id="advAddVariableBtn">Add</button>
       </div>
       <div class="note">One-off costs — irregular items (e.g. car repair, annual insurance renewal) included in this month's plan only while enabled. Untick to keep the record without counting it.</div>
@@ -7641,6 +7641,10 @@ window.TEI = window.TEI || {};
     // its own apples-to-apples check before being added to the total.
     let contributed = 0, accountedFor = 0, uncostedHoldings = 0, anyStated = false;
     scopedAccounts.forEach(a=>{
+      // Cash is meant to be spent: money paid into a cash account and later
+      // used reads as "unaccounted for" against what is left, so cash and
+      // Cash ISA accounts are never reconciled against contributions.
+      if(a.type === 'cash' || a.type === 'cash_isa') return;
       // Bonus/relief still inside its landing window isn't expected in the
       // account yet (see RELIEF_PENDING_WINDOW) -- checked on what should
       // have arrived by now, not everything contributed.
@@ -13037,7 +13041,9 @@ TEI.render = TEI.render || {};
     const conv = x => x.takeHome > 0 ? x.wealthBuilding/x.takeHome : 0;
     const first = conv(months[0]), last = conv(months[months.length-1]);
     const pts = Math.round((last - first)*100);
-    setText('cfTrendHead', pts >= 0 ? 'Conversion up ' + pts + (pts === 1 ? ' point' : ' points') + ' since ' + monLong(months[0].key) : 'Conversion down ' + Math.abs(pts) + (pts === -1 ? ' point' : ' points') + ' since ' + monLong(months[0].key));
+    const since = ' since ' + monLong(months[0].key);
+    setText('cfTrendHead', pts === 0 ? 'Conversion steady' + since
+      : 'Conversion ' + (pts > 0 ? 'up ' : 'down ') + Math.abs(pts) + (Math.abs(pts) === 1 ? ' point' : ' points') + since);
     const hmax = Math.max(...months.map(x=> x.essentials + x.lifestyle + x.wealthBuilding), 1);
     bars.innerHTML = months.map((x,i)=>{
       const used = x.essentials + x.lifestyle + x.wealthBuilding || 1;
@@ -13101,7 +13107,7 @@ TEI.render = TEI.render || {};
     if(months.length >= 2){
       const first = conv(months[0]), last = conv(months[months.length-1]);
       const pts = Math.round((last-first)*100);
-      rows.push([(pts >= 0 ? '+' : '') + pts + ' pts', pts >= 0 ? 'Conversion rate is climbing.' : 'Conversion rate has slipped.', 'From ' + pct(first) + ' in ' + monLong(months[0].key) + ' to ' + pct(last) + ' now.']);
+      rows.push([(pts > 0 ? '+' : '') + pts + ' pts', pts > 0 ? 'Conversion rate is climbing.' : pts < 0 ? 'Conversion rate has slipped.' : 'Conversion rate is holding steady.', 'From ' + pct(first) + ' in ' + monLong(months[0].key) + ' to ' + pct(last) + ' now.']);
       const t = target(client)/100;
       let streak = 0; for(let i=months.length-1; i>=0; i--){ if(conv(months[i]) >= t) streak++; else break; }
       rows.push([streak + ' mo', 'Months in a row at your ' + Math.round(t*100) + '% target or more.', 'Consistency matters more than any single month.']);
@@ -13637,7 +13643,7 @@ TEI.render = TEI.render || {};
         ['property','Property and debts', liab ? liab + (liab === 1 ? ' debt' : ' debts') : 'Debt free'], ['income','Income and spending', fmtGBP(TEI.calc.totalMonthlyIncome(c)) + ' in'], ['goals','Goals', String((c.goals||[]).length)], ['you','You and investing','']]],
       ['Documents and plan', [['documents','Documents', pending ? pending + ' pending' : ''], ['plan','Plan settings', 'Retire at ' + ((c.preferences||{}).retirementAge || 60)]]],
       ['Account', [['membership','Membership', t ? t.name + ' · £' + t.price : ''], ['notifications','Notifications', Object.values(prefs).some(Boolean) ? 'Email on' : 'Email off'], ['security','Security and data','']]],
-      ['Help', [['help','Help and learning',''], ['_setup','Set up Wealth OS', TEI.setup ? (TEI.setup.gapsFor(c).length ? TEI.setup.gapsFor(c).length + ' to do' : 'All done') : ''], ['_message','Message your coach','']]],
+      ['Help', [['help','Help and learning',''], ['_setup','Set up Wealth OS', TEI.setup ? (TEI.setup.leftToDo(c) ? TEI.setup.leftToDo(c) + ' to do' : 'All done') : ''], ['_message','Message your coach','']]],
       ['Elsewhere', [['_hub','Client Hub','Learning, guides and videos'], ['_site','Website','The Everyday Investor']]]
     ];
     $s('meGroups').innerHTML = groups.map(g=> `<section class="me-group"><p class="hm-label">${g[0]}</p><ul>${g[1].map(i=>
@@ -15609,7 +15615,7 @@ window.TEI = window.TEI || {};
     document.getElementById(kind==='fixed' ? 'advAddFixedBtn' : 'advAddVariableBtn').textContent = 'Add';
     clearFieldsAdv([labelId, amtId]);
     document.getElementById(kind==='fixed' ? 'advNewFixedOwner' : 'advNewVariableOwner').value = 'client';
-    document.getElementById(kind==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value = 'essential';
+    document.getElementById(kind==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value = kind==='fixed' ? 'essential' : 'lifestyle';
   }
   async function addAdvExpense(kind){
     const labelId = kind==='fixed' ? 'advNewFixedLabel' : 'advNewVariableLabel';
@@ -15656,7 +15662,7 @@ window.TEI = window.TEI || {};
       btn.disabled = false;
       client.cashflow.expenses[kind].push(e);
       clearFieldsAdv([labelId, amtId]);
-      document.getElementById(kind==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value = 'essential';
+      document.getElementById(kind==='fixed' ? 'advNewFixedSpend' : 'advNewVariableSpend').value = kind==='fixed' ? 'essential' : 'lifestyle';
       showToast('Expense added');
     }
     renderAdvExpenseList(kind);
@@ -20544,7 +20550,9 @@ window.TEI = window.TEI || {};
     if(TEI.render && TEI.render.sideSetup) TEI.render.sideSetup(state.client);
     const wantSetup = new URLSearchParams(location.search).get('page') === 'setup';
     showPage(startPageFromUrl());
-    if(TEI.setup){ if(wantSetup && TEI.setup.isActive(state.client)) TEI.setup.open(); else TEI.setup.maybeAutoOpen(state.client); }
+    // ?page=setup opens the flow whenever there is something left to do,
+    // with or without a coach's request (the same rule as Continue setup).
+    if(TEI.setup){ if(wantSetup && TEI.setup.leftToDo(state.client)) TEI.setup.open(); else TEI.setup.maybeAutoOpen(state.client); }
     if(TEI.adviser && TEI.adviser.init) TEI.adviser.init(state.client);
     if(TEI.onboarding && TEI.onboarding.init) TEI.onboarding.init(state.client);
     if(TEI.feedback && TEI.feedback.init) TEI.feedback.init(state.client);
