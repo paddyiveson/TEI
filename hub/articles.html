@@ -11,9 +11,10 @@
 <link rel="stylesheet" href="/hub/css/hub-tokens.css">
 <link rel="stylesheet" href="/hub/css/hub-shell.css">
 <style>
-/* Client Hub Articles (spec D7 board MembersArticles): every TEI article from
-   /articles.json, opened in the article template with a way back here
-   (?from=hub). Members' theme and company articles are not written yet. */
+/* Client Hub Articles (spec D7 board MembersArticles): members' theme and
+   company articles first (/hub/members-articles.json, pages in /hub/members/,
+   each in its own design), then every TEI article from /articles.json, opened
+   in the article template with a way back here (?from=hub). */
 .ar-grid { display:grid; grid-template-columns:repeat(12, minmax(0,1fr)); gap:16px; }
 .ar-feat { grid-column:span 12; display:flex; flex-wrap:wrap; background:#0F1E36; color:#F7F4ED; border:1px solid var(--featLine); border-radius:26px; overflow:hidden; text-decoration:none; transition:transform .2s ease, box-shadow .2s ease; }
 .ar-feat:hover, .ar-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
@@ -33,6 +34,8 @@
 .ar-suite { font-size:14px; color:var(--gold); }
 .ar-card { grid-column:span 4; display:flex; flex-direction:column; gap:10px; min-height:200px; padding:24px; border-radius:22px; border:1px solid var(--line); background:var(--tile); text-decoration:none; color:inherit; transition:transform .2s ease, box-shadow .2s ease; }
 .ar-card.alt { background:var(--champ); }
+.ar-mem { grid-column:span 6; background:var(--powder); }
+.ar-h { grid-column:span 12; margin-top:20px; font-size:22px; font-weight:400; letter-spacing:-0.02em; }
 .ar-tag { align-self:flex-start; font-family:'Geist Mono', monospace; font-size:11px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
 .ar-card h3 { font-size:21px; font-weight:400; letter-spacing:-0.02em; line-height:1.25; }
 .ar-card p { font-size:14px; line-height:1.5; color:var(--muted); }
@@ -100,29 +103,37 @@
 </nav>
 
 <script>
-/* Articles from /articles.json (the same list the website uses). */
+/* Members' articles from /hub/members-articles.json (D7; pages in
+   /hub/members/), then every website article from /articles.json. */
 (function () {
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var all = [], cat = 'All';
+  var all = [], mem = [], cat = 'All';
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function when(a) { var d = new Date(a.date); return (isNaN(d) ? '' : d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear() + ' &middot; ') + esc(a.readTime) + ' min read'; }
-  function href(a) { return '/articles/' + encodeURIComponent(a.slug) + '.html?from=hub'; }
+  function href(a) { return a.members ? '/hub/members/' + encodeURIComponent(a.slug) + '.html' : '/articles/' + encodeURIComponent(a.slug) + '.html?from=hub'; }
+  function byDate(list) { return (list || []).slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }); }
 
   function render() {
-    var feat = all.filter(function (a) { return a.featured; })[0] || all[0];
+    // The newest members' article leads; with none, the website's featured one.
+    var feat = mem[0] || all.filter(function (a) { return a.featured; })[0] || all[0];
     var rest = all.filter(function (a) { return a !== feat; });
     var cats = ['All'];
     rest.forEach(function (a) { if (cats.indexOf(a.category) < 0) cats.push(a.category); });
     var list = rest.filter(function (a) { return cat === 'All' || a.category === cat; });
     var html = '';
     if (feat) {
-      html += '<a class="ar-feat hb-up" href="' + href(feat) + '"><div class="ar-feat-l"><span class="ar-pill">Featured &middot; ' + esc(feat.category) + '</span>' +
+      html += '<a class="ar-feat hb-up" href="' + href(feat) + '"><div class="ar-feat-l"><span class="ar-pill">' + (feat.members ? 'Members&rsquo; article' : 'Featured') + ' &middot; ' + esc(feat.category) + '</span>' +
         '<h2>' + esc(feat.title) + '</h2><p>' + esc(feat.teaser) + '</p><p class="meta">' + when(feat) + '</p></div>' +
         '<div class="ar-feat-r" aria-hidden="true"><div class="ring hb-spin"></div><svg viewBox="0 0 400 220"><line x1="20" y1="200" x2="380" y2="200" stroke="rgba(255,255,255,0.12)"/>' +
         '<g class="ar-bars"><rect x="50" y="130" width="50" height="70" rx="8" fill="#B9CAE6" fill-opacity=".8"/><rect x="130" y="96" width="50" height="104" rx="8" fill="#B9CAE6" fill-opacity=".8" style="animation-delay:.1s"/>' +
         '<rect x="210" y="60" width="50" height="140" rx="8" fill="#E8D6A8" style="animation-delay:.2s"/><rect x="290" y="30" width="50" height="170" rx="8" fill="#E8D6A8" style="animation-delay:.3s"/></g></svg></div></a>';
     }
+    html += mem.filter(function (a) { return a !== feat; }).map(function (a, i) {
+      return '<a class="ar-card ar-mem hb-up" style="animation-delay:' + Math.min(i, 8) * 40 + 'ms" href="' + href(a) + '"><span class="ar-tag">Members &middot; ' + esc(a.category) + (a.ticker ? ' &middot; ' + esc(a.ticker) : '') + '</span>' +
+        '<h3>' + esc(a.title) + '</h3><p>' + esc(a.teaser) + '</p><p class="meta">' + when(a) + '</p></a>';
+    }).join('');
+    if (mem.length) html += '<h2 class="ar-h">Articles for everyone</h2>';
     html += '<div class="ar-row"><div class="ar-cats" role="group" aria-label="Category">' + cats.map(function (k) {
       var n = k === 'All' ? rest.length : rest.filter(function (a) { return a.category === k; }).length;
       return '<button type="button" class="hb-chip" data-cat="' + esc(k) + '" aria-pressed="' + (k === cat ? 'true' : 'false') + '">' + esc(k) + '<span class="n">' + n + '</span></button>';
@@ -131,13 +142,19 @@
       return '<a class="ar-card hb-up' + (i % 3 === 1 ? ' alt' : '') + '" style="animation-delay:' + Math.min(i, 8) * 40 + 'ms" href="' + href(a) + '"><span class="ar-tag">' + esc(a.category) + '</span>' +
         '<h3>' + esc(a.title) + '</h3><p>' + esc(a.teaser) + '</p><p class="meta">' + when(a) + '</p></a>';
     }).join('');
-    html += '<div class="ar-soon"><div><b>Members&rsquo; articles on themes and companies</b><span>In-depth pieces on investment themes and individual companies, for members only. The first ones are being written.</span></div><span class="t">Coming soon</span></div>';
     $('arGrid').innerHTML = html;
   }
 
+  function load(url) { return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }); }
   $('arGrid').addEventListener('click', function (e) { var b = e.target.closest('[data-cat]'); if (b) { cat = b.getAttribute('data-cat'); render(); } });
-  fetch('/articles.json').then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(function (list) { all = (list || []).slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }); render(); })
+  // A missing members' list still shows the website articles.
+  var members = load('/hub/members-articles.json').catch(function (err) { console.error('Hub articles: could not load the members\' list', err); return []; });
+  Promise.all([load('/articles.json'), members])
+    .then(function (res) {
+      all = byDate(res[0]);
+      mem = byDate(res[1]).map(function (a) { a.members = true; return a; });
+      render();
+    })
     .catch(function (err) { console.error('Hub articles: could not load the list', err); $('arGrid').innerHTML = '<div class="ar-soon"><div><b>Articles could not load</b><span>Check your connection and refresh the page.</span></div></div>'; });
 })();
 </script>

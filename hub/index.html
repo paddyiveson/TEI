@@ -351,11 +351,14 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       </ul>
     </section>
 
-    <!-- TODO(G5): the latest two from members-articles.json (D7), with an
-         "All articles" link to the members' articles page. -->
+    <!-- The latest two from /hub/members-articles.json (D7), filled by the
+         script at the end; the two below show if that list cannot load. -->
     <section class="t t-powder t-articles" aria-labelledby="hbArticlesK">
-      <div class="t-articles-k"><p class="lab" id="hbArticlesK">Members' articles</p><p>Themes and company deep dives.</p></div>
-      <p class="t-articles-empty">The first members' articles are on their way and will show here.</p>
+      <div class="t-articles-k"><p class="lab" id="hbArticlesK">Members' articles</p><p>Themes and company deep dives.</p><a class="lnk" href="/hub/articles.html">All articles</a></div>
+      <ul class="list t-articles-list" id="hbArticles">
+        <li><a href="/hub/members/ondas-disconnect.html">The ONDS Disconnect<span class="tag mono">Companies &middot; 14 min</span></a></li>
+        <li><a href="/hub/members/nebius-sizing-up.html">Nebius: Sizing up the Opportunity<span class="tag mono">Companies &middot; 10 min</span></a></li>
+      </ul>
     </section>
 
     <!-- TODO(G6): search the whole Knowledge library (E5). Until then the
@@ -528,6 +531,23 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
+</script>
+<script>
+/* Members' articles strip: the newest two from the members' list. */
+(function () {
+  var ul = document.getElementById('hbArticles');
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  fetch('/hub/members-articles.json').then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (list) {
+      var top = (list || []).slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }).slice(0, 2);
+      if (!top.length) return;
+      ul.innerHTML = top.map(function (a) {
+        return '<li><a href="/hub/members/' + encodeURIComponent(a.slug) + '.html">' + esc(a.short || a.title) + '<span class="tag mono">' + esc(a.category) + ' &middot; ' + esc(a.readTime) + ' min</span></a></li>';
+      }).join('');
+    })
+    .catch(function (err) { console.error('Hub: could not load members\' articles', err); });
 })();
 </script>
 <!-- Phones: the shared website and Client Hub bar (assets/mobile-nav.js),

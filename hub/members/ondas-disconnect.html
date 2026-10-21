@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="en-GB" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The ONDS Disconnect</title>
+<meta name="description" content="Ondas has never had more good news, yet the shares trade at well under half their January high. What Ondas has become, what shareholders paid for it, and what would make the price follow the business.">
+<script>
+/* Same "tei-theme" choice as the rest of the Hub: light, dark or system; dark when nothing is saved (hub/js/tei-theme.js). */
+(function(){var t=null;try{t=localStorage.getItem('tei-theme');}catch(e){}if(t==='system'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark');})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Members' article: Hub structure (glass header, Geist, tiles, bottom bar, theme switch) in Ondas colours.
+   Showcase exception to the 860px reading column: a 12-column chapter grid (text 1-5, visual 6-12). */
+:root{
+  --navy:#0a1729;--ondas-red:#c53d27;
+  --hero-bg:#0a1729;--hero-ink:#f2f4f7;--hero-muted:#b3bfd1;--hero-line:rgba(255,255,255,.16);--hero-red:#ef6a51;--hero-tile:#12233d;
+  --font:"Geist",system-ui,-apple-system,"Segoe UI",sans-serif;--mono:"Geist Mono",ui-monospace,Menlo,monospace;
+  --pad:32px;--gap:24px;--hdr:118px;
+  color-scheme:light;
+}
+:root,[data-theme="light"]{
+  --bg:#ffffff;--tile:#f3f5f9;--raised:#e8ecf2;--ink:#0a1729;--muted:#4b5a72;--line:#dce2ea;
+  --red-ink:#c53d27;--red-fill:#c53d27;--red-soft:#fbebe7;--red-line:#efc3b9;
+  --s1:#0a1729;--s2:#4f6688;--s3:#8d9db6;--s4:#c5cedb;
+  --glass:rgba(255,255,255,.84);--glass-line:rgba(10,23,41,.09);
+  --pos:#2f6b45;--pos-soft:#e5f1e9;--story:#eef1f5;
+  --shadow:0 1px 2px rgba(10,23,41,.06),0 10px 28px rgba(10,23,41,.07);--edge:rgba(255,255,255,.95);
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0a1729;--tile:#12233d;--raised:#1a2f50;--ink:#f2f4f7;--muted:#aab7cb;--line:#25395b;
+  --red-ink:#ef6a51;--red-fill:#c53d27;--red-soft:#33191b;--red-line:#6d2c22;
+  --s1:#e9edf3;--s2:#8ea3c2;--s3:#5a7096;--s4:#33486b;
+  --glass:rgba(10,23,41,.82);--glass-line:rgba(255,255,255,.09);
+  --pos:#8fd6a9;--pos-soft:#11362a;--story:#13253f;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 14px 34px rgba(0,0,0,.32);--edge:rgba(255,255,255,.07);
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-padding-top:calc(var(--hdr) + 12px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.62;-webkit-text-size-adjust:100%;text-rendering:optimizeLegibility}
+h1,h2,h3,h4{margin:0;font-weight:500;letter-spacing:-.025em;line-height:1.1;text-wrap:balance}
+p,ul,ol{margin:0}
+a{color:var(--red-ink);text-underline-offset:3px}
+button{font:inherit;color:inherit}
+b,strong{font-weight:600}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--red-ink);outline-offset:3px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Hub header ---------- */
+.hub{position:sticky;top:0;z-index:50;background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(140%);backdrop-filter:blur(20px) saturate(140%);border-bottom:1px solid var(--glass-line)}
+.hub-row{display:flex;align-items:center;gap:20px;height:64px;padding-inline:var(--pad)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:500;font-size:15px;white-space:nowrap}
+.brand svg{flex:none}
+.pills{display:flex;gap:4px;margin-left:12px}
+.pills a{font-size:14px;color:var(--muted);text-decoration:none;padding:8px 13px;border-radius:999px;white-space:nowrap}
+.pills a:hover{color:var(--ink)}
+.pills a[aria-current="page"]{background:var(--tile);color:var(--ink);font-weight:500}
+.hub-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.seg{display:flex;background:var(--tile);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:999px;font-size:13px;color:var(--muted);cursor:pointer;min-height:32px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.btn-wos{display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:999px;background:var(--ink);color:var(--bg);text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap}
+.icon-btn{display:none;width:44px;height:44px;border-radius:999px;border:1px solid var(--line);background:transparent;cursor:pointer;align-items:center;justify-content:center}
+.chips{display:flex;gap:6px;padding:0 var(--pad) 10px;overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips a{flex:none;font-size:12.5px;text-decoration:none;color:var(--muted);border:1px solid var(--line);padding:5px 11px;border-radius:999px;white-space:nowrap;transition:background .2s,color .2s,border-color .2s}
+.chips a span{font-family:var(--mono);margin-right:6px;color:var(--red-ink)}
+.chips a.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chips a.on span{color:inherit}
+
+/* ---------- grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gap);padding-inline:var(--pad)}
+.t{grid-column:1/6}
+.v{grid-column:6/13;min-width:0}
+.f{grid-column:1/13;min-width:0}
+.sticky{position:sticky;top:calc(var(--hdr) + 24px);align-self:start}
+
+/* ---------- hero ---------- */
+.hero{background:var(--hero-bg);color:var(--hero-ink);position:relative;overflow:hidden;
+  --ink:var(--hero-ink);--muted:var(--hero-muted);--line:var(--hero-line);--red-ink:var(--hero-red);--tile:var(--hero-tile);
+  --s1:#e9edf3;--s2:#8ea3c2;--s3:#5a7096;--s4:#33486b}
+.hero::before{content:"";position:absolute;width:900px;height:900px;right:-260px;top:-380px;background:radial-gradient(closest-side,rgba(197,61,39,.20),rgba(197,61,39,0));pointer-events:none}
+.hero::after{content:"";position:absolute;width:700px;height:700px;left:-260px;bottom:-420px;background:radial-gradient(closest-side,rgba(185,202,230,.10),rgba(185,202,230,0));pointer-events:none}
+.hero .grid{position:relative;z-index:1;padding-top:22px;padding-bottom:30px}
+.back{font-size:14px;color:var(--hero-muted);text-decoration:none}
+.back:hover{color:var(--hero-ink)}
+.marks{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.tagpill{font-family:var(--mono);font-size:12px;letter-spacing:.04em;border:1px solid var(--hero-line);border-radius:999px;padding:5px 11px;color:var(--hero-ink);white-space:nowrap}
+.tagpill.red{border-color:rgba(239,106,81,.5);color:#ffd5cc}
+.meta{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:22px;font-size:14px;color:var(--hero-muted)}
+.hero h1{font-size:clamp(2.2rem,4.5vw,4.1rem);font-weight:500;letter-spacing:-.035em;margin-top:16px;max-width:24ch}
+.hero h1 .r{color:var(--hero-red)}
+.dek{font-size:clamp(1.05rem,1.4vw,1.25rem);color:#d6deea;margin-top:18px;max-width:58ch;line-height:1.5}
+.disc-top{margin-top:22px;font-size:14px;line-height:1.5;color:var(--hero-muted);border-left:2px solid var(--hero-red);padding:2px 0 2px 12px;max-width:66ch}
+.disc-top b{color:var(--hero-ink)}
+.asof{margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--hero-muted)}
+.hero-chart{position:relative;margin-top:24px;background:rgba(255,255,255,.035);border:1px solid var(--hero-line);border-radius:26px;padding:22px 22px 16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+.hero-line{font-size:clamp(1.2rem,1.9vw,1.6rem);line-height:1.35;letter-spacing:-.015em;margin-top:18px;max-width:46ch;color:var(--hero-ink)}
+.hero-line em{font-style:normal;color:var(--hero-red)}
+.chart-note{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.45}
+
+/* ---------- story ---------- */
+.story-row{padding-top:36px}
+.story{grid-column:1/8;background:var(--story);border-radius:26px;padding:22px 24px;box-shadow:inset 0 1px 0 var(--edge)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--red-ink)}
+.story p{margin-top:10px;font-size:17.5px;line-height:1.65}
+.story .hint{font-size:14px;color:var(--muted)}
+.toc{grid-column:8/13;align-self:start;background:var(--tile);border-radius:26px;padding:22px 24px;box-shadow:inset 0 1px 0 var(--edge)}
+.toc ol{list-style:none;padding:0;margin-top:10px;display:grid;gap:2px}
+.toc a{display:flex;gap:12px;align-items:baseline;padding:8px 6px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:15.5px;min-height:40px}
+.toc a:hover{background:var(--raised)}
+.toc a span{font-family:var(--mono);font-size:12px;color:var(--red-ink);width:2ch;flex:none}
+
+/* ---------- chapters ---------- */
+main{padding-bottom:40px}
+.ch{padding-top:64px;scroll-margin-top:calc(var(--hdr) + 8px)}
+.ch-head{margin-bottom:8px}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--red-ink)}
+.ch h2{font-size:clamp(1.75rem,2.7vw,2.55rem);margin-top:8px;max-width:22ch}
+.why{margin-top:12px;font-size:19px;line-height:1.5;border-left:3px solid var(--red-fill);padding-left:14px;max-width:60ch}
+.prose{max-width:60ch}
+.prose p{margin-top:12px}
+.prose p.lead{margin-top:16px}
+.sub{font-size:15px;color:var(--muted)}
+.row2{margin-top:28px}
+.tile{background:var(--tile);border-radius:24px;padding:18px;box-shadow:inset 0 1px 0 var(--edge)}
+.tile + .tile{margin-top:12px}
+.tile-t{font-weight:500;font-size:16px;letter-spacing:-.01em}
+.tile-s{font-size:13.5px;color:var(--muted);margin-top:2px;margin-bottom:10px;line-height:1.45}
+.viz{width:100%;min-height:40px}
+.viz svg{display:block;width:100%;height:auto;overflow:visible}
+.cap{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.45}
+
+/* folds */
+details.fold{margin-top:16px;border:1px solid var(--line);border-radius:18px;max-width:60ch}
+details.fold summary{list-style:none;cursor:pointer;min-height:48px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:15px;font-weight:500}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold summary::after{content:"+";font-family:var(--mono);flex:none;width:28px;height:28px;border-radius:50%;background:var(--tile);display:grid;place-items:center;color:var(--red-ink)}
+details.fold[open] summary::after{content:"\2212"}
+.fold-body{padding:0 16px 16px;font-size:15.5px;color:var(--muted);line-height:1.6}
+.fold-body p+p,.fold-body ul+p,.fold-body p+ul{margin-top:10px}
+.fold-body ul{padding-left:18px;display:grid;gap:6px}
+.fold-body b{color:var(--ink)}
+
+/* SVG chart classes */
+.f-s1{fill:var(--s1)}.f-s2{fill:var(--s2)}.f-s3{fill:var(--s3)}.f-s4{fill:var(--s4)}
+.f-red{fill:var(--red-fill)}.f-red2{fill:var(--red-fill);opacity:.55}
+.f-est{fill:none;stroke:var(--s2);stroke-width:1.6;stroke-dasharray:5 4}
+.f-track{fill:var(--raised)}
+.hero .f-track{fill:rgba(255,255,255,.07)}
+.st-s1{stroke:var(--s1)}.st-red{stroke:var(--red-ink)}
+.axis{stroke:var(--line);stroke-width:1}
+.gridl{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+.tx{fill:var(--muted);font-family:var(--mono);font-size:11.5px}
+.tx-ink{fill:var(--ink)}
+.tx-red{fill:var(--red-ink)}
+.tx-b{font-family:var(--font);font-size:13px;font-weight:500}
+.tx-lg{font-family:var(--font);font-size:14px;font-weight:500}
+.ln{fill:none;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round}
+.dot-red{fill:var(--red-fill);stroke:var(--bg);stroke-width:2}
+.hero .dot-red{stroke:var(--hero-bg)}
+
+/* motion: only when allowed */
+.anim .viz .gy{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(0);transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.anim .viz .gyn{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0);transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.anim .viz .gx{transform-box:fill-box;transform-origin:0 50%;transform:scaleX(0);transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.anim .viz .gxr{transform-box:fill-box;transform-origin:100% 50%;transform:scaleX(0);transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+.anim .viz .draw{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.8s ease-out}
+.anim .viz .fade{opacity:0;transition:opacity .6s ease}
+.anim .viz .pop{opacity:0;transform:translateY(10px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.2,1)}
+.anim .viz.in .gy,.anim .viz.in .gyn,.anim .viz.in .gx,.anim .viz.in .gxr{transform:none}
+.anim .viz.in .draw{stroke-dashoffset:0}
+.anim .viz.in .fade{opacity:1}
+.anim .viz.in .pop{opacity:1;transform:none}
+
+/* hero motion */
+.halo{transform-box:fill-box;transform-origin:center;opacity:0}
+.anim .viz.in .halo{animation:halo 2.4s ease-out 3.2s infinite}
+@keyframes halo{0%{transform:scale(1);opacity:.55}100%{transform:scale(3.4);opacity:0}}
+.anim .hero::before{animation:drift 18s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(-120px,80px)}}
+.viz.reset *{transition:none!important;animation:none!important}
+.replay{position:absolute;top:14px;right:16px;z-index:2;display:none;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--hero-line);background:rgba(255,255,255,.06);color:var(--hero-ink);font-size:13px;cursor:pointer}
+.anim .replay{display:inline-flex}
+.replay:hover{background:rgba(255,255,255,.12)}
+/* platform scene */
+.flow{stroke-dasharray:3 7}
+.anim .viz.in .flow{animation:flow 1.1s linear infinite}
+@keyframes flow{from{stroke-dashoffset:20}to{stroke-dashoffset:0}}
+.tx-c{font-family:var(--font);font-size:13px;fill:var(--muted)}
+.tx-t{font-family:var(--font);font-size:15px;font-weight:500;fill:var(--ink)}
+.ico{fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.anim .viz .pop{transform-box:fill-box}
+/* ---------- platform map ---------- */
+.stack{display:grid;gap:10px}
+.layer{display:grid;grid-template-columns:200px 1fr;gap:16px;align-items:stretch}
+.alt{font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;flex-direction:column;justify-content:center;border-right:1px dashed var(--line);padding-right:12px;line-height:1.35}
+.alt b{display:block;color:var(--ink);font-weight:500;font-size:12px}
+.lbox{background:var(--tile);border-radius:18px;padding:14px 18px;display:grid;grid-template-columns:minmax(220px,1fr) 2fr;gap:6px 22px;align-items:center;box-shadow:inset 0 1px 0 var(--edge)}
+.lbox h3{font-size:16px;letter-spacing:-.01em}
+.lsub{font-size:13.5px;color:var(--muted);line-height:1.4;margin-top:3px}
+.lchips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;font-weight:500;background:var(--bg);border:1px solid var(--line);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.chip.s{border-color:var(--red-line);color:var(--red-ink);background:var(--red-soft)}
+.brain .lbox{background:var(--red-soft);box-shadow:inset 0 0 0 1px var(--red-line)}
+.route{margin-top:12px;background:var(--tile);border-radius:14px;padding:12px 16px;font-size:14.5px;color:var(--muted)}
+.route b{color:var(--ink)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.step{background:var(--bg);border-radius:14px;padding:12px;font-size:14px;line-height:1.4}
+.step .n{font-family:var(--mono);color:var(--red-ink);font-size:12px}
+.step b{display:block;margin:4px 0 2px;font-size:14.5px}
+.step span{color:var(--muted)}
+
+/* assembly strip */
+.bins{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.bin{background:var(--bg);border-radius:14px;padding:12px}
+.bin h4{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:400}
+.bin ul{list-style:none;padding:0;margin-top:10px;display:grid;gap:7px}
+.bin li{display:flex;align-items:center;gap:8px;font-size:14px;line-height:1.3}
+.bin li i{width:11px;height:11px;border-radius:50%;background:var(--s2);flex:none}
+.bin li.big i{background:var(--red-fill);box-shadow:0 0 0 4px var(--red-soft)}
+.bin li.big{font-weight:500}
+.bin .more{font-size:12.5px;color:var(--muted)}
+.anim .viz .bin li{opacity:0;transform:translateX(-6px);transition:opacity .45s ease,transform .45s ease}
+.anim .viz.in .bin li{opacity:1;transform:none}
+
+/* stat trio */
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.trio > div{background:var(--bg);border-radius:14px;padding:10px 14px}
+.block .trio > div{background:var(--tile)}
+.block .tile-s{margin-bottom:8px}
+.trio .k{font-size:12.5px;color:var(--muted)}
+.trio .n{font-size:26px;font-weight:300;letter-spacing:-.04em;line-height:1.1;margin-top:4px}
+.trio .n.r{color:var(--red-ink)}
+.trio .f{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.35}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px 16px;margin-top:12px;font-size:13.5px}
+.legend span{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.legend i{width:11px;height:11px;border-radius:3px;flex:none}
+.legend b{margin-left:auto;font-family:var(--mono);font-weight:400;color:var(--ink);font-size:12.5px}
+
+/* road */
+.road{display:grid;gap:12px}
+.stop{display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start}
+.badge{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:12px}
+.badge.done{background:var(--pos-soft);color:var(--pos);border:1.5px solid var(--pos)}
+.badge.next{background:var(--red-soft);color:var(--red-ink);border:1.5px solid var(--red-fill)}
+.badge.later{background:var(--bg);color:var(--muted);border:1.5px dashed var(--s3)}
+.stop .sw{font-family:var(--mono);font-size:12px;color:var(--red-ink)}
+.stop .st{font-weight:500;font-size:15px}
+.stop .sd{font-size:13.5px;color:var(--muted)}
+
+/* ---------- cards (problems / opportunity) ---------- */
+.cardlist{display:grid;gap:8px;margin-top:16px}
+.pcard{display:grid;grid-template-columns:36px 1fr;gap:2px 12px;text-align:left;width:100%;background:var(--tile);border:1px solid transparent;border-radius:18px;padding:12px 14px;cursor:pointer;box-shadow:inset 0 1px 0 var(--edge);transition:background .2s,border-color .2s,transform .15s}
+.pcard:hover{border-color:var(--line)}
+.pcard:active{transform:scale(.985)}
+.pcard .num{grid-row:1/4;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-family:var(--mono);font-size:13px;background:var(--bg);color:var(--red-ink)}
+.pcard .pt{font-weight:500;font-size:16.5px;letter-spacing:-.01em}
+.pcard .pw{font-size:14px;color:var(--muted);line-height:1.4}
+.pcard .pk{font-family:var(--mono);font-size:12.5px;color:var(--red-ink);margin-top:4px}
+.pcard[aria-expanded="true"]{background:var(--ink);color:var(--bg)}
+.pcard[aria-expanded="true"] .pw{color:color-mix(in srgb,var(--bg) 78%,transparent)}
+.pcard[aria-expanded="true"] .num{background:var(--red-fill);color:#fff}
+.pcard[aria-expanded="true"] .pk{color:var(--bg)}
+.opp .pcard .num{color:var(--pos)}
+.opp .pcard .pk{color:var(--pos)}
+.opp .pcard[aria-expanded="true"] .num{background:var(--pos-soft);color:var(--pos)}
+.panel{background:var(--tile);border-radius:24px;padding:20px;box-shadow:inset 0 1px 0 var(--edge)}
+.panel[hidden]{display:none}
+.panel .ph{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.panel .ph .pn{font-family:var(--mono);font-size:12px;color:var(--red-ink)}
+.panel h3{font-size:22px;letter-spacing:-.02em}
+.panel .worry{margin-top:8px;font-size:16px;line-height:1.55}
+.panel .worry b{color:var(--red-ink)}
+.opp .panel .worry b{color:var(--pos)}
+.panel .block{margin-top:12px;background:var(--bg);border-radius:16px;padding:14px 16px}
+.panel .block + .block{margin-top:10px}
+.pair2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.pair2 > div{border-radius:14px;padding:12px 14px;font-size:14.5px;line-height:1.5}
+.pair2 h4{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:400;margin-bottom:6px}
+.ev-a{background:var(--pos-soft)}
+.ev-a h4{color:var(--pos)}
+.ev-s{background:var(--bg);border:1px solid var(--line)}
+.ev-s h4{color:var(--muted)}
+.ev-r{background:var(--red-soft)}
+.ev-r h4{color:var(--red-ink)}
+.unlock{display:flex;gap:14px;align-items:center;margin-top:14px;background:var(--red-soft);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.45}
+.cal{flex:none;width:52px;border-radius:10px;overflow:hidden;text-align:center;background:var(--bg);box-shadow:var(--shadow)}
+.cal b{display:block;background:var(--red-fill);color:#fff;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;padding:2px 0;font-weight:500}
+.cal span{display:block;font-size:20px;font-weight:500;padding:3px 0}
+
+/* coin */
+.coinwrap{perspective:1200px}
+.coin{display:grid;transition:transform .7s cubic-bezier(.4,.2,.2,1);transform-style:preserve-3d}
+.coin.flip{transform:rotateY(180deg)}
+.face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.face.front{background:var(--bg);border:1px solid var(--line)}
+.face.back{background:var(--pos-soft);transform:rotateY(180deg)}
+.face .side{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.face .big{font-size:40px;font-weight:300;letter-spacing:-.04em;line-height:1}
+.face.front .big{color:var(--red-ink)}
+.face.back .big{color:var(--pos)}
+.face p{font-size:14.5px;line-height:1.5}
+.flipbtn{align-self:flex-start;margin-top:4px;border:0;border-radius:999px;background:var(--ink);color:var(--bg);padding:0 16px;min-height:44px;font-size:14px;font-weight:500;cursor:pointer}
+
+/* switcher */
+.switch{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.switch button{border:1px solid var(--line);background:var(--bg);min-height:44px;padding:0 14px;border-radius:999px;cursor:pointer;font-size:14px;font-weight:500}
+.switch button[aria-pressed="true"]{background:var(--red-fill);border-color:var(--red-fill);color:#fff}
+.mult{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.mult .n{font-size:clamp(3rem,7vw,4.6rem);font-weight:300;letter-spacing:-.05em;line-height:1}
+.mult .u{color:var(--muted);font-size:15px}
+.mtrack{height:12px;background:var(--bg);border-radius:6px;margin-top:14px;position:relative;overflow:hidden}
+.mfill{position:absolute;left:0;top:0;bottom:0;background:var(--red-fill);border-radius:6px;transition:width .6s cubic-bezier(.3,.7,.2,1)}
+.msum{margin-top:12px;font-size:15px;color:var(--muted);line-height:1.55}
+.msum b{color:var(--ink)}
+.analyst{margin-top:18px;font-size:14.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;line-height:1.5;max-width:60ch}
+
+/* watch list */
+.target{background:var(--hero-bg);color:var(--hero-ink);border-radius:26px;padding:24px;position:relative;overflow:hidden}
+.target::after{content:"";position:absolute;width:500px;height:500px;right:-200px;top:-260px;background:radial-gradient(closest-side,rgba(197,61,39,.25),rgba(197,61,39,0))}
+.target .e{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--hero-red)}
+.target .big{font-size:clamp(2.6rem,5vw,3.8rem);font-weight:300;letter-spacing:-.05em;line-height:1.05;margin-top:6px}
+.target p{color:#d6deea;font-size:15px;margin-top:6px;max-width:44ch;position:relative;z-index:1}
+.watch{display:grid;gap:8px;margin-top:0}
+.w{background:var(--tile);border-radius:16px;padding:12px 14px;display:grid;grid-template-columns:30px 1fr;gap:10px;box-shadow:inset 0 1px 0 var(--edge)}
+.w .wn{font-family:var(--mono);color:var(--red-ink);font-size:13px;padding-top:2px}
+.w .wt{font-weight:500;font-size:15.5px}
+.w .ok{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;font-size:13.5px;line-height:1.4}
+.w .ok span{padding:7px 10px;border-radius:10px}
+.w .ok .g{background:var(--pos-soft)}
+.w .ok .g b{color:var(--pos)}
+.w .ok .b{background:var(--red-soft)}
+.w .ok .b b{color:var(--red-ink)}
+.anim .viz .w{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.anim .viz.in .w{opacity:1;transform:none}
+
+/* close */
+.takeaways{list-style:none;padding:0;display:grid;gap:12px;counter-reset:k;margin-top:20px}
+.takeaways li{display:grid;grid-template-columns:36px 1fr;gap:12px;font-size:16.5px;line-height:1.5;counter-increment:k}
+.takeaways li::before{content:counter(k);width:32px;height:32px;border-radius:50%;background:var(--tile);display:grid;place-items:center;font-family:var(--mono);font-size:13px;color:var(--red-ink)}
+.takeaways b{display:block}
+.notsay{background:var(--tile);border-radius:22px;padding:22px;border-left:4px solid var(--hero-bg);box-shadow:inset 0 1px 0 var(--edge)}
+[data-theme="dark"] .notsay{border-left-color:var(--s2)}
+.notsay h3{font-size:18px}
+.notsay p{margin-top:10px;font-size:15.5px;line-height:1.6;color:var(--muted)}
+.bottom{background:var(--red-fill);color:#fff;border-radius:26px;padding:26px;margin-top:28px}
+.bottom .kicker{color:#ffe0d9}
+.bottom h2{color:#fff;font-size:clamp(1.7rem,2.6vw,2.4rem);margin-top:10px;max-width:24ch}
+.bottom p{margin-top:14px;color:#fff3f0;max-width:64ch;font-size:17px;line-height:1.6}
+.bottom p b{color:#fff}
+.bottom .cod{font-size:clamp(1.25rem,1.9vw,1.6rem);line-height:1.35;letter-spacing:-.015em;color:#fff;margin-top:20px}
+
+footer{padding:32px var(--pad) 32px;display:grid;gap:14px;font-size:13.5px;color:var(--muted);line-height:1.55}
+footer .disc{background:var(--tile);border-radius:18px;padding:18px 20px;max-width:90ch}
+footer .disc b{color:var(--ink)}
+footer .na{font-weight:500;color:var(--ink)}
+footer .so{align-self:start;border:0;background:none;padding:0;min-height:44px;font:inherit;color:var(--muted);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+/* bottom bar (mobile) */
+.tabbar{display:none}
+
+/* ---------- tablet ---------- */
+@media (max-width:1099px){
+  .t,.v{grid-column:1/-1}
+  .sticky{position:static}
+  .v{margin-top:26px}
+  .layer{grid-template-columns:150px 1fr}
+  .lbox{grid-template-columns:1fr}
+  .pills{display:none}
+  .story,.toc{grid-column:1/-1}
+  .toc{margin-top:16px}
+}
+@media (max-width:900px){.btn-wos{display:none}}
+/* ---------- mobile ---------- */
+@media (max-width:760px){
+  :root{--pad:16px;--gap:12px;--hdr:108px}
+  body{font-size:17px;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .hub-row{height:58px;gap:10px}
+  .seg{display:none}
+  .icon-btn{display:inline-flex}
+  .hero .grid{padding-top:20px;padding-bottom:28px}
+  .meta{margin-top:20px}
+  .hero-chart{padding:14px 12px 12px;border-radius:22px}
+  .ch{padding-top:48px}
+  .why{font-size:17.5px}
+  .story{padding:20px}
+  .toc{display:none}
+  .layer{grid-template-columns:1fr;gap:4px}
+  .alt{border-right:0;padding-right:0;flex-direction:row;gap:8px;align-items:baseline}
+  .alt b{display:inline}
+  .steps,.trio{grid-template-columns:1fr}
+  .trio{gap:6px}
+  .trio > div{display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:center;padding:10px 12px}
+  .trio .k{grid-column:1}
+  .trio .f{grid-column:1;margin-top:0}
+  .trio .n{grid-column:2;grid-row:1/3;margin-top:0;font-size:24px}
+  .bins{grid-template-columns:1fr 1fr}
+  .tile,.panel{padding:14px;border-radius:20px}
+  .panel .block{padding:12px}
+  .pair2,.w .ok{grid-template-columns:1fr}
+  .cardlist .panel{margin-top:-2px}
+  .bottom{padding:22px}
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(84px + env(safe-area-inset-bottom,0px));padding:8px 6px calc(18px + env(safe-area-inset-bottom,0px));background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(140%);backdrop-filter:blur(20px) saturate(140%);border-top:1px solid var(--glass-line)}
+  .tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);text-decoration:none;min-height:44px}
+  .tabbar a svg{width:22px;height:22px}
+  .tabbar a[aria-current="page"]{color:var(--ink);font-weight:500}
+  .tabbar a[aria-current="page"] .ring{stroke:var(--red-ink)}
+  .tabbar a[aria-current="page"] .dot{fill:var(--red-ink)}
+}
+@media (max-width:420px){.bins{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.coin{transition:none}.mfill{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/hub/js/hub-gate.js"></script>
+
+<!-- ======================= Hub header ======================= -->
+<header class="hub">
+  <div class="hub-row">
+    <a class="brand" href="/hub/index.html" aria-label="Client Hub home">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="1.5"/><circle cx="13" cy="13" r="6.5" fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="1.5"/><circle cx="13" cy="13" r="2.2" fill="#c53d27"/></svg>
+      Client Hub
+    </a>
+    <nav class="pills" aria-label="Client Hub">
+      <a href="/hub/index.html">Home</a>
+      <a href="/hub/education/index.html">Learn</a>
+      <a href="/hub/guides.html">Guides</a>
+      <a href="/hub/guides.html?show=Tools">Tools</a>
+      <a href="/hub/articles.html" aria-current="page">Articles</a>
+      <a href="/hub/suite/index.html">Investment suite</a>
+    </nav>
+    <div class="hub-right">
+      <div class="seg" role="group" aria-label="Theme">
+        <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
+        <button type="button" data-theme-set="light" aria-pressed="true">Light</button>
+      </div>
+      <button type="button" class="icon-btn" id="themeIcon" aria-label="Switch theme">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+      </button>
+      <a class="btn-wos" href="/hub/wealth-os.html">Open Wealth OS</a>
+    </div>
+  </div>
+  <nav class="chips" id="chips" aria-label="Chapters">
+    <a href="#ch1"><span>01</span>The paradox</a>
+    <a href="#ch2"><span>02</span>Defence prime</a>
+    <a href="#ch3"><span>03</span>The software</a>
+    <a href="#ch4"><span>04</span>The growth</a>
+    <a href="#ch5"><span>05</span>Five problems</a>
+    <a href="#ch6"><span>06</span>The opportunity</a>
+    <a href="#ch7"><span>07</span>Multiple reset</a>
+    <a href="#ch8"><span>08</span>The Q3 test</a>
+  </nav>
+</header>
+
+<!-- ======================= Hero ======================= -->
+<section class="hero" aria-labelledby="title">
+  <div class="grid">
+    <div class="f" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <a class="back" href="/hub/articles.html">&lsaquo; Members' articles</a>
+      <div class="marks">
+        <span class="tagpill">TEI Members</span>
+        <span class="tagpill red">ONDS &middot; Ondas Inc.</span>
+      </div>
+    </div>
+    <div class="f">
+      <div class="meta"><span class="tagpill">Companies</span><span>21 October 2026</span><span>&middot;</span><span>14 min read</span></div>
+      <h1 id="title">The ONDS Disconnect: <span class="r">a defence prime in the making, priced like a problem</span></h1>
+      <p class="dek">Ondas has never had more good news, yet the shares trade at well under half their January high. What Ondas has become, what shareholders paid for it, and what would make the price follow the business.</p>
+      <p class="disc-top"><b>Disclosure:</b> Ondas shares are held in the TEI Growth Portfolio and by the founder of TEI. This article explains the company. It is not a recommendation to buy, sell or hold.</p>
+      <p class="asof">Market figures as of the close on 20 October 2026</p>
+    </div>
+    <div class="f hero-chart">
+      <button type="button" class="replay" data-replay="heroViz" aria-label="Replay the chart animation"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg>Replay</button>
+      <div class="viz" id="heroViz" data-chart="hero" data-late></div>
+      <p class="chart-note"><b style="color:var(--hero-ink);font-weight:500">How to read the bottom panel.</b> Both lines start at 100 on 12 January. The white line is the whole company: the price of every Ondas share added together. The red line is one share. The company fell about 47%; each share fell about 60%. The difference is the new shares Ondas issued, which split the company into more pieces.</p>
+      <p class="chart-note">Q3 is the guided range. Q4 is implied by the full-year target. Lines join selected closes, and share counts between filings are approximate.</p>
+    </div>
+    <p class="f hero-line">The business has kept growing and delivering. The share price has not followed. <em>So far, this looks like a broken chart, not a broken company.</em> This article explains the disconnect.</p>
+  </div>
+</section>
+
+<main>
+<!-- ======================= 30 seconds ======================= -->
+<div class="grid story-row">
+  <div class="story">
+    <span class="eyebrow">The story in 30 seconds</span>
+    <p>Ondas has bought its way from a small drone company to something close to a defence prime: one supplier covering every layer of drone warfare, from ground robots to balloons in the stratosphere, joined up by AI software built with Palantir. <b>The business is real and growing fast.</b> Revenue is guided to rise about tenfold this year, and management expects to leave 2026 at a $1bn annual run rate.</p>
+    <p><b>The share price has not followed,</b> because shareholders paid for that growth with new shares, about six times as many as at the end of 2024. Heavy short selling, a wall of warrants and shares about to become sellable mean rallies get sold into. New orders no longer move the price. Proof would: revenue landing as guided, losses shrinking on schedule and a share count that stops climbing. If that proof arrives, the same forces could work the other way. The next test is the Q3 results on 12 November.</p>
+    <p class="hint">Read just this and you have the story. Each chapter below explains one part, with the fine detail folded away.</p>
+  </div>
+  <nav class="toc" aria-label="In this article">
+    <span class="eyebrow">In this article</span>
+    <ol>
+      <li><a href="#ch1"><span>01</span>The paradox</a></li>
+      <li><a href="#ch2"><span>02</span>From drone maker to defence prime</a></li>
+      <li><a href="#ch3"><span>03</span>The software</a></li>
+      <li><a href="#ch4"><span>04</span>The growth</a></li>
+      <li><a href="#ch5"><span>05</span>The five problems</a></li>
+      <li><a href="#ch6"><span>06</span>The opportunity</a></li>
+      <li><a href="#ch7"><span>07</span>The multiple reset</a></li>
+      <li><a href="#ch8"><span>08</span>What makes or breaks it at Q3</a></li>
+    </ol>
+  </nav>
+</div>
+
+<!-- ======================= 01 ======================= -->
+<section class="ch grid" id="ch1" aria-labelledby="h1x">
+  <div class="t">
+    <span class="kicker">01 &middot; The paradox</span>
+    <h2 id="h1x">The news kept getting better. The price did not.</h2>
+    <p class="why">Most of 2026 has been one positive headline after another, while the shares drifted lower. Understanding why is the key to this whole article.</p>
+  </div>
+  <div class="v prose" style="align-self:end">
+    <p class="lead">The shares closed at a record <b>$15.28 on 12 January</b>. On 20 October they closed at <b>$6.10</b>: about 60% below the high and down 37.5% this year. Over the same months Ondas announced a Palantir partnership, beat its own forecasts, closed its largest acquisition, reported a record quarter and won more than $270M of new orders.</p>
+  </div>
+  <div class="f tile row2" style="margin-top:32px">
+    <div class="tile-t">ONDS share price in 2026, with the good news placed on the line</div>
+    <div class="tile-s">US dollars. The line joins selected closes; events are placed by date.</div>
+    <div class="viz" data-chart="paradox"></div>
+    <ol class="cap evlist" id="evlist" hidden></ol>
+  </div>
+  <div class="t">
+    <details class="fold">
+      <summary>The detail: what the price is telling us</summary>
+      <div class="fold-body">
+        <p>The record high came in the same week Ondas announced a <b>$1bn share and warrant raise</b>. Since then the pattern has repeated: good news lifts the price for a day or two, then it drifts back.</p>
+        <p>That is unusual. A company raising its revenue target this sharply would normally be rewarded. Three forces explain most of it: <b>dilution</b>, <b>doubt</b> about whether more than 20 acquired companies can work as one and make money, and <b>selling pressure</b> from short sellers and warrant holders. Chapter 05 takes the problems in turn; chapter 06 sets out the other side.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ======================= 02 ======================= -->
+<section class="ch grid" id="ch2" aria-labelledby="h2x">
+  <div class="t">
+    <span class="kicker">02 &middot; What Ondas is now</span>
+    <h2 id="h2x">From drone maker to defence prime</h2>
+    <p class="why">We call it Call of Duty in a can: everything a modern military needs for drone warfare, spotting, watching, stopping and striking, from one supplier and joined up by one piece of software.</p>
+  </div>
+  <div class="v prose" style="align-self:end">
+    <p class="lead">A defence prime is a company that signs contracts directly with governments and runs whole programmes, rather than selling parts to someone who does. Two years ago Ondas sold automated drones to industrial customers. Today it covers every layer of drone warfare and, through Mistral, holds a prime contractor position with the US Army.</p>
+    <p>A military customer can buy the whole kit from one supplier instead of a dozen products from a dozen companies. That is the bet. It has not yet been proven at scale.</p>
+  </div>
+
+  <div class="f tile" style="margin-top:32px">
+    <div class="tile-t">The Ondas platform, layer by layer</div>
+    <div class="tile-s">Every layer of drone warfare, from the ground to the edge of space, and every piece reporting to the same software brain.</div>
+    <div class="viz" data-chart="platform"></div>
+    <div class="route"><b>Route to customers:</b> Mistral makes Ondas a prime contractor to the US Army.</div>
+  </div>
+
+  <div class="t row2 sticky">
+    <h3 style="font-size:21px">Why being a prime matters</h3>
+    <div class="prose">
+      <p>Most small defence companies sell to the primes. Mistral changed that for Ondas. It is a prime contractor on a <b>$982M US Army programme</b>. More than $240M has been awarded so far, which leaves about <b>$740M still to be ordered</b> over the life of the programme. Those future orders depend on Army decisions and budgets, and are not guaranteed.</p>
+      <p>The rest of the platform was bought, fast. Ondas has acquired <b>more than 20 companies since late 2025</b>, many of them paid for partly in new shares. Management says the pace of deals will now slow.</p>
+    </div>
+    <details class="fold">
+      <summary>The detail: every company and where it sits</summary>
+      <div class="fold-body">
+        <ul>
+          <li><b>Ondas Sentinel:</b> DZYNE and World View. Long-endurance aircraft, stratospheric balloons, the Dronebuster counter-drone tool and strike systems. DZYNE alone is expected to bring about $191M of revenue in 2026.</li>
+          <li><b>Ondas Autonomous Systems:</b> American Robotics and Airobotics (Optimus), Iron Drone, Sentrycs, Apeiro Motion and Roboteam.</li>
+          <li><b>Other group companies:</b> Mistral, Omnisys (battlefield orchestration software), BIRD Aerosystems, Rotron, SPO (majority stake), Insight and Indo. Since July: Cyberhawk, High Point, GATE and Bron, plus three smaller deals in September.</li>
+        </ul>
+        <p><b>Potential programmes:</b> Ondas cites a NATO programme worth up to $300M and a border programme worth up to $100M. These are company-stated potential values, not orders.</p>
+        <p>In its accounts, Ondas valued Mistral's programme relationships at <b>$86.3M</b>.</p>
+      </div>
+    </details>
+  </div>
+  <div class="v row2">
+    <div class="tile">
+      <div class="tile-t">From supplier to prime contractor</div>
+      <div class="tile-s">What changes when a company signs with the government directly.</div>
+      <div class="viz" data-chart="prime">
+        <div class="steps">
+          <div class="step pop"><span class="n">1</span><b>Signs directly</b><span>Contracts with the government, not through another company</span></div>
+          <div class="step pop" style="transition-delay:.12s"><span class="n">2</span><b>Keeps the margin</b><span>Keeps the full programme margin instead of a supplier's share</span></div>
+          <div class="step pop" style="transition-delay:.24s"><span class="n">3</span><b>Builds a record</b><span>Builds the track record that wins the next contract</span></div>
+        </div>
+        <div data-sub="armybar"></div>
+      </div>
+    </div>
+    <div class="tile">
+      <div class="tile-t">How it was assembled</div>
+      <div class="tile-s">Named deals by when they closed. Red marks the biggest steps. More than 20 in total, including smaller ones.</div>
+      <div class="viz" data-chart="assembly">
+        <div class="bins">
+          <div class="bin"><h4>2025, second half</h4><ul><li><i></i>Apeiro Motion</li><li><i></i>SPO</li><li><i></i>Insight</li></ul></div>
+          <div class="bin"><h4>Jan to Mar 2026</h4><ul><li><i></i>Rotron</li><li><i></i>BIRD Aerosystems</li><li><i></i>Indo</li></ul></div>
+          <div class="bin"><h4>Apr to Jun 2026</h4><ul><li class="big"><i></i>World View</li><li class="big"><i></i>Mistral</li><li class="big"><i></i>Omnisys</li></ul></div>
+          <div class="bin"><h4>Since July</h4><ul><li class="big"><i></i>DZYNE ($876M)</li><li><i></i>Cyberhawk</li><li><i></i>High Point</li><li><i></i>GATE</li><li><i></i>Bron</li><li><i></i>Three in September</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 03 ======================= -->
+<section class="ch grid" id="ch3" aria-labelledby="h3x">
+  <div class="t sticky">
+    <span class="kicker">03 &middot; The software</span>
+    <h2 id="h3x">What takes Ondas to the next level</h2>
+    <p class="why">Hardware is paid for once. Software is paid for again and again, as threats change and as customers add drones and missions.</p>
+    <div class="prose">
+      <p class="lead">Building the kit is only half the job. Back to Call of Duty: the hardware is the loadout; the software is what lets every piece of kit play as one team. Without it, Ondas is a box of parts.</p>
+      <p>That is why the Palantir partnership matters. Palantir's software is built to pull data from many different systems into one picture and act on it, which is exactly the job of joining up more than 20 acquired companies.</p>
+      <p>There is early proof. <b>SkyWeaver</b>, the command system Ondas is building with Palantir, flew AI aboard a World View balloon on 5 August, so it is past the drawing board. <b>Cyberhawk</b>, which sells drone inspection on subscription, shows the model working: existing customers spent 112% of what they spent the year before.</p>
+    </div>
+    <details class="fold">
+      <summary>The detail: the programmes, and what is still missing</summary>
+      <div class="fold-body">
+        <p>The Palantir partnership has three programmes: <b>Warp Speed</b> (manufacturing and readiness), <b>AI Flight Director</b> (mission planning) and <b>SkyWeaver</b> (intelligence processed on the vehicle itself, so it works when the connection is poor).</p>
+        <p><b>Regna AI</b>, launched on 12 October and wholly owned by Ondas for now, builds specialist AI models for military missions that governments can train and run on infrastructure they control. It has <b>no outside customer or contract value yet</b>, so the market has nothing to price.</p>
+        <p>Omnisys, bought in May, adds battlefield orchestration software. Cyberhawk's figures are management estimates.</p>
+      </div>
+    </details>
+  </div>
+  <div class="v">
+    <div class="tile">
+      <div class="tile-t">One-off versus recurring</div>
+      <div class="tile-s">Illustrative. Revenue from the same customer over five years, starting at 100. The software line assumes Cyberhawk's 112% retention holds, which is not guaranteed.</div>
+      <div class="viz" data-chart="software"></div>
+    </div>
+    <div class="tile">
+      <div class="tile-t">Proof points so far</div>
+      <div class="viz" data-chart="proof">
+        <div class="trio">
+          <div class="pop"><div class="k">SkyWeaver</div><div class="n">5 Aug</div><div class="f">AI flown aboard a World View balloon</div></div>
+          <div class="pop" style="transition-delay:.12s"><div class="k">Cyberhawk retention</div><div class="n r">112%</div><div class="f">Net revenue retention (management estimate)</div></div>
+          <div class="pop" style="transition-delay:.24s"><div class="k">Cyberhawk software</div><div class="n">$7.6M</div><div class="f">Annual recurring revenue (management estimate)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 04 ======================= -->
+<section class="ch grid" id="ch4" aria-labelledby="h4x">
+  <div class="t sticky">
+    <span class="kicker">04 &middot; The growth</span>
+    <h2 id="h4x">Revenue guided to rise about tenfold in a year</h2>
+    <p class="why">This is the part the bulls are right about. The business is growing far faster than almost any listed defence company.</p>
+    <div class="prose">
+      <p class="lead">Revenue was <b>$50.7M in 2025</b>. The target for 2026 is <b>$525M to $550M</b>. Q1 and Q2 are done. Q3 is guided at $140M to $155M, and the full-year target implies about <b>$256M in Q4</b>, close to the analyst average of about $255M. Leave 2026 at that pace and Ondas is running at about $1bn a year, which is management's stated aim.</p>
+      <p>Much of the jump comes from acquisitions. Counting acquired businesses in both years, Q2 revenue grew about <b>85%</b>. That is the figure that shows whether the businesses are growing on their own, and it is still strong.</p>
+      <p>Beyond signed orders, Ondas reports a two-year pipeline of opportunities that grew from <b>$4bn in May to more than $11bn in August</b>. Outside forecasts point the same way, and the US budget request for next year puts about $74bn towards drones and counter-drone systems.</p>
+    </div>
+    <details class="fold">
+      <summary>The detail: organic growth and what a pipeline is</summary>
+      <div class="fold-body">
+        <ul>
+          <li><b>Backlog</b>, orders signed but not yet delivered, was $757M on a pro forma basis at the end of June, up 33% from Q1. Ondas has announced more than $270M of new orders since.</li>
+          <li>A <b>pipeline</b> is opportunities, not orders. Only some of it will turn into revenue.</li>
+          <li>Ondas puts its own addressable market at about <b>$130bn</b>. That figure is the company's.</li>
+          <li>The <b>FY27 US defence budget request</b> is $1.5tn. It is a request, not yet approved.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+  <div class="v">
+    <div class="tile">
+      <div class="tile-t">Revenue by quarter, $M</div>
+      <div class="tile-s">Striped is the Q3 guided range. Dashed is the Q4 figure implied by the full-year target. Both are estimates.</div>
+      <div class="viz" data-chart="quarters"></div>
+    </div>
+    <div class="tile">
+      <div class="tile-t">Pipeline and backlog, $M</div>
+      <div class="tile-s">Pipeline is opportunities; backlog is signed orders not yet delivered.</div>
+      <div class="viz" data-chart="pipeline"></div>
+    </div>
+    <div class="tile">
+      <div class="tile-t">The markets Ondas sells into, $bn</div>
+      <div class="tile-s">2025 to 2030 forecasts from one research firm. Forecasts are not guaranteed.</div>
+      <div class="viz" data-chart="markets"></div>
+      <p class="cap">US FY27 defence budget request: $1.5tn, with about $74bn for drones and counter-drone. A request, not yet approved.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 05 ======================= -->
+<section class="ch grid cards" id="ch5" data-group="prob" aria-labelledby="h5x">
+  <div class="t sticky">
+    <span class="kicker">05 &middot; The five problems</span>
+    <h2 id="h5x">Five problems the market is pricing in</h2>
+    <p class="why">The price is not ignoring the growth. It is discounting it, for five reasons. Each is real, and each has evidence on the other side.</p>
+    <p class="sub" style="margin-top:14px">Choose a card to see the worry, the key figure, the evidence against, and what would settle it.</p>
+    <div class="cardlist" role="list">
+      <button type="button" class="pcard" aria-expanded="true" aria-controls="p1" role="listitem"><span class="num">1</span><span class="pt">Dilution</span><span class="pw">Growth paid for with new shares</span><span class="pk">93M to about 580M shares</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="p2" role="listitem"><span class="num">2</span><span class="pt">Execution</span><span class="pw">More than 20 companies to make work as one</span><span class="pk">Gross margin 53% to 43%</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="p3" role="listitem"><span class="num">3</span><span class="pt">Profitability</span><span class="pw">Still losing money</span><span class="pk">$50.6M adjusted EBITDA loss in Q2</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="p4" role="listitem"><span class="num">4</span><span class="pt">Concentration</span><span class="pw">Too much revenue from too few places</span><span class="pk">One customer: 40% of Q2 revenue</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="p5" role="listitem"><span class="num">5</span><span class="pt">Short sellers and warrants</span><span class="pw">A lid on every rally</span><span class="pk">About 40% of the float sold short</span></button>
+    </div>
+  </div>
+  <div class="v panelhost">
+    <!-- 1 Dilution -->
+    <div class="panel" id="p1">
+      <div class="ph"><span class="pn">Problem 1</span><h3>Dilution</h3></div>
+      <p class="worry"><b>The worry.</b> Every acquisition and funding round created new shares. Your slice of the company shrinks unless the business grows faster than the share count.</p>
+      <div class="block"><div class="tile-t">Shares in issue, millions</div><div class="viz" data-chart="dilShares"></div><p class="cap">The latest figure is approximate, derived from market value and price.</p></div>
+      <div class="block"><div class="tile-t">The race that matters</div><div class="tile-s">Growth in each measure since the end of 2024, unless stated.</div>
+        <div class="viz" data-chart="race"><div class="trio">
+          <div class="pop"><div class="k">Shares in issue</div><div class="n r">~6x</div><div class="f">End 2024 to now</div></div>
+          <div class="pop" style="transition-delay:.12s"><div class="k">Revenue per share</div><div class="n">~12x</div><div class="f">7.7 cents (2024) to about 93 cents on 2026 guidance</div></div>
+          <div class="pop" style="transition-delay:.24s"><div class="k">Backlog per share</div><div class="n">~7.4x</div><div class="f">Dec 2025 to Jun 2026</div></div>
+        </div></div><p class="cap">Per-share figures are our own calculation from reported figures and today's shares.</p></div>
+      <div class="block"><div class="tile-t">The overhang: shares that could still be created, millions</div><div class="viz" data-chart="overhang"></div><p class="cap">Earn-outs of at least $217M are payable in shares. At today's price that is about 36M shares; at a higher price it would be fewer.</p></div>
+      <div class="pair2"><div class="ev-a"><h4>Evidence against</h4>So far the business has grown faster than the share count. Revenue per share is up about 12x while shares are up about 6x, and backlog per share rose about 7.4x in six months.</div><div class="ev-s"><h4>What would settle it</h4>A flat share count at Q3 and no new raise. In the end, profit per share is the real test.</div></div>
+    </div>
+    <!-- 2 Execution -->
+    <div class="panel" id="p2" hidden>
+      <div class="ph"><span class="pn">Problem 2</span><h3>Execution</h3></div>
+      <p class="worry"><b>The worry.</b> Buying companies is the easy part. Joining them up, keeping their people and selling them as one platform is hard, and it is unproven here. The strategy is also closely tied to one person, the chief executive, Eric Brock.</p>
+      <div class="block"><div class="tile-t">Gross margin, Q2</div><div class="tile-s">Lower-margin businesses joined during the year.</div><div class="viz" data-chart="margin"></div></div>
+      <div class="block"><div class="tile-t">What the balance sheet holds, $M at 30 June</div><div class="tile-s">Goodwill is the premium paid over the value of what was bought. If a deal disappoints, it can be written down.</div><div class="viz" data-chart="assets"></div><p class="cap">Goodwill and intangibles of $1.24bn were about 42% of total assets of $2.99bn, before DZYNE closed in July. Source: Q2 2026 10-Q.</p></div>
+      <div class="pair2"><div class="ev-a"><h4>Evidence against</h4>The product companies turned profitable on an operating basis in Q1, six months early. Growth of about 85% like for like says the businesses are growing, not just being added. Management says deals will now slow.</div><div class="ev-s"><h4>What would settle it</h4>Gross margin holding or recovering, and DZYNE on track for about $191M of revenue this year.</div></div>
+    </div>
+    <!-- 3 Profitability -->
+    <div class="panel" id="p3" hidden>
+      <div class="ph"><span class="pn">Problem 3</span><h3>Profitability</h3></div>
+      <p class="worry"><b>The worry.</b> Ondas is still loss-making. Operating costs were more than double revenue in Q2, partly because of deal and integration costs and share awards. Reported profit also swings with the value of the warrants, which makes headline results hard to read.</p>
+      <div class="block"><div class="tile-t">The Q2 loss, $M</div><div class="tile-s">Adjusted EBITDA, management's own measure.</div><div class="viz" data-chart="lossSplit"></div></div>
+      <div class="block"><div class="tile-t">The road to profit</div>
+        <div class="viz" data-chart="road"><div class="road">
+          <div class="stop pop"><span class="badge done" aria-label="Achieved">&#10003;</span><div><div class="sw">Q1 2026 &middot; achieved</div><div class="st">Product companies profitable on an operating basis</div><div class="sd">Six months ahead of plan.</div></div></div>
+          <div class="stop pop" style="transition-delay:.15s"><span class="badge next">Q4</span><div><div class="sw">Q4 2026 &middot; target</div><div class="st">Operating businesses break even</div><div class="sd">Adjusted EBITDA. Already brought forward by one quarter.</div></div></div>
+          <div class="stop pop" style="transition-delay:.3s"><span class="badge later">Q4</span><div><div class="sw">Q4 2027 &middot; target</div><div class="st">The whole company profitable</div><div class="sd">Pulled forward from early 2028.</div></div></div>
+        </div></div></div>
+      <div class="block"><div class="tile-t">The outside view: analyst average EBITDA forecasts, $M</div><div class="viz" data-chart="consensus"></div><p class="cap">Estimates, not guarantees. Source: Bigdata.com analyst estimates, 21 October 2026.</p></div>
+      <div class="pair2"><div class="ev-a"><h4>Evidence against</h4>Management expects Q2 to be the peak loss quarter, and about $29M of the loss was growth spending it calls discretionary. The analyst average agrees on the timing, turning positive around Q4 2027.</div><div class="ev-s"><h4>What would settle it</h4>A narrower loss in Q3, and the Q4 break-even target reconfirmed or pulled forward.</div></div>
+    </div>
+    <!-- 4 Concentration -->
+    <div class="panel" id="p4" hidden>
+      <div class="ph"><span class="pn">Problem 4</span><h3>Concentration</h3></div>
+      <p class="worry"><b>The worry.</b> One customer made up 40% of Q2 revenue, and Israel 45%. Lose a large customer, or face a change in one country's spending, and revenue could fall sharply.</p>
+      <div class="block"><div class="tile-t">Where Q2 revenue came from, $M</div><div class="viz" data-chart="regions"></div><p class="cap">Other is Asia, the United Arab Emirates and the rest. Source: Q2 2026 10-Q.</p></div>
+      <div class="block"><div class="tile-t">Where the pipeline is, $bn</div><div class="viz" data-chart="pipeRegions"></div></div>
+      <div class="pair2"><div class="ev-a"><h4>Evidence against</h4>The pipeline points elsewhere, led by Europe and Asia-Pacific. North America was already about 21% of Q2 revenue, up from almost nothing a year earlier, and Mistral is a direct route into US Army programmes.</div><div class="ev-s"><h4>What would settle it</h4>A smaller share for the largest customer as US and European orders turn into revenue.</div></div>
+    </div>
+    <!-- 5 Short sellers -->
+    <div class="panel" id="p5" hidden>
+      <div class="ph"><span class="pn">Problem 5</span><h3>Short sellers and warrants</h3></div>
+      <p class="worry"><b>The worry.</b> Two groups sell into rises: short sellers betting the price falls, and warrant holders who can buy new shares at a fixed price and sell them. Around 40% of the freely traded shares have been sold short since August. The chief executive also sold about $36.5M of stock across December 2025 and June 2026.</p>
+      <div class="block"><div class="tile-t">Where the big money came in, against today</div><div class="tile-s">US dollars per share.</div><div class="viz" data-chart="ladder"></div>
+        <div class="unlock"><div class="cal" aria-hidden="true"><b>JAN</b><span>2027</span></div><div><b>Early January:</b> 45M shares issued for DZYNE become sellable. They are already in the share count, so this is selling pressure, not dilution.</div></div>
+      </div>
+      <div class="pair2"><div class="ev-a"><h4>Evidence against</h4>The warrants sit far above today's price, at $20 and $28. Short positions must eventually be bought back, and if every warrant were used Ondas would receive about $4.9bn. Chapter 06 shows the flip side.</div><div class="ev-s"><h4>What would settle it</h4>Results that leave little room to doubt the profit dates. High short interest alone does not move a price; it needs a trigger.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 06 ======================= -->
+<section class="ch grid cards opp" id="ch6" data-group="opp" aria-labelledby="h6x">
+  <div class="t sticky">
+    <span class="kicker">06 &middot; The opportunity</span>
+    <h2 id="h6x">What happens if it works</h2>
+    <p class="why">The same facts that worry the market also describe a large opportunity. Each card shows what would have to go right, and what it would mean for the business.</p>
+    <p class="sub" style="margin-top:14px">These are not forecasts. They are the other side of the five problems, built from the same figures.</p>
+    <div class="cardlist" role="list">
+      <button type="button" class="pcard" aria-expanded="true" aria-controls="o1" role="listitem"><span class="num">1</span><span class="pt">Prime contractor</span><span class="pw">An Army programme still mostly open</span><span class="pk">About $740M still to be ordered</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="o2" role="listitem"><span class="num">2</span><span class="pt">Software</span><span class="pw">Revenue that repeats</span><span class="pk">112% retention at Cyberhawk</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="o3" role="listitem"><span class="num">3</span><span class="pt">The ramp</span><span class="pw">A $1bn run rate, if Q4 lands</span><span class="pk">Pipeline of more than $11bn</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="o4" role="listitem"><span class="num">4</span><span class="pt">The cash</span><span class="pw">A war chest, almost no debt</span><span class="pk">$1.38bn at June</span></button>
+      <button type="button" class="pcard" aria-expanded="false" aria-controls="o5" role="listitem"><span class="num">5</span><span class="pt">The setup</span><span class="pw">Expectations already reset</span><span class="pk">About 2.8x 2027 sales</span></button>
+    </div>
+  </div>
+  <div class="v panelhost">
+    <div class="panel" id="o1">
+      <div class="ph"><span class="pn">Opportunity 1</span><h3>Prime contractor</h3></div>
+      <p class="worry"><b>The opportunity.</b> Mistral is a prime contractor on a $982M US Army programme. About $740M is still to be ordered. For scale, that is more than Ondas's whole revenue target for 2026.</p>
+      <div class="block"><div class="tile-t">Scale of the open programme, $M</div><div class="viz" data-chart="oppPrime"></div></div>
+      <div class="pair2"><div class="ev-a"><h4>What has to go right</h4>Further Army orders under the programme, delivered on time and to budget.</div><div class="ev-s"><h4>What it would mean</h4>Revenue less dependent on one customer and one country, and a US track record that helps win the next contract.</div></div>
+    </div>
+    <div class="panel" id="o2" hidden>
+      <div class="ph"><span class="pn">Opportunity 2</span><h3>Software</h3></div>
+      <p class="worry"><b>The opportunity.</b> Software is paid for again each year and usually earns higher margins than hardware. Cyberhawk already shows customers spending more each year, and SkyWeaver and Regna AI could take the same model across the platform.</p>
+      <div class="block"><div class="tile-t">What 112% retention does to 100 of revenue</div><div class="tile-s">Illustrative. Existing customers only, assuming retention stays at 112%.</div><div class="viz" data-chart="oppSoft"></div></div>
+      <div class="pair2"><div class="ev-a"><h4>What has to go right</h4>SkyWeaver and Regna AI win paying outside customers, with contract values disclosed.</div><div class="ev-s"><h4>What it would mean</h4>Higher margins, and revenue that does not have to be won again every year.</div></div>
+    </div>
+    <div class="panel" id="o3" hidden>
+      <div class="ph"><span class="pn">Opportunity 3</span><h3>The ramp</h3></div>
+      <p class="worry"><b>The opportunity.</b> If Q4 lands at about $256M, Ondas leaves 2026 running at about $1bn a year, roughly double the 2026 total, before counting new orders from a pipeline of more than $11bn.</p>
+      <div class="block"><div class="tile-t">From opportunities to revenue, $M</div><div class="tile-s">The run rate is Q4 implied revenue multiplied by four, an estimate.</div><div class="viz" data-chart="oppRamp"></div></div>
+      <div class="pair2"><div class="ev-a"><h4>What has to go right</h4>Q3 and Q4 land as guided, and more of the pipeline turns into signed orders.</div><div class="ev-s"><h4>What it would mean</h4>A business with the scale of a mid-sized defence supplier within two years of its first big acquisition.</div></div>
+    </div>
+    <div class="panel" id="o4" hidden>
+      <div class="ph"><span class="pn">Opportunity 4</span><h3>The cash</h3></div>
+      <p class="worry"><b>The opportunity.</b> Ondas held $1.38bn of cash and investments at the end of June, against about $6M of debt. In Q2 it earned $29M of interest and investment income while paying about $1M of interest. If every warrant were used, it would receive about $4.9bn more.</p>
+      <div class="block"><div class="tile-t">Cash and investments, $M</div><div class="tile-s">Dashed is our estimate of net cash at the end of 2026, after deals and spending since June.</div><div class="viz" data-chart="oppCash"></div></div>
+      <div class="pair2"><div class="ev-a"><h4>What has to go right</h4>Spending slows as losses narrow, with no new raise.</div><div class="ev-s"><h4>What it would mean</h4>Growth funded without asking shareholders for more. A new raise would be the clearest warning sign.</div></div>
+    </div>
+    <div class="panel" id="o5" hidden>
+      <div class="ph"><span class="pn">Opportunity 5</span><h3>The setup</h3></div>
+      <p class="worry"><b>The opportunity.</b> On enterprise value, the shares trade at about 2.8 times the revenue analysts expect in 2027. Expectations have already been reset, which lowers the bar results have to clear.</p>
+      <div class="block"><div class="tile-t">Flip the coin: short interest cuts both ways</div>
+        <div class="coinwrap"><div class="coin" id="coin">
+          <div class="face front"><span class="side">Heads &middot; today</span><span class="big">~40%</span><p>Of the freely traded shares are sold short. Short sellers lean on every rally, and warrants give them more stock to work with.</p><button class="flipbtn" type="button" data-flip>Flip the coin</button></div>
+          <div class="face back" aria-hidden="true"><span class="side">Tails &middot; on convincing results</span><span class="big">Fuel</span><p>Every short position must eventually be bought back. If results force a rethink, that buying can push the price up sharply. That is possible, not likely, and it needs a trigger.</p><button class="flipbtn" type="button" data-flip tabindex="-1">Flip back</button></div>
+        </div></div>
+      </div>
+      <div class="pair2"><div class="ev-a"><h4>What has to go right</h4>Q3 proof on revenue, losses and the share count, all at once.</div><div class="ev-s"><h4>What it would mean</h4>The same forces holding the price down could work the other way.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 07 ======================= -->
+<section class="ch grid" id="ch7" aria-labelledby="h7x">
+  <div class="t sticky">
+    <span class="kicker">07 &middot; The multiple reset</span>
+    <h2 id="h7x">What you are paying now</h2>
+    <p class="why">The valuation is no longer the main debate. The revenue ramp is close to being priced in. The question is whether it becomes profit.</p>
+    <div class="prose">
+      <p class="lead">At the January high, Ondas was valued at roughly <b>30 times</b> the 2026 revenue it was then guiding, $170M to $180M. Today it is valued at about <b>5 times</b> a guide that has since tripled.</p>
+      <p>The price fell about 60% while expectations rose about threefold. The market has stopped paying for the story in advance. That cuts both ways: the bar is lower, but the market is waiting to see profit before it pays more.</p>
+    </div>
+    <p class="analyst">The average analyst price target was about $18.50 on 21 October 2026, across 8 analysts (Bigdata.com). Targets are opinions about the future and are often wrong.</p>
+    <details class="fold">
+      <summary>The detail: how to read these numbers</summary>
+      <div class="fold-body">
+        <ul>
+          <li><b>Enterprise value</b> is market value of about $3.55bn less our estimate of year-end net cash of about $775M: about $2.8bn.</li>
+          <li>It leaves out future shares from warrants and earn-outs, which would make the business look dearer.</li>
+          <li>Large defence companies usually trade at a small multiple of sales because they grow slowly and steadily.</li>
+          <li>A company can reach $1bn of revenue and still disappoint shareholders if margins stay thin or the share count keeps rising.</li>
+          <li>The January figures are approximate, rebuilt from filings.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+  <div class="v">
+    <div class="tile">
+      <div class="tile-t">The reset: value as a multiple of 2026 guided revenue</div>
+      <div class="tile-s">Enterprise value divided by the 2026 revenue guide at the time. Approximate.</div>
+      <div class="viz" data-chart="reset"></div>
+      <p class="cap">2026 guide: $170M to $180M in January; $525M to $550M now.</p>
+    </div>
+    <div class="tile">
+      <div class="tile-t">Enterprise value to sales, three ways</div>
+      <div class="tile-s">Illustrative. Enterprise value of about $2.8bn, divided by revenue on each basis.</div>
+      <div class="switch" role="group" aria-label="Revenue basis">
+        <button type="button" aria-pressed="false" data-v="a">2025 actual</button>
+        <button type="button" aria-pressed="true" data-v="b">2026 guidance</button>
+        <button type="button" aria-pressed="false" data-v="c">2027 consensus</button>
+      </div>
+      <div class="mult"><span class="n mono" id="mN">5.2x</span><span class="u">sales</span></div>
+      <div class="mtrack"><div class="mfill" id="mF" style="width:9.5%"></div></div>
+      <p class="msum" id="mS">On the <b>$525M to $550M</b> target for 2026, about <b>5.2 times sales</b>. High for a defence company, but not for one growing this fast.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= 08 ======================= -->
+<section class="ch grid" id="ch8" aria-labelledby="h8x">
+  <div class="t sticky">
+    <span class="kicker">08 &middot; The Q3 test</span>
+    <h2 id="h8x">What makes or breaks it at Q3</h2>
+    <p class="why">Orders no longer move the price. Proof does. These are the things the market will look for when Ondas reports on 12 November.</p>
+    <div class="target" style="margin-top:26px">
+      <span class="e">The single most important number</span>
+      <div class="big mono">$140M to $155M</div>
+      <p>Q3 revenue guidance. Landing in or above this range shows orders turning into revenue on schedule.</p>
+    </div>
+  </div>
+  <div class="v">
+    <div class="viz watch" data-chart="watch">
+      <div class="w"><span class="wn">1</span><div><div class="wt">Q3 revenue in the guided range</div><div class="ok"><span class="g"><b>Makes it:</b> $140M or more</span><span class="b"><b>Breaks it:</b> a miss, or blaming timing</span></div></div></div>
+      <div class="w" style="transition-delay:.05s"><span class="wn">2</span><div><div class="wt">The $525M to $550M full-year target</div><div class="ok"><span class="g"><b>Makes it:</b> held or raised</span><span class="b"><b>Breaks it:</b> cut or widened</span></div></div></div>
+      <div class="w" style="transition-delay:.1s"><span class="wn">3</span><div><div class="wt">Implied Q4 of about $256M, the year's biggest test</div><div class="ok"><span class="g"><b>Makes it:</b> reaffirmed, with backlog to support it</span><span class="b"><b>Breaks it:</b> revenue pushed into 2027</span></div></div></div>
+      <div class="w" style="transition-delay:.15s"><span class="wn">4</span><div><div class="wt">The Q4 break-even target</div><div class="ok"><span class="g"><b>Makes it:</b> reconfirmed or pulled forward</span><span class="b"><b>Breaks it:</b> pushed back</span></div></div></div>
+      <div class="w" style="transition-delay:.2s"><span class="wn">5</span><div><div class="wt">The share count</div><div class="ok"><span class="g"><b>Makes it:</b> flat, no new raise</span><span class="b"><b>Breaks it:</b> any new raise</span></div></div></div>
+      <div class="w" style="transition-delay:.25s"><span class="wn">6</span><div><div class="wt">Losses and cash after the deals</div><div class="ok"><span class="g"><b>Makes it:</b> a narrower loss, cash in line with plans</span><span class="b"><b>Breaks it:</b> a wider loss, faster spending</span></div></div></div>
+      <div class="w" style="transition-delay:.3s"><span class="wn">7</span><div><div class="wt">Software with numbers attached</div><div class="ok"><span class="g"><b>Makes it:</b> a named Regna AI customer or contract value</span><span class="b"><b>Breaks it:</b> still no numbers</span></div></div></div>
+      <div class="w" style="transition-delay:.35s"><span class="wn">8</span><div><div class="wt">DZYNE on track for about $191M this year</div><div class="ok"><span class="g"><b>Makes it:</b> on track</span><span class="b"><b>Breaks it:</b> behind plan</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= Close ======================= -->
+<section class="ch grid" id="close" aria-labelledby="hcx">
+  <div class="t">
+    <span class="kicker">Key takeaways</span>
+    <h2 id="hcx">Five things to remember</h2>
+    <ol class="takeaways">
+      <li><div><b>Growth</b>Revenue is guided to rise about tenfold this year, with management aiming to leave 2026 at about $1bn a year.</div></li>
+      <li><div><b>Dilution</b>Shareholders paid with about six times as many shares as at the end of 2024, though revenue per share has grown faster.</div></li>
+      <li><div><b>Selling pressure</b>Short interest of around 40%, warrants at $20 and $28, and the January unlock lean on every rally.</div></li>
+      <li><div><b>Cash</b>A large cash pile and almost no debt mean Ondas does not need to raise money to keep going.</div></li>
+      <li><div><b>Proof</b>The price is waiting for revenue to land, losses to shrink on schedule and the share count to stop rising. The first test is 12 November.</div></li>
+    </ol>
+  </div>
+  <div class="v" style="align-self:end">
+    <div class="notsay">
+      <h3>What this does not say</h3>
+      <p>It does not say Ondas is a good or bad investment, that the price will rise after the results, or that you should buy, sell or hold. It explains why the price and the business have parted, and what would bring them back together.</p>
+    </div>
+  </div>
+  <div class="f bottom">
+    <span class="kicker">The bottom line</span>
+    <h2>The business has run ahead of the share price</h2>
+    <p>Ondas has built something real, quickly, and paid for it with its shareholders' ownership. <b>The market has stopped rewarding promises and orders.</b> It is waiting for proof: revenue landing as guided, losses shrinking on the published dates, and a share count that stops growing.</p>
+    <p>If that proof arrives, short selling and the warrant ceiling could work the other way. If it does not, dilution and selling pressure are likely to keep the shares where they are. <b>Watch the results, not the headlines.</b></p>
+    <p class="cod">In Call of Duty terms: the business has levelled up. The chart has not caught up.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="disc"><b>Important.</b> This page is for education only. It is not financial advice or a personal recommendation to buy, sell or hold any investment. Ondas is a small, loss-making and highly volatile company, and its shares can fall sharply. Ondas shares are held in the TEI Growth Portfolio and by the founder of TEI. Figures come from company results and filings, results calls, independent research and market data, with market figures as of the close on 20 October 2026. Some are approximate or rounded, and estimates are labelled. Forecasts and targets are not guaranteed.</div>
+  <p class="na">TEI provides financial coaching and education, not regulated financial advice.</p>
+  <p>The Everyday Investor &middot; Members' articles</p>
+  <button type="button" class="so" data-hub-signout>Sign out</button>
+</footer>
+
+<nav class="tabbar" aria-label="Main">
+  <a href="/hub/wealth-os.html"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="ring" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><circle class="dot" cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Home</a>
+  <a href="/hub/wealth-os.html?page=progress"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="ring" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><circle class="dot" cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Wealth</a>
+  <a href="/hub/wealth-os.html?page=goals"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="ring" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><circle class="dot" cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Plan</a>
+  <a href="/hub/index.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="ring" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><circle class="dot" cx="12" cy="12" r="2.6" fill="currentColor"/></svg>Library</a>
+  <a href="/hub/wealth-os.html?page=menu"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle class="ring" cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><circle class="dot" cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Me</a>
+</nav>
+
+<script>
+(function(){
+'use strict';
+var root=document.documentElement;
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var canIO='IntersectionObserver' in window;
+if(!reduce&&canIO){root.classList.add('anim');}
+
+/* ---------- theme ---------- */
+function setTheme(t){
+  root.setAttribute('data-theme',t);
+  try{localStorage.setItem('tei-theme',t);}catch(e){}
+  document.querySelectorAll('[data-theme-set]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-theme-set')===t?'true':'false');});
+}
+document.querySelectorAll('[data-theme-set]').forEach(function(b){b.addEventListener('click',function(){setTheme(b.getAttribute('data-theme-set'));});});
+document.getElementById('themeIcon').addEventListener('click',function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark');});
+document.querySelectorAll('[data-theme-set]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-theme-set')===root.getAttribute('data-theme')?'true':'false');});
+
+/* ---------- helpers ---------- */
+var uid=0;
+function W(el){return Math.max(240,Math.floor(el.clientWidth));}
+function svg(w,h,label,inner,defs){return '<svg viewBox="0 0 '+w+' '+h+'" role="img" aria-label="'+label+'">'+(defs?'<defs>'+defs+'</defs>':'')+inner+'</svg>';}
+function stripe(id){return '<pattern id="'+id+'" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" class="f-red"/><rect width="3.5" height="8" fill="rgba(0,0,0,.30)"/></pattern>';}
+function txt(x,y,s,cls,anchor,delay,extra){var st=(extra||'')+(delay!=null?'transition-delay:'+delay+'s':'');return '<text class="'+(cls||'tx')+'" x="'+x+'" y="'+y+'"'+(anchor?' text-anchor="'+anchor+'"':'')+(st?' style="'+st+'"':'')+'>'+s+'</text>';}
+function fillOf(k){return k==='hl'?'f-red':k==='est'?'f-est':k==='s1'?'f-s1':k==='s3'?'f-s3':k==='s4'?'f-s4':k==='red2'?'f-red2':'f-s2';}
+
+/* vertical bars; switch to horizontal on narrow containers */
+function vbars(el,c){
+  var w=W(el);
+  if(w<520&&!c.keepV){return hbars(el,c);}
+  var d=c.data,h=c.h||250,top=30,bot=c.twoLine?46:32,plot=h-top-bot,max=c.max||Math.max.apply(null,d.map(function(x){return x.hi||x.v;}));
+  var n=d.length,cw=w/n,bw=Math.min(c.bw||74,cw*.58),pid='st'+(++uid),s='',defs=stripe(pid);
+  s+='<line class="axis" x1="0" x2="'+w+'" y1="'+(h-bot)+'" y2="'+(h-bot)+'"/>';
+  d.forEach(function(x,i){
+    var cx=cw*i+cw/2,bh=Math.max(2,plot*x.v/max),y=h-bot-bh,dl=(i*.09).toFixed(2);
+    if(x.k==='guide'){s+='<rect class="gy" fill="url(#'+pid+')" x="'+(cx-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="4" style="transition-delay:'+dl+'s"/>';}
+    else{s+='<rect class="gy '+fillOf(x.k)+'" x="'+(cx-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="4" style="transition-delay:'+dl+'s"/>';}
+    var ty=y-9;
+    if(x.hi){var yh=h-bot-plot*x.hi/max,yl=h-bot-plot*x.lo/max;s+='<g class="fade" style="transition-delay:'+(+dl+.6)+'s"><line class="st-red" x1="'+cx+'" x2="'+cx+'" y1="'+yh+'" y2="'+yl+'" stroke-width="2"/><line class="st-red" x1="'+(cx-8)+'" x2="'+(cx+8)+'" y1="'+yh+'" y2="'+yh+'" stroke-width="2"/><line class="st-red" x1="'+(cx-8)+'" x2="'+(cx+8)+'" y1="'+yl+'" y2="'+yl+'" stroke-width="2"/></g>';ty=yh-9;}
+    s+=txt(cx,ty,x.t,'tx tx-ink fade','middle',+dl+.5);
+    x.l.split('|').forEach(function(l,j){s+=txt(cx,h-bot+18+j*14,l,'tx','middle');});
+  });
+  el.innerHTML=svg(w,h,c.label,s,defs);
+}
+function hbars(el,c){
+  var w=W(el),d=c.data;
+  if(c.narrowDrop&&w<520){d=d.filter(function(x,i){return c.narrowDrop.indexOf(i)<0;});}
+  var lw=c.lw||(w<420?104:132),vw=c.vw||92,two=d.some(function(x){return x.l.indexOf('|')>-1;}),rh=two?46:38,h=d.length*rh+6;
+  var max=c.max||Math.max.apply(null,d.map(function(x){return x.hi||x.v;})),bwm=w-lw-vw,pid='st'+(++uid),s='',defs=stripe(pid);
+  d.forEach(function(x,i){
+    var y=i*rh+4,mid=y+rh/2,bw=Math.max(3,bwm*x.v/max),dl=(i*.08).toFixed(2),ls=x.l.split('|');
+    s+=txt(0,ls.length>1?mid-3:mid+4,ls[0],'tx tx-b tx-ink');
+    if(ls[1]){s+=txt(0,mid+12,ls[1],'tx');}
+    s+='<rect class="f-track" x="'+lw+'" y="'+(mid-11)+'" width="'+bwm+'" height="22" rx="5"/>';
+    if(x.k==='guide'){s+='<rect class="gx" fill="url(#'+pid+')" x="'+lw+'" y="'+(mid-11)+'" width="'+bw+'" height="22" rx="5" style="transition-delay:'+dl+'s"/>';}
+    else{s+='<rect class="gx '+fillOf(x.k)+'" x="'+lw+'" y="'+(mid-11)+'" width="'+bw+'" height="22" rx="5" style="transition-delay:'+dl+'s"/>';}
+    s+=txt(lw+bw+8,mid+4,x.t,'tx tx-ink fade',null,+dl+.5);
+  });
+  el.innerHTML=svg(w,h,c.label,s,defs);
+}
+/* one stacked bar with a legend */
+function stack(el,c){
+  var w=W(el),h=46,tot=c.data.reduce(function(a,x){return a+x.v;},0),x0=0,s='',lg='<div class="legend">';
+  c.data.forEach(function(x,i){
+    var bw=w*x.v/tot,gap=i<c.data.length-1?3:0;
+    s+='<rect class="gx '+fillOf(x.k)+'" x="'+x0+'" y="0" width="'+Math.max(1,bw-gap)+'" height="'+h+'" rx="6" style="transition-delay:'+(i*.18).toFixed(2)+'s"/>';
+    if(x.inl&&bw>x.inl.length*7.5+20){var lc=(x.k==='hl'||x.k==='red2')?'#fff':(x.k==='s3'||x.k==='s4')?'var(--ink)':'var(--bg)';s+=txt(x0+10,h/2+4,x.inl,'tx fade',null,(i*.18+.5).toFixed(2),'fill:'+lc+';');}
+    x0+=bw;
+    var col=x.k==='hl'?'var(--red-fill)':x.k==='red2'?'color-mix(in srgb,var(--red-fill) 55%,transparent)':'var(--'+(x.k||'s2')+')';
+    lg+='<span><i style="background:'+col+'"></i>'+x.l+'<b>'+x.t+'</b></span>';
+  });
+  el.innerHTML=svg(w,h,c.label,s)+lg+'</div>';
+}
+
+/* ---------- data ---------- */
+function D(y,m,d){return Date.UTC(y,m-1,d);}
+var PRICE=[[D(2026,1,9),13.69],[D(2026,1,12),15.28],[D(2026,4,1),8.91],[D(2026,7,7),7.82],[D(2026,8,11),9.18],[D(2026,8,23),8.71],[D(2026,10,5),7.65],[D(2026,10,15),5.80],[D(2026,10,20),6.10]];
+var SHARES={};SHARES[D(2026,1,12)]=439;SHARES[D(2026,4,1)]=482;SHARES[D(2026,7,7)]=540;SHARES[D(2026,8,11)]=570.6;SHARES[D(2026,8,23)]=571;SHARES[D(2026,10,5)]=578;SHARES[D(2026,10,15)]=580;SHARES[D(2026,10,20)]=582;
+function priceAt(t){for(var i=1;i<PRICE.length;i++){if(t<=PRICE[i][0]){var a=PRICE[i-1],b=PRICE[i];return a[1]+(b[1]-a[1])*(t-a[0])/(b[0]-a[0]);}}return PRICE[PRICE.length-1][1];}
+var EVENTS=[[D(2026,3,15),'Palantir partnership'],[D(2026,5,14),'Q1 revenue beat'],[D(2026,7,15),'DZYNE deal closes'],[D(2026,8,13),'Record Q2, target raised'],[D(2026,10,1),'$270M+ of new orders'],[D(2026,10,12),'Regna AI launched']];
+
+/* ---------- charts ---------- */
+var C={};
+C.hero=function(el){
+  var w=W(el),nar=w<640,l=nar?30:40,r=nar?96:156,tH=nar?160:180,bH=nar?190:220,gap=nar?72:80,top=26,axis=24,h=top+tH+gap+bH+axis;
+  var x0=nar?D(2026,1,1):D(2025,10,1),x1=nar?D(2026,10,31):D(2026,12,31);function X(t){return l+(w-l-r)*(t-x0)/(x1-x0);}
+  var s='',pid='st'+(++uid),defs=stripe(pid);
+  s+=txt(l,14,'The business: revenue by quarter','tx tx-b tx-ink');
+  if(!nar){s+=txt(w-r,14,'Guided to rise about tenfold in a year','tx tx-red','end');}
+  var tb=top+tH,maxR=270;
+  var Q=[[D(2025,11,15),30.1,'$30M','Q4 25','actual'],[D(2026,2,14),50.1,'$50M','Q1 26','actual'],[D(2026,5,15),83.8,'$84M','Q2 26','actual'],[D(2026,8,15),147.5,nar?'$140-155M':'$140M to $155M','Q3 26','guide','guide'],[D(2026,11,15),256,'~$256M','Q4 26','implied','est']];
+  var qw=(X(D(2026,4,1))-X(D(2026,1,1)))*.5,qs=(w-l-8)/5;
+  if(nar){qw=qs*.5;}
+  s+='<line class="axis" x1="'+l+'" x2="'+(nar?w-8:w-r)+'" y1="'+tb+'" y2="'+tb+'"/>';
+  Q.forEach(function(q,i){var cx=nar?l+qs*(i+.5):X(q[0]),bh=(tH-34)*q[1]/maxR,y=tb-bh,dl=(i*.14).toFixed(2);
+    if(q[5]==='guide'){s+='<rect class="gy" fill="url(#'+pid+')" x="'+(cx-qw/2)+'" y="'+y+'" width="'+qw+'" height="'+bh+'" rx="4" style="transition-delay:'+dl+'s"/>';}
+    else{s+='<rect class="gy '+(q[5]==='est'?'f-est':'f-s2')+'" x="'+(cx-qw/2)+'" y="'+y+'" width="'+qw+'" height="'+bh+'" rx="4" style="transition-delay:'+dl+'s"/>';}
+    s+=txt(cx,y-7,q[2],'tx tx-ink tx-b fade','middle',(+dl+.55).toFixed(2));
+    s+=txt(cx,tb+17,q[3],'tx tx-ink','middle')+((nar&&q[4]==='actual')?'':txt(cx,tb+30,q[4],'tx','middle'));});
+  if(nar){s+=txt(l,tb+50,'Guided to rise about tenfold in a year','tx tx-red fade',null,.9);}
+  var bt=tb+gap,bb=bt+bH;function Y(v){return bt+22+(bH-22)*(110-v)/(110-30);}
+  s+=txt(l,bt+4,nar?'The whole company against one share':'The share: the whole company against one share (12 January = 100)','tx tx-b tx-ink');
+  [100,75,50].forEach(function(v){s+='<line class="gridl" x1="'+l+'" x2="'+(w-r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/>'+txt(l-6,Y(v)+4,v,'tx','end');});
+  var pp=[],mp=[];PRICE.slice(1).forEach(function(p){var idx=p[1]/15.28*100;pp.push([X(p[0]),Y(idx)]);mp.push([X(p[0]),Y(idx*SHARES[p[0]]/439)]);});
+  function path(a){return a.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1);}).join(' ');}
+  var poly=mp.concat(pp.slice().reverse()).map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+  s+='<polygon class="fade" points="'+poly+'" fill="rgba(255,255,255,.08)" style="transition-delay:2.6s"/>';
+  s+='<path class="ln draw" d="'+path(mp)+'" pathLength="1" stroke="#f2f4f7" style="transition-delay:.9s"/>';
+  s+='<path class="ln draw" d="'+path(pp)+'" pathLength="1" stroke="#ef6a51" style="transition-delay:1.1s"/>';
+  var me=mp[mp.length-1],pe=pp[pp.length-1];
+  s+='<circle class="halo" cx="'+me[0]+'" cy="'+me[1]+'" r="4.5" fill="#f2f4f7"/><circle class="halo" cx="'+pe[0]+'" cy="'+pe[1]+'" r="4.5" fill="#ef6a51" style="animation-delay:3.6s"/>';
+  s+='<circle class="fade" cx="'+me[0]+'" cy="'+me[1]+'" r="4.5" fill="#f2f4f7" style="transition-delay:2.8s"/><circle class="fade" cx="'+pe[0]+'" cy="'+pe[1]+'" r="4.5" fill="#ef6a51" style="transition-delay:2.8s"/>';
+  s+=txt(me[0]+10,me[1]-6,nar?'Company':'Whole company','tx tx-b fade',null,2.9,'fill:#f2f4f7;')+txt(me[0]+10,me[1]+8,'−47%','tx fade',null,2.9,'fill:#f2f4f7;font-size:13px;');
+  s+=txt(pe[0]+10,pe[1]+14,nar?'One share':'Each share','tx tx-b fade',null,3.1,'fill:#ef6a51;')+txt(pe[0]+10,pe[1]+28,'−60%','tx fade',null,3.1,'fill:#ef6a51;font-size:13px;');
+  if(!nar){var gx=X(D(2026,6,20));s+=txt(gx,Y(86),'The gap is dilution: the company is split','tx fade','middle',3)+txt(gx,Y(86)+15,'into more shares, so each holds less of it','tx fade','middle',3);}
+  var hx=X(D(2026,1,12));s+='<line class="gridl" x1="'+hx+'" x2="'+hx+'" y1="'+(bt+12)+'" y2="'+bb+'"/>'+txt(hx+5,Y(100)-8,'Record high, 12 Jan','tx');
+  s+='<line class="axis" x1="'+l+'" x2="'+(w-r)+'" y1="'+bb+'" y2="'+bb+'"/>';
+  (nar?[['Jan',D(2026,1,15)],['Apr',D(2026,4,15)],['Jul',D(2026,7,15)],['Oct',D(2026,10,15)]]:[['Oct 25',D(2025,10,15)],['Jan 26',D(2026,1,15)],['Apr',D(2026,4,15)],['Jul',D(2026,7,15)],['Oct',D(2026,10,15)]]).forEach(function(m){s+=txt(X(m[1]),bb+17,m[0],'tx','middle');});
+  el.innerHTML=svg(w,h,'Two panels. Top: revenue rises from 30 million dollars in Q4 2025 to about 256 million implied for Q4 2026. Bottom: from the January high, the whole company fell 47 percent while each share fell 60 percent, because Ondas issued more shares.',s,defs);
+};
+C.paradox=function(el){
+  var w=W(el),nar=w<700,h=nar?300:400,l=nar?34:44,r=nar?14:30,t=20,b=34;
+  var x0=D(2026,1,1),x1=D(2026,11,1);function X(d){return l+(w-l-r)*(d-x0)/(x1-x0);}function Y(p){return t+(h-t-b)*(17-p)/(17-3);}
+  var s='';
+  [5,10,15].forEach(function(v){s+='<line class="gridl" x1="'+l+'" x2="'+(w-r)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/>'+txt(l-6,Y(v)+4,'$'+v,'tx','end');});
+  ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'].forEach(function(m,i){if(nar&&i%3!==0&&i!==9)return;s+=txt(X(D(2026,i+1,15)),h-10,m,'tx','middle');});
+  var d=PRICE.map(function(p,i){return (i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1);}).join(' ');
+  s+='<path class="ln draw st-s1" d="'+d+'" pathLength="1"/>';
+  PRICE.forEach(function(p){s+='<circle class="fade f-s1" cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="3" style="transition-delay:1.2s"/>';});
+  var hx=X(PRICE[1][0]),hy=Y(15.28);
+  s+=txt(hx+10,hy+4,'$15.28 record high, 12 Jan','tx tx-b tx-ink fade',null,1.3);
+  var ex=X(PRICE[8][0]),ey=Y(6.10);
+  s+=txt(ex-4,ey+22,'$6.10, 20 Oct','tx tx-b tx-red fade','end',1.5);
+  EVENTS.forEach(function(e,i){
+    var x=X(e[0]),y=Y(priceAt(e[0])),dl=(1.4+i*.15).toFixed(2),up=i%2===0,ly=up?y-58:y+56;
+    if(!nar){
+      s+='<line class="fade" x1="'+x+'" x2="'+x+'" y1="'+(up?y-10:y+10)+'" y2="'+(up?ly+6:ly-14)+'" stroke="var(--red-fill)" stroke-width="1" stroke-dasharray="2 3" style="transition-delay:'+dl+'s"/>';
+      var anchor=x>w-150?'end':x<l+90?'start':'middle';
+      s+=txt(x,ly,e[1],'tx tx-b tx-ink fade',anchor,+dl);
+    }
+    s+='<circle class="dot-red fade" cx="'+x+'" cy="'+y+'" r="'+(nar?9:7)+'" style="transition-delay:'+dl+'s"/>';
+    s+=txt(x,y+(nar?4:3.5),String(i+1),'tx fade','middle',dl,'fill:#fff;font-size:'+(nar?11:10)+'px;');
+  });
+  el.innerHTML=svg(w,h,'Share price line from 13.69 dollars on 9 January to a record 15.28 on 12 January, falling to 6.10 dollars on 20 October, with six good-news events marked along the way.',s);
+  var lst=document.getElementById('evlist');
+  if(nar){lst.hidden=false;lst.innerHTML=EVENTS.map(function(e){return '<li>'+e[1]+'</li>';}).join('');}else{lst.hidden=true;}
+};
+var LAYERS=[
+  {k:'Stratosphere',a:'18 km and up',t:'Watching from the edge of space',c:['World View balloons'],i:'balloon'},
+  {k:'High altitude',a:'Aircraft',t:'Long-endurance surveillance',c:['DZYNE ULTRA and LEAP','BIRD Aerosystems','SPO optics'],i:'plane'},
+  {k:'Low airspace',a:'Over a site',t:'Protecting a site from drones',c:['Sentrycs','Iron Drone Raider','Optimus','DZYNE Dronebuster','Cyberhawk'],i:'dome'},
+  {k:'The strike',a:'Front line',t:'Precision strike',c:['Mistral','DZYNE Blitz and IonStrike','Rotron engines'],i:'strike'},
+  {k:'Ground',a:'0 m',t:'Ground robots',c:['Roboteam','Apeiro Motion'],i:'robot'}];
+var BRAIN=['SkyWeaver','Regna AI','Omnisys','Built with Palantir'];
+function icon(kind,x,y){
+  var g='<g transform="translate('+x+' '+y+')">';
+  if(kind==='balloon'){g+='<circle class="ico" cx="0" cy="-8" r="13"/><path class="ico" d="M-9 1 L-3 14 M9 1 L3 14"/><rect x="-5" y="14" width="10" height="7" rx="2" class="f-red"/>';}
+  if(kind==='plane'){g+='<path class="ico" d="M-20 0 L18 0 M3 0 L-6 -15 L-11 -15 L-6 0 M3 0 L-6 15 L-11 15 L-6 0 M-18 0 L-22 -7"/><circle cx="18" cy="0" r="3" class="f-red"/>';}
+  if(kind==='dome'){g+='<path class="ico" d="M-22 14 A22 22 0 0 1 22 14" stroke="var(--red-fill)" stroke-dasharray="3 3"/><rect class="ico" x="-8" y="2" width="16" height="12" rx="1"/><path class="ico" d="M-26 14 L26 14"/><path class="ico" d="M14 -18 L26 -18 M20 -24 L20 -12"/><circle cx="20" cy="-18" r="2.5" class="f-red"/>';}
+  if(kind==='strike'){g+='<path d="M18 0 L-10 -11 L-4 0 L-10 11 Z" class="f-red"/><path class="ico" d="M-14 -5 L-24 -5 M-12 5 L-22 5"/>';}
+  if(kind==='robot'){g+='<rect class="ico" x="-16" y="-8" width="32" height="13" rx="3"/><circle class="ico" cx="-10" cy="10" r="4"/><circle class="ico" cx="0" cy="10" r="4"/><circle class="ico" cx="10" cy="10" r="4"/><path class="ico" d="M4 -8 L10 -18"/><circle cx="10" cy="-19" r="2.6" class="f-red"/>';}
+  return g+'</g>';
+}
+function wrapList(arr,maxCh){var lines=[],cur='';arr.forEach(function(c){var add=cur?cur+'  ·  '+c:c;if(add.length>maxCh&&cur){lines.push(cur);cur=c;}else{cur=add;}});if(cur)lines.push(cur);return lines;}
+C.platform=function(el){
+  var w=W(el),s='',n=LAYERS.length;
+  if(w>=760){
+    var ac=130,bw=Math.min(280,w*.22),bx=w-bw,sx=ac+12,bh=92,top=6,h=top+n*bh+8,brainTop=top,brainH=n*bh;
+    LAYERS.forEach(function(L,i){var y=top+i*bh,mid=y+bh/2,dl=(.5-i*.1+.4).toFixed(2);
+      var op=[.30,.22,.15,.09,.0][i];
+      s+='<rect x="'+sx+'" y="'+y+'" width="'+(bx-24-sx)+'" height="'+(bh-6)+'" rx="14" fill="var(--s3)" opacity="'+op+'"/>';
+      if(i===n-1){s+='<rect x="'+sx+'" y="'+y+'" width="'+(bx-24-sx)+'" height="'+(bh-6)+'" rx="14" fill="var(--s3)" opacity=".18"/>';}
+      s+=txt(0,mid-3,L.k,'tx tx-b tx-ink')+txt(0,mid+13,L.a,'tx');
+      var tx=sx+84,maxCh=Math.floor((bx-60-tx)/6.6),lines=wrapList(L.c,maxCh);
+      s+='<g class="pop" style="transition-delay:'+dl+'s">'+icon(L.i,sx+42,mid)+'</g>';
+      var ty=mid-(lines.length>1?14:6);
+      s+=txt(tx,ty,L.t,'tx-t fade',null,dl);
+      lines.forEach(function(ln,j){s+=txt(tx,ty+19+j*17,ln,'tx-c fade',null,dl);});
+      var lw=Math.max(L.t.length*7.8,Math.max.apply(null,lines.map(function(x){return x.length*6.6;})));
+      var cx1=Math.min(bx-34,tx+lw+18);
+      s+='<path class="flow fade" d="M'+cx1+' '+mid+' L'+bx+' '+mid+'" stroke="var(--red-fill)" stroke-width="1.6" fill="none" style="transition-delay:'+(1.2+i*.08).toFixed(2)+'s"/>';
+      s+='<circle class="fade" cx="'+bx+'" cy="'+mid+'" r="4" fill="var(--red-fill)" style="transition-delay:'+(1.3+i*.08).toFixed(2)+'s"/>';
+    });
+    s+='<g class="pop" style="transition-delay:.1s"><rect x="'+bx+'" y="'+brainTop+'" width="'+bw+'" height="'+(brainH-6)+'" rx="18" fill="var(--red-soft)" stroke="var(--red-line)"/>';
+    var bxx=bx+20,by=brainTop+Math.max(30,(brainH-6-268)/2+24);
+    s+=txt(bxx,by,'THE BRAIN','tx tx-red')+txt(bxx,by+24,'Software and AI','tx-t');
+    s+=txt(bxx,by+44,'Every sensor, drone and robot','tx-c')+txt(bxx,by+60,'in one picture','tx-c');
+    s+=txt(bxx,by+96+4*34+6,'SkyWeaver flew AI aboard a','tx-c')+txt(bxx,by+96+4*34+22,'World View balloon on 5 August','tx-c');
+    BRAIN.forEach(function(b,i){var yy=by+96+i*34;s+='<rect x="'+bxx+'" y="'+(yy-17)+'" width="'+(bw-40)+'" height="26" rx="13" fill="var(--bg)" stroke="var(--red-line)"/>'+txt(bxx+14,yy+1,b,'tx-c').replace('class="tx-c"','class="tx-c" style="fill:var(--red-ink);font-weight:500"');});
+    s+='</g>';
+    el.innerHTML=svg(w,h,'The Ondas platform: stratosphere balloons, high-altitude surveillance aircraft, counter-drone systems over a site, precision strike drones and ground robots, all connected to one software brain built with Palantir.',s);
+    return;
+  }
+  /* narrow: brain on top, rows below, bus line on the right */
+  var y=0,pad=12,bh2=104;
+  s+='<g class="pop" style="transition-delay:.1s"><rect x="0" y="0" width="'+w+'" height="'+bh2+'" rx="18" fill="var(--red-soft)" stroke="var(--red-line)"/>';
+  s+=txt(14,24,'THE BRAIN','tx tx-red')+txt(14,46,'Software and AI','tx-t');
+  var bl=wrapList(BRAIN,Math.floor((w-28)/6.6));bl.forEach(function(ln,j){s+=txt(14,70+j*17,ln,'tx-c').replace('class="tx-c"','class="tx-c" style="fill:var(--red-ink);font-weight:500"');});
+  s+='</g>';
+  y=bh2+12;var bus=w-8,rows=[];
+  LAYERS.forEach(function(L,i){var tx=58,lines=wrapList(L.c,Math.floor((w-tx-26)/6.6)),rh=50+lines.length*17,mid=y+rh/2,dl=(.3+i*.12).toFixed(2);
+    var op=[.30,.22,.15,.09,.18][i];
+    s+='<rect x="0" y="'+y+'" width="'+(w-18)+'" height="'+rh+'" rx="14" fill="var(--s3)" opacity="'+op+'"/>';
+    s+='<g class="pop" style="transition-delay:'+dl+'s">'+icon(L.i,28,y+30)+'</g>';
+    s+=txt(tx,y+19,L.k.toUpperCase()+'  ·  '+L.a,'tx fade',null,dl);
+    s+=txt(tx,y+38,L.t,'tx-t fade',null,dl);
+    lines.forEach(function(ln,j){s+=txt(tx,y+57+j*17,ln,'tx-c fade',null,dl);});
+    s+='<circle class="fade" cx="'+bus+'" cy="'+(y+30)+'" r="3.5" fill="var(--red-fill)" style="transition-delay:'+(+dl+.5)+'s"/>';
+    rows.push(y+30);y+=rh+8;});
+  s+='<path class="flow fade" d="M'+bus+' '+rows[rows.length-1]+' L'+bus+' '+bh2+'" stroke="var(--red-fill)" stroke-width="1.6" fill="none" style="transition-delay:1.1s"/>';
+  el.innerHTML=svg(w,y,'The Ondas platform: one software brain on top, connected to stratosphere balloons, high-altitude aircraft, counter-drone systems, strike drones and ground robots.',s);
+};
+C.armybar=function(el){stack(el,{label:'Army programme of 982 million dollars: more than 240 million awarded, about 740 million still open',data:[{v:242,k:'s2',l:'Awarded so far',t:'$240M+',inl:'Awarded'},{v:740,k:'hl',l:'Still to be ordered',t:'~$740M',inl:'Still open'}]});
+  el.insertAdjacentHTML('afterbegin','<div class="tile-t" style="font-size:14.5px;margin-bottom:8px">US Army programme, $982M</div>');};
+C.software=function(el){
+  var w=W(el),nar=w<520,pw=nar?w:(w-28)/2,ph=170,h=nar?ph*2+40:ph+20,s='',sets=[['Hardware: paid once',[100,0,0,0,0],'f-s3'],['Software: paid again each year',[100,112,125,140,157],'f-red']];
+  sets.forEach(function(st,k){var ox=nar?0:k*(pw+28),oy=nar?k*(ph+40):0,bw=pw/5*.56,base=oy+ph-26;
+    s+=txt(ox,oy+12,st[0],'tx tx-b tx-ink');s+='<line class="axis" x1="'+ox+'" x2="'+(ox+pw)+'" y1="'+base+'" y2="'+base+'"/>';
+    st[1].forEach(function(v,i){var cx=ox+pw/5*(i+.5),bh=Math.max(v?2:1.5,(ph-62)*v/160),y=base-bh,dl=(k*.4+i*.1).toFixed(2);
+      s+='<rect class="gy '+st[2]+'" x="'+(cx-bw/2)+'" y="'+y+'" width="'+bw+'" height="'+bh+'" rx="3" style="transition-delay:'+dl+'s"/>';
+      s+=txt(cx,y-6,v?String(v):'0','tx tx-ink fade','middle',+dl+.4);s+=txt(cx,base+16,'Y'+(i+1),'tx','middle');});});
+  el.innerHTML=svg(w,h,'Illustrative: hardware revenue of 100 in year one and nothing after, against software revenue growing from 100 to 157 over five years at 112 percent retention.',s);
+};
+C.quarters=function(el){vbars(el,{label:'Revenue by quarter: 30.1, 50.1 and 83.8 million dollars, Q3 guided at 140 to 155, Q4 implied about 256',data:[{v:30.1,t:'30.1',l:'Q4 25'},{v:50.1,t:'50.1',l:'Q1 26'},{v:83.8,t:'83.8',l:'Q2 26',k:'s1'},{v:147.5,hi:155,lo:140,t:'140 to 155',l:'Q3 26|guide',k:'guide'},{v:256,t:'~256',l:'Q4 26|implied',k:'est'}],max:270,twoLine:true});};
+C.pipeline=function(el){hbars(el,{label:'Pipeline 4 billion dollars in May and more than 11 billion in August, against backlog of 757 million at June',data:[{v:4000,t:'$4,000M',l:'Pipeline|May 2026',k:'s3'},{v:11000,t:'$11,000M+',l:'Pipeline|Aug 2026',k:'hl'},{v:757,t:'$757M',l:'Backlog|Jun 2026, pro forma',k:'s1'}],vw:100});};
+C.markets=function(el){
+  var w=W(el),lw=w<420?110:150,vw=30,rh=58,rows=[['Counter-drone',6.6,20.3],['Loitering munitions',5.4,13.3]],h=rows.length*rh+30,max=22,pw=w-lw-vw,s='';
+  function X(v){return lw+pw*v/max;}
+  rows.forEach(function(r,i){var y=i*rh+24,dl=i*.3;
+    s+=txt(0,y+4,r[0],'tx tx-b tx-ink');
+    s+='<line class="gx" x1="'+X(r[1])+'" x2="'+X(r[2])+'" y1="'+y+'" y2="'+y+'" stroke="var(--s3)" stroke-width="3" style="transition-delay:'+dl+'s"/>';
+    s+='<circle class="fade f-s2" cx="'+X(r[1])+'" cy="'+y+'" r="7" style="transition-delay:'+dl+'s"/><circle class="fade f-red" cx="'+X(r[2])+'" cy="'+y+'" r="8" style="transition-delay:'+(dl+.8)+'s"/>';
+    s+=txt(X(r[1]),y+24,'$'+r[1]+'bn','tx','middle')+txt(X(r[2]),y+24,'$'+r[2]+'bn','tx tx-red','middle');});
+  s+=txt(lw,10,'2025','tx')+txt(w-vw,10,'2030','tx tx-red','end');
+  el.innerHTML=svg(w,h,'Counter-drone market forecast to grow from 6.6 to 20.3 billion dollars and loitering munitions from 5.4 to 13.3 billion between 2025 and 2030',s);
+};
+C.dilShares=function(el){vbars(el,{label:'Shares in issue rose from 93 million at end 2024 to about 580 million now',data:[{v:93,t:'93',l:'Dec 24'},{v:381,t:'381',l:'Dec 25'},{v:469,t:'469',l:'Mar 26'},{v:530,t:'530',l:'Jun 26'},{v:571,t:'571',l:'Aug 26'},{v:580,t:'~580',l:'Oct 26',k:'hl'}],max:620,narrowDrop:[3],h:220});};
+C.overhang=function(el){stack(el,{label:'About 580 million shares in issue, plus up to about 293 million potential shares',data:[{v:580,k:'s4',l:'Shares in issue',t:'~580',inl:'~580 issued'},{v:196,k:'hl',l:'Warrants',t:'196'},{v:61,k:'red2',l:'Options and share awards',t:'61'},{v:36,k:'s2',l:'Earn-outs at today\'s price',t:'~36'}]});};
+C.margin=function(el){vbars(el,{label:'Gross margin fell from 53 percent in Q2 2025 to 43 percent in Q2 2026',data:[{v:53,t:'53%',l:'Q2 2025',k:'s3'},{v:43,t:'43%',l:'Q2 2026',k:'hl'}],max:60,h:200,bw:90});};
+C.assets=function(el){stack(el,{label:'Total assets of 2.99 billion dollars: goodwill 661 million, intangibles 583 million, cash and investments 1.38 billion, other 365 million',data:[{v:661,k:'hl',l:'Goodwill',t:'$661M',inl:'Goodwill'},{v:583,k:'red2',l:'Intangible assets',t:'$583M',inl:'Intangibles'},{v:1384,k:'s2',l:'Cash and investments',t:'$1,384M',inl:'Cash and investments'},{v:365,k:'s4',l:'Everything else',t:'$365M'}]});};
+C.lossSplit=function(el){stack(el,{label:'Q2 adjusted EBITDA loss of 50.6 million dollars, of which about 29 million was growth spending',data:[{v:29,k:'s2',l:'Growth spending (discretionary)',t:'~$29M',inl:'Growth spending'},{v:21.6,k:'hl',l:'The rest',t:'~$22M',inl:'The rest'}]});};
+C.consensus=function(el){
+  var w=W(el),d=[['Q4 26',-19.9],['Q1 27',-23.5],['Q2 27',-14.3],['Q3 27',-10.4],['Q4 27',3.8]],s='';
+  function lab(v){return (v<0?'−':'+')+'$'+Math.abs(v)+'M';}
+  var label='Analyst average EBITDA forecasts: losses narrowing from 19.9 million dollars in Q4 2026 to a profit of 3.8 million in Q4 2027';
+  if(w<520){var lw=52,rh=38,h=d.length*rh+6,sc=(w-lw-120)/27.3,mid=lw+62+23.5*sc;
+    s+='<line class="axis" x1="'+mid+'" x2="'+mid+'" y1="0" y2="'+h+'"/>';
+    d.forEach(function(x,i){var y=i*rh+4,bw=Math.max(3,Math.abs(x[1])*sc),neg=x[1]<0,dl=(i*.1).toFixed(2);
+      s+=txt(0,y+19,x[0],'tx tx-b tx-ink');
+      s+='<rect class="'+(neg?'gxr f-s3':'gx f-red')+'" x="'+(neg?mid-bw:mid)+'" y="'+(y+5)+'" width="'+bw+'" height="20" rx="4" style="transition-delay:'+dl+'s"/>';
+      s+=txt(neg?mid-bw-6:mid+bw+6,y+19,lab(x[1]),'tx tx-ink fade',neg?'end':null,(+dl+.5).toFixed(2));});
+    el.innerHTML=svg(w,h,label,s);return;}
+  var h=250,top=30,sc=(h-top-62)/27.3,zero=top+3.8*sc,cw=w/5,bw=Math.min(64,cw*.55);
+  s+='<line class="axis" x1="0" x2="'+w+'" y1="'+zero+'" y2="'+zero+'"/>'+txt(0,zero-6,'Break-even','tx');
+  d.forEach(function(x,i){var cx=cw*i+cw/2,bh=Math.max(3,Math.abs(x[1])*sc),neg=x[1]<0,dl=(i*.1).toFixed(2);
+    s+='<rect class="'+(neg?'gyn f-s3':'gy f-red')+'" x="'+(cx-bw/2)+'" y="'+(neg?zero:zero-bh)+'" width="'+bw+'" height="'+bh+'" rx="4" style="transition-delay:'+dl+'s"/>';
+    s+=txt(cx,neg?zero+bh+16:zero-bh-8,lab(x[1]),'tx tx-ink fade','middle',(+dl+.5).toFixed(2));
+    s+=txt(cx,h-6,x[0],'tx tx-ink','middle');});
+  el.innerHTML=svg(w,h,label,s);
+};
+C.regions=function(el){hbars(el,{label:'Q2 revenue: Israel 37.5 million, Europe 19.4, North America 17.3, Africa 4.3, other 5.4',data:[{v:37.5,t:'$37.5M  45%',l:'Israel',k:'hl'},{v:19.4,t:'$19.4M  23%',l:'Europe'},{v:17.3,t:'$17.3M  21%',l:'North America'},{v:4.3,t:'$4.3M  5%',l:'Africa',k:'s3'},{v:5.4,t:'$5.4M  6%',l:'Other',k:'s3'}],vw:110,lw:120});};
+C.pipeRegions=function(el){hbars(el,{label:'Pipeline by region: Europe more than 4.1 billion, Asia-Pacific 3.8, US 2.8, Middle East 0.4',data:[{v:4.1,t:'$4.1bn+',l:'Europe',k:'s1'},{v:3.8,t:'$3.8bn',l:'Asia-Pacific',k:'s1'},{v:2.8,t:'$2.8bn',l:'United States',k:'s1'},{v:0.4,t:'$0.4bn',l:'Middle East',k:'s3'}],vw:80,lw:120});};
+C.ladder=function(el){
+  var w=W(el),h=360,t=14,b=14,l=44;function Y(v){return t+(h-t-b)*(30-v)/30;}var s='';
+  [0,10,20,30].forEach(function(v){s+='<line class="gridl" x1="'+l+'" x2="'+w+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/>'+txt(l-8,Y(v)+4,'$'+v,'tx','end');});
+  s+='<rect class="gy" x="'+(l+12)+'" y="'+Y(28)+'" width="5" height="'+(Y(6.1)-Y(28))+'" rx="2.5" fill="var(--red-fill)" opacity=".5"/>';
+  var M=[[28,'Warrants at $28','121.6M of them, from January','est'],[20,'Warrants at $20','About 74M, from October 2025','est'],[16.45,'January raise $16.45','Where big investors bought in','red'],[15.28,'Record high $15.28','12 January 2026','s2'],[6.10,'Today $6.10','Close on 20 October','ink']];
+  M.forEach(function(m,i){var y=Y(m[0]),dl=(.3+i*.15).toFixed(2),cx=l+14.5,dy=i===3?16:i===2?-6:0;
+    var dot=m[3]==='est'?'<circle cx="'+cx+'" cy="'+y+'" r="7" fill="var(--bg)" stroke="var(--red-ink)" stroke-width="2" stroke-dasharray="3 2"/>':'<circle cx="'+cx+'" cy="'+y+'" r="7" fill="'+(m[3]==='red'?'var(--red-fill)':m[3]==='s2'?'var(--s2)':'var(--ink)')+'"/>';
+    s+='<g class="fade" style="transition-delay:'+dl+'s">'+dot+'</g>';
+    s+=txt(cx+18,y+dy+1,m[1],'tx tx-b tx-ink fade',null,+dl)+txt(cx+18,y+dy+16,m[2],'tx fade',null,+dl);});
+  el.innerHTML=svg(w,h,'Price ladder: warrants at 28 and 20 dollars, January raise at 16.45, record high 15.28, today 6.10',s);
+};
+C.oppPrime=function(el){hbars(el,{label:'Army programme still open about 740 million dollars, against Ondas 2026 revenue target of 525 to 550 million and 240 million awarded so far',data:[{v:740,t:'~$740M',l:'Army programme|still open',k:'hl'},{v:537.5,t:'$525M to $550M',l:'Ondas 2026|revenue target',k:'s1'},{v:242,t:'$240M+',l:'Army orders|awarded so far',k:'s3'}],vw:120});};
+C.oppSoft=function(el){vbars(el,{label:'Illustrative: 100 of revenue grows to about 157 over four years at 112 percent retention',data:[{v:100,t:'100',l:'Year 1',k:'s3'},{v:112,t:'112',l:'Year 2',k:'s2'},{v:125,t:'125',l:'Year 3',k:'s2'},{v:140,t:'140',l:'Year 4',k:'s2'},{v:157,t:'157',l:'Year 5',k:'hl'}],max:170,h:220});};
+C.oppRamp=function(el){hbars(el,{label:'Pipeline more than 11 billion dollars, exit run rate about 1 billion, backlog 757 million, 2026 revenue target 525 to 550 million',data:[{v:11000,t:'$11,000M+',l:'Pipeline|opportunities',k:'s3'},{v:1024,t:'~$1,000M',l:'Run rate|leaving 2026',k:'hl'},{v:757,t:'$757M',l:'Backlog|June, pro forma',k:'s1'},{v:537.5,t:'$525M to $550M',l:'2026|revenue target',k:'s2'}],vw:120});};
+C.oppCash=function(el){vbars(el,{label:'Cash and investments: 452 million in September 2025, 573 million in December 2025, 1.47 billion in March 2026, 1.38 billion in June 2026, estimated year-end net cash about 775 million',data:[{v:452,t:'452',l:'Sep 25',k:'s3'},{v:573,t:'573',l:'Dec 25',k:'s3'},{v:1470,t:'1,470',l:'Mar 26',k:'s2'},{v:1384,t:'1,384',l:'Jun 26',k:'hl'},{v:775,t:'~775',l:'Dec 26|net, estimate',k:'est'}],max:1600,twoLine:true});};
+C.reset=function(el){vbars(el,{label:'Enterprise value to 2026 guided revenue: about 30 times at the January high, about 5.2 times now',data:[{v:30,t:'~30x',l:'January high',k:'s3'},{v:5.2,t:'~5.2x',l:'Today',k:'hl'}],max:34,h:220,bw:96});};
+
+/* ---------- render + observe ---------- */
+var io=canIO?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});},{threshold:.2}):null;
+function visible(el){return !!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);}
+function renderOne(el){
+  var k=el.getAttribute('data-chart');
+  if(C[k]&&visible(el)){var w=el.clientWidth;if(el._w===w)return;el._w=w;C[k](el);}
+  el.querySelectorAll('[data-sub]').forEach(function(sub){var sk=sub.getAttribute('data-sub');if(C[sk]&&visible(sub)){var sw=sub.clientWidth;if(sub._w===sw)return;sub._w=sw;C[sk](sub);}});
+}
+function renderAll(){document.querySelectorAll('.viz[data-chart]').forEach(renderOne);}
+var ioLate=canIO?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');ioLate.unobserve(e.target);}});},{threshold:.5}):null;
+document.querySelectorAll('.viz').forEach(function(el){if(!io){el.classList.add('in');}else if(el.hasAttribute('data-late')){ioLate.observe(el);}else{io.observe(el);}});
+document.querySelectorAll('[data-replay]').forEach(function(b){b.addEventListener('click',function(){var v=document.getElementById(b.getAttribute('data-replay'));v.classList.add('reset');v.classList.remove('in');void v.offsetWidth;v.classList.remove('reset');requestAnimationFrame(function(){requestAnimationFrame(function(){v.classList.add('in');});});});});
+
+/* ---------- cards ---------- */
+var mq=window.matchMedia('(max-width:760px)');
+document.querySelectorAll('.cards').forEach(function(sec){
+  var btns=[].slice.call(sec.querySelectorAll('.pcard')),host=sec.querySelector('.panelhost');
+  function panelOf(b){return document.getElementById(b.getAttribute('aria-controls'));}
+  function place(){btns.forEach(function(b){var p=panelOf(b);if(mq.matches){b.after(p);}else{host.appendChild(p);}});}
+  function show(b,on){var p=panelOf(b);b.setAttribute('aria-expanded',on?'true':'false');p.hidden=!on;
+    p.querySelectorAll('.viz').forEach(function(v){if(on){v._w=null;renderOne(v);if(io){io.observe(v);}else{v.classList.add('in');}}else{v.classList.remove('in');if(io)io.unobserve(v);}});}
+  btns.forEach(function(b){b.addEventListener('click',function(){
+    var open=b.getAttribute('aria-expanded')==='true';
+    if(open&&!mq.matches)return;
+    btns.forEach(function(o){if(o!==b&&o.getAttribute('aria-expanded')==='true')show(o,false);});
+    show(b,!open);
+    if(mq.matches&&!open){setTimeout(function(){b.scrollIntoView({block:'start',behavior:reduce?'auto':'smooth'});},30);}
+  });});
+  function sync(){place();if(!mq.matches&&!btns.some(function(b){return b.getAttribute('aria-expanded')==='true';})){show(btns[0],true);}}
+  sec._sync=sync;sync();
+});
+function onMQ(){document.querySelectorAll('.cards').forEach(function(s){s._sync();});document.querySelectorAll('.viz[data-chart]').forEach(function(v){v._w=null;});renderAll();}
+if(mq.addEventListener){mq.addEventListener('change',onMQ);}else if(mq.addListener){mq.addListener(onMQ);}
+
+/* ---------- coin ---------- */
+var coin=document.getElementById('coin');
+if(coin){var faces=coin.querySelectorAll('.face');coin.querySelectorAll('[data-flip]').forEach(function(b){b.addEventListener('click',function(){
+  var f=coin.classList.toggle('flip');faces[0].setAttribute('aria-hidden',f?'true':'false');faces[1].setAttribute('aria-hidden',f?'false':'true');
+  faces[0].querySelector('[data-flip]').tabIndex=f?-1:0;faces[1].querySelector('[data-flip]').tabIndex=f?0:-1;
+  (f?faces[1]:faces[0]).querySelector('[data-flip]').focus({preventScroll:true});});});}
+
+/* ---------- valuation switcher ---------- */
+var V={a:{x:'55x',p:61,t:'On 2025 actual revenue of <b>$50.7M</b>, about <b>55 times sales</b>. Very expensive on this view, but 2025 was before most of the acquisitions.'},
+       b:{x:'5.2x',p:9.5,t:'On the <b>$525M to $550M</b> target for 2026, about <b>5.2 times sales</b>. High for a defence company, but not for one growing this fast.'},
+       c:{x:'2.8x',p:5.1,t:'On the analyst average for 2027 of about <b>$1bn</b>, about <b>2.8 times sales</b>. What matters then is how much of that revenue becomes profit.'}};
+var sbtns=document.querySelectorAll('.switch button');
+sbtns.forEach(function(b){b.addEventListener('click',function(){var k=b.getAttribute('data-v');sbtns.forEach(function(o){o.setAttribute('aria-pressed',o===b?'true':'false');});
+  document.getElementById('mN').textContent=V[k].x;document.getElementById('mF').style.width=V[k].p+'%';document.getElementById('mS').innerHTML=V[k].t;});});
+
+/* ---------- chapter chips ---------- */
+var chips=[].slice.call(document.querySelectorAll('#chips a'));
+if(canIO){var cio=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var id=e.target.id;chips.forEach(function(c){var on=c.getAttribute('href')==='#'+id;c.classList.toggle('on',on);if(on){c.setAttribute('aria-current','true');var bar=c.parentNode;var x=c.offsetLeft-bar.clientWidth/2+c.clientWidth/2;bar.scrollTo({left:x,behavior:reduce?'auto':'smooth'});}else{c.removeAttribute('aria-current');}});}});},{rootMargin:'-35% 0px -60% 0px'});
+  document.querySelectorAll('section.ch[id^="ch"]').forEach(function(s){cio.observe(s);});
+  window.addEventListener('scroll',function(){var c1=document.getElementById('ch1');if(c1.getBoundingClientRect().top>window.innerHeight*.4){chips.forEach(function(c){c.classList.remove('on');c.removeAttribute('aria-current');});}},{passive:true});}
+
+/* ---------- go ---------- */
+renderAll();
+var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(renderAll,120);});
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(function(){document.querySelectorAll('.viz[data-chart]').forEach(function(v){v._w=null;});renderAll();});}
+})();
+</script>
+</body>
+</html>

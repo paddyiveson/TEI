@@ -818,6 +818,14 @@ TEI.render = TEI.render || {};
         const top = (list || []).filter(n=> n.category === 'Growth Portfolio').slice(0, 3);
         $s('libSuite').insertAdjacentHTML('beforeend', top.map(n=> `<li><a href="/hub/suite.html?note=${encodeURIComponent(n.slug)}">${esc(n.name)}<small>${esc(n.summary || '')}</small></a></li>`).join(''));
       }).catch(()=>{});
+      // Members' articles shelf: the newest two (D7, /hub/members-articles.json).
+      fetch('/hub/members-articles.json').then(r=> r.ok ? r.json() : []).then(list=>{
+        const top = (list || []).slice().sort((a, b)=> String(b.date).localeCompare(String(a.date))).slice(0, 2);
+        if(!top.length) return;
+        $s('libArticles').innerHTML = top.map(a=> `<li><a href="/hub/members/${encodeURIComponent(a.slug)}.html">${esc(a.short || a.title)}<small>${esc(a.category)} · ${esc(a.readTime)} min read</small></a></li>`).join('');
+        $s('libArticles').hidden = false;
+        $s('libArticlesEmpty').hidden = true;
+      }).catch(()=>{});
     }
     renderLibNotes(docs);
   }
