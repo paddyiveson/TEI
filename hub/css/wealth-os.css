@@ -791,7 +791,7 @@ input[type=file]::file-selector-button:hover{opacity:0.88;}
    defined but never actually used by renderClientListRows -- repurposed
    here rather than left orphaned.) */
 /* ================= Set up Wealth OS (B13), hub/js/wealth-setup.js ================= */
-#setupApp[data-theme="light"]{ --s-bg:#F2EFE7; --s-side:#FFFFFF; --s-tile:#FFFFFF; --s-line:#DEDAD0; --s-text:#13213A; --s-muted:#4E5B70; --s-champ:#F0E7D0; --s-powder:#DFE6F2; --s-gold:#83661C; --s-track:#E9E5DA; --s-chip:#F7F4ED; --s-act:#0F1E36; --s-act-text:#E8D6A8; color-scheme:light; }
+#setupApp[data-theme="light"]{ --s-bg:#F2EFE7; --s-side:#FFFFFF; --s-tile:#FFFFFF; --s-line:#DEDAD0; --s-text:#13213A; --s-muted:#4E5B70; --s-champ:#F0E7D0; --s-powder:#DFE6F2; --s-gold:#14376E; --s-track:#E9E5DA; --s-chip:#F7F4ED; --s-act:#0F1E36; --s-act-text:#E8D6A8; color-scheme:light; }
 #setupApp[data-theme="dark"]{ --s-bg:#0B1729; --s-side:#0F1E36; --s-tile:#12233D; --s-line:rgba(232,214,168,0.14); --s-text:#F7F4ED; --s-muted:#AAB6C8; --s-champ:#28303A; --s-powder:#1C2B45; --s-gold:#E8D6A8; --s-track:rgba(255,255,255,0.10); --s-chip:rgba(255,255,255,0.05); --s-act:#E8D6A8; --s-act-text:#0F1E36; color-scheme:dark; }
 html.su-open, html.su-open body{ overflow:hidden; }
 .su{ position:fixed; inset:0; z-index:5500; overflow-y:auto; background:var(--s-bg); color:var(--s-text); font-family:'Geist',system-ui,sans-serif; font-size:15px; line-height:1.5; }
@@ -856,7 +856,7 @@ html.su-open, html.su-open body{ overflow:hidden; }
 .su-two{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
 .su-three{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
 .su-check{ display:flex; gap:12px; align-items:center; min-height:44px; font-size:14px; }
-.su-check input{ width:22px; height:22px; margin:0; accent-color:#83661C; }
+.su-check input{ width:22px; height:22px; margin:0; accent-color:var(--s-gold); }
 .su-chips{ display:flex; flex-wrap:wrap; gap:8px; }
 .su-chip{ min-height:44px; min-width:56px; padding:0 16px; border-radius:999px; border:1px solid var(--s-line); background:var(--s-tile); color:var(--s-text); font-size:14px; cursor:pointer; }
 .su-chip[aria-pressed="true"]{ background:var(--s-act); border-color:var(--s-act); color:var(--s-act-text); }
@@ -991,7 +991,7 @@ html.su-open, html.su-open body{ overflow:hidden; }
 /* Adviser client list (#clientListApp), in the board style (B1.2). */
 #clientListApp[data-theme="light"]{
   --c-bg:#F2EFE7; --c-tile:#FFFFFF; --c-line:#DEDAD0; --c-text:#13213A; --c-muted:#4E5B70; --c-chip:#F7F4ED;
-  --c-gold:#83661C; --c-champ:#F0E7D0; --c-act:#0F1E36; --c-act-text:#E8D6A8; --c-warn:#9A4A1F; --c-ok:#2F6B4F; color-scheme:light;
+  --c-gold:#14376E; --c-champ:#F0E7D0; --c-act:#0F1E36; --c-act-text:#E8D6A8; --c-warn:#9A4A1F; --c-ok:#2F6B4F; color-scheme:light;
 }
 #clientListApp[data-theme="dark"]{
   --c-bg:#0B1729; --c-tile:#12233D; --c-line:rgba(232,214,168,0.14); --c-text:#F7F4ED; --c-muted:#AAB6C8; --c-chip:rgba(255,255,255,0.05);
@@ -3918,3 +3918,71 @@ button.hm-cover:disabled{ cursor:default; }
 .cf-snap .cf-e{ background:#6F89B4; }
 .cf-snap .cf-l{ background:#B9CAE6; }
 #clientApp[data-theme="dark"]{ --cf-e:#4774AE; --cf-l:#AAB6C8; }
+
+/* ================================================================
+   REDESIGN Batch 4 B12.10 -- Set up Wealth OS in the Bold look (B13, B14).
+   The live flow is the design (Paddy, 21 Oct 2026: the draft Setup boards
+   are not used). Layout and copy unchanged; this swaps the flow's own
+   colours for the shared tokens and brings the coach Setup tab into Bold.
+   ================================================================ */
+/* Client flow (scoped to #setupApp: Settings reuses some su- fields). The
+   --s-* names now read the shared tokens (no browns). */
+#setupApp[data-theme]{ --s-bg:var(--w-bg); --s-side:var(--w-side); --s-tile:var(--w-tile); --s-line:var(--w-line); --s-text:var(--w-text); --s-muted:var(--w-muted); --s-champ:var(--w-raised); --s-powder:var(--w-powder); --s-gold:var(--w-gold); --s-track:var(--w-track); --s-chip:var(--w-chip); --s-act:var(--w-nav-active); --s-act-text:var(--w-nav-active-text); }
+/* Labels gold (navy in light), as on every other tile. */
+#setupApp .su-k{ color:var(--s-gold); }
+/* Glass on what content scrolls under: top bar, phone progress and nav. */
+#setupApp .su-top, #setupApp .su-mprog, #setupApp .su-nav{ background:var(--w-glass); border-color:var(--w-glass-line); -webkit-backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); }
+@media (min-width:861px){ #setupApp .su-nav{ background:none; -webkit-backdrop-filter:none; backdrop-filter:none; } }
+/* Tile recipe: no border, lit top edge, level-1 shadow. */
+#setupApp .su-card, #setupApp .su-from{ border-color:transparent; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+#setupApp .su-card{ border-radius:26px; }
+/* The question panel and lists are raised, not the old flat grey. */
+#setupApp .su-box, #setupApp .su-rows{ background:var(--w-raised); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+#setupApp .su-in, #setupApp .su-chip{ background:var(--w-tile); }
+#setupApp .su-chip[aria-pressed="true"]{ background:var(--s-act); }
+/* Featured navy tiles glow instead of the dashed rotating ring. */
+#setupApp .su-orbit{ display:none; }
+#setupApp .su-hero{ isolation:isolate; background:var(--w-feat); border:1px solid var(--w-feat-line); color:var(--w-on-feat-text); box-shadow:var(--w-feat-shadow); }
+#setupApp .su-hero::before{ content:''; position:absolute; z-index:-1; width:640px; height:640px; right:-240px; top:-340px; border-radius:50%; background:var(--w-glow); pointer-events:none; }
+#setupApp .su-hero::after{ content:''; position:absolute; z-index:-1; width:480px; height:480px; left:-220px; bottom:-300px; border-radius:50%; background:var(--w-glow-soft); pointer-events:none; }
+#setupApp .su-hero .su-champ{ color:var(--w-on-feat-accent); }
+#setupApp .su-hero p:not(.su-mono){ color:var(--w-on-feat-muted); }
+/* Step rail: the current step gets the active row's ring (the rail's
+   dashed ring is gone, as on every navy tile). */
+#setupApp .su-steps button.cur{ background:rgba(255,255,255,0.05); box-shadow:inset 0 0 0 1px rgba(232,214,168,0.22); }
+#setupApp .su-steps .cur .su-dot{ box-shadow:0 0 8px rgba(232,214,168,0.6); }
+/* Primary button halo in dark (B14.4). */
+#setupApp[data-theme="dark"] .su-btn--primary{ box-shadow:0 0 0 1px rgba(232,214,168,0.25), 0 8px 26px rgba(232,214,168,0.20); }
+
+/* Coach view: Setup tab. The adviser workspace around it is always dark, so
+   the host carries data-theme="dark" and reads the dark tokens. */
+#advSetupHost{ font-family:'Geist',system-ui,sans-serif; color:var(--w-text); }
+#advSetupHost .cs-k{ font-family:'Geist Mono',ui-monospace,monospace; font-size:11px; font-weight:400; letter-spacing:0; text-transform:none; color:var(--w-gold); }
+#advSetupHost .note{ color:var(--w-muted); }
+#advSetupHost .card{ background:var(--w-tile); border:0; border-radius:26px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+#advSetupHost .cs-grow b, #advSetupHost .cs-gap, #advSetupHost .cs-n, #advSetupHost .cs-answers h3, #advSetupHost .cs-tl li.on{ color:var(--w-text); }
+#advSetupHost .cs-grow small, #advSetupHost .cs-gap small, #advSetupHost .cs-off, #advSetupHost .cs-tl li{ color:var(--w-muted); }
+#advSetupHost .cs-gaps, #advSetupHost .cs-ans{ border-color:var(--w-line); }
+#advSetupHost .cs-n{ font-weight:300; letter-spacing:-0.03em; }
+#advSetupHost .cs-dot{ background:var(--w-third); }
+#advSetupHost .cs-dot.on{ background:var(--w-gold); box-shadow:0 0 8px rgba(232,214,168,0.6); }
+#advSetupHost .cs-gap input{ accent-color:var(--w-gold); }
+#advSetupHost .cs-gap em, #advSetupHost .cs-ans b{ color:var(--w-gold); }
+#advSetupHost .cs-tl li span{ border-color:var(--w-line); }
+#advSetupHost .cs-tl li.on span{ background:var(--w-gold); border-color:var(--w-gold); box-shadow:0 0 8px rgba(232,214,168,0.6); }
+#advSetupHost .tag-pill{ font-family:'Geist Mono',ui-monospace,monospace; font-size:11px; font-weight:400; padding:3px 10px; background:var(--w-chip); color:var(--w-gold); box-shadow:inset 0 0 0 1px var(--w-line); }
+/* "[Name] will see" is the featured tile: brand navy with the glow. */
+#advSetupHost .cs-send{ position:relative; isolation:isolate; overflow:hidden; background:var(--w-feat); border:1px solid var(--w-feat-line); box-shadow:var(--w-feat-shadow); }
+#advSetupHost .cs-send::before{ content:''; position:absolute; z-index:-1; width:520px; height:520px; right:-220px; top:-280px; border-radius:50%; background:var(--w-glow); pointer-events:none; }
+#advSetupHost .cs-send .cs-k{ color:var(--w-on-feat-accent); }
+#advSetupHost .cs-send .note{ color:var(--w-on-feat-muted); }
+#advSetupHost .btn-primary, #advSetupHost .btn-ghost{ min-height:44px; padding:0 20px; border-radius:999px; font-family:inherit; font-size:14px; font-weight:500; }
+#advSetupHost .btn-primary{ background:var(--w-nav-active); color:var(--w-nav-active-text); box-shadow:0 0 0 1px rgba(232,214,168,0.25), 0 8px 26px rgba(232,214,168,0.20); }
+#advSetupHost .btn-ghost{ background:transparent; color:var(--w-text); border:1px solid var(--w-line); }
+#advSetupHost .cs-q button{ min-height:32px; padding:0 12px; font-size:12px; }
+#advSetupHost .form-field{ color:var(--w-muted); font-size:13px; }
+#advSetupHost .form-field input, #advSetupHost .form-field select{ min-height:48px; padding:0 14px; border-radius:14px; border:1px solid var(--w-line); background:var(--w-raised); color:var(--w-text); font-family:inherit; font-size:15px; color-scheme:dark; }
+#advSetupHost .form-field input::placeholder{ color:var(--w-muted); }
+#advSetupHost .form-field input:focus, #advSetupHost .form-field select:focus{ border-color:var(--w-gold); outline:none; }
+/* The email preview sits on powder, as on the board. */
+#advSetupHost .cs-side > .card:last-child{ background:var(--w-powder); }
