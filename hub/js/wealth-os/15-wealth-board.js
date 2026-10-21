@@ -246,21 +246,88 @@ TEI.render = TEI.render || {};
   }
 
   /* ---------------- Dividends (B5.1) ----------------
-     Only when there are dividend-paying holdings. TODO(H2 #12): the tax
-     year so far, the next expected date and each payer's account need
-     dated payments linked to accounts; for now, the expected income a year
-     from the dividend holdings on record, with how often each pays. */
+     When there are dividend holdings (the coach's list: amount, yield,
+     growth, how often it pays) or yearly dividends logged by the coach
+     (clients.dividend_history). Carries over the old Portfolio tile: the
+     yearly chart shows what was received, then an estimate for this year
+     and the next three (today's yield, each holding growing its payout at
+     its own rate); the switch adds what reinvesting each payment as it
+     lands could add, compounding at the holding's own frequency.
+     TODO(H2 #12): the tax year so far, the next expected date and each
+     payer's account need dated payments linked to accounts. */
+  let divReinvest = false;
+  function divIncome(h){ return (Number(h.amount)||0)*(Number(h.yield)||0)/100; }
+  function dividendGrowth(client, holdings){
+    const hist = [...(client.dividendHistory||[])].sort((a,b)=> a.year - b.year);
+    if(hist.length >= 2){
+      const prev = hist[hist.length-2], last = hist[hist.length-1];
+      if(prev.amount > 0) return (last.amount/prev.amount - 1)*100;
+    }
+    const invested = holdings.reduce((s,h)=> s + (Number(h.amount)||0), 0);
+    if(!invested) return null;
+    return holdings.reduce((s,h)=> s + (Number(h.growth)||0)*(Number(h.amount)||0), 0)/invested;
+  }
+  function dividendYears(client, holdings){
+    const hist = [...(client.dividendHistory||[])].sort((a,b)=> a.year - b.year);
+    const histYears = hist.map(y=> y.year);
+    const start = new Date().getFullYear();
+    const ahead = holdings.length ? [start, start+1, start+2, start+3].filter(y=> !histYears.includes(y)) : [];
+    return hist.map(y=> ({year:y.year, got:Number(y.amount)||0, est:0, more:0})).concat(ahead.map(y=>{
+      const n = y - start;
+      const est = holdings.reduce((s,h)=> s + divIncome(h)*Math.pow(1 + (Number(h.growth)||0)/100, n), 0);
+      let more = 0;
+      if(divReinvest){
+        const reinvested = holdings.reduce((s,h)=>{
+          const m = TEI.data.dividendPeriodsPerYear(h.frequency), yld = (Number(h.yield)||0)/100;
+          return s + (Number(h.amount)||0)*Math.pow(1 + (Number(h.growth)||0)/100, n)*Math.pow(1 + yld/m, m*n)*yld;
+        }, 0);
+        more = Math.max(0, reinvested - est);
+      }
+      return {year:y, got:0, est, more};
+    }));
+  }
+  function dividendChart(years){
+    const host = document.getElementById('wlDivChart');
+    const W = Math.max(280, host.clientWidth || 640), H = 200, top = 22, foot = 26;
+    const max = Math.max(1, ...years.map(y=> y.got + y.est + y.more));
+    const slot = W/years.length, bw = Math.min(56, slot*0.56), sc = (H - top - foot)/max;
+    const bar = (cls, x, y0, v)=> v > 0 ? `<rect class="${cls}" x="${x.toFixed(1)}" y="${(y0 - v*sc).toFixed(1)}" width="${bw.toFixed(1)}" height="${(v*sc).toFixed(1)}" rx="5"></rect>` : '';
+    const base = H - foot;
+    const marks = years.map((y, i)=>{
+      const x = i*slot + (slot - bw)/2, sum = y.got + y.est + y.more;
+      return bar('wl-dv-got', x, base, y.got) + bar('wl-dv-est', x, base, y.est) + bar('wl-dv-more', x, base - y.est*sc, y.more) +
+        `<text class="wl-dv-v" x="${(x + bw/2).toFixed(1)}" y="${(base - sum*sc - 6).toFixed(1)}">${esc(fmtGBP(sum))}</text>` +
+        `<text class="wl-dv-y" x="${(x + bw/2).toFixed(1)}" y="${H - 6}">${y.year}</text>`;
+    }).join('');
+    const said = years.map(y=> y.year + (y.got ? ' received ' + fmtGBP(y.got) : ' estimated ' + fmtGBP(y.est + y.more))).join(', ');
+    const has = k=> years.some(y=> y[k] > 0);
+    host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="${esc('Dividends by year: ' + said)}"><line class="wl-dv-base" x1="0" x2="${W}" y1="${base}" y2="${base}"></line>${marks}</svg>` +
+      `<p class="wl-div-legend">${has('got') ? '<span><i class="wl-dv-got"></i>Received</span>' : ''}${has('est') ? '<span><i class="wl-dv-est"></i>Estimate</span>' : ''}${has('more') ? '<span><i class="wl-dv-more"></i>Extra if reinvested</span>' : ''}</p>`;
+  }
   function renderDividends(client){
     const tile = document.getElementById('wlDividends');
-    const hs = (client.dividendHoldings||[]).map(h=> ({name:h.name, freq:h.frequency, income:(Number(h.amount)||0)*(Number(h.yield)||0)/100}))
-      .filter(h=> h.income > 0).sort((a,b)=> b.income - a.income);
-    tile.hidden = !hs.length;
-    if(!hs.length) return;
-    const total = hs.reduce((s,h)=> s + h.income, 0);
+    const holdings = (client.dividendHoldings||[]).filter(h=> divIncome(h) > 0);
+    const history = (client.dividendHistory||[]).filter(y=> Number(y.amount) > 0);
+    tile.hidden = !holdings.length && !history.length;
+    if(tile.hidden) return;
+    const total = holdings.reduce((s,h)=> s + divIncome(h), 0);
+    const invested = holdings.reduce((s,h)=> s + (Number(h.amount)||0), 0);
+    const growth = dividendGrowth(client, holdings);
+    tile.querySelectorAll('[data-div-h]').forEach(el=> el.hidden = !holdings.length);
     setText('wlDivTotal', fmtGBP(total));
     setText('wlDivMonthly', fmtGBP(total/12));
-    document.getElementById('wlDivList').innerHTML = hs.map(h=>
-      `<li><span><b>${esc(h.name)}</b><small>${esc(TEI.calc.dividendFrequencyLabel ? TEI.calc.dividendFrequencyLabel(h.freq) : (h.freq || 'Annually'))}</small></span><b>${fmtGBP(h.income)}</b></li>`).join('');
+    setText('wlDivYield', invested ? (total/invested*100).toFixed(1) + '%' : '–');
+    setText('wlDivGrowth', growth == null ? '–' : (growth >= 0 ? '+' : '') + growth.toFixed(1) + '% a year');
+    const sw = document.getElementById('wlDivSwitch');
+    sw.innerHTML = holdings.length ? `<button type="button" class="wl-switch" role="switch" aria-checked="${divReinvest}"><span class="wl-switch-track" aria-hidden="true"><span></span></span>Show reinvested growth</button>` : '';
+    const btn = sw.querySelector('button');
+    if(btn) btn.onclick = ()=>{ divReinvest = !divReinvest; renderDividends(client); const again = sw.querySelector('button'); if(again) again.focus(); };
+    dividendChart(dividendYears(client, holdings));
+    setText('wlDivNote', (history.length ? 'Received is what your coach has logged for each year. ' : '') +
+      (holdings.length ? 'Estimates assume today\'s yield, with each holding growing its payout at its own rate. ' : '') +
+      (divReinvest ? 'The extra shows what reinvesting each payment as it lands could add. ' : '') + 'Illustrative, not a guarantee.');
+    document.getElementById('wlDivList').innerHTML = holdings.map(h=> ({name:h.name, freq:h.frequency, income:divIncome(h)})).sort((a,b)=> b.income - a.income).map(h=>
+      `<li><span><b>${esc(h.name)}</b><small>${esc(TEI.data.dividendFrequencyLabel(h.freq))} · ${total ? Math.round(h.income/total*100) : 0}% of your dividends</small></span><b>${fmtGBP(h.income)}</b></li>`).join('');
   }
 
   /* ---------------- Update balances panel ----------------
@@ -355,11 +422,12 @@ TEI.render = TEI.render || {};
       if(info) info.parentNode.classList.toggle('open');
     });
     document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') document.querySelectorAll('.wl-i.open').forEach(w=> w.classList.remove('open')); });
-    // The read-only treemap is laid out for its width, so redraw it on resize.
+    // The read-only treemap and the dividends chart are laid out for their
+    // width, so redraw them on resize.
     let resizeT = null;
     window.addEventListener('resize', ()=>{
       clearTimeout(resizeT);
-      resizeT = setTimeout(()=>{ const c = TEI.app.state.client; if(c && TEI.app.state.currentPage === 'progress') renderPortfolioView(c); }, 200);
+      resizeT = setTimeout(()=>{ const c = TEI.app.state.client; if(c && TEI.app.state.currentPage === 'progress'){ renderPortfolioView(c); renderDividends(c); } }, 200);
     });
     // Keep keyboard focus inside the open panel.
     document.getElementById('wlUpdPanel').addEventListener('keydown', (e)=>{

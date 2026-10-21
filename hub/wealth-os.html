@@ -441,13 +441,22 @@ window.TeiTheme && TeiTheme.paint();</script>
       <ol class="wl-movelist" id="wlMoveList"></ol>
     </section>
 
-    <!-- 5. Dividends (B5.1), only when there are dividend-paying holdings.
+    <!-- 5. Dividends (B5.1), when there are dividend holdings or logged
+         yearly dividends. Carries over the old Portfolio tile: income, yield,
+         growth, the yearly chart (received, then estimated) with the
+         reinvest switch, and each payer's share.
          TODO(H2 #12): "This tax year so far" and the next expected date need
-         dated payments linked to accounts; until then this shows the
-         expected income a year from the dividend holdings on record. -->
+         dated payments linked to accounts. -->
     <section class="hm-tile hm-champ wl-div" id="wlDividends" hidden>
-      <p class="hm-label">Dividends</p>
-      <div class="wl-div-top"><div><p class="wl-div-k">Expected a year</p><p class="wl-div-big" id="wlDivTotal">–</p></div><div><p class="wl-div-k">A month, on average</p><p class="wl-div-mid" id="wlDivMonthly">–</p></div></div>
+      <div class="wl-div-head"><p class="hm-label">Dividends</p><span id="wlDivSwitch"></span></div>
+      <div class="wl-div-top">
+        <div data-div-h><p class="wl-div-k">Expected a year</p><p class="wl-div-big" id="wlDivTotal">–</p></div>
+        <div data-div-h><p class="wl-div-k">A month, on average</p><p class="wl-div-mid" id="wlDivMonthly">–</p></div>
+        <div data-div-h><p class="wl-div-k">Yield</p><p class="wl-div-mid" id="wlDivYield">–</p></div>
+        <div><p class="wl-div-k">Dividend growth</p><p class="wl-div-mid" id="wlDivGrowth">–</p></div>
+      </div>
+      <div class="wl-div-chart" id="wlDivChart"></div>
+      <p class="wl-div-note" id="wlDivNote"></p>
       <ul class="wl-divlist" id="wlDivList"></ul>
     </section>
 
