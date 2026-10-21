@@ -144,7 +144,7 @@ TEI.render = TEI.render || {};
      from the coach, the top insight takes the lead slot on a raised tile.
      Up to three insight cards follow, highest priority first, each marked
      Needs attention, Worth knowing or Good news; with fewer, they share the
-     space. Wired to the signals engine and renderWealthInsights' sentences.
+     space. Wired to the signals engine and TEI.render.wealthInsightItems.
      TODO(H2 #7): rules, wording and priority from the insight engine session. */
   const TIER = {critical:['warn', 'Needs attention'], warning:['warn', 'Needs attention'], positive:['pos', 'Good news'], neutral:['muted', 'Worth knowing']};
   function markHTML(tier){ const t = TIER[tier] || TIER.neutral; return `<span class="wl-mark wl-mark-${t[0]}"><i aria-hidden="true"></i>${t[1]}</span>`; }

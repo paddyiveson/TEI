@@ -502,21 +502,12 @@ TEI.render = TEI.render || {};
     return items;
   }
   TEI.render.wealthInsightItems = wealthInsightItems;
-  function renderWealthInsights(client){
-    const list = document.getElementById('wealthInsightsList');
-    if(!list) return;
-    list.innerHTML = wealthInsightItems(client).map(t=>
-      `<div class="insight-item" style="display:flex; gap:8px; font-size:12.5px; line-height:1.55; margin-bottom:8px; color:var(--k-ink);"><div style="width:5px; height:5px; border-radius:50%; background:var(--k-ink-softer); flex:none; margin-top:6px;"></div>${t}</div>`
-    ).join('');
-  }
-
   TEI.render.progress = function(client){
     renderOverview(client);
     wireTimelineToggle(client);
     renderWealthPricesAsOf(client);
     renderTimeline(client);
     renderComposition(client);
-    renderWealthInsights(client);
   };
 })();
 

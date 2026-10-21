@@ -4,7 +4,6 @@ TEI.render = TEI.render || {};
 (function(){
   const {fmtGBP} = TEI.data;
 
-  const DOC_TYPE_LABEL = {statement:'ST', report:'RP', note:'MN', forecast:'FC', other:'DOC'};
   // Uploaded files (forecasts and every other type) open in the full-screen
   // viewer (TEI.forecastView); only link-only entries are plain links.
   function docOpenHTML(d){
@@ -18,20 +17,6 @@ TEI.render = TEI.render || {};
     return [kind, when].filter(Boolean).join(' · ');
   }
 
-  function renderDocuments(client){
-    const list = document.getElementById('documentsList');
-    if(!client.documents.length){
-      list.innerHTML = `<div class="line">No documents yet. Statements, reports and meeting notes added by your adviser will appear here.</div>`;
-      return;
-    }
-    list.innerHTML = client.documents.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(d=>`
-      <div class="k-doc-row" data-doctype="${d.type||''}">
-        <div class="k-doc-icon">${DOC_TYPE_LABEL[d.type]||'DOC'}</div>
-        <div class="k-doc-info"><div class="k-doc-name">${d.name}</div><div class="k-doc-meta">${docMetaText(d)}</div></div>
-        ${docOpenHTML(d)}
-      </div>
-    `).join('');
-  }
 
   /* ================= SETTINGS / ME (redesign B12.9, spec B9) =================
      Settings has a sub-nav with five groups. The My details sections hold
@@ -146,10 +131,12 @@ TEI.render = TEI.render || {};
     $s('stUpAcct').innerHTML = '<option value="">Not about one account</option>' + (client.accounts||[]).map(a=> `<option value="${esc(a.id)}">${esc(TEI.data.acctLabel(a))}</option>`).join('');
     const ups = docs.filter(d=> d.reviewStatus).sort((a,b)=> String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
     $s('stUploads').innerHTML = ups.map(d=> `<li><span><b>${esc(d.name)}</b><small>Sent ${esc(stDate(d.uploadedAt))}</small></span><span class="st-status${d.reviewStatus === 'pending' ? ' st-pending' : ''}">${d.reviewStatus === 'pending' ? 'Waiting for review' : 'Added to your figures'}</span></li>`).join('');
-    const shared = docs.filter(d=> !d.reviewStatus && ['forecast','note','report','plan'].indexOf(d.type) >= 0)
-      .sort((a,b)=> String(b.uploadedAt||'').localeCompare(String(a.uploadedAt||'')));
-    const kind = t => t === 'forecast' ? 'Forecast' : t === 'note' ? 'Meeting note' : t === 'plan' ? 'Plan' : 'Report';
-    $s('stShared').innerHTML = shared.length ? shared.map(d=> `<li><span><b>${esc(d.name)}</b><small>${kind(d.type)} · ${esc(stDate(d.uploadedAt))}</small></span>${d.storagePath ? `<button type="button" class="hm-link hm-linkbtn" data-forecast-open="${esc(d.id)}">Open</button>` : ''}</li>`).join('') : '<li class="st-empty">Nothing shared yet.</li>';
+    // Everything the coach has shared, statements and link-only entries
+    // included: this is the desktop home of the old Documents page (B12.11).
+    const shared = docs.filter(d=> !d.reviewStatus)
+      .sort((a,b)=> String(b.uploadedAt || b.date || '').localeCompare(String(a.uploadedAt || a.date || '')));
+    const kind = t => ({forecast:'Forecast', note:'Meeting note', plan:'Plan', report:'Report', statement:'Statement'})[t] || 'Document';
+    $s('stShared').innerHTML = shared.length ? shared.map(d=> `<li><span><b>${esc(d.name)}</b><small>${esc([kind(d.type), stDate(d.uploadedAt || d.date)].filter(Boolean).join(' · '))}</small></span>${d.storagePath ? `<button type="button" class="hm-link hm-linkbtn" data-forecast-open="${esc(d.id)}">Open</button>` : d.url ? `<a class="hm-link" href="${esc(d.url)}" target="_blank" rel="noopener">Open</a>` : ''}</li>`).join('') : '<li class="st-empty">Nothing shared yet.</li>';
     $s('stLibLink').href = isPhone() ? '#' : '/hub/index.html';
   }
   function renderDocBadge(client){
@@ -851,7 +838,6 @@ TEI.render = TEI.render || {};
   });
   TEI.render.library = renderLibrary;
 
-  TEI.render.documents = renderDocuments;
   TEI.render.mydetails = function(client){ wireSettings(); renderMyDetails(client); };
   TEI.myDetails = { restorePanel: restoreMyDetailsPanel };
 })();

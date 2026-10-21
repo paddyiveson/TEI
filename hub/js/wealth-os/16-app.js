@@ -1,7 +1,9 @@
 window.TEI = window.TEI || {};
 
 (function(){
-  const PAGES = ['home','progress','lab','goals','planning','cashflow','documents','mydetails','menu','library'];
+  const PAGES = ['home','progress','lab','goals','planning','cashflow','mydetails','menu','library'];
+  // Old page names that showPage sends to their new homes (below).
+  const MOVED = ['portfolio','update','documents'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -19,15 +21,15 @@ window.TEI = window.TEI || {};
   }
 
   /* Removed pages land on their new homes (spec B2.2): Portfolio is part of
-     Wealth now (scrolled to Your portfolio; the full Lab is its own screen, B5.4), and Update opens Wealth's Update
-     balances panel. opts.direct still opens the old Update page, which the
-     Cashflow "Update" link uses until Cashflow gets its own panel (B12.8);
-     it goes in the B12.11 clean-up. Goals has its own panel (B12.6). */
+     Wealth now (scrolled to Your portfolio; the full Lab is its own screen,
+     B5.4), Update opens Wealth's Update balances panel, and Documents is
+     Settings > Documents on desktop (B12.11). */
   // On phones the old Library pages open the Library (spec B10) on the matching view.
   const LIB_OLD = {libplan:'lplan', learning:'llearn', documents:'lnotes'};
   function showPage(pageId, opts){
     let after = null;
     if(LIB_OLD[pageId] && window.matchMedia('(max-width:860px)').matches){ mPendingView = LIB_OLD[pageId]; pageId = 'library'; }
+    if(pageId === 'documents' && TEI.settings){ TEI.settings.open('documents'); return; }
     if(pageId === 'portfolio'){ pageId = 'progress'; after = 'pf'; }
     else if(pageId === 'update'){ pageId = 'progress'; after = 'update'; }
     if(PAGES.indexOf(pageId) === -1) pageId = 'home';
@@ -134,78 +136,6 @@ window.TEI = window.TEI || {};
     });
   }
 
-  /* ================= LIBRARY > MEETING NOTES (mobile only) =================
-     The existing Documents page, with a filter: note-type documents first, and
-     an "All documents" chip so statements and reports stay reachable. Document
-     rows store a Storage path (not a URL), so on mobile "Open" asks Storage for
-     a short-lived signed URL. Desktop keeps its existing link untouched. */
-  function wireDocsMobile(mq){
-    const page = document.getElementById('page-documents');
-    const list = document.getElementById('documentsList');
-    if(!page || !list || page.querySelector('.m-chips')) return;
-    const chips = document.createElement('div');
-    chips.className = 'm-chips';
-    chips.setAttribute('role', 'group');
-    chips.setAttribute('aria-label', 'Filter documents');
-    chips.innerHTML = `<button type="button" class="on" data-docs="notes" aria-pressed="true">Meeting notes <span class="n"></span></button>` +
-                      `<button type="button" data-docs="all" aria-pressed="false">All documents <span class="n"></span></button>`;
-    const empty = document.createElement('div');
-    empty.className = 'dcard m-docs-empty';
-    empty.hidden = true;
-    page.appendChild(chips);
-    page.appendChild(empty);
-    chips.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=>{
-      const all = b.dataset.docs === 'all';
-      page.classList.toggle('m-docs-all', all);
-      chips.querySelectorAll('button').forEach(x=>{ const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
-      updateDocsMobile(state.client);
-    }));
-
-    list.addEventListener('click', e=>{
-      const a = e.target.closest && e.target.closest('a.k-doc-open');
-      if(!a || !mq.matches) return;
-      const path = a.getAttribute('href') || '';
-      if(/^https?:/i.test(path)) return;      // already a real URL: let the link work
-      e.preventDefault();
-      if(path && path !== '#') openStoredDocument(path);
-    });
-
-    const base = TEI.render.documents;
-    TEI.render.documents = function(client){ base(client); updateDocsMobile(client); };
-  }
-
-  function updateDocsMobile(client){
-    const page = document.getElementById('page-documents');
-    if(!page || !client) return;
-    const docs = client.documents || [];
-    const notes = docs.filter(d=> d.type === 'note').length;
-    const nums = page.querySelectorAll('.m-chips .n');
-    if(nums[0]) nums[0].textContent = '(' + notes + ')';
-    if(nums[1]) nums[1].textContent = '(' + docs.length + ')';
-    const empty = page.querySelector('.m-docs-empty');
-    if(empty){
-      const forecasts = docs.filter(d=> d.type === 'forecast').length; // forecasts stay visible in the default view
-      const showEmpty = !page.classList.contains('m-docs-all') && notes === 0 && forecasts === 0 && docs.length > 0;
-      empty.hidden = !showEmpty;
-      empty.innerHTML = `<div class="line">No meeting notes yet. Statements and reports are under <b>All documents</b>.</div>`;
-    }
-  }
-
-  async function openStoredDocument(path){
-    const win = window.open('', '_blank'); // opened synchronously from the tap so pop-up blockers allow it
-    try{
-      const clean = path.replace(/^\/+/, '').replace(/^client-documents\//, '');
-      const res = await window.teiSupabase.storage.from('client-documents').createSignedUrl(clean, 300);
-      if(res.error || !res.data || !res.data.signedUrl) throw (res.error || new Error('No URL'));
-      if(win) win.location.href = res.data.signedUrl; else window.location.href = res.data.signedUrl;
-    } catch(err){
-      if(win) win.close();
-      console.error('Wealth OS: could not open document', err);
-      showToast("Could not open this document.");
-    }
-  }
-
-
   /* ================= ME (mobile, B9.1) =================
      Built by TEI.settings: grouped rows that open each Settings section. */
   TEI.render.menu = function(client){
@@ -232,7 +162,6 @@ window.TEI = window.TEI || {};
     });
     const mq = window.matchMedia('(max-width:860px)');
     wireMobileHome(mq);
-    wireDocsMobile(mq);
     // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
     const onChange = ()=>{
       if(!mq.matches && (state.currentPage === 'menu' || state.currentPage === 'libplan' || state.currentPage === 'library')) showPage('home');
@@ -728,7 +657,7 @@ window.TEI = window.TEI || {};
     params.delete('page');
     const qs = params.toString();
     history.replaceState(history.state, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
-    return PAGES.indexOf(p) >= 0 ? p : 'home';
+    return (PAGES.indexOf(p) >= 0 || MOVED.indexOf(p) >= 0) ? p : 'home';
   }
 
   function startClientView(loadedClient){

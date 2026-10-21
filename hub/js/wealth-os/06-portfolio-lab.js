@@ -160,17 +160,12 @@ TEI.render = TEI.render || {};
   }
 
   /* Re-renders every account-scopable card for the current
-     analysisScopeAccountId. Deliberately NOT renderOverview or the
-     dividend-income section -- see the header comment on
-     analysisScopeAccountId above for why those are excluded. Called once
+     analysisScopeAccountId. Deliberately NOT renderOverview -- see the
+     header comment on analysisScopeAccountId above for why. Called once
      up front by wireAnalysisScope and again on every switcher click. */
   function applyAnalysisScope(client){
     const scopeId = analysisScopeAccountId;
-    const suffix = acctHeadingSuffix(client, scopeId);
-    const insHead = document.getElementById('portfolioInsightsHeading');
-    if(insHead) insHead.textContent = 'Portfolio insights' + suffix;
     if(TEI.render.portfolioLab) TEI.render.portfolioLab(client, scopeId); // Portfolio Analysis & Optimisation -- reads scope itself (needs both the full client, for groupedHoldings, and scopeId, to pick ungrouped-per-account holdings); Performance Drivers now lives inside its Analyse stage, see that file section
-    renderInsights(client, scopeId);
     renderPortfolioCoach(client, scopeId);
   }
 
@@ -202,189 +197,6 @@ TEI.render = TEI.render || {};
       });
     });
     applyAnalysisScope(client);
-  }
-
-  /* ---------- Dividend income ---------- */
-  function dividendAnnualIncome(client){
-    return (client.dividendHoldings||[]).reduce((s,h)=> s + (Number(h.amount)||0)*(Number(h.yield)||0)/100, 0);
-  }
-  function weightedYield(client){
-    const totalInvested = (client.dividendHoldings||[]).reduce((s,h)=>s+(Number(h.amount)||0),0);
-    if(!totalInvested) return 0;
-    return dividendAnnualIncome(client)/totalInvested*100;
-  }
-  function dividendGrowthRate(client){
-    const sorted = [...client.dividendHistory].sort((a,b)=>a.year-b.year);
-    if(sorted.length>=2){
-      const prev = sorted[sorted.length-2], latest = sorted[sorted.length-1];
-      if(prev.amount>0) return (latest.amount/prev.amount-1)*100;
-    }
-    const holdings = client.dividendHoldings||[];
-    if(!holdings.length) return null;
-    const totalInvested = holdings.reduce((s,h)=>s+(Number(h.amount)||0),0);
-    if(!totalInvested) return null;
-    return holdings.reduce((s,h)=> s+(Number(h.growth)||0)*(Number(h.amount)||0), 0)/totalInvested;
-  }
-
-  function renderDivStats(client){
-    if(!document.getElementById('divStatsRow')) return; // Wealth has its own Dividends tile now (B5.1)
-    const annual = dividendAnnualIncome(client);
-    const growth = dividendGrowthRate(client);
-    document.getElementById('divStatsRow').innerHTML = `
-      <div class="rs">Current annual income<b>${fmtGBP(annual)}</b></div>
-      <div class="rs">Monthly equivalent<b>${fmtGBP(annual/12)}</b></div>
-      <div class="rs">Current yield<b>${weightedYield(client).toFixed(1)}%</b></div>
-      <div class="rs">Dividend growth rate<b class="${growth==null?'':(growth>=0?'up':'down')}">${growth==null?'–':fmtPct(growth)}</b></div>
-    `;
-  }
-
-  function renderDivIncomeChart(client, showReinvested){
-    if(!document.getElementById('chartDivIncome')) return;
-    const {GOLD, FOREST, GRID, makeChart} = TEI.charts;
-    const historySorted = [...client.dividendHistory].sort((a,b)=>a.year-b.year);
-    const historyYears = historySorted.map(y=>y.year);
-    const holdings = client.dividendHoldings||[];
-    const startYear = new Date().getFullYear();
-    const forecastYears = [startYear, startYear+1, startYear+2, startYear+3].filter(y=> !historyYears.includes(y));
-
-    if(!historyYears.length && !holdings.length){
-      makeChart('chartDivIncome', {type:'bar', data:{labels:[],datasets:[]}, options:{maintainAspectRatio:false}});
-      return;
-    }
-
-    const allYears = [...historyYears, ...forecastYears];
-    const actualData = allYears.map(y=>{
-      const match = historySorted.find(h=>h.year===y);
-      return match ? match.amount : null;
-    });
-    // Base forecast, income taken, no reinvestment. Always shown for
-    // future years, whether or not the toggle is on.
-    const forecastData = allYears.map(y=>{
-      if(!forecastYears.includes(y) || !holdings.length) return null;
-      const yrsOut = y - startYear;
-      return holdings.reduce((s,h)=> s + (Number(h.amount)||0)*(Number(h.yield)||0)/100*Math.pow(1+(Number(h.growth)||0)/100, yrsOut), 0);
-    });
-    // Reinvested-growth segment, the *extra* on top of the base forecast if
-    // dividends are reinvested instead of taken. Stacks visually above the
-    // gold forecast bar when the toggle is on.
-    // Both paths now compound on the same payout-growth factor
-    // (1+growth/100)^yrsOut, previously "taken" applied growth but
-    // "reinvested" did not, so a holding with strong growth but modest yield
-    // could show taken income overtaking the reinvested position, and the
-    // clamp-to-zero hid the reinvestment benefit exactly where compounding
-    // matters most. Reinvestment is now a strict multiplicative bonus on
-    // top of that shared growth factor, so the extra segment can never be
-    // negative, the Math.max(0, ...) below is just float-rounding safety
-    // at yrsOut=0, not load-bearing the way it used to be.
-    // Compounds at the holding's actual payment frequency, not once a year —
-    // a monthly payer reinvests (and so compounds) 12x/yr at the same
-    // nominal yield, which meaningfully outgrows an annual payer over time.
-    const reinvestExtra = allYears.map((y,i)=>{
-      if(!showReinvested || !forecastYears.includes(y) || !holdings.length) return null;
-      const yrsOut = y - startYear;
-      const reinvestedTotal = holdings.reduce((s,h)=>{
-        const m = TEI.data.dividendPeriodsPerYear(h.frequency);
-        const growthFactor = Math.pow(1+(Number(h.growth)||0)/100, yrsOut);
-        const reinvestFactor = Math.pow(1+(Number(h.yield)||0)/100/m, m*yrsOut);
-        const value = (Number(h.amount)||0) * growthFactor * reinvestFactor;
-        return s + value*(Number(h.yield)||0)/100;
-      }, 0);
-      return Math.max(0, reinvestedTotal - (forecastData[i]||0));
-    });
-
-    makeChart('chartDivIncome', {
-      type:'bar',
-      data:{
-        labels: allYears.map(String),
-        datasets:[
-          {label:'Actual dividend income', data:actualData, backgroundColor:GOLD, borderRadius:5, stack:'income'},
-          {label:'Forecast income (taken)', data:forecastData, backgroundColor:'rgba(201,168,76,0.4)', borderRadius: showReinvested?0:5, stack:'income'},
-          {label:'Extra if reinvested', data:reinvestExtra, backgroundColor:FOREST, borderRadius:5, stack:'income'}
-        ]
-      },
-      options:{
-        maintainAspectRatio:false,
-        plugins:{tooltip:{callbacks:{label:c=> c.raw==null || c.raw===0 ? undefined : `${c.dataset.label}: ${fmtGBP(c.raw)}`}}},
-        scales:{
-          x:{stacked:true, grid:{display:false}},
-          y:{stacked:true, ticks:{callback:v=>'£'+v}, grid:{color:GRID}}
-        }
-      }
-    });
-  }
-
-  const DIV_NOTES = {
-    base: 'Gold bars are actual dividend income received, logged year by year in Adviser Workspace. Faded gold is a forecast, illustrative only and not a guarantee, assumes the yield stays flat and each holding\'s payout grows at its own rate, taken as income with no reinvestment and no share price change.',
-    reinvested: 'Green shows the extra income the forecast years could produce if dividends were reinvested instead of taken, illustrative only, not a guarantee. Assumes each payout is reinvested as it lands, compounding the position at the current yield and the holding\'s own payment frequency (e.g. monthly payers compound monthly), on top of the same payout growth assumed for the taken-as-income bars, a simplified DRIP model rather than a forecast of returns.'
-  };
-
-  function renderDivContributors(client){
-    const body = document.getElementById('divContributorsBody');
-    if(!body) return;
-    const holdings = client.dividendHoldings||[];
-    if(!holdings.length){
-      body.innerHTML = `<tr><td colspan="3"><div class="line">No dividend holdings yet. Add these in Adviser Workspace to model income.</div></td></tr>`;
-      return;
-    }
-    const totalIncome = dividendAnnualIncome(client);
-    const rows = holdings.map(h=>({name:h.name, income:(Number(h.amount)||0)*(Number(h.yield)||0)/100})).sort((a,b)=>b.income-a.income);
-    body.innerHTML = rows.map(r=>`<tr><td>${r.name}</td><td style="text-align:right;">${fmtGBP(r.income)}</td><td style="text-align:right;">${totalIncome?(r.income/totalIncome*100).toFixed(0):'0'}%</td></tr>`).join('');
-  }
-
-  function wireDivToggle(client){
-    const checkbox = document.getElementById('divReinvestCheckbox');
-    if(!checkbox) return;
-    document.getElementById('divViewNote').textContent = DIV_NOTES.base;
-    if(checkbox.dataset.wired) return;
-    checkbox.addEventListener('change', function(){
-      renderDivIncomeChart(client, this.checked);
-      document.getElementById('divViewNote').textContent = this.checked ? (DIV_NOTES.base+' '+DIV_NOTES.reinvested) : DIV_NOTES.base;
-    });
-    checkbox.dataset.wired = '1';
-  }
-
-  /* ---------- Insights ----------
-     Now a thin wrapper around the shared signals engine (see computeSignals),
-     same pattern as Cashflow's behavioural insights. Excludes whatever
-     Portfolio's own Coach's Corner just said above, so the two do not repeat
-     the same sentence -- previously this list recalculated concentration and
-     sector exposure independently, in different wording, with no de-dup
-     against Coach's Corner. */
-  function renderInsights(client, scopeAccountId){
-    const list = document.getElementById('portfolioInsightsList');
-    if(!list) return; // Wealth shows these as cards now (15-wealth-board.js)
-    const scoped = scopedClientView(client, scopeAccountId);
-    // De-dupe against whatever Coach's Corner is actually showing --
-    // mirrors renderPortfolioCoach's own branching exactly (same call,
-    // same excludeIds) so the id used for exclusion here always matches
-    // the signal really occupying that slot above, scoped or not.
-    const coachSignal = scopeAccountId
-      ? TEI.calc.pickTopSignal(scoped, 'portfolio', {excludeIds: ACCOUNT_SCOPE_EXCLUDE_SIGNALS})
-      : TEI.calc.pickTopSignal(client, 'portfolio', {overrideKey:'portfolioCoach'});
-    const excludeIds = coachSignal && coachSignal.id ? [coachSignal.id] : [];
-    if(scopeAccountId) excludeIds.push(...ACCOUNT_SCOPE_EXCLUDE_SIGNALS);
-    const signals = TEI.calc.pickSignals(scoped, 'portfolio', 4, {excludeIds});
-    const lines = signals.map(s=>s.message);
-    if(!lines.length) lines.push('Insights will appear once holdings are logged.');
-    list.innerHTML = lines.map(l=>`<div class="k-insight-item"><div class="dot"></div>${l}</div>`).join('');
-  }
-
-  /* ---------- Investor stage ---------- */
-  const STAGE_INFO = {
-    starting:{ label:'Starting Investor', focus:'Building foundations.', steps:['How investing works','Risk and return','Understanding markets'] },
-    building:{ label:'Building Investor', focus:'Creating a consistent investment approach.', steps:['Diversification','Asset allocation','Portfolio construction'] },
-    confident:{ label:'Confident Investor', focus:'Improving decision quality.', steps:['Behavioural investing','Portfolio analysis','Tax efficiency'] }
-  };
-  function suggestStage(client){
-    const invAccts = investmentAccounts(client);
-    const holdings = client.holdings.length;
-    const months = TEI.calc.buildMergedMonths(client);
-    const b = TEI.calc.latestBreakdown(months);
-    const total = invAccts.reduce((s,a)=>s+(Number(b[a.id])||0),0);
-    const hasCostBasis = client.holdings.some(h=>h.costBasis!=null);
-    if(invAccts.length>=3 && holdings>=8 && total>=50000 && hasCostBasis) return 'confident';
-    if(invAccts.length<=1 || holdings<=3 || total<5000) return 'starting';
-    return 'building';
   }
 
   function renderPortfolioCoach(client, scopeAccountId){
@@ -424,10 +236,6 @@ TEI.render = TEI.render || {};
     renderOverview(client);
     renderPortfolioPricesAsOf(client);
     wireAnalysisScope(client); // also renders the Portfolio Analysis & Optimisation Lab/Performance Drivers/Insights/Coach's Corner, scoped or not
-    renderDivStats(client);
-    renderDivIncomeChart(client, false);
-    renderDivContributors(client);
-    wireDivToggle(client);
   };
 })();
 
@@ -630,8 +438,8 @@ TEI.render = TEI.render || {};
   function driverEmptyNote(client, scopeId){
     const holdings = scopeId ? client.holdings.filter(h=>h.accountId===scopeId) : client.holdings;
     const tips = [];
-    if(holdings.some(h=>h.ticker)) tips.push("for a ticker'd holding, add an Avg open price in Adviser Workspace and hit Refresh price");
-    if(holdings.some(h=>!h.ticker)) tips.push('for others, add a Cost basis in Adviser Workspace');
+    if(holdings.some(h=>h.ticker)) tips.push('for a holding with a ticker, add its average opening price in Settings, under Holdings');
+    if(holdings.some(h=>!h.ticker)) tips.push('for others, add a cost basis in Settings, under Holdings');
     return `Add cost basis to your holdings to see performance drivers${tips.length?', '+tips.join(', or '):''}.`;
   }
 

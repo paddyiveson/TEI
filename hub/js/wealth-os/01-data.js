@@ -1004,7 +1004,7 @@ window.TEI = window.TEI || {};
     if(!hasIncome){
       push({id:'cf-no-data', domain:['cashflow','home'], severity:5, tier:'neutral', relevant:false,
         message:'Add your income and budget to see how effectively your money is converting into future wealth.',
-        actionLabel:'Update in Adviser Workspace', actionPage:'cashflow'});
+        actionLabel:'Go to Cashflow', actionPage:'cashflow'});
     } else {
       if(budgetFi.savings < 0){
         push({id:'cf-deficit', domain:['cashflow','home'], severity:95, tier:'critical',
@@ -1223,7 +1223,7 @@ window.TEI = window.TEI || {};
     const activeGoals = allGoals.filter(g=>g.status!=='completed');
     if(!allGoals.length){
       push({id:'no-goals', domain:['goals'], severity:5, tier:'neutral', relevant:false,
-        message:'No goals set yet. Add goals in Adviser Workspace, or via the client\'s onboarding.',
+        message:'No goals set yet. Add one on Goals, or ask your coach to set them up with you.',
         actionLabel:'Set a goal', actionPage:'goals'});
     } else if(activeGoals.length){
       // On track / behind is goalStatus, the rule the Goals cards and
