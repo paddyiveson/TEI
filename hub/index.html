@@ -4,210 +4,338 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Client Hub -- The Everyday Investor</title>
+<!-- Light or dark before the page paints (tei-theme key, dark by default on /hub/). -->
 <script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/hub/css/hub-tokens.css">
 <style>
-/* Client Hub home (redesign B12.2, spec B2.4 and B3.2, board Hub).
-   Colours come from the shared members' tokens (/hub/css/hub-tokens.css);
-   the page's own names point at them. */
-:root {
-  --bg:var(--w-bg); --side:var(--w-side); --tile:var(--w-tile); --line:var(--w-line); --text:var(--w-text); --muted:var(--w-muted);
-  --champ:var(--w-champ); --powder:var(--w-powder); --gold:var(--w-gold); --track:var(--w-track); --chip:var(--w-chip);
-  --navActive:var(--w-nav-active); --navActiveText:var(--w-nav-active-text); --feat:var(--w-feat); --featLine:var(--w-feat-line);
-  --shadow:var(--w-shadow-2);
-  --ink:var(--text); --ink-soft:var(--muted);
-  color-scheme:light;
-}
+/* Client Hub home, the lobby (BUILD_Client_Hub_Lobby v1.2; boards HubLobby
+   and HubLobbyMobile). Colours come from /hub/css/hub-tokens.css. Navy
+   featured tiles use fixed colours so they look the same in both themes. */
+:root { color-scheme:light; }
 :root[data-theme="dark"] { color-scheme:dark; }
 * { box-sizing:border-box; }
 html, body { margin:0; }
-body { font-family:'Geist', system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
-p, h1, h2, h3, ul { margin:0; }
+body { font-family:'Geist', system-ui, -apple-system, sans-serif; background:var(--w-bg); color:var(--w-text); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+p, h1, h2, h3, ol, ul { margin:0; }
+ol, ul { padding:0; list-style:none; }
 a { color:inherit; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--w-gold); outline-offset:2px; }
+.t-feat a:focus-visible, .t-feat button:focus-visible { outline-color:#E8D6A8; }
 .mono { font-family:'Geist Mono', ui-monospace, Menlo, monospace; }
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-/* Hub top bar (B2.4): sticky glass on desktop (B14) */
-.hb-bar { position:sticky; top:0; z-index:40; background:var(--w-glass); border-bottom:1px solid var(--w-glass-line); -webkit-backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); }
-.hb-bar-in { padding:14px 32px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; }
-.hb-brand { display:inline-flex; align-items:center; gap:10px; min-height:44px; text-decoration:none; font-weight:500; font-size:16px; }
-.hb-brand svg { flex:none; }
-.hb-nav { display:flex; flex-wrap:wrap; gap:4px; align-items:center; font-size:14px; }
-.hb-nav a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; text-decoration:none; color:var(--muted); }
-.hb-nav a:hover { color:var(--text); background:var(--chip); }
-.hb-nav a[aria-current="page"] { background:var(--chip); color:var(--text); }
-.hb-nav a.hb-open { margin-left:6px; padding:0 18px; font-weight:500; background:var(--navActive); color:var(--navActiveText); }
-.hb-nav a.hb-open:hover { opacity:.9; }
-:root[data-theme="dark"] .hb-nav a.hb-open { box-shadow:0 0 0 1px rgba(232,214,168,0.25), 0 8px 24px rgba(232,214,168,0.20); }
-.hb-icon { display:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--tile); color:var(--text); cursor:pointer; align-items:center; justify-content:center; }
-.hb-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+/* ---------- Page header row ---------- */
+.hl { padding:28px 32px 40px; }
+.hl-head { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
+.hl-date { font-size:12px; color:var(--w-muted); }
+.hl-title { margin-top:6px; font-size:36px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
+.hl-date-s { display:none; }
+.hl-head-side { display:flex; align-items:center; gap:8px; }
+.hl-theme { width:44px; height:44px; padding:0; border-radius:50%; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+.hl-theme svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.hl-out { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--w-line); background:transparent; color:var(--w-muted); font-family:inherit; font-size:13px; cursor:pointer; }
+.hl-out:hover { color:var(--w-text); }
 
-/* Page */
-.hb { padding:28px 32px 40px; }
-.hb-head { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
-.hb-date { font-size:12px; color:var(--muted); }
-.hb-title { margin-top:6px; font-size:36px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
-.hb-head-side { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-.hb-seg { display:inline-flex; padding:4px; border-radius:999px; border:1px solid var(--line); background:var(--tile); }
-.hb-seg button { font-family:inherit; font-size:13px; font-weight:500; min-height:36px; min-width:64px; padding:0 14px; border:0; border-radius:999px; cursor:pointer; background:transparent; color:var(--muted); }
-.hb-seg button[aria-pressed="true"] { background:var(--navActive); color:var(--navActiveText); }
-.hb-signout { font-family:inherit; font-size:13px; min-height:44px; padding:0 12px; border:0; background:none; color:var(--muted); cursor:pointer; }
-.hb-signout:hover { color:var(--text); text-decoration:underline; }
-
-.hb-grid { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
-.t { position:relative; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:26px; padding:24px; display:flex; flex-direction:column; gap:12px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); transition:transform .2s ease, box-shadow .2s ease; animation:hb-up .7s cubic-bezier(.2,.8,.2,1) both; }
-.t:hover { transform:translateY(-2px); box-shadow:inset 0 1px 0 var(--w-edge), var(--shadow); }
-.t-champ { background:var(--champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
-.t-setup { grid-column:span 12; flex-direction:row; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; text-decoration:none; }
-.t-setup[hidden] { display:none; }
-.t-setup .lab { font-size:12px; color:var(--gold); }
-.t-setup-h { margin-top:6px; font-size:22px; font-weight:400; letter-spacing:-0.02em; }
-.t-setup-p { margin-top:4px; font-size:14px; color:var(--muted); }
-.t-powder { background:var(--powder); }
-/* Featured navy tiles: identical in both themes, with the champagne glow
-   in place of the old dashed rings (B1.2, B14). */
-.t-feat { background:var(--feat); border-color:var(--featLine); color:var(--w-on-feat-text); overflow:hidden; box-shadow:var(--w-feat-shadow); }
-.t-feat:hover { box-shadow:var(--w-feat-shadow); }
-.t-feat > .orbit { border:0; animation:none; background:var(--w-glow); }
-.lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--gold); }
-.lab-gold { color:var(--gold); }
-.t-feat .lab { color:#E8D6A8; position:relative; }
+/* ---------- Shared tile recipes (2.2) ---------- */
+.hl-grid { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
+.t { position:relative; min-width:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:26px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); display:flex; flex-direction:column; animation:hl-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.t-champ { background:var(--w-champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
+.t-feat { overflow:hidden; background:#14376E; border-color:rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+.t-feat .glow, .t-feat .glow2 { position:absolute; border-radius:50%; pointer-events:none; }
+.t-feat .glow { width:700px; height:700px; right:-16%; top:-70%; background:radial-gradient(closest-side, rgba(232,214,168,0.26), rgba(232,214,168,0)); }
+.t-feat .glow2 { width:520px; height:520px; left:-18%; bottom:-80%; background:radial-gradient(closest-side, rgba(185,202,230,0.18), rgba(185,202,230,0)); }
+.lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--w-gold); }
+.t-feat .lab { color:#E8D6A8; }
 .row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
-.lnk { display:inline-flex; align-items:center; min-height:44px; font-size:13px; color:var(--gold); text-decoration:none; }
+.lnk { display:inline-flex; align-items:center; min-height:40px; font-size:13px; text-decoration:none; color:var(--w-gold); }
+.lnk-m { color:var(--w-muted); }
 .lnk:hover { text-decoration:underline; }
-.btn { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--line); background:transparent; color:var(--text); font-family:inherit; font-size:14px; font-weight:500; text-decoration:none; cursor:pointer; }
-.btn:hover { background:var(--chip); }
-.btn-primary { border-color:transparent; background:var(--navActive); color:var(--navActiveText); }
-.btn-primary:hover { background:var(--navActive); opacity:.9; }
-.btn-champ { border-color:transparent; background:#E8D6A8; color:#0F1E36; }
-.btn-champ:hover { background:#E8D6A8; opacity:.9; }
-.btn-ghost-feat { border-color:rgba(232,214,168,0.35); color:#F7F4ED; }
-.btn-ghost-feat:hover { background:rgba(255,255,255,0.06); }
-.muted { color:var(--muted); font-size:14px; }
-.orbit { position:absolute; border-radius:50%; pointer-events:none; }
+.btn { align-self:flex-start; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--w-line); background:transparent; color:var(--w-text); font-family:inherit; font-size:14px; font-weight:500; text-decoration:none; cursor:pointer; }
+.btn-p { border-color:transparent; background:var(--w-nav-active); color:var(--w-nav-active-text); box-shadow:var(--w-btn-glow); }
+.btn-c { border-color:transparent; background:#E8D6A8; color:#0F1E36; box-shadow:0 0 0 1px rgba(232,214,168,0.35), 0 6px 22px rgba(232,214,168,0.28); }
+.btn svg, .chev { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; flex:none; }
+.btn[aria-disabled="true"] { opacity:.7; cursor:default; }
+.press { transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease; }
+.press:active { transform:scale(.985); }
+@media (hover:hover) { .lift:hover { transform:translateY(-2px); } }
+.pill { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; padding:4px 10px; border-radius:999px; background:var(--w-chip); border:1px solid var(--w-line); }
 
-/* Open Wealth OS (navy, span 8) */
-.t-wos { grid-column:span 8; padding:28px; flex-direction:row; flex-wrap:wrap; gap:24px; align-items:flex-end; justify-content:space-between; text-decoration:none; }
-.t-wos .orbit { width:700px; height:700px; right:-240px; top:-360px; }
-.t-wos::before { content:''; position:absolute; width:520px; height:520px; left:-220px; bottom:-320px; border-radius:50%; background:var(--w-glow-soft); pointer-events:none; }
-.t-wos-text { position:relative; flex:1 1 260px; }
-.t-wos h2 { margin-top:10px; font-size:32px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
-.t-wos .btn { margin-top:20px; font-size:15px; }
-.t-wos svg { position:relative; flex:1 1 260px; max-width:340px; height:auto; }
-.wos-bar { fill:rgba(185,202,230,0.18); transform-box:fill-box; transform-origin:bottom; animation:hb-rise 1s cubic-bezier(.3,.8,.3,1) both; }
-.wos-line { fill:none; stroke:#E8D6A8; stroke-width:2.6; stroke-linecap:round; stroke-dasharray:900; animation:hb-draw 2.6s cubic-bezier(.6,.05,.2,1) .2s both; }
-.wos-area { animation:hb-fade 1.2s ease .9s both; }
-.wos-dot { fill:#E8D6A8; filter:drop-shadow(0 0 6px rgba(232,214,168,0.9)); }
-.wos-pulse { fill:#E8D6A8; animation:hb-pulse 1.8s ease-out infinite; }
+/* ---------- 4.1 Your plan (hero) ---------- */
+.t-plan { grid-column:span 8; padding:30px; min-height:300px; flex-direction:row; flex-wrap:wrap; gap:24px; }
+.t-plan-text { position:relative; flex:1 1 300px; display:flex; flex-direction:column; gap:14px; min-width:0; }
+.t-plan h2, .t-gs h2 { font-size:30px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
+.t-plan .btn-c { min-height:46px; padding:0 22px; font-size:15px; }
+.docs { display:flex; flex-wrap:wrap; gap:10px; margin-top:auto; }
+.doc { flex:1 1 180px; display:flex; gap:12px; align-items:center; padding:12px; border-radius:16px; text-decoration:none; background:rgba(255,255,255,0.06); border:1px solid rgba(232,214,168,0.22); }
+.doc-ic { flex:none; position:relative; overflow:hidden; display:block; width:38px; height:48px; border-radius:6px; background:#F7F4ED; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+.doc-ic i { position:absolute; display:block; left:6px; height:2px; background:#C9D3E3; }
+.doc-ic .band { left:0; right:0; top:0; height:12px; }
+.doc-ic .l1 { right:6px; top:18px; } .doc-ic .l2 { right:12px; top:24px; } .doc-ic .l3 { right:8px; top:30px; }
+.doc-ic .gold { width:14px; bottom:6px; height:6px; background:#E8D6A8; }
+.doc-t { display:block; font-size:14px; font-weight:500; }
+.doc-d { display:block; margin-top:3px; font-size:11px; color:#C9D3E3; }
+.t-plan-chart { position:relative; flex:1 1 280px; min-height:200px; }
+.t-plan-chart svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.pt { position:absolute; width:0; height:0; }
+.pt i { position:absolute; display:block; border-radius:50%; }
+.pt .halo { left:-6px; top:-6px; width:12px; height:12px; background:rgba(232,214,168,0.5); animation:hl-pulse 2.2s ease-out infinite; }
+.pt .dot { left:-5px; top:-5px; width:10px; height:10px; background:#E8D6A8; box-shadow:0 0 14px rgba(232,214,168,0.9); }
+.bar-r { transform-box:fill-box; transform-origin:bottom; animation:hl-bar 1s cubic-bezier(.3,.8,.3,1) both; }
+.draw { stroke-dasharray:1; animation:hl-draw 1.8s cubic-bezier(.6,.05,.2,1) .2s both; }
 
-.t-session { grid-column:span 4; gap:10px; animation-delay:.06s; }
-.t-session h2 { font-size:24px; font-weight:400; letter-spacing:-0.02em; }
-.t-session .btn { margin-top:auto; }
+/* ---------- 5.2 Getting started (new client hero) ---------- */
+.t-gs { grid-column:span 8; padding:30px; flex-direction:row; flex-wrap:wrap; gap:28px; }
+.t-gs-text { position:relative; flex:1 1 260px; display:flex; flex-direction:column; gap:14px; min-width:0; }
+.t-gs-line { font-size:14px; line-height:1.55; color:#C9D3E3; }
+.gs-prog { margin-top:auto; }
+.gs-count { display:flex; justify-content:space-between; font-size:11px; color:#C9D3E3; margin-bottom:8px; }
+.segs { display:flex; gap:4px; }
+.segs i { flex:1; display:block; height:6px; border-radius:999px; background:rgba(255,255,255,0.14); }
+.segs i.on { background:#E8D6A8; }
+.steps-l { position:relative; flex:1.4 1 380px; display:flex; flex-direction:column; gap:8px; }
+.st { display:flex; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); }
+.st-n { flex:none; width:32px; height:32px; border-radius:50%; border:1.5px solid #AAB6C8; display:inline-flex; align-items:center; justify-content:center; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:#AAB6C8; }
+.st-n svg { width:16px; height:16px; fill:none; stroke:#0F1E36; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+.st-b { flex:1; min-width:0; }
+.st-t { display:block; font-size:15px; font-weight:500; color:#C9D3E3; }
+.st-s { display:block; margin-top:2px; font-size:12px; color:#AAB6C8; }
+.st-a { flex:none; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:#AAB6C8; }
+.st.cur { background:rgba(255,255,255,0.08); border-color:rgba(232,214,168,0.45); }
+.st.cur .st-n { border-color:#E8D6A8; color:#E8D6A8; box-shadow:0 0 12px rgba(232,214,168,0.45); }
+.st.cur .st-t { color:#F7F4ED; }
+.st.cur .btn { min-height:40px; padding:0 16px; font-size:13px; flex:none; }
+.st.done .st-n { background:#E8D6A8; border-color:#E8D6A8; }
 
-.t-plan { grid-column:span 6; padding:26px; animation-delay:.1s; }
-.t-plan .orbit { width:480px; height:480px; right:-180px; bottom:-240px; }
-.t-plan h2 { position:relative; font-size:28px; font-weight:300; letter-spacing:-0.03em; }
-.t-plan p.sub { position:relative; font-size:14px; color:var(--w-on-feat-muted); }
-.t-plan .acts { position:relative; display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+/* ---------- 4.2 Your coach ---------- */
+.t-coach { grid-column:span 4; padding:26px; gap:16px; animation-delay:.04s; }
+.cal { flex:none; width:70px; height:78px; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:var(--w-tile); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.cal-m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-gold); }
+.cal-d { font-size:30px; font-weight:300; line-height:1; letter-spacing:-0.03em; }
+.cal-w { font-size:11px; color:var(--w-muted); }
+.cal-empty { background:none; box-shadow:none; border:1.5px dashed var(--w-line); color:var(--w-gold); }
+.cal-empty svg { width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
+.coach-row { display:flex; gap:16px; align-items:center; }
+.coach-k { font-size:12px; color:var(--w-muted); }
+.coach-h { font-size:22px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
+.coach-s { margin-top:6px; font-size:13px; line-height:1.5; color:var(--w-muted); }
+.coach-foot { margin-top:auto; padding-top:14px; border-top:1px solid var(--w-line); }
+.coach-foot .k { font-size:11px; color:var(--w-muted); }
+.coach-foot .h { margin-top:6px; font-size:15px; line-height:1.4; }
+.coach-foot .lnks { display:flex; gap:16px; margin-top:4px; }
+.coach-empty { font-size:13px; line-height:1.5; color:var(--w-muted); }
 
-.t-learn { grid-column:span 6; padding:26px; gap:14px; animation-delay:.14s; }
-.steps { display:flex; align-items:center; list-style:none; padding:0; }
-.steps li { display:flex; align-items:center; flex:1; min-width:0; }
-.steps li:last-child { flex:0 0 auto; }
-.steps i { width:14px; height:14px; flex:none; border-radius:50%; border:2px solid var(--navActive); }
-.steps .done i { background:var(--navActive); }
-.steps span { margin:0 8px; font-size:13px; white-space:nowrap; }
-.steps .now span { font-weight:600; }
-.steps b { flex:1; height:2px; background:var(--track); }
-.steps .done b { background:var(--navActive); }
-.t-learn h2 { font-size:22px; font-weight:400; letter-spacing:-0.02em; }
-.bar { height:6px; border-radius:999px; background:var(--track); overflow:hidden; }
-.bar span { display:block; height:100%; width:0; background:var(--navActive); transform-origin:left; animation:hb-grow 1.4s cubic-bezier(.3,.8,.3,1) .3s both; }
-.t-learn .btn { align-self:flex-start; }
+/* ---------- 4.3 Members' articles ---------- */
+.t-art { grid-column:span 8; padding:26px; gap:18px; animation-delay:.08s; }
+.art-head { display:flex; flex-wrap:wrap; gap:22px; text-decoration:none; align-items:stretch; border-radius:18px; }
+.cover { position:relative; overflow:hidden; display:block; border-radius:18px; background:var(--w-powder); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-2); }
+:root[data-theme="light"] .cover { box-shadow:var(--w-shadow-2); }
+.art-head .cover { flex:1 1 300px; min-height:220px; }
+.cover-video { background:#14376E; background-size:cover; background-position:center; }
+.cover-video .vglow { position:absolute; inset:0; background:radial-gradient(closest-side, rgba(232,214,168,0.22), rgba(232,214,168,0)); }
+.play { position:absolute; left:50%; top:50%; width:72px; height:72px; margin:-36px 0 0 -36px; border-radius:50%; background:#E8D6A8; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 10px rgba(232,214,168,0.16), 0 10px 30px rgba(0,0,0,0.35); }
+.play svg { width:26px; height:26px; }
+.vtag { position:absolute; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; border-radius:999px; padding:4px 10px; }
+.vtag-mo { left:14px; top:14px; color:#0F1E36; background:#E8D6A8; }
+.vtag-dur { right:14px; bottom:14px; color:#F7F4ED; background:rgba(8,17,31,0.7); }
+.art-text { flex:1 1 260px; display:flex; flex-direction:column; gap:10px; min-width:0; padding:4px 0; }
+.art-meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.art-meta .m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-muted); }
+.art-title { font-size:28px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
+.art-teaser { font-size:15px; line-height:1.55; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.art-cta { margin-top:auto; display:inline-flex; align-items:center; gap:6px; min-height:40px; font-size:14px; font-weight:500; color:var(--w-gold); }
+.art-more { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; border-top:1px solid var(--w-line); padding-top:16px; }
+.art-card { display:flex; gap:14px; align-items:center; padding:10px; border-radius:16px; background:var(--w-raised); text-decoration:none; }
+.art-card .cover { flex:none; width:64px; height:64px; border-radius:12px; box-shadow:none; }
+.art-card .m { display:block; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-muted); }
+.art-card .h { display:block; margin-top:4px; font-size:15px; font-weight:500; line-height:1.3; }
 
-.t-list { grid-column:span 4; gap:0; }
-.t-guides { animation-delay:.18s; } .t-tools { animation-delay:.22s; } .t-suite { animation-delay:.26s; }
-.list { list-style:none; padding:0; }
-.list li { border-top:1px solid var(--line); }
-.list a { display:flex; justify-content:space-between; align-items:center; gap:10px; min-height:48px; text-decoration:none; font-size:15px; }
-.list a:hover { color:var(--gold); }
-.list .ring { flex:none; width:7px; height:7px; border-radius:50%; border:1.5px solid var(--gold); }
-.list .tag { flex:none; font-size:11px; color:var(--muted); }
+/* ---------- 4.4 Continue learning ---------- */
+.t-learn { grid-column:span 4; padding:24px; gap:18px; animation-delay:.12s; }
+.ring-w { position:relative; flex:none; width:92px; height:92px; }
+:root[data-theme="dark"] .ring-w { filter:drop-shadow(0 0 10px rgba(232,214,168,0.45)); }
+.ring-w svg { display:block; }
+.ring-c { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-n { font-size:24px; font-weight:300; line-height:1; }
+.ring-of { font-size:10px; color:var(--w-muted); }
+.ring-fill { animation:hl-ring 1.6s cubic-bezier(.3,.8,.3,1) .2s both; }
+.learn-row { display:flex; gap:18px; align-items:center; }
+.learn-where { font-size:12px; color:var(--w-muted); }
+.learn-title { margin-top:4px; font-size:18px; font-weight:400; letter-spacing:-0.01em; line-height:1.3; }
+.stepper { display:flex; align-items:center; }
+.stepper li { display:flex; align-items:center; gap:6px; min-width:0; flex:1 1 0; }
+.stepper li:last-child { flex:0 0 auto; }
+.stepper .d { flex:none; width:12px; height:12px; border-radius:50%; border:1.5px solid var(--w-muted); }
+.stepper .done .d { border-color:var(--w-gold); background:var(--w-gold); }
+.stepper .now .d { border-color:var(--w-gold); }
+:root[data-theme="dark"] .stepper .now .d { box-shadow:0 0 10px rgba(232,214,168,0.7); }
+.stepper .l { font-size:12px; white-space:nowrap; color:var(--w-muted); }
+.stepper .done .l, .stepper .now .l { color:var(--w-text); }
+.stepper .ln { flex:1; height:1px; margin:0 6px; background:var(--w-line); }
+.t-learn .btn { margin-top:auto; }
 
-.t-articles { grid-column:span 12; flex-direction:row; flex-wrap:wrap; gap:12px 24px; align-items:center; padding:22px 24px; animation-delay:.28s; }
-.t-articles-k { flex:0 0 220px; }
-.t-articles-k p + p { margin-top:6px; font-size:15px; line-height:1.45; }
-.t-articles-list { flex:1 1 420px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; }
-.t-articles-empty { flex:1 1 420px; font-size:14px; color:var(--muted); }
+/* ---------- 4.5 Investment suite ---------- */
+.t-suite { grid-column:span 6; padding:24px; gap:14px; animation-delay:.16s; }
+.lead { position:relative; overflow:hidden; display:flex; gap:16px; align-items:flex-start; padding:18px; border-radius:18px; text-decoration:none; background:var(--w-raised); }
+:root[data-theme="dark"] .lead { box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-2); }
+.lead .top { position:absolute; left:0; right:0; top:0; height:3px; }
+.mk { flex:none; display:inline-flex; align-items:center; justify-content:center; color:#FFFFFF; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-weight:500; }
+.lead .mk { width:52px; height:52px; border-radius:14px; font-size:14px; }
+.lead-b { min-width:0; display:flex; flex-direction:column; gap:6px; }
+.lead-meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.lead-meta .c { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; padding:3px 9px; border-radius:999px; border:1px solid var(--w-line); }
+.lead-meta .m, .nrow .m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-muted); }
+.lead-n { font-size:20px; font-weight:400; letter-spacing:-0.02em; }
+.lead-s { font-size:14px; line-height:1.5; color:var(--w-muted); }
+.bb { display:inline-flex; gap:8px; align-items:center; font-size:12px; color:var(--w-muted); }
+.bb i { display:block; width:8px; height:8px; border-radius:50%; }
+.nrow { display:flex; gap:14px; align-items:center; min-height:56px; padding:6px 4px; border-top:1px solid var(--w-line); text-decoration:none; }
+.nrow .mk { width:36px; height:36px; border-radius:10px; font-size:11px; }
+.nrow-b { flex:1; min-width:0; }
+.nrow-b .n { display:block; font-size:15px; }
+.nrow-b .m { display:block; }
+.nrow .chev { color:var(--w-muted); }
 
-.t-know { grid-column:span 6; gap:14px; animation-delay:.3s; }
-.t-know form { display:flex; flex-direction:column; gap:10px; }
-.t-know label { font-size:14px; }
-.t-know input { font-family:inherit; font-size:15px; min-height:46px; padding:0 16px; border-radius:999px; border:1px solid var(--line); background:var(--chip); color:var(--text); width:100%; }
-.chips { display:flex; flex-wrap:wrap; gap:8px; }
-.chips a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--line); text-decoration:none; font-size:14px; }
-.chips a:hover { background:var(--chip); }
+/* ---------- 4.6 Guides & tools, 4.7 Knowledge library ---------- */
+.t-tools { grid-column:span 3; padding:20px; gap:8px; animation-delay:.2s; }
+.tool { display:flex; gap:12px; align-items:center; padding:10px; border-radius:14px; background:var(--w-raised); text-decoration:none; }
+.tool-ic { flex:none; width:40px; height:40px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; background:var(--w-tile); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); color:var(--w-gold); }
+.tool-ic svg, .app-ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.tool .n { display:block; font-size:14px; font-weight:500; }
+.tool .s { display:block; font-size:12px; color:var(--w-muted); }
+.tool.off { opacity:.6; }
+.t-know { grid-column:span 3; padding:20px; gap:12px; animation-delay:.24s; }
+.search { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-raised); color:var(--w-muted); }
+.search:focus-within { border-color:var(--w-gold); }
+.search svg { width:16px; height:16px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+.search input { flex:1; min-width:0; min-height:42px; border:0; padding:0; background:transparent; outline:none; font-family:inherit; font-size:13px; color:var(--w-text); }
+.search input::placeholder { color:var(--w-muted); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; }
+.chips a { display:inline-flex; align-items:center; min-height:32px; padding:0 12px; border-radius:999px; background:var(--w-chip); border:1px solid var(--w-line); text-decoration:none; font-size:12px; }
 
-.t-notes { grid-column:span 6; gap:0; animation-delay:.34s; }
-.notes a, .notes button { display:flex; justify-content:flex-start; gap:16px; align-items:center; width:100%; min-height:52px; padding:0; border:0; background:none; color:inherit; font:inherit; text-align:left; text-decoration:none; cursor:pointer; }
-.notes a:hover .nt, .notes button:hover .nt { color:var(--gold); }
-.notes .nd { width:92px; flex:none; font-size:12px; color:var(--muted); }
-.notes .nt { font-size:15px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.notes .empty { padding:14px 0 0; font-size:14px; color:var(--muted); border-top:1px solid var(--line); }
+/* ---------- Footer (7) ---------- */
+.hl-foot { margin-top:28px; max-width:980px; }
+.hl-foot .tei-boundary, .hl-foot .tei-boundary p { margin:0; padding:0; text-align:left; max-width:none; font-family:inherit; font-size:12px; line-height:1.6; color:var(--w-muted); background:none; border:0; }
+.hl-foot .tei-boundary a, .hl-foot-s a { color:var(--w-text); }
+.hl-foot-s { display:none; margin:2px 4px 0; font-size:11px; line-height:1.5; color:var(--w-muted); }
+.hl-foot-s a { display:inline-block; padding:13px 0; margin:-13px 0; }
 
-.hb-foot { margin-top:28px; font-size:12px; }
-.hb-foot .tei-boundary { text-align:left; font-family:inherit; }
-.hb-foot .tei-boundary p { max-width:none; margin:0; }
+/* ---------- Phone (8): its own condensed layout ---------- */
+.hl-m { display:none; }
+.mt { position:relative; min-width:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:22px; padding:14px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); display:flex; flex-direction:column; gap:10px; animation:hl-up .6s cubic-bezier(.2,.8,.2,1) both; }
+.mt .lab { font-size:11px; }
+/* Header-row links keep a 44px target without making the row taller. */
+.mt > .row .lnk { min-height:44px; margin:-10px 0; font-size:12px; }
+.mt.t-feat { padding:16px; overflow:hidden; background:#14376E; border-color:rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+.mt.t-feat .glow { width:420px; height:420px; right:-40%; top:-90%; }
+.m-plan { display:grid; grid-template-columns:minmax(0, 1fr) 118px; gap:8px 12px; }
+.m-plan h2, .m-gs h2 { position:relative; font-size:20px; font-weight:300; letter-spacing:-0.02em; line-height:1.15; }
+.m-plan-text { position:relative; min-width:0; display:flex; flex-direction:column; gap:6px; }
+.m-chart { position:relative; min-height:76px; }
+.m-chart svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.m-chart .pt .halo { left:-5px; top:-5px; width:10px; height:10px; }
+.m-chart .pt .dot { left:-4px; top:-4px; width:8px; height:8px; }
+.m-acts { position:relative; grid-column:1 / -1; display:flex; gap:8px; align-items:center; }
+.m-acts .btn { flex:none; padding:0 16px; }
+.m-doc { flex:1; min-width:0; display:flex; gap:7px; align-items:center; min-height:44px; padding:0 8px; border-radius:12px; text-decoration:none; background:rgba(255,255,255,0.06); border:1px solid rgba(232,214,168,0.22); font-size:12px; font-weight:500; }
+.m-doc .doc-ic { width:16px; height:20px; border-radius:3px; box-shadow:none; }
+.m-doc .doc-ic .band { height:5px; }
+.m-doc .doc-ic i { left:3px; height:1.5px; }
+.m-doc .doc-ic .l1 { right:3px; top:8px; } .m-doc .doc-ic .l2 { right:5px; top:12px; }
+.m-doc span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.m-gs .row { position:relative; align-items:baseline; }
+.m-gs .segs i { height:5px; }
+.m-cur { position:relative; display:flex; gap:12px; align-items:center; padding:12px; border-radius:14px; background:rgba(255,255,255,0.08); border:1px solid rgba(232,214,168,0.45); }
+.m-cur .st-n { width:28px; height:28px; font-size:11px; border-color:#E8D6A8; color:#E8D6A8; box-shadow:0 0 12px rgba(232,214,168,0.45); }
+.m-cur .mc-t { display:block; font-size:14px; font-weight:500; }
+.m-cur .mc-s { display:block; font-size:11px; color:#AAB6C8; }
+.m-cur .btn { flex:none; padding:0 14px; font-size:13px; }
+.m-later { position:relative; display:flex; flex-direction:column; gap:6px; padding:0 4px; }
+.m-later li { display:flex; gap:10px; align-items:center; font-size:12px; color:#C9D3E3; }
+.m-later .n { flex:none; width:20px; height:20px; border-radius:50%; border:1px solid rgba(255,255,255,0.25); display:inline-flex; align-items:center; justify-content:center; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:10px; color:#AAB6C8; }
+.m-later .done .n { background:#E8D6A8; border-color:#E8D6A8; color:#0F1E36; }
+.m-pair { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+.m-coach { background:var(--w-champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); animation-delay:.05s; }
+.m-sess { display:flex; gap:10px; align-items:center; text-decoration:none; }
+.m-sess .cal { width:44px; height:50px; border-radius:12px; gap:0; }
+.m-sess .cal-m { font-size:9px; }
+.m-sess .cal-d { font-size:20px; }
+.m-coach .h { font-size:14px; font-weight:500; line-height:1.25; }
+.m-coach .s { margin-top:2px; font-size:11px; color:var(--w-muted); }
+.m-coach .btn { align-self:stretch; margin-top:auto; min-height:44px; font-size:13px; }
+.m-note { margin-top:auto; display:flex; align-items:center; gap:6px; min-height:44px; border-top:1px solid var(--w-line); text-decoration:none; font-size:12px; color:var(--w-muted); }
+.m-note svg { width:14px; height:14px; flex:none; fill:none; stroke:var(--w-gold); stroke-width:1.8; stroke-linecap:round; }
+.m-note span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.m-learn { text-decoration:none; animation-delay:.1s; }
+.m-learn .ring-w { width:50px; height:50px; }
+:root[data-theme="dark"] .m-learn .ring-w { filter:drop-shadow(0 0 8px rgba(232,214,168,0.45)); }
+.m-learn .ring-n { font-size:15px; }
+.m-learn .of { display:block; font-size:11px; color:var(--w-muted); }
+.m-learn .stg { display:block; margin-top:2px; font-size:12px; font-weight:500; line-height:1.25; }
+.m-learn .go { margin-top:auto; display:flex; align-items:center; justify-content:space-between; min-height:44px; border-top:1px solid var(--w-line); font-size:12px; font-weight:500; color:var(--w-gold); }
+.m-ring-fill { animation:hl-ring-s 1.6s cubic-bezier(.3,.8,.3,1) .2s both; }
+.m-art { padding:14px 0 14px 14px; animation-delay:.14s; }
+.m-art > .row { padding-right:14px; }
+.snap { display:flex; gap:10px; overflow-x:auto; padding-right:14px; scroll-snap-type:x mandatory; scrollbar-width:none; overscroll-behavior-x:contain; }
+.snap::-webkit-scrollbar { display:none; }
+.card { flex:0 0 150px; scroll-snap-align:start; display:flex; flex-direction:column; gap:7px; text-decoration:none; }
+.card.head { flex-basis:228px; }
+.card .cover { height:84px; border-radius:14px; box-shadow:none; }
+.card.head .cover { height:112px; }
+.card .m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:10px; color:var(--w-muted); }
+.card .h { font-size:12px; font-weight:500; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.card.head .h { font-size:14px; }
+/* One or two articles: no swipe, the cards share the tile's width so none is
+   cut off, with matching covers. Three or more keep the swipe row (8.3). */
+.snap.fit { display:grid; grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr); overflow:visible; }
+.snap.fit.one { grid-template-columns:minmax(0, 1fr); }
+.snap.fit .card .cover { height:112px; }
+.card .play { width:44px; height:44px; margin:-22px 0 0 -22px; box-shadow:0 0 0 7px rgba(232,214,168,0.16); }
+.card .play svg { width:16px; height:16px; }
+.card .vtag, .card .newp { font-size:9px; padding:3px 7px; }
+.card .vtag-mo { left:8px; top:8px; }
+.newp { position:absolute; right:8px; top:8px; font-family:'Geist Mono', ui-monospace, Menlo, monospace; color:#0F1E36; background:#E8D6A8; border-radius:999px; }
+.m-suite { animation-delay:.18s; }
+.minis { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+.mini { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:6px; padding:10px; min-height:76px; border-radius:14px; background:var(--w-raised); text-decoration:none; }
+.mini .top { position:absolute; left:0; right:0; top:0; height:3px; }
+.mini .tk { display:flex; gap:6px; align-items:center; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; font-weight:500; }
+.mini .mk { width:24px; height:24px; border-radius:7px; font-size:9px; font-weight:400; }
+.mini .n { font-size:12px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mini .w { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:9px; color:var(--w-muted); }
+.m-tools { gap:12px; animation-delay:.22s; }
+.apps { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px; }
+.app { display:flex; flex-direction:column; align-items:center; gap:6px; min-height:64px; text-decoration:none; }
+.app-ic { width:44px; height:44px; border-radius:14px; display:inline-flex; align-items:center; justify-content:center; background:var(--w-raised); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); color:var(--w-gold); }
+.app .n { font-size:11px; text-align:center; line-height:1.2; }
+.app.off { opacity:.6; }
 
-/* Phone bottom bar: the Wealth OS tabs, Library active (spec A5). */
-.hb-tabs { display:none; }
-
-@keyframes hb-up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
-@keyframes hb-spin { to { transform:rotate(360deg); } }
-@keyframes hb-rise { from { transform:scaleY(0); } to { transform:scaleY(1); } }
-@keyframes hb-draw { from { stroke-dashoffset:900; } to { stroke-dashoffset:0; } }
-@keyframes hb-pulse { 0% { r:5; opacity:1; } 100% { r:16; opacity:0; } }
-@keyframes hb-grow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
-@keyframes hb-fade { from { opacity:0; } to { opacity:1; } }
+@keyframes hl-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+@keyframes hl-draw { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
+@keyframes hl-pulse { 0% { transform:scale(1); opacity:.6; } 100% { transform:scale(3.4); opacity:0; } }
+@keyframes hl-bar { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+@keyframes hl-ring { from { stroke-dashoffset:263.9; } }
+@keyframes hl-ring-s { from { stroke-dashoffset:131.9; } }
 @media (prefers-reduced-motion: reduce) {
-  .t, .t-wos .orbit, .wos-bar, .wos-line, .wos-pulse, .wos-area, .bar span { animation:none; }
-  .wos-line { stroke-dasharray:none; }
-  .t:hover { transform:none; }
+  .t, .mt, .bar-r, .draw, .pt .halo, .ring-fill, .m-ring-fill { animation:none; }
+  .draw { stroke-dasharray:none; }
+  .pt .halo { display:none; }
+  .press, .lift { transition:none; }
+  .press:active, .lift:hover { transform:none; }
 }
 
-@media (max-width:1100px) {
-  .t-wos, .t-session { grid-column:span 6; }
-  .t-list { grid-column:span 6; }
-  .t-suite { grid-column:span 12; }
-}
-/* Phones (A5, B1.3): the pill nav hides and the bottom bar takes over. */
-@media (max-width:860px) {
-  .hb-bar { position:static; }
-  .hb-bar-in { padding:12px 16px; }
-  .hb-nav { display:none; }
-  .hb-icon { display:inline-flex; }
-  .hb { padding:20px 16px calc(84px + 24px); }
-  .hb-head { margin-bottom:16px; }
-  .hb-title { font-size:28px; }
-  .hb-seg { display:none; }
-  .hb-grid { gap:12px; }
-  .hb-grid > * { grid-column:span 12 !important; }
-  .t { border-radius:24px; padding:18px; }
-  .t-wos { padding:20px; }
-  .t-wos h2 { font-size:24px; }
-  .t-wos svg { display:none; }
-  .t-articles-k { flex:1 1 100%; }
-  .steps span { font-size:12px; margin:0 6px; }
-  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; padding:6px 8px calc(10px + env(safe-area-inset-bottom)); background:color-mix(in srgb, var(--side) 97%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-top:1px solid var(--line); }
-  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:56px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
-  .hb-tabs a[aria-current="page"] { color:var(--text); font-weight:600; }
-  .hb-tabs .tab-pill { flex:none; display:flex; align-items:center; justify-content:center; width:56px; height:30px; border-radius:999px; }
-  .hb-tabs .tab-ic { display:block; flex:none; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-  .hb-tabs a[aria-current="page"] .tab-pill { background:var(--navActive); color:var(--navActiveText); }
+/* 960px and below (2.3, 8): the phone structure, stretched up to 960px. */
+@media (max-width:960px) {
+  .hl { padding:12px 12px 16px; }
+  .hl-grid, .hl-date, .hl-head-side, .hl-foot { display:none; }
+  .hl-m { display:flex; flex-direction:column; gap:10px; }
+  .hl-head { flex-wrap:nowrap; align-items:baseline; gap:8px; margin:0 0 10px; padding:0 4px; }
+  .hl-head > div:first-child { display:contents; }
+  .hl-title { margin:0; font-size:22px; }
+  .hl-date-s { display:inline; flex:none; font-size:11px; color:var(--w-muted); }
+  .hl-foot-s { display:block; margin-top:12px; }
 }
 </style>
 </head>
@@ -232,328 +360,539 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
 
-<header class="hb-bar">
-  <div class="hb-bar-in">
-    <a class="hb-brand" href="/hub/index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--gold)" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="var(--gold)" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="var(--gold)"/></svg>Client Hub</a>
-    <nav class="hb-nav" aria-label="Client Hub">
-      <a href="/hub/index.html" aria-current="page">Home</a>
-      <!-- TODO(G6): Learn opens the stage index (E2) once it is built. -->
-      <a href="/hub/education/index.html">Learn</a>
-      <a href="/hub/videos.html">Videos</a>
-      <a href="/hub/guides.html">Guides &amp; tools</a>
-      <!-- TODO(G5): Articles opens members' articles (D7) once it is built. -->
-      <a href="/hub/articles.html">Articles</a>
-      <!-- TODO(G5): the suite index (D3) replaces suite.html. -->
-      <a href="/hub/suite/index.html">Investment suite</a>
-      <a href="/index.html">Website</a>
-      <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
-    </nav>
-  </div>
-</header>
+<div data-hub-header data-current="home"></div>
+<script src="/hub/js/hub-header.js"></script>
 
-<main class="hb">
-  <div class="hb-head">
+<main class="hl" id="main">
+  <div class="hl-head">
     <div>
-      <p class="hb-date mono" id="hbDate"></p>
-      <h1 class="hb-title" id="hubHeroGreeting">Welcome back</h1>
+      <p class="hl-date mono" id="hlDate"></p>
+      <h1 class="hl-title" id="hubHeroGreeting">Welcome back</h1>
     </div>
-    <div class="hb-head-side">
-      <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
+    <span class="hl-date-s mono" id="hlDateShort"></span>
+    <div class="hl-head-side">
+      <button type="button" class="hl-theme press" data-hub-theme></button>
+      <button type="button" class="hl-out" data-hub-signout>Sign out</button>
     </div>
   </div>
 
-  <div class="hb-grid">
+  <!-- Desktop bento (4): filled by the script below once the person's records load. -->
+  <div class="hl-grid" id="hlGrid"></div>
+  <!-- 960px and below (8): the same lobby, condensed. -->
+  <div class="hl-m" id="hlPhone"></div>
 
-    <!-- Set up Wealth OS (B13.5): shows while the coach's setup request is open. -->
-    <a class="t t-champ t-setup" href="/hub/wealth-os.html?page=setup" id="hbSetup" hidden>
-      <div><p class="lab mono">Finish setting up</p><h2 class="t-setup-h" id="hbSetupH">A few things left from your session</h2>
-      <p class="t-setup-p">Your coach filled in most of your Wealth OS. Answer what is left, then you are done.</p></div>
-      <span class="btn btn-primary">Continue</span>
-    </a>
-
-    <a class="t t-feat t-wos" href="/hub/wealth-os.html" id="hbWos">
-      <span class="orbit" aria-hidden="true"></span>
-      <div class="t-wos-text">
-        <p class="lab">Wealth OS</p>
-        <h2>Your plan, live. Every account and goal.</h2>
-        <span class="btn btn-champ">Open Wealth OS</span>
-      </div>
-      <svg viewBox="0 0 300 140" aria-hidden="true">
-        <defs><linearGradient id="hbWosFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D6A8" stop-opacity=".36"/><stop offset="1" stop-color="#E8D6A8" stop-opacity="0"/></linearGradient></defs>
-        <rect class="wos-bar" x="10" y="110" width="20" height="30" rx="5" style="animation-delay:.2s"/><rect class="wos-bar" x="50" y="98" width="20" height="42" rx="5" style="animation-delay:.3s"/><rect class="wos-bar" x="90" y="84" width="20" height="56" rx="5" style="animation-delay:.4s"/><rect class="wos-bar" x="130" y="68" width="20" height="72" rx="5" style="animation-delay:.5s"/><rect class="wos-bar" x="170" y="50" width="20" height="90" rx="5" style="animation-delay:.6s"/><rect class="wos-bar" x="210" y="32" width="20" height="108" rx="5" style="animation-delay:.7s"/><rect class="wos-bar" x="250" y="12" width="20" height="128" rx="5" style="animation-delay:.8s"/>
-        <path class="wos-area" d="M6 124 C 80 116, 140 96, 190 70 S 262 24, 292 12 L 292 140 L 6 140 Z" fill="url(#hbWosFill)"/>
-        <path class="wos-line" d="M6 124 C 80 116, 140 96, 190 70 S 262 24, 292 12"/><circle class="wos-pulse" cx="292" cy="12" r="5"/><circle class="wos-dot" cx="292" cy="12" r="5"/>
-      </svg>
-    </a>
-
-    <!-- Next session. There is no session booking data yet, so this shows
-         what Wealth OS Home shows. TODO: date, time and "Add a question"
-         once sessions are recorded (B3.2). -->
-    <section class="t t-champ t-session" aria-labelledby="hbSessionTitle">
-      <p class="lab lab-gold">Next session</p>
-      <h2 id="hbSessionTitle">Not booked yet</h2>
-      <p class="muted" id="hbSessionText">Book a time with your coach and it will show here.</p>
-      <a class="btn" href="/book" id="hbSessionBtn">Book a session</a>
-    </section>
-
-    <section class="t t-feat t-plan" aria-labelledby="hbPlanTitle">
-      <span class="orbit" aria-hidden="true"></span>
-      <p class="lab">Your plan</p>
-      <h2 id="hbPlanTitle">Wealth Plan and Forecast</h2>
-      <p class="sub" id="hbPlanSub">Your coach adds your Wealth Plan here after your plan session.</p>
-      <div class="acts">
-        <a class="btn btn-champ" id="hbPlanOpen" href="/hub/wealth-os.html?page=planning" hidden>Open plan</a>
-        <a class="btn btn-ghost-feat" href="/hub/wealth-os.html?page=planning">View forecast</a>
-      </div>
-    </section>
-
-    <section class="t t-powder t-learn" aria-labelledby="hbLearnTitle">
-      <p class="lab">Continue learning</p>
-      <ol class="steps" id="hbSteps" aria-label="Your stage">
-        <li><i></i><span>Start here</span><b></b></li>
-        <li><i></i><span>Stage 1</span><b></b></li>
-        <li><i></i><span>Stage 2</span></li>
-      </ol>
-      <h2 id="hbLearnTitle">Lessons at your own pace</h2>
-      <div>
-        <div class="bar"><span id="hbLearnBar"></span></div>
-        <p class="muted" id="hbLearnCount" style="margin-top:8px; font-size:13px;"></p>
-      </div>
-      <a class="btn btn-primary" id="hbLearnBtn" href="/hub/education/index.html">Start learning</a>
-    </section>
-
-    <section class="t t-list t-guides" aria-labelledby="hbGuidesK">
-      <div class="row"><p class="lab" id="hbGuidesK">Guides</p><a class="lnk" href="/hub/guides.html?show=Guides">All guides</a></div>
-      <ul class="list">
-        <li><a href="/guides/tax.html?from=hub">The Tax Wrapper Guide<span class="ring" aria-hidden="true"></span></a></li>
-        <li><a href="/hub/guides/stages.html">The Five Stages<span class="ring" aria-hidden="true"></span></a></li>
-        <li><a href="/guides/principles.html?from=hub">TEI Principles<span class="ring" aria-hidden="true"></span></a></li>
-      </ul>
-    </section>
-
-    <section class="t t-list t-tools" aria-labelledby="hbToolsK">
-      <div class="row"><p class="lab" id="hbToolsK">Tools</p><a class="lnk" href="/hub/guides.html?show=Tools">All tools</a></div>
-      <ul class="list">
-        <li><a href="/hub/guides/costofwaiting.html">Cost of Waiting<span class="ring" aria-hidden="true"></span></a></li>
-        <li><a href="/hub/guides/property.html">Property Calculator<span class="ring" aria-hidden="true"></span></a></li>
-        <li><a href="/hub/wealth-os.html?page=planning">Wealth Forecast<span class="ring" aria-hidden="true"></span></a></li>
-      </ul>
-    </section>
-
-    <!-- TODO(G5): the three latest notes come from the suite manifest (D3)
-         and open their own note pages. Until then they open in suite.html. -->
-    <section class="t t-champ t-list t-suite" aria-labelledby="hbSuiteK">
-      <div class="row"><p class="lab lab-gold" id="hbSuiteK">Investment suite</p><a class="lnk" href="/hub/suite/index.html">All notes</a></div>
-      <ul class="list">
-        <li><a href="/hub/suite.html?note=onds">Ondas Holdings<span class="tag mono">Note</span></a></li>
-        <li><a href="/hub/suite.html?note=nbis">Nebius Group<span class="tag mono">Note</span></a></li>
-        <li><a href="/hub/suite.html?note=asts">AST SpaceMobile<span class="tag mono">Note</span></a></li>
-      </ul>
-    </section>
-
-    <!-- The latest two from /hub/members-articles.json (D7), filled by the
-         script at the end; the two below show if that list cannot load. -->
-    <section class="t t-powder t-articles" aria-labelledby="hbArticlesK">
-      <div class="t-articles-k"><p class="lab" id="hbArticlesK">Members' articles</p><p>Themes and company deep dives.</p><a class="lnk" href="/hub/articles.html">All articles</a></div>
-      <ul class="list t-articles-list" id="hbArticles">
-        <li><a href="/hub/members/ondas-disconnect.html">The ONDS Disconnect<span class="tag mono">Companies &middot; 14 min</span></a></li>
-        <li><a href="/hub/members/nebius-sizing-up.html">Nebius: Sizing up the Opportunity<span class="tag mono">Companies &middot; 10 min</span></a></li>
-      </ul>
-    </section>
-
-    <!-- TODO(G6): search the whole Knowledge library (E5). Until then the
-         search runs on the glossary. -->
-    <section class="t t-know" aria-labelledby="hbKnowK">
-      <p class="lab" id="hbKnowK">Knowledge library</p>
-      <form action="/hub/knowledge/glossary.html" method="get" role="search">
-        <label for="hbKnowQ">Search the glossary</label>
-        <input id="hbKnowQ" name="q" type="search" placeholder="For example, compounding" autocomplete="off">
-      </form>
-      <div class="chips">
-        <a href="/hub/knowledge/glossary.html">Glossary</a>
-        <a href="/hub/knowledge/mental-models.html">Mental models</a>
-        <a href="/hub/knowledge/quote-library.html">Quote library</a>
-        <a href="/hub/knowledge/book-library.html">Book library</a>
-      </div>
-    </section>
-
-    <section class="t t-notes" aria-labelledby="hbNotesK">
-      <div class="row"><p class="lab" id="hbNotesK">Meeting notes</p><a class="lnk" href="/hub/wealth-os.html?page=documents">All notes</a></div>
-      <ul class="list notes" id="hbNotes"><li class="empty">Notes from each session appear here after it.</li></ul>
-    </section>
-
-  </div>
-  <div class="hb-foot" data-tei-boundary-footer="inherit"></div>
+  <div class="hl-foot" data-tei-boundary-footer="inherit"></div>
+  <p class="hl-foot-s">Coaching and education, not regulated financial advice. <a href="https://theeverydayinvestor.uk/how-we-work" target="_blank" rel="noopener noreferrer">How we work</a></p>
 </main>
 
-<nav class="hb-tabs" aria-label="Main">
-  <a href="/hub/wealth-os.html"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/></svg></span>Home</a>
-  <a href="/hub/wealth-os.html?page=progress"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19h16"/><path d="M5 15.5l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7.5h4v4"/></svg></span>Wealth</a>
-  <a href="/hub/wealth-os.html?page=goals"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span>Plan</a>
-  <a href="/hub/index.html" aria-current="page"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.5C10.3 5 7.8 4.5 4 4.8v13.4c3.8-.3 6.3.2 8 1.6 1.7-1.4 4.2-1.9 8-1.6V4.8c-3.8-.3-6.3.2-8 1.7z"/><path d="M12 6.5v13.3"/></svg></span>Library</a>
-  <a href="/hub/wealth-os.html?page=menu"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></span>Me</a>
-</nav>
-
-<script src="/hub/education/js/embedded-data.js" defer></script>
+<script src="/hub/education/js/embedded-data.js"></script>
+<script src="/hub/js/hub-figures.js"></script>
 <script>
-/* Fills the Hub from the signed-in person's own records: first name, the
-   newest Wealth Plan forecast, the last three meeting notes (wealth_os
-   documents, as Wealth OS reads them) and lesson progress
-   (education_progress). Anything that cannot be read keeps its default. */
+/* Client Hub home. Reads the signed-in person's own records the way the
+   Hub always has: first name (profiles, then clients), the coach's setup
+   request (clients.setup_request), documents (wealth_os.documents: the
+   newest 'forecast' is the Wealth Plan, 'note' rows are meeting notes),
+   lesson progress (education_progress) and the theme (clients.theme). Then
+   the members' lists: /hub/members-articles.json, the suite manifest and
+   /hub/members-tools.json. No figures from the client record are shown.
+
+   No document is a Wealth Plan yet -> the new client layout (5). */
 (function () {
   var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var HOW = 'https://theeverydayinvestor.uk/how-we-work';
+  var WOS = '/hub/wealth-os.html';
+  var SETUP = '/hub/wealth-os.html?page=setup';
+  var EDU = '/hub/education/index.html';
+  var COMMIT = '/hub/education/module.html?module=0.0';
+  var ARTICLES = '/hub/articles.html';
+  var SUITE = '/hub/suite/index.html';
+  var GUIDES = '/hub/guides.html';
+  var NOTES = '/hub/wealth-os.html?page=documents';
+  var BOOK = '/book';
+  var DAY = 86400000;
+
+  var IC = {
+    chev: '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>',
+    tick: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 12.5l4 4 8-9"/></svg>',
+    calPlus: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17M12 13v4M10 15h4"/></svg>',
+    search: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+    note: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7zM10 12h5M10 16h5"/></svg>',
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z" fill="#0F1E36"/></svg>'
+  };
+
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function shortDate(str) { var d = new Date(str); return isNaN(d) ? '' : d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear(); }
+  function toDate(str) { var d = new Date(str); return isNaN(d) ? null : d; }
+  function shortDate(str) { var d = toDate(str); return d ? d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear() : ''; }
+  function dayMonth(str) { var d = toDate(str); return d ? d.getDate() + ' ' + MON[d.getMonth()] : ''; }
+  function newest(list) { return list.slice().sort(function (a, b) { return String(b.uploaded_at || '').localeCompare(String(a.uploaded_at || '')); }); }
+  function icon(path, cls) { return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + esc(path) + '"/></svg>'; }
+  function hexOk(c) { return /^#[0-9a-f]{3,8}$/i.test(String(c || '')) ? c : '#14376E'; }
 
   var now = new Date();
-  $('hbDate').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MON[now.getMonth()] + ' ' + now.getFullYear();
+  $('hlDate').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MON[now.getMonth()] + ' ' + now.getFullYear();
+  $('hlDateShort').textContent = DAYS[now.getDay()].slice(0, 3) + ' ' + now.getDate() + ' ' + MON[now.getMonth()];
 
-  function w() { return window.teiSupabase.schema('wealth_os'); }
+  var S = {
+    name: '', clientId: null, hasThemeColumn: false,
+    docsLoaded: false, plan: null, lastNote: null,
+    // TODO(Paddy to confirm): a separate "Coach's forecast" document. Only
+    // one plan document type exists today ('forecast', the Wealth Plan), so
+    // the second document link (4.1) stays hidden until there is a type for it.
+    forecast: null,
+    // TODO(Paddy to confirm): booked sessions. There is no session or booking
+    // data yet (no table), so this stays null and the coach tile shows the
+    // "Book a session" version. When sessions are recorded, fill it with
+    // { start: ISO date-time, type: 'Review session', minutes: 60,
+    //   format: 'Video call', href: the session } and the booked layout,
+    // "Add a question" and Getting started step 3 all switch on.
+    session: null,
+    setup: null, progress: null, progressLoaded: false,
+    articles: [], notes: [], tools: [],
+    booked: false
+  };
 
-  function renderDocs(docs) {
-    var plans = docs.filter(function (d) { return d.type === 'forecast' && d.storage_path; })
-      .sort(function (a, b) { return String(b.uploaded_at || '').localeCompare(String(a.uploaded_at || '')); });
-    if (plans.length) {
-      var p = plans[0];
-      $('hbPlanSub').textContent = 'Updated ' + shortDate(p.uploaded_at);
-      var open = $('hbPlanOpen');
-      open.href = '/hub/wealth-os.html#forecast/' + encodeURIComponent(p.id) + '/planning';
-      open.hidden = false;
-    }
-    var notes = docs.filter(function (d) { return d.type === 'note'; })
-      .sort(function (a, b) { return String(b.uploaded_at || '').localeCompare(String(a.uploaded_at || '')); })
-      .slice(0, 3);
-    if (notes.length) {
-      $('hbNotes').innerHTML = notes.map(function (n) {
-        var href = n.storage_path ? '/hub/wealth-os.html#doc/' + encodeURIComponent(n.id) + '/documents' : '/hub/wealth-os.html?page=documents';
-        return '<li><a href="' + esc(href) + '"><span class="nd mono">' + esc(shortDate(n.uploaded_at)) + '</span><span class="nt">' + esc(n.name || 'Meeting note') + '</span></a></li>';
-      }).join('');
-    }
-  }
+  /* ---------- derived ---------- */
+  function isNew() { return !!S.clientId && S.docsLoaded && !S.plan; }
 
-  /* Stage stepper (E1 labels): Start here is the Investor Learning
-     Commitment, then the Stage 1 and Stage 2 modules. The next lesson is the
-     first one not yet completed, in module order. */
-  function renderLearning(progress) {
+  function learning() {
     var data = window.TEI_DATA;
-    if (!data) return;
-    var done = (progress && progress.completed_lessons) || {};
-    var committed = !!(progress && progress.commitment_completed_at);
+    var done = (S.progress && S.progress.completed_lessons) || {};
+    var committed = !!(S.progress && S.progress.commitment_completed_at);
     var order = [];
-    data.MODULES.forEach(function (m) { (m.lessonSequence || []).forEach(function (id) { order.push({ id: id, stage: m.stage }); }); });
-    var total = order.length;
+    var mods = data ? data.MODULES : [];
+    mods.forEach(function (m) { (m.lessonSequence || []).forEach(function (id, i) { order.push({ id: id, mod: m, idx: i + 1, of: m.lessonSequence.length }); }); });
+    var total = order.length || 36;
     var count = order.filter(function (l) { return done[l.id]; }).length;
     var next = order.filter(function (l) { return !done[l.id]; })[0];
-    var lesson = next && data.LESSONS.filter(function (l) { return l.id === next.id; })[0];
-    var stageNow = !committed ? 0 : (next ? next.stage : 3);
-    var items = $('hbSteps').children;
-    for (var i = 0; i < items.length; i++) {
-      items[i].className = i < stageNow ? 'done' : (i === stageNow ? 'now' : '');
-      if (i === stageNow) items[i].setAttribute('aria-current', 'step'); else items[i].removeAttribute('aria-current');
-    }
-    $('hbLearnBar').style.width = (total ? count / total * 100 : 0).toFixed(1) + '%';
-    $('hbLearnCount').textContent = count + ' of ' + total + ' lessons';
-    var btn = $('hbLearnBtn');
+    var lesson = next && data ? data.LESSONS.filter(function (l) { return l.id === next.id; })[0] : null;
+    var stage1Done = order.filter(function (l) { return l.mod.stage === 1; }).every(function (l) { return done[l.id]; });
+    var stageNow = !committed ? 0 : (!stage1Done ? 1 : (next ? 2 : 3));
+    var r = { total: total, count: count, stageNow: stageNow, committed: committed };
     if (!committed) {
-      $('hbLearnTitle').textContent = 'Investor Learning Commitment';
-      btn.textContent = 'Start here';
+      r.where = 'Start here'; r.title = 'Investor Learning Commitment'; r.cta = 'Start here'; r.href = COMMIT; r.short = 'Start here'; r.phoneCta = 'Start here';
     } else if (lesson) {
-      $('hbLearnTitle').textContent = lesson.title;
-      btn.textContent = count ? 'Resume lesson' : 'Start lesson';
-      btn.href = '/hub/education/lesson.html?lesson=' + encodeURIComponent(lesson.id);
+      r.where = 'Stage ' + next.mod.stage + ' · ' + next.mod.name + ' · lesson ' + next.idx + ' of ' + next.of;
+      r.short = 'Stage ' + next.mod.stage + ' · ' + next.mod.stageName;
+      r.title = lesson.title;
+      r.cta = count ? 'Resume lesson' : 'Start lesson';
+      r.phoneCta = count ? 'Resume' : 'Start';
+      r.href = '/hub/education/lesson.html?lesson=' + encodeURIComponent(lesson.id);
     } else {
-      $('hbLearnTitle').textContent = 'Every lesson complete';
-      btn.textContent = 'Review lessons';
+      r.where = 'Every stage complete'; r.short = 'All complete'; r.title = 'Every lesson complete'; r.cta = 'Review lessons'; r.phoneCta = 'Review'; r.href = EDU;
     }
+    return r;
   }
 
-  function run() {
-    if (!window.TeiAuth || !window.teiSupabase) { renderLearning(null); return; }
-    TeiAuth.waitForReady()
-      .then(function () { return TeiAuth.getUser(); })
-      .then(function (res) {
-        var user = res && res.data && res.data.user;
-        if (!user) return;
-        // Lesson progress belongs to the signed-in person.
-        window.teiSupabase.from('education_progress').select('completed_lessons, commitment_completed_at').eq('user_id', user.id).maybeSingle()
-          .then(function (r) { renderLearning(r && !r.error ? r.data : null); }, function () { renderLearning(null); });
-        // First name: the profile first (advisers have no client row), then the client row.
-        return w().from('profiles').select('first_name').eq('user_id', user.id).maybeSingle()
-          .then(function (pr) {
-            return w().from('clients').select('id, first_name').eq('user_id', user.id).maybeSingle()
-              .then(function (cr) {
-                var client = cr && !cr.error ? cr.data : null;
-                var name = (pr && pr.data && pr.data.first_name) || (client && client.first_name);
-                if (name) $('hubHeroGreeting').textContent = 'Welcome back, ' + name;
-                if (!client) return;
-                wireSessionRequest(client.id);
-                // Setup request (migration 013); fails soft before it is applied.
-                w().from('clients').select('setup_request').eq('id', client.id).maybeSingle()
-                  .then(function (sr) {
-                    var req = sr && !sr.error && sr.data ? sr.data.setup_request : null;
-                    if (!req || (req.status !== 'sent' && req.status !== 'in_progress')) return;
-                    var left = req.left != null ? req.left : null;
-                    if (left != null) $('hbSetupH').textContent = left ? left + (left === 1 ? ' thing' : ' things') + ' left from your session' : 'Nearly there';
-                    $('hbSetup').hidden = false;
-                  }, function () {});
-                return w().from('documents').select('id, name, type, storage_path, uploaded_at').eq('client_id', client.id)
-                  .then(function (dr) { if (dr && !dr.error) renderDocs(dr.data || []); });
-              });
-          });
-      })
-      .catch(function (err) { console.error('Client Hub: could not load your details', err); });
+  /* Getting started (5.2). Step 1 shows only once the coach has sent a setup
+     request; done when finished. The current step is the first not done. */
+  function steps() {
+    var list = [];
+    var req = S.setup;
+    if (req && (req.status === 'sent' || req.status === 'in_progress' || req.status === 'finished')) {
+      var left = req.left != null ? Number(req.left) : null;
+      list.push({ title: 'Finish setting up Wealth OS', sub: left != null ? left + (left === 1 ? ' question left' : ' questions left') : 'A few questions left',
+        done: req.status === 'finished', action: 'Continue', href: SETUP, setup: true });
+    }
+    list.push({ title: 'Start the learning commitment', sub: 'Your first lesson', done: !!(S.progress && S.progress.commitment_completed_at), action: 'Start', href: COMMIT });
+    // TODO(Paddy to confirm): done when a future session is booked; there is no session data yet (see S.session).
+    list.push({ title: 'Book your plan session', sub: 'We go through your plan together', done: !!S.session, action: 'Book a session', book: true });
+    list.push({ title: 'Your Wealth Plan arrives here', sub: 'Added by your coach after the session', done: !!S.plan, wait: 'After step ' + list.length });
+    var cur = -1;
+    list.forEach(function (s, i) { if (cur < 0 && !s.done) cur = i; });
+    list.forEach(function (s, i) { s.n = i + 1; s.current = i === cur; });
+    return { list: list, cur: cur, total: list.length, done: list.filter(function (s) { return s.done; }).length };
   }
+
+  function wealthOsHref() {
+    if (!isNew()) return WOS;
+    var st = steps();
+    var c = st.list[st.cur];
+    return c && c.setup ? SETUP : WOS;
+  }
+
+  function sortArticles(list) {
+    return list.slice().sort(function (a, b) {
+      if (!!b.featured !== !!a.featured) return b.featured ? 1 : -1;
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+  }
+  function artHref(a) {
+    // TODO(Paddy to confirm): where members' videos are hosted. Until then a
+    // video opens its own src, or the Videos page.
+    if (a.type === 'video') return a.src || '/hub/videos.html';
+    return '/hub/members/' + encodeURIComponent(a.slug) + '.html';
+  }
+  function isRecent(a) { var d = toDate(a.date); return !!d && (now - d) / DAY <= 14 && (now - d) >= -DAY; }
+
+  function noteWhen(n) {
+    var m = String(n.updatedOn || '').match(/^(\d{4})-(\d{2})/);
+    return m ? MON[Number(m[2]) - 1] + ' ' + m[1] : (n.updated || '');
+  }
+  function suiteNotes() {
+    return S.notes.filter(function (n) { return n.href; })
+      .map(function (n, i) { return { n: n, i: i }; })
+      .sort(function (a, b) { return String(b.n.updatedOn || '').localeCompare(String(a.n.updatedOn || '')) || a.i - b.i; })
+      .map(function (x) { return x.n; }).slice(0, 3);
+  }
+
+  /* ---------- shared pieces ---------- */
+  function docIcon(band) {
+    return '<span class="doc-ic" aria-hidden="true"><i class="band" style="background:' + band + '"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="gold"></i></span>';
+  }
+  function heroChart(phone) {
+    var h = phone ? [14, 20, 27, 35, 44, 54, 66] : [34, 46, 58, 72, 88, 104, 124, 146, 170];
+    var W = phone ? 120 : 320, H = phone ? 80 : 200, bw = phone ? 11 : 22, step = phone ? 17 : 36, rx = phone ? 3 : 5;
+    var id = phone ? 'hlMb' : 'hlDb';
+    var line = phone ? 'M 5 70 C 30 66, 50 58, 66 46 S 100 18, 116 6' : 'M 11 172 C 70 162, 110 150, 150 126 S 240 70, 309 18';
+    var bars = h.map(function (v, j) { return '<rect class="bar-r" x="' + j * step + '" y="' + (H - v) + '" width="' + bw + '" height="' + v + '" rx="' + rx + '" fill="url(#' + id + ')" style="animation-delay:' + (0.05 * j).toFixed(2) + 's"/>'; }).join('');
+    var area = phone ? '' : '<path d="' + line + ' L 309 200 L 11 200 Z" fill="url(#' + id + 'a)"/>';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D6A8" stop-opacity="0.34"/><stop offset="1" stop-color="#E8D6A8" stop-opacity="0.04"/></linearGradient>' +
+      '<linearGradient id="' + id + 'a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D6A8" stop-opacity="0.30"/><stop offset="1" stop-color="#E8D6A8" stop-opacity="0"/></linearGradient></defs>' +
+      bars + area +
+      '<path class="draw" pathLength="1" d="' + line + '" fill="none" stroke="#E8D6A8" stroke-width="' + (phone ? 2 : 2.4) + '" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>' +
+      '<span class="pt" aria-hidden="true" style="left:' + (phone ? '96.6%;top:7.5%' : '96.5%;top:9%') + '"><i class="halo"></i><i class="dot"></i></span>';
+  }
+  function glows() { return '<span class="glow" aria-hidden="true"></span><span class="glow2" aria-hidden="true"></span>'; }
+  function bookBtn(label, cls) {
+    return '<a class="btn btn-p press ' + (cls || '') + '" href="' + BOOK + '" data-book>' + esc(S.booked ? 'Sent to your coach' : label) + '</a>';
+  }
+  function cover(a, size, phone) {
+    if (a.type === 'video') {
+      var poster = a.poster ? ' style="background-image:url(\'' + encodeURI(String(a.poster)).replace(/'/g, '%27') + '\')"' : '';
+      return '<span class="cover cover-video"' + poster + ' aria-hidden="true"><span class="vglow"></span><span class="play">' + IC.play + '</span>' +
+        '<span class="vtag vtag-mo">Members only</span>' + (a.duration && !phone ? '<span class="vtag vtag-dur">' + esc(a.duration) + '</span>' : '') + '</span>';
+    }
+    return '<span class="cover" aria-hidden="true">' + window.TeiFigures.html(a.figure || 'line', { size: size, caption: phone }) +
+      (phone && a._isHead && isRecent(a) ? '<span class="newp">New</span>' : '') + '</span>';
+  }
+  function ring(phone, L) {
+    var r = phone ? 21 : 42, c = phone ? 131.9 : 263.9, sz = phone ? 50 : 92, vb = phone ? 50 : 96, sw = phone ? 5 : 8, mid = vb / 2;
+    var off = (c * (1 - Math.min(L.count, L.total) / L.total)).toFixed(1);
+    return '<span class="ring-w" style="display:block"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + vb + ' ' + vb + '" role="img" aria-label="' + L.count + ' of ' + L.total + ' lessons complete">' +
+      '<circle cx="' + mid + '" cy="' + mid + '" r="' + r + '" fill="none" style="stroke:var(--w-track)" stroke-width="' + sw + '"/>' +
+      (L.count ? '<circle class="' + (phone ? 'm-ring-fill' : 'ring-fill') + '" cx="' + mid + '" cy="' + mid + '" r="' + r + '" fill="none" style="stroke:var(--w-gold)" stroke-width="' + sw + '" stroke-linecap="round" stroke-dasharray="' + c + '" stroke-dashoffset="' + off + '" transform="rotate(-90 ' + mid + ' ' + mid + ')"/>' : '') +
+      '</svg><span class="ring-c" aria-hidden="true"><span class="ring-n">' + L.count + '</span>' + (phone ? '' : '<span class="ring-of mono">of ' + L.total + '</span>') + '</span></span>';
+  }
+
+  /* ---------- desktop tiles ---------- */
+  function dPlan() {
+    var docs = [];
+    if (S.plan) docs.push({ title: 'Wealth Plan', date: S.plan.uploaded_at, band: '#14376E', href: WOS + '#forecast/' + encodeURIComponent(S.plan.id) + '/planning' });
+    if (S.forecast) docs.push({ title: "Coach's forecast", date: S.forecast.uploaded_at, band: '#83661C', href: WOS + '#doc/' + encodeURIComponent(S.forecast.id) + '/documents' });
+    return '<section class="t t-feat t-plan" aria-labelledby="dPlanK">' + glows() +
+      '<div class="t-plan-text"><p class="lab" id="dPlanK">Your plan</p>' +
+      '<h2>Your plan, live. Every account and goal.</h2>' +
+      '<a class="btn btn-c press" href="' + WOS + '">Open Wealth OS' + IC.chev + '</a>' +
+      (docs.length ? '<div class="docs">' + docs.map(function (d) {
+        return '<a class="doc press lift" href="' + esc(d.href) + '">' + docIcon(d.band) + '<span style="min-width:0"><span class="doc-t">' + esc(d.title) + '</span><span class="doc-d mono">Updated ' + esc(shortDate(d.date)) + '</span></span></a>';
+      }).join('') + '</div>' : '') +
+      '</div><div class="t-plan-chart">' + heroChart(false) + '</div></section>';
+  }
+
+  function stepAction(s, phone) {
+    if (s.done) return '<span class="st-a">Done</span>';
+    if (!s.current) return '<span class="st-a">' + esc(s.wait || 'Next') + '</span>';
+    if (s.wait) return '<span class="st-a">' + esc(s.wait) + '</span>';
+    if (s.book) return '<a class="btn btn-c press" href="' + BOOK + '" data-book>' + esc(S.booked ? 'Sent to your coach' : s.action) + '</a>';
+    return '<a class="btn btn-c press" href="' + esc(s.href) + '">' + esc(s.action) + '</a>';
+  }
+  function segs(st) { return '<span class="segs" aria-hidden="true">' + st.list.map(function (s) { return '<i' + (s.done || s.current ? ' class="on"' : '') + '></i>'; }).join('') + '</span>'; }
+  function gsTitle(st) { return (st.total === 4 ? 'Four' : 'Three') + ' steps, then your plan goes live here.'; }
+  function stepLabel(st) { return 'Step ' + (st.cur < 0 ? st.total : st.cur + 1) + ' of ' + st.total; }
+
+  function dGettingStarted() {
+    var st = steps();
+    var hasSetup = st.list[0] && st.list[0].setup;
+    return '<section class="t t-feat t-gs" aria-labelledby="dGsK">' + glows() +
+      '<div class="t-gs-text"><p class="lab" id="dGsK">Getting started</p><h2>' + gsTitle(st) + '</h2>' +
+      (hasSetup ? '<p class="t-gs-line">Your coach has filled in most of Wealth OS from your first session. These steps finish the job.</p>' : '') +
+      '<div class="gs-prog"><p class="gs-count mono"><span>' + stepLabel(st) + '</span><span>' + st.done + ' of ' + (st.total - 1) + ' done</span></p>' + segs(st) + '</div></div>' +
+      '<ol class="steps-l">' + st.list.map(function (s) {
+        return '<li class="st' + (s.current ? ' cur' : '') + (s.done ? ' done' : '') + '"' + (s.current ? ' aria-current="step"' : '') + '>' +
+          '<span class="st-n" aria-hidden="true">' + (s.done ? IC.tick : s.n) + '</span>' +
+          '<span class="st-b"><span class="st-t">' + esc(s.title) + '</span><span class="st-s">' + esc(s.sub) + '</span></span>' + stepAction(s) + '</li>';
+      }).join('') + '</ol></section>';
+  }
+
+  function sessionParts(s) {
+    var d = toDate(s.start) || now;
+    return { mon: MON[d.getMonth()].toUpperCase(), day: d.getDate(), wd: DAYS[d.getDay()].slice(0, 3),
+      time: ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) };
+  }
+  function dCoach() {
+    var body;
+    if (S.session) {
+      var p = sessionParts(S.session);
+      body = '<div class="coach-row"><div class="cal" aria-hidden="true"><span class="cal-m">' + p.mon + '</span><span class="cal-d">' + p.day + '</span><span class="cal-w">' + p.wd + '</span></div>' +
+        '<div style="min-width:0"><p class="coach-k">Next session</p><h2 class="coach-h" style="margin-top:4px">' + esc(S.session.type || 'Session') + '</h2>' +
+        '<p class="coach-s" style="margin-top:4px">' + esc([p.time, S.session.minutes ? S.session.minutes + ' min' : '', S.session.format || ''].filter(Boolean).join(' · ')) + '</p></div></div>' +
+        // TODO(Paddy to confirm): "Add a question" attaches to a booked session; wire it when session data exists.
+        '<a class="btn btn-p press" href="' + esc(S.session.href || WOS) + '">Add a question</a>';
+    } else {
+      var nw = isNew();
+      body = '<div class="coach-row"><div class="cal cal-empty" aria-hidden="true">' + IC.calPlus + '</div>' +
+        '<div style="min-width:0"><h2 class="coach-h">' + (nw ? 'Book your plan session' : 'Book a session') + '</h2>' +
+        '<p class="coach-s" data-book-line>' + esc(S.booked ? 'Sent. Your coach will be in touch to arrange a time.' : (nw ? 'We go through your Wealth Plan together. Pick a time that suits you.' : 'Book a time with your coach and it will show here.')) + '</p></div></div>' +
+        bookBtn('Book a session');
+    }
+    var foot = S.lastNote
+      ? '<div class="coach-foot"><p class="k mono">Last session · ' + esc(shortDate(S.lastNote.uploaded_at)) + '</p><p class="h">' + esc(S.lastNote.name || 'Meeting note') + '</p>' +
+        '<div class="lnks"><a class="lnk" href="' + esc(noteHref(S.lastNote)) + '">Open notes</a><a class="lnk lnk-m" href="' + NOTES + '">All notes</a></div></div>'
+      : '<p class="coach-foot coach-empty">Notes from each session appear here after it.</p>';
+    return '<section class="t t-champ t-coach press lift" aria-labelledby="dCoachK"><p class="lab" id="dCoachK">Your coach</p>' + body + foot + '</section>';
+  }
+  function noteHref(n) { return n.storage_path ? WOS + '#doc/' + encodeURIComponent(n.id) + '/documents' : NOTES; }
+
+  function dArticles() {
+    var list = sortArticles(S.articles);
+    var head = list[0];
+    var label = head && head.type === 'video' ? 'Latest for members' : "Members' articles";
+    var html = '<section class="t t-art" aria-labelledby="dArtK"><div class="row"><p class="lab" id="dArtK">' + label + '</p><a class="lnk" href="' + ARTICLES + '">All articles</a></div>';
+    if (!head) return html + '<p class="coach-empty">New members\' articles appear here.</p></section>';
+    var video = head.type === 'video';
+    var meta = video ? (head.duration ? esc(head.duration) : '') + (isRecent(head) ? (head.duration ? ' · ' : '') + 'New' : '')
+      : esc(head.readTime) + ' min read' + (isRecent(head) ? ' · New' : '');
+    html += '<a class="art-head press" href="' + esc(artHref(head)) + '">' + cover(head, 'large', false) +
+      '<span class="art-text"><span class="art-meta"><span class="pill">' + (video ? 'Video · Members only' : esc(head.category)) + '</span><span class="m">' + meta + '</span></span>' +
+      '<span class="art-title">' + esc(head.short || head.title) + '</span><span class="art-teaser">' + esc(head.teaser) + '</span>' +
+      '<span class="art-cta">' + (video ? 'Watch now' : 'Read the article') + IC.chev + '</span></span></a>';
+    var more = list.slice(1, 3);
+    if (more.length) {
+      html += '<div class="art-more">' + more.map(function (a) {
+        var m = a.type === 'video' ? 'Video' + (a.duration ? ' · ' + a.duration : '') : (a.category + ' · ' + a.readTime + ' min');
+        return '<a class="art-card press lift" href="' + esc(artHref(a)) + '">' + cover(a, 'small', false) +
+          '<span style="min-width:0"><span class="m">' + esc(m) + '</span><span class="h">' + esc(a.short || a.title) + '</span></span></a>';
+      }).join('') + '</div>';
+    }
+    return html + '</section>';
+  }
+
+  function dLearn(L) {
+    var labels = ['Start here', 'Stage 1', 'Stage 2'];
+    return '<section class="t t-learn press lift" aria-labelledby="dLearnK"><div class="row"><p class="lab" id="dLearnK">Continue learning</p><a class="lnk lnk-m" href="' + EDU + '">All stages</a></div>' +
+      '<div class="learn-row">' + ring(false, L) + '<div style="min-width:0"><p class="learn-where">' + esc(L.where) + '</p><h2 class="learn-title">' + esc(L.title) + '</h2></div></div>' +
+      '<ol class="stepper" aria-label="Stages">' + labels.map(function (l, i) {
+        var st = i < L.stageNow ? 'done' : (i === L.stageNow ? 'now' : 'todo');
+        var word = st === 'done' ? ', done' : (st === 'now' ? ', current' : '');
+        return '<li class="' + st + '"' + (st === 'now' ? ' aria-current="step"' : '') + '><span class="d" aria-hidden="true"></span><span class="l">' + l + '<span class="sr">' + word + '</span></span>' + (i < 2 ? '<span class="ln" aria-hidden="true"></span>' : '') + '</li>';
+      }).join('') + '</ol>' +
+      '<a class="btn press" href="' + esc(L.href) + '">' + esc(L.cta) + '</a></section>';
+  }
+
+  function dSuite() {
+    var top = suiteNotes();
+    var html = '<section class="t t-suite" aria-labelledby="dSuiteK"><div class="row"><p class="lab" id="dSuiteK">Investment suite</p><a class="lnk" href="' + SUITE + '">All notes</a></div>';
+    if (!top.length) return html + '<p class="coach-empty">Research notes appear here.</p></section>';
+    var l = top[0], b = hexOk(l.brand);
+    html += '<a class="lead press lift" href="' + esc(l.href) + '"><span class="top" aria-hidden="true" style="background:' + b + '"></span>' +
+      '<span class="mk" aria-hidden="true" style="background:' + b + '">' + esc(l.mark) + '</span>' +
+      '<span class="lead-b"><span class="lead-meta"><span class="c">' + esc(l.category) + '</span><span class="m">' + esc(l.ticker) + (noteWhen(l) ? ' · Updated ' + esc(noteWhen(l)) : '') + '</span></span>' +
+      '<span class="lead-n">' + esc(l.name) + '</span>' + (l.line || l.summary ? '<span class="lead-s">' + esc(l.line || l.summary) + '</span>' : '') +
+      (l.category === 'Foundations' ? '' : '<span class="bb"><span style="display:inline-flex;gap:3px" aria-hidden="true"><i style="background:var(--w-pos)"></i><i style="background:var(--w-warn)"></i></span>Bull and bear case</span>') +
+      '</span></a>';
+    html += top.slice(1).map(function (n) {
+      var c = hexOk(n.brand);
+      return '<a class="nrow press" href="' + esc(n.href) + '"><span class="mk" aria-hidden="true" style="background:' + c + '">' + esc(n.mark) + '</span>' +
+        '<span class="nrow-b"><span class="n">' + esc(n.name) + '</span><span class="m">' + esc(n.ticker + ' · ' + n.category + (noteWhen(n) ? ' · Updated ' + noteWhen(n) : '')) + '</span></span>' + IC.chev + '</a>';
+    }).join('');
+    return html + '</section>';
+  }
+
+  function dTools() {
+    return '<section class="t t-tools" aria-labelledby="dToolsK"><div class="row"><p class="lab" id="dToolsK">Guides &amp; tools</p><a class="lnk lnk-m" href="' + GUIDES + '">All</a></div>' +
+      S.tools.slice(0, 4).map(function (t) {
+        var inner = '<span class="tool-ic" aria-hidden="true">' + icon(t.icon) + '</span><span style="min-width:0"><span class="n">' + esc(t.name) + '</span><span class="s">' + (t.href ? 'Members only' : 'Coming soon') + '</span></span>';
+        return t.href ? '<a class="tool press lift" href="' + esc(t.href) + '">' + inner + '</a>' : '<span class="tool off" aria-disabled="true">' + inner + '</span>';
+      }).join('') + '</section>';
+  }
+
+  // TODO(G6): search the whole Knowledge library (E5); until then, as before, the search runs on the glossary.
+  function searchForm(id, placeholder) {
+    return '<form class="search" action="/hub/knowledge/glossary.html" method="get" role="search">' + IC.search +
+      '<label class="sr" for="' + id + '">Search the Knowledge library</label><input id="' + id + '" name="q" type="search" placeholder="' + esc(placeholder) + '" autocomplete="off"></form>';
+  }
+  function dKnow() {
+    var chips = [['Glossary', 'glossary'], ['Mental models', 'mental-models'], ['Quote library', 'quote-library'], ['Book library', 'book-library']];
+    return '<section class="t t-know" aria-labelledby="dKnowK"><div class="row"><p class="lab" id="dKnowK">Knowledge library</p><a class="lnk lnk-m" href="/hub/knowledge/">Open</a></div>' +
+      searchForm('dKnowQ', 'Search terms, e.g. compounding') +
+      '<div class="chips">' + chips.map(function (c) { return '<a href="/hub/knowledge/' + c[1] + '.html">' + c[0] + '</a>'; }).join('') + '</div></section>';
+  }
+
+  /* ---------- phone tiles (8.3) ---------- */
+  function mPlan() {
+    var docs = [];
+    if (S.plan) docs.push({ short: 'Plan', aria: 'Wealth Plan, updated ' + shortDate(S.plan.uploaded_at), band: '#14376E', href: WOS + '#forecast/' + encodeURIComponent(S.plan.id) + '/planning' });
+    if (S.forecast) docs.push({ short: 'Forecast', aria: "Coach's forecast, updated " + shortDate(S.forecast.uploaded_at), band: '#83661C', href: WOS + '#doc/' + encodeURIComponent(S.forecast.id) + '/documents' });
+    return '<section class="mt t-feat m-plan" aria-labelledby="mPlanK"><span class="glow" aria-hidden="true"></span>' +
+      '<div class="m-plan-text"><p class="lab" id="mPlanK">Your plan</p><h2>Your plan, live. Every account and goal.</h2></div>' +
+      '<div class="m-chart">' + heroChart(true) + '</div>' +
+      '<div class="m-acts"><a class="btn btn-c press" href="' + WOS + '">Open Wealth OS</a>' +
+      docs.map(function (d) { return '<a class="m-doc press" href="' + esc(d.href) + '" aria-label="' + esc(d.aria) + '">' + docIcon(d.band) + '<span>' + d.short + '</span></a>'; }).join('') +
+      '</div></section>';
+  }
+  function mGettingStarted() {
+    var st = steps();
+    var c = st.list[st.cur];
+    return '<section class="mt t-feat m-gs" aria-labelledby="mGsK"><span class="glow" aria-hidden="true"></span>' +
+      '<div class="row"><p class="lab" id="mGsK">Getting started</p><span class="mono" style="font-size:11px;color:#C9D3E3">' + stepLabel(st) + '</span></div>' +
+      '<h2>' + gsTitle(st) + '</h2>' + '<div style="position:relative">' + segs(st) + '</div>' +
+      (c ? '<div class="m-cur"><span class="st-n" aria-hidden="true">' + c.n + '</span><span style="flex:1;min-width:0"><span class="mc-t">' + esc(c.title) + '</span><span class="mc-s">' + esc(c.sub) + '</span></span>' + stepAction(c, true) + '</div>' : '') +
+      '<ol class="m-later">' + st.list.filter(function (s) { return !s.current; }).map(function (s) {
+        return '<li' + (s.done ? ' class="done"' : '') + '><span class="n" aria-hidden="true">' + s.n + '</span>' + esc(s.title) + (s.done ? '<span class="sr">, done</span>' : '') + '</li>';
+      }).join('') + '</ol></section>';
+  }
+  function mCoach() {
+    var body;
+    if (S.session) {
+      var p = sessionParts(S.session);
+      // The session itself opens it; "Add a question" lives there on phones (8.3).
+      body = '<a class="m-sess" href="' + esc(S.session.href || WOS) + '"><span class="cal" aria-hidden="true"><span class="cal-m">' + p.mon + '</span><span class="cal-d">' + p.day + '</span></span>' +
+        '<span style="min-width:0"><span class="h" style="display:block">' + esc(S.session.type || 'Session') + '</span><span class="s" style="display:block">' + esc(p.wd + ' · ' + p.time) + '</span></span></a>';
+    } else {
+      body = '<p class="h">' + (isNew() ? 'Book your plan session' : 'Book a session') + '</p>' + bookBtn('Book');
+    }
+    var foot = S.lastNote ? '<a class="m-note" href="' + esc(noteHref(S.lastNote)) + '">' + IC.note + '<span>Notes · ' + esc(dayMonth(S.lastNote.uploaded_at)) + '</span></a>' : '';
+    return '<section class="mt m-coach" aria-labelledby="mCoachK"><p class="lab" id="mCoachK">Your coach</p>' + body + foot + '</section>';
+  }
+  function mLearn(L) {
+    return '<a class="mt m-learn press" href="' + esc(L.href) + '" aria-labelledby="mLearnK mLearnS"><span class="lab" id="mLearnK">Continue learning</span>' +
+      '<span style="display:flex;gap:10px;align-items:center">' + ring(true, L) +
+      '<span style="min-width:0"><span class="of">of ' + L.total + ' lessons</span><span class="stg">' + esc(L.short) + '</span></span></span>' +
+      '<span class="go" id="mLearnS">' + esc(L.phoneCta) + IC.chev + '</span></a>';
+  }
+  function mArticles() {
+    var list = sortArticles(S.articles);
+    var head = list[0];
+    var label = head && head.type === 'video' ? 'Latest for members' : "Members' articles";
+    return '<section class="mt m-art" aria-labelledby="mArtK"><div class="row"><p class="lab" id="mArtK">' + label + '</p><a class="lnk" href="' + ARTICLES + '">All</a></div>' +
+      '<div class="snap' + (list.length <= 2 ? ' fit' + (list.length === 1 ? ' one' : '') : '') + '">' + list.map(function (a, i) {
+        a._isHead = i === 0;
+        var m = a.type === 'video' ? 'Video' + (a.duration ? ' · ' + a.duration : '') : (a.category + ' · ' + a.readTime + ' min');
+        return '<a class="card press' + (i === 0 ? ' head' : '') + '" href="' + esc(artHref(a)) + '">' + cover(a, 'small', true) +
+          '<span class="m">' + esc(m) + '</span><span class="h">' + esc(a.short || a.title) + '</span></a>';
+      }).join('') + '</div></section>';
+  }
+  function mSuite() {
+    return '<section class="mt m-suite" aria-labelledby="mSuiteK"><div class="row"><p class="lab" id="mSuiteK">Investment suite</p><a class="lnk" href="' + SUITE + '">All notes</a></div>' +
+      '<div class="minis">' + suiteNotes().map(function (n) {
+        var c = hexOk(n.brand);
+        var first = String(n.name).split(' ')[0];
+        var short = first.length > 3 ? first : n.name;
+        return '<a class="mini press" href="' + esc(n.href) + '" aria-label="' + esc(n.name + ' note') + '"><span class="top" aria-hidden="true" style="background:' + c + '"></span>' +
+          '<span class="tk"><span class="mk" aria-hidden="true" style="background:' + c + '">' + esc(n.mark) + '</span>' + esc(n.ticker) + '</span>' +
+          '<span class="n">' + esc(short) + '</span>' + (noteWhen(n) ? '<span class="w">Upd ' + esc(noteWhen(n)) + '</span>' : '') + '</a>';
+      }).join('') + '</div></section>';
+  }
+  function mTools() {
+    return '<section class="mt m-tools" aria-labelledby="mToolsK"><div class="row"><p class="lab" id="mToolsK">Members\' tools</p><a class="lnk lnk-m" href="' + GUIDES + '">Guides &amp; tools</a></div>' +
+      '<div class="apps">' + S.tools.slice(0, 4).map(function (t) {
+        var inner = '<span class="app-ic" aria-hidden="true">' + icon(t.icon) + '</span><span class="n">' + esc(t.short || t.name) + '</span>';
+        return t.href ? '<a class="app press" href="' + esc(t.href) + '" aria-label="' + esc(t.name) + '">' + inner + '</a>'
+          : '<span class="app off" aria-disabled="true" aria-label="' + esc(t.name + ', coming soon') + '">' + inner + '</span>';
+      }).join('') + '</div>' + searchForm('mKnowQ', 'Knowledge library: search a term') + '</section>';
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    var L = learning();
+    var nw = isNew();
+    if (S.name) $('hubHeroGreeting').textContent = (nw ? 'Welcome to TEI, ' : 'Welcome back, ') + S.name;
+    $('hlGrid').innerHTML = (nw ? dGettingStarted() : dPlan()) + dCoach() + dArticles() + dLearn(L) + dSuite() + dTools() + dKnow();
+    $('hlPhone').innerHTML = (nw ? mGettingStarted() : mPlan()) + '<div class="m-pair">' + mCoach() + mLearn(L) + '</div>' + mArticles() + mSuite() + mTools();
+    if (window.TeiHubHeader) window.TeiHubHeader.setWealthOsHref(wealthOsHref());
+  }
+
   /* Book a session asks the coach for a time (wealth_os.feedback, which
      emails Paddy with the client's details, migration 016) instead of
      opening the booking link, once a client record is found. Advisers and
      anyone without a client record keep the link. */
-  function wireSessionRequest(clientId) {
-    var btn = $('hbSessionBtn');
-    if (!btn) return;
-    btn.addEventListener('click', function (e) {
-      e.preventDefault();
-      if (btn.getAttribute('aria-disabled') === 'true') return;
-      btn.setAttribute('aria-disabled', 'true');
-      w().from('feedback').insert({ client_id: clientId, area: 'session', page_context: 'hub', message: 'Asked to book a session.', submitted_by: 'client' })
-        .then(function (r) {
-          if (r && r.error) throw r.error;
-          $('hbSessionTitle').textContent = 'Request sent';
-          $('hbSessionText').textContent = 'Sent. Your coach will be in touch to arrange a time.';
-          btn.textContent = 'Sent to your coach';
-        })
-        .catch(function (err) {
-          console.error('Client Hub: request not sent', err);
-          btn.removeAttribute('aria-disabled');
-          $('hbSessionText').textContent = 'That did not send. Please try again.';
-        });
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('[data-book]');
+    if (!btn || !S.clientId) return;
+    e.preventDefault();
+    if (S.booked || btn.getAttribute('aria-disabled') === 'true') return;
+    var all = document.querySelectorAll('[data-book]');
+    Array.prototype.forEach.call(all, function (b) { b.setAttribute('aria-disabled', 'true'); });
+    w().from('feedback').insert({ client_id: S.clientId, area: 'session', page_context: 'hub', message: 'Asked to book a session.', submitted_by: 'client' })
+      .then(function (r) {
+        if (r && r.error) throw r.error;
+        S.booked = true;
+        Array.prototype.forEach.call(all, function (b) { b.textContent = 'Sent to your coach'; });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-book-line]'), function (p) { p.textContent = 'Sent. Your coach will be in touch to arrange a time.'; });
+      })
+      .catch(function (err) {
+        console.error('Client Hub: request not sent', err);
+        Array.prototype.forEach.call(all, function (b) { b.removeAttribute('aria-disabled'); });
+        Array.prototype.forEach.call(document.querySelectorAll('[data-book-line]'), function (p) { p.textContent = 'That did not send. Please try again.'; });
+      });
+  });
+
+  /* Theme (3.3): the client's clients.theme wins when set; a change is kept
+     on this device (tei-theme) and on the record. */
+  if (window.TeiHubHeader) {
+    window.TeiHubHeader.onThemePick(function (t) {
+      if (!S.clientId || !S.hasThemeColumn) return;
+      w().from('clients').update({ theme: t }).eq('id', S.clientId)
+        .then(function (r) { if (r && r.error) console.error('Client Hub: theme not saved', r.error); }, function () {});
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
-})();
-</script>
-<script>
-/* Members' articles strip: the newest two from the members' list. */
-(function () {
-  var ul = document.getElementById('hbArticles');
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
-  fetch('/hub/members-articles.json').then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(function (list) {
-      var top = (list || []).slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }).slice(0, 2);
-      if (!top.length) return;
-      ul.innerHTML = top.map(function (a) {
-        return '<li><a href="/hub/members/' + encodeURIComponent(a.slug) + '.html">' + esc(a.short || a.title) + '<span class="tag mono">' + esc(a.category) + ' &middot; ' + esc(a.readTime) + ' min</span></a></li>';
-      }).join('');
-    })
-    .catch(function (err) { console.error('Hub: could not load members\' articles', err); });
+  function w() { return window.teiSupabase.schema('wealth_os'); }
+  function soft(p) { return Promise.resolve(p).then(function (r) { return r && !r.error ? r.data : null; }, function () { return null; }); }
+  function getJson(url) { return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }).catch(function (err) { console.error('Client Hub: could not load', err); return []; }); }
+
+  function loadRecords() {
+    if (!window.TeiAuth) return Promise.resolve();
+    return TeiAuth.waitForReady()
+      .then(function () { return TeiAuth.getUser(); })
+      .then(function (res) {
+        var user = res && res.data && res.data.user;
+        if (!user) return;
+        return Promise.all([
+          soft(window.teiSupabase.from('education_progress').select('completed_lessons, commitment_completed_at').eq('user_id', user.id).maybeSingle())
+            .then(function (p) { S.progress = p; S.progressLoaded = true; }),
+          // First name: the profile first (advisers have no client row), then the client row.
+          soft(w().from('profiles').select('first_name').eq('user_id', user.id).maybeSingle()).then(function (pr) {
+            return soft(w().from('clients').select('id, first_name').eq('user_id', user.id).maybeSingle()).then(function (client) {
+              S.name = (pr && pr.first_name) || (client && client.first_name) || '';
+              if (!client) return;
+              S.clientId = client.id;
+              return Promise.all([
+                // Setup request (migration 013) and theme (migration 011) are read on
+                // their own, so either column missing fails soft.
+                soft(w().from('clients').select('setup_request').eq('id', client.id).maybeSingle()).then(function (r) { S.setup = r ? r.setup_request : null; }),
+                soft(w().from('clients').select('theme').eq('id', client.id).maybeSingle()).then(function (r) {
+                  if (!r) return;
+                  S.hasThemeColumn = true;
+                  if ((r.theme === 'light' || r.theme === 'dark') && window.TeiTheme && window.TeiTheme.resolved() !== r.theme) {
+                    window.TeiTheme.set(r.theme);
+                  }
+                }),
+                soft(w().from('documents').select('id, name, type, storage_path, uploaded_at').eq('client_id', client.id)).then(function (docs) {
+                  if (!docs) return;
+                  S.docsLoaded = true;
+                  S.plan = newest(docs.filter(function (d) { return d.type === 'forecast' && d.storage_path; }))[0] || null;
+                  S.lastNote = newest(docs.filter(function (d) { return d.type === 'note'; }))[0] || null;
+                })
+              ]);
+            });
+          })
+        ]);
+      })
+      .catch(function (err) { console.error('Client Hub: could not load your details', err); });
+  }
+
+  function timeout(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  Promise.all([
+    Promise.race([loadRecords(), timeout(8000)]),
+    getJson('/hub/members-articles.json').then(function (l) { S.articles = Array.isArray(l) ? l : []; }),
+    getJson('/hub/suite/notes/manifest.json').then(function (l) { S.notes = Array.isArray(l) ? l : []; }),
+    getJson('/hub/members-tools.json').then(function (l) { S.tools = Array.isArray(l) ? l : []; })
+  ]).then(render, function (err) { console.error('Client Hub:', err); render(); });
 })();
 </script>
-<!-- Phones: the shared website and Client Hub bar (assets/mobile-nav.js),
-     not the Wealth OS tabs (Paddy, 20 Oct 2026). -->
-<style>.hb-tabs{ display:none !important; }</style>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
-<script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>
