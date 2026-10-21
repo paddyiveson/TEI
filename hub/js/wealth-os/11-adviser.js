@@ -240,6 +240,7 @@ window.TEI = window.TEI || {};
         document.getElementById('newAcctMaturityDate').value = acc.maturityDate || '';
         document.getElementById('newAcctIsJoint').checked = !!acc.isJoint;
         setAcctMoreOptions(acc);
+        setIsaAllowanceField(acc);
         setAcctContribFieldsRuleOwned(!!acc.hasContributionRule);
         toggleAdvAcctContribFields();
         document.getElementById('addAcctBtn').textContent = 'Save changes';
@@ -286,6 +287,7 @@ window.TEI = window.TEI || {};
     document.getElementById('newAcctRateType').value = 'variable';
     document.getElementById('newAcctIsJoint').checked = false;
     setAcctMoreOptions(null);
+    setIsaAllowanceField(null);
     const balanceEl = document.getElementById('newAcctBalance');
     balanceEl.disabled = false;
     balanceEl.title = '';
@@ -299,6 +301,28 @@ window.TEI = window.TEI || {};
     document.getElementById('newAcctSetAndForget').checked = sf;
     document.getElementById('newAcctEarmarked').checked = em;
     document.getElementById('acctMoreOptions').open = sf || em;
+  }
+  /* ISA allowance left (B5.2): shown on ISA accounts, stamped with the tax
+     year when saved. A figure from an earlier tax year shows greyed with a
+     reset prompt, and is kept as it was unless it is changed. */
+  function setIsaAllowanceField(acc){
+    const input = document.getElementById('newAcctIsaAllowance'), help = document.getElementById('newAcctIsaAllowanceHelp');
+    const a = TEI.calc.isaAllowance(acc), ty = TEI.calc.taxYearLabel();
+    const end = Number(ty.slice(0, 4)) + 1;
+    const stale = a.value != null && !a.current;
+    input.value = a.value != null ? a.value : '';
+    input.classList.toggle('is-stale', stale);
+    input.dataset.stale = stale ? '1' : '';
+    help.textContent = stale
+      ? 'This was for ' + (a.taxYear || 'an earlier tax year') + '. The allowance resets on 6 April, so enter what is left for ' + ty + '.'
+      : 'For the ' + ty + ' tax year, to 5 April ' + end + '. Bed & ISA in the Portfolio Lab uses it.';
+  }
+  function readIsaAllowance(type, acc){
+    if(TEI.calc.ISA_TYPES.indexOf(type) < 0) return {isaAllowanceLeft:null, isaAllowanceTaxYear:null};
+    const input = document.getElementById('newAcctIsaAllowance');
+    if(input.dataset.stale && acc) return {isaAllowanceLeft:acc.isaAllowanceLeft, isaAllowanceTaxYear:acc.isaAllowanceTaxYear};
+    if(input.value === '') return {isaAllowanceLeft:null, isaAllowanceTaxYear:null};
+    return {isaAllowanceLeft:Math.max(0, parseFloat(input.value)||0), isaAllowanceTaxYear:TEI.calc.taxYearLabel()};
   }
   function setAcctContribFieldsRuleOwned(owned){
     ['newAcctContrib','newAcctContribPersonal','newAcctContribEmployer'].forEach(id=>{
@@ -325,6 +349,7 @@ window.TEI = window.TEI || {};
     const isCash = type === 'cash' || type === 'cash_isa' || type === 'cash_lisa';
     document.getElementById('advAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
+    document.getElementById('advAcctIsaAllowanceField').style.display = TEI.calc.ISA_TYPES.indexOf(type) >= 0 ? 'flex' : 'none';
     document.getElementById('advAcctJointField').style.display = client.meta.householdId ? 'flex' : 'none';
     toggleAdvAcctMaturityField();
   }
@@ -364,6 +389,7 @@ window.TEI = window.TEI || {};
       if(!acc){ cancelAcctEdit(); return; }
       const hasHoldings = TEI.calc.accountHasHoldings(client, acc.id);
       const patch = {type, provider, value: hasHoldings ? acc.value : value, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint, setAndForget, earmarked};
+      Object.assign(patch, readIsaAllowance(type, acc));
       // Crypto's value is normally holdings-driven (stamped in persistCryptoLastUpdated
       // instead, see addHolding) -- this only covers a crypto account still being
       // manually balanced before its first holding is logged.
@@ -398,6 +424,7 @@ window.TEI = window.TEI || {};
       showToast('Account updated');
     } else {
       const acc = {id:uid(), type, value, provider, openingContributions, cashBalance, interestRate, rateType, maturityDate, isJoint, setAndForget, earmarked, returnPct:null, lastUpdated:new Date().toISOString().slice(0,10)};
+      Object.assign(acc, readIsaAllowance(type, null));
       if(type==='pension'){ acc.contributionPersonal = contribPersonal; acc.contributionSacrifice = contribEmployer; }
       else { acc.contribution = contrib; }
       TEI.calc.stampEdit(acc, 'adviser');
@@ -419,6 +446,7 @@ window.TEI = window.TEI || {};
       document.getElementById('newAcctRateType').value = 'variable';
       document.getElementById('newAcctIsJoint').checked = false;
       setAcctMoreOptions(null);
+      setIsaAllowanceField(null);
       toggleAdvAcctContribFields();
       showToast('Account added');
     }
@@ -2742,6 +2770,9 @@ window.TEI = window.TEI || {};
 
     document.getElementById('newAcctType').addEventListener('change', toggleAdvAcctContribFields);
     document.getElementById('newAcctRateType').addEventListener('change', toggleAdvAcctMaturityField);
+    // Typing a new ISA allowance figure replaces an out-of-date one.
+    document.getElementById('newAcctIsaAllowance').addEventListener('input', function(){ this.dataset.stale = ''; this.classList.remove('is-stale'); });
+    setIsaAllowanceField(null);
     document.getElementById('addAcctBtn').addEventListener('click', addAccount);
     document.getElementById('saveMonthBtn').addEventListener('click', saveMonth);
     document.getElementById('saveHoldingMonthBtn').addEventListener('click', saveHoldingMonth);

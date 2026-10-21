@@ -728,9 +728,18 @@ TEI.render = TEI.render || {};
   function bedIsaPool(){ const c = state.client; return c ? c.accounts.filter(a=> a.type==='isa') : []; }
   function bedSource(){ return bedSourcePool().find(h=> h.id===state.bed.holdingId) || null; }
   function bedIsa(){ const pool = bedIsaPool(); return pool.find(a=> a.id===state.bed.isaId) || (pool.length===1 ? pool[0] : null); }
+  /* The allowance left: what was typed for this scenario, otherwise the
+     figure saved on the chosen ISA in Settings (migration 017) when it is
+     for this tax year. An out-of-date or missing figure means asking. */
+  function bedSaved(){ return TEI.calc.isaAllowance(bedIsa()); }
+  function bedAllowance(){
+    if(state.bed.allowance !== '') return Number(state.bed.allowance)||0;
+    const s = bedSaved();
+    return s.current ? s.value : null;
+  }
   function bedCap(){
     const h = bedSource();
-    const allowance = state.bed.allowance==='' ? null : Number(state.bed.allowance)||0;
+    const allowance = bedAllowance();
     if(!h || allowance==null) return 0;
     return Math.min(allowance, Number(h.value)||0);
   }
@@ -1370,7 +1379,7 @@ TEI.render = TEI.render || {};
     if(t==='target') return 'a share for each holding';
     if(t==='bedisa'){
       const h = bedSource();
-      return h ? `${fmtGBP(bedAmount())} of ${h.name}, allowance left ${state.bed.allowance===''?'not entered':fmtGBP(Number(state.bed.allowance)||0)}` : 'choose a GIA holding';
+      return h ? `${fmtGBP(bedAmount())} of ${h.name}, allowance left ${bedAllowance()==null?'not entered':fmtGBP(bedAllowance())}` : 'choose a GIA holding';
     }
     if(t==='consolidate') return `${picked} into one holding`;
     return '';
@@ -1668,9 +1677,14 @@ TEI.render = TEI.render || {};
       const cap = bedCap();
       const gain = bedGain();
       const isa = bedIsa();
+      const saved = bedSaved(), typed = state.bed.allowance !== '';
+      const allowanceNote = typed ? 'Used for this scenario only. To keep a new figure, change it on the ISA in Settings, under Accounts.'
+        : saved.current ? 'From your ISA in Settings, for ' + TEI.calc.taxYearLabel() + '. Change it here for this scenario only.'
+        : saved.value != null ? 'The figure in Settings (' + fmtGBP(saved.value) + ') is for ' + (saved.taxYear || 'an earlier tax year') + '. Enter what is left for ' + TEI.calc.taxYearLabel() + ' to run this, and update it in Settings.'
+        : 'Enter what is left of this tax year\'s allowance to run this. Save it on the ISA in Settings, under Accounts, to keep it.';
       return `
-        <div class="lab-field-row">${numInput('labBedAllowance', state.bed.allowance, 'ISA allowance left, '+taxYearLabel(), '£')}</div>
-        <div class="lab-subhead-note">${state.bed.allowance==='' ? 'Enter what is left of this tax year\'s allowance to run this. ' : ''}It is used for this scenario only and is not saved yet.</div>
+        <div class="lab-field-row">${numInput('labBedAllowance', typed ? state.bed.allowance : (saved.current ? String(saved.value) : ''), 'ISA allowance left, '+taxYearLabel(), '£')}</div>
+        <div class="lab-subhead-note">${allowanceNote}</div>
         <div class="lab-subhead">Sell from your GIA</div>
         <div class="lab-checklist">
           ${pool.map(x=>{
@@ -2044,12 +2058,27 @@ TEI.render = TEI.render || {};
     const bedIsaSel = document.getElementById('labBedIsa');
     if(bedIsaSel) bedIsaSel.addEventListener('change', (e)=>{ state.bed.isaId = e.target.value || null; renderStageBody(); });
     const discussBtn = document.getElementById('labDiscussBtn');
-    if(discussBtn) discussBtn.addEventListener('click', ()=>{
-      // No message channel to the coach yet: copy a plain summary to bring to the next session.
+    if(discussBtn) discussBtn.addEventListener('click', async ()=>{
+      // Sends the scenario to the coach as a message (the feedback channel,
+      // which emails the coach), like the request buttons elsewhere. The
+      // coach previewing a client copies it instead: nothing is sent.
       const text = [scenarioLabel()].concat(Array.from(document.querySelectorAll('#labStageBody .lab-results-narrative li')).map(li=> '- ' + li.textContent)).join('\n');
-      const done = ()=> showToast('Summary copied. Bring it to your next session or paste it into a message to your coach.');
-      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, ()=> showToast('Could not copy. Make a note of the points above for your coach.'));
-      else showToast('Make a note of the points above to discuss with your coach.');
+      const c = state.client;
+      if(!c || !c.meta || c.meta.role === 'adviser'){
+        const done = ()=> showToast('Summary copied. Clients send this to you; nothing is sent while you preview.');
+        if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, ()=> showToast('Could not copy.'));
+        return;
+      }
+      discussBtn.disabled = true;
+      try{
+        await TEI.wealthOS.saveFeedback(c.meta.clientId, 'general', 'lab', 'Portfolio Lab scenario to discuss:\n' + text, c.meta.role);
+        discussBtn.textContent = 'Sent to your coach';
+        showToast('Sent. Your coach will go through it with you.');
+      } catch(err){
+        console.error('Portfolio Lab: scenario not sent', err);
+        discussBtn.disabled = false;
+        showToast('That did not send. Please try again.');
+      }
     });
     const capInput = document.getElementById('labCapInput');
     if(capInput) capInput.addEventListener('input', (e)=>{

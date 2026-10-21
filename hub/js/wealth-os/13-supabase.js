@@ -283,6 +283,7 @@ window.TEI = window.TEI || {};
         isJoint: !!a.is_joint,
         isManualPriced: !!a.is_manual_priced, hasContributionRule: !!a.has_contribution_rule,
         setAndForget: !!a.set_and_forget, earmarked: !!a.earmarked,
+        isaAllowanceLeft: a.isa_allowance_left != null ? Number(a.isa_allowance_left) : null, isaAllowanceTaxYear: a.isa_allowance_tax_year || null,
         discrepancyDismissedAmount: a.discrepancy_dismissed_amount, discrepancyDismissedAt: a.discrepancy_dismissed_at
       })),
 
@@ -576,6 +577,9 @@ window.TEI = window.TEI || {};
       // carry through unrelated saves unchanged.
       set_and_forget: !!a.setAndForget,
       earmarked: !!a.earmarked,
+      // ISA allowance left and its tax year (migration 017, B5.2).
+      isa_allowance_left: a.isaAllowanceLeft != null ? a.isaAllowanceLeft : null,
+      isa_allowance_tax_year: a.isaAllowanceTaxYear || null,
       discrepancy_dismissed_amount: a.discrepancyDismissedAmount != null ? a.discrepancyDismissedAmount : null,
       discrepancy_dismissed_at: a.discrepancyDismissedAt || null,
       last_updated: a.lastUpdated || new Date().toISOString().slice(0,10),

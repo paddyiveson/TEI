@@ -408,6 +408,11 @@ TEI.render = TEI.render || {};
   const CHEV = '<svg class="sl-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
   const money = v=> fmtGBP(Number(v)||0);
   function acctMonthly(a){ return a.type === 'pension' ? (Number(a.contributionPersonal)||0) + (Number(a.contributionSacrifice)||0) : (Number(a.contribution)||0); }
+  function isaRowNote(a){
+    if(TEI.calc.ISA_TYPES.indexOf(a.type) < 0) return '';
+    const al = TEI.calc.isaAllowance(a);
+    return al.value == null ? '' : al.current ? money(al.value) + ' allowance left' : 'Allowance needs updating';
+  }
   function acctTitle(a){ return a.provider ? a.provider + ' ' + (ACCT_TYPES[a.type] || '') : (ACCT_TYPES[a.type] || 'Account'); }
   function holdingReturn(h){
     const cost = Number(h.costBasis)||0;
@@ -425,7 +430,7 @@ TEI.render = TEI.render || {};
       edit: x=> '[data-edit-acct="'+x.id+'"]', del: x=> '[data-del-acct="'+x.id+'"]',
       label: x=> acctTitle(x),
       row: x=> ({ title: x.provider || ACCT_TYPES[x.type] || 'Account',
-        sub: [x.provider ? ACCT_TYPES[x.type] : '', acctMonthly(x) ? money(acctMonthly(x)) + ' a month in' : '', x.isJoint ? 'Joint' : '', x.setAndForget ? 'Set and forget' : '', x.earmarked ? 'Earmarked' : ''].filter(Boolean).join(' · '),
+        sub: [x.provider ? ACCT_TYPES[x.type] : '', acctMonthly(x) ? money(acctMonthly(x)) + ' a month in' : '', x.isJoint ? 'Joint' : '', isaRowNote(x), x.setAndForget ? 'Set and forget' : '', x.earmarked ? 'Earmarked' : ''].filter(Boolean).join(' · '),
         value: money(x.value) }),
       more: ['newAcctOpeningContrib','newAcctCashBalance','advAcctInterestRateField','advAcctRateTypeField','advAcctMaturityField','advAcctJointField','acctMoreOptions'] },
     hold: { sec:'holdings', heading:'Your holdings', add:'Add holding', btn:'addHoldingBtn', list:'holdingsList', cancel:'holding',

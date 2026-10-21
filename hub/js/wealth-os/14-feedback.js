@@ -46,7 +46,7 @@ window.TEI = window.TEI || {};
       });
       msgEl.value = '';
       renderHistory();
-      TEI.app.showToast("Sent, your adviser will follow up");
+      TEI.app.showToast("Sent. Your coach will follow up.");
     } catch(err){
       console.error('Wealth OS: failed to send feedback', err);
       TEI.app.showToast('That did not send. ' + (err.message || 'Please try again.'));

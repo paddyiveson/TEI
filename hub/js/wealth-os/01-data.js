@@ -1957,6 +1957,22 @@ window.TEI = window.TEI || {};
     const h = (goal.statusHistory||[]).filter(e=> e.status === 'completed');
     return h.length ? h[h.length-1].date : null;
   }
+  /* ISA allowance left (B5.2, migration 017): each ISA account can hold the
+     allowance left, stamped with the UK tax year it belongs to. A tax year
+     runs 6 April to 5 April and is written "2026-27". A figure from an
+     earlier tax year is out of date: Settings greys it and asks for a
+     reset, and Bed & ISA asks before using it. */
+  const ISA_TYPES = ['isa', 'cash_isa', 'lisa', 'cash_lisa'];
+  function taxYearLabel(date){
+    const d = date || new Date();
+    const y = (d.getMonth() > 3 || (d.getMonth() === 3 && d.getDate() >= 6)) ? d.getFullYear() : d.getFullYear() - 1;
+    return y + '-' + String((y + 1) % 100).padStart(2, '0');
+  }
+  function isaAllowance(acc){
+    const has = acc && acc.isaAllowanceLeft != null && acc.isaAllowanceLeft !== '';
+    return { value: has ? Number(acc.isaAllowanceLeft) : null, taxYear: (acc && acc.isaAllowanceTaxYear) || null,
+      current: has && acc.isaAllowanceTaxYear === taxYearLabel() };
+  }
 
   TEI.calc = {
     accountTotal, buildMergedMonths, buildUnifiedTotals, latestBreakdown, latestNetWorth,
@@ -1985,7 +2001,9 @@ window.TEI = window.TEI || {};
     moneyInByMonth, moneyWeightedReturn, annualisedReturnPct, monthsBetween, calendarYearWindow,
     isDiscrepancyFlaggable, isDiscrepancyDismissed,
     /* Projection and goal status (Goals redesign, B12.6) */
-    projectSeries, GOAL_GROWTH, monthsUntil, goalLinkedMonthly, goalMonthlyNeeded, goalMonthsToTarget, goalStatus, goalCompletedDate
+    projectSeries, GOAL_GROWTH, monthsUntil, goalLinkedMonthly, goalMonthlyNeeded, goalMonthsToTarget, goalStatus, goalCompletedDate,
+    /* ISA allowance left (B5.2) */
+    ISA_TYPES, taxYearLabel, isaAllowance
   };
 })();
 
