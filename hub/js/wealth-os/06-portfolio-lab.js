@@ -338,6 +338,24 @@ TEI.render = TEI.render || {};
     state.bed = {holdingId:null, isaId:null, amount:'', allowance:''};
     state.selectedIds = new Set(); state.consolidateTargetId = null;
     state.targetWeights = {}; state.ledgerOpen = false; state.implementOpen = false;
+    state.targetMode = 'holding'; state.classWeights = {};
+  }
+
+  /* Target allocation by asset class (B5.2, migration 018): one share for
+     each asset class in this view; the holdings in a class keep their mix
+     within it. Only classes that hold money here are offered. */
+  function labClasses(){
+    const total = state.holdings.reduce((s,h)=> s + h.value, 0);
+    const by = {};
+    state.holdings.forEach(h=>{ const k = h.assetClass || 'shares'; by[k] = (by[k]||0) + h.value; });
+    return Object.keys(TEI.calc.ASSET_CLASSES).filter(k=> by[k] > 0)
+      .map(k=> ({key:k, label:TEI.calc.ASSET_CLASSES[k], value:by[k], weight: total ? by[k]/total*100 : 0}));
+  }
+  function targetByClass(){ return state.targetMode === 'class' && labClasses().length > 1; }
+  function targetSum(){
+    return targetByClass()
+      ? labClasses().reduce((s,c)=> s + (Number(state.classWeights[c.key])||0), 0)
+      : state.holdings.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
   }
 
   /* "Hide set-and-forget" / "Hide earmarked" chips above the treemap, driven by
@@ -383,7 +401,8 @@ TEI.render = TEI.render || {};
       const isPension = !!(acc && acc.type==='pension');
       return client.holdings.filter(h=>h.accountId===scopeId).map(h=>({
         id:h.id, ticker:(h.ticker||'').toUpperCase(), name:h.name, value:Number(h.value)||0,
-        account:label, accountPension:isPension, accountType: acc ? acc.type : null, vol: illustrativeVolFor(h)
+        account:label, accountPension:isPension, accountType: acc ? acc.type : null, vol: illustrativeVolFor(h),
+        assetClass: TEI.calc.holdingAssetClass(h)
       }));
     }
     const grouped = TEI.calc.groupedHoldings(client);
@@ -399,10 +418,16 @@ TEI.render = TEI.render || {};
       });
       const mainId = Object.keys(byAcct).sort((a,b)=> byAcct[b]-byAcct[a])[0];
       const mainAcc = client.accounts.find(a=>a.id===mainId);
+      // Asset class: the largest holding in the group that has one set.
+      const classed = client.holdings.filter(h=>{
+        const key = (h.ticker && h.ticker.trim()) ? h.ticker.trim().toUpperCase() : 'name:'+h.name.trim().toLowerCase();
+        return key === g.key && h.assetClass;
+      }).sort((a,b)=> (Number(b.value)||0) - (Number(a.value)||0))[0];
       return {
         id:g.key, ticker:(g.ticker||'').toUpperCase(), name:g.name, value:g.value,
         account: (g.accountNames||[]).length>1 ? `${g.accountNames.length} accounts` : ((g.accountNames||[])[0]||'–'),
-        accountPension:anyPension, accountType: mainAcc ? mainAcc.type : null, vol: illustrativeVolFor(g)
+        accountPension:anyPension, accountType: mainAcc ? mainAcc.type : null, vol: illustrativeVolFor(g),
+        assetClass: TEI.calc.holdingAssetClass(classed || {ticker:g.ticker, name:g.name})
       };
     });
   }
@@ -613,10 +638,7 @@ TEI.render = TEI.render || {};
     }
     if(state.presetType==='freshcash') return freshTotal() > 0.5 && scenarioPool().filter(h=>state.selectedIds.has(h.id)).length > 0;
     if(state.presetType==='raisecash') return raiseAmount() > 0.5;
-    if(state.presetType==='target'){
-      const sum = base.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
-      return Math.abs(sum-100) < 0.5;
-    }
+    if(state.presetType==='target') return Math.abs(targetSum()-100) < 0.5;
     if(state.presetType==='consolidate') return state.selectedIds.size>0 && !!state.consolidateTargetId;
     return false;
   }
@@ -701,6 +723,15 @@ TEI.render = TEI.render || {};
       return out;
     }
     if(state.presetType==='target'){
+      if(targetByClass()){
+        const byKey = {};
+        labClasses().forEach(c=> byKey[c.key] = c);
+        return base.map(h=>{
+          const k = h.assetClass || 'shares', c = byKey[k];
+          const classTarget = scopeTotal * (Number(state.classWeights[k])||0)/100;
+          return {...h, value: c && c.value ? classTarget * h.value / c.value : 0};
+        });
+      }
       return base.map(h=>({...h, value: scopeTotal * (Number(state.targetWeights[h.id])||0)/100}));
     }
     if(state.presetType==='consolidate'){
@@ -1035,6 +1066,7 @@ TEI.render = TEI.render || {};
     if(active && el.contains(active)){
       if(active.dataset && active.dataset.amtval) refocusSelector = `[data-amtval="${CSS.escape(active.dataset.amtval)}"]`;
       else if(active.dataset && active.dataset.targetid) refocusSelector = `[data-targetid="${CSS.escape(active.dataset.targetid)}"]`;
+      else if(active.dataset && active.dataset.classid) refocusSelector = `[data-classid="${CSS.escape(active.dataset.classid)}"]`;
       else if(active.id) refocusSelector = '#'+CSS.escape(active.id);
       if(refocusSelector){
         try { selStart = active.selectionStart; selEnd = active.selectionEnd; } catch(e){ /* type=number: no selection API */ }
@@ -1161,7 +1193,7 @@ TEI.render = TEI.render || {};
     {id:'equal', title:'Equal weight', desc:'Gives each holding you pick the same share, and shows what to buy and sell to get there.'},
     {id:'freshcash', title:'Allocate fresh capital', desc:'Puts new money, a lump sum or a monthly amount, into the holdings furthest below target. Nothing is sold.'},
     {id:'realloc', title:'Reallocate capital', desc:'Moves money from one holding to others. Pick the source, the amount or new share, and where it goes.'},
-    {id:'target', title:'Target allocation', desc:'Set the share you want for each holding or asset type, and see the moves that get you there.'},
+    {id:'target', title:'Target allocation', desc:'Set the share you want for each holding or asset class, and see the moves that get you there.'},
     {id:'raisecash', title:'Raise cash', desc:'Frees up a set amount of cash from the holdings you choose, and shows what it does to your mix.'},
     {id:'bedisa', title:'Bed & ISA', desc:'Moves money from your general account into your ISA, within this year\'s allowance. Flags the sale and any gain.'},
     {id:'consolidate', title:'Consolidate holdings', desc:'Merges selected holdings into a single chosen holding.', adviserOnly:true}
@@ -1274,6 +1306,9 @@ TEI.render = TEI.render || {};
   }
 
   function targetWeightsTable(scenarioHoldings, base){
+    if(state.presetType==='target' && targetByClass()){
+      return labClasses().map(c=>`<div class="lab-tw-row"><span class="tw-name">${c.label}</span><span class="tw-cur">${fmtPct(c.weight)}</span><span class="tw-arrow">→</span><span class="lab-tw-val">${fmtPct(Number(state.classWeights[c.key])||0)}</span></div>`).join('');
+    }
     if(state.presetType==='target'){
       return base.map(h=>`<div class="lab-tw-row"><span class="tw-name">${h.name}</span><span class="tw-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tw-arrow">→</span><span class="lab-tw-val">${fmtPct(Number(state.targetWeights[h.id])||0)}</span></div>`).join('');
     }
@@ -1400,9 +1435,8 @@ TEI.render = TEI.render || {};
       `;
     }
     if(state.presetType==='target'){
-      const sum = base.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
-      const ok = Math.abs(sum-100)<0.5;
-      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>Every holding moves to the weight entered below</span><span class="lab-ledger-amt">${ok?'Balanced':'Unbalanced'}</span></div>`;
+      const ok = Math.abs(targetSum()-100)<0.5;
+      return `<div class="lab-ledger-row"><span><span class="lab-ledger-badge ${meta.badgeClass}">${meta.badge}</span>${targetByClass() ? 'Each asset class moves to the weight entered below' : 'Every holding moves to the weight entered below'}</span><span class="lab-ledger-amt">${ok?'Balanced':'Unbalanced'}</span></div>`;
     }
     if(state.presetType==='consolidate'){
       const sources = base.filter(h=>state.selectedIds.has(h.id));
@@ -1508,9 +1542,20 @@ TEI.render = TEI.render || {};
       `;
     }
     if(state.presetType==='target'){
-      const sum = base.reduce((s,h)=> s + (Number(state.targetWeights[h.id])||0), 0);
+      const sum = targetSum();
       const ok = Math.abs(sum-100)<0.5;
+      const classes = labClasses();
+      const modeSeg = classes.length > 1 ? seg('data-target-mode', [['holding','By holding'],['class','By asset class']], state.targetMode) : '';
+      if(targetByClass()) return `
+        ${modeSeg}
+        <div class="lab-subhead">Enter target weights</div>
+        <div class="lab-subhead-note">Type a share for each asset class. Holdings keep their mix within each class. The Lab shows the moves needed; it does not suggest the split.</div>
+        ${classes.map(c=>`<div class="lab-target-row"><span class="tg-name">${c.label}</span><span class="tg-cur">${fmtPct(c.weight)}</span><span class="tg-arrow">→</span><input type="text" inputmode="decimal" class="lab-target-input" data-classid="${c.key}" value="${state.classWeights[c.key]!=null ? state.classWeights[c.key] : ''}" aria-label="Target share for ${c.label}"></div>`).join('')}
+        <div class="lab-target-total-row ${ok?'ok':'warn'}"><span>Total</span><span>${fmtPct(sum)}${ok?' ✓':', must add up to 100%'}</span></div>
+      `;
       return `
+        ${modeSeg}
+        ${classes.length === 1 ? `<div class="lab-subhead-note">Everything here is ${classes[0].label.toLowerCase()}. Set an asset class on your holdings in Settings, under Holdings, to plan by class.</div>` : ''}
         <div class="lab-subhead">Enter target weights</div>
         <div class="lab-subhead-note">Type a share for each holding. The Lab shows the moves needed; it does not suggest the split.</div>
         ${base.map(h=>`<div class="lab-target-row"><span class="tg-name">${h.name}</span><span class="tg-cur">${fmtPct(withWeights(base).find(b=>b.id===h.id).weight)}</span><span class="tg-arrow">→</span><input type="text" inputmode="decimal" class="lab-target-input" data-targetid="${h.id}" value="${state.targetWeights[h.id]!==undefined?state.targetWeights[h.id]:''}" placeholder="0.0"></div>`).join('')}
@@ -1733,7 +1778,7 @@ TEI.render = TEI.render || {};
     } else if(state.presetType==='raisecash'){
       narrative = [`${fmtGBP(raiseAmount())} of cash is freed from ${n(sells.length,'holding','holdings')}.`, mixLine, takesLine];
     } else if(state.presetType==='target'){
-      narrative = [`Every holding moves to the share you entered.`, mixLine, takesLine];
+      narrative = [targetByClass() ? 'Each asset class moves to the share you entered; holdings keep their mix within each class.' : 'Every holding moves to the share you entered.', mixLine, takesLine];
     } else if(state.presetType==='bedisa'){
       const h = bedSource(), gain = bedGain();
       narrative = [
@@ -1788,6 +1833,7 @@ TEI.render = TEI.render || {};
       </div>
       ${(()=>{ const n = base.filter(b=>{ const af = scenario.find(x=>x.id===b.id); return Math.abs((af ? af.value : 0) - b.value) < 0.5; }).length; return foldBtn(n, n === 1 ? 'holding' : 'holdings'); })()}
       </div>
+      <label class="lab-field lab-save-name"><span class="lab-field-label">Name this scenario</span><input type="text" class="lab-num-input" id="labScenarioName" maxlength="80" value="${svEsc(scenarioLabel())}"></label>
       <div class="lab-stage-actions">
         <button type="button" class="btn-ghost" data-goto="implement">← Implement</button>
         <span class="lab-result-btns">
@@ -1835,7 +1881,9 @@ TEI.render = TEI.render || {};
         const w = withWeights(state.holdings);
         state.targetWeights = {};
         state.holdings.forEach(h=> state.targetWeights[h.id] = Number(w.find(x=>x.id===h.id).weight.toFixed(1)));
-      } else state.targetWeights = {};
+        state.classWeights = {};
+        labClasses().forEach(c=> state.classWeights[c.key] = Number(c.weight.toFixed(1)));
+      } else { state.targetWeights = {}; state.classWeights = {}; }
       if(preset==='consolidate') state.selectedIds = new Set();
       if(preset==='move' && state.reallocMode==='share') state.moveUnit = 'share';
       renderStageBody();
@@ -1940,6 +1988,12 @@ TEI.render = TEI.render || {};
     document.querySelectorAll('#labStageBody [data-targetid]').forEach(inp=>inp.addEventListener('input', (e)=>{
       state.targetWeights[inp.dataset.targetid] = sanitizeNumericInput(e); renderStageBody();
     }));
+    document.querySelectorAll('#labStageBody [data-classid]').forEach(inp=>inp.addEventListener('input', (e)=>{
+      state.classWeights[inp.dataset.classid] = sanitizeNumericInput(e); renderStageBody();
+    }));
+    document.querySelectorAll('#labStageBody [data-target-mode]').forEach(b=>b.addEventListener('click', ()=>{
+      state.targetMode = b.dataset.targetMode; renderStageBody();
+    }));
     const consolidateTarget = document.getElementById('labConsolidateTarget');
     if(consolidateTarget) consolidateTarget.addEventListener('change', (e)=>{ state.consolidateTargetId = e.target.value||null; renderStageBody(); });
     document.querySelectorAll('#labStageBody [data-checkid]').forEach(cb=>cb.addEventListener('change', (e)=>{
@@ -1959,7 +2013,7 @@ TEI.render = TEI.render || {};
     const implToggleBuy = document.getElementById('labImplementToggleBuy');
     if(implToggleBuy) implToggleBuy.addEventListener('click', ()=>{ state.implementOpen = !state.implementOpen; renderStageBody(); });
     const saveBtn = document.getElementById('labSaveScenarioBtn');
-    if(saveBtn) saveBtn.addEventListener('click', ()=> showToast('Saving scenarios is coming in a later update.'));
+    if(saveBtn) saveBtn.addEventListener('click', ()=> saveCurrentScenario(saveBtn));
 
     const base = withWeights(state.holdings);
     const scenario = withWeights(getScenarioHoldings());
@@ -2013,6 +2067,97 @@ TEI.render = TEI.render || {};
     renderStepper(); renderStageBody();
   }
 
+  /* ---------------------------- saved scenarios ----------------------------
+     "Save scenario" on Results stores the name, the plain-words summary and
+     the moves (TEI.wealthOS.saveScenario). When a client saves, a message
+     also goes to the coach through the feedback channel, which emails the
+     coach (the same route as "Discuss with your coach"). The coach saving
+     while previewing a client sends nothing. The list sits under the Lab. */
+  function svEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  let svLoadingFor = null;
+  async function loadSaved(client){
+    if(!client || !client.meta || !TEI.wealthOS || !TEI.wealthOS.listScenarios) return;
+    if(client.scenarios || svLoadingFor === client.meta.clientId){ renderSaved(); return; }
+    svLoadingFor = client.meta.clientId;
+    try{ client.scenarios = await TEI.wealthOS.listScenarios(client.meta.clientId); }
+    catch(err){ console.error('Portfolio Lab: saved scenarios not loaded', err); client.scenarios = []; }
+    svLoadingFor = null;
+    if(state.client === client) renderSaved();
+  }
+  function renderSaved(){
+    const tile = document.getElementById('labSaved'), list = document.getElementById('labSavedList');
+    const c = state.client;
+    if(!tile || !list || !c) return;
+    const items = c.scenarios || [];
+    tile.hidden = !items.length;
+    const viewer = c.meta && c.meta.role === 'adviser' ? 'adviser' : 'client';
+    const who = s => s.savedBy === viewer ? 'by you' : s.savedBy === 'adviser' ? 'by your coach' : 'by ' + (c.personal && c.personal.firstName || 'the client');
+    const when = s => { const d = new Date(s.createdAt); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}); };
+    list.innerHTML = items.map(s=>{
+      const moves = s.moves || [];
+      return `<li class="wl-sv">
+        <div class="wl-sv-head"><span><b>${svEsc(s.name)}</b><small>Saved ${svEsc(when(s))} ${svEsc(who(s))}</small></span>
+          <button type="button" class="hm-link hm-linkbtn" data-sv-del="${svEsc(s.id)}">Delete<span class="gl-sr"> ${svEsc(s.name)}</span></button></div>
+        ${(s.meta.summary||[]).length ? `<ul class="wl-sv-sum">${s.meta.summary.map(l=> `<li>${svEsc(l)}</li>`).join('')}</ul>` : ''}
+        ${moves.length ? `<details class="wl-sv-moves"><summary>${moves.length} ${moves.length === 1 ? 'move' : 'moves'}</summary><ul>${moves.map(m=>
+          `<li><span><i class="wl-sv-${m.type === 'sell' ? 'sell' : 'buy'}">${m.type === 'sell' ? 'Sell' : 'Buy'}</i>${svEsc(m.name)}<small>${svEsc(m.account)}</small></span><b>${fmtGBP(m.amount)}</b></li>`).join('')}</ul></details>` : ''}
+      </li>`;
+    }).join('');
+    if(!list.dataset.wired){
+      list.dataset.wired = '1';
+      list.addEventListener('click', async e=>{
+        const b = e.target.closest('[data-sv-del]');
+        if(!b || !state.client) return;
+        if(!window.confirm('Delete this saved scenario?')) return;
+        b.disabled = true;
+        try{
+          await TEI.wealthOS.deleteScenario(b.dataset.svDel);
+          state.client.scenarios = (state.client.scenarios||[]).filter(s=> s.id !== b.dataset.svDel);
+          renderSaved();
+          showToast('Scenario deleted');
+        } catch(err){
+          console.error('Portfolio Lab: scenario not deleted', err);
+          b.disabled = false;
+          showToast('That did not delete. Please try again.');
+        }
+      });
+    }
+  }
+  async function saveCurrentScenario(btn){
+    const c = state.client;
+    if(!c || !c.meta) return;
+    const nameEl = document.getElementById('labScenarioName');
+    const name = ((nameEl && nameEl.value) || '').trim() || scenarioLabel();
+    const {sells, buys} = scenarioMoves();
+    const moves = sells.map(m=> ({type:'sell', name:m.name, account:m.account, amount:Math.round(m.amount)}))
+      .concat(buys.map(m=> ({type:'buy', name:m.name, account:m.account, amount:Math.round(m.amount)})));
+    const summary = Array.from(document.querySelectorAll('#labStageBody .lab-results-narrative li')).map(li=> li.textContent.trim()).filter(Boolean);
+    const savedBy = c.meta.role === 'adviser' ? 'adviser' : 'client';
+    btn.disabled = true;
+    let saved;
+    try{
+      saved = await TEI.wealthOS.saveScenario(c.meta.clientId, {name, moves, meta:{preset:state.presetType, label:scenarioLabel(), summary, scope:state.scopeId || null}}, savedBy);
+    } catch(err){
+      console.error('Portfolio Lab: scenario not saved', err);
+      btn.disabled = false;
+      showToast('That did not save. Please try again.');
+      return;
+    }
+    c.scenarios = [saved].concat(c.scenarios || []);
+    renderSaved();
+    btn.textContent = 'Saved';
+    if(savedBy !== 'client'){ showToast('Saved to this client\'s Lab.'); return; }
+    const text = 'Saved a Portfolio Lab scenario: ' + name + '\n' + summary.map(l=> '- ' + l).join('\n') +
+      (moves.length ? '\n\nMoves:\n' + moves.map(m=> (m.type === 'sell' ? 'Sell ' : 'Buy ') + fmtGBP(m.amount) + ' ' + m.name + ' (' + m.account + ')').join('\n') : '');
+    try{
+      await TEI.wealthOS.saveFeedback(c.meta.clientId, 'scenario', 'lab', text, 'client');
+      showToast('Saved. Your coach has been sent a copy.');
+    } catch(err){
+      console.error('Portfolio Lab: coach not told about the saved scenario', err);
+      showToast('Saved. Your coach could not be told just now.');
+    }
+  }
+
   // The read-only "Your portfolio" treemap on Wealth (B5.1) uses the same layout.
   TEI.lab = { layoutTreemap, treemapOrder, moveNeededFor1Pct };
 
@@ -2049,6 +2194,7 @@ TEI.render = TEI.render || {};
       if(cta) cta.textContent = 'Close the Lab';
     }
     renderLabAll();
+    loadSaved(client);
     const cta = document.getElementById('labCta');
     if(cta && !cta.dataset.wired){
       cta.addEventListener('click', ()=>{

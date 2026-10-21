@@ -424,7 +424,7 @@ TEI.render = TEI.render || {};
       items: c=> c.holdings || [],
       edit: x=> '[data-edit-holding="'+x.id+'"]', del: x=> '[data-del-holding="'+x.id+'"]',
       label: x=> x.name || 'Holding',
-      row: x=> ({ title: x.name || 'Holding', sub: [x.ticker || '', x.units != null ? x.units + ' units' : ''].filter(Boolean).join(' · '),
+      row: x=> ({ title: x.name || 'Holding', sub: [x.ticker || '', x.units != null ? x.units + ' units' : '', x.assetClass ? TEI.calc.ASSET_CLASSES[x.assetClass] : ''].filter(Boolean).join(' · '),
         value: money(x.value), extra: holdingReturn(x) }),
       more: ['newHoldingPriceSource','newHoldingUnits','newHoldingAvgOpen','newHoldingCostBasisField','newHoldingSector','newHoldingTheme'] },
     asset: { sec:'property', heading:'Property and other assets', add:'Add an asset', btn:'advAddAssetBtn', list:'advAssetsList', cancel:'asset',
@@ -600,7 +600,7 @@ TEI.render = TEI.render || {};
     newAcctContrib:'Paid in each month £', newAcctContribPersonal:'You pay in each month £', newAcctContribEmployer:'Employer or salary sacrifice each month £',
     newAcctOpeningContrib:'Paid in before Wealth OS started £', newAcctCashBalance:'Cash not yet invested £',
     newHoldingTicker:'Ticker', newHoldingUnits:'Units', newHoldingValue:'Value £', newHoldingCostBasis:'What you paid £',
-    newHoldingSector:'Sector', newHoldingTheme:'Themes', advNewAssetNotes:'Description', advNewLiabLinkedAsset:'Secured against',
+    newHoldingSector:'Sector', newHoldingAssetClass:'Asset class', newHoldingTheme:'Themes', advNewAssetNotes:'Description', advNewLiabLinkedAsset:'Secured against',
     advNewIncomeOwner:'Whose income', advNewFixedLabel:'What is it?', advNewVariableLabel:'What is it?'
   };
   function slLabels(form, on){

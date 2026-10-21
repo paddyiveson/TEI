@@ -1201,6 +1201,7 @@ window.TEI = window.TEI || {};
           sectorSel.add(new Option(h.sector, h.sector));
         }
         sectorSel.value = h.sector||'';
+        document.getElementById('newHoldingAssetClass').value = h.assetClass || '';
         document.getElementById('newHoldingTheme').value = (h.theme && h.theme.length) ? h.theme.join(', ') : '';
         document.getElementById('newHoldingPriceSource').value = h.priceSource === 'auto_us' ? 'auto_us' : 'manual';
         document.getElementById('addHoldingBtn').textContent = 'Save changes';
@@ -1216,6 +1217,7 @@ window.TEI = window.TEI || {};
     document.getElementById('addHoldingBtn').textContent = 'Add holding';
     ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('newHoldingSector').value = '';
+    document.getElementById('newHoldingAssetClass').value = '';
     document.getElementById('newHoldingTheme').value = '';
     document.getElementById('newHoldingPriceSource').value = 'manual';
     document.getElementById('newHoldingAsAt').value = todayISO();
@@ -1335,6 +1337,7 @@ window.TEI = window.TEI || {};
     const costBasisInput = document.getElementById('newHoldingCostBasis').value;
     const manualCostBasis = costBasisInput ? parseFloat(costBasisInput) : null;
     const sector = document.getElementById('newHoldingSector').value || null;
+    const assetClass = document.getElementById('newHoldingAssetClass').value || null;
     const theme = parseThemeInput(document.getElementById('newHoldingTheme').value);
     // Auto (US) only means anything with a ticker + units outside a crypto
     // account (the scheduled job ignores anything else) -- store 'manual'
@@ -1361,7 +1364,7 @@ window.TEI = window.TEI || {};
       // save keeps the current value and record_holding_valuation then
       // replaces it (never adds), stamping value_checked_at.
       const isValuation = manualPriced && accountId === h.accountId && Number(value) !== Number(h.value);
-      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value: isValuation ? h.value : value, costBasis, sector, theme, priceSource});
+      const merged = Object.assign({}, h, {accountId, name, ticker, units, avgOpen, value: isValuation ? h.value : value, costBasis, sector, assetClass, theme, priceSource});
       TEI.calc.stampEdit(merged, 'adviser');
       try{
         await TEI.wealthOS.saveHolding(accountId, h.id, merged);
@@ -1384,7 +1387,7 @@ window.TEI = window.TEI || {};
     } else {
       const costBasis = ticker ? null
         : (manualCostBasis!=null ? manualCostBasis : (avgOpen!=null && units!=null ? avgOpen*units : null));
-      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, theme, value, priceSource}, 'adviser');
+      const h = TEI.calc.stampEdit({id:uid(), accountId, name, ticker, units, avgOpen, costBasis, sector, assetClass, theme, value, priceSource}, 'adviser');
       try{
         h.id = await TEI.wealthOS.saveHolding(accountId, null, h);
       } catch(err){
@@ -1402,6 +1405,7 @@ window.TEI = window.TEI || {};
       await persistCryptoLastUpdated(accountId);
       ['newHoldingName','newHoldingTicker','newHoldingUnits','newHoldingAvgOpen','newHoldingValue','newHoldingCostBasis'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newHoldingSector').value = '';
+      document.getElementById('newHoldingAssetClass').value = '';
       document.getElementById('newHoldingTheme').value = '';
       document.getElementById('newHoldingPriceSource').value = 'manual';
       updateHoldingFormForTicker();

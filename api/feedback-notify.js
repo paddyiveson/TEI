@@ -53,8 +53,10 @@ module.exports = async function handler(req, res) {
   }
 
   const siteUrl = process.env.SITE_URL || "";
-  const area = record.area || "general";
-  const page = record.page_context ? ` (on ${record.page_context})` : "";
+  // Readable names for the areas the app sends without the feedback form.
+  const AREA_LABELS = { scenario: "Saved Lab scenario", session: "Session request" };
+  const area = AREA_LABELS[record.area] || record.area || "general";
+  const page = record.page_context && !AREA_LABELS[record.area] ? ` (on ${record.page_context})` : "";
   // Since migration 016 the trigger adds who sent it (client_name,
   // client_email, client_link) and starts the message with those details.
   const who = record.client_name ? ` from ${record.client_name}` : "";

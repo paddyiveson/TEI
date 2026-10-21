@@ -291,7 +291,7 @@ window.TEI = window.TEI || {};
         id: h.id, accountId: h.account_id, name: h.name, ticker: h.ticker, units: h.units,
         avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, theme: h.theme || [], value: h.value,
         lastPrice: h.last_price, lastPricedAt: h.last_priced_at, priceSource: h.price_source || 'manual',
-        valueCheckedAt: h.value_checked_at || null,
+        valueCheckedAt: h.value_checked_at || null, assetClass: h.asset_class || null,
         lastEditedBy: h.last_edited_by, lastEditedAt: h.last_edited_at
       })),
 
@@ -610,7 +610,10 @@ window.TEI = window.TEI || {};
       // Function (supabase/migrations/004_auto_us_pricing.sql); anything
       // else, including every holding created before that existed, is
       // 'manual'. Only the adviser can change it (holding editor toggle).
-      price_source: h.priceSource === 'auto_us' ? 'auto_us' : 'manual'
+      price_source: h.priceSource === 'auto_us' ? 'auto_us' : 'manual',
+      // Asset class (migration 018): only sent when the caller has one, so
+      // a save from a partial holding object never clears it.
+      ...(h.assetClass !== undefined ? {asset_class: h.assetClass || null} : {})
     };
     // holdings has no last_edited_by/last_edited_at column (confirmed via
     // information_schema) -- deliberately omitted. last_priced_at is
@@ -981,6 +984,27 @@ window.TEI = window.TEI || {};
       message, submitted_by: source || 'client'
     });
   }
+  /* ---------- Portfolio Lab saved scenarios (wealth_os.portfolio_scenarios) ----------
+     Rows the Lab saves carry meta.version 2: {version, preset, label,
+     summary:[lines], scope}; edits holds the moves [{type:'sell'|'buy',
+     name, account, amount}]. Rows from the August 2026 Lab have no version
+     and are left alone. last_edited_by is 'client' or 'adviser'. */
+  function scenarioRowToLocal(r){
+    return { id:r.id, name:r.name, moves:r.edits || [], meta:r.meta || {}, createdAt:r.created_at, savedBy:r.last_edited_by || null };
+  }
+  async function listScenarios(clientId){
+    const { data, error } = await wo(window.teiSupabase).from('portfolio_scenarios').select('*').eq('client_id', clientId).order('created_at', {ascending:false});
+    if(error) throw error;
+    return (data||[]).filter(r=> r.meta && r.meta.version === 2).map(scenarioRowToLocal);
+  }
+  async function saveScenario(clientId, scenario, savedBy){
+    const row = await insertRow('portfolio_scenarios', {
+      client_id: clientId, name: scenario.name, edits: scenario.moves,
+      meta: Object.assign({}, scenario.meta, {version:2}), last_edited_by: savedBy
+    });
+    return scenarioRowToLocal(row);
+  }
+  async function deleteScenario(id){ await deleteRow('portfolio_scenarios', 'id', id); }
   async function updateFeedbackStatus(feedbackId, status, updatedBy){
     return await updateRow('feedback', 'id', feedbackId, {
       status, status_updated_at: new Date().toISOString(), status_updated_by: updatedBy || 'adviser'
@@ -1116,7 +1140,8 @@ window.TEI = window.TEI || {};
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory, saveMonthlyWins,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
     saveClientSettings, setDocumentReviewStatus,
-    saveFeedback, updateFeedbackStatus, fetchLivePrices, contributionRules
+    saveFeedback, updateFeedbackStatus, fetchLivePrices, contributionRules,
+    listScenarios, saveScenario, deleteScenario
   };
 })();
 

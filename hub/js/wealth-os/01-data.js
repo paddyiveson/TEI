@@ -1973,6 +1973,14 @@ window.TEI = window.TEI || {};
     return { value: has ? Number(acc.isaAllowanceLeft) : null, taxYear: (acc && acc.isaAllowanceTaxYear) || null,
       current: has && acc.isaAllowanceTaxYear === taxYearLabel() };
   }
+  /* Asset class (migration 018): shares, cash, bonds or other. Not set reads
+     as cash for a holding with the ticker or name "Cash", shares otherwise. */
+  const ASSET_CLASSES = {shares:'Shares', cash:'Cash', bonds:'Bonds', other:'Other'};
+  function holdingAssetClass(h){
+    if(h && ASSET_CLASSES[h.assetClass]) return h.assetClass;
+    const t = String((h && h.ticker) || '').trim().toUpperCase(), n = String((h && h.name) || '').trim().toLowerCase();
+    return (t === 'CASH' || n === 'cash') ? 'cash' : 'shares';
+  }
 
   TEI.calc = {
     accountTotal, buildMergedMonths, buildUnifiedTotals, latestBreakdown, latestNetWorth,
@@ -2003,7 +2011,9 @@ window.TEI = window.TEI || {};
     /* Projection and goal status (Goals redesign, B12.6) */
     projectSeries, GOAL_GROWTH, monthsUntil, goalLinkedMonthly, goalMonthlyNeeded, goalMonthsToTarget, goalStatus, goalCompletedDate,
     /* ISA allowance left (B5.2) */
-    ISA_TYPES, taxYearLabel, isaAllowance
+    ISA_TYPES, taxYearLabel, isaAllowance,
+    /* Asset class (migration 018) */
+    ASSET_CLASSES, holdingAssetClass
   };
 })();
 
