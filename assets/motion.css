@@ -138,3 +138,93 @@
 .m-facts dd small { display: block; margin-top: 2px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-muted); }
 .tc-members-body .tc-callout { margin: 0 0 20px; }
 .tc-members-body p.tc-na { margin: 18px 0 0; font-size: 13px; line-height: 1.55; font-weight: 400; color: var(--c-muted); }
+
+/* =========================================================================
+   A2 additions (Missing the Best Days, Oct 2026): dot-field, line-draw,
+   pair-link and a compact stepper. Same rules as above: theme tokens only,
+   and every figure reads as its end state without JS or motion.
+   ========================================================================= */
+
+/* Compact stepper: an .ar-seg with many short options (0 / 10 / 20 ...) that
+   must still fit a 390px phone. */
+.ar-seg.m-steps { flex-wrap: wrap; }
+.ar-seg.m-steps button { min-width: 44px; padding: 0 10px; font-variant-numeric: tabular-nums; }
+
+/* ---------- dot-field ----------
+   <div class="m-dots" data-m="dot-field"><canvas></canvas></div>
+   One canvas holds every point (thousands of trading days); motion.js draws
+   it and lights a chosen subset. Colours come from the theme tokens. */
+.m-dots { position: relative; margin: 4px 0 6px; }
+.m-dots canvas { display: block; width: 100%; height: auto; }
+.m-dots-ends { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.tc-key i.m-k-dot, .tc-key i.m-k-lit, .tc-key i.m-k-low { width: 9px; height: 9px; border-radius: 50%; }
+.m-k-dot { background: var(--c-s4); opacity: .55; }
+.m-k-lit { background: var(--c-gold); }
+.m-k-low { background: var(--c-warn); }
+
+/* ---------- line-draw ----------
+   <div class="m-chart" data-m="line-draw">
+     <svg viewBox="0 0 1000 400" preserveAspectRatio="none">
+       <g class="m-grid">…</g><path class="m-gap"/><path class="m-ref"/><path class="m-line-a"/>
+     </svg>
+     <div class="m-yaxis"><span style="--y:20%">$80k</span>…</div>
+     <div class="m-xaxis"><span style="--x:50%">2015</span>…</div>
+   </div>
+   The SVG stretches to the box; strokes stay 2px at any size. Axis labels are
+   HTML, placed in % along each axis, so text never squashes. */
+.m-chart { position: relative; height: 320px; margin: 8px 0 30px 44px; }
+.m-chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-chart path, .m-chart line { vector-effect: non-scaling-stroke; }
+.m-grid line { stroke: var(--c-line-soft); stroke-width: 1; }
+.m-grid line.m-base { stroke: var(--c-line); }
+.m-ref { fill: none; stroke: var(--c-s1); stroke-width: 2; stroke-linejoin: round; }
+.m-line-a { fill: none; stroke: var(--c-warn); stroke-width: 2; stroke-linejoin: round; }
+.m-gap { fill: var(--c-warn); opacity: .1; stroke: none; }
+.m-start { stroke: var(--c-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.m-yaxis span, .m-xaxis span { position: absolute; font-family: var(--tc-mono); font-size: 11px; line-height: 1; color: var(--c-muted); white-space: nowrap; }
+.m-yaxis span { right: calc(100% + 8px); top: var(--y); transform: translateY(-50%); }
+.m-xaxis span { top: calc(100% + 10px); left: var(--x); transform: translateX(-50%); }
+.m-ends { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.m-ends > div { padding: 14px 16px; border-radius: 16px; background: var(--c-tile-2); }
+.m-ends small { display: flex; align-items: center; gap: 8px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.m-ends small i { flex: none; width: 16px; height: 3px; border-radius: 2px; }
+.m-ends b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.m-ends p { margin: 4px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; color: var(--c-muted) !important; }
+.m-i-ref { background: var(--c-s1); }
+.m-i-a { background: var(--c-warn); }
+
+/* ---------- pair-link ----------
+   A strip of daily moves for one stretch of dates. Bars go up for gains and
+   down for falls; best days are gold, worst days rust, and an arc joins each
+   best day to its nearest worst day with the gap in trading days.
+   <div class="m-strip" data-m="pair-link">
+     <svg viewBox="0 0 W 200" preserveAspectRatio="none">…</svg>
+     <span class="m-gapl" style="--x:..%;--y:..px">2</span>
+     <div class="m-xaxis">…</div>
+   </div>
+   <ul class="m-pairs">…</ul> lists the same pairs in words. */
+.m-strip-h { margin: 18px 0 2px; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+.m-strip-h small { margin-left: 8px; font-family: var(--tc-mono); font-size: 11px; font-weight: 400; color: var(--c-muted); }
+.m-strip { position: relative; height: 200px; margin: 0 0 30px; }
+.m-strip svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-strip path, .m-strip line { vector-effect: non-scaling-stroke; }
+.m-strip .m-day { fill: var(--c-s4); opacity: .5; }
+.m-strip .m-best { fill: var(--c-gold); }
+.m-strip .m-worst { fill: var(--c-warn); }
+.m-strip .m-axis { stroke: var(--c-line); stroke-width: 1; }
+.m-strip .m-arc { fill: none; stroke: var(--c-ink); stroke-width: 1.25; stroke-dasharray: 3 3; opacity: .7; }
+.m-gapl { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -110%); padding: 1px 6px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 10.5px; line-height: 1.4; color: var(--c-ink); white-space: nowrap; }
+.m-pairs { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 6px; }
+.m-pairs li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 10px 14px; border-radius: 12px; background: var(--c-tile-2); font-size: 13.5px; line-height: 1.45; color: var(--c-ink); }
+.m-pairs .m-dn { color: var(--c-warn); font-variant-numeric: tabular-nums; }
+.m-pairs .m-up { color: var(--c-gold); font-variant-numeric: tabular-nums; }
+.m-pairs .m-then { color: var(--c-muted); }
+.m-pairs small { margin-left: auto; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+
+@media (max-width: 760px) {
+  .m-chart { height: 240px; margin-left: 38px; }
+  .m-ends b { font-size: 24px; }
+  .m-strip { height: 170px; }
+  .m-pairs small { margin-left: 0; width: 100%; }
+  .m-strip[data-dense] .m-gapl { display: none; }
+}
