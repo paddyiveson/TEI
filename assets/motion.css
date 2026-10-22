@@ -1,0 +1,78 @@
+/* TEI motion patterns (article refresh, Oct 2026).
+   Shared, opt-in: a page links this file after /assets/content.css and
+   /assets/motion.js before </body>. Colours are the theme tokens from
+   content.css, so light and dark both work. Nothing here defines tokens.
+
+   Patterns (driven by data-m="..." in the markup, behaviour in motion.js):
+     bar-fill       horizontal bars whose segments grow to their values
+     count-up       a number that counts to its value
+     slice-cut      a segment that detaches from its bar and drops away
+     toggle-result  controls that drive a result, with a winner that flips
+     scene          a figure whose steps arrive in order when it scrolls in
+
+   Under prefers-reduced-motion every pattern shows its end state, unanimated. */
+
+/* ---------- bar-fill: the bars ----------
+   <div class="m-bars" style="--max:6756">
+     <div class="m-row">
+       <span class="m-k">LISA</span>
+       <div class="m-bar"><i class="m-s1" style="--v:4000"></i><i class="m-s2" style="--v:1000"></i></div>
+       <b class="m-v">£5,000</b>
+     </div>
+   </div>
+   Every segment's width is its --v over the group's --max. */
+.m-bars { display: grid; gap: 18px; margin: 6px 0 4px; }
+.m-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "k v" "bar bar"; gap: 8px 12px; align-items: baseline; }
+.m-k { grid-area: k; font-size: 14px; line-height: 1.35; color: var(--c-ink); }
+.m-k small { display: block; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.m-v { grid-area: v; font-size: 20px; line-height: 1.1; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-bar { grid-area: bar; display: flex; gap: 2px; height: 22px; }
+.m-bar i { display: block; flex: none; height: 100%; width: calc(var(--v, 0) / var(--max, 1) * 100%); border-radius: 4px; transform-origin: left; }
+.m-bar i:first-child { border-radius: 8px 4px 4px 8px; }
+.m-bar i:last-child { border-radius: 4px 8px 8px 4px; }
+.m-bar i:only-child { border-radius: 8px; }
+.m-bar i[hidden] { display: none; }
+
+/* Segment colours: what the money is, not which wrapper it sits in. */
+.m-s1 { background: var(--c-s1); }      /* the saver's own money */
+.m-s2 { background: var(--c-s2); }      /* government top-up: bonus or tax relief */
+.m-s3 { background: var(--c-s3); }      /* National Insurance saved */
+.m-s4 { background: var(--c-s4); }      /* employer money */
+.m-tax { background: var(--c-warn); }   /* tax or charges taken away */
+.m-free { background: var(--c-s2); }    /* tax-free part */
+.tc-key i.m-s1, .tc-key i.m-s2, .tc-key i.m-s3, .tc-key i.m-s4, .tc-key i.m-tax { height: 10px; width: 10px; border-radius: 3px; }
+
+/* A big comparison number under a set of bars */
+.m-callout { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-top: 20px; padding: 18px 22px; border-radius: 18px; background: var(--c-champ-tile); }
+.m-callout b { font-size: 40px; line-height: 1; font-weight: 300; letter-spacing: -0.03em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.m-callout span { flex: 1 1 220px; font-size: 14px; line-height: 1.5; color: var(--c-ink); }
+
+/* Scene label above a figure title */
+.m-scene-no { display: block; margin: 0 0 6px; font-family: var(--tc-mono); font-size: 12px; color: var(--c-gold); }
+
+/* ---------- toggle-result: controls and the verdict ---------- */
+.m-controls { display: grid; gap: 16px; margin: 4px 0 22px; }
+.m-controls .ar-seg { margin-top: 0; max-width: 100%; }
+.m-verdict { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.m-verdict > div { position: relative; padding: 16px 18px; border-radius: 16px; background: var(--c-tile-2); border: 1px solid transparent; transition: border-color .3s ease, background-color .3s ease; }
+.m-verdict small { display: block; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.m-verdict b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.m-verdict p { margin: 6px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; color: var(--c-muted) !important; }
+.m-verdict > div.is-win { background: var(--c-champ-tile); border-color: var(--c-gold); }
+.m-win { display: none; position: absolute; top: 14px; right: 14px; padding: 3px 9px; border-radius: 999px; background: var(--c-btn); color: var(--c-btn-ink); font-family: var(--tc-mono); font-size: 11px; }
+.m-verdict > div.is-win .m-win { display: inline-block; }
+.m-line { margin: 14px 0 0 !important; padding: 16px 20px; border-radius: 16px; background: var(--c-feature); color: var(--c-on-feature) !important; font-size: 16px !important; line-height: 1.5 !important; font-weight: 400 !important; }
+.m-line strong { color: #E8D6A8; font-weight: 500; }
+
+@media (min-width: 761px) {
+  .m-row { grid-template-columns: 170px minmax(0, 1fr) 96px; grid-template-areas: "k bar v"; align-items: center; gap: 16px; }
+  .m-v { text-align: right; }
+  .m-controls { grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 24px; }
+}
+@media (max-width: 760px) {
+  .m-v { font-size: 18px; }
+  .m-bar { height: 18px; }
+  .m-callout b { font-size: 34px; }
+  .m-verdict { grid-template-columns: minmax(0, 1fr); }
+  .m-verdict b { font-size: 26px; }
+}
