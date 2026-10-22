@@ -22,7 +22,7 @@
 
   function M() {
     return window.TeiMotion || {
-      calm: true, count: function (el, v) { el.textContent = usd(v); },
+      calm: true, count: function (el, v) { el.textContent = el.getAttribute('data-format') === 'pct' ? v + '%' : usd(v); },
       win: function () {}, dots: function () {}, line: function () {}
     };
   }
@@ -42,7 +42,7 @@
       press(buttons, 'data-lit', k);
       M().dots(box, { n: D.n, lit: D.best.slice(0, k), bands: D.yearStart });
       out(fig, 'key-lit').textContent = 'One of the ' + k + ' best days';
-      out(fig, 'lit-share').textContent = (k / D.n * 100).toFixed(1) + '%';
+      M().count(out(fig, 'lit-share'), Math.round(k / D.n * 1000) / 10);
       var end = D.ends[String(k)];
       out(fig, 'lit-line').textContent = 'of the trading days. Miss just these ' + k + ' and $10,000 ' +
         (end < 10000 ? 'ends at ' + usd(end) + ', less than it started with, instead of ' : 'grows to ' + usd(end) + ' instead of ') + usd(D.ends['0']) + '.';
