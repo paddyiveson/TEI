@@ -761,6 +761,8 @@ TEI.render = TEI.render || {};
     const b = e.target.closest('[data-wo-request]');
     if(!b || b.disabled || !WO_REQUESTS[b.dataset.woRequest]) return;
     e.preventDefault();
+    /* Book a session opens the clients' Cal.com Plan & Review event (22 Oct 2026). */
+    if(b.dataset.woRequest === 'book'){ window.open('https://cal.com/tei-ceo/plan-review', '_blank', 'noopener'); return; }
     const c = client(); if(!c) return;
     const r = WO_REQUESTS[b.dataset.woRequest](b);
     const book = b.dataset.woRequest === 'book';

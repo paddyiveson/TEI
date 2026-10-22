@@ -409,7 +409,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
   var SUITE = '/hub/suite/index.html';
   var GUIDES = '/hub/guides.html';
   var NOTES = '/hub/wealth-os.html?page=documents';
-  var BOOK = '/book';
+  var BOOK = 'https://cal.com/tei-ceo/plan-review';
   var DAY = 86400000;
 
   var IC = {
@@ -557,7 +557,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
   }
   function glows() { return '<span class="glow" aria-hidden="true"></span><span class="glow2" aria-hidden="true"></span>'; }
   function bookBtn(label, cls) {
-    return '<a class="btn btn-p press ' + (cls || '') + '" href="' + BOOK + '" data-book>' + esc(S.booked ? 'Sent to your coach' : label) + '</a>';
+    return '<a class="btn btn-p press ' + (cls || '') + '" href="' + BOOK + '" target="_blank" rel="noopener noreferrer">' + esc(label) + '</a>';
   }
   function cover(a, size, phone) {
     if (a.type === 'video') {
@@ -596,7 +596,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     if (s.done) return '<span class="st-a">Done</span>';
     if (!s.current) return '<span class="st-a">' + esc(s.wait || 'Next') + '</span>';
     if (s.wait) return '<span class="st-a">' + esc(s.wait) + '</span>';
-    if (s.book) return '<a class="btn btn-c press" href="' + BOOK + '" data-book>' + esc(S.booked ? 'Sent to your coach' : s.action) + '</a>';
+    if (s.book) return '<a class="btn btn-c press" href="' + BOOK + '" target="_blank" rel="noopener noreferrer">' + esc(s.action) + '</a>';
     return '<a class="btn btn-c press" href="' + esc(s.href) + '">' + esc(s.action) + '</a>';
   }
   function segs(st) { return '<span class="segs" aria-hidden="true">' + st.list.map(function (s) { return '<i' + (s.done || s.current ? ' class="on"' : '') + '></i>'; }).join('') + '</span>'; }
@@ -635,7 +635,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       var nw = isNew();
       body = '<div class="coach-row"><div class="cal cal-empty" aria-hidden="true">' + IC.calPlus + '</div>' +
         '<div style="min-width:0"><h2 class="coach-h">' + (nw ? 'Book your plan session' : 'Book a session') + '</h2>' +
-        '<p class="coach-s" data-book-line>' + esc(S.booked ? 'Sent. Your coach will be in touch to arrange a time.' : (nw ? 'We go through your Wealth Plan together. Pick a time that suits you.' : 'Book a time with your coach and it will show here.')) + '</p></div></div>' +
+        '<p class="coach-s">' + esc((nw ? 'We go through your Wealth Plan together. Pick a time that suits you.' : 'Book a time with your coach and it will show here.')) + '</p></div></div>' +
         bookBtn('Book a session');
     }
     var foot = S.lastNote
@@ -805,30 +805,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     if (window.TeiHubHeader) window.TeiHubHeader.setWealthOsHref(wealthOsHref());
   }
 
-  /* Book a session asks the coach for a time (wealth_os.feedback, which
-     emails Paddy with the client's details, migration 016) instead of
-     opening the booking link, once a client record is found. Advisers and
-     anyone without a client record keep the link. */
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest && e.target.closest('[data-book]');
-    if (!btn || !S.clientId) return;
-    e.preventDefault();
-    if (S.booked || btn.getAttribute('aria-disabled') === 'true') return;
-    var all = document.querySelectorAll('[data-book]');
-    Array.prototype.forEach.call(all, function (b) { b.setAttribute('aria-disabled', 'true'); });
-    w().from('feedback').insert({ client_id: S.clientId, area: 'session', page_context: 'hub', message: 'Asked to book a session.', submitted_by: 'client' })
-      .then(function (r) {
-        if (r && r.error) throw r.error;
-        S.booked = true;
-        Array.prototype.forEach.call(all, function (b) { b.textContent = 'Sent to your coach'; });
-        Array.prototype.forEach.call(document.querySelectorAll('[data-book-line]'), function (p) { p.textContent = 'Sent. Your coach will be in touch to arrange a time.'; });
-      })
-      .catch(function (err) {
-        console.error('Client Hub: request not sent', err);
-        Array.prototype.forEach.call(all, function (b) { b.removeAttribute('aria-disabled'); });
-        Array.prototype.forEach.call(document.querySelectorAll('[data-book-line]'), function (p) { p.textContent = 'That did not send. Please try again.'; });
-      });
-  });
+  /* Book a session opens the clients' Cal.com Plan & Review event
+     (free, hidden, several lengths). Cal.com emails Paddy the booking. */
 
   /* Theme (3.3): the client's clients.theme wins when set; a change is kept
      on this device (tei-theme) and on the record. */
