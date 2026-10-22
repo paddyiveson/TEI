@@ -20,7 +20,8 @@
      data-m="pair-link"      .m-strip SVG of daily moves; plays on its own
                              when it reaches the screen (CSS, A2)
      count-up extras         data-delay (ms after the scene plays) and
-                             data-dur (ms) override the default timing
+                             data-dur (ms) set the entrance timing only;
+                             live updates always take 700ms
 
    Reduced motion (or no IntersectionObserver): nothing is armed, so the
    markup's end state shows as written, and live updates jump straight to
@@ -48,13 +49,14 @@
   }
 
   /* ---------- count-up ---------- */
-  function count(el, to, from, delay) {
+  function count(el, to, from, delay, dur) {
     to = Number(to);
     var start = from != null ? from : Number(el.getAttribute('data-now') || 0);
     el.setAttribute('data-to', to);
     el.setAttribute('data-now', to);
     if (calm || start === to) { el.textContent = format(el, to); return; }
-    var dur = Number(el.getAttribute('data-dur')) || 700, t0 = null;
+    dur = dur || 700;
+    var t0 = null;
     if (el._raf) cancelAnimationFrame(el._raf);
     function step(t) {
       if (t0 == null) t0 = t;
@@ -96,7 +98,7 @@
       var row = el.closest('.m-row');
       var delay = el.hasAttribute('data-delay') ? Number(el.getAttribute('data-delay'))
         : row ? Number(row.style.getPropertyValue('--r') || 0) * 260 + 150 : 900;
-      count(el, el.getAttribute('data-to'), 0, delay);
+      count(el, el.getAttribute('data-to'), 0, delay, Number(el.getAttribute('data-dur')) || 0);
     }, scene);
     // Canvas and SVG patterns in the scene play their own entrance.
     each('[data-m="line-draw"], [data-m="dot-field"]', function (el) { if (el._play) el._play(); }, scene);
