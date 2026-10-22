@@ -40,7 +40,7 @@
 .m-s4 { background: var(--c-s4); }      /* employer money */
 .m-tax { background: var(--c-warn); }   /* tax or charges taken away */
 .m-free { background: var(--c-s2); }    /* tax-free part */
-.tc-key i.m-s1, .tc-key i.m-s2, .tc-key i.m-s3, .tc-key i.m-s4, .tc-key i.m-tax { height: 10px; width: 10px; border-radius: 3px; }
+.tc-key i.m-s1, .tc-key i.m-s2, .tc-key i.m-s3, .tc-key i.m-s4, .tc-key i.m-tax, .tc-key i.m-free { height: 10px; width: 10px; border-radius: 3px; }
 
 /* A big comparison number under a set of bars */
 .m-callout { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-top: 20px; padding: 18px 22px; border-radius: 18px; background: var(--c-champ-tile); }
@@ -76,3 +76,56 @@
   .m-verdict { grid-template-columns: minmax(0, 1fr); }
   .m-verdict b { font-size: 26px; }
 }
+
+/* ---------- Motion ----------
+   motion.js adds .m-armed to a [data-m="scene"] figure (only when motion is
+   allowed), then .m-on when it scrolls into view. Without .m-armed (no JS,
+   or reduced motion) everything below shows its end state.
+   Timing: rows arrive one after another (--r), segments within a row
+   follow each other (--i); both are set by motion.js. */
+.m-bar i { transition: width .6s var(--tc-ease); }
+
+/* bar-fill */
+.m-armed .m-bar i { transform: scaleX(0); }
+.m-armed.m-on .m-bar i {
+  transform: none;
+  transition: transform .8s cubic-bezier(.33, 1, .68, 1), width .6s var(--tc-ease);
+  transition-delay: calc(var(--r, 0) * 260ms + var(--i, 0) * 140ms + 150ms), 0s;
+}
+.m-armed .m-v, .m-armed .m-k { opacity: 0; transform: translateY(6px); }
+.m-armed.m-on .m-v, .m-armed.m-on .m-k { opacity: 1; transform: none; transition: opacity .5s ease, transform .5s var(--tc-ease); transition-delay: calc(var(--r, 0) * 260ms + 100ms); }
+.m-armed .m-callout { opacity: 0; transform: translateY(10px); }
+.m-armed.m-on .m-callout { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s var(--tc-ease); transition-delay: var(--m-after, 900ms); }
+
+/* slice-cut: the segment ends detached below its bar, tilted, slightly faded.
+   This is the end state with or without motion; motion plays the cut. */
+.m-bar { position: relative; }
+.m-bars .m-bar i[data-m="slice-cut"] { transform: translate(6px, 12px) rotate(5deg); opacity: .75; outline: 1px dashed var(--c-warn); outline-offset: 2px; }
+.m-armed .m-bars .m-bar i[data-m="slice-cut"] { transform: scaleX(0); }
+.m-armed.m-on .m-bars .m-bar i[data-m="slice-cut"] {
+  transform: translate(6px, 12px) rotate(5deg);
+  animation: m-cut 1.5s cubic-bezier(.33, 1, .68, 1) both;
+  animation-delay: calc(var(--r, 0) * 260ms + var(--i, 0) * 140ms + 150ms);
+}
+@keyframes m-cut {
+  0%   { transform: scaleX(0); opacity: 1; outline-color: transparent; }
+  40%  { transform: none; opacity: 1; outline-color: transparent; }
+  60%  { transform: translate(0, 0) rotate(0); opacity: 1; outline-color: var(--c-warn); }
+  100% { transform: translate(6px, 12px) rotate(5deg); opacity: .75; outline-color: var(--c-warn); }
+}
+.m-row:has([data-m="slice-cut"]) { padding-bottom: 12px; }
+
+/* toggle-result: the winning tile pulses once when the result flips */
+.m-verdict > div.is-flip { animation: m-flip .6s var(--tc-ease); }
+@keyframes m-flip { 0% { transform: scale(.97); } 60% { transform: scale(1.015); } 100% { transform: none; } }
+.m-line { transition: background-color .3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .m-bar i, .m-verdict > div, .m-line { transition: none !important; }
+  .m-armed .m-bar i, .m-armed .m-v, .m-armed .m-k, .m-armed .m-callout { transform: none !important; opacity: 1 !important; }
+  .m-armed .m-bars .m-bar i[data-m="slice-cut"] { animation: none !important; transform: translate(6px, 12px) rotate(5deg) !important; }
+  .m-verdict > div.is-flip { animation: none; }
+}
+
+/* A bar on its own, no label or value (e.g. above a breakdown table) */
+.m-row-bare { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "bar" !important; margin-bottom: 14px; }

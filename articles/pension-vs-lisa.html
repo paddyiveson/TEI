@@ -33,8 +33,6 @@
 .stat-highlight { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; padding: 22px 24px; border-radius: 18px; background: var(--c-feature); }
 .stat-highlight .num { font-size: 44px; line-height: 1; font-weight: 300; letter-spacing: -0.03em; color: #E8D6A8; font-variant-numeric: tabular-nums; }
 .stat-highlight .label { flex: 1 1 260px; font-size: 14px; line-height: 1.55; color: var(--c-on-feature-muted); }
-.lisa-bar { display: flex; gap: 3px; height: 14px; margin: 0 0 16px; border-radius: 999px; overflow: hidden; }
-.lisa-bar i { display: block; transition: flex-grow .5s cubic-bezier(.3,.8,.3,1); }
 @media (max-width: 600px) {
   .compare-table { font-size: 13px; }
   .compare-table th, .compare-table td { padding: 10px 8px; }
@@ -42,7 +40,6 @@
   .breakdown-row { font-size: 13px; padding: 10px 12px; }
   .stat-highlight .num { font-size: 36px; }
 }
-@media (prefers-reduced-motion: reduce) { .lisa-bar i { transition: none; } }
 </style>
 <link rel="stylesheet" href="/assets/content.css">
 <link rel="stylesheet" href="/assets/motion.css">
@@ -168,17 +165,17 @@
         <div class="m-row">
           <span class="m-k">Lifetime ISA<small>25% bonus</small></span>
           <div class="m-bar" role="img" aria-label="Lifetime ISA: £4,000 plus £1,000 bonus, £5,000 in"><i class="m-s1" style="--v:4000"></i><i class="m-s2" style="--v:1000"></i></div>
-          <b class="m-v">&pound;5,000</b>
+          <b class="m-v" data-m="count-up" data-to="5000">&pound;5,000</b>
         </div>
         <div class="m-row">
           <span class="m-k">Pension, relief at source<small>20% tax relief added</small></span>
-          <div class="m-bar" role="img" aria-label="Pension through relief at source: £4,000 plus £1,000 tax relief, £5,000 in"><i class="m-s1" style="--v:4000"></i><i class="m-s2" style="--v:1000"></i><i class="m-s4" style="--v:1200" data-employer-seg hidden></i></div>
-          <b class="m-v" data-out="ras-in">&pound;5,000</b>
+          <div class="m-bar" role="img" aria-label="Pension through relief at source: £4,000 plus £1,000 tax relief, £5,000 in"><i class="m-s1" style="--v:4000"></i><i class="m-s2" style="--v:1000"></i><i class="m-s4" style="--v:0" data-employer-seg></i></div>
+          <b class="m-v" data-out="ras-in" data-m="count-up" data-to="5000">&pound;5,000</b>
         </div>
         <div class="m-row">
           <span class="m-k">Pension, salary sacrifice<small>20% tax + 8% NI saved</small></span>
-          <div class="m-bar" role="img" aria-label="Pension through salary sacrifice: £4,000 plus £1,111 tax and £444 National Insurance saved, £5,556 in"><i class="m-s1" style="--v:4000"></i><i class="m-s2" style="--v:1111"></i><i class="m-s3" style="--v:444"></i><i class="m-s4" style="--v:1200" data-employer-seg hidden></i></div>
-          <b class="m-v" data-out="ss-in">&pound;5,556</b>
+          <div class="m-bar" role="img" aria-label="Pension through salary sacrifice: £4,000 plus £1,111 tax and £444 National Insurance saved, £5,556 in"><i class="m-s1" style="--v:4000"></i><i class="m-s2" style="--v:1111"></i><i class="m-s3" style="--v:444"></i><i class="m-s4" style="--v:0" data-employer-seg></i></div>
+          <b class="m-v" data-out="ss-in" data-m="count-up" data-to="5556">&pound;5,556</b>
         </div>
       </div>
       <div class="visual-caption">Salary sacrifice: &pound;4,000 &divide; 0.72 &asymp; &pound;5,556, because the sacrificed pay avoids 20% income tax and 8% employee National Insurance. Relief at source: &pound;4,000 &divide; 0.8 = &pound;5,000. Employer contribution shown as 3% of a &pound;40,000 salary, &pound;1,200.</div>
@@ -195,24 +192,25 @@
         <div class="m-row">
           <span class="m-k">Lifetime ISA<small>Tax-free after 60</small></span>
           <div class="m-bar" role="img" aria-label="Lifetime ISA: all £5,000 kept, no tax"><i class="m-free" style="--v:5000"></i></div>
-          <b class="m-v">&pound;5,000</b>
+          <b class="m-v" data-m="count-up" data-to="5000">&pound;5,000</b>
         </div>
         <div class="m-row">
           <span class="m-k">Pension<small>25% tax-free, 75% taxed at 20%</small></span>
           <div class="m-bar" role="img" aria-label="Pension: £5,556 in, £1,389 tax-free, £3,333 kept after tax, £833 income tax"><i class="m-free" style="--v:1389"></i><i class="m-s1" style="--v:3333"></i><i class="m-tax" style="--v:833" data-m="slice-cut"></i></div>
-          <b class="m-v">&pound;4,722</b>
+          <b class="m-v" data-m="count-up" data-to="4722">&pound;4,722</b>
         </div>
       </div>
-      <div class="m-callout"><b>15%</b><span>Roughly what income tax takes from the whole pension pot: nothing on the first quarter, 20% on the other three quarters.</span></div>
+      <div class="m-callout"><b data-m="count-up" data-format="pct" data-to="15">15%</b><span>Roughly what income tax takes from the whole pension pot: nothing on the first quarter, 20% on the other three quarters.</span></div>
       <div class="visual-caption">Assumes the State Pension uses up the personal allowance, so every pound of taxable pension income is taxed at the 20% basic rate. Higher income in retirement would raise the rate; lower income could reduce it.</div>
     </figure>
 
     <p>This is where the LISA earns its place. Its bonus goes in once and is never taxed again, while a pension&rsquo;s tax relief is partly paid back on the way out. Without any employer money, salary sacrifice ends with about &pound;4,720 against the LISA&rsquo;s &pound;5,000, and relief at source with about &pound;4,250. Add an employer contribution and the picture changes.</p>
 
-    <figure class="visual-block" id="scene-verdict" data-m="toggle-result">
+    <figure class="visual-block" id="scene-verdict" data-m="scene">
       <span class="m-scene-no">Scene 4 &middot; The verdict</span>
       <div class="visual-title">Which ends up with more at 60</div>
       <div class="visual-sub">One year&rsquo;s &pound;4,000 of take-home pay, invested from 30 to 60 at 5% a year, after tax on the way out.</div>
+      <div data-m="toggle-result">
       <div class="m-controls">
         <div class="ar-seg" role="group" aria-label="How the pension is paid">
           <button type="button" aria-pressed="true" data-route="ras">Relief at source</button>
@@ -220,23 +218,35 @@
         </div>
         <div class="tc-field"><label for="matchIn">Employer contribution, % of salary <output data-out="match">3%</output></label><input id="matchIn" type="range" min="0" max="10" step="0.5" value="3"></div>
       </div>
+      <div class="tc-key"><span><i class="m-free"></i>Tax-free</span><span><i class="m-s1"></i>Taxed, then kept</span><span><i class="m-tax"></i>Income tax</span></div>
+      <div class="m-bars" data-m="bar-fill" data-out="bars60" style="--max:41300">
+        <div class="m-row">
+          <span class="m-k">Lifetime ISA<small>At 60</small></span>
+          <div class="m-bar" role="img" data-out="lisa-bar-label" aria-label="Lifetime ISA at 60: £21,610, all tax-free"><i class="m-free" data-out="lisa-free" style="--v:21610"></i></div>
+        </div>
+        <div class="m-row">
+          <span class="m-k">Pension<small>At 60, after tax</small></span>
+          <div class="m-bar" role="img" data-out="pen-bar-label" aria-label="Pension at 60: £26,796 pot, £22,777 after tax"><i class="m-free" data-out="pen-free" style="--v:6699"></i><i class="m-s1" data-out="pen-kept" style="--v:16078"></i><i class="m-tax" data-out="pen-tax" style="--v:4019" data-m="slice-cut"></i></div>
+        </div>
+      </div>
       <div class="m-verdict" aria-live="polite">
-        <div data-side="lisa"><span class="m-win">Ahead</span><small>Lifetime ISA at 60</small><b data-out="lisa-60">&pound;21,610</b><p>&pound;5,000 in, tax-free out</p></div>
-        <div data-side="pension" class="is-win"><span class="m-win">Ahead</span><small>Pension at 60, after tax</small><b data-out="pen-60">&pound;22,777</b><p data-out="pen-note">&pound;6,200 in, about 15% tax out</p></div>
+        <div data-side="lisa"><span class="m-win">Ahead</span><small>Lifetime ISA at 60</small><b data-m="count-up" data-out="lisa-60" data-to="21610">&pound;21,610</b><p>&pound;5,000 in, tax-free out</p></div>
+        <div data-side="pension" class="is-win"><span class="m-win">Ahead</span><small>Pension at 60, after tax</small><b data-m="count-up" data-out="pen-60" data-to="22777">&pound;22,777</b><p data-out="pen-note">&pound;6,200 in, about 15% tax out</p></div>
       </div>
       <p class="m-line" data-out="line">With a 3% employer contribution, the pension ends up <strong>&pound;1,167 ahead</strong>.</p>
-      <div class="visual-caption">Same 5% yearly growth on both, so growth scales the gap but never changes which side wins. Employer contribution as a % of a &pound;40,000 salary. Pension tax on the way out as in Scene 3. Today&rsquo;s rules; from 6 April 2029 salary sacrifice puts in less (see below).</div>
+      </div>
+      <div class="visual-caption">Same 5% yearly growth on both, so growth scales the gap but never changes which side wins. Employer contribution as a % of a &pound;40,000 salary. Pension tax on the way out as in Scene 3. With no employer money the LISA stays ahead; the pension pulls level at about 2.2% (relief at source) or 0.8% (salary sacrifice). Today&rsquo;s rules; from 6 April 2029 salary sacrifice puts in less (see below).</div>
     </figure>
 
     <p>Pension money unlocks at 55 today and at 57 from 6 April 2028. A LISA unlocks at 60, or earlier if the money goes towards a first home worth up to &pound;450,000. Taken out any other way, the LISA money is still there, but reaching it early comes at a cost.</p>
 
-    <figure class="visual-block" id="fig-charge">
+    <figure class="visual-block" id="fig-charge" data-m="scene">
       <div class="visual-title">The 25% charge claws back more than the bonus</div>
       <div class="visual-sub" data-o="sub">Based on the maximum annual LISA contribution, withdrawn early for a reason other than a first home or reaching 60.</div>
       <div class="tc-controls" style="grid-template-columns:minmax(0,1fr)">
         <div class="tc-field"><label for="lisaIn">Paid in by the saver this year <output data-o="paid">&pound;4,000</output></label><input id="lisaIn" type="range" min="250" max="4000" step="250" value="4000"></div>
       </div>
-      <div class="lisa-bar" aria-hidden="true"><i class="tc-k1" data-b="kept" style="flex-grow:3750"></i><i style="background:var(--c-warn);flex-grow:1250" data-b="charge"></i></div>
+      <div class="m-bars" data-m="bar-fill" style="--max:5000"><div class="m-row m-row-bare"><div class="m-bar" aria-hidden="true"><i class="m-s1" data-b="kept" style="--v:3750"></i><i class="m-tax" data-b="charge" data-m="slice-cut" style="--v:1250"></i></div></div></div>
       <div class="breakdown">
         <div class="breakdown-row"><span>Paid in by the saver</span><span class="breakdown-value" data-o="paid">&pound;4,000</span></div>
         <div class="breakdown-row"><span>Government bonus added (25%)</span><span class="breakdown-value" data-o="bonus">+&pound;1,000</span></div>
@@ -333,6 +343,7 @@
 <script src="/assets/article.js" defer></script>
 <script src="/assets/content.js" defer></script>
 <script src="/assets/members.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 <script src="/articles/pension-vs-lisa.js" defer></script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>
