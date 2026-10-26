@@ -272,6 +272,7 @@ details.fold[open] summary::after{content:"\2212"}
 .opp .pcard .num{color:var(--pos)}
 .opp .pcard .pk{color:var(--pos)}
 .opp .pcard[aria-expanded="true"] .num{background:var(--pos-soft);color:var(--pos)}
+.opp .pcard[aria-expanded="true"] .pk{color:var(--bg)}
 .panel{background:var(--tile);border-radius:24px;padding:20px;box-shadow:inset 0 1px 0 var(--edge)}
 .panel[hidden]{display:none}
 .panel .ph{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -302,7 +303,7 @@ details.fold[open] summary::after{content:"\2212"}
 .coin.flip{transform:rotateY(180deg)}
 .face{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:8px}
 .face.front{background:var(--bg);border:1px solid var(--line)}
-.face.back{background:var(--pos-soft);transform:rotateY(180deg)}
+.face.back{background:var(--pos-soft);color:var(--ink);transform:rotateY(180deg)}
 .face .side{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .face .big{font-size:40px;font-weight:300;letter-spacing:-.04em;line-height:1}
 .face.front .big{color:var(--red-ink)}
@@ -343,20 +344,22 @@ details.fold[open] summary::after{content:"\2212"}
 .anim .viz.in .w{opacity:1;transform:none}
 
 /* close */
-.takeaways{list-style:none;padding:0;display:grid;gap:12px;counter-reset:k;margin-top:20px}
-.takeaways li{display:grid;grid-template-columns:36px 1fr;gap:12px;font-size:16.5px;line-height:1.5;counter-increment:k}
-.takeaways li::before{content:counter(k);width:32px;height:32px;border-radius:50%;background:var(--tile);display:grid;place-items:center;font-family:var(--mono);font-size:13px;color:var(--red-ink)}
-.takeaways b{display:block}
-.notsay{background:var(--tile);border-radius:22px;padding:22px;border-left:4px solid var(--hero-bg);box-shadow:inset 0 1px 0 var(--edge)}
+/* close: takeaway cards, then the bottom line, then the note; bottom line and note share a 5/7 split */
+.takeaways{list-style:none;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;counter-reset:k;margin-top:24px}
+.takeaways li{background:var(--tile);border-radius:20px;padding:16px 18px 18px;font-size:15.5px;line-height:1.5;counter-increment:k;box-shadow:inset 0 1px 0 var(--edge)}
+.takeaways li::before{content:counter(k);width:32px;height:32px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-family:var(--mono);font-size:13px;color:var(--red-ink);margin-bottom:12px}
+.takeaways b{display:block;font-size:16.5px;margin-bottom:4px}
+.bottom{background:var(--red-fill);color:#fff;border-radius:26px;padding:26px;margin-top:28px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:40px;align-items:start}
+.bottom .kicker{color:#fff;grid-column:1/-1}
+.bottom h2{color:#fff;font-size:clamp(1.7rem,2.6vw,2.4rem);margin-top:10px;max-width:24ch}
+.bottom .bl{padding-top:14px}
+.bottom p{color:#fff3f0;max-width:64ch;font-size:17px;line-height:1.6}
+.bottom p+p{margin-top:14px}
+.bottom p b{color:#fff}
+.notsay{margin-top:16px;background:var(--tile);border-radius:22px;padding:22px 26px 22px 22px;border-left:4px solid var(--hero-bg);box-shadow:inset 0 1px 0 var(--edge);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);column-gap:40px;align-items:baseline}
 [data-theme="dark"] .notsay{border-left-color:var(--s2)}
 .notsay h3{font-size:18px}
-.notsay p{margin-top:10px;font-size:15.5px;line-height:1.6;color:var(--muted)}
-.bottom{background:var(--red-fill);color:#fff;border-radius:26px;padding:26px;margin-top:28px}
-.bottom .kicker{color:#ffe0d9}
-.bottom h2{color:#fff;font-size:clamp(1.7rem,2.6vw,2.4rem);margin-top:10px;max-width:24ch}
-.bottom p{margin-top:14px;color:#fff3f0;max-width:64ch;font-size:17px;line-height:1.6}
-.bottom p b{color:#fff}
-.bottom .cod{font-size:clamp(1.25rem,1.9vw,1.6rem);line-height:1.35;letter-spacing:-.015em;color:#fff;margin-top:20px}
+.notsay p{font-size:15.5px;line-height:1.6;color:var(--muted);max-width:64ch}
 
 footer{padding:32px var(--pad) 32px;display:grid;gap:14px;font-size:13.5px;color:var(--muted);line-height:1.55}
 footer .disc{background:var(--tile);border-radius:18px;padding:18px 20px;max-width:90ch}
@@ -377,6 +380,10 @@ footer .so{align-self:start;border:0;background:none;padding:0;min-height:44px;f
   .pills{display:none}
   .story,.toc{grid-column:1/-1}
   .toc{margin-top:16px}
+  .takeaways{grid-template-columns:1fr 1fr}
+  .takeaways li:last-child{grid-column:1/-1}
+  .bottom,.notsay{grid-template-columns:minmax(0,1fr)}
+  .notsay p{margin-top:10px}
 }
 @media (max-width:900px){.btn-wos{display:none}}
 /* ---------- mobile ---------- */
@@ -408,6 +415,10 @@ footer .so{align-self:start;border:0;background:none;padding:0;min-height:44px;f
   .pair2,.w .ok{grid-template-columns:1fr}
   .cardlist .panel{margin-top:-2px}
   .bottom{padding:22px}
+  .notsay{padding:20px}
+  .takeaways{grid-template-columns:1fr;gap:8px;margin-top:20px}
+  .takeaways li{display:grid;grid-template-columns:32px 1fr;gap:12px;padding:14px}
+  .takeaways li::before{margin-bottom:0}
   .tabbar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;height:calc(84px + env(safe-area-inset-bottom,0px));padding:8px 6px calc(18px + env(safe-area-inset-bottom,0px));background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(140%);backdrop-filter:blur(20px) saturate(140%);border-top:1px solid var(--glass-line)}
   .tabbar a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;color:var(--muted);text-decoration:none;min-height:44px}
   .tabbar a svg{width:22px;height:22px}
@@ -888,9 +899,11 @@ footer .so{align-self:start;border:0;background:none;padding:0;min-height:44px;f
 
 <!-- ======================= Close ======================= -->
 <section class="ch grid" id="close" aria-labelledby="hcx">
-  <div class="t">
+  <div class="f">
     <span class="kicker">Key takeaways</span>
     <h2 id="hcx">Five things to remember</h2>
+  </div>
+  <div class="f">
     <ol class="takeaways">
       <li><div><b>Growth</b>Revenue is guided to rise about tenfold this year, with management aiming to leave 2026 at about $1bn a year.</div></li>
       <li><div><b>Dilution</b>Shareholders paid with about six times as many shares as at the end of 2024, though revenue per share has grown faster.</div></li>
@@ -899,18 +912,17 @@ footer .so{align-self:start;border:0;background:none;padding:0;min-height:44px;f
       <li><div><b>Proof</b>The price is waiting for revenue to land, losses to shrink on schedule and the share count to stop rising. The first test is 12 November.</div></li>
     </ol>
   </div>
-  <div class="v" style="align-self:end">
-    <div class="notsay">
-      <h3>What this does not say</h3>
-      <p>It does not say Ondas is a good or bad investment, that the price will rise after the results, or that you should buy, sell or hold. It explains why the price and the business have parted, and what would bring them back together.</p>
-    </div>
-  </div>
   <div class="f bottom">
     <span class="kicker">The bottom line</span>
     <h2>The business has run ahead of the share price</h2>
-    <p>Ondas has built something real, quickly, and paid for it with its shareholders' ownership. <b>The market has stopped rewarding promises and orders.</b> It is waiting for proof: revenue landing as guided, losses shrinking on the published dates, and a share count that stops growing.</p>
-    <p>If that proof arrives, short selling and the warrant ceiling could work the other way. If it does not, dilution and selling pressure are likely to keep the shares where they are. <b>Watch the results, not the headlines.</b></p>
-    <p class="cod">In Call of Duty terms: the business has levelled up. The chart has not caught up.</p>
+    <div class="bl">
+      <p>Ondas has built something real, quickly, and paid for it with its shareholders' ownership. <b>The market has stopped rewarding promises and orders.</b> It is waiting for proof: revenue landing as guided, losses shrinking on the published dates, and a share count that stops growing.</p>
+      <p>If that proof arrives, short selling and the warrant ceiling could work the other way. If it does not, dilution and selling pressure are likely to keep the shares where they are. <b>Watch the results, not the headlines.</b></p>
+    </div>
+  </div>
+  <div class="f notsay">
+    <h3>What this does not say</h3>
+    <p>It does not say Ondas is a good or bad investment, that the price will rise after the results, or that you should buy, sell or hold. It explains why the price and the business have parted, and what would bring them back together.</p>
   </div>
 </section>
 </main>
@@ -996,7 +1008,7 @@ function stack(el,c){
   c.data.forEach(function(x,i){
     var bw=w*x.v/tot,gap=i<c.data.length-1?3:0;
     s+='<rect class="gx '+fillOf(x.k)+'" x="'+x0+'" y="0" width="'+Math.max(1,bw-gap)+'" height="'+h+'" rx="6" style="transition-delay:'+(i*.18).toFixed(2)+'s"/>';
-    if(x.inl&&bw>x.inl.length*7.5+20){var lc=(x.k==='hl'||x.k==='red2')?'#fff':(x.k==='s3'||x.k==='s4')?'var(--ink)':'var(--bg)';s+=txt(x0+10,h/2+4,x.inl,'tx fade',null,(i*.18+.5).toFixed(2),'fill:'+lc+';');}
+    if(x.inl&&bw>x.inl.length*7.5+20){var lc=x.k==='hl'?'#fff':(x.k==='red2'||x.k==='s3'||x.k==='s4')?'var(--ink)':'var(--bg)';s+=txt(x0+10,h/2+4,x.inl,'tx fade',null,(i*.18+.5).toFixed(2),'fill:'+lc+';');}
     x0+=bw;
     var col=x.k==='hl'?'var(--red-fill)':x.k==='red2'?'color-mix(in srgb,var(--red-fill) 55%,transparent)':'var(--'+(x.k||'s2')+')';
     lg+='<span><i style="background:'+col+'"></i>'+x.l+'<b>'+x.t+'</b></span>';
