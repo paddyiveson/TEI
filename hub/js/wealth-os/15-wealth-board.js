@@ -176,7 +176,10 @@ TEI.render = TEI.render || {};
 
   /* ---------------- Your portfolio, read only (B5.1) ----------------
      A treemap by holding across accounts, coloured by size in navy steps
-     (never by account type); the largest has a gold ring. Set-and-forget
+     (never by account type); the largest has a gold ring. Cash accounts
+     (cash, cash ISA, cash LISA) stay out, and so does a pension until its
+     holdings are recorded; uninvested cash inside an investing account
+     shows as one Cash tile. Set-and-forget
      and earmarked money stays out unless its switch is on (both off by
      default). Beside it, the six largest holdings and the move each would
      need to change the view by 1% (the Lab's moveNeededFor1Pct). */
@@ -186,6 +189,7 @@ TEI.render = TEI.render || {};
   function portfolioItems(client){
     const groups = {};
     holdingRows(client).forEach(r=>{
+      if(CASH_TYPES.includes(r.acc.type) || (r.kind === 'account' && r.acc.type === 'pension')) return;
       if((r.acc.setAndForget && !pfInclude.setAndForget) || (r.acc.earmarked && !pfInclude.earmarked)) return;
       const key = r.kind === 'holding' ? (r.ticker ? 'T:' + r.ticker.trim().toUpperCase() : 'N:' + r.name.trim().toLowerCase())
         : r.kind === 'cash' ? 'CASH' : 'A:' + r.acc.id;
