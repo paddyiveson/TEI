@@ -47,9 +47,12 @@
   function contents() {
     var parts = document.querySelectorAll('.tc-part[data-toc]');
     if (!parts.length) return;
-    var html = Array.prototype.map.call(parts, function (p, i) {
-      var no = p.getAttribute('data-toc-no') || ('0' + (i + 1)).slice(-2);
-      return '<li><a href="#' + p.id + '"><span>' + no + '</span>' + p.getAttribute('data-toc') + '</a></li>';
+    // An empty data-toc-no lists the part without a number (closing blocks such
+    // as "What this does not say" and Summary); numbering skips those parts.
+    var n = 0;
+    var html = Array.prototype.map.call(parts, function (p) {
+      var no = p.hasAttribute('data-toc-no') ? p.getAttribute('data-toc-no') : ('0' + (++n)).slice(-2);
+      return '<li><a href="#' + p.id + '"' + (no ? '><span>' + no + '</span>' : ' class="is-plain">') + p.getAttribute('data-toc') + '</a></li>';
     }).join('');
     each('.tc-rail ol, .tc-toc-m ol', function (ol) { ol.innerHTML = html; });
     each('.tc-toc-m a', function (a) { a.addEventListener('click', function () { var d = a.closest('details'); if (d) d.open = false; }); });

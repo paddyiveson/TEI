@@ -164,6 +164,9 @@ body.tc-page { margin: 0; background: var(--c-page); color: var(--c-ink); font-f
 .tc-rail a span { font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); }
 .tc-rail a:hover { color: var(--c-ink); }
 .tc-rail a[aria-current="true"] { color: var(--c-ink); border-left-color: var(--c-gold); }
+.tc-rail a.is-plain { padding-left: 39px; }
+.tc-toc-m a.is-plain { padding-left: 23px; }
+.tc-toc-m summary span { margin: 0 auto 0 8px; }
 .tc-toc-m { display: none; }
 
 .tc-body { min-width: 0; }
@@ -374,12 +377,13 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
 
 /* Product cards (wrappers, accounts): header, headline figure, chips,
    description, and the full rules behind "More detail" */
-.tc-group { margin: 40px 0 0; }
+.tc-group { margin: 40px 0 0; scroll-margin-top: calc(var(--tei-hdr-h, 68px) + 24px); }
+.tc-group > .visual-block { margin-top: 20px; }
 .tc-group-h { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; }
 .tc-group-h span { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: var(--c-tile); border: 1px solid var(--c-line); color: var(--c-gold); }
 .tc-group-h svg { width: 20px; height: 20px; }
 .tc-group-h h3 { margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -0.015em; color: var(--c-ink); }
-.tc-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.tc-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
 .tc-cards > [hidden], .tc-group[hidden] { display: none; }
 .tc-pcard { background: var(--c-tile); border: 1px solid var(--c-line); border-radius: 24px; padding: 24px; transition: transform .25s ease, box-shadow .25s ease; }
 .tc-pcard:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(15, 30, 54, 0.10); }
@@ -398,6 +402,21 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
 .tc-chip.is-flag { background: var(--c-warn-tile); color: var(--c-warn); }
 .tc-chip.is-star { background: var(--c-champ-tile); color: var(--c-gold); }
 .tc-pcard > p { margin: 0 0 14px !important; font-size: 15px !important; line-height: 1.6 !important; font-weight: 400 !important; }
+/* Paired cards share a height, with "More detail" lined up along the bottom. */
+.tc-pcard { display: flex; flex-direction: column; }
+.tc-pcard > details { margin-top: auto; }
+/* A card alone in its group fills the row. On desktop the page script marks it
+   .is-wide and opens its detail: everything flows down two balanced columns,
+   so both columns end level and no block is split. */
+.tc-cards > .tc-pcard:only-child, .tc-cards > .tc-pcard.is-wide { grid-column: 1 / -1; }
+.tc-pcard.is-wide { display: block; column-count: 2; column-gap: 72px; column-rule: 1px solid var(--c-line-soft); }
+.tc-pcard.is-wide > :not(details), .tc-pcard.is-wide .tc-pcard-more dl, .tc-pcard.is-wide .tc-pcard-more ul { break-inside: avoid; }
+.tc-pcard.is-wide .tc-pcard-more h5 { break-after: avoid; }
+.tc-pcard.is-wide .tc-pcard-more ul.is-flow { break-inside: auto; }
+.tc-pcard.is-wide .tc-pcard-more ul.is-flow li { break-inside: avoid; }
+.tc-pcard.is-wide > details { margin: 0; }
+.tc-pcard.is-wide > details > summary { display: none; }
+.tc-pcard.is-wide .tc-pcard-more { margin-top: 0; animation: none; }
 .tc-pcard details > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--c-line); font-size: 14px; color: var(--c-ink); }
 .tc-pcard details > summary::-webkit-details-marker { display: none; }
 .tc-pcard details > summary::after { content: ''; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .25s ease; }
@@ -438,6 +457,7 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
 .tc-inline-link small { display: block; margin-bottom: 4px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); }
 .tc-inline-link b { font-size: 17px; font-weight: 400; }
 .tc-inline-link svg { flex: none; width: 20px; height: 20px; color: var(--c-gold); }
+.tc-inline-link .tc-link-sub { font-size: 14px; color: var(--c-muted); }
 
 .tc-cta { position: relative; overflow: hidden; isolation: isolate; margin: 16px 0 0; padding: 40px 36px; border-radius: 28px; background: var(--c-deep); color: #F7F4ED; }
 :root[data-theme="dark"] .tc-cta { border: 1px solid var(--c-line); }
@@ -542,7 +562,7 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
 }
 @media (max-width: 860px) {
   .tc-guide { padding: 0 16px 16px; }
-  .tc-toc-m { top: 0; margin: 0 -16px 28px; padding: 4px 16px; }
+  .tc-toc-m { top: var(--tei-hdr-h, 60px); margin: 0 -16px 28px; padding: 4px 16px; }
   .tc-body p { font-size: 16px; }
   .tc-body .tc-lead { font-size: 18px; }
   .tc-part { margin-bottom: 56px; }
@@ -569,13 +589,61 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
   .tc-bar-v { font-size: 16px; }
   .tc-bars.is-narrow { gap: 24px; }
   .tc-seg button { padding: 0 12px; font-size: 13px; }
-  .tc-filter .tc-seg { flex-wrap: nowrap; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-  .tc-filter .tc-seg button { flex: none; white-space: nowrap; }
+  .tc-filter .tc-seg { display: flex; flex-wrap: wrap; max-width: 100%; border-radius: 22px; }
+  .tc-filter .tc-seg button { flex: 1 1 auto; white-space: nowrap; }
   .tc-feature { padding: 24px 20px; }
   .tc-cta { padding: 30px 20px; border-radius: 24px; }
   .tc-cta ol { grid-template-columns: minmax(0, 1fr); }
   .tc-more { padding: 16px 16px 56px; }
   .tc-members-head, .tc-members-body { padding-left: 16px; padding-right: 16px; }
+}
+
+/* Under the sticky Contents bar (phones and tablets), anchors land below it too */
+@media (max-width: 1100px) {
+  .tc-part, .tc-sub, .tc-group { scroll-margin-top: calc(var(--tei-hdr-h, 68px) + 72px); }
+}
+
+/* Reference figures in a guide: one card of rows, name and a short note on
+   the left, the figure on the right. Rows keep one height and read on phones. */
+.tc-figs { margin: 20px 0 24px; padding: 4px 24px; border-radius: 24px; background: var(--c-tile); border: 1px solid var(--c-line); }
+.tc-figs > div { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-top: 1px solid var(--c-line-soft); }
+.tc-figs > div:first-child { border-top: 0; }
+.tc-figs dt { font-size: 17px; line-height: 1.35; font-weight: 400; color: var(--c-ink); }
+.tc-figs dt small { display: block; margin-top: 3px; font-size: 14px; line-height: 1.45; color: var(--c-muted); }
+.tc-figs dd { flex: none; margin: 0; font-size: 28px; line-height: 1.1; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .tc-figs { padding: 2px 18px; border-radius: 20px; }
+  .tc-figs > div { padding: 14px 0; }
+  .tc-figs dt { font-size: 16px; }
+  .tc-figs dt small { font-size: 13.5px; }
+  .tc-figs dd { font-size: 24px; }
+}
+
+/* A numbered sequence: one step per row, the number beside the title and
+   the opened text lined up under it. */
+.tc-steps.is-list { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.tc-steps.is-list details.tc-x > summary { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 14px; align-items: start; padding: 18px 22px 16px; }
+.tc-steps.is-list .tc-x-no { grid-row: span 2; }
+.tc-steps.is-list .tc-x-title { padding-top: 2px; }
+.tc-steps.is-list .tc-x-pre { margin-top: 4px; }
+.tc-steps.is-list details.tc-x > summary::after { top: 18px; }
+.tc-steps.is-list .tc-x-body { padding-left: 64px; }
+
+/* Next steps cards closing a guide (cards from /assets/tool.css) */
+.tc-next-steps { margin: 64px 0 0; }
+
+/* Long comparison tables: .is-stack turns each row into a card on phones,
+   each cell labelled from its data-label. Reads the same with JS off. */
+@media (max-width: 760px) {
+  .tc-table.is-stack { min-width: 0; }
+  .tc-table.is-stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tc-table.is-stack, .tc-table.is-stack tbody, .tc-table.is-stack tr { display: block; }
+  .tc-table.is-stack tr { padding: 16px 18px; border-bottom: 1px solid var(--c-line); }
+  .tc-table.is-stack tr:last-child { border-bottom: 0; }
+  .tc-table.is-stack td { display: grid; grid-template-columns: minmax(0, 40%) minmax(0, 1fr); gap: 12px; padding: 6px 0; border: 0; }
+  .tc-table.is-stack td::before { content: attr(data-label); padding-top: 2px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+  .tc-table.is-stack td:first-child { display: block; position: static; padding: 0 0 8px; font-size: 17px; background: none; box-shadow: none; }
+  .tc-table.is-stack td:first-child::before { content: none; }
 }
 
 /* Stat tiles standing on the page rather than inside a figure card */
