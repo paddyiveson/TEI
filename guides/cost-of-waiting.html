@@ -46,34 +46,29 @@
     <a class="ar-back" data-public href="/guides.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>All guides and tools</a>
     <p class="ar-meta"><span class="ar-cat">Tool</span><span>2 min</span></p>
     <h1>The cost of waiting</h1>
-    <p class="ar-dek">Money invested earlier has longer to grow. This calculator compares starting a monthly saving now with starting after a wait of one to five years, shows the difference by retirement in today's money, and works out what it would take to catch up.</p>
+    <p class="ar-dek">What a wait of one to five years costs a monthly saving by retirement, and what it would take to catch up.</p>
   </div>
 </section>
 
 <article class="article-body">
 
-    <p>Starting later rarely feels expensive. The monthly amount is the same and a year goes by quickly. The cost shows up decades later, because the money from the missed months never gets the time to grow.</p>
+    <p>Starting later rarely feels expensive. The cost shows up decades later, because the missed months never get the time to grow.</p>
 
-    <figure class="visual-block" id="calculator" data-m="scene" data-m-start=".m-chart">
-      <span class="m-scene-no">Calculator</span>
+    <figure class="visual-block tl-tool" id="calculator" data-m="scene" data-m-start=".tl-head">
       <div class="visual-title">Start now, or start later</div>
-      <div class="visual-sub">Enter a monthly amount, an age and a retirement age. Pots are shown in today's money.</div>
 
       <form class="tl-inputs" id="cow-inputs" novalidate onsubmit="return false">
         <div class="tl-field">
           <label for="cow-monthly">Monthly amount</label>
-          <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-monthly" type="number" inputmode="decimal" min="50" max="10000" step="10" value="300" aria-describedby="cow-monthly-hint"></div>
-          <small id="cow-monthly-hint">&pound;50 to &pound;10,000</small>
+          <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-monthly" type="number" inputmode="decimal" min="50" max="10000" step="10" value="300"></div>
         </div>
         <div class="tl-field">
           <label for="cow-age">Age now</label>
-          <div class="tl-num"><input id="cow-age" type="number" inputmode="numeric" min="18" max="58" step="1" value="28" aria-describedby="cow-age-hint"></div>
-          <small id="cow-age-hint">18 or over</small>
+          <div class="tl-num"><input id="cow-age" type="number" inputmode="numeric" min="18" max="58" step="1" value="28"></div>
         </div>
         <div class="tl-field">
-          <label for="cow-retire">Retirement age</label>
-          <div class="tl-num"><input id="cow-retire" type="number" inputmode="numeric" min="45" max="70" step="1" value="60" aria-describedby="cow-retire-hint"></div>
-          <small id="cow-retire-hint">45 to 70</small>
+          <label for="cow-retire">Retire at</label>
+          <div class="tl-num"><input id="cow-retire" type="number" inputmode="numeric" min="45" max="70" step="1" value="60"></div>
         </div>
         <div class="tl-row">
           <span class="tl-row-label" id="cow-wait-label">Wait before starting</span>
@@ -86,7 +81,7 @@
           </div>
         </div>
         <div class="tl-row">
-          <span class="tl-row-label" id="cow-rate-label">Growth assumed, a year</span>
+          <span class="tl-row-label" id="cow-rate-label">Growth a year</span>
           <div class="tl-choice" role="group" aria-labelledby="cow-rate-label">
             <button type="button" aria-pressed="false" data-rate="3"><span>Cautious</span><b>3%</b></button>
             <button type="button" aria-pressed="true" data-rate="5"><span>Balanced</span><b>5%</b></button>
@@ -96,42 +91,55 @@
         </div>
       </form>
 
+      <!-- The headline: visible to everyone. -->
+      <div class="tl-head" aria-live="polite">
+        <p class="tl-head-k" data-out="head-k">Waiting 1 year to start costs</p>
+        <b data-out="gap" data-m="count-up" data-to="7582" data-delay="300" data-dur="1400">&pound;7,582</b>
+        <p class="tl-head-sub" data-out="head-sub">by 60, in today's money</p>
+        <dl class="tl-vs">
+          <div><dt data-out="end-now-label">Start now, at 28</dt><dd data-out="pot-now" data-m="count-up" data-to="125800" data-delay="300" data-dur="1400">&pound;125,800</dd></div>
+          <div><dt data-out="end-wait-label">Start at 29</dt><dd data-out="pot-wait" data-m="count-up" data-to="118219" data-delay="300" data-dur="1400">&pound;118,219</dd></div>
+        </dl>
+      </div>
+
+      <!-- Behind the lead gate: the chart and the catch-up. /assets/lead-gate.js opens it. -->
+      <div class="tl-gate" id="cow-gate" data-lead-gate data-source="cost_of_waiting_calculator" data-gate="locked">
+        <div class="tl-gated" id="cow-gated">
+          <p class="tl-open-note" data-gate-note></p>
       <div class="tc-key"><span><i class="m-i-ref"></i><span data-out="key-now">Start now, at 28</span></span><span><i class="m-i-a"></i><span data-out="key-wait">Start at 29</span></span></div>
-      <!-- To put the chart behind the gate as well, add data-gated="cow-gate" to the next line. -->
       <div class="m-chart" data-m="line-draw" role="img" data-out="chart-label" aria-label="Line chart from age 28 to 60, in today's money. Starting now at 28 with &pound;300 a month grows to &pound;125,800. Starting at 29 grows to &pound;118,219.">
           <svg viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true" focusable="false"><g class="m-grid" data-out="grid"><line x1="0" x2="1000" y1="400" y2="400" class="m-base"/><line x1="0" x2="1000" y1="333" y2="333"/><line x1="0" x2="1000" y1="267" y2="267"/><line x1="0" x2="1000" y1="200" y2="200"/><line x1="0" x2="1000" y1="133" y2="133"/><line x1="0" x2="1000" y1="67" y2="67"/><line x1="0" x2="1000" y1="0" y2="0"/></g><line class="m-start" data-out="start-line" x1="0" x2="0" y1="0" y2="400" style="transform:translateX(31px)"/><path class="m-gap" d="M0 400L17 395L33 390L50 385L67 380L83 374L100 369L117 364L133 359L150 354L167 349L183 344L200 339L217 333L233 328L250 323L267 318L283 313L300 307L317 302L333 297L350 292L367 286L383 281L400 276L417 271L433 265L450 260L467 254L483 249L500 244L517 238L533 233L550 227L567 222L583 216L600 210L617 205L633 199L650 193L667 188L683 182L700 176L717 170L733 164L750 158L767 152L783 146L800 140L817 134L833 128L850 122L867 116L883 110L900 103L917 97L933 91L950 84L967 78L983 71L1000 65L1000 85L983 91L967 97L950 104L933 110L917 116L900 122L883 128L867 134L850 140L833 146L817 152L800 158L783 164L767 169L750 175L733 181L717 186L700 192L683 198L667 203L650 209L633 214L617 220L600 225L583 231L567 236L550 241L533 247L517 252L500 257L483 263L467 268L450 273L433 278L417 283L400 289L383 294L367 299L350 304L333 309L317 314L300 319L283 324L267 329L250 334L233 339L217 344L200 349L183 354L167 359L150 364L133 369L117 374L100 379L83 384L67 389L50 394L33 399L17 400L0 400Z"/><path class="m-ref" d="M0 400L17 395L33 390L50 385L67 380L83 374L100 369L117 364L133 359L150 354L167 349L183 344L200 339L217 333L233 328L250 323L267 318L283 313L300 307L317 302L333 297L350 292L367 286L383 281L400 276L417 271L433 265L450 260L467 254L483 249L500 244L517 238L533 233L550 227L567 222L583 216L600 210L617 205L633 199L650 193L667 188L683 182L700 176L717 170L733 164L750 158L767 152L783 146L800 140L817 134L833 128L850 122L867 116L883 110L900 103L917 97L933 91L950 84L967 78L983 71L1000 65"/><path class="m-line-a" d="M0 400L17 400L33 399L50 394L67 389L83 384L100 379L117 374L133 369L150 364L167 359L183 354L200 349L217 344L233 339L250 334L267 329L283 324L300 319L317 314L333 309L350 304L367 299L383 294L400 289L417 283L433 278L450 273L467 268L483 263L500 257L517 252L533 247L550 241L567 236L583 231L600 225L617 220L633 214L650 209L667 203L683 198L700 192L717 186L733 181L750 175L767 169L783 164L800 158L817 152L833 146L850 140L867 134L883 128L900 122L917 116L933 110L950 104L967 97L983 91L1000 85"/></svg>
           <span class="tl-mark" data-out="start-mark" style="--x:3.1%">Wait ends, 29</span>
           <div class="m-yaxis" aria-hidden="true" data-out="yaxis"><span style="--y:100%">&pound;0</span><span style="--y:83.3%">&pound;25k</span><span style="--y:66.7%">&pound;50k</span><span style="--y:50%">&pound;75k</span><span style="--y:33.3%">&pound;100k</span><span style="--y:16.7%">&pound;125k</span><span style="--y:0%">&pound;150k</span></div>
           <div class="m-xaxis" aria-hidden="true" data-out="xaxis"><span style="--x:0%">28</span><span style="--x:21.9%">35</span><span style="--x:37.5%">40</span><span style="--x:53.1%">45</span><span style="--x:68.8%">50</span><span style="--x:84.4%">55</span><span style="--x:100%">60</span></div>
         </div>
-      <div class="m-ends" aria-live="polite">
-        <div><small><i class="m-i-ref"></i><span data-out="end-now-label">Start now, at 28</span></small><b data-out="pot-now" data-m="count-up" data-to="125800" data-delay="150" data-dur="1500">&pound;125,800</b><p data-out="end-now-sub">At 60, in today's money</p></div>
-        <div><small><i class="m-i-a"></i><span data-out="end-wait-label">Start at 29</span></small><b data-out="pot-wait" data-m="count-up" data-to="118219" data-delay="1100" data-dur="1500">&pound;118,219</b><p data-out="end-wait-sub">At 60, in today's money</p></div>
-      </div>
-      <div class="m-callout" aria-live="polite"><b data-out="gap" data-m="count-up" data-to="7582" data-delay="1100" data-dur="1500">&pound;7,582</b><span data-out="gap-line">less at 60, in today's money, from waiting 1 year to start &pound;300 a month.</span></div>
-
-      <!-- The lead gate: visible to everyone above, behind the gate below. /assets/lead-gate.js opens it. -->
-      <div class="tl-gate" id="cow-gate" data-lead-gate data-source="cost_of_waiting_calculator" data-gate="locked">
-        <div class="tl-gated" id="cow-gated">
-          <p class="tl-open-note" data-gate-note></p>
-          <div class="tl-results">
-            <div><small>Catch-up a month</small><b data-out="catch" data-m="count-up" data-format="gbp2" data-to="19.24">&pound;19.24</b><p data-out="catch-sub">Paid on top of &pound;300 a month from 29 to 60, to finish level with starting now.</p><span class="tl-tag">In pounds at the time</span></div>
-            <div><small>Or one lump sum</small><b data-out="lump" data-m="count-up" data-to="3682">&pound;3,682</b><p data-out="lump-sub">Paid at 29. It is what the missed year's saving would have grown to by then.</p><span class="tl-tag">In pounds at the time</span></div>
-            <div><small>Each month waited</small><b data-out="per-month" data-m="count-up" data-to="632">&pound;632</b><p data-out="per-month-sub">The difference at 60, split across the 12 months of the wait.</p><span class="tl-tag is-today">In today's money</span></div>
-            <div><small>Each day waited</small><b data-out="per-day" data-m="count-up" data-format="gbp2" data-to="20.77">&pound;20.77</b><p data-out="per-day-sub">The same difference, split across the 365 days of the wait.</p><span class="tl-tag is-today">In today's money</span></div>
+          <!-- One figure takes centre stage; the rest support it. -->
+          <div class="tl-hero">
+            <p class="tl-hero-k">To catch up</p>
+            <p class="tl-hero-v"><b data-out="catch" data-m="count-up" data-format="gbp2" data-to="19.24">&pound;19.24</b> <span>a month more</span></p>
+            <p class="tl-hero-sub" data-out="catch-sub">From 29 to 60, on top of &pound;300 a month, finishes level with starting now.</p>
           </div>
-          <div class="tl-extra">
-            <div class="tl-field">
-              <label for="cow-lump" data-out="lump-in-label">A lump sum at 29 (optional)</label>
-              <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-lump" type="number" inputmode="decimal" min="0" step="100" placeholder="0"></div>
+          <ul class="tl-support">
+            <li><b data-out="lump" data-m="count-up" data-to="3682">&pound;3,682</b><span data-out="lump-sub">or once, at 29</span></li>
+            <li><b data-out="per-month" data-m="count-up" data-to="632">&pound;632</b><span>for each month waited</span></li>
+            <li><b data-out="per-day" data-m="count-up" data-format="gbp2" data-to="20.77">&pound;20.77</b><span>for each day waited</span></li>
+          </ul>
+          <details class="tl-extra">
+            <summary data-out="lump-in-label">Have a lump sum to put in at 29?</summary>
+            <div class="tl-extra-in">
+              <div class="tl-field">
+                <label for="cow-lump">Lump sum</label>
+                <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-lump" type="number" inputmode="decimal" min="0" step="100" placeholder="0"></div>
+              </div>
+              <p aria-live="polite" data-out="lump-left">Type an amount to see the monthly catch-up it still leaves.</p>
             </div>
-            <p aria-live="polite" data-out="lump-left">Type an amount to see how much monthly catch-up it still leaves.</p>
-          </div>
+          </details>
           <div class="tl-actions"><button type="button" class="tc-btn is-line" id="cow-print">Print summary</button></div>
+          <p class="tl-foot">Catch-up and lump sum in pounds at the time; the rest in today's money.</p>
         </div>
         <div class="tl-lock" id="cow-lock">
-          <h3>See the full breakdown</h3>
-          <p>How much it takes to catch up, the cost of each month and day waited, and a printable summary. Free.</p>
+          <h3>See how to catch up</h3>
+          <p>The chart, the catch-up figure and a printable summary. Free.</p>
           <form id="cow-lead" novalidate>
             <div class="ar-seg" role="group" aria-label="How to reach you">
               <button type="button" aria-pressed="true" data-contact="email">Email</button>
@@ -141,14 +149,14 @@
             <label for="cow-contact" data-gate-label>Email address</label>
             <input id="cow-contact" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" data-gate-input aria-describedby="cow-contact-err">
             <p class="tl-lock-err" id="cow-contact-err" aria-live="polite" data-gate-err></p>
-            <button type="submit" class="tc-btn">Show the full breakdown</button>
+            <button type="submit" class="tc-btn">Show me</button>
           </form>
-          <small>We will send your results and one follow-up. No spam and no cold calls. Members see this without signing up: <a data-login href="/hub/login.html">log in</a>. <a href="/how-we-work">How we work</a></small>
+          <small>Your results and one follow-up, no spam. Members: <a data-login href="/hub/login.html">log in</a>. <a href="/how-we-work">How we work</a></small>
         </div>
       </div>
 
-      <p class="tl-risk">An illustration, not a forecast. Investments can fall as well as rise, and growth is not steady from year to year.</p>
-      <div class="visual-caption"><span data-out="caption">&pound;300 a month, paid at the end of each month and kept level (it does not rise with inflation), growing at 5% a year with monthly compounding, before fees and tax.</span> Pots and the difference are in today's money, using inflation of 2.5% a year; the catch-up and the lump sum are in pounds at the time they are paid. <span data-out="pension-note" hidden>Pension money cannot usually be taken before 57 from 6 April 2028, so money for an earlier retirement would need to sit outside a pension, for example in an ISA.</span></div>
+      <p class="tl-risk">An illustration, not a forecast. Investments can fall as well as rise.</p>
+      <div class="visual-caption">Level monthly payments at each month end, growing at the rate chosen with monthly compounding, before fees and tax. Today's money uses inflation of 2.5% a year. <span data-out="pension-note" hidden>Pension money cannot usually be taken before 57 from 6 April 2028, so an earlier retirement would need money outside a pension, for example in an ISA.</span></div>
     </figure>
 
     <section class="ar-takeaways" aria-label="How the numbers work">
@@ -157,22 +165,22 @@
       <div class="principle">
         <span class="num">01</span>
         <h3>The missed year is small. What it grows into is not.</h3>
-        <p>Twelve payments of &pound;300 come to &pound;3,600, or about &pound;3,650 to &pound;3,750 with a year's growth at any of these rates. What changes with the rate is what that sum grows into: by 60, from &pound;4,140 at 3% to &pound;24,584 at 9%, in today's money. A higher growth assumption also means more risk, with bigger rises and falls along the way.</p>
+        <p>A year of &pound;300 a month is &pound;3,600. By 60 it grows into &pound;4,140 at 3% or &pound;24,584 at 9%, in today's money. Higher growth assumptions also mean bigger rises and falls.</p>
       </div>
       <div class="principle">
         <span class="num">02</span>
         <h3>Catching up later costs more than the wait.</h3>
-        <p>After a one-year wait, &pound;19.24 a month on top for the next 31 years finishes level, about &pound;7,160 in all against the &pound;3,600 not paid. Each pound paid later has less time to grow. A lump sum of &pound;3,682 at the end of the wait closes the gap at once, because it puts back the missed year with its growth.</p>
+        <p>&pound;19.24 a month for 31 years adds up to about &pound;7,160, against &pound;3,600 not paid. Money paid later has less time to grow.</p>
       </div>
       <div class="principle">
         <span class="num">03</span>
         <h3>Today's money keeps the pots comparable.</h3>
-        <p>Prices rise over time, so the pots are shown in today's money: what they would buy now, with inflation at 2.5% a year. In pounds at the time, the &pound;125,800 pot would read about &pound;277,200 at 60.</p>
+        <p>The pots show what they would buy now. In pounds at the time, &pound;125,800 would read about &pound;277,200 at 60.</p>
       </div>
     </div>
     </section>
 
-    <div class="ar-not"><strong>What this does not say.</strong> It does not say that any of these growth rates will happen, or that investing now is the right step for everyone. Real returns vary from year to year and can be negative for long stretches. Fees and tax would lower every figure, and inflation could run above or below 2.5%. The payments stay level here; raising them over time would change both pots. It leaves out other calls on the same money, such as clearing expensive debt or keeping an emergency fund, and it leaves out pension tax relief, which would add to a pension saver's pot.</div>
+    <div class="ar-not"><strong>What this does not say.</strong> It does not say any of these growth rates will happen, or that investing now is right for everyone. Returns vary and can be negative for long stretches. Fees, tax, higher inflation or rising payments would change the numbers. It leaves out pension tax relief, and other calls on the money such as expensive debt or an emergency fund.</div>
 
     <p class="tl-advice">Education, not personal financial advice. The calculator shows how the mechanism works on the numbers entered; it is not a recommendation to save, invest or choose any growth rate.</p>
 </article>

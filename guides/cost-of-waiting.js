@@ -143,7 +143,7 @@
 
   function render() {
     var s = state, m = model(s), sc = fitScale(m.potNow);
-    var start = s.age + s.wait, at = 'At ' + s.retire + ", in today's money";
+    var start = s.age + s.wait;
 
     drawAxes(s, sc);
     if (window.TeiMotion && chart) window.TeiMotion.line(chart, { max: sc.max, ref: m.now, a: m.wait });
@@ -154,28 +154,25 @@
     set('key-wait', 'Start at ' + start);
     set('end-now-label', 'Start now, at ' + s.age);
     set('end-wait-label', 'Start at ' + start);
-    set('end-now-sub', at);
-    set('end-wait-sub', at);
+    // The headline, above the gate.
+    set('head-k', 'Waiting ' + years(s.wait) + ' to start costs');
+    set('head-sub', 'by ' + s.retire + ", in today's money");
+    num('gap', m.gap);
     num('pot-now', m.potNow);
     num('pot-wait', m.potWait);
-    num('gap', m.gap);
-    set('gap-line', 'less at ' + s.retire + ", in today's money, from waiting " + years(s.wait) + ' to start ' + pounds(s.monthly) + ' a month.');
 
+    // Behind the gate: one hero figure, three that support it.
     num('catch', m.catchUp);
-    set('catch-sub', 'Paid on top of ' + pounds(s.monthly) + ' a month from ' + start + ' to ' + s.retire + ', to finish level with starting now.');
+    set('catch-sub', 'From ' + start + ' to ' + s.retire + ', on top of ' + pounds(s.monthly) + ' a month, finishes level with starting now.');
     num('lump', m.lump);
-    set('lump-sub', 'Paid at ' + start + '. It is what the missed ' + (s.wait === 1 ? "year's" : "years'") + ' saving would have grown to by then.');
+    set('lump-sub', 'or once, at ' + start);
     num('per-month', m.perMonth);
-    set('per-month-sub', 'The difference at ' + s.retire + ', split across the ' + (12 * s.wait) + ' months of the wait.');
     num('per-day', m.perDay);
-    set('per-day-sub', 'The same difference, split across the ' + commas(String(365 * s.wait)) + ' days of the wait.');
-    set('lump-in-label', 'A lump sum at ' + start + ' (optional)');
-    set('lump-left', m.left == null ? 'Type an amount to see how much monthly catch-up it still leaves.'
+    set('lump-in-label', 'Have a lump sum to put in at ' + start + '?');
+    set('lump-left', m.left == null ? 'Type an amount to see the monthly catch-up it still leaves.'
       : m.left > 0 ? 'With ' + pounds(s.lump) + ' at ' + start + ', the catch-up falls to ' + pence(m.left) + ' a month.'
       : pounds(s.lump) + ' at ' + start + ' closes the gap on its own, with no monthly catch-up needed.');
 
-    set('caption', pounds(s.monthly) + ' a month, paid at the end of each month and kept level (it does not rise with inflation), growing at ' +
-      s.rate + '% a year with monthly compounding, before fees and tax.');
     out('pension-note').hidden = s.retire >= 57;
 
     window.TeiCow = window.TeiCow || {};       // read by the checks
@@ -269,10 +266,12 @@
   }
 
   /* ---------- the gate ----------
-     /assets/lead-gate.js opens it; the results then count up from zero. */
+     /assets/lead-gate.js opens it; the chart draws in again and the results
+     count up from zero. */
   var gate = document.getElementById('cow-gate');
   if (gate) gate.addEventListener('tei:gate-open', function () {
     if (!window.TeiMotion) return;
+    window.TeiMotion.redraw(chart);
     each(gate.querySelectorAll('[data-m="count-up"]'), function (el, i) {
       window.TeiMotion.count(el, Number(el.getAttribute('data-to')), 0, 150 + i * 120, 900);
     });

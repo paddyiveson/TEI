@@ -36,6 +36,7 @@
      win(container, side)      mark [data-side=side] as .is-win; pulse on a flip
      dots(box, opts)           draw or update a dot-field
      line(chart, opts)         draw or update a line-draw chart
+     redraw(chart)             play a drawn chart's entrance again
      pounds(n), pence(n)       "£12,345", "£19.24"
      dollars(n)                "$12,345" */
 (function () {
@@ -342,6 +343,14 @@
     });
   }
 
-  window.TeiMotion = { calm: calm, count: count, bar: bar, win: win, pounds: pounds, pence: pence, dollars: dollars, dots: dots, line: line };
+  // Play a line-draw chart's entrance again, e.g. once a lead gate over it opens.
+  function redraw(chart) {
+    if (calm || !chart || !chart._clips || !chart._shown) return;
+    chart._clips.ref.setAttribute('width', 0); chart._clips.a.setAttribute('width', 0);
+    chart._shown = false;
+    chart._play();
+  }
+
+  window.TeiMotion = { calm: calm, redraw: redraw, count: count, bar: bar, win: win, pounds: pounds, pence: pence, dollars: dollars, dots: dots, line: line };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
