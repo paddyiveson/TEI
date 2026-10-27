@@ -1498,8 +1498,8 @@ window.TEI = window.TEI || {};
     if(skipRecent) priceable = priceable.filter(h=>!pricedRecently(h));
     if(!priceable.length){
       status.textContent = skipRecent
-        ? 'Nothing to refresh -- every Auto (US) holding was priced in the last hour.'
-        : 'No Auto (US) holdings with a ticker and units yet.';
+        ? 'Nothing to refresh. Every US price was updated in the last hour.'
+        : 'No US holdings with a ticker and units are set to price automatically yet.';
       return;
     }
     const CHUNK_SIZE = 7;

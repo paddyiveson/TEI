@@ -363,6 +363,7 @@ TEI.render = TEI.render || {};
         return `<div class="wl-upd-group">${rowHtml('data-upd-account', a.id, acctLabel(a), v, '')}</div>`;
       }).join('');
     setText('wlUpdPrices', TEI.calc.usPricesAsOfText(client));
+    showRefresh(client);
     list.querySelectorAll('input').forEach(input=> input.addEventListener('change', ()=> saveRow(client, key, input)));
   }
   async function saveRow(client, key, input){
@@ -402,10 +403,34 @@ TEI.render = TEI.render || {};
     const back = document.getElementById('wlUpdateBtn');
     if(lastFocus && document.body.contains(lastFocus) && lastFocus.offsetParent) lastFocus.focus(); else if(back) back.focus();
   }
+  /* Ad hoc price refresh. The weekday schedule still prices US holdings
+     (refresh-us-prices); these buttons let a client run it now, through
+     the coach's own TEI.adviser.refreshLivePrices. skipRecent leaves out
+     holdings priced in the last hour, so a double tap spends no credits.
+     Shown only when there is an Auto (US) holding it could price. */
+  function canRefreshPrices(client){
+    return (client.holdings||[]).some(h=> h.priceSource === 'auto_us' && h.ticker && h.units != null
+      && ((client.accounts||[]).find(a=> a.id === h.accountId) || {}).type !== 'crypto');
+  }
+  function showRefresh(client){
+    const on = !!(TEI.adviser && TEI.adviser.refreshLivePrices) && canRefreshPrices(client);
+    ['whRefreshPricesBtn', 'wlUpdRefreshBtn'].forEach(id=>{ const b = document.getElementById(id); if(b) b.hidden = !on; });
+  }
+  async function refreshPrices(btn, statusId){
+    const client = TEI.app.state.client;
+    if(!client || !TEI.adviser || !TEI.adviser.refreshLivePrices) return;
+    const status = document.getElementById(statusId);
+    await TEI.adviser.refreshLivePrices({btn, status, skipRecent:true});
+    // Show the new figures in the open panel, keeping the refresh message.
+    if(!document.getElementById('wlUpdPanel').hidden){ const msg = status.textContent; buildUpdateList(client); status.textContent = msg; }
+  }
   let wired = false;
   function wireOnce(){
     if(wired) return;
     wired = true;
+    const heroBtn = document.getElementById('whRefreshPricesBtn'), panelBtn = document.getElementById('wlUpdRefreshBtn');
+    heroBtn.addEventListener('click', ()=> refreshPrices(heroBtn, 'whPricesStatus'));
+    panelBtn.addEventListener('click', ()=> refreshPrices(panelBtn, 'wlUpdPrices'));
     document.getElementById('wlUpdateBtn').addEventListener('click', openUpdate);
     document.getElementById('wlUpdClose').addEventListener('click', closeUpdate);
     document.getElementById('wlUpdScrim').addEventListener('click', closeUpdate);
@@ -446,6 +471,7 @@ TEI.render = TEI.render || {};
     // Fills coach's corner, the price and balance notes and the Lab, which
     // now lives on its own screen (B5.4) but shares this code.
     if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
+    showRefresh(client);
     renderAccountGroups(client);
     renderHealth(client);
     renderMeaning(client);
