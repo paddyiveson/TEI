@@ -110,8 +110,40 @@ body { margin: 0; background: #F7F4ED; color: #13213A; font-family: 'Geist', sys
 .ar-cta a { display: inline-flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 999px; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 15px; font-weight: 500; }
 
 /* -- Links in running text on refreshed articles (REF-Short) -- */
-body.tc-page .article-body > p a { color: var(--c-gold); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-body.tc-page .article-body > p a:hover { text-decoration-thickness: 2px; }
+body.tc-page .article-body > p a, body.tc-page .ar-t > p a { color: var(--c-gold); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+body.tc-page .article-body > p a:hover, body.tc-page .ar-t > p a:hover { text-decoration-thickness: 2px; }
+
+/* -- Epigraph: a short quote set quietly in the text, not a slab (REF-Short) -- */
+.ar-epigraph { margin: 6px 0 26px; padding: 2px 0 2px 18px; border-left: 2px solid var(--c-gold, #83661C); font-size: 20px; line-height: 1.45; font-weight: 300; letter-spacing: -0.005em; color: var(--c-ink, #13213A); }
+.ar-epigraph cite { display: block; margin-top: 8px; font-family: var(--ar-mono); font-size: 12px; font-style: normal; color: var(--c-gold, #83661C); }
+
+/* -- Wide article layout (REF-Short, after the ONDS note). Put .ar-wide on
+   main.tei-article. From 1100px the article runs full width on a 12-column
+   grid: each .ar-split sets prose (.ar-t, 5 columns) beside what it explains
+   (.ar-v, 7 columns), and .ar-stick on the shorter side holds it in view
+   while the other scrolls. "What this does not say" runs in two balanced
+   columns and the Summary's three points sit side by side. Below 1100px it
+   is the single reading column. -- */
+.ar-t > p { margin: 0 0 22px; font-size: 19px; line-height: 1.7; font-weight: 300; }
+@media (min-width: 1100px) {
+  .ar-wide .ar-hero-in, .ar-wide .article-body { max-width: 1280px; }
+  .ar-wide .ar-hero h1 { max-width: 20ch; }
+  .ar-wide .ar-dek { max-width: 58ch; }
+  .ar-split { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 32px; align-items: start; margin: 0 0 64px; }
+  .ar-split > .ar-t { grid-column: 1 / 6; }
+  .ar-split > .ar-v { grid-column: 6 / 13; min-width: 0; }
+  .ar-split > .ar-stick { position: sticky; top: calc(var(--tei-hdr-h, 68px) + 24px); }
+  .ar-t > p { font-size: 18px; }
+  .ar-v > .visual-block, .ar-v > .tc-callout { margin: 0; }
+  .ar-wide .ar-not { columns: 2; column-gap: 40px; padding: 24px 28px; }
+  .ar-wide .ar-takeaways .principle-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: 32px; padding: 12px 28px 20px; }
+  .ar-wide .ar-takeaways .principle { border-top-color: transparent; }
+}
+
+/* -- Keep reading: three cards always fill the row (no empty fourth column) -- */
+@media (min-width: 761px) {
+  .ar-related { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 
 /* -- A small closing note under a callout's text, e.g. the line after a personal story (REF-Short) -- */
 .tei-article .tc-callout .ar-note { display: block; margin-top: 10px; font-family: var(--ar-mono); font-size: 12px; line-height: 1.5; color: var(--c-muted); }
@@ -123,7 +155,8 @@ body.tc-page .article-body > p a:hover { text-decoration-thickness: 2px; }
   .ar-hero-in { padding: 20px 16px 56px; }
   .ar-dek { font-size: 18px; }
   .article-body { padding: 40px 16px 16px; }
-  .article-body > p { font-size: 17px; }
+  .article-body > p, .ar-t > p { font-size: 17px; }
+  .ar-epigraph { font-size: 18px; padding-left: 14px; }
   .visual-block, .ar-figure { padding: 20px 16px; border-radius: 20px; }
   .pull-quote { padding: 24px 22px; font-size: 22px; }
   .ar-takeaways-label { padding: 16px 20px; }

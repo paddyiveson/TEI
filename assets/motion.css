@@ -342,8 +342,18 @@
 .m-lane .m-ref { stroke: var(--c-gold); }
 .m-lane .m-gap { fill: var(--c-gold); opacity: .22; }
 .m-lane .m-line-a { stroke: var(--c-line); stroke-width: 1; }
+/* Fit to the screen: on a phone the whole figure fits one screen; in the wide
+   article layout (1100px+) the chart takes its height from the window. */
 @media (max-width: 760px) {
-  .visual-block[data-m="scene"] .m-chart.m-lane { height: 34px; margin: 2px 0 10px; }
+  .visual-block[data-m="scene"] .m-chart.is-bare:not(.m-lane) { height: 170px; }
+  .visual-block[data-m="scene"] .m-chart.m-lane { height: 26px; margin: 2px 0 8px; }
+  .m-lanes-h { margin-bottom: 4px; font-size: 11px; }
+  .m-lane-h { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (min-width: 1100px) {
+  /* The figure around the chart is about 560px tall; the chart takes what the window has left. */
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-bare:not(.m-lane) { height: clamp(150px, calc(100vh - 652px), 300px); }
+  .ar-v .visual-block[data-m="scene"] .m-chart.m-lane { height: 28px; margin-bottom: 8px; }
 }
 
 /* Motion: each dot pops as the line wipes past it; the note and the lanes'
