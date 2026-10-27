@@ -336,15 +336,33 @@ TEI.render = TEI.render || {};
   /* ---------------- Safety net ----------------
      TEI.calc.safetyNet is the same calculation the Cashflow page shows. */
   const SAFETY_STAGE = {full:'Complete', stage2:'Stage 2', buffer:'Working buffer', none:'Building'};
+  /* No safety net account linked (Home and Cashflow): a warning and a button
+     to Plan settings, where the account is chosen, or to Accounts when there
+     is no cash account to choose yet. The account form's "Is this your
+     safety net?" switch sets the same link. */
+  function renderSafetyLink(client, ids){
+    const box = document.getElementById(ids.box);
+    const linked = TEI.calc.safetyNet(client).linked;
+    box.hidden = linked;
+    if(linked) return;
+    const hasCash = (client.accounts||[]).some(a=> a.type === 'cash' || a.type === 'cash_isa');
+    setText(ids.msg, hasCash ? 'No account is linked, so your safety net is not being tracked.'
+      : 'There is no cash account yet, so your safety net is not being tracked.');
+    const btn = document.getElementById(ids.btn);
+    btn.textContent = hasCash ? 'Link an account' : 'Add a cash account';
+    btn.onclick = ()=> TEI.settings.open(hasCash ? 'plan' : 'accounts');
+  }
+  TEI.render.safetyLink = renderSafetyLink;
   function renderSafety(client){
     const sn = TEI.calc.safetyNet(client);
     const pct = sn.months!=null ? Math.min(100, sn.months/sn.fullMonths*100) : 0;
-    setText('whSafetyStage', sn.months==null ? 'Not measured yet' : SAFETY_STAGE[sn.stage]);
+    setText('whSafetyStage', !sn.linked ? 'No account linked' : sn.months==null ? 'Not measured yet' : SAFETY_STAGE[sn.stage]);
     show('whSafetyTick', sn.stage === 'full');
     document.getElementById('whSafetyBar').style.width = pct.toFixed(0) + '%';
-    setText('whSafetyMonths', sn.months!=null
+    setText('whSafetyMonths', !sn.linked ? '' : sn.months!=null
       ? `${sn.months.toFixed(1)} ${sn.months.toFixed(1)==='1.0'?'month':'months'} of spending covered`
       : 'Add your spending in Cashflow to measure this');
+    renderSafetyLink(client, {box:'whSafetyLink', msg:'whSafetyLinkMsg', btn:'whSafetyLinkBtn'});
     // The three stages with their £ targets (as on Cashflow), where the cash
     // is held, and how much more reaches the next stage.
     const spend = sn.monthlySpend || 0;
@@ -357,7 +375,7 @@ TEI.render = TEI.render || {};
     setText('whSafetyHeld', acc ? 'Held in ' + acctLabel(acc) : '');
     const more = n=> fmtGBP(Math.max(0, n * spend - sn.current));
     let noteText;
-    if(!sn.linked) noteText = 'Choose the cash account that holds it in Settings, under Plan settings.';
+    if(!sn.linked) noteText = '';
     else if(sn.stage === 'full') noteText = 'Complete. New savings can now go to wealth building.';
     else if(sn.stage === 'stage2') noteText = `${more(sn.fullMonths)} more reaches the full ${sn.fullMonths} months.`;
     else if(sn.stage === 'buffer') noteText = `${more(3)} more reaches three months.`;

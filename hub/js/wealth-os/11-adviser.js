@@ -293,14 +293,36 @@ window.TEI = window.TEI || {};
     balanceEl.title = '';
     setAcctContribFieldsRuleOwned(false);
   }
-  /* "More options" (set-and-forget / earmarked): optional, collapsed by
-     default, and opened on edit only when the account already has one
-     switched on so its current state is visible. null = blank add form. */
+  /* "More options" (set-and-forget / earmarked / safety net): optional,
+     collapsed by default, and opened on edit only when the account already
+     has one switched on so its current state is visible. null = blank add
+     form. */
   function setAcctMoreOptions(acc){
     const sf = !!(acc && acc.setAndForget), em = !!(acc && acc.earmarked);
+    const sn = !!(acc && ((client.cashflow||{}).emergencyFund||{}).accountId === acc.id);
     document.getElementById('newAcctSetAndForget').checked = sf;
     document.getElementById('newAcctEarmarked').checked = em;
-    document.getElementById('acctMoreOptions').open = sf || em;
+    document.getElementById('newAcctSafetyNet').checked = sn;
+    document.getElementById('acctMoreOptions').open = sf || em || sn;
+  }
+  /* "Is this your safety net?" (cash and cash ISA only): sets or clears
+     cashflow_settings.emergency_fund_account_id, the same link Settings >
+     Plan settings chooses. Only one account holds it, so ticking it on
+     another account moves it there. */
+  async function saveSafetyNetLink(accId, on){
+    const ef = client.cashflow.emergencyFund || {};
+    if(on === (ef.accountId === accId)) return;
+    const acc = client.accounts.find(a=> a.id === accId);
+    client.cashflow.emergencyFund = TEI.calc.stampEdit({target: Number(ef.target)||0, accountId: on ? accId : null,
+      current: on && acc ? (Number(acc.value)||0) : 0}, (client.meta && client.meta.role) || 'adviser');
+    try{
+      await TEI.wealthOS.saveCashflowSettings(client.meta.clientId, client);
+    } catch(err){
+      client.cashflow.emergencyFund = ef;
+      console.error('Wealth OS: safety net link not saved', err);
+      showToast('The safety net link did not save. Please try again.');
+    }
+    fillEfAccountSelect();
   }
   /* ISA allowance left (B5.2): shown on ISA accounts, stamped with the tax
      year when saved. A figure from an earlier tax year shows greyed with a
@@ -350,6 +372,7 @@ window.TEI = window.TEI || {};
     document.getElementById('advAcctInterestRateField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctRateTypeField').style.display = isCash ? 'flex' : 'none';
     document.getElementById('advAcctIsaAllowanceField').style.display = TEI.calc.ISA_TYPES.indexOf(type) >= 0 ? 'flex' : 'none';
+    document.getElementById('advAcctSafetyNetField').style.display = (type === 'cash' || type === 'cash_isa') ? '' : 'none';
     document.getElementById('advAcctJointField').style.display = client.meta.householdId ? 'flex' : 'none';
     toggleAdvAcctMaturityField();
   }
@@ -382,6 +405,7 @@ window.TEI = window.TEI || {};
     const isJoint = !!client.meta.householdId && document.getElementById('newAcctIsJoint').checked;
     const setAndForget = document.getElementById('newAcctSetAndForget').checked;
     const earmarked = document.getElementById('newAcctEarmarked').checked;
+    const safetyNet = (type === 'cash' || type === 'cash_isa') && document.getElementById('newAcctSafetyNet').checked;
     const key = currentMonthKey();
     const btn = document.getElementById('addAcctBtn');
     if(editing.account){
@@ -420,6 +444,7 @@ window.TEI = window.TEI || {};
       // source of truth rather than silently being overridden by a stale number.
       if(hasHoldings) TEI.calc.syncAccountValueFromHoldings(client, acc.id);
       else client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
+      await saveSafetyNetLink(acc.id, safetyNet);
       cancelAcctEdit();
       showToast('Account updated');
     } else {
@@ -442,6 +467,7 @@ window.TEI = window.TEI || {};
       // Seed this month's balance so the account shows up in net worth immediately,
       // rather than reading as £0 until someone visits "Log this month's balances".
       client.months[key] = Object.assign({}, client.months[key], {[acc.id]: value});
+      await saveSafetyNetLink(acc.id, safetyNet);
       ['newAcctBalance','newAcctContrib','newAcctContribPersonal','newAcctContribEmployer','newAcctProvider','newAcctOpeningContrib','newAcctCashBalance','newAcctInterestRate','newAcctMaturityDate'].forEach(id=>document.getElementById(id).value='');
       document.getElementById('newAcctRateType').value = 'variable';
       document.getElementById('newAcctIsJoint').checked = false;
@@ -2158,13 +2184,17 @@ window.TEI = window.TEI || {};
   function fillCashflowForm(){
     document.getElementById('cfFiMultiple').value = client.preferences.fiMultiple||25;
     document.getElementById('cfEfTarget').value = (client.cashflow.emergencyFund||{}).target||0;
-    const efAccountId = (client.cashflow.emergencyFund||{}).accountId || '';
+    fillEfAccountSelect();
+    document.getElementById('cfWcTarget').value = client.preferences.wealthConversionTarget||20;
+    renderCalculatedSavingStats();
+  }
+  // Also refilled when the account form's safety net switch changes the link,
+  // so Save here never writes back a stale choice.
+  function fillEfAccountSelect(){
     const efSelect = document.getElementById('cfEfAccount');
     efSelect.innerHTML = '<option value="">Select a cash account…</option>' +
       emergencyFundAccounts().map(a=>`<option value="${a.id}">${TEI.data.acctLabel(a)}</option>`).join('');
-    efSelect.value = efAccountId;
-    document.getElementById('cfWcTarget').value = client.preferences.wealthConversionTarget||20;
-    renderCalculatedSavingStats();
+    efSelect.value = (client.cashflow.emergencyFund||{}).accountId || '';
   }
   /* Monthly savings/investing, and now emergency fund "current", used to be
      typed here and compared against accounts via a separate "contribution
