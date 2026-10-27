@@ -383,7 +383,7 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
 .tc-group-h span { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 12px; background: var(--c-tile); border: 1px solid var(--c-line); color: var(--c-gold); }
 .tc-group-h svg { width: 20px; height: 20px; }
 .tc-group-h h3 { margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -0.015em; color: var(--c-ink); }
-.tc-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.tc-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
 .tc-cards > [hidden], .tc-group[hidden] { display: none; }
 .tc-pcard { background: var(--c-tile); border: 1px solid var(--c-line); border-radius: 24px; padding: 24px; transition: transform .25s ease, box-shadow .25s ease; }
 .tc-pcard:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(15, 30, 54, 0.10); }
@@ -402,6 +402,21 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
 .tc-chip.is-flag { background: var(--c-warn-tile); color: var(--c-warn); }
 .tc-chip.is-star { background: var(--c-champ-tile); color: var(--c-gold); }
 .tc-pcard > p { margin: 0 0 14px !important; font-size: 15px !important; line-height: 1.6 !important; font-weight: 400 !important; }
+/* Paired cards share a height, with "More detail" lined up along the bottom. */
+.tc-pcard { display: flex; flex-direction: column; }
+.tc-pcard > details { margin-top: auto; }
+/* A card alone in its group fills the row. On desktop the page script marks it
+   .is-wide and opens its detail: everything flows down two balanced columns,
+   so both columns end level and no block is split. */
+.tc-cards > .tc-pcard:only-child, .tc-cards > .tc-pcard.is-wide { grid-column: 1 / -1; }
+.tc-pcard.is-wide { display: block; column-count: 2; column-gap: 72px; column-rule: 1px solid var(--c-line-soft); }
+.tc-pcard.is-wide > :not(details), .tc-pcard.is-wide .tc-pcard-more dl, .tc-pcard.is-wide .tc-pcard-more ul { break-inside: avoid; }
+.tc-pcard.is-wide .tc-pcard-more h5 { break-after: avoid; }
+.tc-pcard.is-wide .tc-pcard-more ul.is-flow { break-inside: auto; }
+.tc-pcard.is-wide .tc-pcard-more ul.is-flow li { break-inside: avoid; }
+.tc-pcard.is-wide > details { margin: 0; }
+.tc-pcard.is-wide > details > summary { display: none; }
+.tc-pcard.is-wide .tc-pcard-more { margin-top: 0; animation: none; }
 .tc-pcard details > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--c-line); font-size: 14px; color: var(--c-ink); }
 .tc-pcard details > summary::-webkit-details-marker { display: none; }
 .tc-pcard details > summary::after { content: ''; width: 7px; height: 7px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .25s ease; }
