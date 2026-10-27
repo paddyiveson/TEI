@@ -72,6 +72,13 @@
   }
 
   // A round top for the money axis: at most six steps of 1, 2, 2.5 or 5 x 10^k.
+  // The axis holds still while the top line still fits it well (the wait alone
+  // never moves it), so the lines visibly rise and fall; it rescales only when
+  // the line outgrows it or shrinks below 40% of it.
+  function fitScale(top) {
+    if (shownScale && top * 1.02 <= shownScale.max && top >= shownScale.max * 0.4) return shownScale;
+    return scale(top);
+  }
   function scale(top) {
     var v = top * 1.08;
     for (var k = 0; k < 10; k++) {
@@ -88,6 +95,16 @@
     return v >= 1e6 ? '£' + trim(v / 1e6) + 'm' : v >= 1000 ? '£' + trim(v / 1000) + 'k' : '£' + Math.round(v);
   }
 
+  // Ages along the bottom: both ends, and round ages in between that do not crowd them.
+  function ageTicks(s) {
+    var every = s.retire - s.age > 35 ? 10 : 5, ages = [s.age];
+    for (var a = Math.ceil((s.age + 1) / every) * every; a < s.retire; a += every) {
+      if (a - s.age >= 3 && s.retire - a >= 3) ages.push(a);
+    }
+    ages.push(s.retire);
+    return ages;
+  }
+
   /* ---------- the chart ---------- */
   var shownScale = null;
   function drawAxes(s, sc) {
@@ -102,27 +119,30 @@
       out('yaxis').innerHTML = labels;
       shownScale = sc;
     }
-    // Ages along the bottom: both ends, and round ages in between that do not crowd them.
-    var span = s.retire - s.age, every = span > 35 ? 10 : 5, ages = [s.age];
-    for (var a = Math.ceil((s.age + 1) / every) * every; a < s.retire; a += every) {
-      if (a - s.age >= 3 && s.retire - a >= 3) ages.push(a);
-    }
-    ages.push(s.retire);
-    out('xaxis').innerHTML = ages.map(function (a) {
+    var span = s.retire - s.age;
+    out('xaxis').innerHTML = ageTicks(s).map(function (a) {
       return '<span style="--x:' + (Math.round((a - s.age) / span * 1000) / 10) + '%">' + a + '</span>';
     }).join('');
-    // Where the wait ends.
+    // Where the wait ends. Moved with transforms, so tool.css can glide it.
     var x = s.wait / span * 1000;
     var line = out('start-line'), mark = out('start-mark');
-    line.setAttribute('x1', Math.round(x)); line.setAttribute('x2', Math.round(x));
+    line.style.transform = 'translateX(' + Math.round(x) + 'px)';
     mark.style.setProperty('--x', (Math.round(x) / 10) + '%');
     mark.classList.toggle('is-flip', x > 700);
     mark.textContent = 'Wait ends, ' + (s.age + s.wait);
   }
 
   /* ---------- the page ---------- */
+  // Numbers count to their new value (motion.js); plain text without it.
+  function num(name, v) {
+    var el = out(name);
+    if (!el) return;
+    if (window.TeiMotion) window.TeiMotion.count(el, v);
+    else el.textContent = el.getAttribute('data-format') === 'gbp2' ? pence(v) : pounds(v);
+  }
+
   function render() {
-    var s = state, m = model(s), sc = scale(m.potNow);
+    var s = state, m = model(s), sc = fitScale(m.potNow);
     var start = s.age + s.wait, at = 'At ' + s.retire + ", in today's money";
 
     drawAxes(s, sc);
@@ -136,18 +156,18 @@
     set('end-wait-label', 'Start at ' + start);
     set('end-now-sub', at);
     set('end-wait-sub', at);
-    set('pot-now', pounds(m.potNow));
-    set('pot-wait', pounds(m.potWait));
-    set('gap', pounds(m.gap));
+    num('pot-now', m.potNow);
+    num('pot-wait', m.potWait);
+    num('gap', m.gap);
     set('gap-line', 'less at ' + s.retire + ", in today's money, from waiting " + years(s.wait) + ' to start ' + pounds(s.monthly) + ' a month.');
 
-    set('catch', pence(m.catchUp));
+    num('catch', m.catchUp);
     set('catch-sub', 'Paid on top of ' + pounds(s.monthly) + ' a month from ' + start + ' to ' + s.retire + ', to finish level with starting now.');
-    set('lump', pounds(m.lump));
+    num('lump', m.lump);
     set('lump-sub', 'Paid at ' + start + '. It is what the missed ' + (s.wait === 1 ? "year's" : "years'") + ' saving would have grown to by then.');
-    set('per-month', pounds(m.perMonth));
+    num('per-month', m.perMonth);
     set('per-month-sub', 'The difference at ' + s.retire + ', split across the ' + (12 * s.wait) + ' months of the wait.');
-    set('per-day', pence(m.perDay));
+    num('per-day', m.perDay);
     set('per-day-sub', 'The same difference, split across the ' + commas(String(365 * s.wait)) + ' days of the wait.');
     set('lump-in-label', 'A lump sum at ' + start + ' (optional)');
     set('lump-left', m.left == null ? 'Type an amount to see how much monthly catch-up it still leaves.'
@@ -158,7 +178,8 @@
       s.rate + '% a year with monthly compounding, before fees and tax.');
     out('pension-note').hidden = s.retire >= 57;
 
-    window.TeiCow = { state: s, result: m };   // read by the print summary and the checks
+    window.TeiCow = window.TeiCow || {};       // read by the checks
+    window.TeiCow.state = s; window.TeiCow.result = m;
   }
 
   /* ---------- inputs ----------
@@ -247,6 +268,93 @@
     }).catch(function () {});
   }
 
+  /* ---------- the gate ----------
+     /assets/lead-gate.js opens it; the results then count up from zero. */
+  var gate = document.getElementById('cow-gate');
+  if (gate) gate.addEventListener('tei:gate-open', function () {
+    if (!window.TeiMotion) return;
+    each(gate.querySelectorAll('[data-m="count-up"]'), function (el, i) {
+      window.TeiMotion.count(el, Number(el.getAttribute('data-to')), 0, 150 + i * 120, 900);
+    });
+  });
+
+  /* ---------- print summary ----------
+     A one-page sheet in the V2 style (print rules in /assets/tool.css): the
+     inputs, every result with its money label, a vector chart, the
+     assumptions and the not-advice line. Only when the results are open. */
+  var NAVY = '#0F1E36', GOLD = '#83661C', CHAMP = '#E8D6A8', MUTED = '#4E5B70', LINE = '#DEDAD0';
+  var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  function printChart(s, m) {
+    var W = 640, H = 248, L = 52, R = 552, T = 12, B = 212, sc = scale(m.potNow);
+    var x = function (i) { return L + i / (POINTS - 1) * (R - L); };
+    var y = function (v) { return B - Math.min(v, sc.max) / sc.max * (B - T); };
+    var path = function (series) { return series.map(function (v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1); }).join(''); };
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" font-family="Geist, system-ui, sans-serif" role="img" aria-label="Chart of both pots by age">';
+    for (var v = 0; v <= sc.max + 1e-6; v += sc.step) {
+      svg += '<line x1="' + L + '" x2="' + R + '" y1="' + y(v).toFixed(1) + '" y2="' + y(v).toFixed(1) + '" stroke="' + LINE + '" stroke-width="' + (v ? 0.6 : 1) + '"/>' +
+        '<text x="' + (L - 8) + '" y="' + (y(v) + 3).toFixed(1) + '" font-size="9" fill="' + MUTED + '" text-anchor="end">' + short(v) + '</text>';
+    }
+    ageTicks(s).forEach(function (a) {
+      svg += '<text x="' + (L + (a - s.age) / (s.retire - s.age) * (R - L)).toFixed(1) + '" y="' + (B + 16) + '" font-size="9" fill="' + MUTED + '" text-anchor="middle">' + a + '</text>';
+    });
+    svg += '<text x="' + R + '" y="' + (B + 30) + '" font-size="8.5" fill="' + MUTED + '" text-anchor="end">Age</text>';
+    var wx = L + s.wait / (s.retire - s.age) * (R - L);
+    svg += '<line x1="' + wx.toFixed(1) + '" x2="' + wx.toFixed(1) + '" y1="' + T + '" y2="' + B + '" stroke="' + GOLD + '" stroke-width="0.8" stroke-dasharray="3 3" opacity="0.6"/>';
+    svg += '<path d="' + path(m.now) + m.wait.slice().reverse().map(function (v, i) { return 'L' + x(POINTS - 1 - i).toFixed(1) + ' ' + y(v).toFixed(1); }).join('') + 'Z" fill="' + CHAMP + '" opacity="0.7"/>';
+    svg += '<path d="' + path(m.now) + '" fill="none" stroke="' + NAVY + '" stroke-width="2.4" stroke-linejoin="round"/>';
+    svg += '<path d="' + path(m.wait) + '" fill="none" stroke="' + GOLD + '" stroke-width="2" stroke-linejoin="round"/>';
+    // Both end values, kept apart when the lines finish close together.
+    var yn = y(m.potNow), yw = y(m.potWait);
+    if (yw - yn < 14) { var mid = (yn + yw) / 2; yn = mid - 7; yw = mid + 7; }
+    svg += '<circle cx="' + R + '" cy="' + y(m.potNow).toFixed(1) + '" r="3" fill="' + NAVY + '"/><circle cx="' + R + '" cy="' + y(m.potWait).toFixed(1) + '" r="3" fill="' + GOLD + '"/>' +
+      '<text x="' + (R + 8) + '" y="' + (yn + 3.5).toFixed(1) + '" font-size="11" font-weight="500" fill="' + NAVY + '">' + pounds(m.potNow) + '</text>' +
+      '<text x="' + (R + 8) + '" y="' + (yw + 3.5).toFixed(1) + '" font-size="11" font-weight="500" fill="' + GOLD + '">' + pounds(m.potWait) + '</text>';
+    return svg + '</svg>';
+  }
+
+  function summary() {
+    var s = state, m = model(s), start = s.age + s.wait, d = new Date();
+    var rate = fig.querySelector('[data-rate="' + s.rate + '"] span');
+    var today = '<span class="tl-tag is-today">In today\'s money</span>', atTime = '<span class="tl-tag">In pounds at the time</span>';
+    var tile = function (cls, label, value, text, tag) { return '<div' + (cls ? ' class="' + cls + '"' : '') + '><small>' + label + '</small><b>' + value + '</b><p>' + text + '</p>' + tag + '</div>'; };
+    var mark = '<svg width="22" height="22" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="' + GOLD + '" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="' + GOLD + '" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="' + GOLD + '"/></svg>';
+    var input = function (k, v) { return '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>'; };
+    return '<div class="tl-print-head">' + mark + '<b>The Everyday Investor</b><span>Cost of Waiting Calculator &middot; ' + d.getDate() + ' ' + MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear() + '</span></div>' +
+      '<h1>The cost of waiting: your summary</h1>' +
+      '<p class="tl-print-sub">Investing ' + pounds(s.monthly) + ' a month from ' + s.age + ', against starting after a wait of ' + years(s.wait) + '.</p>' +
+      '<dl class="tl-print-inputs">' + input('Monthly amount', pounds(s.monthly)) + input('Age now', s.age) + input('Retirement age', s.retire) +
+        input('Wait', years(s.wait)) + input('Growth a year', (rate ? rate.textContent + ', ' : '') + s.rate + '%') + '</dl>' +
+      '<div class="tl-print-chart"><div class="tl-print-key"><span><i style="background:' + NAVY + '"></i>Start now, at ' + s.age + '</span><span><i style="background:' + GOLD + '"></i>Start at ' + start + '</span><span>Pots in today\'s money</span></div>' + printChart(s, m) + '</div>' +
+      '<div class="tl-print-results">' +
+        tile('is-head', 'Start now, at ' + s.age, pounds(m.potNow), 'The pot at ' + s.retire + '.', today) +
+        tile('is-head', 'Start at ' + start, pounds(m.potWait), 'The pot at ' + s.retire + ' after the wait.', today) +
+        tile('is-head', 'Difference at ' + s.retire, pounds(m.gap), 'What waiting ' + years(s.wait) + ' leaves the pot short by.', today) +
+        tile('', 'Catch-up a month', pence(m.catchUp), 'On top of ' + pounds(s.monthly) + ' a month from ' + start + ' to ' + s.retire + ', to finish level.', atTime) +
+        tile('', 'Or one lump sum', pounds(m.lump), 'Paid at ' + start + ': the missed saving with its growth.' + (m.left != null ? ' With ' + pounds(s.lump) + ' at ' + start + ', the catch-up is ' + pence(m.left) + ' a month.' : ''), atTime) +
+        tile('', 'Each month and day waited', pounds(m.perMonth) + ' &middot; ' + pence(m.perDay), 'The difference split across the ' + 12 * s.wait + ' months, or ' + commas(String(365 * s.wait)) + ' days, of the wait.', today) +
+      '</div>' +
+      '<p class="tl-print-notes"><b>Assumptions.</b> ' + pounds(s.monthly) + ' a month, paid at the end of each month and kept level (it does not rise with inflation), growing at ' + s.rate +
+        '% a year with monthly compounding, before fees and tax. Pots and the difference are in today\'s money, using inflation of 2.5% a year; the catch-up and the lump sum are in pounds at the time they are paid.' +
+        (s.retire < 57 ? ' Pension money cannot usually be taken before 57 from 6 April 2028, so money for an earlier retirement would need to sit outside a pension, for example in an ISA.' : '') + '</p>' +
+      '<p class="tl-print-notes is-advice">Education, not personal financial advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. ' +
+        'Investments can fall as well as rise and you may get back less than you put in. Worked example figures are illustrations based on the stated assumptions, not forecasts. ' +
+        'www.theeverydayinvestor.uk/guides/cost-of-waiting.html</p>';
+  }
+
+  var sheet = document.getElementById('cow-print-sheet');
+  function preparePrint() {
+    if (!sheet || !gate || gate.getAttribute('data-gate') !== 'open') return false;
+    sheet.innerHTML = summary();
+    document.body.classList.add('tl-printing');
+    return true;
+  }
+  var printButton = document.getElementById('cow-print');
+  if (printButton) printButton.addEventListener('click', function () { if (preparePrint()) window.print(); });
+  window.addEventListener('beforeprint', preparePrint);
+  window.addEventListener('afterprint', function () { document.body.classList.remove('tl-printing'); });
+
   syncControls();
   render();
+  window.TeiCow.preparePrint = preparePrint;
 })();
