@@ -260,6 +260,8 @@
     }
     if (!st.base || box.clientWidth !== st.w) { if (!dotsLayout(box)) return; }
     dotsPaint(box);
+    // As line(): the scene may have played before this first call.
+    if (!st.shown && box.closest('.m-on')) box._play();
   }
 
   /* ---------- line-draw (A2; reused by the Cost of Waiting tool) ----------
@@ -329,7 +331,13 @@
     var ref = pts(o.ref, o.max), to = o.a ? pts(o.a, o.max) : null;
     var fromRef = chart._ref || ref, from = chart._a || ref;
     chart._ref = ref; chart._a = to;
-    if (calm || !chart._shown || from.length !== (to || ref).length || fromRef.length !== ref.length) { lineSet(chart, ref, to); return; }
+    if (calm || !chart._shown || from.length !== (to || ref).length || fromRef.length !== ref.length) {
+      lineSet(chart, ref, to);
+      // A page script that arrives after its scene has already played (a slow
+      // network, a figure in view on load) plays the entrance now.
+      if (!chart._shown && chart.closest('.m-on')) chart._play();
+      return;
+    }
     // Morph from the current lines to the new ones; "no line" morphs into the reference, then clears.
     var target = to || ref, t0 = null;
     var tween = function (a, b, e) { return a.map(function (q, i) { return [q[0], q[1] + (b[i][1] - q[1]) * e]; }); };
