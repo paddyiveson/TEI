@@ -355,9 +355,9 @@ TEI.render = TEI.render || {};
     wrap.dataset.wired = '1';
   }
 
-  /* No client-side refresh any more -- US holdings are repriced on a
-     schedule server-side (see usPricesAsOfText), so this page just reports
-     how fresh they are. */
+  /* US holdings are repriced on a schedule server-side (see
+     usPricesAsOfText); this line reports how fresh they are. The ad hoc
+     refresh button beside it is wired in 15-wealth-board.js. */
   function renderWealthPricesAsOf(client){
     const el = document.getElementById('whPricesStatus');
     if(el) el.textContent = TEI.calc.usPricesAsOfText(client);

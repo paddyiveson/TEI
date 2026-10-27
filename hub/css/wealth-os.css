@@ -1452,7 +1452,6 @@ html.fcv-open, html.fcv-open body{overflow:hidden;}
   #page-progress .dcard.emphasis > div:first-child > div:first-child{order:1;}
   #page-progress #timelineEmpty{order:2;}
   #page-progress .dcard.emphasis > div:first-child > div:last-child{order:3; flex-direction:row !important; flex-wrap:nowrap; width:100%; justify-content:space-between; align-items:center !important; gap:8px; margin-top:10px;}
-  #page-progress #whPricesStatus{order:4; margin:6px 0 0 !important;}
   #page-progress #whContribNote{order:5; font-size:11px; line-height:1.45; margin-top:8px !important;}
   #page-progress #whChips{order:6;}
   #page-progress #timelineMilestones{order:7;}
@@ -1891,6 +1890,18 @@ button.hm-cover:disabled{ cursor:default; }
 .wl-chart{ position:relative; height:240px; }
 .wl-note{ position:relative; font-size:12px; line-height:1.5; color:#AAB6C8; }
 .wl-note:empty{ display:none; }
+/* Ad hoc US price refresh beside the "US prices as of" line (hero and Update balances panel). */
+.wl-prices{ position:relative; display:flex; align-items:center; gap:10px; }
+.wl-prices .hm-note{ margin:0; }
+.wl-refresh{ flex:none; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; padding:0; border-radius:50%; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); cursor:pointer; }
+.wl-refresh[hidden]{ display:none; }
+.wl-refresh svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.wl-refresh:disabled{ cursor:progress; opacity:.75; }
+.wl-refresh:disabled svg{ animation:wl-spin 1s linear infinite; }
+.wl-hero .wl-refresh{ border-color:rgba(232,214,168,0.3); background:rgba(247,244,237,0.06); color:#F7F4ED; }
+@keyframes wl-spin{ to{ transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ .wl-refresh:disabled svg{ animation:none; } }
+@media (max-width:860px){ .wl-refresh{ width:44px; height:44px; } }
 .wl-hero .empty-state{ position:relative; color:#AAB6C8; }
 
 /* Composition: bar, then one row per category that opens to its accounts */
