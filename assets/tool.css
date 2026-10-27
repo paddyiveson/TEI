@@ -1,0 +1,152 @@
+/* TEI calculator parts (V2 refresh, REF-Calculator: Cost of Waiting, Oct 2026).
+   Shared by every calculator page. Load order: /style.css, mobile-nav.css,
+   compliance.css, article.css, content.css, motion.css, then this file.
+   Colours are the theme tokens from content.css (--c-*, --tc-*), so light and
+   dark both work. Nothing here defines tokens.
+
+   Parts
+     .tl-inputs     the input grid: .tl-field number boxes, .tl-steps row
+     .tl-choice     a row of option tiles (e.g. growth rates), aria-pressed
+     .tl-results    result tiles, each with a .tl-tag money label
+     .tl-gate       results behind the lead gate (/assets/lead-gate.js)
+     .tl-risk       the short risk line that sits under the results
+     .tl-advice     the not-advice line after "What this does not say"
+     .tl-next       the "Next steps" cards that end every tool page
+   The chart and the headline number reuse line-draw, .m-ends and .m-callout
+   from /assets/motion.css. */
+
+/* ---------- Inputs ---------- */
+.tl-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 16px; margin: 4px 0 18px; }
+.tl-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.tl-field > label, .tl-row-label { font-family: var(--tc-mono); font-size: 12px; line-height: 1.3; color: var(--c-muted); }
+.tl-num { display: flex; align-items: center; min-height: 48px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--c-line); background: var(--c-tile-2); transition: border-color .2s ease; }
+.tl-num:focus-within { border-color: var(--c-gold); }
+.tl-num span { flex: none; margin-right: 4px; font-size: 18px; color: var(--c-muted); }
+.tl-num input {
+  flex: 1 1 auto; min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; outline: none;
+  font-family: var(--tc-font); font-size: 20px; font-weight: 400; color: var(--c-ink); font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield; appearance: textfield;
+}
+.tl-num input::-webkit-outer-spin-button, .tl-num input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.tl-num input::placeholder { color: var(--c-muted); opacity: .6; }
+.tl-field small { font-family: var(--tc-mono); font-size: 11px; line-height: 1.4; color: var(--c-muted); }
+.tl-row { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; }
+.tl-row .ar-seg { margin-top: 0; align-self: flex-start; max-width: 100%; }
+.tl-row .ar-seg button:disabled { opacity: .35; cursor: not-allowed; }
+
+/* Option tiles: name over value, one pressed at a time */
+.tl-choice { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.tl-choice button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-height: 56px; padding: 9px 12px;
+  border-radius: 14px; border: 1px solid var(--c-line); background: transparent; color: var(--c-ink);
+  font-family: var(--tc-font); text-align: left; cursor: pointer; transition: background-color .2s ease, border-color .2s ease;
+}
+.tl-choice button span { font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.tl-choice button b { font-size: 18px; font-weight: 400; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.tl-choice button:hover { border-color: var(--c-gold); }
+.tl-choice button[aria-pressed="true"] { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-btn-ink); }
+.tl-choice button[aria-pressed="true"] span { color: var(--c-btn-ink); opacity: .8; }
+
+/* A label above the start of the "wait" line on a line-draw chart */
+.tl-mark { position: absolute; top: 0; left: var(--x); transform: translate(6px, -2px); padding: 1px 7px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 10.5px; line-height: 1.4; color: var(--c-muted); white-space: nowrap; }
+.tl-mark.is-flip { transform: translate(calc(-100% - 6px), -2px); }
+.m-chart .m-start { stroke: var(--c-warn); opacity: .55; }
+
+/* ---------- Results ---------- */
+.tl-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.tl-results > div { display: flex; flex-direction: column; padding: 14px 16px; border-radius: 16px; background: var(--c-tile-2); }
+.tl-results small { font-family: var(--tc-mono); font-size: 11px; line-height: 1.35; color: var(--c-muted); }
+.tl-results b { display: block; margin-top: 4px; font-size: 28px; line-height: 1.15; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.tl-results p { margin: 4px 0 10px !important; font-size: 13px !important; line-height: 1.45 !important; font-weight: 400 !important; color: var(--c-muted) !important; }
+.tl-tag { display: inline-flex; align-self: flex-start; margin-top: auto; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 10.5px; line-height: 1.4; color: var(--c-muted); white-space: nowrap; }
+.tl-tag.is-today { background: var(--c-powder); border-color: transparent; color: var(--c-ink); }
+
+/* Optional extra input inside the results (e.g. a lump sum) */
+.tl-extra { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 8px 16px; align-items: center; margin-top: 10px; padding: 14px 16px; border-radius: 16px; border: 1px dashed var(--c-line); }
+.tl-extra .tl-field > label { color: var(--c-ink); }
+.tl-extra p { margin: 0 !important; font-size: 14px !important; line-height: 1.5 !important; font-weight: 400 !important; color: var(--c-ink) !important; }
+.tl-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.tl-actions .tc-btn { min-height: 46px; font-size: 14px; }
+
+/* ---------- Lead gate ----------
+   <div class="tl-gate" data-gate="locked">
+     <div class="tl-gated">results</div>
+     <div class="tl-lock">contact form</div>
+   </div>
+   Both share one grid cell, so the box is as tall as the taller of the two.
+   lead-gate.js sets data-gate="open" (lead sent, or a member) and makes the
+   results inert while locked. */
+.tl-gate { position: relative; display: grid; margin-top: 16px; }
+.tl-gated, .tl-lock { grid-area: 1 / 1; min-width: 0; }
+.tl-gate[data-gate="locked"] .tl-gated { filter: blur(7px); opacity: .55; pointer-events: none; user-select: none; }
+.tl-gate[data-gate="open"] .tl-lock { display: none; }
+/* The blurred results are a layer of their own (opacity), so the card needs one above it. */
+.tl-lock { position: relative; z-index: 1; align-self: center; justify-self: center; width: min(100%, 420px); box-sizing: border-box; margin: 12px 0; padding: 22px 22px 18px; border-radius: 20px; background: var(--c-feature); color: var(--c-on-feature); box-shadow: 0 18px 48px rgba(11, 23, 41, 0.22); }
+.tl-lock h3 { margin: 0 0 6px; font-size: 19px; line-height: 1.3; font-weight: 400; color: var(--c-on-feature); }
+.tl-lock > p { margin: 0 0 14px !important; font-size: 14px !important; line-height: 1.5 !important; font-weight: 400 !important; color: var(--c-on-feature-muted) !important; }
+.tl-lock .ar-seg { margin: 0 0 12px; border-color: rgba(232, 214, 168, 0.25); }
+.tl-lock .ar-seg button { min-width: 0; color: var(--c-on-feature-muted); }
+.tl-lock .ar-seg button[aria-pressed="true"] { background: #E8D6A8; color: #0F1E36; }
+.tl-lock label { display: block; margin-bottom: 6px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-on-feature-muted); }
+.tl-lock input {
+  box-sizing: border-box; width: 100%; min-height: 48px; padding: 0 14px; margin-bottom: 10px; border-radius: 14px;
+  border: 1px solid rgba(232, 214, 168, 0.25); background: rgba(247, 244, 237, 0.06); color: var(--c-on-feature);
+  font-family: var(--tc-font); font-size: 16px; outline: none;
+}
+.tl-lock input:focus { border-color: #E8D6A8; }
+.tl-lock input[aria-invalid="true"] { border-color: #F0A97E; }
+.tl-lock input::placeholder { color: var(--c-on-feature-muted); opacity: .7; }
+.tl-lock .tc-btn { width: 100%; background: #E8D6A8; color: #0F1E36; border: 0; font-family: var(--tc-font); font-size: 15px; cursor: pointer; }
+.tl-lock-err { min-height: 0; margin: 0 0 8px !important; font-size: 13px !important; color: #F0A97E !important; }
+.tl-lock-err:empty { display: none; }
+.tl-lock small { display: block; margin-top: 10px; font-size: 12px; line-height: 1.5; color: var(--c-on-feature-muted); }
+.tl-lock small a { color: #E8D6A8; }
+.tl-open-note { display: none; margin: 0 0 10px !important; font-family: var(--tc-mono); font-size: 11px !important; color: var(--c-gold) !important; }
+.tl-gate[data-gate="open"][data-via="member"] .tl-open-note { display: block; }
+
+/* ---------- Lines around the result ---------- */
+.tl-risk { margin: 14px 0 0 !important; font-size: 13px !important; line-height: 1.5 !important; font-weight: 400 !important; color: var(--c-muted) !important; }
+.tl-advice { margin: 0 0 24px !important; padding: 0 2px; font-size: 14px !important; line-height: 1.6 !important; font-weight: 400 !important; color: var(--c-muted) !important; }
+
+/* ---------- Next steps (the ending of every tool page) ---------- */
+.tl-next { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+.tl-card { display: flex; flex-direction: column; gap: 10px; box-sizing: border-box; min-width: 0; padding: 24px; border-radius: 22px; background: var(--c-tile); border: 1px solid var(--c-line); color: var(--c-ink); }
+.tl-card > small { font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); }
+.tl-card h3 { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 400; color: var(--c-ink); }
+.tl-card p { margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: var(--c-muted); }
+.tl-card .tl-card-go { display: flex; flex-direction: column; gap: 8px; margin-top: auto; padding-top: 6px; }
+.tl-card .tc-btn { min-height: 46px; font-size: 14px; text-decoration: none; }
+.tl-card .tc-btn.is-line { color: var(--c-ink); }
+.tl-card-link { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-top: auto; font-size: 15px; font-weight: 500; color: var(--c-gold); text-decoration: none; }
+.tl-card-link svg { width: 18px; height: 18px; }
+a.tl-card { text-decoration: none; transition: transform .25s ease, box-shadow .25s ease; }
+a.tl-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.10); }
+a.tl-card .tl-card-time { margin-top: auto; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.tl-card-img { display: block; width: calc(100% + 48px); height: auto; aspect-ratio: 16 / 9; margin: -24px -24px 6px; border-radius: 22px 22px 0 0; border-bottom: 1px solid var(--c-line); object-fit: cover; object-position: left top; background: var(--c-tile-2); }
+
+@media (max-width: 960px) {
+  .tl-next { grid-template-columns: minmax(0, 1fr); }
+  .tl-card-img { aspect-ratio: 2 / 1; }
+}
+@media (max-width: 760px) {
+  .tl-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .tl-inputs .tl-field:first-child { grid-column: 1 / -1; }
+  .tl-num { min-height: 46px; padding: 0 12px; }
+  .tl-num input { font-size: 18px; }
+  .tl-choice { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tl-choice button { min-height: 50px; padding: 7px 10px; }
+  .tl-choice button b { font-size: 16px; }
+  .tl-results { gap: 8px; }
+  .tl-results > div { padding: 10px 12px; border-radius: 12px; }
+  .tl-results b { font-size: 22px; }
+  .tl-results p { font-size: 12px !important; margin-bottom: 8px !important; }
+  .tl-tag { max-width: 100%; box-sizing: border-box; padding: 2px 6px; font-size: 10px; white-space: normal; }
+  .tl-extra { grid-template-columns: minmax(0, 1fr); padding: 12px; border-radius: 12px; }
+  .tl-lock { padding: 18px 16px 14px; border-radius: 16px; }
+  .tl-card { padding: 20px; }
+  .tl-card-img { width: calc(100% + 40px); margin: -20px -20px 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tl-num, .tl-choice button, a.tl-card { transition: none; }
+  a.tl-card:hover { transform: none; }
+}
