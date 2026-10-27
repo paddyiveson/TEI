@@ -100,7 +100,7 @@ TEI.render = TEI.render || {};
     const spend = sn.monthlySpend;
     if(!sn.linked){
       setText('cfNetHead', 'No safety net account linked');
-      setText('cfNetSub', 'Choose which cash account holds your safety net in Settings.');
+      setText('cfNetSub', '');
     } else {
       setText('cfNetHead', sn.months != null ? sn.months.toFixed(1) + ' months covered' : 'Add your spending');
       setText('cfNetSub', money(sn.current) + ' cash · ' + money(spend) + ' a month of spending');
@@ -111,6 +111,7 @@ TEI.render = TEI.render || {};
     const st = defs.map(d=>{ const span = Math.max(0.0001, d[1]-prev), f = Math.max(0, Math.min(1, (months-prev)/span)); prev = d[1]; return {name:d[0], months:d[1], span, f, done: sn.linked && f >= 1}; });
     $('cfNetBar').innerHTML = st.map(s=> `<span style="flex:${s.span}"><i class="hm-grow${s.done ? ' done' : ''}" style="width:${(s.f*100).toFixed(0)}%"></i></span>`).join('');
     $('cfNetBar').setAttribute('aria-label', (sn.months != null ? sn.months.toFixed(1) : '0') + ' months of spending covered across three stages');
+    if(TEI.render.safetyLink) TEI.render.safetyLink(client, {box:'cfNetLink', msg:'cfNetLinkMsg', btn:'cfNetLinkBtn'});
     $('cfStages').innerHTML = st.map(s=> `<li class="${s.done ? 'done' : ''}"><span class="cf-tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><span><b>${s.name}</b> · ${s.months} ${s.months === 1 ? 'month' : 'months'}${s.done ? '<span class="gl-sr"> (done)</span>' : ''}</span><span class="mono">${spend > 0 ? money(spend*s.months) : '–'}</span></li>`).join('');
     let note;
     if(!sn.linked) note = 'Savings goals stay on Goals; this tile is the cash you keep for the unexpected.';
