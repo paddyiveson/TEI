@@ -4,11 +4,14 @@
 
    Markup patterns
      data-m="scene"          figure that plays once it is 30% on screen: its
-                             bars fill row by row, numbers count up, slices cut
+                             bars fill row by row, numbers count up, slices cut;
+                             data-m-start="<selector>" plays it when that part
+                             of it is 30% on screen instead (tall calculators)
      data-m="bar-fill"       an .m-bars group inside a scene (rows and segments
                              get their --r / --i order from here)
      data-m="count-up"       number element; data-to (value), data-format
-                             ("gbp" default, "usd", "int" or "pct"), data-suffix
+                             ("gbp" default, "gbp2" with pence, "usd", "int"
+                             or "pct"), data-suffix
      data-m="slice-cut"      bar segment that is cut away after its bar fills
      data-m="toggle-result"  figure whose page script calls TeiMotion.count,
                              TeiMotion.bar and TeiMotion.win as inputs change
@@ -33,7 +36,9 @@
      win(container, side)      mark [data-side=side] as .is-win; pulse on a flip
      dots(box, opts)           draw or update a dot-field
      line(chart, opts)         draw or update a line-draw chart
-     pounds(n), dollars(n)     "£12,345", "$12,345" */
+     redraw(chart)             play a drawn chart's entrance again
+     pounds(n), pence(n)       "£12,345", "£19.24"
+     dollars(n)                "$12,345" */
 (function () {
   'use strict';
 
@@ -41,10 +46,11 @@
   var each = function (sel, fn, root) { Array.prototype.forEach.call((root || document).querySelectorAll(sel), fn); };
 
   function pounds(n) { return '£' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+  function pence(n) { return '£' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function dollars(n) { return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function format(el, v) {
     var f = el.getAttribute('data-format') || 'gbp';
-    var text = f === 'int' ? String(Math.round(v)) : f === 'pct' ? (Math.round(v * 10) / 10) + '%' : f === 'usd' ? dollars(v) : pounds(v);
+    var text = f === 'int' ? String(Math.round(v)) : f === 'pct' ? (Math.round(v * 10) / 10) + '%' : f === 'usd' ? dollars(v) : f === 'gbp2' ? pence(v) : pounds(v);
     return text + (el.getAttribute('data-suffix') || '');
   }
 
@@ -65,7 +71,8 @@
       if (p < 1) el._raf = requestAnimationFrame(step);
     }
     var go = function () { el._raf = requestAnimationFrame(step); };
-    if (delay) setTimeout(go, delay); else go();
+    // A delayed count shows where it starts from while it waits, not its end value.
+    if (delay) { el.textContent = format(el, start); setTimeout(go, delay); } else go();
   }
 
   /* ---------- bar-fill helpers ---------- */
@@ -93,6 +100,7 @@
 
   /* ---------- scenes ---------- */
   function play(scene) {
+    if (scene.classList.contains('m-on')) return;   // once only
     scene.classList.add('m-on');
     each('[data-m="count-up"]', function (el) {
       var row = el.closest('.m-row');
@@ -114,18 +122,37 @@
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
         if (en.target.getAttribute('data-m') === 'pair-link') en.target.classList.add('m-on');
-        else play(en.target);
+        else play(en.target._scene || en.target);
         io.unobserve(en.target);
       });
     }, { threshold: 0.3 });
+    // A scene with a start point also plays once the reader is below that
+    // point without it ever being 30% on screen (a jump down the page).
+    var waiting = [], ticking = false;
+    function catchUp() {
+      ticking = false;
+      waiting = waiting.filter(function (s) {
+        if (s.classList.contains('m-on')) return false;
+        if (s._start.getBoundingClientRect().top < 0) { play(s); return false; }
+        return true;
+      });
+      if (!waiting.length) window.removeEventListener('scroll', onScroll);
+    }
+    function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(catchUp); } }
     Array.prototype.forEach.call(scenes, function (s) {
-      // A scene already past on load (deep link, refresh) shows its end state.
-      if (s.getBoundingClientRect().bottom < 0) return;
+      // A tall scene (a calculator: inputs above the chart) can wait for one
+      // part of it instead: data-m-start="<selector inside the scene>".
+      var from = s.getAttribute('data-m-start'), t = (from && s.querySelector(from)) || s;
+      // A scene (or its start point) already past on load (deep link, refresh) shows its end state.
+      if (s.getBoundingClientRect().bottom < 0 || t.getBoundingClientRect().bottom < 0) return;
       s.classList.add('m-armed');
       // Canvas and SVG patterns wait for the scene to play.
       each('[data-m="line-draw"], [data-m="dot-field"]', function (el) { el._armed = true; }, s);
-      io.observe(s);
+      t._scene = s;
+      io.observe(t);
+      if (t !== s) { s._start = t; waiting.push(s); }
     });
+    if (waiting.length) window.addEventListener('scroll', onScroll, { passive: true });
     // pair-link strips play on their own, as each one reaches the screen.
     each('[data-m="pair-link"]', function (strip) {
       if (strip.getBoundingClientRect().bottom < 0) return;
@@ -243,7 +270,9 @@
      Motion: inside an armed scene the chart starts empty; when the scene
      plays the reference line draws left to right, then the compared line and
      its gap follow. After that, a new series morphs from the old one (650ms),
-     so the line visibly drops or rises. Reduced motion: drawn at once. */
+     so the line visibly drops or rises; the reference morphs too when it
+     changes (a calculator's inputs move both lines, and a new max rescales
+     them). Reduced motion: drawn at once. */
   var VW = 1000, VH = 400, SVGNS = 'http://www.w3.org/2000/svg', clipN = 0;
   function pts(series, max) {
     var last = series.length - 1, out = [];
@@ -298,21 +327,30 @@
       };
     }
     var ref = pts(o.ref, o.max), to = o.a ? pts(o.a, o.max) : null;
-    var from = chart._a || ref;
-    chart._a = to;
-    if (calm || !chart._shown || from.length !== (to || ref).length) { lineSet(chart, ref, to); return; }
-    // Morph from the current line to the new one; "no line" morphs into the reference, then clears.
+    var fromRef = chart._ref || ref, from = chart._a || ref;
+    chart._ref = ref; chart._a = to;
+    if (calm || !chart._shown || from.length !== (to || ref).length || fromRef.length !== ref.length) { lineSet(chart, ref, to); return; }
+    // Morph from the current lines to the new ones; "no line" morphs into the reference, then clears.
     var target = to || ref, t0 = null;
+    var tween = function (a, b, e) { return a.map(function (q, i) { return [q[0], q[1] + (b[i][1] - q[1]) * e]; }); };
     cancelAnimationFrame(chart._raf);
     chart._raf = requestAnimationFrame(function step(t) {
       if (t0 == null) t0 = t;
       var p = Math.min(1, (t - t0) / 650), e = ease(p);
-      var mid = from.map(function (q, i) { return [q[0], q[1] + (target[i][1] - q[1]) * e]; });
-      lineSet(chart, ref, p < 1 || to ? mid : null);
+      var mid = tween(from, target, e);
+      lineSet(chart, tween(fromRef, ref, e), p < 1 || to ? mid : null);
       if (p < 1) chart._raf = requestAnimationFrame(step);
     });
   }
 
-  window.TeiMotion = { calm: calm, count: count, bar: bar, win: win, pounds: pounds, dollars: dollars, dots: dots, line: line };
+  // Play a line-draw chart's entrance again, e.g. once a lead gate over it opens.
+  function redraw(chart) {
+    if (calm || !chart || !chart._clips || !chart._shown) return;
+    chart._clips.ref.setAttribute('width', 0); chart._clips.a.setAttribute('width', 0);
+    chart._shown = false;
+    chart._play();
+  }
+
+  window.TeiMotion = { calm: calm, redraw: redraw, count: count, bar: bar, win: win, pounds: pounds, pence: pence, dollars: dollars, dots: dots, line: line };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

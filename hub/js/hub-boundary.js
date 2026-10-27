@@ -48,8 +48,7 @@
     "/hub/guides/portfolio",
     "/hub/guides/taxscenario",
     "/hub/guides/property",
-    "/hub/guides/portfolio-optimisation-lab",
-    "/hub/guides/costofwaiting"
+    "/hub/guides/portfolio-optimisation-lab"
   ];
 
   function linkHtml(style) {
