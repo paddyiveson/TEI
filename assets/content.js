@@ -216,7 +216,25 @@
     else C.register(drawIn);
   }
 
-  function run() { hubShell(); contents(); groups(); reveal(); charts(); chartSkin(); closingPairs(); }
+  // Phones: a figure caption longer than three lines shows its first sentence, and a link
+  // opens the rest: "How this was calculated" for a data caption, otherwise "Read more".
+  // The full caption stays in the markup, so it reads in full with JS off and on desktop.
+  function captions() {
+    if (!window.matchMedia || !window.matchMedia('(max-width: 760px)').matches) return;
+    Array.prototype.forEach.call(document.querySelectorAll('body.tc-page .visual-caption'), function (cap) {
+      var lh = parseFloat(getComputedStyle(cap).lineHeight) || 17;
+      if (cap.getBoundingClientRect().height <= lh * 3.2) return;
+      var html = cap.innerHTML, m = html.match(/^([\s\S]*?[.:])\s([\s\S]*)$/);
+      if (!m) return;
+      var data = /Investing\.com|Journal|[Cc]alculated|[Dd]iscounted|[Ii]llustrat/.test(html);
+      cap.classList.add('tc-cap');
+      cap.innerHTML = '<span class="tc-cap-lead">' + m[1] + '</span><span class="tc-cap-full">' + html + '</span>' +
+        '<button type="button" class="tc-cap-btn" aria-expanded="false">' + (data ? 'How this was calculated' : 'Read more') + '</button>';
+      cap.querySelector('.tc-cap-btn').addEventListener('click', function () { cap.classList.add('is-open'); this.setAttribute('aria-expanded', 'true'); });
+    });
+  }
+
+  function run() { hubShell(); contents(); groups(); reveal(); charts(); chartSkin(); closingPairs(); captions(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
   window.addEventListener('load', chartSkin);
 
