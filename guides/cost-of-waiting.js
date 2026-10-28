@@ -132,6 +132,17 @@
     mark.textContent = 'Wait ends, ' + (s.age + s.wait);
   }
 
+  // The end value of each line pinned at the right-hand edge (.is-bold chart):
+  // starting now is always the higher line, so its label sits above its dot.
+  function drawPins(m, sc) {
+    var box = out('pins');
+    if (!box) return;
+    var a = m.now[m.now.length - 1], b = m.wait[m.wait.length - 1];
+    var y = function (v) { return (Math.round((100 - v / sc.max * 100) * 10) / 10) + '%'; };
+    box.innerHTML = '<i class="m-pin is-ref" style="--y:' + y(a) + '"></i><span class="m-pin-v is-up" style="--y:' + y(a) + '">' + pounds(a) + '</span>' +
+      '<i class="m-pin is-a" style="--y:' + y(b) + '"></i><span class="m-pin-v is-down" style="--y:' + y(b) + '">' + pounds(b) + '</span>';
+  }
+
   /* ---------- the page ---------- */
   // Numbers count to their new value (motion.js); plain text without it.
   function num(name, v) {
@@ -147,6 +158,7 @@
 
     drawAxes(s, sc);
     if (window.TeiMotion && chart) window.TeiMotion.line(chart, { max: sc.max, ref: m.now, a: m.wait });
+    drawPins(m, sc);
     chart.setAttribute('aria-label', 'Line chart from age ' + s.age + ' to ' + s.retire + ", in today's money. Starting now at " + s.age +
       ' with ' + pounds(s.monthly) + ' a month grows to ' + pounds(m.potNow) + '. Starting at ' + start + ' grows to ' + pounds(m.potWait) + '.');
 

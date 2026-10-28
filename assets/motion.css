@@ -211,6 +211,28 @@
 .m-chart.is-growth .m-gap { fill: var(--c-grow); opacity: .14; }
 :root[data-theme="dark"] .m-chart.is-growth .m-gap { opacity: .16; }
 .m-i-grow { background: var(--c-grow); }
+/* A steady worked example drawn with more weight (.is-bold, Paddy 28 Oct):
+   thicker lines, a stronger shaded gap, a taller chart, and the end value of
+   each line pinned at the right-hand edge. The higher pin's label sits above
+   its dot and the lower one's below, so the two never overlap.
+   <div class="m-pins" aria-hidden="true">
+     <i class="m-pin is-grow" style="--y:4%"></i><span class="m-pin-v is-up" style="--y:4%">£11,519</span>
+     <i class="m-pin is-ref" style="--y:16.7%"></i><span class="m-pin-v is-down" style="--y:16.7%">£10,000</span>
+   </div>   (--y in % from the top, as for the axis labels) */
+.m-chart.is-bold { height: 380px; }
+.m-chart.is-bold .m-ref, .m-chart.is-bold .m-line-a { stroke-width: 3; }
+.m-chart.is-bold .m-gap, :root[data-theme="dark"] .m-chart.is-bold .m-gap { opacity: .3; }
+.m-pins { position: absolute; inset: 0; pointer-events: none; }
+.m-pin { position: absolute; left: 100%; top: var(--y); width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; box-shadow: 0 0 0 3px var(--c-tile); }
+.m-pin.is-ref { background: var(--c-s1); }
+.m-pin.is-grow { background: var(--c-grow); }
+.m-pin.is-a { background: var(--c-warn); }
+.m-pin-v { position: absolute; right: 14px; top: var(--y); transform: translateY(-50%); padding: 2px 8px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 11px; line-height: 1.4; color: var(--c-ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.m-pin-v.is-up { transform: translateY(calc(-100% - 2px)); }
+.m-pin-v.is-down { transform: translateY(2px); }
+.m-armed .m-pins { opacity: 0; }
+.m-armed.m-on .m-pins { opacity: 1; transition: opacity .4s ease 2.6s; }
+@media (prefers-reduced-motion: reduce) { .m-armed .m-pins { opacity: 1 !important; transition: none !important; } }
 
 /* ---------- pair-link ----------
    A strip of daily moves for one stretch of dates. Bars go up for gains and
@@ -305,6 +327,8 @@
   body.tc-page .m-line { margin-top: 8px !important; padding: 10px 12px; border-radius: 12px; font-size: 13px !important; }
   body.tc-page .m-chart { margin: 4px 0 26px 36px; }
   body.tc-page .m-chart:not(.m-lane) { height: 180px; }
+  body.tc-page .m-chart.is-bold { height: 220px; }
+  body.tc-page .m-pin-v { font-size: 10px; padding: 1px 6px; }
   body.tc-page .m-yaxis span, body.tc-page .m-xaxis span { font-size: 10px; }
   body.tc-page .m-strip-h { margin: 10px 0 0; font-size: 13px; }
   body.tc-page .m-strip { height: 110px; margin-bottom: 24px; }
@@ -383,6 +407,7 @@
   .ar-v .visual-block[data-m="scene"] .m-chart.m-lane { height: 28px; margin-bottom: 8px; }
   /* A line chart with axes in the wide layout: the same idea, its figure is about 550px around it. */
   .ar-v .visual-block[data-m="scene"] .m-chart:not(.is-bare) { height: clamp(220px, calc(100vh - 644px), 320px); }
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-bold { height: clamp(280px, calc(100vh - 560px), 380px); }
 }
 
 /* Motion: each dot pops as the line wipes past it; the note and the lanes'
