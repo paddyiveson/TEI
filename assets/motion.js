@@ -201,7 +201,7 @@
   function dotsLayout(box) {
     var st = box._dots, cv = box.querySelector('canvas'), w = box.clientWidth;
     if (!w) return false;
-    var pitch = w < 560 ? 4.6 : 7;
+    var pitch = w < 560 ? 4 : 7;
     var cols = Math.max(20, Math.floor(w / pitch));
     pitch = w / cols;
     var h = Math.ceil(Math.ceil(st.opts.n / cols) * pitch);
