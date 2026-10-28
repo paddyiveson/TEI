@@ -40,10 +40,11 @@
 .m-s4 { background: var(--c-s4); }      /* employer money */
 .m-tax { background: var(--c-warn); }   /* tax or charges taken away */
 .m-free { background: var(--c-s2); }    /* tax-free part */
-.tc-key i.m-s1, .tc-key i.m-s2, .tc-key i.m-s3, .tc-key i.m-s4, .tc-key i.m-tax, .tc-key i.m-free { height: 10px; width: 10px; border-radius: 3px; }
+.m-grow { background: var(--c-s3); }    /* growth: money the pot earned on its own */
+.tc-key i.m-s1, .tc-key i.m-s2, .tc-key i.m-s3, .tc-key i.m-s4, .tc-key i.m-tax, .tc-key i.m-free, .tc-key i.m-grow { height: 10px; width: 10px; border-radius: 3px; }
 
 /* A big comparison number under a set of bars */
-.m-callout { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; margin-top: 20px; padding: 18px 22px; border-radius: 18px; background: var(--c-champ-tile); }
+.m-callout { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 20px; padding: 18px 22px; border-radius: 18px; background: var(--c-champ-tile); }
 .m-callout b { font-size: 40px; line-height: 1; font-weight: 300; letter-spacing: -0.03em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
 .m-callout span { flex: 1 1 220px; font-size: 14px; line-height: 1.5; color: var(--c-ink); }
 
@@ -195,6 +196,8 @@
 .m-yaxis span { right: calc(100% + 8px); top: var(--y); transform: translateY(-50%); }
 .m-xaxis span { top: calc(100% + 10px); left: var(--x); transform: translateX(-50%); }
 .m-ends { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.m-verdict + .m-verdict { margin-top: 10px; }
+.m-bars + .m-ends { margin-top: 18px; }
 .m-ends > div { padding: 14px 16px; border-radius: 16px; background: var(--c-tile-2); }
 .m-ends small { display: flex; align-items: center; gap: 8px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
 .m-ends small i { flex: none; width: 16px; height: 3px; border-radius: 2px; }
@@ -202,6 +205,11 @@
 .m-ends p { margin: 4px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; color: var(--c-muted) !important; }
 .m-i-ref { background: var(--c-s1); }
 .m-i-a { background: var(--c-warn); }
+/* A line that grows above the money put in (a pot and what was paid into it):
+   .is-growth draws it and the gap between them in the growth colour, not as a loss. */
+.m-chart.is-growth .m-line-a { stroke: var(--c-s3); }
+.m-chart.is-growth .m-gap { fill: var(--c-s3); opacity: .16; }
+.m-i-grow { background: var(--c-s3); }
 
 /* ---------- pair-link ----------
    A strip of daily moves for one stretch of dates. Bars go up for gains and
