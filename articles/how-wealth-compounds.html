@@ -13,7 +13,10 @@
 <link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
 <link rel="stylesheet" href="/assets/article.css">
+<!-- This article's figures use the shared patterns in /assets/motion.css
+     (line-draw, bar-fill, count-up) and the members box in /assets/content.css; it has no styles of its own. -->
 <link rel="stylesheet" href="/assets/content.css">
+<link rel="stylesheet" href="/assets/motion.css">
 </head>
 <body class="tc-page">
 
@@ -35,54 +38,102 @@
   </div>
 </div>
 
-<main class="tei-article" data-slug="how-wealth-compounds">
+<main class="tei-article ar-wide" data-slug="how-wealth-compounds">
 <section class="ar-hero">
   <div class="ar-hero-ring" aria-hidden="true"></div>
   <div class="ar-hero-in">
     <a class="ar-back" href="/articles.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>All articles</a>
-    <!-- Category, date, read time and series are filled from /articles.json by /assets/article.js -->
-    <p class="ar-meta"></p>
+    <!-- Category, date, read time and series: written here so they read with JS off, refreshed from /articles.json by /assets/article.js -->
+    <p class="ar-meta"><span class="ar-cat">Basics</span><span>28 Oct 2026 &middot; 3 min read</span></p>
     <h1>How wealth actually compounds</h1>
-    <p class="ar-dek">Compounding works like a snowball rolling down a hill: the bigger it gets, the faster it grows. That single fact is why the same rate of return turns into a curve instead of a straight line, and why money invested five years earlier ends up worth far more than five extra years of saving would suggest.</p>
+    <p class="ar-dek">Compounding works like a snowball rolling down a hill: the bigger it gets, the faster it grows. That is why the same rate of return turns into a curve instead of a straight line, and why money invested five years earlier ends up worth far more than five extra years of saving would suggest.</p>
   </div>
 </section>
 
 <article class="article-body">
 
-
-    <p>Compounding works like a snowball rolling down a hill. The bigger it gets, the more snow it picks up with each turn, so it grows faster and faster without doing anything differently. Money does the same thing: growth on top of growth, again and again. Your pot is the snowball: everything you have invested so far, plus everything it has already earned.</p>
+    <!-- Figures: GBP 200 a month, 7% a year as a true yearly rate (monthly growth 1.07^(1/12) - 1), payments at each month end, before fees. Worked out by script 28 Oct 2026 (docs/PLAN_V2_Batch1_Signoff1.md). The default example is written into the page; /articles/how-wealth-compounds.js redraws it as the sliders move. -->
+    <section class="ar-split">
+      <div class="ar-t">
+    <p>Compounding works like a snowball rolling down a hill. The bigger it gets, the more snow it picks up with each turn, so it grows faster and faster without doing anything differently. Money does the same thing: growth on top of growth, again and again. The pot is the snowball: everything invested so far, plus everything it has already earned.</p>
 
     <p>Every year, the pot is a little bigger, so the same rate of growth adds a bigger number than the year before. Nothing else is happening. There is no trick, and no special skill involved.</p>
 
-    <figure class="visual-block" id="fig-curve" data-fig="curve">
-      <div class="visual-title">The same <span data-o="rate">7%</span>, every single year</div>
-      <div class="visual-sub" data-o="sub">&pound;200 invested every month, growing at a steady 7% a year</div>
+    <p>Take &pound;200 a month at 7% a year. Over 40 years that puts in &pound;96,000, and the pot ends at about &pound;494,000: around four fifths of it is money the pot earned on its own. The sliders change the amount, the rate and the time, and the shape stays the same: a slow start, then a curve that keeps steepening.</p>
+        <div class="ar-notes">
+      <div class="m-callout"><b data-m="count-up" data-o="pot" data-to="494308" data-delay="1100" data-dur="1500">&pound;494,308</b><span>in the pot after <span data-o="years">40</span> years.</span></div>
+      <div class="visual-caption">A hypothetical example, not a real result: <span data-o="monthly">&pound;200</span> paid in at the end of each month, growing at a steady <span data-o="rate">7%</span> a year compounded monthly, before tax, fees and charges, which would make the real number smaller. Not a forecast, and not based on any real product.</div>
+        </div>
+    <a class="tc-inline-link" href="/guides/cost-of-waiting.html"><span><small>Tool</small><b>Cost of Waiting Calculator</b><br><span class="tc-link-sub">What delaying by one year, or five, does to a pot by retirement.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="ar-v ar-stick">
+    <figure class="visual-block" id="fig-curve" data-m="scene" data-m-start=".m-chart">
+      <span class="m-scene-no">The curve</span>
+      <div class="visual-title">The same <span data-o="rate">7%</span>, every year</div>
+      <div class="visual-sub" data-o="sub">&pound;200 invested every month, growing at 7% a year.</div>
       <div class="tc-controls">
         <div class="tc-field"><label for="cMonthly">Each month <output data-o="monthly">&pound;200</output></label><input id="cMonthly" type="range" min="25" max="1000" step="25" value="200"></div>
         <div class="tc-field"><label for="cRate">Growth a year <output data-o="rate">7%</output></label><input id="cRate" type="range" min="2" max="10" step="0.5" value="7"></div>
         <div class="tc-field"><label for="cYears">Years <output data-o="years">40</output></label><input id="cYears" type="range" min="10" max="50" step="1" value="40"></div>
       </div>
-      <div class="tc-chart" data-chart="curve"><svg viewBox="0 0 680 300" role="img" aria-label="Line chart of the pot growing with growth on growth, against the money put in"></svg></div>
-      <div class="tc-stats">
-        <div><small>You put in</small><b data-o="paid">&pound;96,000</b></div>
-        <div><small>Growth added</small><b data-o="growth">&pound;429,000</b></div>
-        <div><small>Pot after <span data-o="years">40</span> years</small><b data-o="pot">&pound;525,000</b></div>
+      <div class="tc-key"><span><i class="m-i-ref"></i>Money put in</span><span><i class="m-i-grow"></i>The pot</span><span><i class="m-grow"></i>Growth on growth</span></div>
+      <div class="m-chart is-growth" data-m="line-draw" role="img" aria-label="Line chart: £200 a month at 7% a year grows to £494,308 after 40 years, from £96,000 put in.">
+          <svg viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true" focusable="false"><g class="m-grid"><line x1="0" x2="1000" y1="400" y2="400" class="m-base"/><line x1="0" x2="1000" y1="267" y2="267"/><line x1="0" x2="1000" y1="133" y2="133"/><line x1="0" x2="1000" y1="0" y2="0"/></g><path class="m-gap" d="M0 400L20 399L40 397L60 396L80 395L100 394L120 392L140 391L160 390L180 388L200 387L220 386L240 385L260 383L280 382L300 381L320 380L340 378L360 377L380 376L400 374L420 373L440 372L460 371L480 369L500 368L520 367L540 365L560 364L580 363L600 362L620 360L640 359L660 358L680 356L700 355L720 354L740 353L760 351L780 350L800 349L820 348L840 346L860 345L880 344L900 342L920 341L940 340L960 339L980 337L1000 336L1000 70L980 89L960 107L940 123L920 139L900 154L880 168L860 182L840 195L820 207L800 218L780 229L760 239L740 249L720 258L700 267L680 275L660 283L640 290L620 297L600 304L580 310L560 316L540 322L520 327L500 332L480 337L460 342L440 346L420 350L400 354L380 358L360 361L340 364L320 368L300 370L280 373L260 376L240 378L220 381L200 383L180 385L160 387L140 389L120 391L100 393L80 394L60 396L40 397L20 399L0 400Z"/><path class="m-ref" d="M0 400L20 399L40 397L60 396L80 395L100 394L120 392L140 391L160 390L180 388L200 387L220 386L240 385L260 383L280 382L300 381L320 380L340 378L360 377L380 376L400 374L420 373L440 372L460 371L480 369L500 368L520 367L540 365L560 364L580 363L600 362L620 360L640 359L660 358L680 356L700 355L720 354L740 353L760 351L780 350L800 349L820 348L840 346L860 345L880 344L900 342L920 341L940 340L960 339L980 337L1000 336"/><path class="m-line-a" d="M0 400L20 399L40 397L60 396L80 394L100 393L120 391L140 389L160 387L180 385L200 383L220 381L240 378L260 376L280 373L300 370L320 368L340 364L360 361L380 358L400 354L420 350L440 346L460 342L480 337L500 332L520 327L540 322L560 316L580 310L600 304L620 297L640 290L660 283L680 275L700 267L720 258L740 249L760 239L780 229L800 218L820 207L840 195L860 182L880 168L900 154L920 139L940 123L960 107L980 89L1000 70"/></svg>
+          <div class="m-yaxis" aria-hidden="true"><span style="--y:100.0%">&pound;0</span><span style="--y:66.7%">&pound;200k</span><span style="--y:33.3%">&pound;400k</span><span style="--y:0.0%">&pound;600k</span></div>
+          <div class="m-xaxis" aria-hidden="true"><span style="--x:0%">Year 0</span><span style="--x:50%">20</span><span style="--x:96%">40</span></div>
+        </div>
+      <div class="m-ends" aria-live="polite">
+        <div><small><i class="m-i-ref"></i>Put in</small><b data-m="count-up" data-o="paid" data-to="96000" data-delay="150" data-dur="1500">&pound;96,000</b><p>over <span data-o="years">40</span> years</p></div>
+        <div><small><i class="m-i-grow"></i>Growth added</small><b data-m="count-up" data-o="growth" data-to="398308" data-delay="1100" data-dur="1500">&pound;398,308</b><p>growth on growth</p></div>
       </div>
-      <div class="visual-caption">This is a hypothetical example, not a real result. It assumes <span data-o="monthly">&pound;200</span> invested every month, growing at a steady <span data-o="rate">7%</span> a year, before tax, fees and charges, which would make the real number smaller. It is not a forecast, and it is not based on any real product.</div>
     </figure>
+      </div>
+    </section>
 
-    <a class="tc-inline-link" href="/guides/cost-of-waiting.html"><span><small>Tool</small><b>Cost of Waiting Calculator</b><br><span style="font-size:14px;color:var(--c-muted)">See what delaying by one year, or five, costs you by retirement.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+    <section class="ar-split">
+      <div class="ar-t">
+    <p>Because each year's growth joins the pot, money invested early gets more years of growth on growth than money invested later, like a snowball let loose sooner down the same hill. The gap this creates has little to do with how much was put in. It is about how many extra years that money had to keep growing.</p>
 
-    <p>Because each year's growth joins the pot, money invested early gets more years of growth on growth than money invested later, like a snowball let loose sooner down the same hill. The gap this creates has nothing to do with how much was put in. It is entirely about how many extra years that money had to keep growing.</p>
+    <p>Waiting five years to start is not five years of missed saving. It is five years of missed growth on growth. In this example, starting at 30 instead of 25 puts in &pound;12,000 less by 65, and leaves the pot about &pound;152,000 smaller.</p>
 
-    <figure class="visual-block" id="fig-start" data-fig="start">
-      <div class="visual-title">Same <span data-o="monthly">&pound;200</span> a month. Same <span data-o="rate">7%</span> return. Different start date.</div>
-      <div class="visual-sub">How much you would have at 65, depending on when you started</div>
-      <div class="tc-chart" data-chart="start"><svg viewBox="0 0 680 290" role="img" aria-label="Bar chart of the pot at 65 for a start at 25, 30, 35 and 40"></svg></div>
-      <div class="visual-caption">This is a hypothetical example. It assumes you retire at 65, save the same <span data-o="monthly">&pound;200</span> a month the whole time, and get a steady <span data-o="rate">7%</span> a year. Waiting five years to start is not five years of missed saving. It is five years of missed growth on growth, and that adds up to a lot more money. The amount and rate follow the figure above.</div>
+    <blockquote class="ar-epigraph">The first rule of compounding: never interrupt it unnecessarily.<cite>Charlie Munger</cite></blockquote>
+        <div class="ar-notes">
+      <div class="m-callout"><b data-m="count-up" data-o="start-gap" data-to="152026">&pound;152,026</b><span>less at 65 from starting at 30 instead of 25.</span></div>
+      <div class="visual-caption">A hypothetical example: retiring at 65, the same <span data-o="monthly">&pound;200</span> at the end of each month the whole time, and a steady <span data-o="rate">7%</span> a year compounded monthly, before tax, fees and charges. The amount and rate follow the figure above.</div>
+        </div>
+      </div>
+      <div class="ar-v ar-stick">
+    <figure class="visual-block" id="fig-start" data-m="scene">
+      <span class="m-scene-no">The start date</span>
+      <div class="visual-title">Same <span data-o="monthly">&pound;200</span> a month, same <span data-o="rate">7%</span>, different start date</div>
+      <div class="visual-sub">The pot at 65, depending on the age saving started.</div>
+      <div class="tc-key"><span><i class="m-s1"></i>Money put in</span><span><i class="m-grow"></i>Money the pot earned</span></div>
+      <div class="m-bars" data-m="bar-fill" style="--max:494308">
+        <div class="m-row">
+          <span class="m-k">Start at 25<small>&pound;96,000 put in</small></span>
+          <div class="m-bar" role="img" aria-label="Start at 25: £96,000 put in, £494,308 at 65"><i class="m-s1" style="--v:96000"></i><i class="m-grow" style="--v:398308"></i></div>
+          <b class="m-v" data-m="count-up" data-to="494308">&pound;494,308</b>
+        </div>
+        <div class="m-row">
+          <span class="m-k">Start at 30<small>&pound;84,000 put in</small></span>
+          <div class="m-bar" role="img" aria-label="Start at 30: £84,000 put in, £342,283 at 65"><i class="m-s1" style="--v:84000"></i><i class="m-grow" style="--v:258283"></i></div>
+          <b class="m-v" data-m="count-up" data-to="342283">&pound;342,283</b>
+        </div>
+        <div class="m-row">
+          <span class="m-k">Start at 35<small>&pound;72,000 put in</small></span>
+          <div class="m-bar" role="img" aria-label="Start at 35: £72,000 put in, £233,891 at 65"><i class="m-s1" style="--v:72000"></i><i class="m-grow" style="--v:161891"></i></div>
+          <b class="m-v" data-m="count-up" data-to="233891">&pound;233,891</b>
+        </div>
+        <div class="m-row">
+          <span class="m-k">Start at 40<small>&pound;60,000 put in</small></span>
+          <div class="m-bar" role="img" aria-label="Start at 40: £60,000 put in, £156,608 at 65"><i class="m-s1" style="--v:60000"></i><i class="m-grow" style="--v:96608"></i></div>
+          <b class="m-v" data-m="count-up" data-to="156608">&pound;156,608</b>
+        </div>
+      </div>
+      <div class="ar-fig-links"><a class="ar-fig-link" href="/guides/principles.html"><span>TEI Principles</span><span aria-hidden="true">&rarr;</span></a></div>
     </figure>
-
-    <a class="tc-inline-link" href="/guides/principles.html"><span><small>Guide</small><b>TEI Principles</b><br><span style="font-size:14px;color:var(--c-muted)">The ideas behind every plan we build, from time in the market to the bear case.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </section>
 
     <section class="tc-members" id="your-numbers" data-members="personal" aria-labelledby="yn-h">
       <div class="tc-members-head"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><b id="yn-h">With your own numbers</b><small>Members</small></div>
@@ -91,46 +142,50 @@
         <div class="tc-members-lock"><p>Log in to the Client Hub to use your own numbers. Nothing is saved or shared.</p><a class="tc-btn" data-login href="/hub/login.html">Log in</a></div>
         <div data-members-out hidden>
           <div class="tc-stats">
-            <div><small>Invested today</small><b data-m="pot">&ndash;</b></div>
-            <div><small>Going in each month</small><b data-m="monthly">&ndash;</b></div>
-            <div><small>In <span data-o="years">40</span> years at <span data-o="rate">7%</span></small><b data-m="future">&ndash;</b></div>
+            <div><small>Invested today</small><b data-y="pot">&ndash;</b></div>
+            <div><small>Going in each month</small><b data-y="monthly">&ndash;</b></div>
+            <div><small>In <span data-o="years">40</span> years at <span data-o="rate">7%</span></small><b data-y="future">&ndash;</b></div>
           </div>
-          <p class="tc-hint" style="margin:14px 0 16px">From your Wealth OS ISA, GIA, LISA, pension and crypto accounts. An illustration at the rate above, not a forecast.</p>
-          <button type="button" class="tc-btn" data-m="apply">Show my numbers in the chart</button>
+          <p class="tc-na">From your Wealth OS ISA, GIA, LISA, pension and crypto accounts. An illustration at the rate above, not a forecast.</p>
+          <button type="button" class="tc-btn" data-y="apply">Show my numbers in the chart</button>
         </div>
       </div>
     </section>
+    <div class="ar-end">
+    <div class="ar-not"><p><strong>What this does not say.</strong> This does not say what return any investment will actually earn, or how much anyone should save each month. It shows why the same money grows faster the longer it is left alone, and why starting earlier counts for more than the extra years of saving alone. Real returns rise and fall from year to year, and tax, fees and charges would make every figure here smaller.</p></div>
 
-    <blockquote class="pull-quote">The first rule of compounding: never interrupt it unnecessarily.<cite>Charlie Munger</cite></blockquote>
-
-    <section class="ar-takeaways" aria-label="Key takeaways">
-    <h2 class="ar-takeaways-label">What to take from this</h2>
+    <section class="ar-takeaways" aria-label="Summary">
+    <h2 class="ar-takeaways-label">Summary</h2>
     <div class="principle-list">
       <div class="principle">
         <span class="num">01</span>
-        <h3>The same interest rate gives you a bigger number every year, not the same number.</h3>
-        <p>That is because your pot keeps growing, not because the interest rate went up.</p>
+        <h3>The same rate adds more each year.</h3>
+        <p>That is because the pot keeps growing, not because the rate went up.</p>
       </div>
       <div class="principle">
         <span class="num">02</span>
-        <h3>Money invested early earns growth for longer than money invested later, even if it is the exact same amount.</h3>
-        <p>What matters is how many years that money spent growing, not how many pounds it started as.</p>
+        <h3>Early money grows for longer.</h3>
+        <p>What matters is how many years money spends growing, not how many pounds it started as.</p>
       </div>
       <div class="principle">
         <span class="num">03</span>
-        <h3>A yearly fee shrinks your pot in exactly the way a return grows it.</h3>
-        <p>A fee that looks tiny in any one year is quietly working against you, every single year after that.</p>
+        <h3>Waiting costs growth, not just saving.</h3>
+        <p>Starting at 30 instead of 25 leaves about &pound;152,000 less at 65 here, from &pound;12,000 less put in.</p>
+      </div>
+      <div class="principle">
+        <span class="num">04</span>
+        <h3>A long-run pot is mostly growth.</h3>
+        <p>After 40 years of &pound;200 a month at 7%, about four fifths of the pot is money it earned on its own.</p>
       </div>
     </div>
     </section>
-
-    <div class="ar-not"><strong>What this does not say.</strong> This does not tell you what return you will actually get, or how much you should be saving each month. It shows why the same money grows faster the longer it is left alone, and why a fee you barely notice keeps costing you for as long as you pay it.</div>
+    </div>
 </article>
 
 <section class="ar-more">
   <div class="ar-more-head"><h2>Keep reading</h2><a href="/articles.html">All articles</a></div>
-  <!-- Filled from the "related" list in /articles.json -->
-  <div class="ar-related"></div>
+  <!-- Written here so the cards read with JS off; refreshed from the "related" list in /articles.json -->
+  <div class="ar-related"><a href="/articles/your-first-10k.html"><span class="ar-related-cat">Basics</span><h3>Why your first &pound;10,000 is so difficult</h3><span class="ar-related-time">4 min read</span></a><a href="/articles/the-100k-milestone.html"><span class="ar-related-cat">Basics</span><h3>The &pound;100,000 milestone: why it matters</h3><span class="ar-related-time">4 min read</span></a><a href="/articles/missing-the-best-days.html"><span class="ar-related-cat">Behaviour</span><h3>What happens if you miss the 10 best days in the market?</h3><span class="ar-related-time">6 min read</span></a></div>
   <div class="ar-cta"><p>Want to see what this looks like for your own numbers?</p><a href="/book" target="_blank" rel="noopener noreferrer">Book a call</a></div>
 </section>
 </main>
@@ -156,13 +211,14 @@
       <p class="tei-compliance-warning">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
     </div>
     <p class="disclaimer">The Everyday Investor provides financial coaching and education. We are coaches and educators, not regulated financial advisers, and nothing in this article constitutes personal financial advice or a recommendation to buy, hold, or sell any investment. Please consider your own circumstances, or speak to a regulated adviser, before making financial decisions.</p>
-    <p class="sources">Figures are a hypothetical example using a standard compound interest calculation, not real market data, and not a guide to what you would actually get. Quote: Charlie Munger, from Munger's speeches and interviews, via the TEI Quote Library.</p>
+    <p class="sources">Worked example figures calculated by The Everyday Investor: &pound;200 paid in at the end of each month, growing at 7% a year compounded monthly, before tax, fees and charges; not real market data. Quote: Charlie Munger, from Munger's speeches and interviews, via the TEI Quote Library. Worked example figures are illustrations based on the stated assumptions, not forecasts.</p>
   </div>
 </footer>
 
 <script src="/assets/article.js" defer></script>
 <script src="/assets/content.js" defer></script>
 <script src="/assets/members.js" defer></script>
+<script src="/assets/motion.js" defer></script>
 <script src="/articles/how-wealth-compounds.js" defer></script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>

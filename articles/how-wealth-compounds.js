@@ -1,134 +1,108 @@
-/* How wealth actually compounds: the two interactive figures and the
-   members' "With your own numbers" section.
-   Same sums as the milestone figure in /assets/article.js: a fixed amount
-   paid in each month, growing at a steady yearly rate compounded monthly.
-   Colours come from the theme tokens through CSS classes in content.css,
-   so the figures follow light and dark without redrawing. */
+/* How wealth actually compounds: the two figures and the members' "With your
+   own numbers" section. Drawing and motion come from /assets/motion.js
+   (window.TeiMotion): this file works out the numbers and hands them over.
+   The page holds the default example written in advance (lines, axis labels,
+   bars and tiles), so it reads with JS off; keep the two in step if the
+   example changes.
+
+   The sums: a fixed amount paid in at the end of each month, growing at a
+   steady yearly rate as a true yearly rate (monthly growth (1 + r)^(1/12) - 1),
+   plus any starting pot.
+     Figure 1  the pot against the money put in, 51 points from year 0 to the
+               chosen number of years (the same length always, so the lines
+               morph); the axis rescales to an even step as the sliders move
+     Figure 2  the pot at 65 for a start at 25, 30, 35 and 40
+   Outputs are found within each figure's section, so a key number moved
+   beside the text still updates. */
 (function () {
   'use strict';
-
-  var NS = 'http://www.w3.org/2000/svg';
   var INVEST_TYPES = ['isa', 'gia', 'lisa', 'pension', 'crypto']; // as Wealth OS counts them
+  var POINTS = 51, STARTS = [25, 30, 35, 40], RETIRE = 65;
   var state = { monthly: 200, rate: 7, years: 40, pot0: 0, mine: false };
   var my = null; // the member's own figures, once loaded
-
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
-
+  function M() { return window.TeiMotion || { count: function (el, v) { el.textContent = pounds(v); }, bar: function (s, v) { s.style.setProperty('--v', v); }, line: function () {} }; }
   function pounds(n) { return '£' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function short(n) {
-    if (n >= 1e6) return '£' + String(Number((n / 1e6).toFixed(n >= 1e7 ? 0 : 2))) + 'm';
+    if (n >= 1e6) return '£' + String(Number((n / 1e6).toFixed(n >= 1e7 ? 0 : 1))) + 'm';
     if (n >= 1e3) return '£' + Math.round(n / 1e3) + 'k';
     return '£' + Math.round(n);
   }
   function pct(r) { return (r % 1 ? r.toFixed(1) : String(r)) + '%'; }
-
-  // Pot after m months: starting pot plus a monthly amount, monthly compounding.
-  function potAt(m, monthly, rate, pot0) {
-    var i = rate / 100 / 12, pot = pot0 || 0;
-    for (var k = 0; k < m; k++) pot = pot * (1 + i) + monthly;
-    return pot;
+  // Pot after t months (t may be fractional, for the chart's evenly spaced points).
+  function potAt(t, monthly, rate, pot0) {
+    var g = Math.pow(1 + rate / 100, 1 / 12) - 1, f = Math.pow(1 + g, t);
+    return (pot0 || 0) * f + monthly * (f - 1) / g;
   }
-
   // An even axis step (1, 2, 2.5 or 5 times a power of ten) for about four gridlines.
   function niceStep(v) {
     if (v <= 0) return 1;
     var p = Math.pow(10, Math.floor(Math.log10(v))), f = v / p;
     return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
   }
-
-  // Drawn at the width it has, so text stays at its real size on a phone.
-  function width(svg) { return Math.round(Math.max(300, Math.min(680, svg.parentNode.clientWidth || 680))); }
-
-  function el(name, attrs, text) {
-    var e = document.createElementNS(NS, name);
-    for (var k in attrs) e.setAttribute(k, attrs[k]);
-    if (text != null) e.textContent = text;
-    return e;
-  }
+  function set(name, text) { $all('[data-o="' + name + '"]').forEach(function (e) { e.textContent = text; }); }
 
   /* ---------- Figure 1: the curve ---------- */
   function drawCurve() {
-    var svg = $('[data-chart="curve"] svg');
-    if (!svg) return;
-    var W = width(svg), H = W < 520 ? 240 : 300, L = W < 520 ? 46 : 58, R = W - (W < 520 ? 70 : 90), T = 22, B = H - 38;
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-    var Y = state.years, pts = [], paid = [];
-    for (var y = 0; y <= Y; y++) {
-      pts.push(potAt(y * 12, state.monthly, state.rate, state.pot0));
-      paid.push(state.pot0 + state.monthly * 12 * y);
+    var fig = $('#fig-curve'), chart = fig && $('[data-m="line-draw"]', fig);
+    if (!chart) return;
+    var box = fig.closest('.ar-split') || fig, Y = state.years, pot = [], paid = [];
+    for (var i = 0; i < POINTS; i++) {
+      var t = i / (POINTS - 1) * Y * 12;
+      pot.push(potAt(t, state.monthly, state.rate, state.pot0));
+      paid.push(state.pot0 + state.monthly * t);
     }
-    var stepV = niceStep(pts[Y] * 1.04 / 4), lines = Math.ceil(pts[Y] * 1.04 / stepV), top = stepV * lines;
-    var x = function (yr) { return L + (R - L) * yr / Y; };
-    var yv = function (v) { return B - (B - T) * v / top; };
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-
-    for (var t = 0; t <= lines; t++) {
-      var v = stepV * t, gy = yv(v);
-      svg.appendChild(el('line', { 'class': 'grid', x1: L, x2: R, y1: gy, y2: gy }));
-      svg.appendChild(el('text', { 'class': 'ax', x: L - 10, y: gy + 4, 'text-anchor': 'end' }, short(v)));
+    var end = pot[POINTS - 1], put = paid[POINTS - 1];
+    var step = niceStep(end * 1.04 / 4), lines = Math.max(1, Math.ceil(end * 1.04 / step)), top = step * lines;
+    // Gridlines in the SVG, labels as HTML so text keeps its size on a phone.
+    var grid = $('.m-grid', chart), axis = $('.m-yaxis', chart), xs = $('.m-xaxis', chart);
+    var g = '<line x1="0" x2="1000" y1="400" y2="400" class="m-base"/>', y = '';
+    for (var k = 0; k <= lines; k++) {
+      var yy = Math.round(400 - 400 * k / lines);
+      if (k) g += '<line x1="0" x2="1000" y1="' + yy + '" y2="' + yy + '"/>';
+      y += '<span style="--y:' + (100 - 100 * k / lines).toFixed(1) + '%">' + short(step * k) + '</span>';
     }
-    var step = Y <= 20 ? 5 : 10;
-    for (var yr = 0; yr <= Y; yr += step) svg.appendChild(el('text', { 'class': 'ax', x: x(yr), y: B + 20, 'text-anchor': 'middle' }, 'Yr ' + yr));
-    if (Y % step) svg.appendChild(el('text', { 'class': 'ax', x: x(Y), y: B + 20, 'text-anchor': 'middle' }, 'Yr ' + Y));
-
-    var line = function (arr) { return arr.map(function (v, i) { return (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + yv(v).toFixed(1); }).join(' '); };
-    var potLine = line(pts), paidLine = line(paid);
-    svg.appendChild(el('path', { 'class': 'a1', d: potLine + ' L' + x(Y) + ' ' + B + ' L' + L + ' ' + B + ' Z' }));
-    svg.appendChild(el('path', { 'class': 'a2', d: paidLine + ' L' + x(Y) + ' ' + B + ' L' + L + ' ' + B + ' Z' }));
-    svg.appendChild(el('path', { 'class': 's2 draw', d: paidLine }));
-    svg.appendChild(el('path', { 'class': 's1 draw', d: potLine }));
-
-    var ex = x(Y), ey = yv(pts[Y]), py = yv(paid[Y]);
-    svg.appendChild(el('circle', { 'class': 'd1 pulse', cx: ex, cy: ey, r: 4.5 }));
-    svg.appendChild(el('circle', { 'class': 'd1', cx: ex, cy: ey, r: 4.5 }));
-    svg.appendChild(el('text', { 'class': 'lbl', x: ex + 10, y: ey + 4 }, short(pts[Y])));
-    svg.appendChild(el('text', { 'class': 'lbl-m', x: ex + 10, y: Math.max(py + 4, ey + 22) }, 'Put in ' + short(paid[Y])));
-    if (W >= 520) { // no room for the notes on a phone
-      svg.appendChild(el('text', { 'class': 'lbl-m', x: L + 12, y: B - 12 }, 'Same rate, smaller pot'));
-      svg.appendChild(el('text', { 'class': 'lbl-m', x: x(Y * 0.62), y: Math.min(yv(pts[Math.round(Y * 0.8)]) - 14, B - 40), 'text-anchor': 'end' }, 'Same rate, larger pot'));
-    }
-    svg.setAttribute('aria-label', 'Line chart: ' + pounds(state.monthly) + ' a month at ' + pct(state.rate) + ' a year grows to about ' + short(pts[Y]) + ' after ' + Y + ' years, against ' + short(paid[Y]) + ' put in.');
-
-    set('paid', pounds(paid[Y]));
-    set('growth', pounds(pts[Y] - paid[Y]));
-    set('pot', pounds(pts[Y]));
-    return pts[Y];
+    grid.innerHTML = g; axis.innerHTML = y;
+    xs.innerHTML = '<span style="--x:0%">Year 0</span><span style="--x:50%">' + Math.round(Y / 2) + '</span><span style="--x:96%">' + Y + '</span>';
+    M().line(chart, { max: top, ref: paid, a: pot });
+    chart.setAttribute('aria-label', 'Line chart: ' + (state.pot0 ? pounds(state.pot0) + ' invested today plus ' : '') + pounds(state.monthly) + ' a month at ' + pct(state.rate) +
+      ' a year grows to ' + pounds(end) + ' after ' + Y + ' years, from ' + pounds(put) + ' put in.');
+    M().count($('[data-o="paid"]', box), put);
+    M().count($('[data-o="growth"]', box), end - put);
+    M().count($('[data-o="pot"]', box), end);
   }
 
   /* ---------- Figure 2: start dates ---------- */
   function drawStart() {
-    var svg = $('[data-chart="start"] svg');
-    if (!svg) return;
-    var starts = [25, 30, 35, 40], vals = starts.map(function (a) { return potAt((65 - a) * 12, state.monthly, state.rate, 0); });
-    var W = width(svg), H = W < 520 ? 230 : 290, L = 8, R = W - 8, T = 34, B = H - 50, top = vals[0];
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-    while (svg.firstChild) svg.removeChild(svg.firstChild);
-    svg.appendChild(el('line', { 'class': 'grid', x1: L, x2: R, y1: B, y2: B }));
-    var slot = (R - L) / 4, bw = Math.min(96, slot - (W < 520 ? 16 : 34));
-    starts.forEach(function (a, i) {
-      var h = (B - T) * vals[i] / top, cx = L + slot * i + slot / 2;
-      svg.appendChild(el('rect', { 'class': (i ? 'b2' : 'b1') + ' grow', x: cx - bw / 2, y: B - h, width: bw, height: h, rx: 6 }));
-      svg.appendChild(el('text', { 'class': 'lbl', x: cx, y: B - h - 10, 'text-anchor': 'middle', style: 'font-size:15px' }, short(vals[i])));
-      svg.appendChild(el('text', { 'class': 'ax', x: cx, y: B + 22, 'text-anchor': 'middle' }, 'Start ' + a));
+    var fig = $('#fig-start'), bars = fig && $('.m-bars', fig);
+    if (!bars) return;
+    var vals = STARTS.map(function (a) { return potAt((RETIRE - a) * 12, state.monthly, state.rate, 0); });
+    bars.style.setProperty('--max', vals[0]);
+    $all('.m-row', bars).forEach(function (row, i) {
+      var put = state.monthly * 12 * (RETIRE - STARTS[i]);
+      M().bar($('.m-s1', row), put);
+      M().bar($('.m-grow', row), vals[i] - put);
+      M().count($('.m-v', row), vals[i]);
+      $('.m-bar', row).setAttribute('aria-label', 'Start at ' + STARTS[i] + ': ' + pounds(put) + ' put in, ' + pounds(vals[i]) + ' at 65');
+      var note = $('small', row);
+      if (note) note.textContent = pounds(put) + ' put in';
     });
-    svg.setAttribute('aria-label', 'Bar chart of the pot at 65: ' + starts.map(function (a, i) { return 'start ' + a + ', ' + short(vals[i]); }).join('; ') + '.');
+    var gap = $('[data-o="start-gap"]', fig.closest('.ar-split') || fig);
+    if (gap) M().count(gap, vals[0] - vals[1]);
   }
-
-  function set(name, text) { $all('[data-o="' + name + '"]').forEach(function (e) { e.textContent = text; }); }
 
   function render() {
     set('monthly', pounds(state.monthly));
     set('rate', pct(state.rate));
     set('years', String(state.years));
     set('sub', state.pot0 > 0
-      ? 'Your ' + pounds(state.pot0) + ' invested today, plus ' + pounds(state.monthly) + ' every month, growing at a steady ' + pct(state.rate) + ' a year'
-      : pounds(state.monthly) + ' invested every month, growing at a steady ' + pct(state.rate) + ' a year');
+      ? 'Your ' + pounds(state.pot0) + ' invested today, plus ' + pounds(state.monthly) + ' every month, growing at ' + pct(state.rate) + ' a year.'
+      : pounds(state.monthly) + ' invested every month, growing at ' + pct(state.rate) + ' a year.');
     drawCurve();
     drawStart();
     renderMine();
   }
-
   function bind() {
     var m = $('#cMonthly'), r = $('#cRate'), y = $('#cYears');
     if (!m) return;
@@ -140,20 +114,15 @@
       requestAnimationFrame(function () { queued = false; render(); });
     }
     [m, r, y].forEach(function (i) { i.addEventListener('input', read); });
-    var lastW = 0;
-    window.addEventListener('resize', function () {
-      var w = width($('[data-chart="curve"] svg'));
-      if (w !== lastW) { lastW = w; read(); }
-    });
   }
 
   /* ---------- Members: their own figures ---------- */
   function renderMine() {
     var box = $('#your-numbers');
     if (!box || !my) return;
-    $('[data-m="pot"]', box).textContent = pounds(my.pot);
-    $('[data-m="monthly"]', box).textContent = pounds(my.monthly);
-    $('[data-m="future"]', box).textContent = pounds(potAt(state.years * 12, my.monthly, state.rate, my.pot));
+    $('[data-y="pot"]', box).textContent = pounds(my.pot);
+    $('[data-y="monthly"]', box).textContent = pounds(my.monthly);
+    $('[data-y="future"]', box).textContent = pounds(potAt(state.years * 12, my.monthly, state.rate, my.pot));
   }
 
   function members() {
@@ -181,14 +150,14 @@
             }, 0)
           };
           renderMine();
-          var btn = $('[data-m="apply"]', box);
+          var btn = $('[data-y="apply"]', box);
           if (btn) btn.addEventListener('click', toggleMine);
         });
     });
   }
 
   function toggleMine() {
-    var btn = $('#your-numbers [data-m="apply"]'), m = $('#cMonthly');
+    var btn = $('#your-numbers [data-y="apply"]'), m = $('#cMonthly');
     state.mine = !state.mine;
     if (state.mine) {
       state.pot0 = my.pot;
@@ -204,9 +173,7 @@
       btn.textContent = 'Show my numbers in the chart';
     }
     render();
-    var fig = $('#fig-curve');
-    fig.scrollIntoView({ behavior: window.TeiContent && window.TeiContent.calm ? 'auto' : 'smooth', block: 'start' });
-    if (window.TeiContent) window.TeiContent.redrawn($('[data-chart="curve"]'));
+    $('#fig-curve').scrollIntoView({ behavior: window.TeiContent && window.TeiContent.calm ? 'auto' : 'smooth', block: 'start' });
   }
 
   function init() { render(); bind(); members(); }
