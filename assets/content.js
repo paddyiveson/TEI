@@ -11,6 +11,7 @@
      - Motion: blocks rise in as they reach the screen, bars grow, .tc-chart
        figures draw in once seen. None of it under prefers-reduced-motion.
      - Chart.js (tools): shared fonts, colours and a left-to-right draw-in.
+     - Closing pair: .ar-end boxes balanced side by side (balanceEnd).
    Exposes window.TeiContent for page scripts (replay a chart, read colours). */
 (function () {
   'use strict';
@@ -145,6 +146,46 @@
   }
   function redrawn(el) { if (el && el.getAttribute('data-seen')) replay(el); }
 
+  /* ---------- The closing pair ----------
+     div.ar-end holds "What this does not say" beside the Summary (or "How the
+     numbers work" on tools). From 1100px wide, try "What this does not say"
+     at 4 to 7 of the 12 columns and the Summary with all its cards in one row,
+     2 or 3 a row (only counts that divide evenly), and keep the pair whose
+     heights are closest. .is-set then shares out the small leftover, so the
+     two boxes end level and neither is left with empty space at the bottom.
+     Narrower screens stack the two, so nothing is set. */
+  function balanceEnd(end) {
+    var not = end.querySelector(':scope > .ar-not'), sum = end.querySelector(':scope > .ar-takeaways');
+    var list = sum && sum.querySelector('.principle-list');
+    end.classList.remove('is-set');
+    end.style.removeProperty('--not-w');
+    if (list) list.style.removeProperty('--sum-k');
+    if (!not || !list || !window.matchMedia('(min-width: 1100px)').matches) return;
+    var n = list.children.length, best = null;
+    var rows = [n, 2, 3].filter(function (k, i, all) { return k > 0 && all.indexOf(k) === i && n % k === 0; });
+    [4, 5, 6, 7].forEach(function (w) {
+      end.style.setProperty('--not-w', w);
+      rows.forEach(function (k) {
+        list.style.setProperty('--sum-k', k);
+        var d = Math.abs(not.offsetHeight - sum.offsetHeight);
+        if (!best || d < best.d) best = { d: d, w: w, k: k };
+      });
+    });
+    end.style.setProperty('--not-w', best.w);
+    list.style.setProperty('--sum-k', best.k);
+    end.setAttribute('data-gap', best.d);
+    end.classList.add('is-set');
+  }
+  function closingPairs() {
+    if (!document.querySelector('.ar-end')) return;
+    var all = function () { each('.ar-end', balanceEnd); };
+    all();
+    // Fonts change the heights: balance again once they have loaded, and on resize.
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(all);
+    var timer;
+    window.addEventListener('resize', function () { clearTimeout(timer); timer = setTimeout(all, 150); });
+  }
+
   /* ---------- Chart.js (tools) ---------- */
   function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
   var drawIn = {
@@ -175,9 +216,9 @@
     else C.register(drawIn);
   }
 
-  function run() { hubShell(); contents(); groups(); reveal(); charts(); chartSkin(); }
+  function run() { hubShell(); contents(); groups(); reveal(); charts(); chartSkin(); closingPairs(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
   window.addEventListener('load', chartSkin);
 
-  window.TeiContent = { calm: calm, fromHub: fromHub, replay: replay, redrawn: redrawn, cssVar: cssVar };
+  window.TeiContent = { calm: calm, fromHub: fromHub, replay: replay, redrawn: redrawn, cssVar: cssVar, balanceEnd: balanceEnd };
 })();

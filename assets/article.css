@@ -110,36 +110,105 @@ body { margin: 0; background: #F7F4ED; color: #13213A; font-family: 'Geist', sys
 .ar-cta a { display: inline-flex; align-items: center; min-height: 50px; padding: 0 24px; border-radius: 999px; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 15px; font-weight: 500; }
 
 /* -- Links in running text on refreshed articles (REF-Short) -- */
-body.tc-page .article-body > p a, body.tc-page .ar-t > p a { color: var(--c-gold); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-body.tc-page .article-body > p a:hover, body.tc-page .ar-t > p a:hover { text-decoration-thickness: 2px; }
+body.tc-page .article-body > p a, body.tc-page .ar-t > p a, body.tc-page .ar-lead > p a { color: var(--c-gold); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+body.tc-page .article-body > p a:hover, body.tc-page .ar-t > p a:hover, body.tc-page .ar-lead > p a:hover { text-decoration-thickness: 2px; }
 
 /* -- Epigraph: a short quote set quietly in the text, not a slab (REF-Short) -- */
 .ar-epigraph { margin: 6px 0 26px; padding: 2px 0 2px 18px; border-left: 2px solid var(--c-gold, #83661C); font-size: 20px; line-height: 1.45; font-weight: 300; letter-spacing: -0.005em; color: var(--c-ink, #13213A); }
 .ar-epigraph cite { display: block; margin-top: 8px; font-family: var(--ar-mono); font-size: 12px; font-style: normal; color: var(--c-gold, #83661C); }
 
-/* -- Wide article layout (REF-Short, after the ONDS note). Put .ar-wide on
-   main.tei-article. From 1100px the article runs full width on a 12-column
-   grid: each .ar-split sets prose (.ar-t, 5 columns) beside what it explains
-   (.ar-v, 7 columns), and .ar-stick on the shorter side holds it in view
-   while the other scrolls. "What this does not say" runs in two balanced
-   columns and the Summary's three points sit side by side. Below 1100px it
-   is the single reading column. -- */
-.ar-t > p { margin: 0 0 22px; font-size: 19px; line-height: 1.7; font-weight: 300; }
+/* -- Wide article layout: layout D (V2 bulk spec, section 3). Put .ar-wide on
+   main.tei-article. From 1100px the article runs on a 12-column grid inside
+   1280px. Each section.ar-split sets its text (.ar-t, 5 columns) beside the
+   figure it explains (.ar-v, 7 columns); .ar-stick on the shorter side holds
+   it in view while the other scrolls. Where the text is short, the figure's
+   key number and caption sit at the end of the text in div.ar-notes. A card
+   grid or a figure in two parts runs full width (section.ar-split.ar-full):
+   its text (div.ar-lead, 7 columns) and notes (5 columns) in a row above,
+   the figure below, two parts side by side in div.ar-two. A faint rule
+   separates the sections. Below 1100px it is one reading column, with the
+   notes under their figure as the foot of its card. -- */
+.ar-t > p, .ar-lead > p { margin: 0 0 22px; font-size: 19px; line-height: 1.7; font-weight: 300; }
 @media (min-width: 1100px) {
   .ar-wide .ar-hero-in, .ar-wide .article-body { max-width: 1280px; }
-  .ar-wide .ar-hero h1 { max-width: 20ch; }
-  .ar-wide .ar-dek { max-width: 58ch; }
-  .ar-split { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 32px; align-items: start; margin: 0 0 64px; }
+  .ar-split { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 32px; align-items: start; margin: 0 0 48px; }
   .ar-split > .ar-t { grid-column: 1 / 6; }
   .ar-split > .ar-v { grid-column: 6 / 13; min-width: 0; }
   .ar-split > .ar-stick { position: sticky; top: calc(var(--tei-hdr-h, 68px) + 24px); }
-  .ar-t > p { font-size: 18px; }
+  .ar-t > p, .ar-lead > p { font-size: 18px; }
   .ar-v > .visual-block, .ar-v > .tc-callout { margin: 0; }
-  .ar-wide .article-body > .ar-not { columns: 2; column-gap: 40px; padding: 24px 28px; }
-  /* Every Summary point in one row, however many there are. */
-  .ar-wide .ar-takeaways .principle-list { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); column-gap: 32px; padding: 12px 28px 20px; }
-  .ar-wide .ar-takeaways .principle { border-top-color: transparent; }
+  .ar-t > .tc-inline-link { margin: 18px 0 0; }
+  .ar-notes { display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+  .ar-notes .m-callout { margin: 0; padding: 14px 16px; }
+  .ar-notes .m-callout b { font-size: 30px; }
+  .ar-notes .visual-caption { margin: 0; padding: 12px 0 0; border-top: 1px solid var(--c-line); font-size: 13px; }
+  .ar-split.ar-full > .ar-t { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 32px; align-items: start; margin-bottom: 24px; }
+  .ar-full .ar-lead { grid-column: 1 / 8; }
+  .ar-full .ar-lead > p:last-child { margin-bottom: 0; }
+  .ar-full .ar-notes { grid-column: 8 / 13; margin-top: 0; }
+  .ar-split.ar-full > .ar-v { grid-column: 1 / -1; }
+  .ar-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; align-items: start; }
+  .ar-two > * { min-width: 0; }
+  .ar-wide .article-body > * + .ar-split, .ar-wide .article-body > * + .ar-end { border-top: 1px solid var(--c-line-soft); padding-top: 48px; }
+  .ar-wide .article-body { padding-bottom: 0; }
+  .ar-wide .article-body > .ar-split + .tc-members { margin-top: 0; }
 }
+@media (max-width: 1099px) {
+  .ar-split { display: flex; flex-direction: column; }
+  .ar-split > .ar-t { display: contents; }
+  .ar-split > .ar-v { order: 1; }
+  .ar-split .ar-notes { order: 2; margin: 0 0 40px; padding: 0 28px 28px; background: var(--c-tile); border: 1px solid var(--c-line); border-top: 0; border-radius: 0 0 24px 24px; }
+  .ar-split > .ar-t > .tc-inline-link { order: 3; }
+  .ar-split:has(.ar-notes) > .ar-v > .visual-block { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .ar-split:has(.ar-notes) > .ar-v > .visual-block > :last-child { margin-bottom: 0; }
+}
+
+/* -- A guide link that belongs to a figure: a small button inside it, after
+   the content and before the caption. 36px to look at, 44px to tap. -- */
+.ar-fig-links { display: flex; justify-content: flex-end; margin-top: 12px; }
+.ar-fig-link { position: relative; display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--c-line); background: var(--c-tile); color: var(--c-ink); font-size: 13px; font-weight: 500; text-decoration: none; }
+.ar-fig-link::after { content: ""; position: absolute; inset: -4px 0; }
+.ar-fig-link span[aria-hidden] { color: var(--c-gold); }
+.ar-fig-link:hover { border-color: var(--c-gold); }
+
+/* -- The closing pair (spec 3.7): "What this does not say" beside the Summary.
+   balanceEnd() in /assets/content.js picks the split (--not-w, 4 to 7 of 12
+   columns) and the Summary cards a row (--sum-k) that leave the two boxes
+   closest in height, then .is-set shares out the small leftover. Without JS:
+   5 and 7 columns, the cards in one row for 3 points, 2 a row for 4. -- */
+.ar-end { margin: 0 0 40px; }
+.ar-end > .ar-takeaways { margin-bottom: 0; }
+.ar-end > .ar-not > p { margin: 0; font-size: inherit; line-height: inherit; font-weight: inherit; color: inherit; }
+@media (min-width: 1100px) {
+  .ar-end { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; margin: 0; }
+  .ar-end > .ar-not { grid-column: 1 / span var(--not-w, 5); margin: 0; padding: 20px 22px; font-size: 15px; line-height: 1.55; }
+  .ar-end > .ar-takeaways { grid-column: span calc(12 - var(--not-w, 5)); margin: 0; }
+  .ar-end .ar-takeaways-label { padding: 12px 20px; }
+  .ar-end .principle-list { --sum-k: 3; display: grid; grid-template-columns: repeat(var(--sum-k), minmax(0, 1fr)); gap: 10px; padding: 12px; }
+  .ar-end .principle-list:has(> :nth-child(4):last-child) { --sum-k: 2; }
+  .ar-end .principle { display: block; padding: 12px 14px; border: 0; border-radius: 12px; background: var(--c-tile-2); }
+  .ar-end .principle .num { display: block; padding: 0 0 4px; font-size: 11px; }
+  .ar-end .principle h3 { font-size: 14.5px; line-height: 1.4; }
+  .ar-end .principle p { font-size: 13px; line-height: 1.5; }
+  .ar-end.is-set { align-items: stretch; }
+  .ar-end.is-set > .ar-not { display: flex; flex-direction: column; justify-content: center; }
+  .ar-end.is-set > .ar-takeaways { display: flex; flex-direction: column; }
+  .ar-end.is-set .principle-list { flex: 1; }
+  .ar-wide .ar-more { padding-top: 40px; }
+  .ar-wide .ar-related a { min-height: 0; padding: 16px 18px; gap: 6px; border-radius: 18px; }
+  .ar-wide .ar-related h3 { font-size: 18px; }
+  .ar-wide .ar-cta { padding: 20px 24px; }
+}
+
+/* -- Hero on refreshed pages (spec 1.2): stacked and short, about 245px at
+   1440 wide. Back link 36px to look at, 44px to tap. -- */
+body.tc-page .ar-hero-in { padding: 14px 32px 34px; }
+body.tc-page .ar-back { position: relative; min-height: 36px; font-size: 13px; }
+body.tc-page .ar-back::after { content: ""; position: absolute; inset: -4px 0; }
+body.tc-page .ar-meta { margin-top: 10px; }
+body.tc-page .ar-hero h1 { max-width: 30ch; margin-top: 14px; font-size: clamp(32px, 2.9vw, 42px); line-height: 1.1; }
+body.tc-page .ar-dek { max-width: 72ch; margin-top: 12px; font-size: 16.5px; line-height: 1.55; }
+body.tc-page .ar-hero-ring { opacity: .6; }
 
 /* -- Keep reading: three cards always fill the row (no empty fourth column) -- */
 @media (min-width: 761px) {
@@ -165,18 +234,45 @@ body.tc-page .article-body > p a:hover, body.tc-page .ar-t > p a:hover { text-de
   .ar-tiles p + p { font-size: 20px; }
   .ar-more { padding: 40px 16px 56px; }
   .ar-cta { padding: 24px 22px; }
-  /* Refreshed articles (body.tc-page): tighter text boxes on phones.
-     Moved from Missing the Best Days' own page style (REF-Short). */
-  body.tc-page .tei-article .tc-callout { margin: 18px 0; padding: 16px 18px; border-radius: 16px; }
-  body.tc-page .tei-article .tc-callout p { font-size: 15px !important; }
-  body.tc-page .tei-article .ar-not { padding: 16px 18px; border-radius: 16px; font-size: 14px; }
+  /* Refreshed pages (body.tc-page): compact cards on phones (spec 4). The
+     figure parts are in /assets/motion.css, tables in /assets/content.css. */
+  body.tc-page .article-body > p, body.tc-page .ar-t > p, body.tc-page .ar-lead > p { margin-bottom: 16px; font-size: 16px; line-height: 1.6; }
+  body.tc-page .visual-block, body.tc-page .ar-figure { margin: 8px 0 24px; padding: 12px 12px 10px; border-radius: 16px; }
+  body.tc-page .ar-split .ar-notes { margin-bottom: 24px; padding: 0 12px 10px; border-radius: 0 0 16px 16px; }
+  body.tc-page .article-body > * + .ar-split { margin-top: 4px; padding-top: 24px; border-top: 1px solid var(--c-line-soft); }
+  body.tc-page .tei-article .tc-callout { margin: 14px 0; padding: 12px 14px; border-radius: 14px; }
+  body.tc-page .tei-article .tc-callout p { font-size: 14px !important; line-height: 1.5; }
+  body.tc-page .tei-article .tc-inline-link { margin: 14px 0; padding: 12px 14px; border-radius: 14px; }
+  body.tc-page .tei-article .tc-inline-link b { font-size: 15px; }
+  body.tc-page .ar-epigraph { margin-bottom: 18px; font-size: 17px; }
+  body.tc-page .tei-article .ar-not { padding: 12px 14px; border-radius: 14px; font-size: 14px; line-height: 1.55; }
   body.tc-page .tei-article .pull-quote { margin-bottom: 28px; padding: 20px 18px; font-size: 20px; }
+  body.tc-page .ar-fig-links { justify-content: flex-start; margin-top: 10px; }
+  /* Summary: small cards two a row; an odd last card spans the row. */
   body.tc-page .tei-article .ar-takeaways { margin-bottom: 28px; border-radius: 18px; }
+  body.tc-page .ar-end, body.tc-page .ar-end > .ar-takeaways { margin-bottom: 0; }
   body.tc-page .tei-article .ar-takeaways-label { padding: 12px 18px; }
-  body.tc-page .tei-article .principle-list { padding: 4px 18px 8px; }
-  body.tc-page .tei-article .principle { padding: 10px 0; column-gap: 12px; }
-  body.tc-page .tei-article .principle p { font-size: 14px; }
-  body.tc-page .tei-article .tc-inline-link { margin: 18px 0; padding: 14px 16px; border-radius: 16px; }
+  body.tc-page .tei-article .principle-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px; }
+  body.tc-page .tei-article .principle { display: block; padding: 10px; border: 0; border-radius: 12px; background: var(--c-tile-2); }
+  body.tc-page .tei-article .principle:nth-child(odd):last-child { grid-column: 1 / -1; }
+  body.tc-page .tei-article .principle .num { display: block; padding: 0 0 4px; font-size: 11px; }
+  body.tc-page .tei-article .principle h3 { font-size: 13.5px; line-height: 1.35; }
+  body.tc-page .tei-article .principle p { font-size: 12px; line-height: 1.45; }
+  /* Keep reading: the three cards and Book a call as a 2 x 2 grid. */
+  body.tc-page .ar-more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 28px 16px 40px; }
+  body.tc-page .ar-more-head { grid-column: 1 / -1; }
+  body.tc-page .ar-more-head h2 { font-size: 22px; }
+  body.tc-page .ar-related { display: contents; }
+  body.tc-page .ar-related a { min-height: 132px; padding: 12px; gap: 6px; border-radius: 14px; }
+  body.tc-page .ar-related h3 { font-size: 14.5px; line-height: 1.3; }
+  body.tc-page .ar-related-cat, body.tc-page .ar-related-time { font-size: 10px; }
+  body.tc-page .ar-cta { flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 10px; min-height: 132px; margin: 0; padding: 12px; border-radius: 14px; }
+  body.tc-page .ar-cta p { flex: none; font-size: 14.5px; line-height: 1.3; }
+  body.tc-page .ar-cta a { min-height: 44px; padding: 0 16px; font-size: 14px; }
+  /* Shorter hero. */
+  body.tc-page .ar-hero-in { padding: 10px 16px 28px; }
+  body.tc-page .ar-hero h1 { font-size: 27px; line-height: 1.12; }
+  body.tc-page .ar-dek { font-size: 15px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ar-hero-ring, .ar-meta, .ar-hero h1, .ar-dek { animation: none; }
