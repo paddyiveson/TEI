@@ -94,16 +94,18 @@
     var fig = document.getElementById('fig-charge');
     var input = document.getElementById('lisaIn');
     if (!fig || !input) return;
+    // The key number sits beside the text (.ar-notes), so outputs are found in the whole section.
+    var box = fig.closest('.ar-split') || fig;
     function render() {
       var paid = Number(input.value);
       var bonus = paid * 0.25, balance = paid + bonus, charge = balance * 0.25, back = balance - charge;
-      set(fig, 'paid', pounds(paid));
-      set(fig, 'bonus', '+' + pounds(bonus));
-      set(fig, 'balance', pounds(balance));
-      set(fig, 'charge', '-' + pounds(charge));
-      set(fig, 'back', pounds(back));
-      set(fig, 'lost', '-' + pounds(paid - back));
-      set(fig, 'sub', paid === 4000
+      set(box, 'paid', pounds(paid));
+      set(box, 'bonus', '+' + pounds(bonus));
+      set(box, 'balance', pounds(balance));
+      set(box, 'charge', '-' + pounds(charge));
+      set(box, 'back', pounds(back));
+      set(box, 'lost', '-' + pounds(paid - back));
+      set(box, 'sub', paid === 4000
         ? 'Based on the maximum annual LISA contribution, withdrawn early for a reason other than a first home or reaching 60.'
         : 'Based on a ' + pounds(paid) + ' LISA contribution, withdrawn early for a reason other than a first home or reaching 60.');
       M().bar(fig.querySelector('[data-b="kept"]'), back);

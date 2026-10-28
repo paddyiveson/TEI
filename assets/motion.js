@@ -6,8 +6,10 @@
      data-m="scene"          figure that plays once it is 30% on screen: its
                              bars fill row by row, numbers count up, slices cut;
                              data-m-start="<selector>" plays it when that part
-                             of it is 30% on screen instead (tall calculators)
-     data-m="bar-fill"       an .m-bars group inside a scene (rows and segments
+                             of it is 30% on screen instead (tall calculators).
+                             The .ar-notes of its .ar-split (its key number and
+                             caption beside a short text) play with it
+     data-m="bar-fill"      an .m-bars group inside a scene (rows and segments
                              get their --r / --i order from here)
      data-m="count-up"       number element; data-to (value), data-format
                              ("gbp" default, "gbp2" with pence, "usd", "int"
@@ -86,6 +88,15 @@
     }, scene);
     var rows = scene.querySelectorAll('.m-row').length;
     scene.style.setProperty('--m-after', (rows * 260 + 700) + 'ms');
+    var notes = notesOf(scene);
+    if (notes) notes.style.setProperty('--m-after', (rows * 260 + 700) + 'ms');
+  }
+  // A short text carries its figure's key number and caption beside it
+  // (.ar-notes in the same .ar-split). They belong to the figure's scene:
+  // armed, played and timed with it.
+  function notesOf(scene) {
+    var section = scene.closest && scene.closest('.ar-split');
+    return section ? section.querySelector('.ar-notes') : null;
   }
 
   /* ---------- toggle-result ---------- */
@@ -102,12 +113,16 @@
   function play(scene) {
     if (scene.classList.contains('m-on')) return;   // once only
     scene.classList.add('m-on');
-    each('[data-m="count-up"]', function (el) {
+    var notes = notesOf(scene);
+    if (notes) notes.classList.add('m-on');
+    function counts(el) {
       var row = el.closest('.m-row');
       var delay = el.hasAttribute('data-delay') ? Number(el.getAttribute('data-delay'))
         : row ? Number(row.style.getPropertyValue('--r') || 0) * 260 + 150 : 900;
       count(el, el.getAttribute('data-to'), 0, delay, Number(el.getAttribute('data-dur')) || 0);
-    }, scene);
+    }
+    each('[data-m="count-up"]', counts, scene);
+    if (notes) each('[data-m="count-up"]', counts, notes);
     // Canvas and SVG patterns in the scene play their own entrance.
     each('[data-m="line-draw"], [data-m="dot-field"]', function (el) { if (el._play) el._play(); }, scene);
   }
@@ -146,6 +161,8 @@
       // A scene (or its start point) already past on load (deep link, refresh) shows its end state.
       if (s.getBoundingClientRect().bottom < 0 || t.getBoundingClientRect().bottom < 0) return;
       s.classList.add('m-armed');
+      var notes = notesOf(s);
+      if (notes) notes.classList.add('m-armed');
       // Canvas and SVG patterns wait for the scene to play.
       each('[data-m="line-draw"], [data-m="dot-field"]', function (el) { el._armed = true; }, s);
       t._scene = s;

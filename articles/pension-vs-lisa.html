@@ -13,34 +13,8 @@
 <link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
 <link rel="stylesheet" href="/assets/article.css">
-<style>
-/* This article's own figures. The page frame is /assets/article.css; colours
-   are the theme tokens from /assets/content.css, so light and dark both work. */
-.compare-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-.compare-table th {
-  padding: 10px 12px; text-align: left; font-family: var(--tc-mono); font-size: 11px; font-weight: 400;
-  color: var(--c-muted); background: transparent; border-bottom: 1px solid var(--c-line);
-}
-.compare-table td { padding: 14px 12px; border-bottom: 1px solid var(--c-line-soft); color: var(--c-ink); vertical-align: top; line-height: 1.5; }
-.compare-table td.row-label { width: 30%; font-weight: 500; }
-.compare-table tr:last-child td { border-bottom: none; }
-.breakdown { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 16px; }
-.breakdown-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; background: var(--c-tile-2); font-size: 14px; color: var(--c-ink); }
-.breakdown-row.penalty { background: var(--c-warn-tile); }
-.breakdown-row.penalty .breakdown-value { color: var(--c-warn); }
-.breakdown-row.result { background: var(--c-champ-tile); }
-.breakdown-value { font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.stat-highlight { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; padding: 22px 24px; border-radius: 18px; background: var(--c-feature); }
-.stat-highlight .num { font-size: 44px; line-height: 1; font-weight: 300; letter-spacing: -0.03em; color: #E8D6A8; font-variant-numeric: tabular-nums; }
-.stat-highlight .label { flex: 1 1 260px; font-size: 14px; line-height: 1.55; color: var(--c-on-feature-muted); }
-@media (max-width: 600px) {
-  .compare-table { font-size: 13px; }
-  .compare-table th, .compare-table td { padding: 10px 8px; }
-  .compare-table td.row-label { width: 34%; }
-  .breakdown-row { font-size: 13px; padding: 10px 12px; }
-  .stat-highlight .num { font-size: 36px; }
-}
-</style>
+<!-- This article's figures use the shared patterns in /assets/motion.css and
+     /assets/content.css; it has no styles of its own. -->
 <link rel="stylesheet" href="/assets/content.css">
 <link rel="stylesheet" href="/assets/motion.css">
 </head>
@@ -69,72 +43,83 @@
   <div class="ar-hero-ring" aria-hidden="true"></div>
   <div class="ar-hero-in">
     <a class="ar-back" href="/articles.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>All articles</a>
-    <!-- Category, date, read time and series are filled from /articles.json by /assets/article.js -->
-    <p class="ar-meta"></p>
+    <!-- Category, date, read time and series: written here so they read with JS off, refreshed from /articles.json by /assets/article.js -->
+    <p class="ar-meta"><span class="ar-cat">ISAs &amp; pensions</span><span>22 Oct 2026 &middot; 6 min read</span></p>
     <h1>Pension vs LISA: which should you use?</h1>
-    <p class="ar-dek">A pension is easier to get money into. A Lifetime ISA is cheaper to get money out of. For most employees, the employer&rsquo;s contribution is what decides which one comes out ahead.</p>
+    <p class="ar-dek">A pension is easier to get money into. A Lifetime ISA is cheaper to get money out of. For most employees, the employer's contribution is what decides which one comes out ahead.</p>
   </div>
 </section>
 
 <article class="article-body">
 
-    <section class="ar-split">
-      <div class="ar-t ar-stick">
+    <section class="ar-split ar-full">
+      <div class="ar-t">
+        <div class="ar-lead">
     <p>Every UK savings wrapper runs the same basic trade. It adds something on top of what is paid in, and in exchange it restricts when that money can be taken back out. A workplace pension and a Lifetime ISA, usually shortened to a LISA, both run on this trade. They just run it on very different terms.</p>
+        </div>
+        <div class="ar-notes">
+      <div class="visual-caption">Figures for the 2026/27 UK tax year. Employer contribution rates vary by scheme, and most schemes set a minimum both employer and employee must pay in.</div>
+        </div>
       </div>
       <div class="ar-v">
     <div class="visual-block">
       <div class="visual-title">Same trade, different terms</div>
       <div class="visual-sub">How a workplace pension and a Lifetime ISA each handle the top-up, the limits and the way out.</div>
-      <table class="compare-table">
+      <table class="tc-table is-cards">
+        <thead>
         <tr>
           <th>Mechanism</th>
           <th>Workplace pension</th>
           <th>Lifetime ISA</th>
         </tr>
+        </thead>
+        <tbody>
         <tr>
-          <td class="row-label">Who tops it up</td>
-          <td>Income tax relief, plus often an employer contribution</td>
-          <td>The government only, as a bonus</td>
+          <td>Who tops it up</td>
+          <td data-label="Pension">Income tax relief, plus often an employer contribution</td>
+          <td data-label="LISA">The government only, as a bonus</td>
         </tr>
         <tr>
-          <td class="row-label">Top-up rate</td>
-          <td>Relief at income tax rate (20%, 40% or 45%); employer rate varies by scheme</td>
-          <td>25% bonus, up to &pound;1,000 a year</td>
+          <td>Top-up rate</td>
+          <td data-label="Pension">Relief at income tax rate (20%, 40% or 45%); employer rate varies by scheme</td>
+          <td data-label="LISA">25% bonus, up to &pound;1,000 a year</td>
         </tr>
         <tr>
-          <td class="row-label">Annual limit</td>
-          <td>&pound;60,000, or 100% of earnings if lower</td>
-          <td>&pound;4,000, within the &pound;20,000 ISA allowance; open before 40, pay in until 50</td>
+          <td>Annual limit</td>
+          <td data-label="Pension">&pound;60,000, or 100% of earnings if lower</td>
+          <td data-label="LISA">&pound;4,000, within the &pound;20,000 ISA allowance; open before 40, pay in until 50</td>
         </tr>
         <tr>
-          <td class="row-label">Normal access age</td>
-          <td>55, rising to 57 from 6 April 2028</td>
-          <td>60, or earlier for a first home up to &pound;450,000</td>
+          <td>Normal access age</td>
+          <td data-label="Pension">55, rising to 57 from 6 April 2028</td>
+          <td data-label="LISA">60, or earlier for a first home up to &pound;450,000</td>
         </tr>
         <tr>
-          <td class="row-label">Taking it out early</td>
-          <td>Generally not possible before the minimum age</td>
-          <td>25% charge on the amount withdrawn</td>
+          <td>Taking it out early</td>
+          <td data-label="Pension">Generally not possible before the minimum age</td>
+          <td data-label="LISA">25% charge on the amount withdrawn</td>
         </tr>
         <tr>
-          <td class="row-label">Tax when it comes out</td>
-          <td>25% tax-free; the rest taxed as income</td>
-          <td>Tax-free</td>
+          <td>Tax when it comes out</td>
+          <td data-label="Pension">25% tax-free; the rest taxed as income</td>
+          <td data-label="LISA">Tax-free</td>
         </tr>
+        </tbody>
       </table>
-      <div class="visual-caption">Figures for the 2026/27 UK tax year. Employer contribution rates vary by scheme, and most schemes set a minimum both employer and employee must pay in.</div>
+      <div class="ar-fig-links"><a class="ar-fig-link" href="/guides/tax.html#lisa"><span>The Tax Wrapper Guide</span><span aria-hidden="true">&rarr;</span></a></div>
     </div>
       </div>
     </section>
 
-    <a class="tc-inline-link" href="/guides/tax.html#lisa"><span><small>Guide</small><b>The Tax Wrapper Guide</b><br><span style="font-size:14px;color:var(--c-muted)">Every ISA, pension and account type, and the order people tend to use them in.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
-
     <section class="ar-split">
-      <div class="ar-t ar-stick">
+      <div class="ar-t">
     <p>The table only goes so far. To see how the rules play out, follow one person through them: an employee earning &pound;40,000 a year, so a basic-rate taxpayer, aged 30. Whatever they put away stays invested until 60 and grows at the same 5% a year in either wrapper, so growth never decides the comparison on its own.</p>
+        <div class="ar-notes">
+      <div class="m-callout"><b data-m="count-up" data-format="int" data-to="8" data-suffix="&times;">8&times;</b><span>The pension can take eight times as much in a year as the LISA can.</span></div>
+      <div class="visual-caption">The pension annual allowance is &pound;60,000 or 100% of earnings, whichever is lower. The pension figure includes basic-rate tax relief. The LISA limit of &pound;4,000 sits inside the &pound;20,000 overall ISA allowance.</div>
+        </div>
       </div>
-      <div class="ar-v">
+      <div class="ar-v ar-stick">
     <figure class="visual-block" id="scene-ceiling" data-m="scene">
       <span class="m-scene-no">Scene 1 &middot; Getting money in</span>
       <div class="visual-title">How much each one can take in a year</div>
@@ -152,8 +137,6 @@
           <b class="m-v" data-m="count-up" data-to="40000">&pound;40,000</b>
         </div>
       </div>
-      <div class="m-callout"><b data-m="count-up" data-to="8" data-suffix="&times;">8&times;</b><span>The pension can take eight times as much in a year as the LISA can.</span></div>
-      <div class="visual-caption">The pension annual allowance is &pound;60,000 or 100% of earnings, whichever is lower. The pension figure includes basic-rate tax relief. The LISA limit of &pound;4,000 sits inside the &pound;20,000 overall ISA allowance.</div>
     </figure>
       </div>
     </section>
@@ -161,6 +144,9 @@
     <section class="ar-split">
       <div class="ar-t ar-stick">
     <p>That ceiling matters for anyone saving more than a few thousand pounds a year. But most people are not near either limit, so the more useful question is what the same amount of take-home pay buys in each.</p>
+        <div class="ar-notes">
+      <div class="visual-caption">Salary sacrifice: &pound;4,000 &divide; 0.72 &asymp; &pound;5,556, because the sacrificed pay avoids 20% income tax and 8% employee National Insurance. Relief at source: &pound;4,000 &divide; 0.8 = &pound;5,000. Employer contribution shown as 3% of a &pound;40,000 salary, &pound;1,200.</div>
+        </div>
       </div>
       <div class="ar-v">
     <figure class="visual-block" id="scene-same" data-m="scene">
@@ -191,16 +177,19 @@
           <b class="m-v" data-out="ss-in" data-m="count-up" data-to="5556">&pound;5,556</b>
         </div>
       </div>
-      <div class="visual-caption">Salary sacrifice: &pound;4,000 &divide; 0.72 &asymp; &pound;5,556, because the sacrificed pay avoids 20% income tax and 8% employee National Insurance. Relief at source: &pound;4,000 &divide; 0.8 = &pound;5,000. Employer contribution shown as 3% of a &pound;40,000 salary, &pound;1,200.</div>
     </figure>
       </div>
     </section>
 
     <section class="ar-split">
-      <div class="ar-t ar-stick">
+      <div class="ar-t">
     <p>There are two common ways pension contributions leave a payslip. With <strong>relief at source</strong>, the saver pays in from take-home pay and the provider claims 20% basic-rate relief from HMRC, so &pound;4,000 becomes &pound;5,000: exactly what the LISA bonus does. With <strong>salary sacrifice</strong>, the saver gives up pay before tax and National Insurance are worked out, so the same hit to take-home pay buys more pension. Many employers then add their own contribution on top, and nothing like that ever reaches a LISA.</p>
+        <div class="ar-notes">
+      <div class="m-callout"><b data-m="count-up" data-format="pct" data-to="15">15%</b><span>Roughly what income tax takes from the whole pension pot: nothing on the first quarter, 20% on the other three quarters.</span></div>
+      <div class="visual-caption">Assumes the State Pension uses up the personal allowance, so every pound of taxable pension income is taxed at the 20% basic rate. Higher income in retirement would raise the rate; lower income could reduce it.</div>
+        </div>
       </div>
-      <div class="ar-v">
+      <div class="ar-v ar-stick">
     <figure class="visual-block" id="scene-out" data-m="scene">
       <span class="m-scene-no">Scene 3 &middot; Getting money out</span>
       <div class="visual-title">What is left after tax on the way out</div>
@@ -218,21 +207,22 @@
           <b class="m-v" data-m="count-up" data-to="4722">&pound;4,722</b>
         </div>
       </div>
-      <div class="m-callout"><b data-m="count-up" data-format="pct" data-to="15">15%</b><span>Roughly what income tax takes from the whole pension pot: nothing on the first quarter, 20% on the other three quarters.</span></div>
-      <div class="visual-caption">Assumes the State Pension uses up the personal allowance, so every pound of taxable pension income is taxed at the 20% basic rate. Higher income in retirement would raise the rate; lower income could reduce it.</div>
     </figure>
       </div>
     </section>
 
     <section class="ar-split">
       <div class="ar-t ar-stick">
-    <p>This is where the LISA earns its place. Its bonus goes in once and is never taxed again, while a pension&rsquo;s tax relief is partly paid back on the way out. Without any employer money, salary sacrifice ends with about &pound;4,720 against the LISA&rsquo;s &pound;5,000, and relief at source with about &pound;4,250. Add an employer contribution and the picture changes.</p>
+    <p>This is where the LISA earns its place. Its bonus goes in once and is never taxed again, while a pension's tax relief is partly paid back on the way out. Without any employer money, salary sacrifice ends with about &pound;4,720 against the LISA's &pound;5,000, and relief at source with about &pound;4,250. Add an employer contribution and the picture changes.</p>
+        <div class="ar-notes">
+      <div class="visual-caption">Same 5% yearly growth on both, so growth scales the gap but never changes which side wins. Employer contribution as a % of a &pound;40,000 salary. Pension tax on the way out as in Scene 3. With no employer money the LISA stays ahead; the pension pulls level at about 2.2% (relief at source) or 0.8% (salary sacrifice). Today's rules; from 6 April 2029 salary sacrifice puts in less (see below).</div>
+        </div>
       </div>
       <div class="ar-v">
     <figure class="visual-block" id="scene-verdict" data-m="scene">
       <span class="m-scene-no">Scene 4 &middot; The verdict</span>
       <div class="visual-title">Which ends up with more at 60</div>
-      <div class="visual-sub">One year&rsquo;s &pound;4,000 of take-home pay, invested from 30 to 60 at 5% a year, after tax on the way out.</div>
+      <div class="visual-sub">One year's &pound;4,000 of take-home pay, invested from 30 to 60 at 5% a year, after tax on the way out.</div>
       <div data-m="toggle-result">
       <div class="m-controls">
         <div class="ar-seg" role="group" aria-label="How the pension is paid">
@@ -258,7 +248,6 @@
       </div>
       <p class="m-line" data-out="line">With a 3% employer contribution, the pension ends up <strong>&pound;1,167 ahead</strong>.</p>
       </div>
-      <div class="visual-caption">Same 5% yearly growth on both, so growth scales the gap but never changes which side wins. Employer contribution as a % of a &pound;40,000 salary. Pension tax on the way out as in Scene 3. With no employer money the LISA stays ahead; the pension pulls level at about 2.2% (relief at source) or 0.8% (salary sacrifice). Today&rsquo;s rules; from 6 April 2029 salary sacrifice puts in less (see below).</div>
     </figure>
       </div>
     </section>
@@ -295,40 +284,40 @@
     </section>
 
     <section class="ar-split">
-      <div class="ar-t ar-stick">
+      <div class="ar-t">
     <p>Pension money unlocks at 55 today and at 57 from 6 April 2028. A LISA unlocks at 60, or earlier if the money goes towards a first home worth up to &pound;450,000. Taken out any other way, the LISA money is still there, but reaching it early comes at a cost.</p>
 
-    <p>Two rule changes are already on the way. The government plans to replace the LISA with a simpler First-Time Buyer ISA, expected from April 2028. Anyone who already holds a LISA can keep paying into it under today&rsquo;s rules.</p>
+    <p>Two rule changes are already on the way. The government plans to replace the LISA with a simpler First-Time Buyer ISA, expected from April 2028. Anyone who already holds a LISA can keep paying into it under today's rules.</p>
 
-    <p>The second affects salary sacrifice. From 6 April 2029, the National Insurance saving will apply only to the first &pound;2,000 sacrificed each year. Above that, each extra pound sacrificed still costs 80p of take-home pay rather than 72p. In this example, &pound;4,000 of take-home pay would then put about &pound;5,200 into the pension instead of &pound;5,556. The pension&rsquo;s head start shrinks most for people sacrificing larger amounts.</p>
+    <p>The second affects salary sacrifice. From 6 April 2029, the National Insurance saving will apply only to the first &pound;2,000 sacrificed each year. Above that, each extra pound sacrificed still costs 80p of take-home pay rather than 72p. In this example, &pound;4,000 of take-home pay would then put about &pound;5,200 into the pension instead of &pound;5,556. The pension's head start shrinks most for people sacrificing larger amounts.</p>
+        <div class="ar-notes">
+      <div class="m-callout"><b data-o="lost">-&pound;250</b><span>of the saver's own original <span data-o="paid">&pound;4,000</span> is lost, on top of forfeiting the entire government bonus.</span></div>
+      <div class="visual-caption">Figures rounded for clarity, based on 2026/27 LISA rules: a 25% bonus and a 25% early withdrawal charge, with the charge applied to the whole balance rather than to the bonus alone.</div>
+        </div>
+    <!-- Placeholder link: the Tax Scenario tool is awaiting its REF-Calculator rebuild. Recheck this link and its wording when it ships. -->
+    <a class="tc-inline-link" href="/guides/tax-scenario.html"><span><small>Tool</small><b>Tax Scenario Tool</b><br><span class="tc-link-sub">Put in a few real numbers, see which wrapper decisions are actually worth something for your situation right now.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
       </div>
-      <div class="ar-v">
+      <div class="ar-v ar-stick">
     <figure class="visual-block" id="fig-charge" data-m="scene">
       <div class="visual-title">The 25% charge claws back more than the bonus</div>
       <div class="visual-sub" data-o="sub">Based on the maximum annual LISA contribution, withdrawn early for a reason other than a first home or reaching 60.</div>
-      <div class="tc-controls" style="grid-template-columns:minmax(0,1fr)">
+      <div class="tc-controls">
         <div class="tc-field"><label for="lisaIn">Paid in by the saver this year <output data-o="paid">&pound;4,000</output></label><input id="lisaIn" type="range" min="250" max="4000" step="250" value="4000"></div>
       </div>
       <div class="m-bars" data-m="bar-fill" style="--max:5000"><div class="m-row m-row-bare"><div class="m-bar" aria-hidden="true"><i class="m-s1" data-b="kept" style="--v:3750"></i><i class="m-tax" data-b="charge" data-m="slice-cut" style="--v:1250"></i></div></div></div>
-      <div class="breakdown">
-        <div class="breakdown-row"><span>Paid in by the saver</span><span class="breakdown-value" data-o="paid">&pound;4,000</span></div>
-        <div class="breakdown-row"><span>Government bonus added (25%)</span><span class="breakdown-value" data-o="bonus">+&pound;1,000</span></div>
-        <div class="breakdown-row result"><span>Balance after the bonus</span><span class="breakdown-value" data-o="balance">&pound;5,000</span></div>
-        <div class="breakdown-row penalty"><span>Early withdrawal charge (25% of the balance)</span><span class="breakdown-value" data-o="charge">-&pound;1,250</span></div>
-        <div class="breakdown-row result"><span>Returned to the saver</span><span class="breakdown-value" data-o="back">&pound;3,750</span></div>
+      <div class="m-breakdown">
+        <div><span>Paid in by the saver</span><b data-o="paid">&pound;4,000</b></div>
+        <div><span>Government bonus added (25%)</span><b data-o="bonus">+&pound;1,000</b></div>
+        <div class="is-total"><span>Balance after the bonus</span><b data-o="balance">&pound;5,000</b></div>
+        <div class="is-tax"><span>Early withdrawal charge (25% of the balance)</span><b data-o="charge">-&pound;1,250</b></div>
+        <div class="is-total"><span>Returned to the saver</span><b data-o="back">&pound;3,750</b></div>
       </div>
-      <div class="stat-highlight">
-        <div class="num" data-o="lost">-&pound;250</div>
-        <div class="label">of the saver's own original <span data-o="paid">&pound;4,000</span> is lost, on top of forfeiting the entire government bonus.</div>
-      </div>
-      <div class="visual-caption">Figures rounded for clarity, based on 2026/27 LISA rules: a 25% bonus and a 25% early withdrawal charge, with the charge applied to the whole balance rather than to the bonus alone.</div>
     </figure>
       </div>
     </section>
 
-    <a class="tc-inline-link" href="/guides/tax-scenario.html"><span><small>Tool</small><b>Tax Scenario Tool</b><br><span style="font-size:14px;color:var(--c-muted)">Put in a few real numbers, see which wrapper decisions are actually worth something for your situation right now.</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></a>
-
-    <div class="ar-not"><strong>What this does not say.</strong> None of this says whether a pension or a LISA fits a particular person better. The example is one basic-rate employee with one set of assumptions; higher-rate relief, a different employer scheme, a house purchase or a different income in retirement would all change the numbers. It shows how each wrapper&rsquo;s mechanics work, which is where any comparison has to start.</div>
+    <div class="ar-end">
+    <div class="ar-not"><p><strong>What this does not say.</strong> None of this says whether a pension or a LISA fits a particular person better. The example is one basic-rate employee with one set of assumptions; higher-rate relief, a different employer scheme, a house purchase or a different income in retirement would all change the numbers. It shows how each wrapper's mechanics work, which is where any comparison has to start.</p></div>
 
     <section class="ar-takeaways" aria-label="Summary">
     <h2 class="ar-takeaways-label">Summary</h2>
@@ -336,7 +325,7 @@
       <div class="principle">
         <span class="num">01</span>
         <h3>A pension is easier to get money into.</h3>
-        <p>Its yearly limit is far higher than the LISA&rsquo;s &pound;4,000, and through salary sacrifice the same take-home pay buys more of it.</p>
+        <p>Its yearly limit is far higher than the LISA's &pound;4,000, and through salary sacrifice the same take-home pay buys more of it.</p>
       </div>
       <div class="principle">
         <span class="num">02</span>
@@ -355,12 +344,13 @@
       </div>
     </div>
     </section>
+    </div>
 </article>
 
 <section class="ar-more">
   <div class="ar-more-head"><h2>Keep reading</h2><a href="/articles.html">All articles</a></div>
-  <!-- Filled from the "related" list in /articles.json -->
-  <div class="ar-related"></div>
+  <!-- Written here so the cards read with JS off; refreshed from the "related" list in /articles.json -->
+  <div class="ar-related"><a href="/articles/how-wealth-compounds.html"><span class="ar-related-cat">Basics</span><h3>How wealth actually compounds</h3><span class="ar-related-time">3 min read</span></a><a href="/articles/your-first-10k.html"><span class="ar-related-cat">Basics</span><h3>Why your first &pound;10,000 is so difficult</h3><span class="ar-related-time">5 min read</span></a><a href="/articles/the-100k-milestone.html"><span class="ar-related-cat">Basics</span><h3>The &pound;100,000 milestone: why it matters</h3><span class="ar-related-time">5 min read</span></a></div>
   <div class="ar-cta"><p>Want to see what this looks like for your own numbers?</p><a href="/book" target="_blank" rel="noopener noreferrer">Book a call</a></div>
 </section>
 </main>

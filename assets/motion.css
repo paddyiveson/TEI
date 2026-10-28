@@ -139,6 +139,16 @@
 .tc-members-body .tc-callout { margin: 0 0 20px; }
 .tc-members-body p.tc-na { margin: 18px 0 0; font-size: 13px; line-height: 1.55; font-weight: 400; color: var(--c-muted); }
 
+/* Breakdown rows: a sum worked line by line in a figure, label left and
+   amount right. .is-total marks a running total, .is-tax a charge.
+   <div class="m-breakdown"><div><span>Paid in</span><b>£4,000</b></div>…</div> */
+.m-breakdown { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 16px; }
+.m-breakdown > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; background: var(--c-tile-2); font-size: 14px; color: var(--c-ink); }
+.m-breakdown b { font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.m-breakdown > .is-total { background: var(--c-champ-tile); }
+.m-breakdown > .is-tax { background: var(--c-warn-tile); }
+.m-breakdown > .is-tax b { color: var(--c-warn); }
+
 /* =========================================================================
    A2 additions (Missing the Best Days, Oct 2026): dot-field, line-draw,
    pair-link and a compact stepper. Same rules as above: theme tokens only,
@@ -256,43 +266,51 @@
   .m-strip.m-armed .m-gapl { transform: translate(-50%, -110%) !important; }
 }
 
-/* ---------- Phones: condensed scene figures ----------
-   Scene figures (figure.visual-block[data-m="scene"]) run tighter on phones:
-   less card padding, smaller tiles and numbers, shorter charts. Scoped to
-   scene figures so articles not yet refreshed keep their spacing. */
+/* ---------- Phones: compact figure cards (spec 4) ----------
+   Every figure on a refreshed page (body.tc-page) runs compact on phones:
+   smaller numbers, tiles two a row, label notes on the label line, shorter
+   charts and strips. The card itself (padding, corners) is in
+   /assets/article.css. Pages not yet refreshed keep their spacing. */
 @media (max-width: 760px) {
-  .visual-block[data-m="scene"] { margin: 8px 0 28px; padding: 16px 14px 14px; border-radius: 18px; }
-  .visual-block[data-m="scene"] .m-scene-no { margin-bottom: 4px; font-size: 11px; }
-  .visual-block[data-m="scene"] .visual-title { font-size: 16px; }
-  .visual-block[data-m="scene"] .visual-sub { margin-bottom: 12px; font-size: 10.5px; }
-  .visual-block[data-m="scene"] .visual-caption { margin-top: 12px; padding-top: 10px; font-size: 12px; line-height: 1.5; }
-  .visual-block[data-m="scene"] .tc-key { gap: 4px 12px; margin: 0 0 8px; font-size: 12px; }
-  .visual-block[data-m="scene"] .m-controls { gap: 10px; margin: 0 0 12px; }
-  .visual-block[data-m="scene"] .ar-seg.m-steps button { min-height: 38px; min-width: 40px; padding: 0 8px; font-size: 12px; }
-  .visual-block[data-m="scene"] .m-callout { margin-top: 12px; padding: 12px 14px; border-radius: 14px; gap: 2px 10px; }
-  .visual-block[data-m="scene"] .m-callout b { font-size: 28px; }
-  .visual-block[data-m="scene"] .m-callout span { font-size: 13px; line-height: 1.45; }
-  .visual-block[data-m="scene"] .m-ends { gap: 8px; }
-  .visual-block[data-m="scene"] .m-ends > div { padding: 10px 12px; border-radius: 12px; }
-  .visual-block[data-m="scene"] .m-ends small { font-size: 10px; gap: 6px; }
-  .visual-block[data-m="scene"] .m-ends b { font-size: 22px; }
-  .visual-block[data-m="scene"] .m-ends p { font-size: 12px !important; margin-top: 2px !important; }
-  .visual-block[data-m="scene"] .m-verdict { gap: 8px; }
-  .visual-block[data-m="scene"] .m-verdict > div { padding: 10px 12px; border-radius: 12px; }
-  .visual-block[data-m="scene"] .m-verdict b { font-size: 22px; }
-  .visual-block[data-m="scene"] .m-verdict p { font-size: 12px !important; margin-top: 2px !important; }
-  .visual-block[data-m="scene"] .m-win { top: 8px; right: 8px; padding: 2px 7px; font-size: 10px; }
-  .visual-block[data-m="scene"] .m-line { margin-top: 8px !important; padding: 12px 14px; border-radius: 12px; font-size: 14.5px !important; }
-  .visual-block[data-m="scene"] .m-chart { height: 210px; margin: 4px 0 26px 36px; }
-  .visual-block[data-m="scene"] .m-yaxis span, .visual-block[data-m="scene"] .m-xaxis span { font-size: 10px; }
-  .visual-block[data-m="scene"] .m-strip-h { margin: 10px 0 0; font-size: 13px; }
-  .visual-block[data-m="scene"] .m-strip { height: 140px; margin-bottom: 24px; }
-  .visual-block[data-m="scene"] .m-pairs { gap: 4px; }
-  .visual-block[data-m="scene"] .m-pairs li { padding: 7px 10px; border-radius: 10px; font-size: 12.5px; gap: 2px 8px; }
-  .visual-block[data-m="scene"] .m-pairs small { font-size: 10px; }
-  .visual-block[data-m="scene"] .m-dots { margin: 0 0 4px; }
-  .visual-block[data-m="scene"] .m-dots-ends { margin-top: 4px; font-size: 10px; }
+  body.tc-page .m-scene-no { margin-bottom: 4px; font-size: 10px; }
+  body.tc-page .visual-title { font-size: 15px; }
+  body.tc-page .visual-sub { margin-bottom: 10px; font-size: 10.5px; }
+  body.tc-page .visual-caption { margin-top: 10px; padding-top: 8px; font-size: 11.5px; line-height: 1.45; }
+  body.tc-page .tc-key { gap: 4px 10px; margin: 0 0 8px; font-size: 10.5px; }
+  body.tc-page .m-controls { gap: 8px; margin: 0 0 10px; }
+  body.tc-page .ar-seg button { min-height: 38px; font-size: 12px; }
+  body.tc-page .ar-seg.m-steps button { min-width: 40px; padding: 0 8px; }
+  body.tc-page .m-callout { flex-wrap: nowrap; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; }
+  body.tc-page .m-callout b { flex: none; font-size: 24px; }
+  body.tc-page .m-callout span { font-size: 12.5px; line-height: 1.4; }
+  body.tc-page .m-k small { display: inline; margin-left: 6px; font-size: 10px; }
+  body.tc-page .m-bars .m-row { margin-bottom: 6px; }
+  body.tc-page .m-v { font-size: 15px; }
+  body.tc-page .m-bar { height: 13px; }
+  body.tc-page .m-verdict, body.tc-page .m-ends { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  body.tc-page .m-verdict > div, body.tc-page .m-ends > div { padding: 10px; border-radius: 12px; }
+  body.tc-page .m-verdict b, body.tc-page .m-ends b { font-size: 19px; }
+  body.tc-page .m-verdict p, body.tc-page .m-ends p { margin-top: 2px !important; font-size: 11px !important; }
+  body.tc-page .m-ends small { gap: 6px; font-size: 11px; }
+  body.tc-page .m-win { top: 8px; right: 8px; padding: 2px 7px; font-size: 10px; }
+  body.tc-page .m-line { margin-top: 8px !important; padding: 10px 12px; border-radius: 12px; font-size: 13px !important; }
+  body.tc-page .m-chart { margin: 4px 0 26px 36px; }
+  body.tc-page .m-chart:not(.m-lane) { height: 180px; }
+  body.tc-page .m-yaxis span, body.tc-page .m-xaxis span { font-size: 10px; }
+  body.tc-page .m-strip-h { margin: 10px 0 0; font-size: 13px; }
+  body.tc-page .m-strip { height: 110px; margin-bottom: 24px; }
+  body.tc-page .m-pairs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  body.tc-page .m-pairs li { margin: 0; padding: 6px 8px; gap: 2px 8px; border-radius: 10px; font-size: 11px; }
+  body.tc-page .m-pairs small { font-size: 10px; }
+  body.tc-page .m-dots { margin: 0 0 4px; }
+  body.tc-page .m-dots-ends { margin-top: 4px; font-size: 10px; }
+  body.tc-page .m-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  body.tc-page .m-facts > div { padding: 8px 10px; }
+  body.tc-page .m-facts dd { font-size: 15px; }
+  body.tc-page .m-breakdown { gap: 5px; }
+  body.tc-page .m-breakdown > div { padding: 8px 10px; font-size: 13px; }
 }
+
 
 /* =========================================================================
    REF-Short additions (Buying the Top, Oct 2026): line markers. Same rules:
@@ -345,7 +363,7 @@
 /* Fit to the screen: on a phone the whole figure fits one screen; in the wide
    article layout (1100px+) the chart takes its height from the window. */
 @media (max-width: 760px) {
-  .visual-block[data-m="scene"] .m-chart.is-bare:not(.m-lane) { height: 170px; }
+  .visual-block[data-m="scene"] .m-chart.is-bare:not(.m-lane) { height: 180px; }
   .visual-block[data-m="scene"] .m-chart.m-lane { height: 26px; margin: 2px 0 8px; }
   .m-lanes-h { margin-bottom: 4px; font-size: 11px; }
   .m-lane-h { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

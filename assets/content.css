@@ -646,5 +646,36 @@ details.tc-x[open] .tc-x-body { animation: tc-open .35s var(--tc-ease); }
   .tc-table.is-stack td:first-child::before { content: none; }
 }
 
+/* Comparison tables as cards (.is-cards): one small card per row, its
+   values labelled from td[data-label] (the second label in gold), the header
+   row hidden from view. Three a row in a text column, six a row in a
+   full-width section (.ar-full), two a row on phones. Reads the same with
+   JS off. */
+.tc-table.is-cards { display: block; min-width: 0; }
+.tc-table.is-cards thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.tc-table.is-cards tbody { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tc-table.is-cards tr { display: block; padding: 12px 14px; border-radius: 14px; background: var(--c-tile-2); }
+.tc-table.is-cards td { display: block; position: static; padding: 0; border: 0; background: none; box-shadow: none; font-size: 13px; line-height: 1.45; }
+.tc-table.is-cards td:first-child { margin-bottom: 8px; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+.tc-table.is-cards td[data-label]::before { content: attr(data-label); display: block; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-muted); }
+.tc-table.is-cards td[data-label] + td[data-label] { margin-top: 8px; }
+.tc-table.is-cards td[data-label] + td[data-label]::before { color: var(--c-gold); }
+@media (min-width: 1100px) {
+  .ar-full .tc-table.is-cards tbody { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .tc-table.is-cards tbody { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tc-table.is-cards tr { padding: 10px; border-radius: 12px; }
+  .tc-table.is-cards td { font-size: 11.5px; }
+  .tc-table.is-cards td:first-child { margin-bottom: 6px; font-size: 12.5px; }
+  .tc-table.is-cards td[data-label]::before { font-size: 9.5px; }
+  .tc-table.is-cards td[data-label] + td[data-label] { margin-top: 6px; }
+  /* Compact members box on refreshed pages (spec 4). */
+  body.tc-page .tc-members-head { padding: 12px 14px; }
+  body.tc-page .tc-members-body { padding: 14px; }
+  body.tc-page .tc-members-lock { gap: 10px; padding: 12px 14px; }
+  body.tc-page .tc-members-lock p { font-size: 13.5px !important; }
+}
+
 /* Stat tiles standing on the page rather than inside a figure card */
 .tc-stats.is-page > div, .tc-stats.is-page > div:nth-child(n) { background: var(--c-tile); border: 1px solid var(--c-line); }

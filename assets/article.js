@@ -75,13 +75,17 @@
     var related = root.querySelector('.ar-related');
     if (related) {
       var cards = (article.related || []).map(function (s) { return bySlug[s]; }).filter(Boolean).slice(0, 3);
-      related.innerHTML = cards.map(function (r) {
-        return '<a href="' + urlFor(r) + '"><span class="ar-related-cat">' + escapeHtml(r.category) + '</span>' +
-          '<h3>' + escapeHtml(r.title) + '</h3>' +
-          '<span class="ar-related-time">' + escapeHtml(readTime(r.readTime)) + '</span></a>';
-      }).join('');
+      // The cards written into the page stay unless there are fresh ones to
+      // show; with neither, the section is hidden.
+      if (cards.length) {
+        related.innerHTML = cards.map(function (r) {
+          return '<a href="' + urlFor(r) + '"><span class="ar-related-cat">' + escapeHtml(r.category) + '</span>' +
+            '<h3>' + escapeHtml(r.title) + '</h3>' +
+            '<span class="ar-related-time">' + escapeHtml(readTime(r.readTime)) + '</span></a>';
+        }).join('');
+      }
       var section = root.querySelector('.ar-more-head');
-      if (!cards.length && section) { section.hidden = true; related.hidden = true; }
+      if (!related.children.length && section) { section.hidden = true; related.hidden = true; }
     }
   }
 

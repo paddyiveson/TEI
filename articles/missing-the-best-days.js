@@ -28,7 +28,8 @@
   }
   function usd(n) { return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
   function each(list, fn) { Array.prototype.forEach.call(list, fn); }
-  function out(root, name) { return root.querySelector('[data-out="' + name + '"]'); }
+  // A figure's key number can sit beside the text (.ar-notes), so look in its whole section.
+  function out(root, name) { var r = (root.closest && root.closest('.ar-split')) || root; return r.querySelector('[data-out="' + name + '"]'); }
   function press(buttons, attr, value) { each(buttons, function (b) { b.setAttribute('aria-pressed', String(b.getAttribute(attr) === String(value))); }); }
   function yearOf(i) { var y = 0; while (y + 1 < D.yearStart.length && i >= D.yearStart[y + 1]) y++; return D.years[y]; }
 
