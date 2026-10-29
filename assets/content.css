@@ -721,3 +721,328 @@ body.tc-page .tc-members-head { background: var(--c-depth); }
   .tc-cap.is-open .tc-cap-lead, .tc-cap.is-open .tc-cap-btn { display: none; }
   .tc-cap-btn { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0 -14px 4px; padding: 0 2px; border: 0; background: none; font: inherit; font-size: 11.5px; color: var(--c-gold); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 }
+
+/* ---------- Guide in layout D, on the Investment Suite model (Batch 0 stage 3) ----------
+   Paddy, 29 Oct 2026, from the mock-up "Tax Guide Card Options". Scoped to a
+   guide in the wide layout (main.tc-main.ar-wide) or to its own parts, so
+   Principles and the tools keep their look.
+   - body.tc-fullwidth: from 1101px the page runs edge to edge, the contents
+     rail pinned to the left and the parts taking the rest.
+   - Smaller hero and headings on desktop; type one step smaller on phones.
+   - Part 1: two compact boxes (.tc-figboxes), each heading inside its box.
+   - Wrapper cards (.tc-wcard) in labelled rows (.tc-wrow, .tc-wgrid): limit
+     line, then going in / while it grows / coming out. tax.js opens More
+     detail as a panel under the card's row (.tc-wpanel). On phones each row
+     opens with a lead card (.is-lead; .is-warm for the second row), then
+     small cards two to a row showing just the name and limit.
+   - The two worked examples side by side (.tc-wpair).
+   - Side by side as a tick table (.tc-ticks); on phones the limit sits under
+     the name and access is left to the cards.
+   - Next steps led by Book a call (.tl-next.is-lead, Hick's law).
+   - body.tc-navy: dark mode in the Suite's navy, blue kept for key numbers.
+   - Short labels: .tc-l on desktop, .tc-s on phones. */
+.tc-s { display: none; }
+.tc-anchor { display: block; position: relative; top: calc(-1 * var(--tei-hdr-h, 68px) - 24px); }
+
+@media (min-width: 1101px) {
+  body.tc-fullwidth { --tei-container: none; }
+  .tc-main.ar-wide .ar-hero-in { max-width: none; }
+  .tc-main.ar-wide .tc-guide { max-width: none; margin: 0; padding: 40px 32px 24px; grid-template-columns: 200px minmax(0, 1fr); gap: 48px; }
+}
+@media (min-width: 761px) {
+  .tc-main.ar-wide .ar-hero-in { padding-top: 10px; padding-bottom: 22px; }
+  .tc-main.ar-wide .ar-meta { margin-top: 6px; }
+  .tc-main.ar-wide .ar-hero h1 { margin-top: 8px; font-size: 30px; }
+  .tc-main.ar-wide .ar-dek { max-width: 90ch; margin-top: 6px; font-size: 15px; }
+  .tc-main.ar-wide .tc-h2 { margin-bottom: 8px; font-size: 28px; }
+  .tc-main.ar-wide .tc-q { margin-bottom: 14px; font-size: 16px; }
+  .tc-main.ar-wide .tc-part { margin-bottom: 56px; }
+  .tc-main.ar-wide .tc-part-no { margin-bottom: 6px; font-size: 11px; }
+}
+
+/* ---------- Part 1: two compact boxes ---------- */
+.tc-figboxes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.tc-figbox { display: flex; flex-direction: column; padding: 0 16px 12px; border-radius: 16px; background: var(--c-tile); border: 1px solid var(--c-line); }
+.tc-figbox-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 12px 0 10px; border-bottom: 1px solid var(--c-line); }
+.tc-figbox-h h3 { margin: 0; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+.tc-figbox-h span { font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-gold); }
+.tc-figrows { flex: 1; display: flex; flex-direction: column; margin: 0; }
+.tc-figrows > div { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--c-line-soft); }
+.tc-figrows dt { font-size: 14px; line-height: 1.3; color: var(--c-ink); }
+.tc-figrows dt small { display: block; margin-top: 1px; font-size: 12px; line-height: 1.35; color: var(--c-muted); }
+.tc-figrows dd { flex: none; margin: 0; font-size: 18px; line-height: 1.1; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.tc-body p.tc-figbox-note { margin: 10px 0 0; font-size: 12.5px; line-height: 1.5; font-weight: 400; color: var(--c-muted); }
+
+/* ---------- Wrapper cards in labelled rows ---------- */
+.tc-wrow { margin-top: 22px; }
+.tc-wrow-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; margin: 0 0 10px; }
+.tc-wrow-h h3 { margin: 0; font-size: 18px; line-height: 1.25; font-weight: 400; letter-spacing: -0.01em; color: var(--c-ink); }
+.tc-wrow-h span { font-size: 13px; line-height: 1.45; color: var(--c-muted); }
+/* One row of equal cards; tax.js sets data-n to the cards shown, so a panel can span the row. */
+.tc-wgrid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 10px; align-items: stretch; }
+.tc-wgrid[data-n] { grid-auto-flow: row; }
+.tc-wgrid[data-n="1"] { grid-template-columns: minmax(0, 1fr); }
+.tc-wgrid[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tc-wgrid[data-n="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tc-wgrid[data-n="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tc-wgrid > [hidden] { display: none; }
+.tc-pcard.tc-wcard { padding: 14px 16px; border-radius: 16px; }
+.tc-wcard[id] { scroll-margin-top: calc(var(--tei-hdr-h, 68px) + 24px); }
+.tc-wcard-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.tc-wcard .tc-pcard-tag { font-size: 10px; }
+.tc-wcard .tc-badge { padding: 2px 8px; font-size: 10px; }
+.tc-pcard.tc-wcard h4 { margin: 6px 0 1px; font-size: 16.5px; }
+.tc-pcard > p.tc-wcard-lim { margin: 0 0 8px !important; font-size: 12.5px !important; line-height: 1.45 !important; color: var(--c-muted) !important; }
+.tc-wrows { margin: 0 0 10px; border-top: 1px solid var(--c-line-soft); }
+.tc-wrows > div { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--c-line-soft); }
+.tc-wrows dt { padding-top: 1px; font-family: var(--tc-mono); font-size: 9.5px; line-height: 1.4; color: var(--c-gold); }
+.tc-wrows dd { margin: 0; font-size: 13px; line-height: 1.4; color: var(--c-ink); }
+.tc-wcard-link { display: inline-flex; align-items: center; gap: 6px; margin: -2px 0 10px; font-size: 12.5px; font-weight: 500; color: var(--c-gold); text-decoration: none; }
+.tc-wcard-link svg { width: 14px; height: 14px; }
+.tc-wcard-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.tc-wcard details > summary { min-height: 32px; padding: 0 12px; font-size: 12.5px; }
+.tc-wcard.is-open { border-color: var(--c-gold); }
+.tc-wcard.is-open details > summary { background: var(--c-btn); color: var(--c-btn-ink); border-color: var(--c-btn); }
+.tc-wcard.is-open details > summary::after { transform: rotate(225deg) translate(-1px, -1px); }
+.tc-wpanel { grid-column: 1 / -1; padding: 14px 18px 16px; border-radius: 16px; background: var(--c-tile); border: 1px solid var(--c-gold); animation: tc-open .3s var(--tc-ease); }
+.tc-wpanel-h { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 0 0 10px; }
+.tc-wpanel-h b { font-size: 16px; font-weight: 500; color: var(--c-ink); }
+.tc-wpanel-close { min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--c-line); background: transparent; color: var(--c-ink); font: inherit; font-size: 13px; cursor: pointer; }
+.tc-wpanel-close:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; }
+.tc-wpanel .tc-pcard-more { margin: 0; column-count: 3; column-gap: 40px; column-rule: 1px solid var(--c-line-soft); animation: none; }
+.tc-wpanel .tc-pcard-more dl, .tc-wpanel .tc-pcard-more ul { break-inside: avoid; }
+.tc-wpanel .tc-pcard-more h5 { break-after: avoid; }
+.tc-wpanel .tc-pcard-more:has(.tc-ways) { column-count: 1; }
+.tc-wpanel .tc-pcard-more:has(.tc-ways) > dl { column-count: 2; column-gap: 40px; }
+.tc-wpanel .tc-pcard-more:has(.tc-ways) > dl div { break-inside: avoid; }
+/* The general account's four ways to reduce the tax */
+.tc-ways { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 4px 0 16px; }
+.tc-way { padding: 12px 14px; border-radius: 14px; background: var(--c-tile-2); border: 1px solid var(--c-line-soft); }
+.tc-way b { display: block; margin: 0 0 4px; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+.tc-way span { display: block; font-size: 13px; line-height: 1.5; color: var(--c-muted); }
+
+/* ---------- The two worked examples ---------- */
+.tc-wex { margin-top: 22px; }
+.tc-wpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: stretch; }
+.tc-wpair > figure.visual-block { display: flex; flex-direction: column; margin: 0; padding: 16px 18px; border-radius: 16px; }
+.tc-wpair .visual-title { font-size: 15px; }
+.tc-wpair .m-callout { gap: 4px 14px; margin-top: auto; padding: 10px 14px; border-radius: 12px; }
+.tc-wpair .m-callout b { font-size: 24px; }
+.tc-wpair .m-callout span { flex-basis: 200px; font-size: 12.5px; line-height: 1.45; }
+.tc-wpair .visual-caption { font-size: 12px; }
+.tc-wpair .m-row { margin-bottom: 4px; }
+#options > .tc-inline-link { margin-top: 16px; }
+
+/* ---------- Side by side: the tick table ---------- */
+.tc-ticks-wrap { border: 1px solid var(--c-line); border-radius: 18px; background: var(--c-tile); overflow: hidden; }
+.tc-ticks { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.tc-ticks thead th { padding: 12px 14px; text-align: left; font-family: var(--tc-mono); font-size: 11px; font-weight: 400; color: var(--c-gold); border-bottom: 1px solid var(--c-line); }
+.tc-ticks tbody th { padding: 11px 14px; text-align: left; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+.tc-ticks td { padding: 11px 14px; vertical-align: middle; color: var(--c-ink); }
+.tc-ticks tbody tr + tr > * { border-top: 1px solid var(--c-line-soft); }
+.tc-ticks .is-c { text-align: center; }
+.tc-ticks-lim { display: none; }
+.tc-yes, .tc-no { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; vertical-align: middle; }
+.tc-yes { background: var(--c-powder); color: var(--c-ink); }
+.tc-no { background: var(--c-warn-tile); color: var(--c-warn); }
+.tc-yes svg, .tc-no svg { width: 14px; height: 14px; }
+.tc-ticks sup, .tc-ticks-foot sup { font-size: 10px; color: var(--c-gold); }
+.tc-none { color: var(--c-muted); }
+.tc-partial { display: inline-block; padding: 3px 9px; border-radius: 999px; background: var(--c-champ-tile); color: var(--c-ink); font-size: 12.5px; }
+.tc-body p.tc-ticks-foot { margin: 10px 0 0; font-size: 12.5px; line-height: 1.55; font-weight: 400; color: var(--c-muted); }
+
+/* ---------- Next steps led by Book a call (Hick's law) ---------- */
+.tl-next.is-lead > .tl-card:first-child { background: var(--c-key); border-color: rgba(232, 214, 168, 0.35); box-shadow: var(--c-key-shadow); color: #F7F4ED; }
+.tl-next.is-lead > .tl-card:first-child > small { color: #E8D6A8; }
+.tl-next.is-lead > .tl-card:first-child h3 { font-size: 26px; font-weight: 300; color: #F7F4ED; }
+.tl-next.is-lead > .tl-card:first-child p { max-width: 52ch; color: var(--c-key-text); }
+.tl-next.is-lead > .tl-card:first-child .tl-card-go { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 8px 20px; margin-top: 8px; }
+.tl-next.is-lead > .tl-card:first-child .tc-btn:not(.is-line) { width: auto; padding: 0 22px; background: #E8D6A8; color: #0F1E36; }
+.tl-next.is-lead > .tl-card:first-child .tc-btn.is-line { width: auto; min-height: 44px; padding: 0; border: 0; background: none; color: #E8D6A8; text-decoration: underline; text-underline-offset: 3px; }
+@media (min-width: 761px) {
+  .tl-next.is-lead { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); grid-template-rows: 1fr 1fr; gap: 12px; }
+  .tl-next.is-lead > .tl-card { gap: 4px; padding: 16px 18px; border-radius: 16px; }
+  .tl-next.is-lead > .tl-card:first-child { grid-row: 1 / span 2; justify-content: center; gap: 8px; padding: 26px 30px; }
+  .tl-next.is-lead > .tl-card:not(:first-child) h3 { font-size: 16px; }
+  .tl-next.is-lead > .tl-card:not(:first-child) p { margin: 0; font-size: 13px; line-height: 1.45; }
+}
+
+/* ---------- Dark mode in the Suite's navy (this guide first; site-wide later) ---------- */
+:root[data-theme="dark"] body.tc-navy {
+  --c-page: #08111F;
+  --c-tile: #132540;
+  --c-tile-2: #19304F;
+  --c-feature: #152845;
+  --c-deep: #08111F;
+  --c-muted: #AEB9CA;
+  --c-line: rgba(232, 214, 168, 0.16);
+  --c-line-soft: rgba(232, 214, 168, 0.08);
+  --c-powder: rgba(232, 214, 168, 0.10);
+  --c-champ-tile: rgba(232, 214, 168, 0.12);
+}
+:root[data-theme="dark"] body.tc-navy .tei-hdr, :root[data-theme="dark"] body.tc-navy .ar-hero { background: #08111F; }
+
+/* ---------- Tablets ---------- */
+@media (max-width: 1100px) {
+  .tc-wgrid, .tc-wgrid[data-n] { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tc-wgrid > .tc-wcard.is-span { grid-column: 1 / -1; }
+  .tc-wpanel .tc-pcard-more { column-count: 2; }
+  .tc-wcard[id] { scroll-margin-top: calc(var(--tei-hdr-h, 68px) + 72px); }
+}
+/* The Summary is a contents entry inside the closing pair: it keeps the pair's spacing, not a part's. */
+.tc-main.ar-wide .ar-end > .ar-takeaways.tc-part { margin-bottom: 0; }
+
+/* ---------- Phones: their own design (Paddy, 29 Oct) ---------- */
+@media (max-width: 760px) {
+  .tc-l { display: none; }
+  .tc-s { display: inline; }
+
+  /* Type, one step smaller */
+  .tc-main.ar-wide .tc-h2 { margin-bottom: 6px; font-size: 22px; }
+  .tc-main.ar-wide .tc-q { margin-bottom: 10px; font-size: 14.5px; }
+  .tc-main.ar-wide .tc-body p { font-size: 14.5px; }
+  .tc-main.ar-wide .tc-part { margin-bottom: 32px; }
+  .tc-main.ar-wide .tc-part-no { margin-bottom: 4px; font-size: 10.5px; }
+
+  /* Part 1: really small; grey lines only where they change the number */
+  .tc-figboxes { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .tc-figbox { padding: 0 12px 8px; border-radius: 12px; }
+  .tc-figbox-h { padding: 9px 0 7px; }
+  .tc-figbox-h h3 { font-size: 13px; }
+  .tc-figbox-h span { font-size: 9.5px; }
+  .tc-figrows > div { flex: none; padding: 5px 0; }
+  .tc-figrows dt { font-size: 13px; }
+  .tc-figrows dt small { font-size: 11px; }
+  .tc-figrows dt small:not(.is-keep) { display: none; }
+  .tc-figrows dd { font-size: 15px; }
+  .tc-main.ar-wide .tc-body p.tc-figbox-note { margin-top: 6px; font-size: 11px; }
+
+  /* The filter: one row of four short tabs */
+  .tc-main.ar-wide .tc-filter { margin-bottom: 2px; }
+  .tc-main.ar-wide .tc-filter > span { display: none; }
+  .tc-main.ar-wide .tc-filter .tc-seg { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; width: 100%; padding: 3px; border-radius: 999px; box-sizing: border-box; }
+  .tc-main.ar-wide .tc-filter .tc-seg button { min-height: 36px; padding: 0 4px; border-radius: 999px; font-size: 12.5px; white-space: nowrap; }
+
+  /* Wrapper cards: a full-width lead at the top of each row, small cards two to a row */
+  .tc-wrow { margin-top: 18px; }
+  .tc-wrow-h { margin-bottom: 8px; }
+  .tc-wrow-h h3 { font-size: 17px; }
+  .tc-wrow-h span { font-size: 12px; }
+  .tc-wgrid, .tc-wgrid[data-n] { gap: 8px; }
+  .tc-wgrid > .tc-wcard.is-span { grid-column: auto; }
+  .tc-wgrid > .tc-wcard.is-lead, .tc-wgrid > .tc-wcard.is-pspan { grid-column: 1 / -1; }
+  .tc-wcard { position: relative; cursor: pointer; }
+  .tc-pcard.tc-wcard.is-small { padding: 10px 12px 12px; border-radius: 14px; }
+  .tc-wcard.is-small .tc-wrows, .tc-wcard.is-small > details, .tc-wcard.is-small .tc-wcard-link, .tc-wcard.is-small .tc-badge { display: none; }
+  .tc-pcard.tc-wcard.is-small h4 { margin: 4px 22px 2px 0; font-size: 14.5px; }
+  .tc-wcard.is-small > p.tc-wcard-lim { margin: 0 !important; font-size: 11.5px !important; line-height: 1.4 !important; }
+  .tc-wcard.is-small::after { content: ""; position: absolute; right: 14px; top: 34px; width: 7px; height: 7px; border-right: 1.5px solid var(--c-gold); border-bottom: 1.5px solid var(--c-gold); transform: rotate(45deg); transition: transform .25s ease; }
+  .tc-wcard.is-small.is-open::after { top: 38px; transform: rotate(225deg); }
+  .tc-pcard.tc-wcard.is-lead { padding: 14px 16px; border-radius: 16px; }
+  .tc-pcard.tc-wcard.is-lead h4 { font-size: 17px; }
+  .tc-wcard.is-lead .tc-wrows > div { grid-template-columns: 78px minmax(0, 1fr); }
+  .tc-wcard.is-lead .tc-wrows dd { font-size: 12.5px; }
+  .tc-wcard.is-lead > details > summary { font-size: 12px; }
+  /* The ISA lead on the featured blue tile, as the Suite's lead card */
+  .tc-wcard.is-lead:not(.is-warm) { background: var(--c-key); border-color: rgba(232, 214, 168, 0.35); box-shadow: var(--c-key-shadow); }
+  .tc-wcard.is-lead:not(.is-warm) h4, .tc-wcard.is-lead:not(.is-warm) .tc-wrows dd { color: #F7F4ED; }
+  .tc-wcard.is-lead:not(.is-warm) > p.tc-wcard-lim { color: var(--c-key-text) !important; }
+  .tc-wcard.is-lead:not(.is-warm) .tc-pcard-tag, .tc-wcard.is-lead:not(.is-warm) .tc-wrows dt { color: #E8D6A8; }
+  .tc-wcard.is-lead:not(.is-warm) .tc-badge { background: rgba(232, 214, 168, 0.14); color: #E8D6A8; }
+  .tc-wcard.is-lead:not(.is-warm) .tc-wrows, .tc-wcard.is-lead:not(.is-warm) .tc-wrows > div { border-color: rgba(232, 214, 168, 0.18); }
+  .tc-wcard.is-lead:not(.is-warm) > details > summary { border-color: rgba(232, 214, 168, 0.4); color: #F7F4ED; }
+  /* The pensions lead warm, as the Suite's Foundations tiles */
+  .tc-wcard.is-warm { background: var(--c-champ-tile); border-color: var(--c-champ); }
+  .tc-wpanel { padding: 10px 12px 12px; border-radius: 14px; }
+  .tc-wpanel .tc-wrows { margin: 0 0 8px; }
+  .tc-wpanel-h { margin-bottom: 6px; }
+  .tc-wpanel-h b { font-size: 14px; }
+  .tc-wpanel-close { min-height: 32px; padding: 0 12px; font-size: 12px; }
+  .tc-wpanel .tc-pcard-more, .tc-wpanel .tc-pcard-more:has(.tc-ways) > dl { column-count: 1; }
+  .tc-wpanel .tc-pcard-more h5 { margin: 12px 0 4px; font-size: 10px; }
+  .tc-wpanel .tc-pcard-more dl div { padding: 5px 0; font-size: 12.5px; }
+  .tc-wpanel .tc-pcard-more li { font-size: 12.5px; line-height: 1.5; }
+  .tc-ways { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .tc-way { padding: 10px 12px; }
+  .tc-way b { font-size: 13px; }
+  .tc-way span { font-size: 12px; }
+
+  /* Worked examples: smaller title, thinner bars */
+  .tc-wex { margin-top: 18px; }
+  .tc-wpair { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .tc-wpair > figure.visual-block { padding: 12px; border-radius: 14px; }
+  .tc-wpair .visual-title { font-size: 14px; line-height: 1.3; }
+  .tc-wpair .tc-key { font-size: 10.5px; }
+  .tc-wpair .m-bar { height: 10px; }
+  .tc-wpair .m-callout { margin-top: 8px; padding: 8px 12px; border-radius: 10px; }
+  .tc-wpair .m-callout b { font-size: 20px; }
+  .tc-wpair .m-callout span { font-size: 11.5px; }
+  .tc-wpair .visual-caption { font-size: 11px; }
+
+  /* The order: number and title; the reason shows when tapped */
+  .tc-main.ar-wide .tc-hint { font-size: 10.5px !important; }
+  .tc-main.ar-wide .tc-steps.is-list { gap: 6px; }
+  .tc-main.ar-wide .tc-steps.is-list details.tc-x > summary { grid-template-columns: 22px minmax(0, 1fr); column-gap: 10px; padding: 10px 12px; }
+  .tc-main.ar-wide .tc-steps details.tc-x:not([open]) .tc-x-pre { display: none; }
+  .tc-main.ar-wide .tc-steps.is-list details.tc-x:not([open]) > summary { align-items: center; min-height: 0; }
+  .tc-main.ar-wide .tc-steps.is-list details.tc-x:not([open]) .tc-x-no { grid-row: auto; }
+  .tc-main.ar-wide .tc-steps.is-list details.tc-x:not([open]) .tc-x-title { padding-top: 0; padding-right: 34px; }
+  .tc-main.ar-wide .tc-steps.is-list details.tc-x > summary::after, .tc-main.ar-wide .tc-timeline details.tc-x > summary::after { top: 50%; transform: translateY(-50%); }
+  .tc-main.ar-wide .tc-steps.is-list details.tc-x[open] > summary::after, .tc-main.ar-wide .tc-timeline details.tc-x[open] > summary::after { top: 10px; transform: rotate(45deg); }
+  .tc-main.ar-wide .tc-x-no { width: 22px; height: 22px; font-size: 11px; }
+  .tc-main.ar-wide .tc-x-title { font-size: 14px; }
+  .tc-main.ar-wide .tc-x-pre { font-size: 12.5px; }
+  .tc-main.ar-wide .tc-body .tc-x-body p { font-size: 13.5px; }
+  .tc-main.ar-wide .tc-callout { padding: 10px 12px; }
+  .tc-main.ar-wide .tc-body .tc-callout p { font-size: 13px; line-height: 1.5; }
+  /* What is changing: every item closed (tax.js), date and title */
+  .tc-main.ar-wide .tc-timeline .tc-x > summary { padding: 9px 12px; }
+  .tc-main.ar-wide .tc-x-when { font-size: 10px; }
+
+  /* Side by side: a plain small table */
+  .tc-ticks { table-layout: fixed; }
+  .tc-ticks .c1, .tc-ticks .c5 { display: none; }
+  .tc-ticks thead th, .tc-ticks tbody th, .tc-ticks td { padding: 8px 6px; }
+  .tc-ticks thead th:first-child, .tc-ticks tbody th { width: 44%; padding-left: 12px; }
+  .tc-ticks thead th { padding-top: 9px; padding-bottom: 7px; font-size: 9.5px; }
+  .tc-ticks tbody th { font-size: 13px; line-height: 1.3; }
+  .tc-ticks-lim { display: block; margin-top: 1px; font-size: 11px; font-weight: 400; color: var(--c-muted); }
+  .tc-ticks td { font-size: 11.5px; line-height: 1.3; }
+  .tc-yes, .tc-no { width: 18px; height: 18px; }
+  .tc-partial { padding: 0; background: none; border-radius: 0; font-size: 11px; }
+  .tc-main.ar-wide .tc-body p.tc-ticks-foot { margin-top: 8px; font-size: 11px; line-height: 1.5; }
+
+  /* The ending: smaller type; "What this does not say" stays in full */
+  .tc-main.ar-wide .ar-not, .tc-main.ar-wide .tc-body .ar-not p { font-size: 12.5px; line-height: 1.5; }
+  .tc-main.ar-wide .ar-not { padding: 10px 12px; }
+  .tc-main.ar-wide .ar-takeaways-label { padding: 8px 12px; font-size: 10.5px; }
+  .tc-main.ar-wide .principle { padding: 8px 9px; }
+  .tc-main.ar-wide .principle .num { font-size: 10px; }
+  .tc-main.ar-wide .principle h3 { font-size: 12.5px; line-height: 1.35; }
+  .tc-main.ar-wide .tc-body .principle p { font-size: 11.5px; line-height: 1.45; }
+  .tc-main.ar-wide #limits.tc-part { margin-bottom: 0; }
+  /* Sources: one line that opens (tax.js) */
+  .tc-src { margin: 18px 0 0; }
+  .tc-src > summary { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; list-style: none; cursor: pointer; font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); }
+  .tc-src > summary::-webkit-details-marker { display: none; }
+  .tc-src > summary::after { content: ""; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+  .tc-src[open] > summary::after { transform: rotate(225deg); }
+  .tc-main.ar-wide .tc-body p.tc-na { font-size: 12px; }
+  .tc-main.ar-wide .tc-body .tc-src p.tc-na { margin: 2px 0 0; font-size: 11px; }
+
+  /* Next steps: a compact Book a call, the other two as slim links */
+  .tc-main.ar-wide .tc-next-steps { margin-top: 20px; }
+  .tc-main.ar-wide .tc-next-steps .ar-more-head h2 { font-size: 22px; }
+  .tl-next.is-lead { gap: 8px; margin-top: 12px; }
+  .tl-next.is-lead > .tl-card:first-child { gap: 6px; padding: 16px; border-radius: 16px; }
+  .tl-next.is-lead > .tl-card:first-child h3 { font-size: 20px; }
+  .tl-next.is-lead > .tl-card:first-child p { font-size: 13px; line-height: 1.5; }
+  .tl-next.is-lead > .tl-card:first-child .tl-card-go { flex-direction: column; align-items: stretch; gap: 2px; margin-top: 6px; }
+  .tl-next.is-lead > .tl-card:first-child .tc-btn:not(.is-line) { box-sizing: border-box; width: 100%; justify-content: center; }
+  .tl-next.is-lead > .tl-card:first-child .tc-btn.is-line { align-self: center; min-height: 40px; }
+  .tl-next.is-lead > .tl-card:not(:first-child) { position: relative; gap: 2px; padding: 10px 40px 10px 14px; border-radius: 12px; }
+  .tl-next.is-lead > .tl-card:not(:first-child) > small { font-size: 10px; }
+  .tl-next.is-lead > .tl-card:not(:first-child) h3 { font-size: 14.5px; line-height: 1.3; }
+  .tl-next.is-lead > .tl-card:not(:first-child) p, .tl-next.is-lead > .tl-card:not(:first-child) .tl-card-time { display: none; }
+  .tl-next.is-lead > .tl-card:not(:first-child)::after { content: ""; position: absolute; right: 16px; top: 50%; width: 7px; height: 7px; border-right: 1.5px solid var(--c-gold); border-top: 1.5px solid var(--c-gold); transform: translateY(-50%) rotate(45deg); }
+}
