@@ -336,3 +336,17 @@
   html.tei-site[data-theme="dark"] .tei-mbar-item[aria-current="page"] .tei-mbar-pill { background: #E8D6A8; color: #0F1E36; }
   html.tei-site[data-theme="dark"] .tei-mbar-item:focus-visible { outline-color: #E8D6A8; }
 }
+
+/* Frosted bottom bar on every public page, where the browser can blur behind
+   it. The blur keeps page text behind the bar from competing with the labels;
+   without blur support the solid bar above stays. */
+@media (max-width: 860px) {
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    html.tei-site .tei-mbar {
+      background: rgba(255, 255, 255, .78);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      backdrop-filter: blur(16px) saturate(140%);
+    }
+    html.tei-site[data-theme="dark"] .tei-mbar { background: rgba(11, 23, 41, .78); }
+  }
+}
