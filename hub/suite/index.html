@@ -50,45 +50,63 @@
 .su-fbtn { display:none; }
 
 /* ---------- Sections ---------- */
-.su-sec + .su-sec { margin-top:36px; }
+.su-sec + .su-sec { margin-top:40px; }
 .su-sh { display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline; margin-bottom:14px; }
 .su-sh h2 { font-size:26px; font-weight:300; letter-spacing:-0.03em; line-height:1.2; }
 .su-sh p { font-size:14px; color:var(--w-muted); max-width:640px; }
-.su-g { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
+.su-g { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:14px; }
 .su-g > * { min-width:0; grid-column:span var(--span, 12); }
+.su-g > .is-lead { grid-row:span var(--rows, 1); }
 
-/* Growth Portfolio: the company's own colour as the ground */
-.su-gc { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:10px; min-height:270px; padding:22px; border-radius:26px; text-decoration:none; color:#F7F4ED; background:linear-gradient(155deg, color-mix(in srgb, var(--b) 62%, #08111F) 0%, #0B1729 82%); border:1px solid rgba(232,214,168,0.22); box-shadow:var(--w-feat-shadow); }
-.su-gc::before { content:''; position:absolute; width:320px; height:320px; right:-120px; top:-150px; border-radius:50%; background:radial-gradient(closest-side, color-mix(in srgb, var(--b) 70%, transparent), transparent); opacity:.75; pointer-events:none; }
+/* The step down in impact: Growth cards (brand ground, varied sizes, like
+   the Hub home), Foundations tiles (tinted), Top Ideas rows with a line,
+   Watchlist rows. Two corner sizes: 18px outside, 12px inside. */
+
+/* Growth Portfolio: a flat tint of the company's colour, its colour on the
+   top edge and the ticker. The lead card is the only one with a glow. */
+.su-gc { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:8px; min-height:200px; padding:20px; border-radius:18px; text-decoration:none; color:#F7F4ED; background:color-mix(in srgb, var(--b) 34%, #0B1729); border:1px solid rgba(255,255,255,0.08); }
 .su-gc::after { content:''; position:absolute; left:0; right:0; top:0; height:3px; background:var(--b); }
 .su-gc > * { position:relative; }
-.su-gc .top { display:flex; align-items:center; gap:10px; }
-.su-gc .tk { font-family:'Geist Mono', monospace; font-size:12px; color:#C9D3E3; }
+.su-gc .top { display:flex; align-items:center; gap:8px; }
+.su-gc .tk { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px; background:var(--b); color:#FFFFFF; font-family:'Geist Mono', monospace; font-size:11px; font-weight:500; letter-spacing:.02em; }
 .su-gc .upd { margin-left:auto; background:#E8D6A8; color:#0F1E36; }
-.su-gc .nm { margin-top:10px; font-size:24px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
-.su-gc .th { font-family:'Geist Mono', monospace; font-size:11.5px; color:#E8D6A8; }
-.su-gc .ln { font-size:14px; line-height:1.5; color:#C9D3E3; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
-.su-gc .go { margin-top:auto; padding-top:8px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#E8D6A8; }
-@media (hover:hover) { .su-gc:hover { border-color:rgba(232,214,168,0.5); transform:translateY(-2px); } }
+.su-gc .nm { margin-top:6px; font-size:21px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
+.su-gc .th { font-size:13px; color:#AEB9CA; }
+.su-gc .ln { margin-top:2px; font-size:13.5px; line-height:1.5; color:#C9D3E3; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.su-gc .go { margin-top:auto; padding-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#E8D6A8; }
+.su-gc.is-lead { gap:10px; padding:28px; background:color-mix(in srgb, var(--b) 46%, #0B1729); border-color:rgba(232,214,168,0.3); box-shadow:var(--w-feat-shadow); }
+.su-gc.is-lead::before { content:''; position:absolute; width:520px; height:520px; right:-200px; top:-260px; border-radius:50%; background:radial-gradient(closest-side, color-mix(in srgb, var(--b) 75%, transparent), transparent); opacity:.7; pointer-events:none; }
+/* The lead card's ticker, large and faint, so its extra height is not empty */
+.su-gc.is-lead .wm { position:absolute; right:24px; top:40px; font-family:'Geist Mono', monospace; font-size:clamp(64px, 7vw, 112px); font-weight:500; line-height:1; letter-spacing:-0.04em; color:#FFFFFF; opacity:.08; pointer-events:none; }
+.su-gc.is-lead .k { font-family:'Geist Mono', monospace; font-size:11px; color:#E8D6A8; }
+.su-gc.is-lead .nm { margin-top:auto; font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.su-gc.is-lead .th { font-size:15px; }
+.su-gc.is-lead .ln { font-size:16px; line-height:1.55; -webkit-line-clamp:4; max-width:560px; }
+.su-gc.is-lead .go { margin-top:8px; }
+.su-gc.is-wide .ln { -webkit-line-clamp:2; }
+@media (hover:hover) { .su-gc:hover { border-color:rgba(232,214,168,0.45); transform:translateY(-2px); } }
 .su-gc:focus-visible { outline-color:#E8D6A8; }
 
-/* Foundations and Top Ideas: tiles with a brand band */
-.su-tc { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:8px; padding:20px; border-radius:22px; text-decoration:none; background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
-.su-tc::after { content:''; position:absolute; left:0; right:0; top:0; height:3px; background:var(--b); }
-.su-tc .top { display:flex; align-items:center; gap:10px; }
-.su-tc .tk { font-family:'Geist Mono', monospace; font-size:12px; color:var(--w-muted); }
-.su-tc .upd { margin-left:auto; }
-.su-tc .nm { margin-top:4px; font-size:19px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
-.su-tc .th { font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-gold); }
-.su-tc .ln { font-size:13.5px; line-height:1.5; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-.su-tc .go { margin-top:auto; padding-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
-.su-tc.fdn { flex-direction:row; flex-wrap:wrap; align-items:center; gap:10px 16px; background:var(--w-powder); }
-.su-tc.fdn .fb { flex:1 1 240px; min-width:0; display:flex; flex-direction:column; gap:4px; }
-.su-tc.fdn .nm { margin-top:0; }
-.su-tc.fdn .go { margin-top:0; padding-top:0; }
+/* Foundations: two tinted tiles, calmer than Growth, richer than a row */
+.su-fc { position:relative; display:flex; flex-direction:column; gap:6px; padding:20px; border-radius:18px; text-decoration:none; background:var(--w-champ); border:1px solid var(--w-champ-line); }
+.su-fc + .su-fc, .su-fc.alt { background:var(--w-powder); border-color:var(--w-line); }
+.su-fc .top { display:flex; align-items:center; gap:10px; }
+.su-fc .tk { font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-muted); }
+.su-fc .nm { font-size:18px; font-weight:400; letter-spacing:-0.02em; line-height:1.25; }
+.su-fc .th { font-size:13px; color:var(--w-muted); }
+.su-fc .ln { margin-top:4px; font-size:13.5px; line-height:1.5; color:var(--w-text); opacity:.85; }
+.su-fc .go { margin-top:auto; padding-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
+@media (hover:hover) { .su-fc:hover { transform:translateY(-2px); } }
+
+/* Top Ideas: rows with a line, in one tile */
+.su-tl { padding:6px 18px; border-radius:18px; background:var(--w-tile); border:1px solid var(--w-line); display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); column-gap:28px; }
+.su-tl .su-wr { align-items:flex-start; padding:14px 4px; }
+.su-tl .su-wr .mk { margin-top:2px; }
+.su-tl .su-wr .ln { display:block; margin-top:4px; font-size:13px; line-height:1.45; color:var(--w-muted); white-space:normal; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.su-tl .su-wr .chev { margin-top:10px; }
 
 /* Watchlist: one tile per theme, a row per company */
-.su-wt { height:100%; display:flex; flex-direction:column; padding:18px 18px 10px; border-radius:22px; background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.su-wt { height:100%; display:flex; flex-direction:column; padding:16px 18px 8px; border-radius:18px; background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
 .su-wt-h { display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:0 4px 8px; border-bottom:1px solid var(--w-line); }
 .su-wt-h .c { font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-muted); }
 /* Rows share the tile's height, so tiles in a row line up with no gap */
@@ -203,36 +221,38 @@
   .su-cats.is-tabs .hb-chip { background:none; color:var(--w-muted); }
   .su-cats.is-tabs .hb-chip[aria-current="true"] { background:none; color:var(--w-text); }
   .su-cats.is-tabs .hb-chip[aria-current="true"]::after { content:''; position:absolute; left:50%; bottom:4px; width:18px; height:2px; margin-left:-9px; border-radius:2px; background:var(--w-gold); }
-  .su-sec:first-child { padding-top:8px; }
-  .su-sec + .su-sec { margin-top:44px; }
-  .su-sh { flex-direction:column; gap:4px; margin-bottom:16px; }
+  .su-sec:first-child { padding-top:4px; }
+  .su-sec + .su-sec { margin-top:32px; }
+  .su-sh { flex-direction:column; gap:2px; margin-bottom:12px; }
   .su-sh h2 { font-size:19px; }
   .su-sh p { font-size:12px; opacity:.85; }
-  .su-g { gap:12px; }
-  .su-gc { min-height:0; gap:6px; padding:18px; border-radius:20px; }
-  .su-gc::before { width:200px; height:200px; right:-90px; top:-100px; }
-  .su-gc .mk { width:30px; height:30px; border-radius:9px; font-size:11px; }
-  .su-gc .tk { font-size:10.5px; }
+  .su-g { gap:10px; }
+  .su-gc { min-height:0; gap:4px; padding:14px; }
+  .su-gc .tk { height:20px; padding:0 7px; font-size:10px; }
   .su-gc .upd { display:none; }
-  .su-gc .nm { margin-top:6px; font-size:15px; }
-  .su-gc .th { font-size:9.5px; }
+  .su-gc .nm { margin-top:8px; font-size:15px; }
+  .su-gc .th { font-size:11.5px; }
   .su-gc .ln, .su-gc .go { display:none; }
-  .su-tc { gap:6px; padding:18px; border-radius:20px; }
-  .su-tc .mk { width:30px; height:30px; border-radius:9px; font-size:11px; }
-  .su-tc .upd, .su-tc .ln, .su-tc .go { display:none; }
-  .su-tc .nm { margin-top:2px; font-size:14px; }
-  .su-tc .th { font-size:9.5px; }
-  .su-tc.fdn { flex-direction:column; align-items:stretch; gap:6px; }
-  .su-tc.fdn .fb { flex:none; gap:2px; }
-  .su-wt { padding:14px 14px 6px; border-radius:20px; }
+  .su-gc.is-lead { padding:20px; gap:6px; }
+  .su-gc.is-lead .nm { margin-top:14px; font-size:24px; }
+  .su-gc.is-lead .th { font-size:13px; }
+  .su-gc.is-lead .ln { display:-webkit-box; font-size:14px; -webkit-line-clamp:3; }
+  .su-gc.is-lead::before { width:300px; height:300px; right:-120px; top:-150px; }
+  .su-gc.is-lead .wm { right:16px; top:16px; font-size:56px; }
+  .su-fc { padding:16px; gap:4px; }
+  .su-fc .nm { font-size:15px; }
+  .su-fc .th { font-size:11.5px; }
+  .su-fc .ln { font-size:12.5px; -webkit-line-clamp:2; display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; }
+  .su-fc .go { display:none; }
+  .su-tl { grid-template-columns:minmax(0, 1fr); padding:4px 14px; }
+  .su-tl .su-wr { padding:10px 4px; }
+  .su-tl .su-wr .ln { font-size:12px; -webkit-line-clamp:2; }
+  .su-wt { padding:12px 14px 4px; }
   .su-wr { min-height:52px; }
   .su-wr .n { font-size:13.5px; }
   .su-wr .m { font-size:10px; }
-  /* The mark already names the company, so phones drop the ticker */
-  .su-gc .tk, .su-tc .tk, .su-tc .mt, .su-wr .mt { display:none; }
-  /* Cards on phones: just the name and the theme (the card's colour carries the brand) */
-  .su-gc .top, .su-tc .top, .su-tc.fdn > .mk { display:none; }
-  .su-gc .nm, .su-tc .nm { margin-top:0; }
+  /* Rows on phones: the initials name the company, so no ticker */
+  .su-wr .mt { display:none; }
   .su-wt-h .lab { font-size:11px; }
   .su-close { margin-top:32px; }
   .su-cg { gap:10px; }

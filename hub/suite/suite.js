@@ -62,25 +62,44 @@
   }
 
   /* ---------- Cards ---------- */
-  function growthCard(n, span) {
-    return '<a class="su-gc press" style="--b:' + hex(n.brand) + ';--span:' + span + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
-      '<span class="top">' + mark(n) + '<span class="tk">' + esc(n.ticker) + '</span>' + upd(n) + '</span>' +
+  // cls: '' | 'is-lead' | 'is-wide'; rows: how many grid rows it spans.
+  function growthCard(n, span, cls, rows) {
+    return '<a class="su-gc press' + (cls ? ' ' + cls : '') + '" style="--b:' + hex(n.brand) + ';--span:' + span + (rows ? ';--rows:' + rows : '') + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
+      (cls === 'is-lead' ? '<span class="wm" aria-hidden="true">' + esc(n.ticker) + '</span>' : '') +
+      '<span class="top"><span class="tk">' + esc(n.ticker) + '</span>' + upd(n) + '</span>' +
       '<span class="nm">' + esc(n.name) + '</span><span class="th">' + esc(n.summary) + '</span>' +
       (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') +
       '<span class="go">Read the note' + CHEV + '</span></a>';
   }
-  function tileCard(n, span, fdn) {
-    if (fdn) {
-      return '<a class="su-tc fdn press lift" style="--b:' + hex(n.brand) + ';--span:' + span + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
-        mark(n) + '<span class="fb"><span class="nm">' + esc(n.name) + '</span><span class="th"><span class="mt">' + esc(n.ticker) + ' · </span>' + esc(n.summary) + '</span>' +
-        (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') + '</span>' +
-        '<span class="go">What it is, cost and risks' + CHEV + '</span></a>';
-    }
-    return '<a class="su-tc press lift" style="--b:' + hex(n.brand) + ';--span:' + span + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
-      '<span class="top">' + mark(n) + '<span class="tk">' + esc(n.ticker) + '</span>' + upd(n) + '</span>' +
+  // Foundations: a tinted tile with its line.
+  function fdnCard(n, span, i) {
+    return '<a class="su-fc press' + (i ? ' alt' : '') + '" style="--span:' + span + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
+      '<span class="top">' + mark(n) + '<span class="tk">' + esc(n.ticker) + '</span></span>' +
       '<span class="nm">' + esc(n.name) + '</span><span class="th">' + esc(n.summary) + '</span>' +
       (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') +
-      '<span class="go">Read the note' + CHEV + '</span></a>';
+      '<span class="go">What it is, cost and risks' + CHEV + '</span></a>';
+  }
+  // Top Ideas: a row with the one-line description under it.
+  function richRow(n) {
+    return '<a class="su-wr press" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' + mark(n) +
+      '<span class="b"><span class="n">' + esc(n.name) + '</span><span class="m"><span class="mt">' + esc(n.ticker) + ' · </span>' + esc(n.summary) + '</span>' +
+      (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') + '</span>' + CHEV + '</a>';
+  }
+  // Growth sizes, like the Hub home: a lead card, then smaller ones. Wide
+  // screens: the lead two rows deep beside four cards, then a row of three.
+  // Narrower: the lead across the top, then pairs, an odd last one wide.
+  function growthLayout(n) {
+    if (n < 5) return spans(n, colsFor('growth')).map(function (sp) { return { span: sp, cls: sp >= 6 ? 'is-wide' : '' }; });
+    var out = [];
+    if (mqFour.matches) {
+      out.push({ span: 6, cls: 'is-lead', rows: 2 });
+      for (var i = 0; i < 4; i++) out.push({ span: 3, cls: '' });
+      spans(n - 5, 3).forEach(function (sp) { out.push({ span: sp, cls: sp >= 6 ? 'is-wide' : '' }); });
+    } else {
+      out.push({ span: 12, cls: 'is-lead' });
+      spans(n - 1, 2).forEach(function (sp) { out.push({ span: sp, cls: sp === 12 ? 'is-wide' : '' }); });
+    }
+    return out;
   }
   function row(n, meta) {
     return '<a class="su-wr press" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '"' + (current && current.slug === n.slug ? ' aria-current="true"' : '') + '>' + mark(n) +
@@ -103,10 +122,14 @@
         return '<div class="su-wt" style="--span:' + sp[i] + '"><div class="su-wt-h"><span class="lab">' + esc(g.t) + '</span><span class="c">' + g.l.length + '</span></div>' +
           '<div class="su-wt-l">' + g.l.map(function (n) { return row(n); }).join('') + '</div></div>';
       }).join('');
+    } else if (c === 'Growth Portfolio') {
+      var lay = growthLayout(list.length);
+      h += list.map(function (n, i) { return growthCard(n, lay[i].span, lay[i].cls, lay[i].rows); }).join('');
+    } else if (c === 'Foundations') {
+      var s2 = mqPhone.matches ? list.map(function () { return 12; }) : spans(list.length, 2);
+      h += list.map(function (n, i) { return fdnCard(n, s2[i], i % 2); }).join('');
     } else {
-      var kind = c === 'Growth Portfolio' ? 'growth' : c === 'Foundations' ? 'fdn' : 'top';
-      var s2 = spans(list.length, colsFor(kind));
-      h += list.map(function (n, i) { return kind === 'growth' ? growthCard(n, s2[i]) : tileCard(n, s2[i], kind === 'fdn'); }).join('');
+      h += '<div class="su-tl" style="--span:12">' + list.map(richRow).join('') + '</div>';
     }
     return h + '</div></section>';
   }
