@@ -142,8 +142,8 @@
       h += list.map(function (n, i) { return fdnCard(n, s2[i], i % 2); }).join('');
     } else {
       // Top Ideas: wide screens, a row of four then three a little wider;
-      // phones, a row that swipes.
-      if (mqPhone.matches) h += '<div class="su-sw" style="--span:12">' + list.map(function (n) { return ideaCard(n, 12); }).join('') + '</div>';
+      // phones, two a row with an odd last card across the row.
+      if (mqPhone.matches) { var s3 = spans(list.length, 2); h += list.map(function (n, i) { return ideaCard(n, s3[i]); }).join(''); }
       else {
         var first = Math.min(4, list.length), sp4 = spans(first, 4).concat(spans(list.length - first, 3));
         if (list.length <= 4) sp4 = spans(list.length, Math.min(4, list.length));
