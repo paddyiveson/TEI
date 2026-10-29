@@ -117,9 +117,6 @@
     var tabs = mqPhone.matches;
     $('suCats').classList.toggle('is-tabs', tabs);
     $('suCats').setAttribute('aria-label', tabs ? 'Jump to a section' : 'Category');
-    $('suCounts').innerHTML = CATS.map(function (k) {
-      return '<button type="button" data-jump="' + esc(k) + '" aria-label="' + esc(k + ', ' + inCat(k).length + ' notes') + '"><b>' + (loaded ? inCat(k).length : '&nbsp;') + '</b><span>' + esc(TAB[k]) + '</span></button>';
-    }).join('');
     if (tabs) {
       $('suCats').innerHTML = CATS.map(function (k) { return '<button type="button" class="hb-chip" data-jump="' + esc(k) + '">' + esc(TAB[k]) + '</button>'; }).join('');
     } else $('suCats').innerHTML = ['All'].concat(CATS).map(function (k) {
@@ -295,8 +292,6 @@
         var tb = tools.getBoundingClientRect();
         tools.classList.toggle('is-stuck', tb.top <= offsetTopList() + 0.5);
         if (mqPhone.matches) {
-          var past = document.querySelector('.su-head').getBoundingClientRect().bottom < 0;
-          tools.classList.toggle('is-on', past || tools.classList.contains('is-find'));
           var on = null;
           Array.prototype.forEach.call(document.querySelectorAll('#suNotes .su-sec'), function (sec) { if (sec.getBoundingClientRect().top <= tb.bottom + 24) on = sec.getAttribute('data-sec'); });
           on = on || (document.querySelector('#suNotes .su-sec') || { getAttribute: function () { return null; } }).getAttribute('data-sec');
@@ -447,7 +442,7 @@
   var SEARCH_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>';
   var CLOSE_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   function openFind() {
-    var t = $('suTools'); t.classList.add('is-find', 'is-on');
+    var t = $('suTools'); t.classList.add('is-find');
     $('suFbtn').innerHTML = CLOSE_IC; $('suFbtn').setAttribute('aria-label', 'Close search'); $('suFbtn').setAttribute('aria-expanded', 'true');
     $('suSearch').focus();
   }
@@ -457,7 +452,6 @@
     if (q) { $('suSearch').value = ''; q = ''; renderList(); }
     onScroll();
   }
-  $('suFind').addEventListener('click', openFind);
   $('suFbtn').addEventListener('click', function () { if ($('suTools').classList.contains('is-find')) closeFind(); else openFind(); });
   $('suCats').addEventListener('click', function (e) {
     var b = e.target.closest('[data-cat]'); if (!b) return;
@@ -474,7 +468,7 @@
   $('nvSheetQ').addEventListener('input', renderSheet);
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', function () { setTop(); onScroll(); });
-  [mqPhone, mqMid, mqFour].forEach(function (m) { (m.addEventListener ? m.addEventListener.bind(m, 'change') : m.addListener.bind(m))(function () { if (!mqPhone.matches) $('suTools').classList.remove('is-on', 'is-find'); renderList(); renderListClose(); setTop(); }); });
+  [mqPhone, mqMid, mqFour].forEach(function (m) { (m.addEventListener ? m.addEventListener.bind(m, 'change') : m.addListener.bind(m))(function () { if (!mqPhone.matches) $('suTools').classList.remove('is-find'); renderList(); renderListClose(); setTop(); }); });
   window.addEventListener('popstate', route);
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 

@@ -29,7 +29,7 @@
 .su-head { position:relative; margin-bottom:20px; }
 .su-head > * { position:relative; }
 .su-head .hb-intro { max-width:720px; }
-.su-sub-m, .su-counts, .su-find { display:none; }
+.su-sub-m { display:none; }
 .hb-nav .hb-navout { font:inherit; font-size:14px; min-height:44px; padding:0 14px; border:0; border-radius:999px; background:none; color:var(--muted); cursor:pointer; }
 .hb-nav .hb-navout:hover { color:var(--text); background:var(--chip); }
 /* The principles, as a quiet link under the intro (it goes to the guide) */
@@ -175,7 +175,7 @@
 .nv-sheet-g .lab { display:block; padding:14px 4px 4px; }
 .nv-sheet .su-wr:last-child { border-bottom:0; }
 
-@media (prefers-reduced-motion: reduce) { .press, .su-gc, .su-cc, .nv-load, .su-tools { transition:none; } }
+@media (prefers-reduced-motion: reduce) { .press, .su-gc, .su-cc, .nv-load { transition:none; } }
 @media (max-width:1099px) {
   .su-cg { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .nv-grid { grid-template-columns:minmax(0, 1fr); }
@@ -183,28 +183,18 @@
   .nv-pos { display:none; }
 }
 @media (max-width:860px) {
-  /* The header as a Bold tile: title, one line, and the four sections as
-     counts that jump to them */
-  .su-head { overflow:hidden; margin:0 0 22px; padding:18px 16px 16px; border-radius:24px; background:#14376E; border:1px solid rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
-  .su-head::before { content:''; position:absolute; width:420px; height:420px; right:-200px; top:-240px; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.26), rgba(232,214,168,0)); pointer-events:none; }
-  .su-head .hb-kicker { color:#E8D6A8; }
-  .su-head .hb-title { margin-top:6px; padding-right:48px; font-size:26px; color:#F7F4ED; }
+  /* A quiet header that leads into the cards: kicker, title, one line */
+  .su-head { margin-bottom:12px; }
+  .su-head .hb-title { margin-top:6px; font-size:28px; text-wrap:balance; }
   .su-head .hb-intro, .su-prl { display:none; }
-  .su-sub-m { display:block; margin-top:6px; font-size:14px; font-weight:300; color:#C9D3E3; }
-  .su-find { display:inline-flex; position:absolute; top:12px; right:12px; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; border:1px solid rgba(232,214,168,0.3); background:rgba(255,255,255,0.06); color:#F7F4ED; cursor:pointer; }
-  .su-find svg, .su-fbtn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
-  .su-find:focus-visible, .su-counts button:focus-visible { outline-color:#E8D6A8; }
-  .su-counts { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px; margin-top:16px; }
-  .su-counts button { display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-height:64px; padding:9px 8px; border-radius:14px; border:1px solid rgba(232,214,168,0.22); background:rgba(255,255,255,0.06); color:#F7F4ED; font:inherit; text-align:left; cursor:pointer; }
-  .su-counts b { font-size:24px; font-weight:300; line-height:1.1; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; }
-  .su-counts span { font-size:11px; letter-spacing:-0.01em; color:#C9D3E3; white-space:nowrap; }
-  /* The slim bar: arrives once the tile has scrolled away, or for search */
-  .su-tools { position:fixed; top:0; left:0; right:0; z-index:45; margin:0; padding:calc(8px + env(safe-area-inset-top)) 16px 8px; flex-wrap:nowrap; gap:8px; border-bottom-color:var(--w-glass-line); transform:translateY(-110%); transition:transform .22s ease; }
-  .su-tools.is-on { transform:none; }
+  .su-sub-m { display:block; margin-top:6px; font-size:15px; font-weight:300; color:var(--w-muted); }
+  /* One slim bar, held at the top: the sections as tabs, and search behind an icon */
+  .su-tools { top:0; margin:0 -16px 16px; padding:8px 16px; flex-wrap:nowrap; gap:8px; }
   .su-tools .hb-search { display:none; flex:1; max-width:none; min-height:42px; }
   .su-tools.is-find .hb-search { display:flex; }
   .su-tools.is-find .su-cats { display:none; }
   .su-fbtn { flex:none; display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:50%; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); cursor:pointer; }
+  .su-fbtn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
   .su-cats.is-tabs { flex:1; min-width:0; display:flex; flex-wrap:nowrap; justify-content:space-between; padding:0; border:0; background:none; gap:2px; }
   .su-cats.is-tabs .hb-chip { flex:none; min-height:40px; padding:0 7px; font-size:12.5px; }
   .su-sec + .su-sec { margin-top:28px; }
@@ -280,8 +270,6 @@
       <p class="hb-intro">Each note covers what the company does, why it matters, the key numbers, the bear case and what we are looking for, so conviction comes from the business, not the share price.</p>
       <p class="su-sub-m">Conviction in the business, not the share price.</p>
       <a class="su-prl" href="/guides/principles.html?from=hub"><b>Our principles:</b> the thinking behind every note<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
-      <button type="button" class="su-find" id="suFind" aria-label="Search notes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
-      <div class="su-counts" id="suCounts" role="group" aria-label="Jump to a section"></div>
     </div>
 
     <div class="su-tools" id="suTools">
