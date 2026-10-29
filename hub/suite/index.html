@@ -25,8 +25,13 @@
 .mk { flex:none; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:11px; background:var(--b, #14376E); color:#F7F4ED; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; font-weight:500; letter-spacing:.02em; box-shadow:inset 0 1px 0 rgba(255,255,255,.18); }
 .upd { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; padding:3px 9px; border-radius:999px; background:var(--w-nav-active); color:var(--w-nav-active-text); white-space:nowrap; }
 
-/* ---------- Header: title on the left, the principles tile on the right ---------- */
-.su-head { display:flex; gap:24px; align-items:flex-start; justify-content:space-between; margin-bottom:20px; }
+/* ---------- Header. On phones it becomes a navy tile with the section counts ---------- */
+.su-head { position:relative; margin-bottom:20px; }
+.su-head > * { position:relative; }
+.su-head .hb-intro { max-width:720px; }
+.su-sub-m, .su-counts, .su-find { display:none; }
+.hb-nav .hb-navout { font:inherit; font-size:14px; min-height:44px; padding:0 14px; border:0; border-radius:999px; background:none; color:var(--muted); cursor:pointer; }
+.hb-nav .hb-navout:hover { color:var(--text); background:var(--chip); }
 /* The principles, as a quiet link under the intro (it goes to the guide) */
 .su-prl { display:inline-flex; align-items:center; gap:6px; min-height:40px; margin-top:6px; font-size:14px; color:var(--w-gold); text-decoration:none; }
 .su-prl b { font-weight:500; }
@@ -42,6 +47,7 @@
 .su-cats.is-tabs { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:4px; padding:4px; border-radius:999px; background:var(--w-tile); border:1px solid var(--w-line); }
 .su-cats.is-tabs .hb-chip { min-height:38px; padding:0 4px; border:0; background:none; font-size:13px; white-space:nowrap; }
 .su-cats.is-tabs .hb-chip[aria-current="true"] { background:var(--w-nav-active); color:var(--w-nav-active-text); }
+.su-fbtn { display:none; }
 
 /* ---------- Sections ---------- */
 .su-sec + .su-sec { margin-top:36px; }
@@ -61,7 +67,7 @@
 .su-gc .upd { margin-left:auto; background:#E8D6A8; color:#0F1E36; }
 .su-gc .nm { margin-top:10px; font-size:24px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
 .su-gc .th { font-family:'Geist Mono', monospace; font-size:11.5px; color:#E8D6A8; }
-.su-gc .ln { font-size:14px; line-height:1.5; color:#C9D3E3; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.su-gc .ln { font-size:14px; line-height:1.5; color:#C9D3E3; display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden; }
 .su-gc .go { margin-top:auto; padding-top:8px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#E8D6A8; }
 @media (hover:hover) { .su-gc:hover { border-color:rgba(232,214,168,0.5); transform:translateY(-2px); } }
 .su-gc:focus-visible { outline-color:#E8D6A8; }
@@ -74,7 +80,7 @@
 .su-tc .upd { margin-left:auto; }
 .su-tc .nm { margin-top:4px; font-size:19px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
 .su-tc .th { font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-gold); }
-.su-tc .ln { font-size:13.5px; line-height:1.5; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.su-tc .ln { font-size:13.5px; line-height:1.5; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .su-tc .go { margin-top:auto; padding-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
 .su-tc.fdn { flex-direction:row; flex-wrap:wrap; align-items:center; gap:10px 16px; background:var(--w-powder); }
 .su-tc.fdn .fb { flex:1 1 240px; min-width:0; display:flex; flex-direction:column; gap:4px; }
@@ -169,7 +175,7 @@
 .nv-sheet-g .lab { display:block; padding:14px 4px 4px; }
 .nv-sheet .su-wr:last-child { border-bottom:0; }
 
-@media (prefers-reduced-motion: reduce) { .press, .su-gc, .su-cc, .nv-load { transition:none; } }
+@media (prefers-reduced-motion: reduce) { .press, .su-gc, .su-cc, .nv-load, .su-tools { transition:none; } }
 @media (max-width:1099px) {
   .su-cg { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .nv-grid { grid-template-columns:minmax(0, 1fr); }
@@ -177,13 +183,30 @@
   .nv-pos { display:none; }
 }
 @media (max-width:860px) {
-  /* A calmer header: kicker and sign out on one line, a shorter title */
-  .su-head { gap:12px; margin-bottom:10px; }
-  .su-head .hb-title { margin-top:4px; font-size:24px; }
+  /* The header as a Bold tile: title, one line, and the four sections as
+     counts that jump to them */
+  .su-head { overflow:hidden; margin:0 0 22px; padding:18px 16px 16px; border-radius:24px; background:#14376E; border:1px solid rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+  .su-head::before { content:''; position:absolute; width:420px; height:420px; right:-200px; top:-240px; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.26), rgba(232,214,168,0)); pointer-events:none; }
+  .su-head .hb-kicker { color:#E8D6A8; }
+  .su-head .hb-title { margin-top:6px; padding-right:48px; font-size:26px; color:#F7F4ED; }
   .su-head .hb-intro, .su-prl { display:none; }
-  .hb-signout { flex:none; white-space:nowrap; min-height:36px; margin:-8px -8px 0 0; padding:0 8px; font-size:12px; }
-  .su-tools { top:0; margin:0 -16px 14px; padding:8px 16px 10px; flex-wrap:nowrap; flex-direction:column; align-items:stretch; gap:8px; }
-  .su-tools .hb-search { max-width:none; min-height:42px; }
+  .su-sub-m { display:block; margin-top:6px; font-size:14px; font-weight:300; color:#C9D3E3; }
+  .su-find { display:inline-flex; position:absolute; top:12px; right:12px; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; border:1px solid rgba(232,214,168,0.3); background:rgba(255,255,255,0.06); color:#F7F4ED; cursor:pointer; }
+  .su-find svg, .su-fbtn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+  .su-find:focus-visible, .su-counts button:focus-visible { outline-color:#E8D6A8; }
+  .su-counts { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px; margin-top:16px; }
+  .su-counts button { display:flex; flex-direction:column; align-items:flex-start; gap:2px; min-height:64px; padding:9px 8px; border-radius:14px; border:1px solid rgba(232,214,168,0.22); background:rgba(255,255,255,0.06); color:#F7F4ED; font:inherit; text-align:left; cursor:pointer; }
+  .su-counts b { font-size:24px; font-weight:300; line-height:1.1; letter-spacing:-0.02em; font-variant-numeric:tabular-nums; }
+  .su-counts span { font-size:11px; letter-spacing:-0.01em; color:#C9D3E3; white-space:nowrap; }
+  /* The slim bar: arrives once the tile has scrolled away, or for search */
+  .su-tools { position:fixed; top:0; left:0; right:0; z-index:45; margin:0; padding:calc(8px + env(safe-area-inset-top)) 16px 8px; flex-wrap:nowrap; gap:8px; border-bottom-color:var(--w-glass-line); transform:translateY(-110%); transition:transform .22s ease; }
+  .su-tools.is-on { transform:none; }
+  .su-tools .hb-search { display:none; flex:1; max-width:none; min-height:42px; }
+  .su-tools.is-find .hb-search { display:flex; }
+  .su-tools.is-find .su-cats { display:none; }
+  .su-fbtn { flex:none; display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:50%; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); cursor:pointer; }
+  .su-cats.is-tabs { flex:1; min-width:0; display:flex; flex-wrap:nowrap; justify-content:space-between; padding:0; border:0; background:none; gap:2px; }
+  .su-cats.is-tabs .hb-chip { flex:none; min-height:40px; padding:0 7px; font-size:12.5px; }
   .su-sec + .su-sec { margin-top:28px; }
   .su-sh { margin-bottom:10px; }
   .su-sh h2 { font-size:22px; }
@@ -242,6 +265,7 @@
       <a href="/hub/articles.html">Articles</a>
       <a href="/hub/suite/index.html" aria-current="page">Investment suite</a>
       <a href="/index.html">Website</a>
+      <button type="button" class="hb-navout" data-hub-signout>Sign out</button>
       <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
     </nav>
   </div>
@@ -251,18 +275,19 @@
   <!-- The notes list -->
   <div id="suList">
     <div class="su-head">
-      <div>
-        <p class="hb-kicker mono">Investment suite</p>
-        <h1 class="hb-title">Research notes, bear case included.</h1>
-        <p class="hb-intro">Every note follows the same structure, so you learn how to read a business, not only what we think of it.</p>
-        <a class="su-prl" href="/guides/principles.html?from=hub"><b>Our principles:</b> the thinking behind every note<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
-      </div>
-      <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
+      <p class="hb-kicker mono">Investment suite</p>
+      <h1 class="hb-title">Inside the companies we follow.</h1>
+      <p class="hb-intro">Each note covers what the company does, why it matters, the key numbers, the bear case and what we are looking for, so conviction comes from the business, not the share price.</p>
+      <p class="su-sub-m">Conviction in the business, not the share price.</p>
+      <a class="su-prl" href="/guides/principles.html?from=hub"><b>Our principles:</b> the thinking behind every note<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+      <button type="button" class="su-find" id="suFind" aria-label="Search notes"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
+      <div class="su-counts" id="suCounts" role="group" aria-label="Jump to a section"></div>
     </div>
 
     <div class="su-tools" id="suTools">
       <label class="hb-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><span class="sr">Search notes</span><input id="suSearch" type="search" placeholder="Company, ticker or theme" autocomplete="off"></label>
       <div class="su-cats" id="suCats" role="group" aria-label="Category"></div>
+      <button type="button" class="su-fbtn" id="suFbtn" aria-label="Search notes" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
     </div>
 
     <div id="suNotes" aria-live="polite"></div>

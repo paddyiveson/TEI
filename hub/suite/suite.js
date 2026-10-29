@@ -10,11 +10,12 @@
  */
 (function () {
   var CATS = ['Growth Portfolio', 'Foundations', 'Top Ideas', 'Watchlist'];
+  // Section descriptions: [wider screens, phones].
   var INTRO = {
-    'Growth Portfolio': 'Businesses held for long-term growth, each with the full note and the bull and bear case.',
-    'Foundations': 'Income and index positions, with a lighter note: what it is, what it costs, the risks and its role.',
-    'Top Ideas': 'Followed most closely but not held. Each note sets out the case for and against, and what would change the view.',
-    'Watchlist': 'Companies being followed but not held, grouped by theme.'
+    'Growth Portfolio': ['Long-term holdings at the forefront of technology, each carefully selected by the team.', 'Long-term holdings at the forefront of technology.'],
+    'Foundations': ['The base of the portfolio, adding income and geographic diversification.', 'The base: income and geographic reach.'],
+    'Top Ideas': ['Developing ideas, not yet held, that the team is following closely.', 'Developing ideas, followed closely.'],
+    'Watchlist': ['Other ideas on the radar, grouped by theme.', 'Other ideas on the radar.']
   };
   // Notes laid out on the wide grid (pilot, Paddy 29 Oct 2026).
   var WIDE = { onds: 1, jepq: 1 };
@@ -26,6 +27,8 @@
   var all = [], articles = [], cat = 'All', q = '', current = null, listY = 0, loaded = false, fromList = false;
   var mqPhone = window.matchMedia('(max-width:860px)');
   var mqMid = window.matchMedia('(max-width:1099px)');
+  // Four cards a row need about 1280px for the one-line descriptions.
+  var mqFour = window.matchMedia('(min-width:1280px)');
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -53,9 +56,8 @@
   }
   function colsFor(kind) {
     var phone = mqPhone.matches, mid = mqMid.matches;
-    if (kind === 'growth') return phone ? 2 : mid ? 2 : 4;
-    if (kind === 'fdn') return phone ? 2 : 2;
-    if (kind === 'top') return phone ? 2 : mid ? 2 : 4;
+    if (kind === 'growth' || kind === 'top') return mqFour.matches ? 4 : 2;
+    if (kind === 'fdn') return 2;
     return phone ? 1 : mid ? 2 : 3; // watchlist theme tiles
   }
 
@@ -91,7 +93,7 @@
   }
   function section(c, list) {
     var id = c.replace(/\W/g, '');
-    var h = '<section class="su-sec" id="sec-' + id + '" data-sec="' + esc(c) + '" aria-labelledby="sh-' + id + '"><header class="su-sh"><h2 id="sh-' + id + '">' + esc(c) + '</h2><p>' + esc(INTRO[c]) + '</p></header><div class="su-g">';
+    var h = '<section class="su-sec" id="sec-' + id + '" data-sec="' + esc(c) + '" aria-labelledby="sh-' + id + '"><header class="su-sh"><h2 id="sh-' + id + '">' + esc(c) + '</h2><p>' + esc(INTRO[c][mqPhone.matches ? 1 : 0]) + '</p></header><div class="su-g">';
     if (c === 'Watchlist') {
       var groups = THEMES.map(function (t) { return { t: t, l: list.filter(function (n) { return n.theme === t; }) }; })
         .concat([{ t: 'Other', l: list.filter(function (n) { return THEMES.indexOf(n.theme) < 0; }) }])
@@ -115,6 +117,9 @@
     var tabs = mqPhone.matches;
     $('suCats').classList.toggle('is-tabs', tabs);
     $('suCats').setAttribute('aria-label', tabs ? 'Jump to a section' : 'Category');
+    $('suCounts').innerHTML = CATS.map(function (k) {
+      return '<button type="button" data-jump="' + esc(k) + '" aria-label="' + esc(k + ', ' + inCat(k).length + ' notes') + '"><b>' + (loaded ? inCat(k).length : '&nbsp;') + '</b><span>' + esc(TAB[k]) + '</span></button>';
+    }).join('');
     if (tabs) {
       $('suCats').innerHTML = CATS.map(function (k) { return '<button type="button" class="hb-chip" data-jump="' + esc(k) + '">' + esc(TAB[k]) + '</button>'; }).join('');
     } else $('suCats').innerHTML = ['All'].concat(CATS).map(function (k) {
@@ -290,6 +295,8 @@
         var tb = tools.getBoundingClientRect();
         tools.classList.toggle('is-stuck', tb.top <= offsetTopList() + 0.5);
         if (mqPhone.matches) {
+          var past = document.querySelector('.su-head').getBoundingClientRect().bottom < 0;
+          tools.classList.toggle('is-on', past || tools.classList.contains('is-find'));
           var on = null;
           Array.prototype.forEach.call(document.querySelectorAll('#suNotes .su-sec'), function (sec) { if (sec.getBoundingClientRect().top <= tb.bottom + 24) on = sec.getAttribute('data-sec'); });
           on = on || (document.querySelector('#suNotes .su-sec') || { getAttribute: function () { return null; } }).getAttribute('data-sec');
@@ -429,13 +436,30 @@
       else closeNote(true);
     }
   });
-  $('suCats').addEventListener('click', function (e) {
+  document.addEventListener('click', function (e) {
     var j = e.target.closest('[data-jump]');
-    if (j) {
-      var sec = document.getElementById('sec-' + j.getAttribute('data-jump').replace(/\W/g, ''));
-      if (sec) window.scrollTo({ top: window.scrollY + sec.getBoundingClientRect().top - $('suTools').offsetHeight - 8, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-      return;
-    }
+    if (!j) return;
+    if ($('suTools').classList.contains('is-find')) closeFind();
+    var sec = document.getElementById('sec-' + j.getAttribute('data-jump').replace(/\W/g, ''));
+    if (sec) window.scrollTo({ top: window.scrollY + sec.getBoundingClientRect().top - $('suTools').offsetHeight - 8, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  });
+  // Phones: search lives behind an icon, in the slim bar.
+  var SEARCH_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>';
+  var CLOSE_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  function openFind() {
+    var t = $('suTools'); t.classList.add('is-find', 'is-on');
+    $('suFbtn').innerHTML = CLOSE_IC; $('suFbtn').setAttribute('aria-label', 'Close search'); $('suFbtn').setAttribute('aria-expanded', 'true');
+    $('suSearch').focus();
+  }
+  function closeFind() {
+    var t = $('suTools'); t.classList.remove('is-find');
+    $('suFbtn').innerHTML = SEARCH_IC; $('suFbtn').setAttribute('aria-label', 'Search notes'); $('suFbtn').setAttribute('aria-expanded', 'false');
+    if (q) { $('suSearch').value = ''; q = ''; renderList(); }
+    onScroll();
+  }
+  $('suFind').addEventListener('click', openFind);
+  $('suFbtn').addEventListener('click', function () { if ($('suTools').classList.contains('is-find')) closeFind(); else openFind(); });
+  $('suCats').addEventListener('click', function (e) {
     var b = e.target.closest('[data-cat]'); if (!b) return;
     cat = b.getAttribute('data-cat');
     history.replaceState(history.state, '', '/hub/suite/index.html' + (cat !== 'All' ? '?cat=' + encodeURIComponent(cat) : ''));
@@ -443,13 +467,14 @@
     var t = $('suTools'); if (t.getBoundingClientRect().top <= offsetTopList() + 1) window.scrollTo(0, window.scrollY + $('suNotes').getBoundingClientRect().top - offsetTopList() - t.offsetHeight - 12);
   });
   $('suSearch').addEventListener('input', function () { q = this.value.trim().toLowerCase(); renderList(); });
+  $('suSearch').addEventListener('keydown', function (e) { if (e.key === 'Escape' && mqPhone.matches) { closeFind(); $('suFbtn').focus(); } });
   $('nvSwitch').addEventListener('click', openSheet);
   $('nvSheetX').addEventListener('click', closeSheet);
   $('nvSheet').addEventListener('click', function (e) { if (e.target === this) closeSheet(); });
   $('nvSheetQ').addEventListener('input', renderSheet);
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', function () { setTop(); onScroll(); });
-  [mqPhone, mqMid].forEach(function (m) { (m.addEventListener ? m.addEventListener.bind(m, 'change') : m.addListener.bind(m))(function () { renderList(); renderListClose(); setTop(); }); });
+  [mqPhone, mqMid, mqFour].forEach(function (m) { (m.addEventListener ? m.addEventListener.bind(m, 'change') : m.addListener.bind(m))(function () { if (!mqPhone.matches) $('suTools').classList.remove('is-on', 'is-find'); renderList(); renderListClose(); setTop(); }); });
   window.addEventListener('popstate', route);
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
