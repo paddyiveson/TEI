@@ -239,7 +239,17 @@
         return '<a class="tei-smenu-card" href="' + l.href + '"><span class="tei-smenu-card-t">' + l.label + '</span><span class="tei-smenu-card-s">' + l.sub + '</span></a>';
       }).join('') +
       '</div>' +
+      '<button type="button" class="tei-smenu-out">Sign out</button>' +
     '</div>';
+  }
+
+  // Sign out from the Menu (Client Hub pages carry no Sign out of their own
+  // on phones). TeiAuth is loaded on Hub pages; elsewhere the sign-in page
+  // takes over.
+  function signOut() {
+    function go() { location.replace('/hub/login.html'); }
+    if (window.TeiAuth && window.TeiAuth.signOut) window.TeiAuth.signOut().then(go, go);
+    else go();
   }
 
   /* ---------------- full-screen menu ---------------- */
@@ -255,6 +265,8 @@
     document.body.appendChild(menu);
 
     closeBtn = menu.querySelector('.tei-menu-close');
+    var outBtn = menu.querySelector('.tei-smenu-out');
+    if (outBtn) outBtn.addEventListener('click', signOut);
     Array.prototype.forEach.call(menu.querySelectorAll('a[href]'), function (a) {
       if (a.hasAttribute('data-id')) menuLinks[a.getAttribute('data-id')] = a;
       // Same-tab navigation: close first so a bfcache "Back" doesn't restore an open menu.

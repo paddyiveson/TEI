@@ -1,0 +1,55 @@
+/* Investment suite notes on the wide grid (pilot: ONDS, JEPQ).
+   Added inside a note by /hub/suite/suite.js, which also wraps each run of
+   text and the figure after it in .tw-row > .tw-t + .tw-v and puts .tw on
+   <html>. The note keeps its own colours and type; only the layout changes.
+   Widths are the note frame's own, not the window's. */
+
+@media (min-width: 1000px) {
+  /* A wider column: about 1240px, like members' notes and articles */
+  html.tw .page,
+  html.tw .disclaimer { max-width: 1240px; padding-left: 48px; padding-right: 48px; }
+  html.tw .section { max-width: 1240px; padding-left: 48px; padding-right: 48px; }
+  /* A shorter hero: the note bar above already names the company */
+  html.tw .hero { padding: 30px 48px 28px; }
+  html.tw .hero h1 { font-size: 34px; margin-bottom: 8px; }
+  html.tw .tei-brand-mark { margin-bottom: 12px; }
+  html.tw .hero-top { margin-bottom: 10px; }
+  html.tw .hero-badge-col { flex-direction: row; align-items: center; gap: 14px; }
+  html.tw .brand-row { margin-bottom: 14px; }
+  html.tw .tag-row { margin-bottom: 10px; }
+  html.tw .meta-line { margin-bottom: 10px; }
+  html.tw .hero-stats { top: 30px; right: 48px; }
+  html.tw .hero-sub,
+  html.tw .hero p.lead { max-width: 640px; }
+  /* The interactive map's width is set inline in the note */
+  html.tw .sos-section > div { max-width: 1144px !important; }
+
+  /* Text on the left (5 of 12), its figure on the right (7 of 12) */
+  html.tw .tw-row { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: 48px; align-items: start; }
+  html.tw .tw-row + .tw-row { margin-top: 12px; }
+  html.tw .tw-v { will-change: transform; }
+  html.tw .tw-v > :first-child,
+  html.tw .tw-t > :first-child { margin-top: 0; }
+  html.tw .tw-v > :last-child { margin-bottom: 0; }
+
+  /* Text with no figure keeps a reading width: 7 of 12 */
+  html.tw .tw-row.is-text,
+  html.tw .tw-row.is-vis,
+  html.tw .tw-row.is-full { display: block; }
+  html.tw .tw-row.is-text .tw-t,
+  html.tw .tw-row.is-text .tw-v,
+  html.tw .tw-row.is-full .tw-t { max-width: 58.4%; }
+  html.tw .tw-row.is-full .tw-t + .tw-v { margin-top: 8px; }
+
+  /* Card grids run the full width */
+  html.tw .tw-row.is-full .acq-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html.tw .tw-row.is-full .acq-card.full { grid-column: 1 / -1; }
+}
+
+/* Phones: the title comes before the market cap */
+@media (max-width: 640px) {
+  html.tw .hero { display: flex; flex-direction: column; }
+  html.tw .hero-top { display: contents; }
+  html.tw .hero-badge-col { margin-bottom: 18px; }
+  html.tw .hero-mktcap { order: 2; margin-top: 18px; }
+}
