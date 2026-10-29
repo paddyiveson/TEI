@@ -90,7 +90,8 @@
     return !q || (n.name + ' ' + n.ticker + ' ' + n.summary + ' ' + (n.theme || '') + ' ' + (n.line || '') + ' ' + n.category).toLowerCase().indexOf(q) >= 0;
   }
   function section(c, list) {
-    var h = '<section class="su-sec" aria-labelledby="sh-' + c.replace(/\W/g, '') + '"><header class="su-sh"><h2 id="sh-' + c.replace(/\W/g, '') + '">' + esc(c) + '<span class="n">' + list.length + '</span></h2><p>' + esc(INTRO[c]) + '</p></header><div class="su-g">';
+    var id = c.replace(/\W/g, '');
+    var h = '<section class="su-sec" id="sec-' + id + '" data-sec="' + esc(c) + '" aria-labelledby="sh-' + id + '"><header class="su-sh"><h2 id="sh-' + id + '">' + esc(c) + '</h2><p>' + esc(INTRO[c]) + '</p></header><div class="su-g">';
     if (c === 'Watchlist') {
       var groups = THEMES.map(function (t) { return { t: t, l: list.filter(function (n) { return n.theme === t; }) }; })
         .concat([{ t: 'Other', l: list.filter(function (n) { return THEMES.indexOf(n.theme) < 0; }) }])
@@ -107,13 +108,22 @@
     }
     return h + '</div></section>';
   }
+  // Phones: tabs that jump to each section and follow the scroll (every
+  // section stays on the page). Wider screens: chips that filter.
+  var TAB = { 'Growth Portfolio': 'Growth', 'Foundations': 'Foundations', 'Top Ideas': 'Top Ideas', 'Watchlist': 'Watchlist' };
   function renderList() {
-    $('suCats').innerHTML = ['All'].concat(CATS).map(function (k) {
+    var tabs = mqPhone.matches;
+    $('suCats').classList.toggle('is-tabs', tabs);
+    $('suCats').setAttribute('aria-label', tabs ? 'Jump to a section' : 'Category');
+    if (tabs) {
+      $('suCats').innerHTML = CATS.map(function (k) { return '<button type="button" class="hb-chip" data-jump="' + esc(k) + '">' + esc(TAB[k]) + '</button>'; }).join('');
+    } else $('suCats').innerHTML = ['All'].concat(CATS).map(function (k) {
       var n = k === 'All' ? all.length : inCat(k).length;
       return '<button type="button" class="hb-chip" data-cat="' + esc(k) + '" aria-pressed="' + (k === cat ? 'true' : 'false') + '">' + esc(k) + '<span class="n">' + n + '</span></button>';
     }).join('');
     if (!loaded) return;
-    var html = CATS.filter(function (c) { return cat === 'All' || cat === c; }).map(function (c) {
+    var show = tabs ? 'All' : cat;
+    var html = CATS.filter(function (c) { return show === 'All' || show === c; }).map(function (c) {
       var list = inCat(c).filter(matches);
       return list.length ? section(c, list) : '';
     }).join('');
@@ -276,7 +286,16 @@
     raf = requestAnimationFrame(function () {
       raf = 0;
       var tools = $('suTools');
-      if (!$('suList').hidden) tools.classList.toggle('is-stuck', tools.getBoundingClientRect().top <= offsetTopList() + 0.5);
+      if (!$('suList').hidden) {
+        var tb = tools.getBoundingClientRect();
+        tools.classList.toggle('is-stuck', tb.top <= offsetTopList() + 0.5);
+        if (mqPhone.matches) {
+          var on = null;
+          Array.prototype.forEach.call(document.querySelectorAll('#suNotes .su-sec'), function (sec) { if (sec.getBoundingClientRect().top <= tb.bottom + 24) on = sec.getAttribute('data-sec'); });
+          on = on || (document.querySelector('#suNotes .su-sec') || { getAttribute: function () { return null; } }).getAttribute('data-sec');
+          Array.prototype.forEach.call($('suCats').querySelectorAll('[data-jump]'), function (b) { if (b.getAttribute('data-jump') === on) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+        }
+      }
       if (!current) return;
       var ft = $('nvFrame').getBoundingClientRect().top, top = offsetTop() + 24, act = 0;
       heads.forEach(function (h, i) { if (ft + h.getBoundingClientRect().top <= top + 40) act = i; });
@@ -411,6 +430,12 @@
     }
   });
   $('suCats').addEventListener('click', function (e) {
+    var j = e.target.closest('[data-jump]');
+    if (j) {
+      var sec = document.getElementById('sec-' + j.getAttribute('data-jump').replace(/\W/g, ''));
+      if (sec) window.scrollTo({ top: window.scrollY + sec.getBoundingClientRect().top - $('suTools').offsetHeight - 8, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      return;
+    }
     var b = e.target.closest('[data-cat]'); if (!b) return;
     cat = b.getAttribute('data-cat');
     history.replaceState(history.state, '', '/hub/suite/index.html' + (cat !== 'All' ? '?cat=' + encodeURIComponent(cat) : ''));
@@ -447,6 +472,7 @@
     loaded = true;
     renderList();
     renderListClose();
+    onScroll();
     var note = new URLSearchParams(location.search).get('note');
     if (note && bySlug(note)) { history.replaceState({ note: note }, '', location.href); openNote(note); }
   }).catch(function (err) {
