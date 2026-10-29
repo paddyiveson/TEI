@@ -55,11 +55,15 @@
 .m-controls { display: grid; gap: 16px; margin: 4px 0 22px; }
 .m-controls .ar-seg { margin-top: 0; max-width: 100%; }
 .m-verdict { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.m-verdict > div { position: relative; padding: 16px 18px; border-radius: 16px; background: var(--c-tile-2); border: 1px solid transparent; transition: border-color .3s ease, background-color .3s ease; }
-.m-verdict small { display: block; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
-.m-verdict b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
-.m-verdict p { margin: 6px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; color: var(--c-muted) !important; }
+/* Result tiles sit on the blue feature tile (--c-key), one theme on every refreshed page (Paddy, 28 Oct, Batch 2). */
+.m-verdict > div { position: relative; padding: 16px 18px; border-radius: 16px; background: var(--c-key); box-shadow: var(--c-key-shadow); border: 1px solid transparent; transition: border-color .3s ease, background-color .3s ease; }
+.m-verdict small { display: block; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; color: var(--c-key-text); }
+.m-verdict b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 400; letter-spacing: -0.02em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.m-verdict p { margin: 6px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; font-weight: 500 !important; color: var(--c-key-text) !important; }
+/* The winning tile of a toggle stays champagne with depth, so it stands out from the blue. */
 .m-verdict > div.is-win { background: var(--c-depth); border-color: transparent; box-shadow: var(--c-depth-shadow); }
+.m-verdict > div.is-win small, .m-verdict > div.is-win p { color: var(--c-muted) !important; }
+.m-verdict > div.is-win b { color: var(--c-ink); }
 .m-win { display: none; position: absolute; top: 14px; right: 14px; padding: 3px 9px; border-radius: 999px; background: var(--c-btn); color: var(--c-btn-ink); font-family: var(--tc-mono); font-size: 11px; }
 .m-verdict > div.is-win .m-win { display: inline-block; }
 .m-line { margin: 14px 0 0 !important; padding: 16px 20px; border-radius: 16px; background: var(--c-feature); color: var(--c-on-feature) !important; font-size: 16px !important; line-height: 1.5 !important; font-weight: 400 !important; }
@@ -198,11 +202,11 @@
 .m-ends { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .m-verdict + .m-verdict { margin-top: 10px; }
 .m-bars + .m-ends { margin-top: 18px; }
-.m-ends > div { padding: 14px 16px; border-radius: 16px; background: var(--c-tile-2); }
-.m-ends small { display: flex; align-items: center; gap: 8px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
-.m-ends small i { flex: none; width: 16px; height: 3px; border-radius: 2px; }
-.m-ends b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; }
-.m-ends p { margin: 4px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; color: var(--c-muted) !important; }
+.m-ends > div { padding: 14px 16px; border-radius: 16px; background: var(--c-key); box-shadow: var(--c-key-shadow); }
+.m-ends small { display: flex; align-items: center; gap: 8px; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; color: var(--c-key-text); }
+.m-ends small i, .m-verdict small i { flex: none; width: 16px; height: 3px; border-radius: 2px; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .75); }
+.m-ends b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 400; letter-spacing: -0.02em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.m-ends p { margin: 4px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; font-weight: 500 !important; color: var(--c-key-text) !important; }
 .m-i-ref { background: var(--c-s1); }
 .m-i-a { background: var(--c-warn); }
 /* A line that grows above the money put in (a pot and what was paid into it):
@@ -342,6 +346,39 @@
   body.tc-page .m-facts dd { font-size: 15px; }
   body.tc-page .m-breakdown { gap: 5px; }
   body.tc-page .m-breakdown > div { padding: 8px 10px; font-size: 13px; }
+  /* One figure, one screen (Paddy, 28 Oct, Batch 2 phone pass). A chart with no
+     y-axis keeps no gutter for one; steppers share the full width; the Ahead
+     badge sits on the tile's top edge, clear of its label. */
+  body.tc-page .m-chart.is-flat, body.tc-page .m-chart.is-bare { margin-left: 0; }
+  body.tc-page .m-controls .ar-seg { display: flex; width: 100%; }
+  body.tc-page .m-controls .ar-seg button { flex: 1 1 0; min-width: 0; }
+  body.tc-page .m-win { top: 0; right: 10px; transform: translateY(-50%); }
+  /* Bold lines thin out on a short chart, so two close lines stay apart; pins
+     marked .is-desk give way to the tiles below. */
+  body.tc-page .m-chart.is-bold .m-ref, body.tc-page .m-chart.is-bold .m-line-a { stroke-width: 2; }
+  :root body.tc-page .m-chart.is-bold .m-gap { opacity: .4; }
+  body.tc-page .m-pin.is-desk, body.tc-page .m-pin-v.is-desk { display: none; }
+  /* Strips shorter, each pair on one line; the gaps read from the list, not bubbles. */
+  body.tc-page .m-strip { height: 80px; margin-bottom: 22px; }
+  body.tc-page .m-pairs { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  body.tc-page .m-pairs li { flex-wrap: nowrap; padding: 5px 10px; white-space: nowrap; }
+  body.tc-page .m-pairs small { width: auto; margin-left: auto; }
+  body.tc-page .m-strip .m-gapl { display: none; }
+  body.tc-page .m-strip .m-xaxis span:first-child { transform: none; }
+  /* Sliders: label and value beside the track, one row each. */
+  body.tc-page .visual-block .tc-controls { gap: 0; margin: 0 0 10px; }
+  body.tc-page .visual-block .tc-field { display: grid; grid-template-columns: 142px minmax(0, 1fr); align-items: center; gap: 12px; }
+  body.tc-page .visual-block .tc-field label { align-items: baseline; margin: 0; font-size: 11px; }
+  body.tc-page .visual-block .tc-field output { font-size: 14px; }
+  body.tc-page .visual-block .tc-field input[type="range"] { min-height: 34px; }
+  /* Feature stats side by side, each number over its line. */
+  body.tc-page .m-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 6px; border-radius: 12px; }
+  body.tc-page .m-feature > div { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 12px; }
+  body.tc-page .m-feature > div + div { border-top: 0; border-left: 1px solid rgba(232, 214, 168, .22); }
+  body.tc-page .m-feature b { min-width: 0; font-size: 19px; }
+  body.tc-page .m-chart.is-tall.is-decide { height: 200px; }
+  body.tc-page .tc-key.is-phone-hide { display: none; }
+  body.tc-page .m-feature span { font-size: 11px; line-height: 1.35; }
 }
 
 
@@ -431,3 +468,232 @@
   .m-stages b { font-size: 11px; }
   .m-stages small { font-size: 10.5px; }
 }
+
+/* ---------- Tier 2 Batch 2 parts (28 Oct 2026, chosen from working mock-ups) ----------
+   .m-reveal      children appear one by one when the scene plays (motion.js sets --i)
+   .m-lab, .m-dot floating chart labels and markers, placed by --x / --y, shown after --t
+   .m-chart.is-noise / .is-peg / .is-decide / .is-oil / .is-solo / .is-short / .is-over
+   .m-zone, .m-peg   the price paid as a dashed line, with the zone above and below
+   .m-fork, .m-path  one headline, two paths
+   .m-hundreds       100 dots, the counted ones light up
+   .m-chain          seven links with the markets' fast lane; .m-chain-sm on phones
+   .m-bond, .m-par   a bar against a dashed reference value
+   .m-cols           yearly columns
+   .m-feature        the key result on the blue tile: each stat beside its description
+   .m-fromto         supporting numbers as a plain "from -> to" list
+   .m-why            a plain-English explanation strip inside a figure */
+.m-armed .m-reveal > * { opacity: 0; transform: translateY(10px); }
+.m-armed.m-on .m-reveal > * { opacity: 1; transform: none; transition: opacity .45s ease, transform .45s var(--tc-ease); transition-delay: calc(var(--i, 0) * 240ms + 150ms); }
+
+.m-labs { position: absolute; inset: 0; pointer-events: none; }
+.m-lab { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -140%); padding: 2px 8px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 11px; line-height: 1.4; color: var(--c-ink); white-space: nowrap; }
+.m-lab.is-below { transform: translate(-50%, 40%); }
+.m-lab.is-left { transform: translate(calc(-100% - 10px), -50%); }
+.m-lab.is-gold { border-color: var(--c-gold); color: var(--c-gold); }
+.m-lab.is-phone { display: none; }
+.m-dot { position: absolute; left: var(--x); top: var(--y); width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; box-shadow: 0 0 0 3px var(--c-tile); }
+.m-dot.is-grow { background: var(--c-grow); }
+.m-dot.is-warn { background: var(--c-warn); }
+.m-dot.is-gold { background: var(--c-gold); }
+.m-dot.is-ink { background: var(--c-s1); }
+.m-armed .m-lab { opacity: 0; }
+.m-armed.m-on .m-lab { opacity: 1; transition: opacity .4s ease; transition-delay: var(--t, 1800ms); }
+.m-armed .m-dot { transform: scale(0); }
+.m-armed.m-on .m-dot { transform: none; transition: transform .5s cubic-bezier(.34, 1.56, .64, 1); transition-delay: var(--t, 1600ms); }
+
+/* Signal under static: the steady value line is the signal, the price is static around it. */
+.m-chart.is-flat { margin-left: 0; }
+.m-chart.is-noise .m-ref { stroke: var(--c-s1); stroke-width: 3; }
+.m-chart.is-noise .m-line-a { stroke: var(--c-s4); stroke-width: 1.5; }
+.m-chart.is-noise .m-gap, .m-chart.is-solo .m-gap, .m-chart.is-solo .m-line-a, .m-chart.is-peg .m-gap, .m-chart.is-oil .m-gap, .m-chart.is-over .m-gap, .m-chart.is-over .m-line-a { display: none; }
+.tc-key i.m-i-noise { background: var(--c-s4); }
+.m-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.m-lists .m-breakdown { margin-bottom: 6px; }
+.m-lists .m-breakdown > div { padding: 9px 12px; font-size: 13px; }
+.m-lists .is-signal > div { background: var(--c-champ-tile); }
+
+/* The fork: one headline, two paths. */
+.m-fork { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+.m-fork-head { grid-column: 1 / -1; justify-self: center; position: relative; margin-bottom: 34px; padding: 12px 18px; border-radius: 14px; background: var(--c-feature); color: var(--c-on-feature); font-size: 15px; }
+.m-fork-head::before { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 14px; background: var(--c-line); }
+.m-fork-head::after { content: ""; position: absolute; left: 25%; right: 25%; top: calc(100% + 14px); height: 18px; border: 2px solid var(--c-line); border-bottom: 0; border-radius: 14px 14px 0 0; }
+.m-path { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.m-path li { position: relative; padding: 12px 14px; border-radius: 14px; background: var(--c-tile-2); font-size: 14px; line-height: 1.45; color: var(--c-ink); }
+.m-path li.m-path-h { padding: 0 0 2px; background: none; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); text-align: center; }
+.m-path li + li::before { content: ""; position: absolute; left: 50%; top: -9px; width: 2px; height: 9px; background: var(--c-line); }
+.m-path li.m-path-h + li::before { display: none; }
+.m-path li.is-end { background: var(--c-depth); box-shadow: var(--c-depth-shadow); }
+.m-path.is-plain li.is-end { background: var(--c-tile-2); border: 1px dashed var(--c-line); box-shadow: none; }
+
+/* The peg: a dashed price paid, with a gain zone above and a loss zone below. */
+.m-zone { position: absolute; left: 0; right: 0; pointer-events: none; }
+.m-zone.is-up { top: 0; bottom: calc(100% - var(--y)); background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--c-grow) 14%, transparent)); }
+.m-zone.is-down { top: var(--y); bottom: 0; background: linear-gradient(to top, transparent, color-mix(in srgb, var(--c-warn) 12%, transparent)); }
+.m-zone b { position: absolute; left: 10px; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; }
+.m-zone.is-up b { top: 8px; color: var(--c-grow); }
+.m-zone.is-down b { bottom: 8px; color: var(--c-warn); }
+.m-peg { position: absolute; left: 0; right: 0; top: var(--y); border-top: 2px dashed var(--c-gold); }
+.m-peg > span { position: absolute; right: 0; top: -22px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); }
+.m-chart.is-peg .m-ref { stroke-width: 2.5; }
+.m-zd { display: inline-block; flex: none; width: 9px; height: 9px; margin-right: 7px; border-radius: 50%; vertical-align: 1px; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .75); }
+.m-zd.is-up { background: var(--c-grow); }
+.m-zd.is-down { background: var(--c-warn); }
+
+/* A hundred dots: out of every 100, the counted ones light up. */
+.m-hundreds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.m-hundred { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 5px; max-width: 260px; }
+.m-hundred i { aspect-ratio: 1; border-radius: 50%; background: var(--c-s4); opacity: .3; }
+.m-hundred i.is-lit { opacity: 1; background: var(--c-gold); }
+.m-hundred.is-loss i.is-lit { background: var(--c-warn); }
+.m-armed .m-hundred i.is-lit { opacity: .3; background: var(--c-s4); transform: scale(.6); }
+.m-armed.m-on .m-hundred i.is-lit { opacity: 1; background: var(--c-gold); transform: none; transition: transform .45s cubic-bezier(.34, 1.56, .64, 1), background-color .2s ease, opacity .2s ease; transition-delay: var(--t, 300ms); }
+.m-armed.m-on .m-hundred.is-loss i.is-lit { background: var(--c-warn); }
+.m-hundred-h { margin: 0 0 10px; padding: 12px 14px; border-radius: 16px; background: var(--c-key); box-shadow: var(--c-key-shadow); font-size: 13px; color: var(--c-key-text); }
+.m-hundred-h small { display: flex; align-items: center; margin-bottom: 4px; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; color: var(--c-key-text); }
+.m-hundred-h b { margin-right: 6px; font-size: 28px; font-weight: 300; letter-spacing: -0.02em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+
+/* The chain, with the markets' fast lane from link 1 to link 5 (desktop); four steps on phones. */
+.m-chain { position: relative; padding-top: 74px; }
+.m-chain ol { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; counter-reset: link; }
+.m-chain li { position: relative; padding: 14px 14px 16px; border-radius: 16px; background: var(--c-tile-2); counter-increment: link; }
+.m-chain li::before { content: counter(link); display: grid; place-items: center; width: 26px; height: 26px; margin-bottom: 10px; border-radius: 50%; background: var(--c-s1); color: var(--c-tile); font-family: var(--tc-mono); font-size: 12px; }
+.m-chain li.is-fast::before { background: var(--c-gold); }
+.m-chain li.is-end { background: var(--c-key); box-shadow: var(--c-key-shadow); }
+.m-chain li.is-end h4 { color: var(--c-key-num); }
+.m-chain li.is-end p { color: var(--c-key-text) !important; }
+.m-chain li.is-end::before { background: var(--c-key-num); color: var(--c-key); }
+.m-chain h4 { margin: 0 0 6px; font-size: 15px; line-height: 1.3; font-weight: 500; color: var(--c-ink); }
+.m-chain li p { margin: 0 !important; font-size: 13px !important; line-height: 1.5 !important; color: var(--c-muted) !important; }
+.m-chain-fast { position: absolute; left: calc((100% - 60px) / 14); width: calc((100% - 60px) / 7 * 4 + 40px); top: 6px; height: 64px; }
+.m-chain-fast svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-chain-fast path { fill: none; stroke: var(--c-gold); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 0; vector-effect: non-scaling-stroke; }
+.m-chain-fast span { position: absolute; left: 50%; top: -4px; transform: translateX(-50%); padding: 2px 10px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-gold); font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); white-space: nowrap; }
+.m-chain-slow { display: flex; align-items: center; gap: 10px; margin: 14px 0 0 !important; padding-left: calc((100% - 60px) / 7 + 10px); padding-right: calc((100% - 60px) / 7 * 3 + 30px); font-family: var(--tc-mono); font-size: 11px !important; color: var(--c-muted) !important; }
+.m-chain-slow::before, .m-chain-slow::after { content: ""; flex: 1; border-top: 2px dotted var(--c-s4); }
+.m-armed .m-chain-fast path { stroke-dashoffset: 1; }
+.m-armed.m-on .m-chain-fast path { stroke-dashoffset: 0; transition: stroke-dashoffset 1s ease-in-out 2.2s; }
+.m-armed .m-chain-fast span, .m-armed .m-chain-slow { opacity: 0; }
+.m-armed.m-on .m-chain-fast span, .m-armed.m-on .m-chain-slow { opacity: 1; transition: opacity .4s ease 3s; }
+.m-chain-sm { display: none; }
+
+/* A bar against a dashed reference value (the bond's issue price). */
+.m-bond .m-bar { position: relative; }
+.m-bond .m-bar i { background: var(--c-s1); transition: width .5s var(--tc-ease); }
+.m-bond .m-bar i.is-down { background: var(--c-warn); }
+.m-bond .m-bar i.is-up { background: var(--c-grow); }
+.m-par { position: absolute; top: -6px; bottom: -6px; left: calc(100 / var(--max) * 100%); border-left: 2px dashed var(--c-gold); }
+.m-par span { position: absolute; top: -18px; right: 4px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-gold); white-space: nowrap; }
+.m-scale { display: flex; justify-content: space-between; margin-top: -4px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-muted); }
+
+/* Yearly columns: each year's amount, and what it is worth today. */
+.m-why { margin: 4px 0 14px !important; padding: 12px 14px; border-left: 3px solid var(--c-gold); background: var(--c-tile-2); border-radius: 0 12px 12px 0; font-size: 14px !important; line-height: 1.55 !important; color: var(--c-ink) !important; }
+.m-why strong { font-weight: 500; }
+.m-cols-row { margin: 6px 0 14px; }
+.m-cols-h { margin-bottom: 6px; font-size: 14px; color: var(--c-ink); }
+.m-cols { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); align-items: end; gap: 6px; height: 120px; padding-bottom: 2px; border-bottom: 1px solid var(--c-line); }
+.m-cols i { display: block; height: calc(var(--v, 0) / 20 * 100%); border-radius: 6px 6px 2px 2px; background: var(--c-s1); transition: height .6s var(--tc-ease), background-color .3s ease; }
+.m-cols.is-pv i { background: var(--c-grow); }
+.m-cols i.is-zero { height: 3px; background: var(--c-line); }
+.m-cols-x { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin-top: 4px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-muted); text-align: center; }
+.m-armed .m-cols i { height: 0; }
+.m-armed.m-on .m-cols i { height: calc(var(--v, 0) / 20 * 100%); transition-delay: var(--t, 0ms); }
+.m-armed.m-on .m-cols i.is-zero { height: 3px; }
+
+/* The feature: the key result on the blue tile, each stat beside its description. */
+.m-feature { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; border-radius: 18px; background: var(--c-key); box-shadow: var(--c-key-shadow); overflow: hidden; }
+.m-feature > div { display: flex; align-items: center; gap: 14px; padding: 14px 18px; }
+.m-feature > div + div { border-left: 1px solid rgba(232, 214, 168, .22); }
+.m-feature b { flex: none; font-size: 30px; line-height: 1; font-weight: 300; letter-spacing: -0.03em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.m-feature span { font-size: 13px; line-height: 1.4; font-weight: 500; color: var(--c-key-text); }
+/* Supporting numbers: a plain list, less emphasis than the feature. */
+.m-fromto { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; margin: 12px 0 0; }
+.m-fromto.is-one { grid-template-columns: minmax(0, 1fr); }
+.m-fromto > div { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--c-line); font-size: 13px; }
+.m-fromto dt { display: flex; align-items: center; gap: 8px; color: var(--c-muted); }
+.m-fromto dt i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+.m-fromto dd { margin: 0; color: var(--c-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-keyrow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-top: 10px; }
+.m-keyrow .m-strip-h, .m-keyrow .tc-key { margin: 0; }
+
+/* Charts in this batch: Palantir's three decisions, oil against yields, shares alone, a band and a date line. */
+.m-chart.is-decide > svg .m-ref { stroke: url(#m-g-held); stroke-width: 2.5; }
+.m-chart.is-over { position: absolute !important; inset: 0; height: auto !important; margin: 0 !important; }
+.m-chart.is-over .m-ref { stroke: url(#m-g-add); stroke-width: 2.5; }
+.m-s-pre { stop-color: var(--c-s4); }
+.m-s-held { stop-color: var(--c-s1); }
+.m-s-none { stop-color: var(--c-s4); stop-opacity: 0; }
+.m-s-add { stop-color: var(--c-grow); }
+.tc-key i.m-i-pre, .m-fromto i.m-i-pre { background: var(--c-s4); }
+.tc-key i.m-i-oil, .m-fromto i.m-i-oil { background: var(--c-oil); }
+.m-fromto i.m-i-grow { background: var(--c-grow); }
+.m-chart.is-oil .m-ref { stroke: var(--c-grow); }
+.m-chart.is-oil .m-line-a { stroke: var(--c-oil); stroke-width: 2.25; }
+.m-chart.is-solo .m-ref { stroke-width: 2.5; }
+.m-band { position: absolute; top: -6px; bottom: -6px; left: var(--x); width: calc(var(--p) - var(--x)); background: color-mix(in srgb, var(--c-warn) 9%, transparent); border-left: 1px solid color-mix(in srgb, var(--c-warn) 35%, transparent); border-right: 1px solid color-mix(in srgb, var(--c-warn) 35%, transparent); pointer-events: none; }
+.m-vline { position: absolute; top: -6px; bottom: -6px; left: var(--x); border-left: 2px dashed var(--c-gold); pointer-events: none; }
+.m-armed .m-band, .m-armed .m-vline { opacity: 0; }
+.m-armed.m-on .m-band, .m-armed.m-on .m-vline { opacity: 1; transition: opacity .5s ease 1.8s; }
+@media (min-width: 1100px) {
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-tall { height: clamp(260px, calc(100vh - 560px), 360px); }
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-short { height: 110px; margin-bottom: 12px; }
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-solo.is-main { height: clamp(200px, calc(100vh - 640px), 260px); }
+}
+@media (max-width: 1099px) {
+  .m-chain { display: none; }
+  .m-chain-sm { display: flex; flex-direction: column; gap: 6px; }
+  .m-chain-sm > div { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--c-tile-2); }
+  .m-chain-sm > div > b { display: grid; place-items: center; height: 30px; border-radius: 999px; background: var(--c-s1); color: var(--c-tile); font-family: var(--tc-mono); font-size: 11px; font-weight: 500; }
+  .m-chain-sm > div.is-fast > b { background: var(--c-gold); }
+  .m-chain-sm > div.is-slow { background: transparent; border: 1px dashed var(--c-line); }
+  .m-chain-sm > div.is-end { background: var(--c-key); box-shadow: var(--c-key-shadow); }
+  .m-chain-sm > div.is-end span, .m-chain-sm > div.is-end strong { color: var(--c-key-text); }
+  .m-chain-sm > div.is-end > b { background: var(--c-key-num); color: var(--c-key); }
+  .m-chain-sm span { font-size: 12.5px; line-height: 1.4; color: var(--c-muted); }
+  .m-chain-sm strong { display: block; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+  .m-chain-skip { position: relative; margin: 0 !important; padding: 6px 12px 6px 30px !important; font-family: var(--tc-mono); font-size: 11px !important; line-height: 1.4 !important; color: var(--c-gold) !important; }
+  .m-chain-skip::before { content: "\2193"; position: absolute; left: 14px; top: 5px; }
+}
+@media (max-width: 760px) {
+  body.tc-page .m-chart.is-tall { height: 240px; }
+  body.tc-page .m-chart.is-peg { height: 270px; }
+  body.tc-page .m-chart.is-short { height: 90px; }
+  body.tc-page .m-chart.is-solo.is-main { height: 140px; }
+  .m-lab { font-size: 10px; }
+  .m-lab.is-desk, .m-dot.is-desk { display: none; }
+  .m-lab.is-phone { display: block; }
+  .m-long { display: none; }
+  .m-zone b { font-size: 10px; }
+  .m-lists, .m-hundreds { gap: 10px; }
+  .m-fork { gap: 0 8px; }
+  .m-path li { padding: 10px; font-size: 13px; }
+  .m-hundred { gap: 3px; }
+  .m-hundred-h { padding: 10px 12px; }
+  .m-hundred-h b { font-size: 20px; margin-right: 4px; }
+  .m-hundred-h small { font-size: 10.5px; }
+  .m-cols { height: 72px; gap: 4px; }
+  .m-feature { grid-template-columns: minmax(0, 1fr); }
+  .m-feature > div { gap: 12px; padding: 10px 14px; }
+  .m-feature > div + div { border-left: 0; border-top: 1px solid rgba(232, 214, 168, .22); }
+  .m-feature b { min-width: 76px; font-size: 22px; }
+  .m-feature span { font-size: 12px; }
+  .m-fromto { grid-template-columns: minmax(0, 1fr); }
+  .m-fromto > div { padding: 5px 0; font-size: 12px; }
+  .m-fromto.is-phone-hide { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-armed .m-reveal > *, .m-armed .m-lab, .m-armed .m-dot, .m-armed .m-hundred i.is-lit, .m-armed .m-cols i, .m-armed .m-chain-fast span, .m-armed .m-chain-slow, .m-armed .m-band, .m-armed .m-vline { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .m-armed .m-hundred i.is-lit { background: var(--c-gold) !important; }
+  .m-armed .m-hundred.is-loss i.is-lit { background: var(--c-warn) !important; }
+  .m-armed .m-cols i { height: calc(var(--v, 0) / 20 * 100%) !important; }
+  .m-armed .m-chain-fast path { stroke-dashoffset: 0 !important; transition: none !important; }
+}
+/* A feature or list in the notes beside a short text: one column, rows stacked. */
+@media (min-width: 1100px) {
+  .ar-notes .m-feature, .ar-notes .m-fromto { grid-template-columns: minmax(0, 1fr); }
+  .ar-notes .m-feature { margin-top: 0; }
+  .ar-notes .m-feature > div + div { border-left: 0; border-top: 1px solid rgba(232, 214, 168, .22); }
+  .ar-notes .m-fromto { margin-top: 0; }
+}
+/* The article body sets paragraph colour; the dot headings sit on the blue tile. */
+body.tc-page .m-hundred-h, body.tc-page .m-hundred-h span { color: var(--c-key-text) !important; }
+body.tc-page .m-hundred-h b { color: var(--c-key-num) !important; }

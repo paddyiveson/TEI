@@ -86,6 +86,10 @@
         each('.m-bar i', function (seg, i) { seg.style.setProperty('--i', i); seg.style.setProperty('--r', r); }, row);
       }, group);
     }, scene);
+    // Step reveals (.m-reveal): children appear one by one; a fork's own parts come in together.
+    each('.m-reveal', function (r) {
+      Array.prototype.forEach.call(r.children, function (c, i) { c.style.setProperty('--i', r.classList.contains('m-fork') ? 0 : i); });
+    }, scene);
     var rows = scene.querySelectorAll('.m-row').length;
     scene.style.setProperty('--m-after', (rows * 260 + 700) + 'ms');
     var notes = notesOf(scene);
@@ -197,7 +201,7 @@
   function dotsLayout(box) {
     var st = box._dots, cv = box.querySelector('canvas'), w = box.clientWidth;
     if (!w) return false;
-    var pitch = w < 560 ? 4.6 : 7;
+    var pitch = w < 560 ? 4 : 7;
     var cols = Math.max(20, Math.floor(w / pitch));
     pitch = w / cols;
     var h = Math.ceil(Math.ceil(st.opts.n / cols) * pitch);

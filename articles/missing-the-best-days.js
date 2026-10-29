@@ -80,7 +80,7 @@
       }
       var label = 'Missed the ' + k + ' best days';
       keyMiss.textContent = label;
-      out(fig, 'miss-label').textContent = label;
+      out(fig, 'miss-label').textContent = 'Missed ' + k + ' best';
       M().count(out(fig, 'miss-end'), end);
       var rate = D.rates[String(k)];
       out(fig, 'miss-rate').textContent = (rate < 0 ? '−' + Math.abs(rate).toFixed(2) : rate.toFixed(2)) + '% a year';
@@ -95,9 +95,9 @@
 
   /* ---------- Scene 4: the counterpoint ---------- */
   var SKIP = {
-    best:  { label: 'Missed the 10 best days', note: '10 days out, all of them rises' },
-    worst: { label: 'Missed the 10 worst days', note: 'On paper only: every fall known in advance' },
-    both:  { label: 'Missed the 10 best and 10 worst', note: '20 days out, roughly where staying put ends' }
+    best:  { label: 'Missed 10 best', note: '10 days out' },
+    worst: { label: 'Missed 10 worst', note: 'Needs foresight' },
+    both:  { label: 'Missed both', note: '20 days out' }
   };
   function sceneCounter() {
     var fig = document.getElementById('scene-counter');
