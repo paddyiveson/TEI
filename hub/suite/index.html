@@ -22,7 +22,7 @@
 .press:active { transform:scale(.985); }
 @media (hover:hover) { .lift:hover { transform:translateY(-2px); box-shadow:var(--w-shadow-2); } }
 .chev { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; flex:none; }
-.mk { flex:none; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:11px; background:var(--b, #14376E); color:#F7F4ED; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; font-weight:500; letter-spacing:.02em; box-shadow:inset 0 1px 0 rgba(255,255,255,.18); }
+.mk { flex:none; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:11px; background:var(--w-chip); border:1px solid var(--w-line); color:var(--w-gold); font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; font-weight:500; letter-spacing:.02em; }
 .upd { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; padding:3px 9px; border-radius:999px; background:var(--w-nav-active); color:var(--w-nav-active-text); white-space:nowrap; }
 
 /* ---------- Header. On phones it becomes a navy tile with the section counts ---------- */
@@ -64,25 +64,30 @@
 
 /* Growth Portfolio: a flat tint of the company's colour, its colour on the
    top edge and the ticker. The lead card is the only one with a glow. */
-.su-gc { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:8px; min-height:200px; padding:20px; border-radius:18px; text-decoration:none; color:#F7F4ED; background:color-mix(in srgb, var(--b) 34%, #0B1729); border:1px solid rgba(255,255,255,0.08); }
-.su-gc::after { content:''; position:absolute; left:0; right:0; top:0; height:3px; background:var(--b); }
+.su-gc { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:8px; min-height:200px; padding:20px; border-radius:18px; text-decoration:none; color:#F7F4ED; background:#14376E; border:1px solid rgba(232,214,168,0.16); }
+
 .su-gc > * { position:relative; }
 .su-gc .top { display:flex; align-items:center; gap:8px; }
-.su-gc .tk { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px; background:var(--b); color:#FFFFFF; font-family:'Geist Mono', monospace; font-size:11px; font-weight:500; letter-spacing:.02em; }
+.su-gc .tk { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px; background:rgba(232,214,168,0.14); color:#E8D6A8; font-family:'Geist Mono', monospace; font-size:11px; font-weight:500; letter-spacing:.02em; }
 .su-gc .upd { margin-left:auto; background:#E8D6A8; color:#0F1E36; }
 .su-gc .nm { margin-top:6px; font-size:21px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
 .su-gc .th { font-size:13px; color:#AEB9CA; }
 .su-gc .ln { margin-top:2px; font-size:13.5px; line-height:1.5; color:#C9D3E3; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .su-gc .go { margin-top:auto; padding-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:#E8D6A8; }
-.su-gc.is-lead { gap:10px; padding:28px; background:color-mix(in srgb, var(--b) 46%, #0B1729); border-color:rgba(232,214,168,0.3); box-shadow:var(--w-feat-shadow); }
-.su-gc.is-lead::before { content:''; position:absolute; width:520px; height:520px; right:-200px; top:-260px; border-radius:50%; background:radial-gradient(closest-side, color-mix(in srgb, var(--b) 75%, transparent), transparent); opacity:.7; pointer-events:none; }
+.su-gc.is-lead { gap:10px; padding:28px; border-color:rgba(232,214,168,0.45); box-shadow:var(--w-feat-shadow); }
+.su-gc.is-lead::before { content:''; position:absolute; width:700px; height:700px; right:-30%; top:-70%; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.24), rgba(232,214,168,0)); pointer-events:none; }
 /* The lead card's ticker, large and faint, so its extra height is not empty */
-.su-gc.is-lead .wm { position:absolute; right:24px; top:40px; font-family:'Geist Mono', monospace; font-size:clamp(64px, 7vw, 112px); font-weight:500; line-height:1; letter-spacing:-0.04em; color:#FFFFFF; opacity:.08; pointer-events:none; }
+/* Three figures from the note, dated, so the lead card's height carries substance */
+.su-gc .figs { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-top:auto; padding-top:18px; }
+.su-gc .fig { display:flex; flex-direction:column; gap:4px; padding:14px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(232,214,168,0.18); }
+.su-gc .fig b { font-size:26px; font-weight:300; letter-spacing:-0.02em; line-height:1.1; font-variant-numeric:tabular-nums; }
+.su-gc .fig span { font-size:12px; line-height:1.35; color:#C9D3E3; }
+.su-gc .figs-k { font-family:'Geist Mono', monospace; font-size:11px; color:#AEB9CA; }
 .su-gc.is-lead .k { font-family:'Geist Mono', monospace; font-size:11px; color:#E8D6A8; }
-.su-gc.is-lead .nm { margin-top:auto; font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.su-gc.is-lead .nm { margin-top:10px; font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
 .su-gc.is-lead .th { font-size:15px; }
 .su-gc.is-lead .ln { font-size:16px; line-height:1.55; -webkit-line-clamp:4; max-width:560px; }
-.su-gc.is-lead .go { margin-top:8px; }
+.su-gc.is-lead .go { margin-top:4px; }
 .su-gc.is-wide .ln { -webkit-line-clamp:2; }
 @media (hover:hover) { .su-gc:hover { border-color:rgba(232,214,168,0.45); transform:translateY(-2px); } }
 .su-gc:focus-visible { outline-color:#E8D6A8; }
@@ -137,7 +142,7 @@
 .su-cc .go { margin-top:auto; padding-top:8px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
 .su-cc .top { display:flex; align-items:center; gap:10px; }
 .su-cc.champ { background:var(--w-champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
-.su-cc.brand::after { content:''; position:absolute; left:0; right:0; top:0; height:3px; background:var(--b); }
+
 .su-cc.feat { background:#14376E; border-color:rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
 .su-cc.feat::before { content:''; position:absolute; width:520px; height:520px; right:-40%; top:-90%; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.24), rgba(232,214,168,0)); pointer-events:none; }
 .su-cc.feat > * { position:relative; }
@@ -238,7 +243,11 @@
   .su-gc.is-lead .th { font-size:13px; }
   .su-gc.is-lead .ln { display:-webkit-box; font-size:14px; -webkit-line-clamp:3; }
   .su-gc.is-lead::before { width:300px; height:300px; right:-120px; top:-150px; }
-  .su-gc.is-lead .wm { right:16px; top:16px; font-size:56px; }
+  .su-gc .figs { gap:6px; padding-top:12px; }
+  .su-gc .fig { padding:10px; }
+  .su-gc .fig b { font-size:18px; }
+  .su-gc .fig span { font-size:10.5px; }
+  .su-gc .figs-k { font-size:10px; }
   .su-fc { padding:16px; gap:4px; }
   .su-fc .nm { font-size:15px; }
   .su-fc .th { font-size:11.5px; }
