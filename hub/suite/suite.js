@@ -86,11 +86,15 @@
       (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') +
       '<span class="go">What it is, cost and risks' + CHEV + '</span></a>';
   }
-  // Top Ideas: a row with the one-line description under it.
-  function richRow(n) {
-    return '<a class="su-wr press" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' + mark(n) +
-      '<span class="b"><span class="n">' + esc(n.name) + '</span><span class="m"><span class="mt">' + esc(n.ticker) + ' · </span>' + esc(n.summary) + '</span>' +
-      (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') + '</span>' + CHEV + '</a>';
+  // Top Ideas: a small card, smaller than Growth's: ticker, name, theme.
+  function ideaCard(n, span) {
+    return '<a class="su-ic press" style="--span:' + span + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
+      '<span class="tk">' + esc(n.ticker) + '</span><span class="nm">' + esc(n.name) + '</span><span class="th">' + esc(n.summary) + '</span></a>';
+  }
+  // Watchlist: each company as a pill inside its theme's tile.
+  function pill(n) {
+    return '<a class="su-pl press" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '" title="' + esc(n.ticker + ' · ' + n.summary) + '">' +
+      '<span class="i" aria-hidden="true">' + esc(n.mark || String(n.name).slice(0, 2)) + '</span>' + esc(n.name) + '</a>';
   }
   // Growth sizes, like the Hub home: a lead card, then smaller ones. Wide
   // screens: the lead two rows deep beside four cards, then a row of three.
@@ -127,7 +131,7 @@
       var sp = spans(groups.length, colsFor('watch'));
       h += groups.map(function (g, i) {
         return '<div class="su-wt" style="--span:' + sp[i] + '"><div class="su-wt-h"><span class="lab">' + esc(g.t) + '</span><span class="c">' + g.l.length + '</span></div>' +
-          '<div class="su-wt-l">' + g.l.map(function (n) { return row(n); }).join('') + '</div></div>';
+          '<div class="su-wt-l">' + g.l.map(pill).join('') + '</div></div>';
       }).join('');
     } else if (c === 'Growth Portfolio') {
       var lay = growthLayout(list.length);
@@ -136,7 +140,14 @@
       var s2 = mqPhone.matches ? list.map(function () { return 12; }) : spans(list.length, 2);
       h += list.map(function (n, i) { return fdnCard(n, s2[i], i % 2); }).join('');
     } else {
-      h += '<div class="su-tl" style="--span:12">' + list.map(richRow).join('') + '</div>';
+      // Top Ideas: wide screens, a row of four then three a little wider;
+      // phones, a row that swipes.
+      if (mqPhone.matches) h += '<div class="su-sw" style="--span:12">' + list.map(function (n) { return ideaCard(n, 12); }).join('') + '</div>';
+      else {
+        var first = Math.min(4, list.length), sp4 = spans(first, 4).concat(spans(list.length - first, 3));
+        if (list.length <= 4) sp4 = spans(list.length, Math.min(4, list.length));
+        h += list.map(function (n, i) { return ideaCard(n, sp4[i]); }).join('');
+      }
     }
     return h + '</div></section>';
   }
