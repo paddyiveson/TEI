@@ -90,10 +90,10 @@
 .su-gc .fig span { font-size:12px; line-height:1.35; color:#AEB9CA; }
 .su-gc .figs-k { padding-top:10px; font-family:'Geist Mono', monospace; font-size:10px; color:#8FA3C4; }
 .su-gc.is-lead .k { font-family:'Geist Mono', monospace; font-size:11px; color:#E8D6A8; }
-.su-gc.is-lead .nm { margin-top:auto; font-size:30px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.su-gc.is-lead .nm { margin-top:10px; font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
 .su-gc.is-lead .th { font-size:15px; }
-.su-gc.is-lead .ln { font-size:15px; line-height:1.5; -webkit-line-clamp:4; }
-.su-gc.is-lead .go { margin-top:10px; }
+.su-gc.is-lead .ln { margin-top:4px; font-size:16px; line-height:1.5; -webkit-line-clamp:4; }
+.su-gc.is-lead .go { margin-top:auto; padding-top:12px; }
 .su-gc.is-wide .ln { -webkit-line-clamp:2; }
 @media (hover:hover) { .su-gc:hover { border-color:var(--w-champ-line); transform:translateY(-2px); } .su-gc.is-lead:hover { border-color:rgba(232,214,168,0.7); } }
 .su-gc:focus-visible { outline-color:#E8D6A8; }
@@ -261,12 +261,15 @@
   .su-gc.is-lead .th { font-size:12px; }
   .su-gc.is-lead .ln { display:-webkit-box; font-size:12.5px; -webkit-line-clamp:3; }
   .su-gc.is-lead::before { width:300px; height:300px; right:-120px; top:-150px; }
-  .su-gc .figs { flex-direction:row; flex-wrap:wrap; padding:10px 16px 12px; border-left:0; border-top:1px solid rgba(232,214,168,0.16); }
-  .su-gc .fig { flex:1 1 0; padding:0 10px; gap:1px; border-bottom:0; border-left:1px solid rgba(232,214,168,0.12); }
+  .su-gc .figs { display:grid; grid-template-columns:minmax(0, 0.9fr) minmax(0, 1.55fr) minmax(0, 1.05fr); align-items:start; padding:10px 16px 12px; border-left:0; border-top:1px solid rgba(232,214,168,0.16); }
+  /* The middle figure has the longest label, so its column is wider */
+  .su-gc .fig { flex:none; justify-content:flex-start; padding:0 8px; gap:1px; border-bottom:0; border-left:1px solid rgba(232,214,168,0.12); }
   .su-gc .fig:first-child { padding-left:0; border-left:0; }
   .su-gc .fig b { font-size:15px; }
   .su-gc .fig span { font-size:9px; }
-  .su-gc .figs-k { flex-basis:100%; padding-top:8px; font-size:9px; }
+  /* Most phones: each column as wide as its label, so none wraps */
+  @media (min-width:375px) { .su-gc .figs { grid-template-columns:auto auto auto; justify-content:space-between; } .su-gc .fig span { white-space:nowrap; } }
+  .su-gc .figs-k { grid-column:1 / -1; padding-top:8px; font-size:9px; }
   .su-fc { padding:14px; gap:2px; }
   .su-fc .nm { font-size:15px; }
   .su-fc .th { font-size:11.5px; }
