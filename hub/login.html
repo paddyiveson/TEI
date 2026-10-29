@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign in -- Client Hub</title>
+<title>Sign in · Client Hub</title>
 <script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,12 +12,18 @@
 <style>
 /* Sign in (redesign phase G3, B12.2; spec B3.1, board Login.dc.html).
    Visual only: the sign-in, password reset and redirect logic are unchanged.
-   Colours come from the shared members' tokens (/hub/css/hub-tokens.css). */
-:root {
-  --bg: var(--w-bg); --tile: var(--w-tile); --line: var(--w-line); --text: var(--w-text); --muted: var(--w-muted);
-  --powder: var(--w-powder); --gold: var(--w-gold); --act: var(--w-nav-active); --act-text: var(--w-nav-active-text); --warn: var(--w-warn);
+   Desktop keeps the look from before the Bold pass: deep navy brand half and
+   the form straight on the page. Phones drop the brand half for a logo line
+   and keep the form on the members' tile (/hub/css/hub-tokens.css). */
+:root[data-theme="light"] {
+  --bg: #F7F4ED; --tile: #FFFFFF; --line: #DEDAD0; --text: #13213A; --muted: #4E5B70;
+  --powder: #DFE6F2; --gold: #83661C; --act: #0F1E36; --act-text: #E8D6A8; --warn: #9A4A1F;
 }
-:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="dark"] {
+  --bg: #0F1E36; --tile: #12233D; --line: rgba(232,214,168,0.18); --text: #F7F4ED; --muted: #AAB6C8;
+  --powder: #1C2B45; --gold: #E8D6A8; --act: #E8D6A8; --act-text: #0F1E36; --warn: #F0A97E;
+  color-scheme: dark;
+}
 html, body { margin: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Geist', system-ui, sans-serif; }
 a { color: inherit; }
@@ -29,24 +35,28 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
   flex: 1 1 520px; min-height: 100vh; box-sizing: border-box;
   position: relative; overflow: hidden;
   display: flex; flex-direction: column; justify-content: space-between; gap: 32px;
-  padding: 40px 48px; background: var(--w-feat); color: var(--w-on-feat-text);
+  padding: 40px 48px; background: #0B1729; color: #F7F4ED;
 }
-/* Brand navy with the champagne glow (B3.1, B14), and the softer pale-blue
-   glow at the opposite corner. */
-.lg-brand::before { content: ''; position: absolute; width: 760px; height: 760px; right: -260px; top: -320px; border-radius: 50%; background: var(--w-glow); pointer-events: none; }
-.lg-glow { position: absolute; width: 700px; height: 700px; left: -260px; bottom: -340px; border-radius: 50%; background: var(--w-glow-soft); animation: lg-glow 8s ease-in-out infinite; }
+/* Resting opacity matches the animation's low point, so reduced motion shows
+   the same soft glow rather than a full-strength one. */
+.lg-glow { position: absolute; width: 600px; height: 600px; left: -200px; bottom: -260px; border-radius: 50%; background: #B9CAE6; filter: blur(150px); opacity: .22; animation: lg-glow 8s ease-in-out infinite; }
 .lg-home { position: relative; align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; text-decoration: none; font-weight: 500; font-size: 17px; color: #F7F4ED; }
-.lg-home svg { display: block; flex: none; }
+.lg-home svg { display: block; flex: none; color: #E8D6A8; }
 .lg-orbit { position: relative; height: 420px; }
 .lg-ring { position: absolute; left: 50%; top: 50%; border-radius: 50%; }
 .lg-ring--outer { width: 400px; height: 400px; margin: -200px 0 0 -200px; border: 1px solid rgba(232,214,168,0.12); }
 .lg-ring--inner { width: 250px; height: 250px; margin: -125px 0 0 -125px; border: 1px dashed rgba(232,214,168,0.2); }
+.lg-ring.lg-track { border: 0; }
 .lg-spin50 { animation: lg-spin 50s linear infinite; }
 .lg-unspin50 { animation: lg-unspin 50s linear infinite; }
 .lg-spin32 { animation: lg-spin 32s linear infinite; }
 .lg-unspin32 { animation: lg-unspin 32s linear infinite; }
 .lg-chip { position: absolute; text-align: center; border-radius: 999px; padding: 7px 0; font-size: 13px; }
 .lg-chip--dark { background: #1A2C4A; border: 1px solid rgba(232,214,168,0.25); color: #F7F4ED; }
+.lg-chip--top { left: 50%; top: -17px; margin-left: -50px; width: 100px; }
+.lg-chip--bottom { left: 50%; bottom: -17px; margin-left: -50px; width: 100px; }
+.lg-chip--isa { top: 50%; left: -44px; margin-top: -17px; width: 88px; background: #E8D6A8; color: #0F1E36; font-weight: 500; }
+.lg-chip--lisa { top: 50%; right: -52px; margin-top: -17px; width: 104px; background: #B9CAE6; color: #0F1E36; font-weight: 500; }
 .lg-core { position: absolute; left: 50%; top: 50%; width: 84px; height: 84px; margin: -42px 0 0 -42px; }
 .lg-core span { position: absolute; inset: 0; border-radius: 50%; background: #E8D6A8; }
 .lg-core .lg-pulse { animation: lg-pulse 2.2s ease-out infinite; }
@@ -56,11 +66,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 
 /* Form half */
 .lg-form-half { flex: 1 1 440px; box-sizing: border-box; display: flex; flex-direction: column; padding: 40px 48px; }
-.lg-theme { align-self: flex-end; display: inline-flex; padding: 4px; border-radius: 999px; border: 1px solid var(--line); background: var(--tile); }
-.lg-theme button { font-family: inherit; font-size: 13px; font-weight: 500; min-height: 44px; min-width: 64px; padding: 0 14px; border: 0; border-radius: 999px; cursor: pointer; background: transparent; color: var(--muted); }
-.lg-theme button[aria-pressed="true"] { background: var(--act); color: var(--act-text); }
-/* The form sits on a level-1 tile (B3.1, tile recipe B1.2). */
-.lg-card { width: 100%; max-width: 460px; box-sizing: border-box; align-self: center; margin: auto 0; padding: 40px; border-radius: 26px; background: var(--w-tile); box-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-1); animation: lg-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.lg-card { width: 100%; max-width: 420px; align-self: center; margin: auto 0; padding: 40px 0; animation: lg-up .7s cubic-bezier(.2,.8,.2,1) both; }
 .lg-label { margin: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; color: var(--gold); }
 .lg-card h1 { margin: 10px 0 0; font-size: 40px; font-weight: 300; letter-spacing: -0.035em; line-height: 1.1; }
 .lg-sub { margin: 12px 0 0; font-size: 16px; line-height: 1.6; color: var(--muted); }
@@ -69,8 +75,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 .lg-field label { font-size: 14px; font-weight: 500; }
 .lg-field-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .lg-forgot { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0; font-size: 13px; color: var(--gold); }
-.lg-input { font-family: inherit; font-size: 16px; min-height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--w-raised); color: var(--text); box-sizing: border-box; width: 100%; }
+.lg-input { font-family: inherit; font-size: 16px; min-height: 50px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--line); background: var(--tile); color: var(--text); box-sizing: border-box; width: 100%; }
 .lg-input::placeholder { color: var(--muted); opacity: .8; }
+.lg-input[aria-invalid="true"] { border-color: var(--warn); }
 /* The show-password button sits inside the field (grid overlay, as before). */
 .pw-wrap { display: grid; align-items: center; }
 .pw-wrap .lg-input { grid-area: 1/1; padding-right: 52px; }
@@ -81,23 +88,36 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 .lg-submit:disabled { opacity: .6; cursor: not-allowed; }
 .login-error, .login-msg { display: none; margin: 14px 0 0; font-size: 14px; line-height: 1.5; }
 .login-error { color: var(--warn); }
+.login-error:focus { outline: none; }
 .login-msg { color: var(--text); }
 .lg-note { margin-top: 28px; display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border-radius: 16px; background: var(--powder); font-size: 14px; line-height: 1.5; }
 .lg-note-dot { flex: none; margin-top: 6px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
 .lg-note a { color: var(--gold); }
-.lg-not-advice { margin: 0; font-size: 12px; color: var(--muted); }
+/* Lined up with the form column above it. */
+.lg-not-advice { width: 100%; max-width: 420px; align-self: center; margin: 0; font-size: 12px; line-height: 1.5; color: var(--muted); }
 
 @keyframes lg-spin { to { transform: rotate(360deg); } }
 @keyframes lg-unspin { to { transform: rotate(-360deg); } }
 @keyframes lg-pulse { 0% { transform: scale(1); opacity: .6; } 100% { transform: scale(2.4); opacity: 0; } }
-@keyframes lg-glow { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
+@keyframes lg-glow { 0%, 100% { opacity: .22; } 50% { opacity: .4; } }
 @keyframes lg-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
+/* Phones: no brand half, just the logo line, then the form on the members'
+   tile, centred in what is left of the screen. */
 @media (max-width: 760px) {
-  .lg-orbit { display: none; }
-  .lg-brand { min-height: 0; padding: 28px 24px; }
-  .lg-form-half { padding: 24px; }
-  .lg-card { margin: 8px 0 24px; padding: 24px; border-radius: 24px; }
+  :root[data-theme] {
+    --bg: var(--w-bg); --tile: var(--w-tile); --line: var(--w-line); --text: var(--w-text); --muted: var(--w-muted);
+    --powder: var(--w-powder); --gold: var(--w-gold); --act: var(--w-nav-active); --act-text: var(--w-nav-active-text); --warn: var(--w-warn);
+  }
+  .lg { flex-direction: column; flex-wrap: nowrap; min-height: 100vh; min-height: 100dvh; }
+  .lg-brand { flex: none; min-height: 0; padding: 16px 16px 0; overflow: visible; background: none; color: var(--text); }
+  .lg-glow, .lg-orbit, .lg-statement { display: none; }
+  .lg-home { color: var(--text); }
+  .lg-home svg { color: var(--gold); }
+  .lg-form-half { flex: 1 0 auto; padding: 16px 16px 24px; }
+  .lg-card { max-width: 460px; box-sizing: border-box; margin: auto 0; padding: 24px; border-radius: 24px; background: var(--w-tile); box-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+  .lg-input { background: var(--w-raised); }
+  .lg-not-advice { max-width: 460px; margin-top: 20px; padding: 0 4px; box-sizing: border-box; }
 }
 @media (prefers-reduced-motion: reduce) {
   .lg-glow, .lg-spin50, .lg-unspin50, .lg-spin32, .lg-unspin32, .lg-core .lg-pulse, .lg-card { animation: none; }
@@ -110,17 +130,17 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
 
 <section class="lg-brand">
   <div class="lg-glow" aria-hidden="true"></div>
-  <a class="lg-home" href="/index.html" aria-label="The Everyday Investor, website home"><svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#E8D6A8" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="#E8D6A8" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="#E8D6A8"/></svg>The Everyday Investor</a>
+  <a class="lg-home" href="/index.html" aria-label="The Everyday Investor, website home"><svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="currentColor"/></svg>The Everyday Investor</a>
   <div class="lg-orbit" aria-hidden="true">
     <div class="lg-ring lg-ring--outer"></div>
     <div class="lg-ring lg-ring--inner"></div>
-    <div class="lg-ring lg-ring--outer lg-spin50" style="border: 0">
-      <div class="lg-chip lg-chip--dark lg-unspin50" style="left: 50%; top: -17px; margin-left: -50px; width: 100px">Pension</div>
-      <div class="lg-chip lg-chip--dark lg-unspin50" style="left: 50%; bottom: -17px; margin-left: -50px; width: 100px">Property</div>
+    <div class="lg-ring lg-ring--outer lg-track lg-spin50">
+      <div class="lg-chip lg-chip--dark lg-chip--top lg-unspin50">Pension</div>
+      <div class="lg-chip lg-chip--dark lg-chip--bottom lg-unspin50">Property</div>
     </div>
-    <div class="lg-ring lg-ring--inner lg-spin32" style="border: 0">
-      <div class="lg-chip lg-unspin32" style="top: 50%; left: -44px; margin-top: -17px; width: 88px; background: #E8D6A8; color: #0F1E36; font-weight: 500">ISA</div>
-      <div class="lg-chip lg-unspin32" style="top: 50%; right: -52px; margin-top: -17px; width: 104px; background: #B9CAE6; color: #0F1E36; font-weight: 500">Lifetime ISA</div>
+    <div class="lg-ring lg-ring--inner lg-track lg-spin32">
+      <div class="lg-chip lg-chip--isa lg-unspin32">ISA</div>
+      <div class="lg-chip lg-chip--lisa lg-unspin32">Lifetime ISA</div>
     </div>
     <div class="lg-core"><span class="lg-pulse"></span><span class="lg-core-label">Your<br>plan</span></div>
   </div>
@@ -148,7 +168,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid 
       </div>
       <button type="submit" class="lg-submit" id="submitBtn">Sign in</button>
     </form>
-    <p class="login-error" id="loginError" role="alert"></p>
+    <p class="login-error" id="loginError" role="alert" tabindex="-1"></p>
     <p class="login-msg" id="loginMsg" role="status"></p>
 
     <div class="lg-note"><span class="lg-note-dot" aria-hidden="true"></span><span>Logins are set up by TEI when you join. Not a client yet? <a href="/book" target="_blank" rel="noopener noreferrer">Book a call</a>.</span></div>
@@ -186,11 +206,30 @@ function toggleShowPassword(fieldId, btn) {
   var safe = asked && /^\/(?!\/)/.test(asked) && asked.indexOf("\\") < 0 ? asked : null;
   var redirectTo = safe || (phone ? "/hub/wealth-os.html" : "/hub/index.html");
 
+  var fields = [document.getElementById("email"), document.getElementById("password")];
+  var btn = document.getElementById("submitBtn");
+  var BTN_LABEL = btn.textContent;
+
+  function setBusy(busy) {
+    btn.disabled = busy;
+    btn.textContent = busy ? "Signing in…" : BTN_LABEL;
+  }
+
+  // Marks the fields wrong after a failed sign-in; typing clears it.
+  function markFields(bad) {
+    fields.forEach(function (f) {
+      if (bad) { f.setAttribute("aria-invalid", "true"); f.setAttribute("aria-describedby", "loginError"); }
+      else { f.removeAttribute("aria-invalid"); f.removeAttribute("aria-describedby"); }
+    });
+  }
+  fields.forEach(function (f) { f.addEventListener("input", function () { markFields(false); }); });
+
   function showError(msg) {
     var el = document.getElementById("loginError");
     el.textContent = msg;
     el.style.display = "block";
     document.getElementById("loginMsg").style.display = "none";
+    el.focus();
   }
 
   function showMsg(msg) {
@@ -202,8 +241,8 @@ function toggleShowPassword(fieldId, btn) {
 
   document.getElementById("loginForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    var btn = document.getElementById("submitBtn");
-    btn.disabled = true;
+    setBusy(true);
+    markFields(false);
     document.getElementById("loginError").style.display = "none";
 
     TeiAuth.signIn(
@@ -211,14 +250,15 @@ function toggleShowPassword(fieldId, btn) {
       document.getElementById("password").value
     ).then(function (result) {
       if (result.error) {
+        setBusy(false);
+        markFields(true);
         showError(result.error.message || "Sign in failed. Check your email and password.");
-        btn.disabled = false;
         return;
       }
       window.location.href = redirectTo;
     }).catch(function () {
+      setBusy(false);
       showError("Something went wrong. Please try again.");
-      btn.disabled = false;
     });
   });
 
