@@ -74,24 +74,26 @@
 .su-gc .th { font-size:13px; color:var(--w-muted); }
 .su-gc .ln { margin-top:2px; font-size:13px; line-height:1.5; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
 .su-gc .go { margin-top:auto; padding-top:4px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
-.su-gc.is-lead { gap:6px; padding:22px; color:#F7F4ED; background:#14376E; border-color:rgba(232,214,168,0.45); box-shadow:var(--w-feat-shadow); }
+.su-gc.is-lead { flex-direction:row; gap:0; padding:0; color:#F7F4ED; background:#14376E; border-color:rgba(232,214,168,0.35); box-shadow:var(--w-feat-shadow); }
+/* Lead card: the text on the left, the note's three figures stacked on the right */
+.su-gc.is-lead .lt { flex:1.5 1 0; min-width:0; display:flex; flex-direction:column; gap:6px; padding:24px; }
 .su-gc.is-lead .tk { background:rgba(232,214,168,0.14); border-color:transparent; color:#E8D6A8; }
 .su-gc.is-lead .th { color:#AEB9CA; }
 .su-gc.is-lead .ln { color:#C9D3E3; }
 .su-gc.is-lead .go { color:#E8D6A8; }
-.su-gc.is-lead::before { content:''; position:absolute; width:700px; height:700px; right:-30%; top:-70%; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.24), rgba(232,214,168,0)); pointer-events:none; }
+.su-gc.is-lead::before { content:''; position:absolute; width:600px; height:600px; left:-20%; top:-75%; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.14), rgba(232,214,168,0)); pointer-events:none; }
 /* The lead card's ticker, large and faint, so its extra height is not empty */
 /* Three figures from the note, dated, so the lead card's height carries substance */
-.su-gc .figs { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; margin-top:auto; padding-top:12px; }
-.su-gc .fig { display:flex; flex-direction:column; gap:2px; padding:9px 11px; border-radius:12px; background:rgba(255,255,255,0.06); border:1px solid rgba(232,214,168,0.18); }
-.su-gc .fig b { font-size:18px; font-weight:300; letter-spacing:-0.02em; line-height:1.1; font-variant-numeric:tabular-nums; }
-.su-gc .fig span { font-size:11px; line-height:1.35; color:#C9D3E3; }
-.su-gc .figs-k { font-family:'Geist Mono', monospace; font-size:10px; color:#AEB9CA; }
+.su-gc .figs { flex:1 1 0; min-width:0; display:flex; flex-direction:column; padding:10px 24px 18px; border-left:1px solid rgba(232,214,168,0.16); }
+.su-gc .fig { flex:1; display:flex; flex-direction:column; justify-content:center; gap:3px; padding:10px 0; border-bottom:1px solid rgba(232,214,168,0.12); }
+.su-gc .fig b { font-size:22px; font-weight:300; letter-spacing:-0.02em; line-height:1.1; font-variant-numeric:tabular-nums; }
+.su-gc .fig span { font-size:12px; line-height:1.35; color:#AEB9CA; }
+.su-gc .figs-k { padding-top:10px; font-family:'Geist Mono', monospace; font-size:10px; color:#8FA3C4; }
 .su-gc.is-lead .k { font-family:'Geist Mono', monospace; font-size:11px; color:#E8D6A8; }
-.su-gc.is-lead .nm { margin-top:8px; font-size:30px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.su-gc.is-lead .nm { margin-top:auto; font-size:30px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
 .su-gc.is-lead .th { font-size:15px; }
-.su-gc.is-lead .ln { font-size:15px; line-height:1.5; -webkit-line-clamp:4; max-width:560px; }
-.su-gc.is-lead .go { margin-top:4px; }
+.su-gc.is-lead .ln { font-size:15px; line-height:1.5; -webkit-line-clamp:4; }
+.su-gc.is-lead .go { margin-top:10px; }
 .su-gc.is-wide .ln { -webkit-line-clamp:2; }
 @media (hover:hover) { .su-gc:hover { border-color:var(--w-champ-line); transform:translateY(-2px); } .su-gc.is-lead:hover { border-color:rgba(232,214,168,0.7); } }
 .su-gc:focus-visible { outline-color:#E8D6A8; }
@@ -253,16 +255,18 @@
   .su-gc .nm { margin-top:6px; font-size:14.5px; }
   .su-gc .th { font-size:11px; }
   .su-gc .ln, .su-gc .go { display:none; }
-  .su-gc.is-lead { padding:16px; gap:4px; }
+  .su-gc.is-lead { flex-direction:column; }
+  .su-gc.is-lead .lt { padding:16px 16px 12px; gap:4px; }
   .su-gc.is-lead .nm { margin-top:6px; font-size:19px; }
   .su-gc.is-lead .th { font-size:12px; }
   .su-gc.is-lead .ln { display:-webkit-box; font-size:12.5px; -webkit-line-clamp:3; }
   .su-gc.is-lead::before { width:300px; height:300px; right:-120px; top:-150px; }
-  .su-gc .figs { gap:5px; padding-top:8px; }
-  .su-gc .fig { padding:6px 8px; gap:1px; border-radius:9px; }
-  .su-gc .fig b { font-size:13.5px; }
+  .su-gc .figs { flex-direction:row; flex-wrap:wrap; padding:10px 16px 12px; border-left:0; border-top:1px solid rgba(232,214,168,0.16); }
+  .su-gc .fig { flex:1 1 0; padding:0 10px; gap:1px; border-bottom:0; border-left:1px solid rgba(232,214,168,0.12); }
+  .su-gc .fig:first-child { padding-left:0; border-left:0; }
+  .su-gc .fig b { font-size:15px; }
   .su-gc .fig span { font-size:9px; }
-  .su-gc .figs-k { font-size:9px; }
+  .su-gc .figs-k { flex-basis:100%; padding-top:8px; font-size:9px; }
   .su-fc { padding:14px; gap:2px; }
   .su-fc .nm { font-size:15px; }
   .su-fc .th { font-size:11.5px; }

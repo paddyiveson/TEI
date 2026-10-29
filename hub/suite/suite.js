@@ -64,19 +64,20 @@
   /* ---------- Cards ---------- */
   // cls: '' | 'is-lead' | 'is-wide'; rows: how many grid rows it spans.
   function growthCard(n, span, cls, rows) {
-    return '<a class="su-gc press' + (cls ? ' ' + cls : '') + '" style="--b:' + hex(n.brand) + ';--span:' + span + (rows ? ';--rows:' + rows : '') + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
+    var lead = cls === 'is-lead', text =
       '<span class="top"><span class="tk">' + esc(n.ticker) + '</span>' + upd(n) + '</span>' +
       '<span class="nm">' + esc(n.name) + '</span><span class="th">' + esc(n.summary) + '</span>' +
       (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') +
-      (cls === 'is-lead' ? figures(n) : '') +
-      '<span class="go">Read the note' + CHEV + '</span></a>';
+      '<span class="go">Read the note' + CHEV + '</span>';
+    return '<a class="su-gc press' + (cls ? ' ' + cls : '') + '" style="--span:' + span + (rows ? ';--rows:' + rows : '') + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
+      (lead ? '<span class="lt">' + text + '</span>' + figures(n) : text) + '</a>';
   }
   // The lead card's three headline figures, copied from its note and dated.
   function figures(n) {
     if (!n.figures || !n.figures.length) return '';
     return '<span class="figs">' + n.figures.slice(0, 3).map(function (f) {
       return '<span class="fig"><b>' + esc(f.value) + '</b><span>' + esc(f.label) + '</span></span>';
-    }).join('') + '</span><span class="figs-k">From the note, ' + esc(n.updated || '') + '</span>';
+    }).join('') + '<span class="figs-k">From the note, ' + esc(n.updated || '') + '</span></span>';
   }
   // Foundations: a tinted tile with its line.
   function fdnCard(n, span, i) {
