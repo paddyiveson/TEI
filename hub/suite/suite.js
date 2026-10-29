@@ -72,7 +72,7 @@
   function tileCard(n, span, fdn) {
     if (fdn) {
       return '<a class="su-tc fdn press lift" style="--b:' + hex(n.brand) + ';--span:' + span + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '">' +
-        mark(n) + '<span class="fb"><span class="nm">' + esc(n.name) + '</span><span class="th">' + esc(n.ticker + ' · ' + n.summary) + '</span>' +
+        mark(n) + '<span class="fb"><span class="nm">' + esc(n.name) + '</span><span class="th"><span class="mt">' + esc(n.ticker) + ' · </span>' + esc(n.summary) + '</span>' +
         (n.line ? '<span class="ln">' + esc(n.line) + '</span>' : '') + '</span>' +
         '<span class="go">What it is, cost and risks' + CHEV + '</span></a>';
     }
@@ -84,7 +84,7 @@
   }
   function row(n, meta) {
     return '<a class="su-wr press" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '"' + (current && current.slug === n.slug ? ' aria-current="true"' : '') + '>' + mark(n) +
-      '<span class="b"><span class="n">' + esc(n.name) + '</span><span class="m">' + esc(meta || (n.ticker + ' · ' + n.summary)) + '</span></span>' + CHEV + '</a>';
+      '<span class="b"><span class="n">' + esc(n.name) + '</span><span class="m">' + (meta ? esc(meta) : '<span class="mt">' + esc(n.ticker) + ' · </span>' + esc(n.summary)) + '</span></span>' + CHEV + '</a>';
   }
 
   /* ---------- The list ---------- */
