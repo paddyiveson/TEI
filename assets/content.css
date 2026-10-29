@@ -721,3 +721,22 @@ body.tc-page .tc-members-head { background: var(--c-depth); }
   .tc-cap.is-open .tc-cap-lead, .tc-cap.is-open .tc-cap-btn { display: none; }
   .tc-cap-btn { display: inline-flex; align-items: center; min-height: 44px; margin: -12px 0 -14px 4px; padding: 0 2px; border: 0; background: none; font: inherit; font-size: 11.5px; color: var(--c-gold); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 }
+
+/* ---------- Guide in layout D (V2 spec 2.4 and 3, Batch 0 stage 3) ----------
+   main.ar-wide on a guide: from 1101px the contents rail stays on the left and
+   the parts use the rest of the 1280px container. Text and figure pairs use the
+   shared .ar-split (article.css): text in 5 of 12 columns, the figure in 7, and
+   the figure's key number and caption in .ar-notes beside it. Part 1's two
+   figure lists sit side by side (.tc-figpair), with the reset note under the
+   tax bands so both sides end level. The closing pair is the shared .ar-end.
+   Below 1101px the guide keeps its one reading column. */
+@media (min-width: 1101px) {
+  .ar-wide.tc-main .ar-hero-in { max-width: 1280px; }
+  .ar-wide .tc-guide { grid-template-columns: 200px minmax(0, 1fr); gap: 48px; max-width: 1280px; }
+  .ar-wide .tc-figpair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "allow intro" "allow bands" "allow reset"; grid-template-rows: auto auto 1fr; column-gap: 32px; margin-top: 20px; }
+  .ar-wide .tc-figpair > .is-allow { grid-area: allow; margin: 0; }
+  .ar-wide .tc-figpair > .is-intro { grid-area: intro; }
+  .ar-wide .tc-figpair > .is-bands { grid-area: bands; margin: 0 0 18px; }
+  .ar-wide .tc-figpair > .is-reset { grid-area: reset; margin: 0; }
+  .ar-wide .tc-group > .ar-split { margin: 20px 0 0; }
+}
