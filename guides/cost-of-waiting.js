@@ -31,6 +31,7 @@
     retire: document.getElementById('cow-retire'),
     lump: document.getElementById('cow-lump')
   };
+  var waitSelect = document.getElementById('cow-wait');   // phones: the dropdown in place of the wait buttons
   var waitButtons = fig.querySelectorAll('[data-wait]');
   var rateButtons = fig.querySelectorAll('[data-rate]');
   var state = { monthly: 300, age: 28, retire: 60, wait: 1, rate: 5, lump: 0 };
@@ -42,6 +43,9 @@
   function pounds(n) { return '£' + commas(String(Math.round(n))); }
   function pence(n) { return '£' + commas(n.toFixed(2)); }
   function years(n) { return n + (n === 1 ? ' year' : ' years'); }
+  // "the year you missed" / "the 2 years you missed"; "a year later" / "2 years later"
+  function missed(n) { return n === 1 ? 'the year' : 'the ' + n + ' years'; }
+  function later(n) { return n === 1 ? 'a year' : years(n); }
 
   /* ---------- the maths ---------- */
   function model(s) {
@@ -129,7 +133,7 @@
     line.style.transform = 'translateX(' + Math.round(x) + 'px)';
     mark.style.setProperty('--x', (Math.round(x) / 10) + '%');
     mark.classList.toggle('is-flip', x > 700);
-    mark.textContent = 'Wait ends, ' + (s.age + s.wait);
+    mark.textContent = 'You start, ' + (s.age + s.wait);
   }
 
   // The end value of each line pinned at the right-hand edge (.is-bold chart):
@@ -162,28 +166,33 @@
     chart.setAttribute('aria-label', 'Line chart from age ' + s.age + ' to ' + s.retire + ", in today's money. Starting now at " + s.age +
       ' with ' + pounds(s.monthly) + ' a month grows to ' + pounds(m.potNow) + '. Starting at ' + start + ' grows to ' + pounds(m.potWait) + '.');
 
-    set('key-now', 'Start now, at ' + s.age);
+    set('key-now', 'Start now');
     set('key-wait', 'Start at ' + start);
     set('end-now-label', 'Start now, at ' + s.age);
     set('end-wait-label', 'Start at ' + start);
-    // The headline, above the gate.
-    set('head-k', 'Waiting ' + years(s.wait) + ' to start costs');
-    set('head-sub', 'by ' + s.retire + ", in today's money");
+    var name = fig.querySelector('[data-rate="' + s.rate + '"] span');
+    set('rate-name', name ? ': ' + name.textContent : '');
+
+    // The headline, above the gate: the cost, the two pots as bars, and a summary that ties them together.
+    set('head-k', 'Start ' + years(s.wait) + ' later and your pot at ' + s.retire + ' is');
     num('gap', m.gap);
     num('pot-now', m.potNow);
     num('pot-wait', m.potWait);
+    out('bar-wait').style.setProperty('--w', (Math.round(m.potWait / m.potNow * 1000) / 10) + '%');
+    out('bars-label').setAttribute('aria-label', 'Pot at ' + s.retire + ", in today's money: starting now at " + s.age + ', ' + pounds(m.potNow) +
+      '; starting at ' + start + ', ' + pounds(m.potWait) + '.');
+    set('summary', 'Investing ' + pounds(s.monthly) + ' a month from ' + s.age + ' could grow to ' + pounds(m.potNow) + ' by ' + s.retire + '. Start ' +
+      later(s.wait) + ' later, at ' + start + ', and it could grow to ' + pounds(m.potWait) + '. ' + (s.wait === 1 ? 'That year of waiting costs ' : 'Those ' + years(s.wait) + ' of waiting cost ') + pounds(m.gap) + '.');
 
-    // Behind the gate: one hero figure, three that support it.
+    // Behind the gate: the catch-up leads; one sentence and one small line back it up.
+    set('catch-k', 'To catch up on ' + missed(s.wait) + ' you missed, pay');
     num('catch', m.catchUp);
-    set('catch-sub', 'From ' + start + ' to ' + s.retire + ', on top of ' + pounds(s.monthly) + ' a month, finishes level with starting now.');
-    num('lump', m.lump);
-    set('lump-sub', 'or once, at ' + start);
-    num('per-month', m.perMonth);
-    num('per-day', m.perDay);
-    set('lump-in-label', 'Have a lump sum to put in at ' + start + '?');
-    set('lump-left', m.left == null ? 'Type an amount to see the monthly catch-up it still leaves.'
-      : m.left > 0 ? 'With ' + pounds(s.lump) + ' at ' + start + ', the catch-up falls to ' + pence(m.left) + ' a month.'
-      : pounds(s.lump) + ' at ' + start + ' closes the gap on its own, with no monthly catch-up needed.');
+    set('catch-sub', 'That is ' + pence(s.monthly + m.catchUp) + ' a month from ' + start + ' to ' + s.retire + ', not ' + pounds(s.monthly) +
+      '. Or put in ' + pounds(m.lump) + ' once, when you start at ' + start + '.');
+    set('per', 'Each month of waiting costs about ' + pounds(m.perMonth) + ' by ' + s.retire + ', or about ' + pounds(m.perDay) + " a day, in today's money.");
+    set('lump-left', m.left == null ? 'Type an amount to see your new monthly catch-up.'
+      : m.left > 0 ? 'With ' + pounds(s.lump) + ' at ' + start + ', the catch-up drops to ' + pence(m.left) + ' a month.'
+      : pounds(s.lump) + ' at ' + start + ' covers the whole catch-up.');
 
     out('pension-note').hidden = s.retire >= 57;
 
@@ -213,6 +222,10 @@
       b.disabled = state.age + w >= state.retire;
       b.setAttribute('aria-pressed', w === state.wait ? 'true' : 'false');
     });
+    if (waitSelect) {
+      each(waitSelect.options, function (o) { o.disabled = state.age + Number(o.value) >= state.retire; });
+      waitSelect.value = String(state.wait);
+    }
     each(rateButtons, function (b) { b.setAttribute('aria-pressed', Number(b.getAttribute('data-rate')) === state.rate ? 'true' : 'false'); });
   }
   function fitWait() { state.wait = clamp(state.wait, 1, Math.min(5, state.retire - state.age - 1)); }
@@ -252,6 +265,7 @@
   each(waitButtons, function (b) {
     b.addEventListener('click', function () { if (b.disabled) return; state.wait = Number(b.getAttribute('data-wait')); syncControls(); render(); });
   });
+  if (waitSelect) waitSelect.addEventListener('change', function () { state.wait = Number(waitSelect.value); syncControls(); render(); });
   each(rateButtons, function (b) {
     b.addEventListener('click', function () { state.rate = Number(b.getAttribute('data-rate')); syncControls(); render(); });
   });
@@ -340,9 +354,9 @@
       '<div class="tl-print-results">' +
         tile('is-head', 'Start now, at ' + s.age, pounds(m.potNow), 'The pot at ' + s.retire + '.', today) +
         tile('is-head', 'Start at ' + start, pounds(m.potWait), 'The pot at ' + s.retire + ' after the wait.', today) +
-        tile('is-head', 'Difference at ' + s.retire, pounds(m.gap), 'What waiting ' + years(s.wait) + ' leaves the pot short by.', today) +
-        tile('', 'Catch-up a month', pence(m.catchUp), 'On top of ' + pounds(s.monthly) + ' a month from ' + start + ' to ' + s.retire + ', to finish level.', atTime) +
-        tile('', 'Or one lump sum', pounds(m.lump), 'Paid at ' + start + ': the missed saving with its growth.' + (m.left != null ? ' With ' + pounds(s.lump) + ' at ' + start + ', the catch-up is ' + pence(m.left) + ' a month.' : ''), atTime) +
+        tile('is-head', 'Cost of waiting', pounds(m.gap), 'How much smaller the pot is at ' + s.retire + ' after waiting ' + years(s.wait) + '.', today) +
+        tile('', 'To catch up, a month more', pence(m.catchUp), 'So ' + pence(s.monthly + m.catchUp) + ' a month from ' + start + ' to ' + s.retire + ', to end up with the same pot as starting now.', atTime) +
+        tile('', 'Or one lump sum', pounds(m.lump), 'Put in once, when you start at ' + start + '.' + (m.left != null ? ' With ' + pounds(s.lump) + ' at ' + start + ', the catch-up is ' + pence(m.left) + ' a month.' : ''), atTime) +
         tile('', 'Each month and day waited', pounds(m.perMonth) + ' &middot; ' + pence(m.perDay), 'The difference split across the ' + 12 * s.wait + ' months, or ' + commas(String(365 * s.wait)) + ' days, of the wait.', today) +
       '</div>' +
       '<p class="tl-print-notes"><b>Assumptions.</b> ' + pounds(s.monthly) + ' a month, paid at the end of each month and kept level (it does not rise with inflation), growing at ' + s.rate +

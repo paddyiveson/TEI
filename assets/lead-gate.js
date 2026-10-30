@@ -21,6 +21,8 @@
        logged, not shown.
      - a member is logged in (TeiMembers.ready), or a coach (their Wealth OS
        profile role is "adviser").
+   A visitor who has unlocked a gate once finds it open on their next visit
+   (localStorage, per data-source; nothing is sent again).
    ?gate=on in the address keeps the gate locked for a logged-in member or
    coach, so the gate itself can be tested.
    While locked the results are inert and hidden from screen readers. Anything
@@ -84,6 +86,15 @@
     }).catch(function (err) { console.warn('Lead capture failed:', err); });
   }
 
+  // Remember an unlocked gate in this browser. Storage can be blocked (private
+  // windows), so both calls fail quietly and the gate simply asks again.
+  function remembered(source) {
+    try { return window.localStorage.getItem('tei-gate:' + source) === 'open'; } catch (e) { return false; }
+  }
+  function remember(source) {
+    try { window.localStorage.setItem('tei-gate:' + source, 'open'); } catch (e) {}
+  }
+
   // A coach is signed in to the Client Hub with the "adviser" profile role.
   function coach() {
     if (!window.TeiAuth || !window.teiSupabase) return null;
@@ -131,13 +142,16 @@
         return;
       }
       send(gate.getAttribute('data-source'), kind, value);
+      remember(gate.getAttribute('data-source'));
       open(gate, 'lead');
       // The form has gone; move focus to the results it opened.
       if (gated) { gated.setAttribute('tabindex', '-1'); gated.focus({ preventScroll: true }); }
     });
 
+    if (forceLocked) return;
+    if (remembered(gate.getAttribute('data-source'))) { open(gate, 'lead'); return; }
     // Members and coaches see the results without the gate.
-    if (forceLocked || !window.TeiMembers) return;
+    if (!window.TeiMembers) return;
     window.TeiMembers.ready()
       .then(function (who) { return who ? 'member' : coach(); })
       .then(function (via) { if (via) open(gate, via); });
