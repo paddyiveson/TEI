@@ -35,7 +35,10 @@ window.TEI = window.TEI || {};
     if(PAGES.indexOf(pageId) === -1) pageId = 'home';
     state.currentPage = pageId;
     document.querySelectorAll('.page').forEach(el=> el.classList.toggle('active', el.id === 'page-'+pageId));
-    document.querySelectorAll('.navlink').forEach(el=> el.classList.toggle('nav-active', el.dataset.page === (pageId === 'lab' ? 'progress' : pageId)));
+    // Views with no desktop tab light the nearest one: the Lab is part of Wealth,
+    // the phone-only Library and Menu sit under Home and Settings.
+    const navOf = {lab:'progress', library:'home', menu:'mydetails'};
+    document.querySelectorAll('.navlink').forEach(el=> el.classList.toggle('nav-active', el.dataset.page === (navOf[pageId] || pageId)));
     syncMobileTabs(pageId);
     document.getElementById('clientApp').scrollTo ? null : null;
     window.scrollTo({top:0, behavior:'auto'});

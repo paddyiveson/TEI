@@ -206,6 +206,11 @@ function toggleShowPassword(fieldId, btn) {
   var safe = asked && /^\/(?!\/)/.test(asked) && asked.indexOf("\\") < 0 ? asked : null;
   var redirectTo = safe || (phone ? "/hub/wealth-os.html" : "/hub/index.html");
 
+  // Already signed in (for example Back after signing in): go straight on.
+  TeiAuth.getUser().then(function (r) {
+    if (r && r.data && r.data.user) window.location.replace(redirectTo);
+  }).catch(function () {});
+
   var fields = [document.getElementById("email"), document.getElementById("password")];
   var btn = document.getElementById("submitBtn");
   var BTN_LABEL = btn.textContent;

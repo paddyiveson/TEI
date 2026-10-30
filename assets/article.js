@@ -49,6 +49,11 @@
     var hdr = document.querySelector('.tei-hdr');
     if (hdr && hdr.parentNode) hdr.parentNode.insertBefore(bar, hdr.nextSibling);
     else document.body.insertBefore(bar, document.body.firstChild);
+    // The hero back link goes back to the Hub's list too, not the public one.
+    Array.prototype.forEach.call(document.querySelectorAll('.ar-back[href="/articles.html"]'), function (a) {
+      a.setAttribute('href', '/hub/articles.html');
+      if (a.lastChild && a.lastChild.nodeType === 3) a.lastChild.nodeValue = 'Client Hub articles';
+    });
   }
 
   window.TeiArticles = { load: load, formatDate: formatDate, readTime: readTime, escapeHtml: escapeHtml, urlFor: urlFor };

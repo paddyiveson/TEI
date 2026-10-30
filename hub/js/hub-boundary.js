@@ -31,7 +31,7 @@
   var script = document.currentScript;
   var manualFooter = !!script && script.getAttribute("data-footer") === "manual";
 
-  var HOW_URL = "https://theeverydayinvestor.uk/how-we-work";
+  var HOW_URL = "/about.html#how-we-work";
   var TEXT =
     "The Everyday Investor provides financial coaching and education, not regulated financial advice. " +
     "We are not authorised or regulated by the Financial Conduct Authority and do not make personal recommendations. " +
@@ -52,7 +52,8 @@
   ];
 
   function linkHtml(style) {
-    return '<a href="' + HOW_URL + '" target="_blank" rel="noopener noreferrer"' +
+    // Same tab, on this site (it used to open the live site in a new tab).
+    return '<a href="' + HOW_URL + '"' +
       (style ? ' style="' + style + '"' : "") + ">How we work</a>";
   }
 
