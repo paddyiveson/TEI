@@ -25,10 +25,13 @@
 
   redirectRecoveryCallbackIfNeeded();
 
-  // Back after signing out can restore a Hub page from the browser's memory.
-  // With no session cookie left, load it again so the login check runs.
+  // Back after signing out can bring a Hub page back from the browser's
+  // memory or its cache, without asking the server. With no session cookie
+  // left, load it again from the server so the login check runs.
   window.addEventListener("pageshow", function (e) {
-    if (e.persisted && !/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || "")) {
+    var nav = window.performance && performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+    var historyLoad = e.persisted || (nav && nav.type === "back_forward");
+    if (historyLoad && !/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || "")) {
       window.location.reload();
     }
   });
