@@ -165,30 +165,29 @@
     chart.setAttribute('aria-label', 'Line chart from age ' + s.age + ' to ' + s.retire + ", in today's money. Starting now at " + s.age +
       ' with ' + pounds(s.monthly) + ' a month grows to ' + pounds(m.potNow) + '. Starting at ' + start + ' grows to ' + pounds(m.potWait) + '.');
 
-    set('key-now', 'Start now');
     set('key-wait', 'Start at ' + start);
-    set('end-now-label', 'Start now, at ' + s.age);
     set('end-wait-label', 'Start at ' + start);
     var name = fig.querySelector('[data-rate="' + s.rate + '"] span');
     set('rate-name', name ? ': ' + name.textContent : '');
+    set('recap', pounds(s.monthly) + ' a month · ' + s.age + ' to ' + s.retire + ' · start in ' + years(s.wait) + ' · ' + s.rate + '%');
+    set('recap-amounts', pounds(s.monthly) + ' a month · ' + s.age + ' to ' + s.retire);
 
-    // The headline, above the gate: the cost, the two pots as bars, and a summary that ties them together.
+    // The headline: the cost, with the two pots as bars.
     set('head-k', 'Start ' + years(s.wait) + ' later and your pot at ' + s.retire + ' is');
     num('gap', m.gap);
-    num('pot-now', m.potNow);
-    num('pot-wait', m.potWait);
     out('bar-wait').style.setProperty('--w', (Math.round(m.potWait / m.potNow * 1000) / 10) + '%');
     out('bars-label').setAttribute('aria-label', 'Pot at ' + s.retire + ", in today's money: starting now at " + s.age + ', ' + pounds(m.potNow) +
       '; starting at ' + start + ', ' + pounds(m.potWait) + '.');
-    set('summary', pounds(s.monthly) + ' a month from ' + s.age + ' could grow to ' + pounds(m.potNow) + ' by ' + s.retire + ', or ' +
-      pounds(m.potWait) + ' if you start at ' + start + '.');
-
-    // Behind the gate: the catch-up leads; one sentence and one small line back it up.
     set('catch-k', 'To catch up on ' + missed(s.wait) + ' you missed, pay');
+
+    // Behind the gate: four pills, the catch-up first.
     num('catch', m.catchUp);
-    set('catch-sub', 'That is ' + pence(s.monthly + m.catchUp) + ' a month from ' + start + ' to ' + s.retire + ', not ' + pounds(s.monthly) +
-      '. Or put in ' + pounds(m.lump) + ' once, when you start at ' + start + '.');
-    set('per', 'Each month of waiting costs about ' + pounds(m.perMonth) + ' by ' + s.retire + ', or about ' + pounds(m.perDay) + " a day, in today's money.");
+    set('lump-k', 'Or once, at ' + start);
+    num('lump', m.lump);
+    set('pot-now-k', 'Pot at ' + s.retire + ', start now');
+    num('pot-now', m.potNow);
+    set('pot-wait-k', 'Pot at ' + s.retire + ', start at ' + start);
+    num('pot-wait', m.potWait);
     set('lump-left', m.left == null ? 'Type an amount to see your new monthly catch-up.'
       : m.left > 0 ? 'With ' + pounds(s.lump) + ' at ' + start + ', the catch-up drops to ' + pence(m.left) + ' a month.'
       : pounds(s.lump) + ' at ' + start + ' covers the whole catch-up.');
@@ -269,6 +268,39 @@
     b.addEventListener('click', function () { state.rate = Number(b.getAttribute('data-rate')); syncControls(); render(); });
   });
 
+  /* ---------- the three stages ----------
+     inputs: the inputs and "Show me the cost of waiting". gate: the headline
+     with the lead gate (one page on desktop; on phones the card changes).
+     full: everything, inputs still live. Members, coaches and a remembered
+     lead go from inputs straight to full. Layout per stage is in tool.css. */
+  var gate = document.getElementById('cow-gate');
+  var editBtn = fig.querySelector('[data-act="edit"]');
+  function isOpen() { return gate && gate.getAttribute('data-gate') === 'open'; }
+  function stage(name) {
+    fig.setAttribute('data-stage', name);
+    if (name !== 'full') { fig.classList.remove('is-editing'); if (editBtn) editBtn.setAttribute('aria-expanded', 'false'); }
+  }
+  // The headline counts up again as it is revealed.
+  function reveal() {
+    if (!window.TeiMotion) return;
+    var gap = out('gap');
+    window.TeiMotion.count(gap, Number(gap.getAttribute('data-to')), 0, 100, 900);
+  }
+  fig.addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b) return;
+    var act = b.id === 'cow-go' ? 'go' : b.getAttribute('data-act');
+    if (act === 'go') { stage(isOpen() ? 'full' : 'gate'); reveal(); }
+    else if (act === 'change') stage('inputs');
+    else if (act === 'later') gate.classList.add('is-later');
+    else if (act === 'reopen') gate.classList.remove('is-later');
+    else if (act === 'edit') {
+      var on = !fig.classList.contains('is-editing');
+      fig.classList.toggle('is-editing', on);
+      b.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+  });
+
   /* ---------- around the tool ---------- */
   // "Log in" on the gate brings a member back to the calculator.
   each(document.querySelectorAll('#cow-lock [data-login]'), function (a) {
@@ -293,8 +325,8 @@
   /* ---------- the gate ----------
      /assets/lead-gate.js opens it; the chart draws in again and the results
      count up from zero. */
-  var gate = document.getElementById('cow-gate');
   if (gate) gate.addEventListener('tei:gate-open', function () {
+    if (fig.getAttribute('data-stage') === 'gate') stage('full');
     if (!window.TeiMotion) return;
     window.TeiMotion.redraw(chart);
     each(gate.querySelectorAll('[data-m="count-up"]'), function (el, i) {

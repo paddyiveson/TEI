@@ -18,6 +18,8 @@
 <link rel="stylesheet" href="/assets/motion.css">
 <!-- Calculator parts (inputs, results, lead gate, next steps, print): shared by every tool page. -->
 <link rel="stylesheet" href="/assets/tool.css">
+<!-- Without JavaScript there is no "Show me" step: show the worked example's headline (the rest needs the lead gate). -->
+<noscript><style>.tl-tool .tl-go { display: none !important; } .tl-tool[data-stage="inputs"] .tl-head { display: grid !important; filter: none !important; opacity: 1 !important; }</style></noscript>
 </head>
 <body class="tc-page tl-page" data-hub-back="/hub/guides.html" data-hub-label="Client Hub guides and tools">
 
@@ -51,17 +53,33 @@
 
 <article class="article-body">
 
-    <figure class="visual-block tl-tool" id="calculator" data-m="scene" data-m-start=".tl-head">
+    <!-- The tool: one blue card. Desktop (over 760px) is one page: the results sit
+         blurred under the inputs until "Show me the cost of waiting". Phones step
+         through it in place: inputs, then the headline and the lead gate, then the
+         full result with compact controls. data-stage: inputs, gate or full. -->
+    <figure class="visual-block tl-tool" id="calculator" data-stage="inputs" data-m="scene" data-m-start=".tl-head">
+      <div class="tl-box">
+      <div class="tl-ring" aria-hidden="true"></div>
+
+      <!-- Phones, after "Show me": what was entered, with a way back. -->
+      <div class="tl-recap"><span data-out="recap">&pound;300 a month &middot; 28 to 60 &middot; start in 1 year &middot; 5%</span><button type="button" class="tl-link" data-act="change">Change</button></div>
+
       <form class="tl-inputs" id="cow-inputs" novalidate onsubmit="return false">
-        <div class="tl-field is-money">
-          <label for="cow-monthly">Monthly<span class="tl-long"> amount</span></label>
-          <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-monthly" type="number" inputmode="decimal" min="50" max="10000" step="10" value="300"></div>
+        <div class="tl-top">
+          <p class="tl-ask">What would waiting cost you?<small>Start with what you could put away each month.</small></p>
+          <div class="tl-lead">
+            <label class="tl-sr" for="cow-monthly">Monthly amount</label>
+            <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-monthly" type="number" inputmode="decimal" min="50" max="10000" step="10" value="300"></div>
+            <span class="tl-per" aria-hidden="true">a month</span>
+          </div>
         </div>
-        <div class="tl-field">
+        <!-- Phones, full result: the amounts fold away behind "Edit amounts". -->
+        <div class="tl-amounts"><b data-out="recap-amounts">&pound;300 a month &middot; 28 to 60</b><button type="button" class="tl-link" data-act="edit" aria-expanded="false">Edit amounts</button></div>
+        <div class="tl-field tl-age">
           <label for="cow-age">Age now</label>
           <div class="tl-num"><input id="cow-age" type="number" inputmode="numeric" min="18" max="58" step="1" value="28"></div>
         </div>
-        <div class="tl-field">
+        <div class="tl-field tl-ret">
           <label for="cow-retire">Retire at</label>
           <div class="tl-num"><input id="cow-retire" type="number" inputmode="numeric" min="45" max="70" step="1" value="60"></div>
         </div>
@@ -83,7 +101,7 @@
             <option value="5">5 yrs</option>
           </select></div>
         </div>
-        <div class="tl-row">
+        <div class="tl-row tl-rates">
           <span class="tl-row-label" id="cow-rate-label">Assumed growth a year<span class="tl-rate-name" data-out="rate-name">: Balanced</span></span>
           <div class="tl-choice" role="group" aria-labelledby="cow-rate-label">
             <button type="button" aria-pressed="false" data-rate="3"><span>Cautious</span><b>3%</b></button>
@@ -94,67 +112,71 @@
         </div>
       </form>
 
-      <!-- The results card (blue): the headline everyone sees, then the catch-up and chart behind the gate. -->
-      <div class="tl-results">
-      <div class="tl-head" aria-live="polite">
-        <p class="tl-head-k" data-out="head-k">Start 1 year later and your pot at 60 is</p>
-        <b class="tl-head-v" data-out="gap" data-m="count-up" data-to="7582" data-delay="300" data-dur="1400">&pound;7,582</b>
-        <p class="tl-head-sub">smaller, in today's money (what it would buy now)</p>
-        <div class="tl-bars" role="img" data-out="bars-label" aria-label="Pot at 60, in today's money: starting now at 28, &pound;125,800; starting at 29, &pound;118,219.">
-          <div class="tl-bar"><span class="tl-bar-k" data-out="end-now-label">Start now, at 28</span><span class="tl-bar-t"><i data-out="bar-now" style="--w:100%"></i></span><b data-out="pot-now" data-m="count-up" data-to="125800" data-delay="300" data-dur="1400">&pound;125,800</b></div>
-          <div class="tl-bar is-wait"><span class="tl-bar-k" data-out="end-wait-label">Start at 29</span><span class="tl-bar-t"><i data-out="bar-wait" style="--w:94%"></i></span><b data-out="pot-wait" data-m="count-up" data-to="118219" data-delay="300" data-dur="1400">&pound;118,219</b></div>
-        </div>
-        <p class="tl-sum" data-out="summary">&pound;300 a month from 28 could grow to &pound;125,800 by 60, or &pound;118,219 if you start at 29.</p>
-      </div>
-
-      <!-- Behind the lead gate: the catch-up, the chart and the lump sum. /assets/lead-gate.js opens it. -->
-      <div class="tl-gate" id="cow-gate" data-lead-gate data-source="cost_of_waiting_calculator" data-gate="locked">
-        <div class="tl-gated" id="cow-gated">
-          <div class="tl-more">
-            <p class="tl-open-note" data-gate-note></p>
-            <p class="tl-catch"><span data-out="catch-k">To catch up on the year you missed, pay</span> <b class="tl-hide" data-out="catch" data-m="count-up" data-format="gbp2" data-to="19.24">&pound;19.24</b> <span>a month more</span></p>
-            <p class="tl-catch-sub tl-hide" data-out="catch-sub">That is &pound;319.24 a month from 29 to 60, not &pound;300. Or put in &pound;3,682 once, when you start at 29.</p>
-            <p class="tl-catch-per tl-hide" data-out="per">Each month of waiting costs about &pound;632 by 60, or about &pound;21 a day, in today's money.</p>
+      <div class="tl-out">
+        <!-- The headline: the cost, with the two pots as bars (the hatched end of the lower bar is the cost). -->
+        <div class="tl-head" aria-live="polite">
+          <p class="tl-head-k" data-out="head-k">Start 1 year later and your pot at 60 is</p>
+          <b class="tl-head-v" data-out="gap" data-m="count-up" data-to="7582" data-delay="300" data-dur="1400">&pound;7,582</b>
+          <p class="tl-head-sub">smaller, in today's money</p>
+          <div class="tl-bars" role="img" data-out="bars-label" aria-label="Pot at 60, in today's money: starting now at 28, &pound;125,800; starting at 29, &pound;118,219.">
+            <div class="tl-bar"><span class="tl-bar-k">Start now</span><span class="tl-bar-t"><i style="--w:100%"></i></span></div>
+            <div class="tl-bar is-wait"><span class="tl-bar-k" data-out="end-wait-label">Start at 29</span><span class="tl-bar-t"><i data-out="bar-wait" style="--w:94%"></i></span></div>
           </div>
-          <div class="tc-key"><span><i class="m-i-ref"></i><span data-out="key-now">Start now</span></span><span><i class="m-i-a"></i><span data-out="key-wait">Start at 29</span></span></div>
-          <div class="m-chart is-bold tl-hide" data-m="line-draw" role="img" data-out="chart-label" aria-label="Line chart from age 28 to 60, in today's money. Starting now at 28 with &pound;300 a month grows to &pound;125,800. Starting at 29 grows to &pound;118,219.">
+        </div>
+        <!-- Phones, at the gate: the one line it unlocks. -->
+        <p class="tl-tease"><span data-out="catch-k">To catch up on the year you missed, pay</span> <span class="tl-blur" aria-hidden="true">&pound;00.00</span> a month more</p>
+
+        <!-- Behind the lead gate: the chart, the figures and the lump sum. /assets/lead-gate.js opens it. -->
+        <div class="tl-gate" id="cow-gate" data-lead-gate data-source="cost_of_waiting_calculator" data-gate="locked">
+          <div class="tl-gated" id="cow-gated">
+            <p class="tl-open-note" data-gate-note></p>
+            <div class="tc-key"><span><i class="m-i-ref"></i><span>Start now</span></span><span><i class="m-i-a"></i><span data-out="key-wait">Start at 29</span></span></div>
+          <div class="m-chart is-bold" data-m="line-draw" role="img" data-out="chart-label" aria-label="Line chart from age 28 to 60, in today's money. Starting now at 28 with &pound;300 a month grows to &pound;125,800. Starting at 29 grows to &pound;118,219.">
           <svg viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true" focusable="false"><g class="m-grid" data-out="grid"><line x1="0" x2="1000" y1="400" y2="400" class="m-base"/><line x1="0" x2="1000" y1="333" y2="333"/><line x1="0" x2="1000" y1="267" y2="267"/><line x1="0" x2="1000" y1="200" y2="200"/><line x1="0" x2="1000" y1="133" y2="133"/><line x1="0" x2="1000" y1="67" y2="67"/><line x1="0" x2="1000" y1="0" y2="0"/></g><line class="m-start" data-out="start-line" x1="0" x2="0" y1="0" y2="400" style="transform:translateX(31px)"/><path class="m-gap" d="M0 400L17 395L33 390L50 385L67 380L83 374L100 369L117 364L133 359L150 354L167 349L183 344L200 339L217 333L233 328L250 323L267 318L283 313L300 307L317 302L333 297L350 292L367 286L383 281L400 276L417 271L433 265L450 260L467 254L483 249L500 244L517 238L533 233L550 227L567 222L583 216L600 210L617 205L633 199L650 193L667 188L683 182L700 176L717 170L733 164L750 158L767 152L783 146L800 140L817 134L833 128L850 122L867 116L883 110L900 103L917 97L933 91L950 84L967 78L983 71L1000 65L1000 85L983 91L967 97L950 104L933 110L917 116L900 122L883 128L867 134L850 140L833 146L817 152L800 158L783 164L767 169L750 175L733 181L717 186L700 192L683 198L667 203L650 209L633 214L617 220L600 225L583 231L567 236L550 241L533 247L517 252L500 257L483 263L467 268L450 273L433 278L417 283L400 289L383 294L367 299L350 304L333 309L317 314L300 319L283 324L267 329L250 334L233 339L217 344L200 349L183 354L167 359L150 364L133 369L117 374L100 379L83 384L67 389L50 394L33 399L17 400L0 400Z"/><path class="m-ref" d="M0 400L17 395L33 390L50 385L67 380L83 374L100 369L117 364L133 359L150 354L167 349L183 344L200 339L217 333L233 328L250 323L267 318L283 313L300 307L317 302L333 297L350 292L367 286L383 281L400 276L417 271L433 265L450 260L467 254L483 249L500 244L517 238L533 233L550 227L567 222L583 216L600 210L617 205L633 199L650 193L667 188L683 182L700 176L717 170L733 164L750 158L767 152L783 146L800 140L817 134L833 128L850 122L867 116L883 110L900 103L917 97L933 91L950 84L967 78L983 71L1000 65"/><path class="m-line-a" d="M0 400L17 400L33 399L50 394L67 389L83 384L100 379L117 374L133 369L150 364L167 359L183 354L200 349L217 344L233 339L250 334L267 329L283 324L300 319L317 314L333 309L350 304L367 299L383 294L400 289L417 283L433 278L450 273L467 268L483 263L500 257L517 252L533 247L550 241L567 236L583 231L600 225L617 220L633 214L650 209L667 203L683 198L700 192L717 186L733 181L750 175L767 169L783 164L800 158L817 152L833 146L850 140L867 134L883 128L900 122L917 116L933 110L950 104L967 97L983 91L1000 85"/></svg>
           <span class="tl-mark" data-out="start-mark" style="--x:3.1%">You start, 29</span>
           <div class="m-pins" aria-hidden="true" data-out="pins"><i class="m-pin is-ref" style="--y:16.1%"></i><span class="m-pin-v is-up" style="--y:16.1%">&pound;125,800</span><i class="m-pin is-a" style="--y:21.2%"></i><span class="m-pin-v is-down" style="--y:21.2%">&pound;118,219</span></div>
           <div class="m-yaxis" aria-hidden="true" data-out="yaxis"><span style="--y:100%">&pound;0</span><span style="--y:83.3%">&pound;25k</span><span style="--y:66.7%">&pound;50k</span><span style="--y:50%">&pound;75k</span><span style="--y:33.3%">&pound;100k</span><span style="--y:16.7%">&pound;125k</span><span style="--y:0%">&pound;150k</span></div>
           <div class="m-xaxis" aria-hidden="true" data-out="xaxis"><span style="--x:0%">28</span><span style="--x:21.9%">35</span><span style="--x:37.5%">40</span><span style="--x:53.1%">45</span><span style="--x:68.8%">50</span><span style="--x:84.4%">55</span><span style="--x:100%">60</span></div>
         </div>
-          <div class="tl-after">
-            <details class="tl-extra">
-              <summary>Have savings to put in when you start?</summary>
-              <div class="tl-extra-in">
-                <div class="tl-field">
-                  <label for="cow-lump">Lump sum</label>
-                  <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-lump" type="number" inputmode="decimal" min="0" step="100" placeholder="0"></div>
-                </div>
-                <p aria-live="polite" data-out="lump-left">Type an amount to see your new monthly catch-up.</p>
-              </div>
-            </details>
-            <button type="button" class="tc-btn is-line" id="cow-print">Print summary</button>
-          </div>
-        </div>
-        <div class="tl-lock" id="cow-lock">
-          <h3>Can you still catch up?</h3>
-          <p>See what it would take each month, or as one lump sum, to make up the time you missed.</p>
-          <form id="cow-lead" novalidate>
-            <p class="tl-lock-k" id="cow-reach">How should we reach you?</p>
-            <div class="ar-seg" role="group" aria-labelledby="cow-reach">
-              <button type="button" aria-pressed="true" data-contact="email">Email</button>
-              <button type="button" aria-pressed="false" data-contact="phone">Phone</button>
-              <button type="button" aria-pressed="false" data-contact="instagram">Instagram</button>
+            <div class="tl-pills">
+              <div class="tl-pill is-lead"><small>To catch up, a month more</small><b data-out="catch" data-m="count-up" data-format="gbp2" data-to="19.24">&pound;19.24</b></div>
+              <div class="tl-pill"><small data-out="lump-k">Or once, at 29</small><b data-out="lump" data-m="count-up" data-to="3682">&pound;3,682</b></div>
+              <div class="tl-pill"><small data-out="pot-now-k">Pot at 60, start now</small><b data-out="pot-now" data-m="count-up" data-to="125800">&pound;125,800</b></div>
+              <div class="tl-pill"><small data-out="pot-wait-k">Pot at 60, start at 29</small><b data-out="pot-wait" data-m="count-up" data-to="118219">&pound;118,219</b></div>
             </div>
-            <label class="tl-sr" for="cow-contact" data-gate-label>Email address</label>
-            <input id="cow-contact" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" data-gate-input aria-describedby="cow-contact-err">
-            <p class="tl-lock-err" id="cow-contact-err" aria-live="polite" data-gate-err></p>
-            <button type="submit" class="tc-btn">Show me how to catch up</button>
-          </form>
-          <small>One follow-up, no spam. Members: <a data-login href="/hub/login.html">log in</a>.</small>
+            <div class="tl-after">
+              <details class="tl-extra">
+                <summary>Have savings to put in when you start?</summary>
+                <div class="tl-extra-in">
+                  <div class="tl-field">
+                    <label for="cow-lump">Lump sum</label>
+                    <div class="tl-num"><span aria-hidden="true">&pound;</span><input id="cow-lump" type="number" inputmode="decimal" min="0" step="100" placeholder="0"></div>
+                  </div>
+                  <p aria-live="polite" data-out="lump-left">Type an amount to see your new monthly catch-up.</p>
+                </div>
+              </details>
+              <button type="button" class="tc-btn is-line" id="cow-print">Print summary</button>
+            </div>
+          </div>
+          <div class="tl-lock" id="cow-lock">
+            <h3>Can you still catch up?</h3>
+            <p class="tl-lock-d">See what it would take each month, or as one lump sum, to make up the time you missed.</p>
+            <form id="cow-lead" novalidate>
+              <div class="ar-seg" role="group" aria-label="How should we reach you?">
+                <button type="button" aria-pressed="true" data-contact="email">Email</button>
+                <button type="button" aria-pressed="false" data-contact="phone">Phone</button>
+                <button type="button" aria-pressed="false" data-contact="instagram">Instagram</button>
+              </div>
+              <label class="tl-sr" for="cow-contact" data-gate-label>Email address</label>
+              <div class="tl-lock-row"><input id="cow-contact" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com" data-gate-input aria-describedby="cow-contact-err"><button type="submit" class="tc-btn">Show me</button></div>
+              <p class="tl-lock-err" id="cow-contact-err" aria-live="polite" data-gate-err></p>
+            </form>
+            <small>One follow-up, no spam. Members: <a data-login href="/hub/login.html">log in</a> &middot; <button type="button" class="tl-link" data-act="later">Not now</button></small>
+          </div>
+          <div class="tl-later"><button type="button" class="tc-btn is-line" data-act="reopen">See how to catch up</button></div>
         </div>
+
+        <div class="tl-go"><button type="button" class="tc-btn" id="cow-go">Show me the cost of waiting</button></div>
       </div>
       <p class="tl-risk">An illustration, not a forecast. Investments can fall as well as rise.</p>
       </div>
