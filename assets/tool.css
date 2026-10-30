@@ -225,9 +225,13 @@ a.tl-card { text-decoration: none; transition: transform .25s ease, box-shadow .
 a.tl-card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.10); }
 a.tl-card .tl-card-time { margin-top: auto; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
 .tl-card-img { display: block; width: calc(100% + 48px); height: auto; aspect-ratio: 16 / 9; margin: -24px -24px 6px; border-radius: 22px 22px 0 0; border-bottom: 1px solid var(--c-line); object-fit: cover; object-position: left top; background: var(--c-tile-2); }
+/* Two cards (the coming soon holding pages): a row of two, never a half-empty row of three. */
+.tl-next.is-two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 @media (max-width: 960px) {
-  .tl-next { grid-template-columns: minmax(0, 1fr); }
+  .tl-next, .tl-next.is-two { grid-template-columns: minmax(0, 1fr); }
+  /* On phones .ar-more is a two-column grid (Keep reading 2x2); Next steps spans it. */
+  body.tc-page .ar-more > .tl-next { grid-column: 1 / -1; }
   .tl-card-img { aspect-ratio: 2 / 1; }
 }
 @media (max-width: 760px) {

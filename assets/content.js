@@ -17,7 +17,8 @@
   'use strict';
 
   var calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var fromHub = /(?:^|[?&])from=hub(?:&|$)/.test(location.search);
+  // data-hub-only on <body>: a page that lives in the Client Hub (no ?from=hub needed).
+  var fromHub = /(?:^|[?&])from=hub(?:&|$)/.test(location.search) || document.body.hasAttribute('data-hub-only');
   var each = function (sel, fn, root) { Array.prototype.forEach.call((root || document).querySelectorAll(sel), fn); };
 
   /* ---------- Shell ---------- */
@@ -42,6 +43,8 @@
     else document.body.insertBefore(bar, document.body.firstChild);
     // The hero breadcrumb points back to the public list; in the Hub it points back here.
     each('.ar-back[data-public]', function (a) { a.setAttribute('href', back); a.lastChild.nodeValue = label; });
+    // Other links back to the public list (Next steps head and cards) point back here too.
+    each('main a[data-public]:not(.ar-back)', function (a) { a.setAttribute('href', back); });
   }
 
   /* ---------- Contents rail ---------- */

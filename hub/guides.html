@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/hub/css/hub-shell.css">
 <style>
 /* Client Hub Guides & tools: the public guides and tools plus the members-only
-   tools (Wealth Forecast, Portfolio Strategy, Optimisation Lab). */
+   tools (Wealth Forecast, coming soon, and the Optimisation Lab). */
 .gt-filters { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:12px; }
 .gt-chips { display:flex; flex-wrap:wrap; gap:6px; }
 .gt-count { margin-left:auto; font-size:12px; color:var(--muted); }
@@ -23,6 +23,8 @@
 .gt-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
 .gt-card { display:flex; flex-direction:column; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:22px; overflow:hidden; text-decoration:none; color:inherit; transition:transform .2s ease, box-shadow .2s ease; }
 .gt-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
+.gt-card.is-soon { opacity:.6; }
+.gt-card.is-soon:hover { transform:none; box-shadow:none; }
 .gt-top { position:relative; height:120px; background:var(--powder); overflow:hidden; }
 .gt-card.members .gt-top { background:#0F1E36; }
 .gt-card.guide .gt-top { background:var(--champ); }
@@ -83,7 +85,7 @@
     <div>
       <p class="hb-kicker mono">Guides &amp; tools &middot; members</p>
       <h1 class="hb-title">Learn by working it out yourself.</h1>
-      <p class="hb-intro">Every TEI guide and tool, plus the ones only members get: the full Wealth Forecast, our Portfolio Strategy and the Optimisation Lab.</p>
+      <p class="hb-intro">Every TEI guide and tool, plus the ones only members get, such as the Portfolio Optimisation Lab.</p>
     </div>
     <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
   </div>
@@ -131,18 +133,18 @@
 
 <script>
 /* Guides and tools. Members-only tools first, then the guides and tools also
-   on the public site (opened in their Client Hub copies where one exists). */
+   on the public site (opened in their Client Hub copies where one exists).
+   No href: a parked tool, shown as a Coming soon card that does not link. */
 (function () {
   var ITEMS = [
-    { m: true, kind: 'Tools', title: 'Wealth Forecast', desc: 'Run thousands of simulations of your portfolio. Model contributions, returns, inflation and drawing down in retirement.', href: '/hub/guides/wealthforecast.html', cta: 'Open Wealth Forecast', time: '10 min', topics: ['Investing', 'Pensions'] },
-    { m: true, kind: 'Guides', title: 'Portfolio Strategy', desc: 'How we build portfolios: construction, position sizing, conviction tiers and the balance between growth and stability.', href: '/hub/guides/portfolio.html', cta: 'Read the strategy', time: '15 min read', topics: ['Investing'] },
-    { m: true, kind: 'Tools', title: 'Portfolio Optimisation Lab', desc: 'Analyse concentration, build scenarios against presets or your own targets, compare them and see the trades required.', href: '/hub/guides/portfolio-optimisation-lab.html', cta: 'Open the lab', time: '10 min', topics: ['Investing'] },
+    { m: true, kind: 'Tools', title: 'Wealth Forecast', desc: 'Run thousands of simulations of your portfolio. Model contributions, returns, inflation and drawing down in retirement.', href: '', cta: 'Coming soon', time: '10 min', topics: ['Investing', 'Pensions'] },
+    { m: true, kind: 'Tools', title: 'Portfolio Optimisation Lab', desc: 'Analyse concentration, build scenarios against presets or your own targets, compare them and see the trades required.', href: '/hub/wealth-os.html?page=lab', cta: 'Open the lab', time: '10 min', topics: ['Investing'] },
     { kind: 'Guides', title: 'TEI Principles', desc: 'The ideas behind every plan we build, from time in the market to the bear case.', href: '/guides/principles.html?from=hub', cta: 'Read the guide', time: '8 min read', topics: ['Investing'] },
     { kind: 'Guides', title: 'Five Stages to the Seasoned Investor', desc: 'Where you are now, and what each next stage asks of you.', href: '/hub/guides/stages.html', cta: 'Read the guide', time: '10 min read', topics: ['Investing', 'Budgeting'] },
     { kind: 'Guides', title: 'The Tax Wrapper Guide', desc: 'Every ISA, pension and account type, and the order people tend to use them in.', href: '/guides/tax.html?from=hub', cta: 'Read the guide', time: '8 min read', topics: ['ISAs', 'Pensions'] },
     { kind: 'Tools', title: 'Cost of Waiting Calculator', desc: 'See what delaying by one year, or five, costs you by retirement.', href: '/guides/cost-of-waiting.html?from=hub', cta: 'Open calculator', time: '2 min', topics: ['Investing', 'Pensions'] },
-    { kind: 'Tools', title: 'Property Calculator', desc: 'Mortgage, equity, stamp duty and a stress test on any purchase.', href: '/hub/guides/property.html', cta: 'Open calculator', time: '5 min', topics: ['Property'] },
-    { kind: 'Tools', title: 'Tax Scenario Tool', desc: 'Put in a few real numbers and see which wrapper decisions are worth something for you right now.', href: '/guides/tax-scenario.html', cta: 'Open tool', time: '3 min', topics: ['Pensions', 'ISAs', 'Budgeting'] }
+    { kind: 'Tools', title: 'Property Calculator', desc: 'Mortgage, equity, stamp duty and a stress test on any purchase.', href: '', cta: 'Coming soon', time: '5 min', topics: ['Property'] },
+    { kind: 'Tools', title: 'Tax Scenario Tool', desc: 'Put in a few real numbers and see which wrapper decisions are worth something for you right now.', href: '', cta: 'Coming soon', time: '3 min', topics: ['Pensions', 'ISAs', 'Budgeting'] }
   ];
   var KINDS = ['All', 'Guides', 'Tools'];
   var TOPICS = ['All topics', 'Budgeting', 'ISAs', 'Pensions', 'Property', 'Investing'];
@@ -154,10 +156,11 @@
   function chips(list, cur) { return list.map(function (x) { return '<button type="button" class="hb-chip" data-v="' + esc(x) + '" aria-pressed="' + (x === cur ? 'true' : 'false') + '">' + esc(x) + '</button>'; }).join(''); }
   function card(it, i) {
     var cls = 'gt-card hb-up' + (it.m ? ' members' : '') + (it.kind === 'Guides' && !it.m ? ' guide' : '');
-    return '<a class="' + cls + '" style="animation-delay:' + Math.min(i, 8) * 40 + 'ms" href="' + esc(it.href) + '">' +
+    var tag = it.href ? 'a' : 'div';
+    return '<' + tag + ' class="' + cls + (it.href ? '' : ' is-soon') + '" style="animation-delay:' + Math.min(i, 8) * 40 + 'ms"' + (it.href ? ' href="' + esc(it.href) + '"' : ' aria-disabled="true"') + '>' +
       '<div class="gt-top"><span class="gt-ring r1"></span><span class="gt-ring r2 hb-spin"></span><div class="gt-tags">' +
       (it.m ? '<span class="gt-tag m">Members</span>' : '') + '<span class="gt-tag">' + (it.kind === 'Tools' ? 'Tool' : 'Guide') + '</span></div></div>' +
-      '<div class="gt-body"><h3>' + esc(it.title) + '</h3><p>' + esc(it.desc) + '</p><div class="gt-foot"><span>' + esc(it.cta) + '</span><span>' + esc(it.time) + '</span></div></div></a>';
+      '<div class="gt-body"><h3>' + esc(it.title) + '</h3><p>' + esc(it.desc) + '</p><div class="gt-foot"><span>' + esc(it.cta) + '</span>' + (it.href ? '<span>' + esc(it.time) + '</span>' : '') + '</div></div></' + tag + '>';
   }
   function match(it) {
     if (f.kind !== 'All' && it.kind !== f.kind) return false;
