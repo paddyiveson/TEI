@@ -62,8 +62,10 @@
     window.location.replace("/hub/login.html?redirect=" + redirect);
   }
 
+  // After signing out, the website home page (Paddy, 30 Oct 2026).
+  function goHome() { window.location.replace("/index.html"); }
   function signOut() {
-    TeiAuth.signOut().then(goToLogin).catch(goToLogin);
+    TeiAuth.signOut().then(goHome).catch(goHome);
   }
 
   /** Small floating pill for pages with no shared .nav-links (tool pages, articles, suite.html). */

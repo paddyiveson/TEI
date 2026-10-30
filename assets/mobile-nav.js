@@ -257,7 +257,7 @@
   // on phones). TeiAuth is loaded on Hub pages; elsewhere /hub/sign-out.html
   // ends the session (going straight to the sign-in page left it signed in).
   function signOut() {
-    function go() { location.replace('/hub/login.html'); }
+    function go() { location.replace('/index.html'); } // after signing out: the website home page
     if (window.TeiAuth && window.TeiAuth.signOut) window.TeiAuth.signOut().then(go, go);
     else location.href = '/hub/sign-out.html'; // public pages: that page loads the library and ends the session
   }

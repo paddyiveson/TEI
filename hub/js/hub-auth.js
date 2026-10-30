@@ -3,8 +3,9 @@
  * Requires supabase-config.js and supabase-client.js loaded first.
  */
 (function () {
+  // After signing out, the website home page (Paddy, 30 Oct 2026).
   function safeRedirectAfterLogout() {
-    window.location.href = "/hub/login.html";
+    window.location.replace("/index.html");
   }
 
   window.TeiHubAuth = {

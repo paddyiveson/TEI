@@ -325,7 +325,7 @@ TEI.render = TEI.render || {};
     $s('stSignOutAll').addEventListener('click', async ()=>{
       if(!confirm('Sign out on every device, including this one?')) return;
       try{ await window.teiSupabase.auth.signOut({scope:'global'}); } catch(err){ console.error(err); }
-      location.href = '/hub/login.html';
+      location.replace('/index.html'); // after signing out: the website home page
     });
     $s('stDownload').addEventListener('click', downloadData);
     $s('stClose').addEventListener('click', async ()=>{
