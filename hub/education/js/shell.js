@@ -21,7 +21,9 @@ function renderHeader(root, crumbs) {
   root.innerHTML = `
     <a class="brand" href="/hub/education/index.html"><span class="mark">T</span>TEI &nbsp;Education</a>
     <span class="crumb">${crumbHTML}</span>
-    <a href="/" class="edu-exit">Visit Website &#8599;</a>
+    <a href="/hub/index.html" class="edu-hub">Client Hub</a>
+    <a href="/hub/wealth-os.html" class="edu-hub edu-wos">Wealth OS</a>
+    <a href="/index.html" class="edu-exit">Website</a>
     <a href="#" class="edu-signout" data-tei-signout>Sign out</a>
   `;
   const signOut = root.querySelector("[data-tei-signout]");

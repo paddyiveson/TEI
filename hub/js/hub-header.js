@@ -4,7 +4,7 @@
  * Put an empty <div data-hub-header data-current="home"></div> where the
  * header goes and load this script straight after it (not deferred), so the
  * header is in place before the page paints. data-current names the nav item
- * to mark: home, learn, videos, guides, articles, suite or website.
+ * to mark: home, learn, videos, guides, articles, suite, knowledge or website.
  *
  * Desktop: sticky glass bar with the brand, the pill nav and Open Wealth OS.
  * 960px and below: the pill nav hides; a theme button and a menu button open
@@ -31,6 +31,7 @@
     // TODO(G5): Articles opens members' articles (D7) once it is built.
     { key: 'articles', label: 'Articles', href: '/hub/articles.html' },
     { key: 'suite', label: 'Investment suite', href: '/hub/suite/index.html' },
+    { key: 'knowledge', label: 'Knowledge library', href: '/hub/knowledge/index.html' },
     { key: 'website', label: 'Website', href: '/index.html' }
   ];
   var WOS = '/hub/wealth-os.html';

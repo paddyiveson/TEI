@@ -25,6 +25,14 @@
 
   redirectRecoveryCallbackIfNeeded();
 
+  // Back after signing out can restore a Hub page from the browser's memory.
+  // With no session cookie left, load it again so the login check runs.
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted && !/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || "")) {
+      window.location.reload();
+    }
+  });
+
   function getConfig() {
     var url = window.TEI_SUPABASE_URL;
     var key = window.TEI_SUPABASE_ANON_KEY;

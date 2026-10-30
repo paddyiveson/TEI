@@ -89,15 +89,25 @@
   if (signedIn) {
     V = Object.assign({}, VARIANTS.site, {
       members: true,
-      bar: [
+      // On Client Hub pages Home is the Client Hub and the fourth tab opens
+      // Wealth OS (QA Sweep 1: Home used to leave for the website).
+      bar: isHub ? [
+        { id: 'hub',      label: 'Home',       href: '/hub/index.html', tab: 'home' },
+        { id: 'guides',   label: 'Guides',     href: '/hub/guides.html' },
+        { id: 'articles', label: 'Articles',   href: '/hub/articles.html' },
+        { id: 'wealth',   label: 'Wealth OS',  href: '/hub/wealth-os.html' },
+        { id: 'menu',     label: 'Menu',       href: null }
+      ] : [
         { id: 'home',     label: 'Home',       href: '/index.html' },
-        { id: 'guides',   label: 'Guides',     href: isHub ? '/hub/guides.html' : '/guides.html' },
-        { id: 'articles', label: 'Articles',   href: isHub ? '/hub/articles.html' : '/articles.html' },
+        { id: 'guides',   label: 'Guides',     href: '/guides.html' },
+        { id: 'articles', label: 'Articles',   href: '/articles.html' },
         { id: 'hub',      label: 'Client Hub', href: '/hub/index.html' },
         { id: 'menu',     label: 'Menu',       href: null }
       ],
       headerActions: '<a class="tei-mhead-cta" href="/hub/wealth-os.html"><span>Open Wealth OS</span></a>'
     });
+    // On Client Hub pages the logo returns to the Client Hub, as on desktop.
+    if (isHub) { V.logoHref = '/hub/index.html'; V.logoLabel = 'Client Hub, home'; }
   }
 
   var barItems = {}, menuLinks = {};
@@ -181,7 +191,7 @@
         el.setAttribute('aria-controls', 'teiMenu');
         menuBtn = el;
       }
-      el.innerHTML = '<span class="tei-mbar-pill" aria-hidden="true">' + (TAB_ICONS[item.id] ? '<svg viewBox="0 0 24 24" focusable="false">' + TAB_ICONS[item.id] + '</svg>' : svg(item.icon)) + '</span>' +
+      el.innerHTML = '<span class="tei-mbar-pill" aria-hidden="true">' + (TAB_ICONS[item.tab || item.id] ? '<svg viewBox="0 0 24 24" focusable="false">' + TAB_ICONS[item.tab || item.id] + '</svg>' : svg(item.icon)) + '</span>' +
         '<span class="tei-mbar-label">' + item.label + '</span>';
       barItems[item.id] = el;
       bar.appendChild(el);
@@ -244,12 +254,12 @@
   }
 
   // Sign out from the Menu (Client Hub pages carry no Sign out of their own
-  // on phones). TeiAuth is loaded on Hub pages; elsewhere the sign-in page
-  // takes over.
+  // on phones). TeiAuth is loaded on Hub pages; elsewhere /hub/sign-out.html
+  // ends the session (going straight to the sign-in page left it signed in).
   function signOut() {
     function go() { location.replace('/hub/login.html'); }
     if (window.TeiAuth && window.TeiAuth.signOut) window.TeiAuth.signOut().then(go, go);
-    else go();
+    else location.href = '/hub/sign-out.html'; // public pages: that page loads the library and ends the session
   }
 
   /* ---------------- full-screen menu ---------------- */
@@ -364,11 +374,22 @@
      cookie (hub/js/supabase-client.js), so the public header can say
      "Client Hub" instead of "Log in" without loading Supabase. Same link. */
   function markSignedIn() {
-    if (isHub || !/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '')) return;
+    if (!/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '')) return;
+    if (isHub && !document.querySelector('.tei-hdr')) return; // Hub pages with their own top bar
     var links = document.querySelectorAll('a[href="/hub/index.html"]');
     for (var i = 0; i < links.length; i++) {
       var a = links[i];
-      if (a.classList.contains('tei-hdr-link')) a.textContent = 'Client Hub';
+      if (a.classList.contains('tei-hdr-link')) {
+        a.textContent = 'Client Hub';
+        // Desktop: Sign out beside Client Hub (QA Sweep 1: there was none off the Hub pages).
+        if (!a.parentNode.querySelector('.tei-hdr-out')) {
+          var out = document.createElement('a');
+          out.className = 'tei-hdr-link tei-hdr-out';
+          out.href = '/hub/sign-out.html';
+          out.textContent = 'Sign out';
+          a.parentNode.insertBefore(out, a.nextSibling);
+        }
+      }
       else if (a.classList.contains('tei-hdr-hub') || a.classList.contains('tei-mhead-hub')) a.setAttribute('aria-label', 'Open the Client Hub');
       else {
         var t = a.querySelector('.tei-smenu-card-t');
