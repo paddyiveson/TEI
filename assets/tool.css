@@ -7,9 +7,8 @@
    Parts
      .tl-inputs     the input grid: .tl-field number boxes, .tl-row steppers
      .tl-choice     a row of option buttons (e.g. growth rates), aria-pressed
-     .tl-head       the headline result everyone sees: the figure, .tl-bars
-                    and a .tl-sum sentence. A .tl-head.tl-more inside the gate
-                    carries on the same blue card below it
+     .tl-results    the blue results card: .tl-head (the figure, .tl-bars and
+                    a .tl-sum sentence) everyone sees, then the .tl-gate
      .tl-gate       results behind the lead gate (/assets/lead-gate.js);
                     .tl-hide marks the parts blurred while it is locked
      .tl-risk       the short risk line that sits under the results
@@ -20,18 +19,30 @@
    block, the rest support it at a smaller size. The chart reuses line-draw
    from /assets/motion.css. */
 
-/* ---------- Inputs ----------
+/* ---------- A tool page (body.tl-page) ----------
+   The tool is the page: a short title area, then two cards, inputs (page
+   colours) and results (blue), sized so both fit one screen (Paddy, 30 Oct:
+   890px of a 1440x900 desktop; the visible part of an iPhone in Safari). */
+body.tc-page.tl-page .ar-hero-in { padding: 10px 32px 18px; }
+body.tc-page.tl-page .ar-back { min-height: 24px; }
+body.tc-page.tl-page .ar-hero h1 { margin-top: 6px; font-size: 34px; line-height: 1.1; }
+body.tc-page.tl-page .ar-dek { max-width: none; margin-top: 6px; font-size: 15px; line-height: 1.5; }
+body.tc-page.tl-page .article-body { padding-top: 16px; }
+body.tl-page figure.tl-tool.visual-block { margin: 0 0 32px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
+body.tl-page figure.tl-tool > .visual-caption { margin-top: 10px; }
+
+/* ---------- Inputs (the first card) ----------
    One row of number boxes plus "Start in", then the growth buttons (Paddy, 30 Oct).
    On phones "Start in" is a dropdown, and the growth buttons show the rate only. */
-.tl-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 12px 14px; margin: 0 0 16px; }
+.tl-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 10px 14px; margin: 0; padding: 16px 20px; border-radius: 20px; background: var(--c-tile); border: 1px solid var(--c-line); }
 .tl-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .tl-field > label, .tl-row-label { font-family: var(--tc-font); font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--c-ink); white-space: nowrap; }
-.tl-num { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--c-line); background: var(--c-tile-2); transition: border-color .2s ease; }
+.tl-num { display: flex; align-items: center; box-sizing: border-box; min-height: 35px; padding: 0 11px; border-radius: 10px; border: 1px solid var(--c-line); background: var(--c-tile-2); transition: border-color .2s ease; }
 .tl-num:focus-within { border-color: var(--c-gold); }
-.tl-num span { flex: none; margin-right: 4px; font-size: 16px; color: var(--c-muted); }
+.tl-num span { flex: none; margin-right: 4px; font-size: 13px; color: var(--c-muted); }
 .tl-num input, .tl-num select {
   flex: 1 1 auto; min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; outline: none;
-  font-family: var(--tc-font); font-size: 18px; font-weight: 400; color: var(--c-ink); font-variant-numeric: tabular-nums;
+  font-family: var(--tc-font); font-size: 13px; font-weight: 500; color: var(--c-ink); font-variant-numeric: tabular-nums;
   -moz-appearance: textfield; appearance: textfield;
 }
 .tl-num input::-webkit-outer-spin-button, .tl-num input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -39,9 +50,9 @@
 .tl-field small { font-family: var(--tc-font); font-size: 12px; line-height: 1.4; color: var(--c-muted); }
 .tl-row { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; }
 .tl-wait .ar-seg, .tl-row .ar-seg { margin-top: 0; align-self: flex-start; max-width: 100%; }
-.tl-wait .ar-seg { padding: 3px; }
-.tl-wait .ar-seg button { min-height: 36px; min-width: 0; padding: 0 11px; }
-.tl-inputs .ar-seg button, .tl-lock .ar-seg button { font-family: var(--tc-font); font-size: 14px; }
+.tl-wait .ar-seg { padding: 2px; }
+.tl-wait .ar-seg button { min-height: 29px; min-width: 0; padding: 0 10px; }
+.tl-inputs .ar-seg button, .tl-lock .ar-seg button { font-family: var(--tc-font); font-size: 13px; }
 .tl-inputs .ar-seg button:disabled { opacity: .35; cursor: not-allowed; }
 .tl-select { display: none; position: relative; }
 .tl-select select { -webkit-appearance: none; appearance: none; padding-right: 16px; cursor: pointer; }
@@ -51,12 +62,12 @@
 /* Option buttons: value first, name beside it, one pressed at a time */
 .tl-choice { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .tl-choice button {
-  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; padding: 0 10px;
+  display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 33px; padding: 0 10px;
   border-radius: 999px; border: 1px solid var(--c-line); background: transparent; color: var(--c-ink);
   font-family: var(--tc-font); cursor: pointer; transition: background-color .2s ease, border-color .2s ease;
 }
-.tl-choice button span { order: 2; font-size: 13px; color: var(--c-muted); }
-.tl-choice button b { font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.tl-choice button span { order: 2; font-size: 12px; color: var(--c-muted); }
+.tl-choice button b { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .tl-choice button:hover { border-color: var(--c-gold); }
 .tl-choice button[aria-pressed="true"] { background: var(--c-btn); border-color: var(--c-btn); color: var(--c-btn-ink); }
 .tl-choice button[aria-pressed="true"] span { color: var(--c-btn-ink); opacity: .8; }
@@ -71,54 +82,61 @@
 .m-armed.m-on .m-chart .m-start { opacity: .55; transition: opacity .4s ease 1.1s, transform .65s var(--tc-ease); }
 .m-armed.m-on .tl-mark { opacity: 1; transition: opacity .4s ease 1.2s, left .65s var(--tc-ease); }
 
-/* ---------- The headline (everyone sees it) ----------
-   One blue card for the whole answer (Paddy, 30 Oct): the cost leads, the two
-   pots sit under it as bars (the hatched end of the lower bar is the cost),
-   then one plain-English sentence ties the figures together. Behind the gate,
-   .tl-more carries the card on with the catch-up. */
-.tl-head { padding: 20px 24px; border-radius: 22px; background: var(--c-key); box-shadow: var(--c-key-shadow); }   /* the key number: featured blue tile (Paddy, 28 Oct) */
+/* ---------- The results card (blue) ----------
+   The same deep blue in both themes, so everything inside it takes the dark
+   theme's colours (the chart, the lump sum box, Print). The lead gate's card
+   keeps the page's own theme (below). */
+.tl-results {
+  margin-top: 12px; padding: 16px 20px; border-radius: 20px; background: var(--c-key); box-shadow: var(--c-key-shadow); color: var(--c-key-text);
+  --c-tile: var(--c-key); --c-tile-2: #0F2B57; --c-ink: #F7F4ED; --c-muted: #B8C6DC;
+  --c-line: rgba(232, 214, 168, 0.20); --c-line-soft: rgba(232, 214, 168, 0.10);
+  --c-gold: #E8D6A8; --c-btn: #E8D6A8; --c-btn-ink: #0F1E36; --c-s1: #E8D6A8; --c-warn: #FF8F7F; --c-powder: #1C2B45;
+}
+/* The headline: the figure on the left, the two pots as bars beside it (the
+   hatched end of the lower bar is the cost), one summary line underneath. */
+.tl-head { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "k bars" "v bars" "sub bars" "sum sum"; column-gap: 36px; }
 .tl-head p { margin: 0 !important; font-weight: 400 !important; }
-.tl-head .tl-head-k { font-size: 15px !important; line-height: 1.4 !important; color: var(--c-key-text) !important; }
-.tl-head > b { display: block; margin: 4px 0 2px; font-size: 64px; line-height: 1; font-weight: 300; letter-spacing: -0.045em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
-.tl-head .tl-head-sub { font-size: 15px !important; line-height: 1.4 !important; color: var(--c-key-text) !important; opacity: .8; }
-.tl-bars { display: grid; gap: 8px; margin: 16px 0 0; padding: 14px 0 0; border-top: 1px solid rgba(232, 214, 168, 0.22); }
-.tl-bar { display: grid; grid-template-columns: 128px minmax(0, 1fr) 84px; align-items: center; gap: 12px; }
-.tl-bar-k { font-size: 13px; line-height: 1.3; color: var(--c-key-text); opacity: .85; white-space: nowrap; }
-.tl-bar-t { display: block; height: 10px; border-radius: 999px; background: rgba(232, 214, 168, 0.12); overflow: hidden; }
+.tl-head .tl-head-k { grid-area: k; font-size: 14px !important; line-height: 1.3 !important; color: var(--c-key-text) !important; }
+.tl-head .tl-head-v { grid-area: v; display: block; margin: 2px 0; font-size: 48px; line-height: 1; font-weight: 300; letter-spacing: -0.04em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.tl-head .tl-head-sub { grid-area: sub; font-size: 13px !important; line-height: 1.3 !important; color: var(--c-key-text) !important; opacity: .8; }
+.tl-bars { grid-area: bars; align-self: center; display: grid; gap: 10px; }
+.tl-bar { display: grid; grid-template-columns: 112px minmax(0, 1fr) 76px; align-items: center; gap: 12px; }
+.tl-bar-k { font-size: 12px; line-height: 1.3; color: var(--c-key-text); opacity: .85; white-space: nowrap; }
+.tl-bar-t { display: block; height: 8px; border-radius: 999px; background: rgba(232, 214, 168, 0.12); overflow: hidden; }
 .tl-bar.is-wait .tl-bar-t { background: repeating-linear-gradient(135deg, rgba(232, 214, 168, 0.45) 0 2px, transparent 2px 6px); }
 .tl-bar-t i { display: block; width: var(--w); height: 100%; border-radius: 999px; background: var(--c-key-num); transition: width .6s var(--tc-ease); }
 .tl-bar.is-wait .tl-bar-t i { background: var(--c-key-text); }
-.tl-bar b { font-size: 17px; line-height: 1.2; font-weight: 400; text-align: right; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
-.tl-head .tl-sum { margin: 14px 0 0 !important; font-size: 14px !important; line-height: 1.55 !important; color: var(--c-key-text) !important; }
-.m-armed .tl-head { opacity: 0; transform: translateY(10px); }
-.m-armed.m-on .tl-head { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s var(--tc-ease); }
+.tl-bar b { font-size: 15px; line-height: 1.2; font-weight: 400; text-align: right; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.tl-head .tl-sum { grid-area: sum; margin: 10px 0 0 !important; font-size: 13px !important; line-height: 1.5 !important; color: var(--c-key-text) !important; }
+.m-armed .tl-results { opacity: 0; transform: translateY(10px); }
+.m-armed.m-on .tl-results { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s var(--tc-ease); }
 .m-armed .tl-bar-t i { width: 0; }
 .m-armed.m-on .tl-bar-t i { width: var(--w); transition: width 1.2s var(--tc-ease) .3s; }
 
-/* The card carries on behind the gate: square where the two halves meet. */
-.tl-tool > .tl-head { border-radius: 22px 22px 0 0; box-shadow: inset 0 1px 0 rgba(232, 214, 168, 0.28); }
-.tl-head.tl-more { padding-top: 0; border-radius: 0 0 22px 22px; box-shadow: 0 18px 40px rgba(15, 30, 54, 0.22); }
-/* A tool that opens the page needs less room above it. */
-.article-body:has(> .tl-tool:first-child) { padding-top: 24px; }
-.tl-catch { padding-top: 16px; border-top: 1px solid rgba(232, 214, 168, 0.22); font-size: 16px !important; line-height: 1.3 !important; color: var(--c-key-text) !important; }
-.tl-catch b { display: inline-block; margin: 0 2px; font-size: 36px; line-height: 1.1; font-weight: 300; letter-spacing: -0.03em; color: var(--c-key-num); font-variant-numeric: tabular-nums; vertical-align: -4px; }
-.tl-head .tl-catch-sub { margin: 6px 0 0 !important; font-size: 14px !important; line-height: 1.55 !important; color: var(--c-key-text) !important; }
-.tl-head .tl-catch-per { margin: 8px 0 0 !important; font-size: 13px !important; line-height: 1.5 !important; color: var(--c-key-text) !important; opacity: .75; }
-.tl-gated > .tc-key { margin: 16px 0 6px; }
-.tl-tool .m-chart.is-bold, body.tc-page .tl-tool .m-chart.is-bold { height: 200px; margin-bottom: 30px; }
+/* Behind the gate: the catch-up leads, then the chart. */
+.tl-more { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(232, 214, 168, 0.22); }
+.tl-more p { margin: 0 !important; font-weight: 400 !important; }
+.tl-more .tl-catch { font-size: 15px !important; line-height: 1.3 !important; color: var(--c-key-text) !important; }
+.tl-catch b { display: inline-block; margin: 0 2px; font-size: 28px; line-height: 1.1; font-weight: 300; letter-spacing: -0.03em; color: var(--c-key-num); font-variant-numeric: tabular-nums; vertical-align: -3px; }
+.tl-more .tl-catch-sub { margin-top: 4px !important; font-size: 13px !important; line-height: 1.5 !important; color: var(--c-key-text) !important; }
+.tl-more .tl-catch-per { margin-top: 2px !important; font-size: 12px !important; line-height: 1.5 !important; color: var(--c-key-text) !important; opacity: .75; }
+.tl-gated > .tc-key { margin: 12px 0 4px; font-size: 12px; color: var(--c-muted); }
+.tl-tool .m-chart.is-bold, body.tc-page .tl-tool .m-chart.is-bold { height: 180px; margin: 8px 0 26px 44px; }
+.tl-results .tl-risk { margin: 4px 0 0 !important; font-size: 12px !important; line-height: 1.4 !important; color: var(--c-muted) !important; }
 .tl-tag { display: inline-flex; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--c-line); font-size: 10.5px; line-height: 1.4; color: var(--c-muted); white-space: nowrap; }
 .tl-tag.is-today { background: var(--c-powder); border-color: transparent; color: var(--c-ink); }
 
 /* Optional extra input, folded away until asked for (e.g. a lump sum), beside Print */
 .tl-after { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 16px; }
-.tl-after .tc-btn { min-height: 40px; font-size: 14px; }
+.tl-after .tc-btn { min-height: 36px; font-size: 13px; }
 .tl-extra { flex: 1 1 auto; }
-.tl-extra summary { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; cursor: pointer; font-size: 14px; font-weight: 500; color: var(--c-gold); list-style: none; }
+.tl-extra summary { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--c-gold); list-style: none; }
 .tl-extra summary::-webkit-details-marker { display: none; }
-.tl-extra summary::before { content: '+'; display: inline-block; width: 1em; font-size: 18px; line-height: 1; }
+.tl-extra summary::before { content: '+'; display: inline-block; width: 1em; font-size: 16px; line-height: 1; }
 .tl-extra[open] summary::before { content: '\2212'; }
 .tl-extra-in { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 8px 16px; align-items: end; padding: 6px 0 4px; }
-.tl-extra-in p { margin: 0 0 12px !important; font-size: 14px !important; line-height: 1.5 !important; font-weight: 400 !important; color: var(--c-ink) !important; }
+.tl-extra-in label { font-size: 12px; font-weight: 500; color: var(--c-ink); }
+.tl-extra-in p { margin: 0 0 10px !important; font-size: 13px !important; line-height: 1.5 !important; font-weight: 400 !important; color: var(--c-ink) !important; }
 
 /* ---------- Lead gate ----------
    <div class="tl-gate" data-gate="locked">
@@ -128,9 +146,8 @@
    Both share one grid cell, so the box is as tall as the taller of the two.
    lead-gate.js sets data-gate="open" (lead sent, or a member) and makes the
    results inert while locked. Only the numbers and the chart blur, lightly,
-   so the labels still say what is waiting (Paddy, 30 Oct). */
-.tl-gate { position: relative; display: grid; margin-top: 16px; }
-.tl-head + .tl-gate { margin-top: 0; }
+   and the card sits in the middle of the blurred part (Paddy, 30 Oct). */
+.tl-gate { position: relative; display: grid; }
 .tl-gated, .tl-lock { grid-area: 1 / 1; min-width: 0; }
 .tl-gate[data-gate="locked"] .tl-gated { pointer-events: none; user-select: none; }
 .tl-gate[data-gate="locked"] .tl-hide, .tl-is-gated { filter: blur(6px); opacity: .7; }
@@ -138,28 +155,33 @@
 .tl-gate[data-gate="locked"] .tl-after { display: none; }
 .tl-hide, [data-gated] { transition: filter .6s ease, opacity .6s ease; }
 .tl-gate[data-gate="open"] .tl-lock { display: none; }
-/* The card sits centred across the blurred chart, below the catch-up line so that stays readable. */
-.tl-lock { position: relative; z-index: 1; align-self: end; justify-self: center; width: min(100%, 380px); box-sizing: border-box; margin: 0 0 8px; padding: 20px 20px 14px; border-radius: 20px; background: var(--c-tile); border: 1px solid var(--c-line); color: var(--c-ink); text-align: center; box-shadow: 0 18px 48px rgba(11, 23, 41, 0.18); }
-.tl-lock h3 { margin: 0 0 4px; font-size: 20px; line-height: 1.3; font-weight: 400; color: var(--c-ink); }
-.tl-lock > p { margin: 0 0 14px !important; font-size: 14px !important; line-height: 1.5 !important; font-weight: 400 !important; color: var(--c-muted) !important; }
-.tl-lock .tl-lock-k { margin: 0 0 6px !important; font-size: 13px !important; font-weight: 500 !important; color: var(--c-ink) !important; }
-.tl-lock .ar-seg { margin: 0 auto 10px; }
-.tl-lock .ar-seg button { min-width: 0; min-height: 38px; }
+/* The card keeps the page's theme: white in light, navy in dark. */
+:root[data-theme="light"] .tl-lock {
+  --c-tile: #FFFFFF; --c-tile-2: #F7F4ED; --c-ink: #13213A; --c-muted: #4E5B70; --c-line: #DEDAD0;
+  --c-gold: #83661C; --c-btn: #0F1E36; --c-btn-ink: #E8D6A8; --c-warn: #9A4A1F;
+}
+:root[data-theme="dark"] .tl-lock { --c-tile: #12233D; --c-tile-2: #0F1E36; }
+.tl-lock { position: relative; z-index: 1; align-self: center; justify-self: center; width: min(100%, 380px); box-sizing: border-box; margin: 8px 0; padding: 16px 18px 12px; border-radius: 18px; background: var(--c-tile); border: 1px solid var(--c-line); color: var(--c-ink); text-align: center; box-shadow: 0 18px 48px rgba(6, 14, 28, 0.35); }
+.tl-lock h3 { margin: 0 0 4px; font-size: 18px; line-height: 1.3; font-weight: 400; color: var(--c-ink); }
+.tl-lock > p { margin: 0 0 10px !important; font-size: 13px !important; line-height: 1.5 !important; font-weight: 400 !important; color: var(--c-muted) !important; }
+.tl-lock .tl-lock-k { margin: 0 0 5px !important; font-size: 12px !important; font-weight: 500 !important; color: var(--c-ink) !important; }
+.tl-lock .ar-seg { margin: 0 auto 8px; padding: 2px; }
+.tl-lock .ar-seg button { min-width: 0; min-height: 30px; }
 .tl-sr { position: absolute !important; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .tl-lock input {
-  box-sizing: border-box; width: 100%; min-height: 44px; padding: 0 14px; margin-bottom: 10px; border-radius: 12px;
+  box-sizing: border-box; width: 100%; min-height: 38px; padding: 0 14px; margin-bottom: 8px; border-radius: 10px;
   border: 1px solid var(--c-line); background: var(--c-tile-2); color: var(--c-ink); text-align: center;
-  font-family: var(--tc-font); font-size: 16px; outline: none;
+  font-family: var(--tc-font); font-size: 14px; outline: none;
 }
 .tl-lock input:focus { border-color: var(--c-gold); }
 .tl-lock input[aria-invalid="true"] { border-color: var(--c-warn); }
 .tl-lock input::placeholder { color: var(--c-muted); opacity: .7; }
-.tl-lock .tc-btn { width: 100%; min-height: 44px; border: 0; font-family: var(--tc-font); font-size: 15px; cursor: pointer; }
-.tl-lock-err { min-height: 0; margin: 0 0 8px !important; font-size: 13px !important; color: var(--c-warn) !important; }
+.tl-lock .tc-btn { width: 100%; min-height: 38px; border: 0; font-family: var(--tc-font); font-size: 14px; cursor: pointer; }
+.tl-lock-err { min-height: 0; margin: 0 0 8px !important; font-size: 12px !important; color: var(--c-warn) !important; }
 .tl-lock-err:empty { display: none; }
-.tl-lock small { display: block; margin-top: 10px; font-size: 12px; line-height: 1.5; color: var(--c-muted); white-space: nowrap; }
+.tl-lock small { display: block; margin-top: 8px; font-size: 11px; line-height: 1.5; color: var(--c-muted); white-space: nowrap; }
 .tl-lock small a { color: var(--c-gold); }
-.tl-open-note { display: none; margin: 0 0 10px !important; font-size: 12px !important; color: var(--c-key-num) !important; }
+.tl-open-note { display: none; margin: 0 0 8px !important; font-size: 12px !important; color: var(--c-key-num) !important; }
 .tl-gate[data-gate="open"][data-via="member"] .tl-open-note,
 .tl-gate[data-gate="open"][data-via="coach"] .tl-open-note { display: block; }
 
@@ -188,40 +210,53 @@ a.tl-card .tl-card-time { margin-top: auto; font-family: var(--tc-mono); font-si
   .tl-card-img { aspect-ratio: 2 / 1; }
 }
 @media (max-width: 760px) {
-  /* Phone: four inputs in one row, then the four rates (Paddy, 30 Oct). */
-  .tl-inputs { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr); gap: 10px 6px; margin-bottom: 12px; }
+  /* Phone: fits the part of an iPhone that Safari leaves visible (Paddy, 30 Oct).
+     Boxes keep 16px text, or iOS zooms in when one is tapped. */
+  body.tc-page.tl-page .ar-back { display: none; }
+  body.tc-page.tl-page .ar-hero-in { padding: 12px 16px 14px; }
+  body.tc-page.tl-page .ar-hero h1 { margin-top: 0; font-size: 20px; }
+  body.tc-page.tl-page .ar-dek { margin-top: 4px; font-size: 12px; }
+  body.tc-page.tl-page .article-body { padding-top: 12px; }
+  .tl-inputs { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr); gap: 8px 6px; padding: 12px; border-radius: 16px; }
   .tl-long, .tl-wait .ar-seg { display: none; }
   .tl-select { display: flex; }
-  .tl-field > label, .tl-row-label { font-size: 12px; }
-  .tl-num { padding: 0 9px; border-radius: 10px; }
+  .tl-field { gap: 4px; }
+  .tl-field > label, .tl-row-label { font-size: 11px; }
+  .tl-row { gap: 4px; }
+  .tl-num { min-height: 40px; padding: 0 9px; }
   .tl-num span { font-size: 15px; margin-right: 2px; }
-  .tl-num input, .tl-num select { font-size: 16px; }
-  .tl-choice { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
-  .tl-choice button { min-height: 40px; padding: 0 4px; }
+  .tl-num input, .tl-num select { font-size: 16px; font-weight: 400; }
+  .tl-choice { gap: 6px; }
+  .tl-choice button { min-height: 36px; padding: 0 4px; }
   .tl-choice button span { display: none; }
   .tl-rate-name { display: inline; }
-  .tl-head { padding: 16px; }
-  .tl-tool > .tl-head { border-radius: 16px 16px 0 0; }
-  .tl-head.tl-more { padding-top: 0; border-radius: 0 0 16px 16px; }
-  .tl-head .tl-head-k, .tl-head .tl-head-sub { font-size: 14px !important; }
-  .tl-head > b { font-size: 46px; }
-  .tl-bars { margin-top: 12px; padding-top: 12px; gap: 6px; }
-  .tl-bar { grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; }
-  .tl-bar-t { grid-column: 1 / -1; grid-row: 2; height: 8px; }
-  .tl-bar-k { font-size: 12px; }
-  .tl-bar b { font-size: 15px; }
-  .tl-head .tl-sum { margin-top: 12px !important; font-size: 13px !important; line-height: 1.5 !important; }
-  .tl-catch { padding-top: 12px; font-size: 14px !important; }
-  .tl-catch b { font-size: 30px; }
-  .tl-head .tl-catch-sub { font-size: 13px !important; line-height: 1.5 !important; }
-  .tl-head .tl-catch-per { font-size: 12px !important; }
-  .tl-gated > .tc-key { margin: 12px 0 4px; font-size: 12px; }
-  .tl-tool .m-chart.is-bold, body.tc-page .tl-tool .m-chart.is-bold { height: 140px; margin-bottom: 26px; }
-  .article-body:has(> .tl-tool:first-child) { padding-top: 12px; }
+  .tl-results { margin-top: 10px; padding: 12px; border-radius: 16px; }
+  .tl-head { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "k k" "v bars" "sub sub" "sum sum"; column-gap: 14px; }
+  .tl-head .tl-head-k, .tl-head .tl-head-sub { font-size: 12px !important; }
+  .tl-head .tl-head-v { margin: 2px 0; font-size: 34px; align-self: center; }
+  .tl-bars { gap: 5px; }
+  .tl-bar { grid-template-columns: minmax(0, 1fr) auto; gap: 2px 6px; }
+  .tl-bar-t { grid-column: 1 / -1; grid-row: 2; height: 6px; }
+  .tl-bar-k { font-size: 11px; }
+  .tl-bar b { font-size: 13px; }
+  .tl-head .tl-sum { margin-top: 8px !important; font-size: 12px !important; }
+  .tl-more { margin-top: 10px; padding-top: 10px; }
+  .tl-more .tl-catch { font-size: 13px !important; }
+  .tl-catch b { font-size: 24px; }
+  .tl-more .tl-catch-sub { font-size: 12px !important; }
+  .tl-more .tl-catch-per { font-size: 11px !important; }
+  .tl-gated > .tc-key { margin: 10px 0 2px; font-size: 11px; }
+  .tl-tool .m-chart.is-bold, body.tc-page .tl-tool .m-chart.is-bold { height: 170px; margin: 6px 0 24px 36px; }
+  .tl-results .tl-risk { font-size: 11px !important; }
   .tl-extra-in { grid-template-columns: minmax(0, 1fr); }
-  .tl-lock { padding: 16px 14px 12px; border-radius: 16px; }
-  .tl-lock h3 { font-size: 18px; }
-  .tl-lock > p { margin-bottom: 12px !important; font-size: 13px !important; }
+  .tl-lock { width: min(100%, 320px); padding: 14px 12px 10px; border-radius: 16px; }
+  .tl-lock h3 { font-size: 16px; }
+  .tl-lock > p { margin-bottom: 8px !important; font-size: 12px !important; }
+  .tl-lock .ar-seg button { min-height: 34px; }
+  .tl-lock input { min-height: 40px; font-size: 16px; }
+  .tl-lock .tc-btn { min-height: 40px; }
+  /* How the numbers work: one column on phones, not two narrow ones. */
+  body.tc-page .tei-article:has(.tl-tool) .principle-list { grid-template-columns: minmax(0, 1fr); }
   .tl-card { padding: 20px; }
   .tl-card-img { width: calc(100% + 40px); margin: -20px -20px 4px; }
 }
@@ -229,7 +264,7 @@ a.tl-card .tl-card-time { margin-top: auto; font-family: var(--tc-mono); font-si
   .tl-num, .tl-choice button, a.tl-card, .tl-hide, [data-gated], .tl-mark, .m-chart .m-start, .tl-bar-t i { transition: none !important; }
   .m-armed .tl-bar-t i { width: var(--w) !important; }
   .m-armed .m-chart .m-start { opacity: .55 !important; }
-  .m-armed .tl-mark, .m-armed .tl-head { opacity: 1 !important; transform: none !important; }
+  .m-armed .tl-mark, .m-armed .tl-results { opacity: 1 !important; transform: none !important; }
   a.tl-card:hover { transform: none; }
 }
 

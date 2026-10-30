@@ -43,9 +43,8 @@
   function pounds(n) { return '£' + commas(String(Math.round(n))); }
   function pence(n) { return '£' + commas(n.toFixed(2)); }
   function years(n) { return n + (n === 1 ? ' year' : ' years'); }
-  // "the year you missed" / "the 2 years you missed"; "a year later" / "2 years later"
+  // "the year you missed" / "the 2 years you missed"
   function missed(n) { return n === 1 ? 'the year' : 'the ' + n + ' years'; }
-  function later(n) { return n === 1 ? 'a year' : years(n); }
 
   /* ---------- the maths ---------- */
   function model(s) {
@@ -181,8 +180,8 @@
     out('bar-wait').style.setProperty('--w', (Math.round(m.potWait / m.potNow * 1000) / 10) + '%');
     out('bars-label').setAttribute('aria-label', 'Pot at ' + s.retire + ", in today's money: starting now at " + s.age + ', ' + pounds(m.potNow) +
       '; starting at ' + start + ', ' + pounds(m.potWait) + '.');
-    set('summary', 'Investing ' + pounds(s.monthly) + ' a month from ' + s.age + ' could grow to ' + pounds(m.potNow) + ' by ' + s.retire + '. Start ' +
-      later(s.wait) + ' later, at ' + start + ', and it could grow to ' + pounds(m.potWait) + '. ' + (s.wait === 1 ? 'That year of waiting costs ' : 'Those ' + years(s.wait) + ' of waiting cost ') + pounds(m.gap) + '.');
+    set('summary', pounds(s.monthly) + ' a month from ' + s.age + ' could grow to ' + pounds(m.potNow) + ' by ' + s.retire + ', or ' +
+      pounds(m.potWait) + ' if you start at ' + start + '.');
 
     // Behind the gate: the catch-up leads; one sentence and one small line back it up.
     set('catch-k', 'To catch up on ' + missed(s.wait) + ' you missed, pay');

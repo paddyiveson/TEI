@@ -21,8 +21,8 @@
        logged, not shown.
      - a member is logged in (TeiMembers.ready), or a coach (their Wealth OS
        profile role is "adviser").
-   A visitor who has unlocked a gate once finds it open on their next visit
-   (localStorage, per data-source; nothing is sent again).
+   A visitor who has unlocked a gate finds it open on visits in the next 30
+   days (localStorage, per data-source; nothing is sent again).
    ?gate=on in the address keeps the gate locked for a logged-in member or
    coach, so the gate itself can be tested.
    While locked the results are inert and hidden from screen readers. Anything
@@ -86,13 +86,14 @@
     }).catch(function (err) { console.warn('Lead capture failed:', err); });
   }
 
-  // Remember an unlocked gate in this browser. Storage can be blocked (private
-  // windows), so both calls fail quietly and the gate simply asks again.
+  // Remember an unlocked gate in this browser for 30 days. Storage can be
+  // blocked (private windows), so both calls fail quietly and the gate simply asks again.
+  var REMEMBER_MS = 30 * 24 * 60 * 60 * 1000;
   function remembered(source) {
-    try { return window.localStorage.getItem('tei-gate:' + source) === 'open'; } catch (e) { return false; }
+    try { return Date.now() - Number(window.localStorage.getItem('tei-gate:' + source)) < REMEMBER_MS; } catch (e) { return false; }
   }
   function remember(source) {
-    try { window.localStorage.setItem('tei-gate:' + source, 'open'); } catch (e) {}
+    try { window.localStorage.setItem('tei-gate:' + source, String(Date.now())); } catch (e) {}
   }
 
   // A coach is signed in to the Client Hub with the "adviser" profile role.
