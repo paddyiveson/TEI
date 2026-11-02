@@ -152,6 +152,8 @@
         '<span class="tei-mhead-text">The Everyday<br>Investor</span>' +
       '</a>' +
       '<div class="tei-mhead-actions">' + V.headerActions.replace('@user@', svg('user')) + '</div>';
+    // The moon / sun button, on pages with a dark theme (hub/js/tei-theme.js).
+    if (window.TeiTheme && window.TeiTheme.button) { var acts = head.querySelector('.tei-mhead-actions'); acts.insertBefore(window.TeiTheme.button(), acts.firstChild); window.TeiTheme.mount(); }
     // Appended (not inserted first): pages such as guides/stages.html style
     // body children with :nth-child, so anything placed before them would
     // change desktop rendering even while hidden.

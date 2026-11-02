@@ -7,6 +7,7 @@
  * to mark: home, learn, videos, guides, articles, suite, knowledge or website.
  *
  * Desktop: sticky glass bar with the brand, the pill nav and Open Wealth OS.
+ * Desktop also has the moon / sun theme button at the end of the bar.
  * 960px and below: the pill nav hides; a theme button and a menu button open
  * a glass bottom sheet with the same items, Open Wealth OS and Sign out.
  *
@@ -56,6 +57,8 @@
     '.hh-icon{display:none;width:44px;height:44px;flex:none;border-radius:50%;align-items:center;justify-content:center;cursor:pointer;color:var(--w-text);background:transparent;border:0;padding:0}' +
     '.hh-icon svg,.hh-theme svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}' +
     '.hh-menu{border:1px solid var(--w-line);background:var(--w-tile)}' +
+    '.hh-theme{display:inline-flex;width:44px;height:44px;flex:none;margin-left:6px;padding:0;border-radius:50%;align-items:center;justify-content:center;cursor:pointer;color:var(--w-text);background:var(--w-tile);border:1px solid var(--w-line);transition:border-color .2s ease}' +
+    '.hh-theme:hover{border-color:var(--w-gold)}' +
     '.hh-bar a:focus-visible,.hh-bar button:focus-visible,.hh-sheet a:focus-visible,.hh-sheet button:focus-visible,[data-hub-theme]:focus-visible{outline:2px solid var(--w-gold);outline-offset:2px}' +
     '.hh-sheet-wrap{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;justify-content:flex-end}' +
     '.hh-sheet-wrap[hidden]{display:none}' +
@@ -106,6 +109,7 @@
       '<div class="hh-right">' +
         '<nav class="hh-nav" aria-label="Client Hub">' + navLinks(false) + '</nav>' +
         '<a class="hh-wos" data-hub-wos href="' + WOS + '">Open Wealth OS</a>' +
+        '<button type="button" class="hh-theme" data-hub-theme></button>' +
       '</div>' +
       '<button type="button" class="hh-icon" data-hub-theme></button>' +
       '<button type="button" class="hh-icon hh-menu" id="hhMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="hhSheet">' + ICON_MENU + '</button>' +
