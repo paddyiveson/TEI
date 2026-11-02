@@ -389,7 +389,7 @@ footer .so{align-self:start;border:0;background:none;padding:0;min-height:44px;f
 @media (min-width:1100px) and (max-width:1439px){.pills{margin-left:4px;gap:0}.pills a{padding:8px 8px;font-size:13px}.seg{display:none}.icon-btn{display:inline-flex}}
 @media (max-width:900px){.btn-wos{display:none}}
 /* ---------- mobile ---------- */
-@media (max-width:760px){
+@media (max-width:860px){
   :root{--pad:16px;--gap:12px;--hdr:108px}
   body{font-size:17px;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   .hub-row{height:58px;gap:10px}
@@ -1112,7 +1112,7 @@ function icon(kind,x,y){
 function wrapList(arr,maxCh){var lines=[],cur='';arr.forEach(function(c){var add=cur?cur+'  ·  '+c:c;if(add.length>maxCh&&cur){lines.push(cur);cur=c;}else{cur=add;}});if(cur)lines.push(cur);return lines;}
 C.platform=function(el){
   var w=W(el),s='',n=LAYERS.length;
-  if(w>=760){
+  if(w>=760&&!(window.matchMedia&&window.matchMedia('(max-width:860px)').matches)){
     var ac=130,bw=Math.min(280,w*.22),bx=w-bw,sx=ac+12,bh=92,top=6,h=top+n*bh+8,brainTop=top,brainH=n*bh;
     LAYERS.forEach(function(L,i){var y=top+i*bh,mid=y+bh/2,dl=(.5-i*.1+.4).toFixed(2);
       var op=[.30,.22,.15,.09,.0][i];
@@ -1239,7 +1239,7 @@ document.querySelectorAll('.viz').forEach(function(el){if(!io){el.classList.add(
 document.querySelectorAll('[data-replay]').forEach(function(b){b.addEventListener('click',function(){var v=document.getElementById(b.getAttribute('data-replay'));v.classList.add('reset');v.classList.remove('in');void v.offsetWidth;v.classList.remove('reset');requestAnimationFrame(function(){requestAnimationFrame(function(){v.classList.add('in');});});});});
 
 /* ---------- cards ---------- */
-var mq=window.matchMedia('(max-width:760px)');
+var mq=window.matchMedia('(max-width:860px)');
 document.querySelectorAll('.cards').forEach(function(sec){
   var btns=[].slice.call(sec.querySelectorAll('.pcard')),host=sec.querySelector('.panelhost');
   function panelOf(b){return document.getElementById(b.getAttribute('aria-controls'));}

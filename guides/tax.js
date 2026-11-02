@@ -13,7 +13,7 @@
 (function () {
   'use strict';
   var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  var phone = window.matchMedia ? window.matchMedia('(max-width: 760px)') : null;
+  var phone = window.matchMedia ? window.matchMedia('(max-width: 860px)') : null;
   function each(sel, fn) { Array.prototype.forEach.call(document.querySelectorAll(sel), fn); }
 
   // Cards shown per row; on tablets and phones an odd last small card spans the row.

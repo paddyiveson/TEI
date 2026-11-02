@@ -223,7 +223,7 @@
   // opens the rest: "How this was calculated" for a data caption, otherwise "Read more".
   // The full caption stays in the markup, so it reads in full with JS off and on desktop.
   function captions() {
-    if (!window.matchMedia || !window.matchMedia('(max-width: 760px)').matches) return;
+    if (!window.matchMedia || !window.matchMedia('(max-width: 860px)').matches) return;
     Array.prototype.forEach.call(document.querySelectorAll('body.tc-page .visual-caption'), function (cap) {
       var lh = parseFloat(getComputedStyle(cap).lineHeight) || 17;
       if (cap.getBoundingClientRect().height <= lh * 3.2) return;
