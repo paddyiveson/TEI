@@ -1,0 +1,354 @@
+/* Guides & Tools (V2, Nov 2026): the structure for both pages, and the
+   public skin.
+
+   One structure, two skins. The public page (/guides.html) and the Client Hub
+   copy (/hub/guides.html) use the same class names. Every rule in part 1
+   reads only the --gt-* variables; each page's skin sets them:
+     public  part 2 of this file, from the --c-* tokens (assets/content.css,
+             and the featured-card tokens in /style.css)
+     Hub     /hub/css/guides-tools-hub.css, from the --w-* tokens
+   Never load hub-tokens.css or any --w-* file on the public page.
+
+   The step down in impact, as on the Hub home and the Investment Suite:
+     1. the lead card: navy, a champagne edge and the only glow in its section
+     2. live tiles: a coloured top edge and tag by kind (Tool gold, Guide powder)
+     3. the Coming soon row: compact tinted chips, never links
+   Two corner sizes: 18px outside, 12px inside. One phone breakpoint: 860px.
+   Cards and data: /assets/guides-tools.js and /assets/guides-tools.json. */
+
+/* =========================================================
+   1. Structure (both pages)
+   ========================================================= */
+.gt [hidden] { display: none !important; }
+.gt *, .gt *::before, .gt *::after { box-sizing: border-box; }
+.gt h2, .gt h3, .gt p, .gt ol, .gt ul { margin: 0; }
+.gt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.gt-chev { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.gt a:focus-visible, .gt button:focus-visible, .gt input:focus-visible { outline: 2px solid var(--gt-accent); outline-offset: 3px; }
+
+/* Feel, carried over from the Hub and Suite: a slight scale on tap, a rise on
+   hover (each skin says whether a shadow comes with it). */
+.gt .press { transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease; }
+.gt .press:active { transform: scale(.985); }
+@media (hover: hover) {
+  .gt .lift:hover { transform: translateY(-2px); box-shadow: var(--gt-hover-shadow); }
+  .gt .gt-lead:hover { transform: translateY(-2px); border-color: var(--gt-on-feat-accent); }
+}
+
+/* Staggered rise on load: at most 8 steps of 40ms. */
+@keyframes gt-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.gt-up { animation: gt-up .6s cubic-bezier(.2, .8, .2, 1) both; }
+.gt-up[data-d="1"] { animation-delay: 40ms; }
+.gt-up[data-d="2"] { animation-delay: 80ms; }
+.gt-up[data-d="3"] { animation-delay: 120ms; }
+.gt-up[data-d="4"] { animation-delay: 160ms; }
+.gt-up[data-d="5"] { animation-delay: 200ms; }
+.gt-up[data-d="6"] { animation-delay: 240ms; }
+.gt-up[data-d="7"] { animation-delay: 280ms; }
+
+/* ---------- Sections ---------- */
+.gt-sec + .gt-sec { margin-top: var(--gt-sec-gap, 48px); }
+.gt-sh { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+.gt-k { font-family: var(--gt-mono); font-size: 12px; color: var(--gt-accent); }
+.gt-sh h2 { margin-top: 8px; font-size: clamp(24px, 2.6vw, 30px); font-weight: 300; letter-spacing: -0.03em; line-height: 1.1; color: var(--gt-ink); }
+.gt-more { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 15px; font-weight: 500; color: var(--gt-accent); text-decoration: none; }
+.gt-more:hover { text-decoration: underline; }
+
+/* ---------- Search, topics and kinds ---------- */
+.gt-find { display: flex; flex-direction: column; gap: 14px; }
+.gt-search-wrap { position: relative; display: flex; align-items: center; max-width: 720px; }
+.gt-search-wrap svg { position: absolute; left: 20px; width: 18px; height: 18px; fill: none; stroke: var(--gt-search-icon); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
+.gt-search { box-sizing: border-box; width: 100%; min-height: 52px; padding: 0 20px 0 50px; border-radius: 999px; font-family: inherit; font-size: 16px; color: var(--gt-search-ink); background: var(--gt-search-bg); border: 1px solid var(--gt-search-line); }
+.gt-search::placeholder { color: var(--gt-search-hint); }
+.gt-topics { display: flex; flex-wrap: wrap; gap: 8px; }
+.gt-topic { min-height: 44px; padding: 0 16px; border-radius: 999px; font-family: inherit; font-size: 14px; cursor: pointer; color: var(--gt-topic-ink); background: var(--gt-topic-bg); border: 1px solid var(--gt-topic-line); }
+.gt-topic[aria-pressed="true"] { color: var(--gt-on-pressed); background: var(--gt-pressed); border-color: var(--gt-pressed); }
+.gt-kinds { display: inline-flex; padding: 4px; gap: 2px; border-radius: 999px; background: var(--gt-tile); border: 1px solid var(--gt-line); }
+.gt-kind { min-height: 40px; min-width: 72px; padding: 0 16px; border: 0; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--gt-muted); background: transparent; }
+.gt-kind[aria-pressed="true"] { color: var(--gt-kind-on-ink); background: var(--gt-kind-on); }
+
+/* ---------- The grid: 12 columns; widths from data-w (wide) and data-n ---------- */
+.gt-g { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+.gt-g > * { min-width: 0; grid-column: span 12; }
+@media (min-width: 1100px) {
+  .gt-g > [data-w="3"] { grid-column: span 3; }
+  .gt-g > [data-w="4"] { grid-column: span 4; }
+  .gt-g > [data-w="6"] { grid-column: span 6; }
+  .gt-g > [data-rows="2"] { grid-row: span 2; }
+}
+@media (max-width: 1099px) {
+  .gt-g > [data-n="6"] { grid-column: span 6; }
+}
+
+/* ---------- Tags (Geist Mono pills) ---------- */
+.gt-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.gt-tag { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-family: var(--gt-mono); font-size: 11px; font-weight: 500; letter-spacing: .02em; color: var(--gt-ink); }
+.gt-tag i { width: 6px; height: 6px; border-radius: 50%; }
+.gt-tag.is-tool { background: color-mix(in srgb, var(--gt-tool) 14%, transparent); }
+.gt-tag.is-tool i { background: var(--gt-tool); }
+.gt-tag.is-guide { background: color-mix(in srgb, var(--gt-guide) 24%, transparent); }
+.gt-tag.is-guide i { background: var(--gt-guide); }
+.gt-tag.is-m { background: var(--gt-on-feat-accent); color: var(--gt-feat); }
+
+/* ---------- Tier 1: the lead card ---------- */
+/* Fixed colours, the same in light and dark. Text on the left, the example
+   figures stacked on the right, as in the Suite's lead card. */
+.gt-lead { position: relative; overflow: hidden; display: flex; text-decoration: none; border-radius: 18px; color: var(--gt-on-feat); background: var(--gt-feat); border: 1px solid var(--gt-feat-line); box-shadow: var(--gt-feat-shadow); transition: transform .18s ease, border-color .18s ease; }
+/* The glow: the only one in its section. */
+.gt-lead::before { content: ''; position: absolute; width: 640px; height: 640px; left: -18%; top: -80%; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--gt-on-feat-accent) 24%, transparent), transparent); pointer-events: none; }
+.gt-lead::after { content: ''; position: absolute; width: 460px; height: 460px; right: -20%; bottom: -70%; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--gt-on-feat-muted) 14%, transparent), transparent); pointer-events: none; }
+.gt-lead > * { position: relative; z-index: 1; }
+.gt-lead:focus-visible { outline-color: var(--gt-on-feat-accent); }
+.gt-lead-t { flex: 1.5 1 0; min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 28px; }
+.gt-lead .gt-tag { color: var(--gt-on-feat-accent); background: color-mix(in srgb, var(--gt-on-feat-accent) 14%, transparent); }
+.gt-lead .gt-tag i { background: var(--gt-on-feat-accent); }
+.gt-lead .gt-tag.is-m { color: var(--gt-feat); background: var(--gt-on-feat-accent); }
+.gt-lead-h { margin-top: 6px; font-size: clamp(28px, 2.6vw, 36px); font-weight: 300; letter-spacing: -0.03em; line-height: 1.08; color: var(--gt-on-feat); }
+.gt-lead-p { max-width: 440px; font-size: 16px; font-weight: 300; line-height: 1.55; color: var(--gt-on-feat-muted); }
+.gt-lead-go { margin-top: auto; padding-top: 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.gt-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; font-size: 15px; font-weight: 500; white-space: nowrap; color: var(--gt-feat); background: var(--gt-on-feat-accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--gt-on-feat-accent) 35%, transparent), var(--gt-btn-glow); }
+.gt-lead .gt-time { color: var(--gt-on-feat-muted); }
+.gt-figs { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; padding: 12px 26px 20px; border-left: 1px solid color-mix(in srgb, var(--gt-on-feat-accent) 18%, transparent); }
+.gt-fig { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 12px 0; border-bottom: 1px solid color-mix(in srgb, var(--gt-on-feat-accent) 12%, transparent); }
+.gt-fig b { font-size: 28px; font-weight: 300; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--gt-on-feat); }
+.gt-fig:first-child b { color: var(--gt-on-feat-accent); }
+.gt-fig span { font-size: 13px; line-height: 1.4; color: var(--gt-on-feat-muted); }
+.gt-figs-k { padding-top: 12px; font-family: var(--gt-mono); font-size: 10.5px; line-height: 1.5; color: var(--gt-on-feat-muted); opacity: .8; }
+/* A members' tool leads with three points in place of figures. */
+.gt-figs.is-pts .gt-fig b { font-size: 17px; font-weight: 400; color: var(--gt-on-feat-accent); }
+.gt-figs.is-pts .gt-fig:last-child { border-bottom: 0; }
+
+/* ---------- Tier 2: live tiles ---------- */
+.gt-tile { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 8px; min-height: 196px; padding: 22px 20px 18px; border-radius: 18px; text-decoration: none; color: var(--gt-ink); background: var(--gt-tile); border: 1px solid var(--gt-line); box-shadow: var(--gt-tile-shadow); }
+.gt-tile::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; }
+.gt-tile.is-tool::before { background: var(--gt-tool); }
+.gt-tile.is-guide::before { background: var(--gt-guide); }
+.gt-tile-h { margin-top: 6px; font-size: 20px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.2; color: var(--gt-ink); }
+.gt-tile-p { font-size: 14.5px; font-weight: 300; line-height: 1.55; color: var(--gt-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.gt-tile-go { margin-top: auto; padding-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.gt-cta { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--gt-accent); }
+.gt-time { font-family: var(--gt-mono); font-size: 11px; color: var(--gt-muted); white-space: nowrap; }
+.gt-empty { padding: 36px 24px; border-radius: 18px; border: 1.5px dashed var(--gt-line); text-align: center; font-size: 15px; color: var(--gt-muted); }
+.gt-empty a { color: var(--gt-accent); }
+.gt-lib-sec.is-empty .gt-g { display: none; }
+
+/* ---------- The five stages: a progression ---------- */
+/* Numbered nodes on a line that draws left to right; the emphasis steps up
+   gently towards Stage 5. */
+@keyframes t-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes t-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes t-draw { from { stroke-dashoffset: 107; } to { stroke-dashoffset: 0; } }
+.gt-track { position: relative; }
+.gt-rail { position: absolute; top: 19px; left: 20px; right: calc((100% - 96px) / 5 - 20px); height: 2px; border-radius: 2px; background: var(--gt-line); }
+.gt-rail i { position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--gt-accent) 30%, transparent), var(--gt-accent)); transform-origin: left; }
+.gt-rail i.t-grow { animation: t-grow 1.6s cubic-bezier(.3, .8, .3, 1) .2s both; }
+.gt-stages { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px; }
+.gt-stage { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.gt-node { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin-bottom: 10px; border-radius: 50%; background: var(--gt-node-bg); }
+.gt-node svg { position: absolute; inset: 0; width: 40px; height: 40px; transform: rotate(-90deg); }
+.gt-node circle { fill: none; stroke: var(--gt-accent); stroke-width: 2; stroke-dasharray: 107; stroke-dashoffset: 0; }
+.gt-node circle.t-draw { animation: t-draw .7s ease-out both; }
+.gt-stage:nth-child(1) circle.t-draw { animation-delay: .2s; }
+.gt-stage:nth-child(2) circle.t-draw { animation-delay: .5s; }
+.gt-stage:nth-child(3) circle.t-draw { animation-delay: .8s; }
+.gt-stage:nth-child(4) circle.t-draw { animation-delay: 1.1s; }
+.gt-stage:nth-child(5) circle.t-draw { animation-delay: 1.4s; }
+.gt-node b { position: relative; font-family: var(--gt-mono); font-size: 13px; font-weight: 500; color: var(--gt-accent); }
+.gt-stage:nth-child(2) .gt-node { background: color-mix(in srgb, var(--gt-accent) 10%, var(--gt-node-bg)); }
+.gt-stage:nth-child(3) .gt-node { background: color-mix(in srgb, var(--gt-accent) 20%, var(--gt-node-bg)); }
+.gt-stage:nth-child(4) .gt-node { background: color-mix(in srgb, var(--gt-accent) 34%, var(--gt-node-bg)); }
+.gt-stage:nth-child(5) .gt-node { background: var(--gt-accent); }
+.gt-stage:nth-child(5) .gt-node b { color: var(--gt-node-bg); }
+.gt-stage-k { font-family: var(--gt-mono); font-size: 11.5px; color: var(--gt-accent); }
+.gt-stage h3 { font-size: 18px; font-weight: 400; letter-spacing: -0.015em; line-height: 1.25; color: var(--gt-ink); }
+.gt-stage:nth-child(4) h3 { font-weight: 450; }
+.gt-stage:nth-child(5) h3 { font-weight: 500; }
+.gt-stage p:last-child { font-size: 14px; font-weight: 300; line-height: 1.55; color: var(--gt-muted); }
+
+/* ---------- Tier 3: Coming soon ---------- */
+.gt-soon .gt-k { margin-bottom: 12px; }
+.gt-soon-l { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.gt-sc { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border-radius: 12px; background: var(--gt-soon-bg); border: 1px solid var(--gt-soon-line); cursor: default; }
+.gt-sc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.gt-sc-k { display: inline-flex; align-items: center; gap: 6px; font-family: var(--gt-mono); font-size: 10.5px; color: var(--gt-muted); }
+.gt-sc-k i { width: 6px; height: 6px; border-radius: 50%; }
+.gt-sc.is-tool .gt-sc-k i { background: var(--gt-tool); }
+.gt-sc.is-guide .gt-sc-k i { background: var(--gt-guide); }
+.gt-sc .gt-tag.is-m { height: 20px; padding: 0 8px; font-size: 10px; }
+.gt-sc-h { font-size: 15px; font-weight: 500; line-height: 1.3; color: var(--gt-ink); }
+.gt-sc-p { font-size: 13px; line-height: 1.45; color: var(--gt-muted); }
+
+/* ---------- 861 to 1099px: one column, desktop spacing ---------- */
+@media (max-width: 1099px) {
+  .gt-stages { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
+  .gt-rail { right: calc((100% - 64px) / 5 - 20px); }
+  .gt-stage h3 { font-size: 16px; }
+}
+
+/* ---------- Phones (up to 860px) ---------- */
+@media (max-width: 860px) {
+  .gt-sec + .gt-sec { margin-top: 32px; }
+  .gt-sh { margin-bottom: 14px; }
+  .gt-sh h2 { margin-top: 6px; font-size: 22px; }
+  .gt-more { font-size: 14px; }
+  .gt-g { gap: 10px; }
+  .gt-kind { min-width: 0; padding: 0 14px; }
+  /* The lead stacks: text, then the three figures in one row below a faint
+     champagne rule (as in the Suite's phone lead). */
+  .gt-lead { flex-direction: column; }
+  .gt-lead::before { width: 340px; height: 340px; left: -30%; top: -40%; }
+  .gt-lead-t { padding: 18px 18px 14px; gap: 6px; }
+  .gt-lead-h { margin-top: 4px; font-size: 24px; }
+  .gt-lead-p { font-size: 14px; }
+  .gt-lead-go { padding-top: 8px; }
+  .gt-btn { min-height: 44px; padding: 0 16px; font-size: 14px; }
+  .gt-figs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 18px 14px; border-left: 0; border-top: 1px solid color-mix(in srgb, var(--gt-on-feat-accent) 18%, transparent); }
+  .gt-fig { justify-content: flex-start; padding: 0 10px; gap: 2px; border-bottom: 0; border-left: 1px solid color-mix(in srgb, var(--gt-on-feat-accent) 12%, transparent); }
+  .gt-fig:first-child { padding-left: 0; border-left: 0; }
+  .gt-fig b { font-size: 17px; }
+  .gt-fig span { font-size: 10.5px; line-height: 1.35; }
+  .gt-figs.is-pts .gt-fig b { font-size: 13.5px; }
+  .gt-figs-k { grid-column: 1 / -1; padding-top: 10px; font-size: 9.5px; }
+  /* Live tiles: two a row, compact */
+  .gt-tile { min-height: 0; gap: 4px; padding: 16px 14px 14px; }
+  .gt-tile .gt-tag { height: 20px; padding: 0 8px; font-size: 10px; }
+  .gt-tile-h { margin-top: 6px; font-size: 16px; }
+  .gt-tile-p { font-size: 13px; -webkit-line-clamp: 3; }
+  .gt-tile-go { padding-top: 6px; flex-wrap: wrap; gap: 2px 8px; }
+  .gt-cta { font-size: 13px; }
+  .gt-time { font-size: 10px; }
+  .gt-g > [data-n="12"].gt-tile .gt-tile-p { -webkit-line-clamp: 2; }
+  /* Stages: a vertical progression, the line drawing downwards */
+  .gt-rail { top: 20px; bottom: 20px; left: 17px; right: auto; width: 2px; height: auto; }
+  .gt-rail i { background: linear-gradient(180deg, color-mix(in srgb, var(--gt-accent) 30%, transparent), var(--gt-accent)); transform-origin: top; }
+  .gt-rail i.t-grow { animation-name: t-grow-y; }
+  .gt-stages { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .gt-stage { display: grid; grid-template-columns: 36px minmax(0, 1fr); column-gap: 14px; row-gap: 2px; align-items: start; }
+  .gt-node { grid-row: 1 / span 2; width: 36px; height: 36px; margin: 0; }
+  .gt-node svg { width: 36px; height: 36px; }
+  .gt-stage-k { display: none; }
+  .gt-stage h3, .gt-stage h3 { font-size: 15.5px; padding-top: 2px; }
+  .gt-stage p:last-child { font-size: 13px; line-height: 1.45; }
+  /* Coming soon: chips two a row, wrapping; nothing scrolls sideways */
+  .gt-soon-l { gap: 8px; }
+  .gt-sc { flex: 1 1 calc(50% - 4px); padding: 12px; }
+  .gt-sc-h { font-size: 14px; }
+  .gt-sc-p { font-size: 12px; }
+}
+
+/* Reduced motion: nothing animates, and the end states show. */
+@media (prefers-reduced-motion: reduce) {
+  .gt .gt-up, .gt .t-up, .gt .t-up2, .gt .t-glow, .gt .t-s90, .gt .t-s32, .gt .t-grow, .gt .t-draw { animation: none !important; }
+  .gt .press, .gt .gt-lead { transition: none; }
+  .gt .press:active, .gt .lift:hover, .gt .gt-lead:hover { transform: none; }
+}
+
+/* =========================================================
+   2. Public skin (/guides.html): the --c-* tokens only
+   ========================================================= */
+[data-gt-mode="public"] {
+  --gt-mono: var(--tc-mono);
+  --gt-page: var(--c-page);
+  --gt-tile: var(--c-tile);
+  --gt-line: var(--c-line);
+  --gt-ink: var(--c-ink);
+  --gt-muted: var(--c-muted);
+  --gt-accent: var(--c-gold);
+  --gt-tool: var(--c-gold);
+  --gt-guide: var(--c-s2);
+  --gt-node-bg: var(--c-page);
+  --gt-soon-bg: color-mix(in srgb, var(--c-powder) 55%, transparent);
+  --gt-soon-line: var(--c-line-soft);
+  --gt-kind-on: var(--c-btn);
+  --gt-kind-on-ink: var(--c-btn-ink);
+  --gt-feat: var(--c-feat);
+  --gt-feat-line: var(--c-feat-line);
+  --gt-on-feat: var(--c-on-feat);
+  --gt-on-feat-accent: var(--c-on-feat-accent);
+  --gt-on-feat-muted: var(--c-on-feat-muted);
+  /* No shadows on the public site except hover lifts, and those lift only. */
+  --gt-feat-shadow: none;
+  --gt-tile-shadow: none;
+  --gt-hover-shadow: none;
+  --gt-btn-glow: 0 0 0 0 transparent;
+  --gt-sec-gap: 56px;
+  font-family: var(--tc-font);
+  color: var(--c-ink);
+  background: var(--c-page);
+}
+.gt-wrap { box-sizing: border-box; max-width: 1280px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+.gt-body { padding-top: 56px; padding-bottom: 80px; }
+:where([data-gt-mode="public"]) a { color: inherit; }
+
+/* The hero: navy, with the search and topics on it. */
+@keyframes t-up { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+@keyframes t-glow { 0%, 100% { opacity: .22; transform: scale(1); } 50% { opacity: .4; transform: scale(1.08); } }
+@keyframes t-spin { to { transform: rotate(360deg); } }
+.t-up { animation: t-up .9s cubic-bezier(.2, .8, .2, 1) both; }
+.t-up2 { animation: t-up .9s cubic-bezier(.2, .8, .2, 1) .15s both; }
+.t-glow { animation: t-glow 8s ease-in-out infinite; }
+.t-s90 { animation: t-spin 90s linear infinite; }
+.t-s32 { animation: t-spin 32s linear infinite; }
+.gt-hero { position: relative; overflow: hidden; background: var(--c-deep); color: var(--c-on-feat); }
+.gt-hero-glow { position: absolute; width: 620px; height: 620px; left: -200px; top: -220px; border-radius: 50%; background: var(--c-s2); filter: blur(150px); opacity: .22; }
+.gt-hero-ring { position: absolute; width: 900px; height: 900px; right: -420px; top: -360px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--c-on-feat-accent) 10%, transparent); }
+.gt-hero-in { position: relative; padding-top: 56px; padding-bottom: 72px; }
+.gt-hero .gt-k { font-size: 13px; color: var(--c-on-feat-accent); }
+.gt-hero-h { margin: 16px 0 0; max-width: 900px; font-size: clamp(44px, 6vw, 80px); line-height: 1; font-weight: 300; letter-spacing: -0.045em; }
+.gt-hero-h span { color: var(--c-on-feat-accent); }
+.gt-hero .gt-find { margin-top: 36px; }
+[data-gt-mode="public"] .gt-hero {
+  --gt-accent: var(--c-on-feat-accent);
+  --gt-search-icon: var(--c-on-feat-muted);
+  --gt-search-ink: var(--c-on-feat);
+  --gt-search-hint: color-mix(in srgb, var(--c-on-feat-muted) 75%, transparent);
+  --gt-search-bg: color-mix(in srgb, var(--c-on-feat) 6%, transparent);
+  --gt-search-line: color-mix(in srgb, var(--c-on-feat-accent) 25%, transparent);
+  --gt-topic-ink: var(--c-on-feat);
+  --gt-topic-bg: transparent;
+  --gt-topic-line: color-mix(in srgb, var(--c-on-feat-accent) 25%, transparent);
+  --gt-pressed: var(--c-on-feat-accent);
+  --gt-on-pressed: var(--c-deep);
+}
+.gt-hero .gt-search:focus { outline: 2px solid var(--c-on-feat-accent); outline-offset: 2px; }
+
+/* The monthly email and the membership card (public only). */
+.gt-news { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.gt-nl, .gt-join { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 14px; padding: 32px; border-radius: 18px; }
+.gt-nl { background: var(--c-powder); }
+.gt-nl .gt-k { color: var(--c-ink); opacity: .75; }
+.gt-nl h2, .gt-join h2 { font-size: 30px; font-weight: 300; letter-spacing: -0.02em; line-height: 1.15; }
+.gt-nl-short { display: none; }
+.gt-nl form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.gt-nl input { box-sizing: border-box; flex: 1 1 220px; min-height: 50px; padding: 0 18px; border-radius: 999px; font-family: inherit; font-size: 16px; color: var(--c-ink); background: var(--c-tile); border: 1px solid var(--c-s2); }
+.gt-nl button { min-height: 50px; padding: 0 22px; border: 0; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; color: var(--c-btn-ink); background: var(--c-btn); }
+.gt-nl-msg { font-size: 13px; color: var(--c-muted); }
+.gt-nl-msg.is-error { color: var(--c-warn); }
+.gt-join { background: var(--c-deep); color: var(--c-on-feat); }
+.gt-join > * { position: relative; }
+.gt-join-ring { position: absolute; width: 260px; height: 260px; right: -90px; bottom: -120px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--c-on-feat-accent) 22%, transparent); }
+.gt-join .gt-k { color: var(--c-on-feat-accent); }
+.gt-join p { font-size: 15px; line-height: 1.6; color: var(--c-on-feat-muted); }
+.gt-join a { align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; text-decoration: none; font-size: 15px; font-weight: 500; color: var(--c-deep); background: var(--c-on-feat-accent); }
+.gt-join a:focus-visible { outline-color: var(--c-on-feat-accent); }
+
+@media (max-width: 860px) {
+  .gt-wrap { padding-left: 16px; padding-right: 16px; }
+  .gt-body { padding-top: 32px; padding-bottom: 48px; }
+  .gt-hero-in { padding-top: 40px; padding-bottom: 40px; }
+  .gt-hero-h { font-size: 40px; }
+  .gt-hero .gt-find { margin-top: 24px; gap: 12px; }
+  .gt-search { min-height: 48px; }
+  .gt-topic { padding: 0 14px; font-size: 13.5px; }
+  .gt-news { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  /* The monthly email as a slim strip */
+  .gt-nl, .gt-join { padding: 20px; gap: 12px; }
+  .gt-nl .gt-k, .gt-nl-long { display: none; }
+  .gt-nl-short { display: inline; }
+  .gt-nl h2, .gt-join h2 { font-size: 20px; }
+  .gt-nl form { margin-top: 0; flex-wrap: nowrap; }
+  .gt-nl input { flex: 1 1 0; min-width: 0; min-height: 46px; padding: 0 16px; }
+  .gt-nl button { min-height: 46px; padding: 0 18px; }
+  .gt-nl-msg { font-size: 12px; }
+  .gt-join p { font-size: 14px; }
+}
