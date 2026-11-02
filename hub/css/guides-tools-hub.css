@@ -1,73 +1,86 @@
-/* Guides & Tools, Client Hub skin (/hub/guides.html).
-   The structure is /assets/guides-tools.css, shared with the public page;
-   this file only sets the --gt-* variables from the --w-* tokens and adds the
-   Hub's tile recipe (.w-tile: an inset edge and a resting shadow, with a
-   deeper shadow on hover). Members' pages only. */
+/* Guides & Tools, Client Hub finish (/hub/guides.html).
+   The page is the public Guides & Tools page (/assets/guides-tools.css): the
+   same hero, cards, stages and Coming soon row. This file sets the --gt-*
+   variables from the --w-* tokens and adds the members' finish:
+     - the hero as a brand navy band with a champagne edge and glow
+     - a Members band (champagne) for the tools only members get, led by the
+       Portfolio Optimisation Lab with a navy picture panel
+     - cards with the Hub's depth: an inset highlight and a soft shadow,
+       a deeper shadow on hover
+   Members' pages only. */
 
 [data-gt-mode="hub"] {
   --gt-mono: 'Geist Mono', ui-monospace, Menlo, monospace;
   --gt-page: var(--w-bg);
   --gt-tile: var(--w-tile);
   --gt-line: var(--w-line);
+  --gt-card-line: transparent;
   --gt-ink: var(--w-text);
   --gt-muted: var(--w-muted);
   --gt-accent: var(--w-gold);
-  --gt-tool: var(--w-gold);
-  --gt-guide: var(--w-acc-isa);
-  --gt-node-bg: var(--w-bg);
-  --gt-soon-bg: var(--w-chip);
-  --gt-soon-line: var(--w-line);
-  --gt-kind-on: var(--w-nav-active);
-  --gt-kind-on-ink: var(--w-nav-active-text);
-  --gt-feat: var(--w-feat);
-  --gt-feat-line: var(--w-feat-line);
+  --gt-btn: var(--w-nav-active);
+  --gt-btn-ink: var(--w-nav-active-text);
+  --gt-panel-tool: var(--w-powder);
+  --gt-panel-guide: var(--w-champ);
+  --gt-ring-tool: var(--w-third);
+  --gt-ring-guide: var(--w-champ-line);
+  --gt-ill-main: var(--w-gold);
+  --gt-ill-pale: var(--w-third);
+  --gt-ill-acc: var(--w-gold-fill);
+  --gt-ill-tile: var(--w-tile);
+  --gt-tag-tool-bg: var(--w-nav-active);
+  --gt-tag-tool-ink: var(--w-nav-active-text);
+  --gt-tag-guide-bg: var(--w-tile);
+  --gt-tag-guide-ink: var(--w-text);
+  --gt-m-tag-bg: var(--w-on-feat-accent);
+  --gt-m-tag-ink: var(--w-feat);
+  --gt-hero-bg: var(--w-feat);
+  --gt-hero-glow: var(--w-on-feat-muted);
   --gt-on-feat: var(--w-on-feat-text);
   --gt-on-feat-accent: var(--w-on-feat-accent);
   --gt-on-feat-muted: var(--w-on-feat-muted);
-  --gt-feat-shadow: var(--w-feat-shadow);
-  --gt-tile-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-1);
+  --gt-card-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-1);
+  --gt-chip-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-1);
   --gt-hover-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-2);
-  --gt-btn-glow: 0 6px 22px color-mix(in srgb, var(--w-on-feat-accent) 28%, transparent);
-  --gt-search-icon: var(--w-muted);
-  --gt-search-ink: var(--w-text);
-  --gt-search-hint: var(--w-muted);
-  --gt-search-bg: var(--w-tile);
-  --gt-search-line: var(--w-line);
-  --gt-topic-ink: var(--w-muted);
-  --gt-topic-bg: var(--w-tile);
-  --gt-topic-line: var(--w-line);
-  --gt-pressed: var(--w-nav-active);
-  --gt-on-pressed: var(--w-nav-active-text);
-  --gt-sec-gap: 40px;
+  --gt-sec-gap: 44px;
 }
+:root[data-theme="dark"] [data-gt-mode="hub"] { --gt-card-line: var(--w-line); }
 
-/* Search and topics under the quiet Hub header */
-[data-gt-mode="hub"] .gt-find { margin-bottom: 28px; }
-[data-gt-mode="hub"] .gt-search-wrap { max-width: 520px; }
-[data-gt-mode="hub"] .gt-search { min-height: 46px; font-size: 15px; }
-[data-gt-mode="hub"] .gt-search:focus { outline: none; border-color: var(--w-gold); }
-[data-gt-mode="hub"] .gt-topic { min-height: 38px; padding: 0 14px; font-size: 13px; }
-@media (hover: hover) { [data-gt-mode="hub"] .gt-topic:hover { color: var(--w-text); } }
-[data-gt-mode="hub"] .gt-topic[aria-pressed="true"] { color: var(--w-nav-active-text); }
-[data-gt-mode="hub"] .gt-kind { min-height: 36px; font-size: 13px; }
+/* The hero: brand navy, a champagne edge and glow, inside the Hub shell */
+[data-gt-mode="hub"] .gt-hero { border-radius: 18px; border: 1px solid var(--w-feat-line); box-shadow: var(--w-feat-shadow); }
+[data-gt-mode="hub"] .gt-hero::after { content: ''; position: absolute; width: 640px; height: 640px; right: -12%; top: -120%; border-radius: 50%; background: var(--w-glow); pointer-events: none; }
+[data-gt-mode="hub"] .gt-hero-in { z-index: 1; padding: 36px 32px; }
+[data-gt-mode="hub"] .gt-out { position: absolute; top: 10px; right: 14px; z-index: 2; color: var(--w-on-feat-muted); }
+[data-gt-mode="hub"] .gt-out:hover { color: var(--w-on-feat-text); }
+[data-gt-mode="hub"] .gt-out:focus-visible { outline-color: var(--w-on-feat-accent); }
 
-/* Tiles: the .w-tile recipe, with the Hub's border kept faint */
-[data-gt-mode="hub"] .gt-tile { border-color: transparent; }
-:root[data-theme="dark"] [data-gt-mode="hub"] .gt-tile { border-color: var(--w-line); }
-[data-gt-mode="hub"] .gt-kinds { box-shadow: inset 0 1px 0 var(--w-edge); }
-/* The members' featured tile, like the Suite's .su-cc.feat: the glow sits
-   top right */
-[data-gt-mode="hub"] #gt-members .gt-lead::before { left: auto; right: -12%; top: -110%; }
-[data-gt-mode="hub"] .gt-sh h2 { font-size: 26px; }
+/* The Members band */
+[data-gt-mode="hub"] .gt-hero + .gt-sec { margin-top: 20px; }
+[data-gt-mode="hub"] .gt-band { position: relative; overflow: hidden; padding: 24px; border-radius: 18px; background: var(--w-champ); border: 1px solid var(--w-champ-line); box-shadow: inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
+[data-gt-mode="hub"] .gt-band::before { content: ''; position: absolute; width: 560px; height: 560px; right: -10%; top: -90%; border-radius: 50%; background: var(--w-glow); opacity: .7; pointer-events: none; }
+[data-gt-mode="hub"] .gt-band > * { position: relative; }
+[data-gt-mode="hub"] .gt-band .gt-sh { margin-bottom: 16px; }
+[data-gt-mode="hub"] .gt-band .gt-sh h2 { font-size: 24px; }
+/* Members' tools: a navy picture panel with champagne lines */
+[data-gt-mode="hub"] .gt-card.is-members { border-color: var(--w-champ-line); }
+[data-gt-mode="hub"] .gt-card.is-members .gt-art {
+  background: var(--w-feat);
+  --gt-ring: color-mix(in srgb, var(--w-on-feat-accent) 30%, transparent);
+  --gt-ill-main: var(--w-on-feat-accent);
+  --gt-ill-pale: color-mix(in srgb, var(--w-on-feat-muted) 45%, transparent);
+  --gt-ill-acc: var(--w-on-feat-accent);
+  --gt-ill-tile: color-mix(in srgb, var(--w-on-feat-text) 12%, transparent);
+}
+[data-gt-mode="hub"] .gt-card.is-members .gt-art::after { content: ''; position: absolute; width: 420px; height: 420px; left: -30%; top: -70%; border-radius: 50%; background: var(--w-glow); pointer-events: none; }
+[data-gt-mode="hub"] .gt-card.is-members:not(.is-feat) .gt-tag.is-tool { color: var(--w-on-feat-accent); background: color-mix(in srgb, var(--w-on-feat-accent) 16%, transparent); }
+[data-gt-mode="hub"] .gt-card.is-soon.is-members .gt-art { opacity: .7; }
 
 @media (max-width: 860px) {
-  [data-gt-mode="hub"] .gt-find { margin-bottom: 20px; gap: 10px; }
-  [data-gt-mode="hub"] .gt-search-wrap { max-width: none; }
-  [data-gt-mode="hub"] .gt-sh h2 { font-size: 19px; }
-  /* A quiet header that leads straight into the cards */
-  [data-gt-mode="hub"] .hb-head { margin-bottom: 16px; }
-  [data-gt-mode="hub"] .hb-title { font-size: 24px; }
-  [data-gt-mode="hub"] .hb-intro { font-size: 14px; }
+  [data-gt-mode="hub"] .gt-hero + .gt-sec { margin-top: 14px; }
+  [data-gt-mode="hub"] .gt-hero-in { padding: 26px 18px 22px; }
+  [data-gt-mode="hub"] .gt-out { top: 4px; right: 6px; }
+  [data-gt-mode="hub"] .gt-band { margin-left: -6px; margin-right: -6px; padding: 16px 12px 12px; }
+  [data-gt-mode="hub"] .gt-band .gt-sh h2 { font-size: 19px; }
 }
 
 /* Phones: the shared website and Client Hub bar (assets/mobile-nav.js),
