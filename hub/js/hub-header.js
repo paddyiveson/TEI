@@ -7,6 +7,7 @@
  * to mark: home, learn, videos, guides, articles, suite, knowledge or website.
  *
  * Desktop: sticky glass bar with the brand, the pill nav and Open Wealth OS.
+ * Desktop also has Sign out and the moon / sun theme button in the bar.
  * 960px and below: the pill nav hides; a theme button and a menu button open
  * a glass bottom sheet with the same items, Open Wealth OS and Sign out.
  *
@@ -56,6 +57,10 @@
     '.hh-icon{display:none;width:44px;height:44px;flex:none;border-radius:50%;align-items:center;justify-content:center;cursor:pointer;color:var(--w-text);background:transparent;border:0;padding:0}' +
     '.hh-icon svg,.hh-theme svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}' +
     '.hh-menu{border:1px solid var(--w-line);background:var(--w-tile)}' +
+    '.hh-theme{display:inline-flex;width:44px;height:44px;flex:none;margin-left:6px;padding:0;border-radius:50%;align-items:center;justify-content:center;cursor:pointer;color:var(--w-text);background:var(--w-tile);border:1px solid var(--w-line);transition:border-color .2s ease}' +
+    '.hh-theme:hover{border-color:var(--w-gold)}' +
+    '.hh-navout{display:inline-flex;align-items:center;min-height:40px;padding:0 13px;border:0;border-radius:999px;background:none;font-family:inherit;font-size:13px;color:var(--w-muted);cursor:pointer}' +
+    '.hh-navout:hover{color:var(--w-text);background:var(--w-chip)}' +
     '.hh-bar a:focus-visible,.hh-bar button:focus-visible,.hh-sheet a:focus-visible,.hh-sheet button:focus-visible,[data-hub-theme]:focus-visible{outline:2px solid var(--w-gold);outline-offset:2px}' +
     '.hh-sheet-wrap{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;justify-content:flex-end}' +
     '.hh-sheet-wrap[hidden]{display:none}' +
@@ -72,6 +77,8 @@
     '.hh-sheet-acts .hh-wos{flex:1;min-height:48px;margin:0;font-size:14px}' +
     '.hh-out{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:999px;border:1px solid var(--w-line);background:transparent;color:var(--w-muted);font-family:inherit;font-size:14px;cursor:pointer}' +
     '@keyframes hh-sheet{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}' +
+    '@media (max-width:1299px) and (min-width:961px){.hh-bar{gap:8px}.hh-right{gap:2px}.hh-nav a{padding:0 9px}.hh-navout{padding:0 9px}.hh-wos{margin-left:4px;padding:0 14px}.hh-theme{margin-left:4px}}' +
+    '@media (max-width:1099px) and (min-width:961px){.hh-bar{padding:0 24px}.hh-nav a,.hh-navout{padding:0 7px;font-size:12.5px}.hh-wos{padding:0 12px}}' +
     '@media (max-width:960px){.hh-bar{min-height:56px;padding:0 12px 0 16px;gap:8px;flex-wrap:nowrap}.hh-brand{margin-right:auto;gap:8px}.hh-mark{width:22px;height:22px}.hh-right{display:none}.hh-icon{display:inline-flex}}' +
     '@media (prefers-reduced-motion:reduce){.hh-sheet,.hh-wos{animation:none;transition:none}}';
 
@@ -105,7 +112,9 @@
       '<a class="hh-brand" href="/hub/index.html">' + MARK + 'Client Hub</a>' +
       '<div class="hh-right">' +
         '<nav class="hh-nav" aria-label="Client Hub">' + navLinks(false) + '</nav>' +
+        '<button type="button" class="hh-navout" data-hub-signout>Sign out</button>' +
         '<a class="hh-wos" data-hub-wos href="' + WOS + '">Open Wealth OS</a>' +
+        '<button type="button" class="hh-theme" data-hub-theme></button>' +
       '</div>' +
       '<button type="button" class="hh-icon" data-hub-theme></button>' +
       '<button type="button" class="hh-icon hh-menu" id="hhMenuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="hhSheet">' + ICON_MENU + '</button>' +

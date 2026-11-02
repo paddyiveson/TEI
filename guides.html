@@ -4,72 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Guides &amp; Tools -- The Everyday Investor</title>
+<script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
-<style>
-/* Guides & Tools (redesign phase G4, spec C4). Static sections carry the
-   board's sizes and colours inline. The classes below are the search, the
-   topic and kind filters, and the cards they show and hide. Shared header
-   and footer: /style.css. */
-body{margin:0;background:#F7F4ED}
-.tei-page{font-family:'Geist',system-ui,sans-serif;color:#13213A;background:#F7F4ED}
-:where(.tei-page) a{color:inherit}
-.tei-page a:hover{opacity:.85}
-.tei-page a:focus-visible,.tei-page button:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:10px}
-.tei-page [hidden]{display:none !important}
-@keyframes t-up{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-@keyframes t-glow{0%,100%{opacity:.22;transform:scale(1)}50%{opacity:.4;transform:scale(1.08)}}
-@keyframes t-spin{to{transform:rotate(360deg)}}
-@keyframes t-draw2{0%{stroke-dashoffset:420}60%,100%{stroke-dashoffset:0}}
-@keyframes t-fillL{0%{transform:scaleX(0)}40%,100%{transform:scaleX(1)}}
-@keyframes t-riseL{0%{transform:scaleY(0)}45%,100%{transform:scaleY(1)}}
-@keyframes t-blink{0%,100%{opacity:.35}50%{opacity:1}}
-@keyframes t-grow{0%{transform:scaleX(0)}70%,100%{transform:scaleX(1)}}
-.t-up{animation:t-up .9s cubic-bezier(.2,.8,.2,1) both}
-.t-up2{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .15s both}
-.t-glow{animation:t-glow 8s ease-in-out infinite}
-.t-s90{animation:t-spin 90s linear infinite}
-.t-s32{animation:t-spin 32s linear infinite}
-.t-draw2{stroke-dasharray:420;animation:t-draw2 4.5s cubic-bezier(.5,.1,.2,1) infinite}
-.t-fillL{transform-box:fill-box;transform-origin:left;animation:t-fillL 4.5s cubic-bezier(.3,.8,.3,1) infinite}
-.t-riseL{transform-box:fill-box;transform-origin:bottom;animation:t-riseL 4.5s cubic-bezier(.3,.8,.3,1) infinite}
-.t-blink{animation:t-blink 2.4s ease-in-out infinite}
-.t-grow{transform-origin:left;animation:t-grow 4s cubic-bezier(.3,.8,.3,1) .4s infinite}
-.t-card{transition:transform .25s ease, box-shadow .25s ease}
-.t-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(0,0,0,.10)}
-.t-search{font-family:inherit;font-size:16px;width:100%;box-sizing:border-box;min-height:56px;padding:0 20px 0 50px;border-radius:999px;border:1px solid rgba(232,214,168,0.25);background:rgba(255,255,255,0.06);color:#F7F4ED}
-.t-search::placeholder{color:#8796AD}
-.t-search:focus{outline:2px solid #E8D6A8;outline-offset:2px}
-.gt-topics{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
-.gt-topic{font-family:inherit;cursor:pointer;min-height:44px;padding:0 16px;border-radius:999px;font-size:14px;border:1px solid rgba(232,214,168,0.25);background:transparent;color:#F7F4ED}
-.gt-topic[aria-pressed="true"]{border-color:#E8D6A8;background:#E8D6A8;color:#0F1E36}
-.gt-kinds{display:inline-flex;padding:4px;border-radius:999px;border:1px solid #DEDAD0;background:#FFFFFF}
-.gt-kind{font-family:inherit;cursor:pointer;border:0;min-height:44px;min-width:72px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:500;background:transparent;color:#4E5B70}
-.gt-kind[aria-pressed="true"]{background:#0F1E36;color:#E8D6A8}
-.gt-card--soon{cursor:default}
-#gt-newsletter-msg.is-error{color:#9A4A1F}
-.gt-nl-short{display:none}
-@media (max-width: 760px){
-.t-pad{padding-left:16px !important;padding-right:16px !important}
-.t-sec{padding-top:56px !important;padding-bottom:56px !important}
-/* Phone: the monthly email as a slim strip */
-.gt-nl-card{padding:20px !important;gap:12px !important;border-radius:20px !important}
-.gt-nl-eyebrow,.gt-nl-long{display:none}
-.gt-nl-short{display:inline}
-.gt-nl-card h2{font-size:20px !important}
-.gt-nl-card form{margin-top:0 !important}
-.gt-nl-card input{flex:1 1 0 !important;min-width:0;min-height:46px !important;padding:0 16px !important}
-.gt-nl-card button{min-height:46px !important;padding:0 18px !important}
-#gt-newsletter-msg{font-size:12px !important}
-}
-@media (prefers-reduced-motion: reduce){.t-up,.t-up2,.t-glow,.t-s90,.t-s32,.t-draw2,.t-fillL,.t-riseL,.t-blink,.t-grow{animation:none}.t-draw2{stroke-dasharray:none}.t-card{transition:none}}
-</style>
+<link rel="stylesheet" href="/assets/content.css">
+<link rel="stylesheet" href="/assets/guides-tools.css">
 </head>
-<body>
+<body class="tc-page">
 <!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
 <div class="tei-hdr" role="banner">
   <div class="tei-hdr-in">
@@ -88,144 +33,77 @@ body{margin:0;background:#F7F4ED}
   </div>
 </div>
 
-<main class="tei-page">
+<main class="tei-page gt" data-gt-mode="public">
 
-<section style="background: #0B1729; color: #F7F4ED; position: relative; overflow: hidden">
-<div class="t-glow" style="position: absolute; width: 620px; height: 620px; left: -200px; top: -220px; border-radius: 50%; background: #B9CAE6; filter: blur(150px)" aria-hidden="true"></div>
-<div class="t-s90" style="position: absolute; width: 900px; height: 900px; right: -420px; top: -360px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.10)" aria-hidden="true"></div>
-<div class="t-pad" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 56px 32px 88px">
-<p class="t-up" style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8D6A8">Guides &amp; Tools &middot; free</p>
-<h1 class="t-up2" style="margin: 16px 0 0; max-width: 900px; font-size: clamp(44px, 6vw, 80px); line-height: 1; font-weight: 300; letter-spacing: -0.045em">Learn by working it out <span style="color: #E8D6A8">yourself.</span></h1>
-<div style="margin-top: 36px; max-width: 720px; position: relative">
-<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#AAB6C8" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="position: absolute; left: 20px; top: 19px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
-<label for="gt-search" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Search guides and tools</label>
-<input id="gt-search" class="t-search" type="search" placeholder="Search, e.g. ISA, pension, property" autocomplete="off">
-</div>
-<div class="gt-topics" role="group" aria-label="Topics"><button type="button" class="gt-topic" aria-pressed="true">All topics</button><button type="button" class="gt-topic" aria-pressed="false">Budgeting</button><button type="button" class="gt-topic" aria-pressed="false">Safety net</button><button type="button" class="gt-topic" aria-pressed="false">ISAs</button><button type="button" class="gt-topic" aria-pressed="false">Pensions</button><button type="button" class="gt-topic" aria-pressed="false">Property</button><button type="button" class="gt-topic" aria-pressed="false">Investing</button></div>
-</div>
-</section>
-
-<!-- START HERE: five stages (light) -->
-<section style="background: #F7F4ED">
-<div class="t-pad t-sec" style="max-width: 1280px; margin: 0 auto; padding: 72px 32px 40px">
-<div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-end; justify-content: space-between"><div><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">Start here</p><h2 style="margin: 12px 0 0; font-size: clamp(30px, 3.8vw, 46px); line-height: 1.05; font-weight: 300; letter-spacing: -0.035em">Five stages to the seasoned investor.</h2></div><a href="/guides/stages.html" style="display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; font-weight: 500; color: #83661C">Read the full guide</a></div>
-<div style="position: relative; margin-top: 40px">
-<div style="height: 2px; background: #DEDAD0"></div><div class="t-grow" style="position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #83661C"></div>
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 24px; margin-top: -7px">
-<div><span style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 18px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Stage 1</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400">The Foundations</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Never invested. Starting from scratch.</p></div>
-<div><span style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 18px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Stage 2</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400">Building the Base</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">First investment made. Now structuring the portfolio properly.</p></div>
-<div><span style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 18px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Stage 3</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400">Growing with Confidence</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Invested and structured. Now developing market understanding and conviction.</p></div>
-<div><span style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 18px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Stage 4</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400">Investment Philosophy</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Developing a personal approach. Going beyond passive.</p></div>
-<div><span style="display: block; width: 12px; height: 12px; border-radius: 50%; background: #F7F4ED; border: 2px solid #83661C; box-sizing: border-box"></span><p style="margin: 18px 0 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Stage 5</p><h3 style="margin: 8px 0 6px; font-size: 20px; font-weight: 400">The Seasoned Investor</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Advanced portfolio construction, life planning, and long-term wealth management.</p></div>
-</div>
+<!-- Hero: compact and navy, with the search and the topics on it -->
+<section class="gt-hero">
+<div class="gt-hero-glow t-glow" aria-hidden="true"></div>
+<div class="gt-hero-ring t-s90" aria-hidden="true"></div>
+<div class="gt-wrap gt-hero-in">
+<h1 class="gt-hero-h t-up">Understand it first. <span>Then run the numbers.</span></h1>
+<div class="gt-find t-up2">
+<label class="gt-search-wrap"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span class="gt-sr">Search guides and tools</span><input id="gt-search" class="gt-search" type="search" placeholder="Search, e.g. ISA, pension, property" autocomplete="off"></label>
+<div class="gt-topics" id="gt-topics" role="group" aria-label="Topics"><!-- gt:topics --><button type="button" class="gt-topic press" aria-pressed="true">All topics</button><button type="button" class="gt-topic press" aria-pressed="false">Budgeting</button><button type="button" class="gt-topic press" aria-pressed="false">Safety net</button><button type="button" class="gt-topic press" aria-pressed="false">ISAs</button><button type="button" class="gt-topic press" aria-pressed="false">Pensions</button><button type="button" class="gt-topic press" aria-pressed="false">Property</button><button type="button" class="gt-topic press" aria-pressed="false">Investing</button><!-- /gt:topics --></div>
 </div>
 </div>
 </section>
 
-<!-- LIBRARY (light, filterable) -->
-<section style="background: #F7F4ED">
-<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 40px 32px 80px">
-<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between">
-<h2 id="gt-count" aria-live="polite" style="margin: 0; font-size: 28px; font-weight: 300; letter-spacing: -0.02em">8 guides and tools</h2>
-<div class="gt-kinds" role="group" aria-label="Show"><button type="button" class="gt-kind" aria-pressed="true">All</button><button type="button" class="gt-kind" aria-pressed="false">Guides</button><button type="button" class="gt-kind" aria-pressed="false">Tools</button></div>
-</div>
-<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 24px">
-<a href="/guides/cost-of-waiting.html" class="t-card gt-card" data-kind="Tools" data-topics="Investing|Pensions" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #0F1E36; color: #E8D6A8">Tool</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><line x1="10" y1="96" x2="290" y2="96" stroke="#B9CAE6"></line><path class="t-draw2" d="M10 94 C 100 86, 180 58, 280 12" fill="none" stroke="#0F1E36" stroke-width="2.6" stroke-linecap="round"></path><path class="t-draw2" d="M90 95 C 170 90, 220 74, 280 50" fill="none" stroke="#0F1E36" stroke-opacity=".45" stroke-width="2.2" stroke-dasharray="5 5" stroke-linecap="round" style="animation-delay: .5s"></path><circle class="t-blink" cx="280" cy="12" r="4.5" fill="#83661C"></circle></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">Cost of Waiting Calculator</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">See what delaying by one year, or five, costs you by retirement.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Open calculator</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">2 min</span></div></div>
-</a>
-<a href="/guides/tax.html" class="t-card gt-card" data-kind="Guides" data-topics="ISAs|Pensions" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #F0E7D0; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #E2D2AA" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #E2D2AA" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #FFFFFF; color: #0F1E36">Guide</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><text x="10" y="24" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">1 &middot; ISA</text><rect x="80" y="14" width="200" height="13" rx="6.5" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="14" width="200" height="13" rx="6.5" fill="#0F1E36"></rect><text x="10" y="54" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">2 &middot; Pension</text><rect x="80" y="44" width="200" height="13" rx="6.5" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="44" width="150" height="13" rx="6.5" fill="#0F1E36" style="animation-delay: .5s"></rect><text x="10" y="84" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">3 &middot; LISA</text><rect x="80" y="74" width="200" height="13" rx="6.5" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="74" width="90" height="13" rx="6.5" fill="#83661C" style="animation-delay: 1s"></rect></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">The Tax Wrapper Guide</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Every ISA, pension and account type, and the order people tend to use them in.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Read the guide</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">8 min read</span></div></div>
-</a>
-<div class="gt-card gt-card--soon" data-kind="Tools" data-topics="Property" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #0F1E36; color: #E8D6A8">Tool</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><line x1="10" y1="96" x2="290" y2="96" stroke="#B9CAE6"></line><path class="t-draw2" d="M30 96 V50 L82 14 L134 50 V96 Z M68 96 V70 H96 V96" fill="none" stroke="#0F1E36" stroke-width="2.4" stroke-linejoin="round"></path><rect class="t-riseL" x="176" y="70" width="20" height="26" rx="4" fill="#FFFFFF"></rect><rect class="t-riseL" x="206" y="54" width="20" height="42" rx="4" fill="#FFFFFF" style="animation-delay: .15s"></rect><rect class="t-riseL" x="236" y="38" width="20" height="58" rx="4" fill="#0F1E36" style="animation-delay: .3s"></rect><rect class="t-riseL" x="266" y="20" width="20" height="76" rx="4" fill="#83661C" style="animation-delay: .45s"></rect></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">Property Calculator</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Mortgage, equity, stamp duty and a stress test on any purchase.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Coming soon</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Coming soon</span></div></div>
-</div>
-<div class="gt-card gt-card--soon" data-kind="Guides" data-topics="Investing|Budgeting" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #F0E7D0; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #E2D2AA" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #E2D2AA" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #FFFFFF; color: #0F1E36">Guide</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><rect class="t-riseL" x="22" y="78" width="38" height="18" rx="6" fill="#FFFFFF" style="animation-delay: 0.00s"></rect><rect class="t-riseL" x="76" y="62" width="38" height="34" rx="6" fill="#FFFFFF" style="animation-delay: 0.12s"></rect><rect class="t-riseL" x="130" y="46" width="38" height="50" rx="6" fill="#0F1E36" style="animation-delay: 0.24s"></rect><rect class="t-riseL" x="184" y="30" width="38" height="66" rx="6" fill="#0F1E36" style="animation-delay: 0.36s"></rect><rect class="t-riseL" x="238" y="14" width="38" height="82" rx="6" fill="#83661C" style="animation-delay: 0.48s"></rect></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">Five Stages to the Seasoned Investor</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Where you are now, and what each next stage asks of you.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Coming soon</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Coming soon</span></div></div>
-</div>
-<a href="/guides/principles.html" class="t-card gt-card" data-kind="Guides" data-topics="Investing" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #FFFFFF; color: #0F1E36">Guide</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><circle cx="150" cy="54" r="34" fill="none" stroke="#B9CAE6" stroke-width="1.5"></circle><circle class="t-blink" cx="150" cy="54" r="8" fill="#83661C"></circle><circle cx="150" cy="20" r="5" fill="#0F1E36"></circle><circle cx="184" cy="54" r="5" fill="#0F1E36"></circle><circle cx="150" cy="88" r="5" fill="#0F1E36"></circle><circle cx="116" cy="54" r="5" fill="#0F1E36"></circle></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">TEI Principles</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">The ideas behind every plan we build, from time in the market to the bear case.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Read the guide</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">8 min read</span></div></div>
-</a>
-<div class="gt-card gt-card--soon" data-kind="Tools" data-topics="Pensions|Budgeting" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #0F1E36; color: #E8D6A8">Tool</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><text x="10" y="24" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">1 &middot; ISA</text><rect x="80" y="14" width="200" height="13" rx="6.5" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="14" width="200" height="13" rx="6.5" fill="#0F1E36"></rect><text x="10" y="54" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">2 &middot; Pension</text><rect x="80" y="44" width="200" height="13" rx="6.5" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="44" width="150" height="13" rx="6.5" fill="#0F1E36" style="animation-delay: .5s"></rect><text x="10" y="84" font-family="Geist Mono, monospace" font-size="11" fill="#0F1E36" fill-opacity=".7">3 &middot; LISA</text><rect x="80" y="74" width="200" height="13" rx="6.5" fill="#FFFFFF"></rect><rect class="t-fillL" x="80" y="74" width="90" height="13" rx="6.5" fill="#83661C" style="animation-delay: 1s"></rect></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">Tax Scenario Tool</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Put in a few real numbers, see which wrapper decisions are actually worth something for your situation right now.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Coming soon</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Coming soon</span></div></div>
-</div>
-<a href="/articles/pension-vs-lisa.html" class="t-card gt-card" data-kind="Tools" data-topics="Pensions|ISAs" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #DFE6F2; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #B9CAE6" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #B9CAE6" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #0F1E36; color: #E8D6A8">Tool</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><line x1="10" y1="96" x2="290" y2="96" stroke="#B9CAE6"></line><path class="t-draw2" d="M10 94 C 100 86, 180 58, 280 12" fill="none" stroke="#0F1E36" stroke-width="2.6" stroke-linecap="round"></path><path class="t-draw2" d="M90 95 C 170 90, 220 74, 280 50" fill="none" stroke="#0F1E36" stroke-opacity=".45" stroke-width="2.2" stroke-dasharray="5 5" stroke-linecap="round" style="animation-delay: .5s"></path><circle class="t-blink" cx="280" cy="12" r="4.5" fill="#83661C"></circle></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">Pension vs LISA</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Compare the bonus, tax relief and access rules side by side, on your own numbers.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Read the article</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">6 min read</span></div></div>
-</a>
-<div class="gt-card gt-card--soon" data-kind="Guides" data-topics="Safety net|Budgeting" style="display: flex; flex-direction: column; text-decoration: none; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; overflow: hidden">
-<div style="position: relative; height: 150px; background: #F0E7D0; overflow: hidden">
-<div style="position: absolute; width: 200px; height: 200px; right: -64px; top: -84px; border-radius: 50%; border: 1px solid #E2D2AA" aria-hidden="true"></div>
-<div class="t-s32" style="position: absolute; width: 140px; height: 140px; right: -32px; top: -52px; border-radius: 50%; border: 1px dashed #E2D2AA" aria-hidden="true"></div>
-<span style="position: absolute; left: 22px; top: 18px; font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #FFFFFF; color: #0F1E36">Guide</span>
-<svg viewBox="0 0 300 100" aria-hidden="true" style="position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px"><circle cx="150" cy="54" r="34" fill="none" stroke="#B9CAE6" stroke-width="1.5"></circle><circle class="t-blink" cx="150" cy="54" r="8" fill="#83661C"></circle><circle cx="150" cy="20" r="5" fill="#0F1E36"></circle><circle cx="184" cy="54" r="5" fill="#0F1E36"></circle><circle cx="150" cy="88" r="5" fill="#0F1E36"></circle><circle cx="116" cy="54" r="5" fill="#0F1E36"></circle></svg>
-</div>
-<div style="padding: 22px 24px 26px; display: flex; flex-direction: column; gap: 8px; flex: 1"><h3 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -0.02em">Building your safety net in two stages</h3><p style="margin: 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">A working buffer first, then six months of spending while new money goes to wealth.</p><div style="margin-top: auto; padding-top: 12px; display: flex; justify-content: space-between; align-items: center"><span style="font-size: 14px; font-weight: 500; color: #83661C">Coming soon</span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: #4E5B70">Coming soon</span></div></div>
-</div>
-</div>
-<div id="gt-empty" hidden style="margin-top: 24px; padding: 40px; border-radius: 22px; border: 1.5px dashed #DEDAD0; text-align: center; font-size: 16px; color: #4E5B70">Nothing matches that yet. Try another word, or <a href="/articles.html" style="color: #83661C">search the articles</a>.</div>
+<div class="gt-wrap gt-body-wrap">
+
+<!-- The library: the featured card, then the live cards. Cards between the
+     gt markers are written by scripts/build-guides-tools.js from
+     /assets/guides-tools.json; edit the JSON, not the cards. -->
+<section class="gt-sec gt-lib-sec" id="gt-lib-sec" aria-labelledby="gt-count">
+<header class="gt-sh">
+<h2 id="gt-count" aria-live="polite"><!-- gt:count -->8 guides and tools<!-- /gt:count --></h2>
+<div class="gt-kinds" id="gt-kinds" role="group" aria-label="Show"><button type="button" class="gt-kind" data-v="All" aria-pressed="true">All</button><button type="button" class="gt-kind" data-v="Guides" aria-pressed="false">Guides</button><button type="button" class="gt-kind" data-v="Tools" aria-pressed="false">Tools</button></div>
+</header>
+<div class="gt-g" id="gt-lib"><!-- gt:library --><a class="gt-card is-feat is-tool gt-up press lift" href="/guides/cost-of-waiting.html" data-id="cost-of-waiting" data-kind="Tools" data-topics="Investing|Pensions" data-w="8" data-n="12" data-d="0"><span class="gt-art is-tool" aria-hidden="true"><span class="gt-ring r1"></span><span class="gt-ring r2 t-s32"></span><svg class="gt-svg" viewBox="0 0 400 150" preserveAspectRatio="xMidYMax meet" focusable="false"><line class="s-pale" x1="10" y1="146" x2="390" y2="146"/><path class="f-pale t-fade" d="M10 144 C 140 132, 250 92, 378 18 L 378 70 C 290 108, 200 132, 120 145 Z"/><path class="s-main w3 t-draw2" d="M10 144 C 140 132, 250 92, 378 18"/><path class="s-main w2 dash o5 t-draw2 d2" d="M120 145 C 200 132, 290 108, 378 70"/><circle class="f-acc t-blink" cx="378" cy="18" r="6"/><circle class="f-main o5" cx="378" cy="70" r="4.5"/></svg></span><span class="gt-body"><span class="gt-tags"><span class="gt-tag is-tool">Tool</span></span><h3 class="gt-h">Cost of Waiting Calculator</h3><span class="gt-p">See what delaying by one year, or five, costs you by retirement.</span><span class="gt-foot"><span class="gt-btn">Open calculator<svg class="gt-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></span><span class="gt-time">2 min</span></span></span></a><a class="gt-card is-guide gt-up lift press" href="/guides/tax.html" data-id="tax" data-kind="Guides" data-topics="ISAs|Pensions" data-w="4" data-n="6" data-d="1"><span class="gt-art is-guide" aria-hidden="true"><span class="gt-ring r1"></span><span class="gt-ring r2 t-s32"></span><span class="gt-bars"><span class="gt-bar"><b>1 &middot; ISA</b><i><s class="b1 t-fillL"></s></i></span><span class="gt-bar"><b>2 &middot; Pension</b><i><s class="b2 t-fillL d2"></s></i></span><span class="gt-bar"><b>3 &middot; LISA</b><i><s class="b3 t-fillL d4"></s></i></span></span></span><span class="gt-body"><span class="gt-tags"><span class="gt-tag is-guide">Guide</span></span><h3 class="gt-h">The Tax Wrapper Guide</h3><span class="gt-p">Every ISA, pension and account type, and the order people tend to use them in.</span><span class="gt-foot"><span class="gt-cta">Read the guide<svg class="gt-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></span><span class="gt-time">8 min read</span></span></span></a><a class="gt-card is-guide gt-up lift press" href="/guides/principles.html" data-id="principles" data-kind="Guides" data-topics="Investing" data-w="6" data-n="6" data-d="2"><span class="gt-art is-guide" aria-hidden="true"><span class="gt-ring r1"></span><span class="gt-ring r2 t-s32"></span><svg class="gt-svg" viewBox="0 0 300 100" preserveAspectRatio="xMidYMax meet" focusable="false"><circle class="s-pale w2" cx="150" cy="54" r="34"/><circle class="f-acc t-blink" cx="150" cy="54" r="8"/><circle class="f-main" cx="150" cy="20" r="5"/><circle class="f-main" cx="184" cy="54" r="5"/><circle class="f-main" cx="150" cy="88" r="5"/><circle class="f-main" cx="116" cy="54" r="5"/></svg></span><span class="gt-body"><span class="gt-tags"><span class="gt-tag is-guide">Guide</span></span><h3 class="gt-h">TEI Principles</h3><span class="gt-p">The ideas behind every plan we build, from time in the market to the bear case.</span><span class="gt-foot"><span class="gt-cta">Read the guide<svg class="gt-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></span><span class="gt-time">8 min read</span></span></span></a><a class="gt-card is-tool gt-up lift press" href="/articles/pension-vs-lisa.html" data-id="pension-vs-lisa" data-kind="Tools" data-topics="Pensions|ISAs" data-w="6" data-n="12" data-d="3"><span class="gt-art is-tool" aria-hidden="true"><span class="gt-ring r1"></span><span class="gt-ring r2 t-s32"></span><svg class="gt-svg" viewBox="0 0 300 100" preserveAspectRatio="xMidYMax meet" focusable="false"><line class="s-pale" x1="10" y1="96" x2="290" y2="96"/><path class="s-main w3 t-draw2" d="M10 94 C 100 86, 180 58, 280 12"/><path class="s-main w2 dash o5 t-draw2 d2" d="M90 95 C 170 90, 220 74, 280 50"/><circle class="f-acc t-blink" cx="280" cy="12" r="4.5"/></svg></span><span class="gt-body"><span class="gt-tags"><span class="gt-tag is-tool">Tool</span></span><h3 class="gt-h">Pension vs LISA</h3><span class="gt-p">Compare the bonus, tax relief and access rules side by side, on your own numbers.</span><span class="gt-foot"><span class="gt-cta">Read the article<svg class="gt-chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg></span><span class="gt-time">6 min read</span></span></span></a><!-- /gt:library --></div>
+<p class="gt-empty" id="gt-empty" hidden>Nothing matches that yet. Try another word, or <a href="/articles.html">search the articles</a>.</p>
+</section>
+
+<!-- Start here: the five stages -->
+<section class="gt-sec gt-stages-sec" aria-labelledby="gt-stages-h">
+<header class="gt-sh">
+<div><p class="gt-k">Start here</p><h2 id="gt-stages-h">Five stages to the seasoned investor.</h2></div>
+<a class="gt-more" href="/guides/stages.html">Read the full guide</a>
+</header>
+<div class="gt-track">
+<div class="gt-line" aria-hidden="true"><i class="t-grow"></i></div>
+<ol class="gt-stages">
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 1</p><h3>The Foundations</h3><p>Never invested. Starting from scratch.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 2</p><h3>Building the Base</h3><p>First investment made. Now structuring the portfolio properly.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 3</p><h3>Growing with Confidence</h3><p>Invested and structured. Now developing market understanding and conviction.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 4</p><h3>Investment Philosophy</h3><p>Developing a personal approach. Going beyond passive.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 5</p><h3>The Seasoned Investor</h3><p>Advanced portfolio construction, life planning and long-term wealth management.</p></li>
+</ol>
 </div>
 </section>
 
-<!-- NEWSLETTER + CLIENT HUB (split) -->
-<section style="background: #F7F4ED">
-<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px">
-<div class="gt-nl-card" style="background: #DFE6F2; border-radius: 26px; padding: 32px; display: flex; flex-direction: column; gap: 14px">
-<p class="gt-nl-eyebrow" style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #0F1E36; opacity: .75">The monthly email</p>
-<h2 style="margin: 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em"><span class="gt-nl-long">One email a month. What changed, and what it means.</span><span class="gt-nl-short">Get the monthly email</span></h2>
-<form id="gt-newsletter" data-tei-newsletter="gt-newsletter-msg" novalidate style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px"><label for="nl-email" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email address</label><input id="nl-email" type="email" name="email" autocomplete="email" required placeholder="you@example.com" style="flex: 1 1 220px; font-family: inherit; font-size: 16px; min-height: 50px; padding: 0 18px; border-radius: 999px; border: 1px solid #B9CAE6; background: #FFFFFF; color: #13213A; box-sizing: border-box"><button type="submit" style="font-family: inherit; cursor: pointer; min-height: 50px; padding: 0 22px; border-radius: 999px; border: 0; background: #0F1E36; color: #E8D6A8; font-size: 15px; font-weight: 500">Sign up</button></form>
-<p id="gt-newsletter-msg" role="status" style="margin: 0; font-size: 13px; color: #4E5B70">Education only. Unsubscribe any time.</p>
+<!-- Coming soon: quieter than the cards, never links -->
+<section class="gt-sec gt-soon" id="gt-soon" aria-labelledby="gt-soon-k">
+<p class="gt-k" id="gt-soon-k">Coming soon</p>
+<ul class="gt-soon-l" id="gt-soon-l"><!-- gt:soon --><li class="gt-sc is-tool" aria-disabled="true" data-id="property" data-kind="Tools" data-topics="Property"><span class="gt-sc-k"><i aria-hidden="true"></i>Tool</span><span class="gt-sc-h">Property Calculator</span><span class="gt-sc-p">Mortgage, equity, stamp duty and a stress test.</span></li><li class="gt-sc is-tool" aria-disabled="true" data-id="tax-scenario" data-kind="Tools" data-topics="Pensions|ISAs|Budgeting"><span class="gt-sc-k"><i aria-hidden="true"></i>Tool</span><span class="gt-sc-h">Tax Scenario Tool</span><span class="gt-sc-p">Which wrapper decisions are worth something.</span></li><li class="gt-sc is-guide" aria-disabled="true" data-id="stages" data-kind="Guides" data-topics="Investing|Budgeting"><span class="gt-sc-k"><i aria-hidden="true"></i>Guide</span><span class="gt-sc-h">Five Stages to the Seasoned Investor</span><span class="gt-sc-p">Where you are, and what each stage asks.</span></li><li class="gt-sc is-guide" aria-disabled="true" data-id="safety-net" data-kind="Guides" data-topics="Safety net|Budgeting"><span class="gt-sc-k"><i aria-hidden="true"></i>Guide</span><span class="gt-sc-h">Building your safety net in two stages</span><span class="gt-sc-p">A working buffer first, then six months.</span></li><!-- /gt:soon --></ul>
+</section>
+
+<!-- The monthly email, and what members get (public page only) -->
+<section class="gt-sec gt-news" aria-label="The monthly email and membership">
+<div class="gt-nl">
+<p class="gt-k">The monthly email</p>
+<h2><span class="gt-nl-long">One email a month. What changed, and what it means.</span><span class="gt-nl-short">Get the monthly email</span></h2>
+<form id="gt-newsletter" data-tei-newsletter="gt-newsletter-msg" novalidate><label for="nl-email" class="gt-sr">Email address</label><input id="nl-email" type="email" name="email" autocomplete="email" required placeholder="you@example.com"><button type="submit">Sign up</button></form>
+<p id="gt-newsletter-msg" class="gt-nl-msg" role="status">Education only. Unsubscribe any time.</p>
 </div>
-<div style="background: #0F1E36; color: #F7F4ED; border-radius: 26px; padding: 32px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 14px">
-<div class="t-s32" style="position: absolute; width: 260px; height: 260px; right: -90px; bottom: -120px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.22)" aria-hidden="true"></div>
-<p style="position: relative; margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">Members get more</p>
-<h2 style="position: relative; margin: 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">Structured lessons, research notes and the knowledge library.</h2>
-<p style="position: relative; margin: 0; font-size: 15px; line-height: 1.6; color: #AAB6C8">Everything here stays free. Members also get 36 lessons across the first two stages, the investment suite and members' articles in the Client Hub.</p>
-<a href="/membership.html" style="position: relative; align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 15px; font-weight: 500">See membership</a>
-</div>
+<div class="gt-join">
+<div class="gt-join-ring t-s32" aria-hidden="true"></div>
+<p class="gt-k">Members get more</p>
+<h2>Structured lessons, research notes and the knowledge library.</h2>
+<p>Everything here stays free. Members also get 36 lessons across the first two stages, the investment suite and members' articles in the Client Hub.</p>
+<a href="/membership.html">See membership</a>
 </div>
 </section>
 
+</div>
 </main>
 
 <!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
@@ -253,55 +131,7 @@ body{margin:0;background:#F7F4ED}
     <p class="tei-compliance-warning">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
   </div>
 </footer>
-<script>
-/* Guides & Tools: search and filters over the cards. The newsletter form is
-   handled by /assets/newsletter.js. */
-(function () {
-  var each = function (list, fn) { Array.prototype.forEach.call(list, fn); };
-  var cards = document.querySelectorAll('.gt-card');
-  var search = document.getElementById('gt-search');
-  var topicButtons = document.querySelectorAll('.gt-topic');
-  var kindButtons = document.querySelectorAll('.gt-kind');
-  var count = document.getElementById('gt-count');
-  var empty = document.getElementById('gt-empty');
-  var topic = 'All topics', kind = 'All';
-
-  // What the search looks at: title, description and topics.
-  each(cards, function (card) {
-    card.searchText = (card.querySelector('h3').textContent + ' ' + card.querySelector('p').textContent + ' ' +
-      card.getAttribute('data-topics').split('|').join(' ')).toLowerCase();
-  });
-
-  function apply() {
-    var query = search.value.trim().toLowerCase();
-    var shown = 0;
-    each(cards, function (card) {
-      var show = (kind === 'All' || card.getAttribute('data-kind') === kind) &&
-        (topic === 'All topics' || card.getAttribute('data-topics').split('|').indexOf(topic) > -1) &&
-        (!query || card.searchText.indexOf(query) > -1);
-      card.hidden = !show;
-      if (show) shown++;
-    });
-    count.textContent = shown + (shown === 1 ? ' guide or tool' : ' guides and tools');
-    empty.hidden = shown !== 0;
-  }
-
-  function press(buttons, chosen) {
-    each(buttons, function (b) { b.setAttribute('aria-pressed', b === chosen ? 'true' : 'false'); });
-  }
-  each(topicButtons, function (b) {
-    b.addEventListener('click', function () { topic = b.textContent; press(topicButtons, b); apply(); });
-  });
-  each(kindButtons, function (b) {
-    b.addEventListener('click', function () { kind = b.textContent; press(kindButtons, b); apply(); });
-  });
-  search.addEventListener('input', apply);
-
-  // ?show=Guides or ?show=Tools (the Client Hub's "All guides" and "All tools").
-  var show = new URLSearchParams(window.location.search).get('show');
-  each(kindButtons, function (b) { if (show && b.textContent === show) b.click(); });
-})();
-</script>
+<script src="/assets/guides-tools.js" defer></script>
 <script src="/assets/newsletter.js" defer></script>
 <script src="/assets/mobile-nav.js" defer></script>
 </body>

@@ -1,0 +1,102 @@
+/* Guides & Tools, Client Hub finish (/hub/guides.html).
+   The page is the public Guides & Tools page (/assets/guides-tools.css): the
+   same hero, cards, stages and Coming soon row. This file sets the --gt-*
+   variables from the --w-* tokens and adds the members' finish:
+     - the hero as a brand navy band with a champagne edge and glow
+     - a Members band (champagne) for the tools only members get, led by the
+       Portfolio Optimisation Lab with a navy picture panel
+     - cards with the Hub's depth: an inset highlight and a soft shadow,
+       a deeper shadow on hover
+   Members' pages only. */
+
+[data-gt-mode="hub"] {
+  --gt-mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+  --gt-page: var(--w-bg);
+  --gt-tile: var(--w-tile);
+  --gt-line: var(--w-line);
+  --gt-card-line: transparent;
+  --gt-ink: var(--w-text);
+  --gt-muted: var(--w-muted);
+  --gt-accent: var(--w-gold);
+  --gt-btn: var(--w-nav-active);
+  --gt-btn-ink: var(--w-nav-active-text);
+  --gt-panel-tool: var(--w-powder);
+  --gt-panel-guide: var(--w-champ);
+  --gt-ring-tool: var(--w-third);
+  --gt-ring-guide: var(--w-champ-line);
+  --gt-ill-main: var(--w-gold);
+  --gt-ill-pale: var(--w-third);
+  --gt-ill-acc: var(--w-gold-fill);
+  --gt-ill-tile: var(--w-tile);
+  --gt-tag-tool-bg: var(--w-nav-active);
+  --gt-tag-tool-ink: var(--w-nav-active-text);
+  --gt-tag-guide-bg: var(--w-tile);
+  --gt-tag-guide-ink: var(--w-text);
+  --gt-m-tag-bg: var(--w-on-feat-accent);
+  --gt-m-tag-ink: var(--w-feat);
+  --gt-hero-bg: var(--w-deep);
+  --gt-hero-glow: var(--w-acc-on-feat-isa);
+  --gt-on-feat: var(--w-on-feat-text);
+  --gt-on-feat-accent: var(--w-on-feat-accent);
+  --gt-on-feat-muted: var(--w-on-feat-muted);
+  --gt-card-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-1);
+  --gt-chip-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-1);
+  --gt-hover-shadow: inset 0 1px 0 var(--w-edge), var(--w-shadow-2);
+  --gt-sec-gap: 44px;
+}
+:root[data-theme="dark"] [data-gt-mode="hub"] { --gt-card-line: var(--w-line); }
+
+/* The hero: the public page's hero, unchanged (same navy, glow and ring),
+   as a full-width band under the Hub bar. Sign out sits in the Hub bar. */
+[data-gt-mode="hub"] .gt-hero { margin: -28px -32px 0; }
+[data-gt-mode="hub"] .gt-hero-in { padding: 40px 32px; }
+
+/* The Members band */
+[data-gt-mode="hub"] .gt-hero + .gt-sec { margin-top: 28px; }
+[data-gt-mode="hub"] .gt-band { position: relative; overflow: hidden; padding: 24px; border-radius: 18px; background: var(--w-champ); border: 1px solid var(--w-champ-line); box-shadow: inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
+[data-gt-mode="hub"] .gt-band::before { content: ''; position: absolute; width: 560px; height: 560px; right: -10%; top: -90%; border-radius: 50%; background: var(--w-glow); opacity: .7; pointer-events: none; }
+[data-gt-mode="hub"] .gt-band > * { position: relative; }
+[data-gt-mode="hub"] .gt-band .gt-sh { margin-bottom: 16px; }
+[data-gt-mode="hub"] .gt-band .gt-sh h2 { font-size: 24px; }
+/* Members' tools: a navy picture panel with champagne lines */
+[data-gt-mode="hub"] .gt-card.is-members { border-color: var(--w-champ-line); }
+[data-gt-mode="hub"] .gt-card.is-members .gt-art {
+  background: var(--w-feat);
+  --gt-ring: color-mix(in srgb, var(--w-on-feat-accent) 30%, transparent);
+  --gt-ill-main: var(--w-on-feat-accent);
+  --gt-ill-pale: color-mix(in srgb, var(--w-on-feat-muted) 45%, transparent);
+  --gt-ill-acc: var(--w-on-feat-accent);
+  --gt-ill-tile: color-mix(in srgb, var(--w-on-feat-text) 12%, transparent);
+}
+[data-gt-mode="hub"] .gt-card.is-members .gt-art::after { content: ''; position: absolute; width: 420px; height: 420px; left: -30%; top: -70%; border-radius: 50%; background: var(--w-glow); pointer-events: none; }
+[data-gt-mode="hub"] .gt-card.is-members:not(.is-feat) .gt-tag.is-tool { color: var(--w-on-feat-accent); background: color-mix(in srgb, var(--w-on-feat-accent) 16%, transparent); }
+[data-gt-mode="hub"] .gt-card.is-soon.is-members .gt-art { opacity: .7; }
+
+@media (max-width: 860px) {
+  /* A shorter hero: title, search, and the topics in one row */
+  [data-gt-mode="hub"] .gt-hero { margin: -20px -16px 0; }
+  [data-gt-mode="hub"] .gt-hero-in { padding: 22px 16px 20px; }
+  [data-gt-mode="hub"] .gt-hero + .gt-sec { margin-top: 16px; }
+  /* A compact Members band: the label, the Lab, then Wealth Forecast as a slim row */
+  [data-gt-mode="hub"] .gt-band { margin-left: -6px; margin-right: -6px; padding: 14px 12px 12px; }
+  [data-gt-mode="hub"] .gt-band .gt-sh { margin-bottom: 10px; }
+  [data-gt-mode="hub"] .gt-band .gt-sh h2 { display: none; }
+  [data-gt-mode="hub"] .gt-band .gt-k { font-size: 11.5px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-feat .gt-art { height: 104px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-feat .gt-svg { height: 76px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-feat .gt-body { padding: 12px 14px 14px; gap: 4px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-feat .gt-h { font-size: 19px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-feat .gt-p { font-size: 13px; -webkit-line-clamp: 2; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-feat .gt-btn { min-height: 40px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-soon .gt-art { display: none; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-soon .gt-tags { position: static; margin-bottom: 2px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-soon .gt-tag.is-tool { color: var(--w-muted); background: var(--w-chip); }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-soon .gt-body { padding: 10px 12px 12px; gap: 2px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-soon .gt-h { font-size: 15px; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-soon .gt-p { font-size: 12.5px; -webkit-line-clamp: 1; }
+  [data-gt-mode="hub"] .gt-band .gt-card.is-soon .gt-foot { padding-top: 2px; }
+}
+
+/* Phones: the shared website and Client Hub bar (assets/mobile-nav.js),
+   never the Wealth OS tabs (Paddy, 20 Oct 2026). */
+.hb-tabs { display: none !important; }

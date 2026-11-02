@@ -1,0 +1,366 @@
+/* Guides & Tools (V2, Nov 2026): the structure for both pages, and the
+   public skin.
+
+   One page, two finishes. The public page (/guides.html) and the Client Hub
+   copy (/hub/guides.html) use the same markup and class names, and look like
+   the same page. Every rule in part 1 reads only the --gt-* variables; each
+   page sets them:
+     public  part 2 of this file, from the --c-* tokens (assets/content.css,
+             and the featured-card tokens in /style.css)
+     Hub     /hub/css/guides-tools-hub.css, from the --w-* tokens, with the
+             members' finish (depth, champagne edges, the Members band)
+   Never load hub-tokens.css or any --w-* file on the public page.
+
+   The look is the Guides & Tools page's own: a compact navy hero with the
+   search, and illustrated cards (a tinted panel with rings and a small moving
+   picture, then the text). The flow:
+     1. the featured card: the same card, larger, its picture beside the text
+     2. the live cards, in rows that fill
+     3. the five stages, then a quieter Coming soon row (not links)
+   Two corner sizes: 18px outside, 12px inside. One phone breakpoint: 860px.
+   Cards and data: /assets/guides-tools.js and /assets/guides-tools.json. */
+
+/* =========================================================
+   1. Structure (both pages)
+   ========================================================= */
+.gt [hidden] { display: none !important; }
+.gt *, .gt *::before, .gt *::after { box-sizing: border-box; }
+.gt h1, .gt h2, .gt h3, .gt p, .gt ul { margin: 0; }
+.gt-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.gt-chev { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.gt a:focus-visible, .gt button:focus-visible, .gt input:focus-visible { outline: 2px solid var(--gt-accent); outline-offset: 3px; }
+
+/* Feel: a slight scale on tap, a rise on hover (each skin says whether a
+   shadow comes with it). */
+.gt .press { transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.gt .press:active { transform: scale(.985); }
+@media (hover: hover) { .gt .lift:hover { transform: translateY(-4px); box-shadow: var(--gt-hover-shadow); } }
+
+/* Staggered rise on load: at most 8 steps of 40ms. */
+@keyframes gt-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.gt-up { animation: gt-up .6s cubic-bezier(.2, .8, .2, 1) both; }
+.gt-up[data-d="1"] { animation-delay: 40ms; }
+.gt-up[data-d="2"] { animation-delay: 80ms; }
+.gt-up[data-d="3"] { animation-delay: 120ms; }
+.gt-up[data-d="4"] { animation-delay: 160ms; }
+.gt-up[data-d="5"] { animation-delay: 200ms; }
+.gt-up[data-d="6"] { animation-delay: 240ms; }
+.gt-up[data-d="7"] { animation-delay: 280ms; }
+
+/* The page's own motion (from the live page): pictures that draw, fill and
+   rise on a loop, rings that turn slowly. */
+@keyframes t-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
+@keyframes t-glow { 0%, 100% { opacity: .22; transform: scale(1); } 50% { opacity: .4; transform: scale(1.08); } }
+@keyframes t-spin { to { transform: rotate(360deg); } }
+@keyframes t-draw2 { 0% { stroke-dashoffset: 420; } 60%, 100% { stroke-dashoffset: 0; } }
+@keyframes t-fade { 0%, 15% { opacity: 0; } 60%, 100% { opacity: 1; } }
+@keyframes t-fillL { 0% { transform: scaleX(0); } 40%, 100% { transform: scaleX(1); } }
+@keyframes t-riseL { 0% { transform: scaleY(0); } 45%, 100% { transform: scaleY(1); } }
+@keyframes t-blink { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@keyframes t-grow { 0% { transform: scaleX(0); } 70%, 100% { transform: scaleX(1); } }
+@keyframes t-grow-y { 0% { transform: scaleY(0); } 70%, 100% { transform: scaleY(1); } }
+.t-up { animation: t-up .8s cubic-bezier(.2, .8, .2, 1) both; }
+.t-up2 { animation: t-up .8s cubic-bezier(.2, .8, .2, 1) .12s both; }
+.t-glow { animation: t-glow 8s ease-in-out infinite; }
+.t-s90 { animation: t-spin 90s linear infinite; }
+.t-s32 { animation: t-spin 32s linear infinite; }
+.t-draw2 { stroke-dasharray: 420; animation: t-draw2 4.5s cubic-bezier(.5, .1, .2, 1) infinite; }
+.t-fade { animation: t-fade 4.5s cubic-bezier(.5, .1, .2, 1) infinite; }
+.t-fillL { transform-origin: left; animation: t-fillL 4.5s cubic-bezier(.3, .8, .3, 1) infinite; }
+.t-riseL { transform-box: fill-box; transform-origin: bottom; animation: t-riseL 4.5s cubic-bezier(.3, .8, .3, 1) infinite; }
+.t-blink { animation: t-blink 2.4s ease-in-out infinite; }
+.t-grow { transform-origin: left; animation: t-grow 4s cubic-bezier(.3, .8, .3, 1) .4s infinite; }
+.gt-art .d1 { animation-delay: .12s; }
+.gt-art .d2 { animation-delay: .3s; }
+.gt-art .d3 { animation-delay: .45s; }
+.gt-art .d4 { animation-delay: .6s; }
+
+/* ---------- The hero: compact, navy, with the search on it ---------- */
+.gt-hero { position: relative; overflow: hidden; background: var(--gt-hero-bg); color: var(--gt-on-feat); }
+.gt-hero-glow { position: absolute; width: 560px; height: 560px; left: -200px; top: -260px; border-radius: 50%; background: var(--gt-hero-glow); filter: blur(140px); opacity: .22; pointer-events: none; }
+.gt-hero-ring { position: absolute; width: 760px; height: 760px; right: -360px; top: -420px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--gt-on-feat-accent) 12%, transparent); pointer-events: none; }
+.gt-hero-in { position: relative; padding-top: 40px; padding-bottom: 40px; }
+.gt-hero-h { max-width: 900px; font-size: clamp(32px, 3.6vw, 48px); line-height: 1.05; font-weight: 300; letter-spacing: -0.04em; text-wrap: balance; color: var(--gt-on-feat); }
+.gt-hero-h span { color: var(--gt-on-feat-accent); }
+.gt-hero-p { margin-top: 10px; max-width: 620px; font-size: 16px; font-weight: 300; line-height: 1.5; color: var(--gt-on-feat-muted); }
+.gt-find { margin-top: 24px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.gt-search-wrap { position: relative; display: flex; align-items: center; flex: 0 1 400px; min-width: 0; }
+.gt-search-wrap svg { position: absolute; left: 18px; width: 18px; height: 18px; fill: none; stroke: var(--gt-on-feat-muted); stroke-width: 2; stroke-linecap: round; pointer-events: none; }
+.gt-search { width: 100%; min-height: 48px; padding: 0 18px 0 46px; border-radius: 999px; font-family: inherit; font-size: 16px; color: var(--gt-on-feat); background: color-mix(in srgb, var(--gt-on-feat) 7%, transparent); border: 1px solid color-mix(in srgb, var(--gt-on-feat-accent) 25%, transparent); }
+.gt-search::placeholder { color: color-mix(in srgb, var(--gt-on-feat-muted) 80%, transparent); }
+.gt-search:focus { outline: 2px solid var(--gt-on-feat-accent); outline-offset: 2px; }
+.gt-topics { flex: 1 1 360px; display: flex; flex-wrap: wrap; gap: 8px; }
+.gt-topic { min-height: 44px; padding: 0 16px; border-radius: 999px; font-family: inherit; font-size: 14px; cursor: pointer; color: var(--gt-on-feat); background: transparent; border: 1px solid color-mix(in srgb, var(--gt-on-feat-accent) 25%, transparent); }
+.gt-topic[aria-pressed="true"] { color: var(--gt-hero-bg); background: var(--gt-on-feat-accent); border-color: var(--gt-on-feat-accent); }
+.gt-hero .gt-topic:focus-visible { outline-color: var(--gt-on-feat-accent); }
+
+/* ---------- Sections ---------- */
+.gt-sec + .gt-sec { margin-top: var(--gt-sec-gap, 56px); }
+.gt-sh { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; margin-bottom: 20px; }
+.gt-k { font-family: var(--gt-mono); font-size: 12px; color: var(--gt-accent); }
+.gt-sh h2 { font-size: 28px; font-weight: 300; letter-spacing: -0.02em; line-height: 1.15; color: var(--gt-ink); }
+.gt-sh .gt-k + h2 { margin-top: 10px; }
+.gt-more { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 15px; font-weight: 500; color: var(--gt-accent); text-decoration: none; }
+.gt-more:hover { text-decoration: underline; }
+.gt-kinds { display: inline-flex; padding: 4px; gap: 2px; border-radius: 999px; background: var(--gt-tile); border: 1px solid var(--gt-line); box-shadow: var(--gt-chip-shadow); }
+.gt-kind { min-height: 44px; min-width: 72px; padding: 0 16px; border: 0; border-radius: 999px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--gt-muted); background: transparent; }
+.gt-kind[aria-pressed="true"] { color: var(--gt-btn-ink); background: var(--gt-btn); }
+
+/* ---------- The grid: 12 columns; widths from data-w (wide) and data-n ---------- */
+.gt-g { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+.gt-g > * { min-width: 0; grid-column: span 12; }
+@media (min-width: 1100px) {
+  .gt-g > [data-w="3"] { grid-column: span 3; }
+  .gt-g > [data-w="4"] { grid-column: span 4; }
+  .gt-g > [data-w="6"] { grid-column: span 6; }
+  .gt-g > [data-w="8"] { grid-column: span 8; }
+}
+@media (max-width: 1099px) {
+  .gt-g > [data-n="6"] { grid-column: span 6; }
+}
+
+/* ---------- Cards ---------- */
+.gt-card { position: relative; overflow: hidden; display: flex; flex-direction: column; text-decoration: none; color: var(--gt-ink); background: var(--gt-tile); border: 1px solid var(--gt-card-line); border-radius: 18px; box-shadow: var(--gt-card-shadow); }
+.gt-card:focus-visible { outline-offset: 3px; }
+/* The picture panel: a tint by kind, two rings, a small moving picture */
+.gt-art { position: relative; flex: none; height: 150px; overflow: hidden; }
+.gt-art.is-tool { background: var(--gt-panel-tool); --gt-ring: var(--gt-ring-tool); }
+.gt-art.is-guide { background: var(--gt-panel-guide); --gt-ring: var(--gt-ring-guide); }
+.gt-ring { position: absolute; border-radius: 50%; border: 1px solid var(--gt-ring); }
+.gt-ring.r1 { width: 200px; height: 200px; right: -64px; top: -84px; }
+.gt-ring.r2 { width: 140px; height: 140px; right: -32px; top: -52px; border-style: dashed; }
+.gt-svg { position: absolute; left: 20px; bottom: 12px; width: calc(100% - 40px); height: 90px; overflow: visible; }
+.gt-svg * { stroke-linecap: round; stroke-linejoin: round; }
+.gt-svg .s-main { fill: none; stroke: var(--gt-ill-main); }
+.gt-svg .s-pale { fill: none; stroke: var(--gt-ill-pale); }
+.gt-svg .s-acc { fill: none; stroke: var(--gt-ill-acc); }
+.gt-svg .f-main { fill: var(--gt-ill-main); }
+.gt-svg .f-acc { fill: var(--gt-ill-acc); }
+.gt-svg .f-tile { fill: var(--gt-ill-tile); }
+.gt-svg .f-soft { fill: var(--gt-ill-pale); }
+.gt-svg .f-pale { fill: color-mix(in srgb, var(--gt-ill-pale) 45%, transparent); }
+.gt-svg .w2 { stroke-width: 2.2; }
+.gt-svg .w3 { stroke-width: 2.6; }
+.gt-svg .o5 { opacity: .5; }
+.gt-svg .dash { stroke-dasharray: 5 6; }
+/* The wrapper guide's picture: three labelled bars, in HTML */
+.gt-bars { position: absolute; left: 20px; right: 20px; bottom: 16px; display: flex; flex-direction: column; gap: 9px; }
+.gt-bar { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 8px; }
+.gt-bar b { font-family: var(--gt-mono); font-size: 11px; font-weight: 400; color: var(--gt-ill-main); opacity: .75; white-space: nowrap; }
+.gt-bar i { display: block; height: 13px; border-radius: 7px; background: var(--gt-ill-tile); overflow: hidden; }
+.gt-bar s { display: block; height: 100%; border-radius: inherit; background: var(--gt-ill-main); }
+.gt-bar s.b2 { width: 75%; }
+.gt-bar s.b3 { width: 45%; background: var(--gt-ill-acc); }
+
+/* Tags: Geist Mono pills on the picture */
+.gt-tags { position: absolute; z-index: 2; left: 20px; top: 16px; display: flex; flex-wrap: wrap; gap: 6px; }
+.gt-tag { display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 999px; font-family: var(--gt-mono); font-size: 11px; }
+.gt-tag.is-tool { color: var(--gt-tag-tool-ink); background: var(--gt-tag-tool-bg); }
+.gt-tag.is-guide { color: var(--gt-tag-guide-ink); background: var(--gt-tag-guide-bg); }
+.gt-tag.is-m { color: var(--gt-m-tag-ink); background: var(--gt-m-tag-bg); }
+
+.gt-body { flex: 1; display: flex; flex-direction: column; gap: 8px; padding: 20px 22px 22px; }
+.gt-h { font-size: 21px; font-weight: 400; letter-spacing: -0.02em; line-height: 1.2; color: var(--gt-ink); }
+.gt-p { font-size: 15px; font-weight: 300; line-height: 1.55; color: var(--gt-muted); }
+.gt-foot { margin-top: auto; padding-top: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.gt-cta { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--gt-accent); }
+.gt-time { font-family: var(--gt-mono); font-size: 11px; color: var(--gt-muted); white-space: nowrap; }
+
+/* The featured card: the same card, larger, its picture beside the text */
+.gt-card.is-feat { flex-direction: row; min-height: 300px; }
+.gt-card.is-feat .gt-art { flex: 0 0 54%; height: auto; }
+.gt-card.is-feat .gt-ring.r1 { width: 320px; height: 320px; right: -110px; top: -140px; }
+.gt-card.is-feat .gt-ring.r2 { width: 220px; height: 220px; right: -56px; top: -90px; }
+.gt-card.is-feat .gt-svg { left: 28px; bottom: 22px; width: calc(100% - 56px); height: 72%; }
+.gt-card.is-feat .gt-tags { position: static; margin-bottom: 4px; }
+.gt-card.is-feat .gt-body { justify-content: center; gap: 10px; padding: 32px; }
+.gt-card.is-feat .gt-h { font-size: clamp(26px, 2.4vw, 32px); font-weight: 300; letter-spacing: -0.03em; line-height: 1.1; }
+.gt-card.is-feat .gt-p { font-size: 16px; }
+.gt-card.is-feat .gt-foot { margin-top: 10px; justify-content: flex-start; }
+.gt-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 999px; font-size: 15px; font-weight: 500; white-space: nowrap; color: var(--gt-btn-ink); background: var(--gt-btn); }
+
+/* Not live yet (a members' tool): the same card, quieter, not a link */
+.gt-card.is-soon { cursor: default; }
+.gt-card.is-soon .gt-art { opacity: .55; }
+.gt-card.is-soon .gt-h { color: var(--gt-muted); }
+.gt-soon-k { font-family: var(--gt-mono); font-size: 11px; color: var(--gt-muted); }
+
+.gt-empty { padding: 36px 24px; border-radius: 18px; border: 1.5px dashed var(--gt-line); text-align: center; font-size: 15px; color: var(--gt-muted); }
+.gt-empty a { color: var(--gt-accent); }
+
+/* ---------- The five stages (the live strip) ---------- */
+.gt-track { position: relative; margin-top: 8px; }
+.gt-line { height: 2px; background: var(--gt-line); }
+.gt-line i { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gt-accent); }
+.gt-stages { list-style: none; padding: 0; margin: -7px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 24px; }
+.gt-dot { display: block; width: 12px; height: 12px; border-radius: 50%; background: var(--gt-page); border: 2px solid var(--gt-accent); }
+.gt-stage-k { margin-top: 18px !important; font-family: var(--gt-mono); font-size: 12px; color: var(--gt-accent); }
+.gt-stage h3 { margin: 8px 0 6px; font-size: 20px; font-weight: 400; letter-spacing: -0.01em; color: var(--gt-ink); }
+.gt-stage p:last-child { font-size: 15px; line-height: 1.55; font-weight: 300; color: var(--gt-muted); }
+
+/* ---------- Coming soon: quieter than the cards, never links ---------- */
+.gt-soon .gt-k { margin-bottom: 12px; }
+.gt-soon-l { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.gt-sc { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 14px 16px; border-radius: 12px; border: 1px dashed var(--gt-line); background: color-mix(in srgb, var(--gt-tile) 45%, transparent); cursor: default; }
+.gt-sc-k { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 2px; font-family: var(--gt-mono); font-size: 10.5px; color: var(--gt-muted); }
+.gt-sc-k i { width: 7px; height: 7px; border-radius: 50%; }
+.gt-sc.is-tool .gt-sc-k i { background: var(--gt-panel-tool); box-shadow: inset 0 0 0 1.5px var(--gt-ill-main); }
+.gt-sc.is-guide .gt-sc-k i { background: var(--gt-panel-guide); box-shadow: inset 0 0 0 1.5px var(--gt-ill-acc); }
+.gt-sc-h { font-size: 15px; font-weight: 500; line-height: 1.3; color: var(--gt-ink); }
+.gt-sc-p { font-size: 13px; line-height: 1.45; color: var(--gt-muted); }
+
+/* ---------- Phones (up to 860px) ---------- */
+@media (max-width: 860px) {
+  .gt-hero-in { padding-top: 22px; padding-bottom: 20px; }
+  .gt-hero-h { font-size: 26px; letter-spacing: -0.035em; }
+  .gt-hero-p { font-size: 14.5px; }
+  .gt-find { margin-top: 14px; gap: 10px; }
+  .gt-search-wrap { flex: 1 1 100%; }
+  .gt-search { min-height: 44px; }
+  /* Topics in one row that swipes, so the hero stays short (the page itself
+     never scrolls sideways) */
+  .gt-topics { flex: 1 1 100%; flex-wrap: nowrap; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .gt-topics::-webkit-scrollbar { display: none; }
+  .gt-topic { flex: none; min-height: 40px; padding: 0 14px; font-size: 13.5px; }
+  .gt-sec + .gt-sec { margin-top: 36px; }
+  .gt-sh { margin-bottom: 14px; }
+  .gt-sh h2 { font-size: 22px; }
+  .gt-sh .gt-k + h2 { margin-top: 6px; }
+  .gt-more { font-size: 14px; }
+  .gt-g { gap: 10px; }
+  .gt-kind { min-width: 0; padding: 0 14px; }
+  /* Featured: picture on top, then the text */
+  .gt-card.is-feat { flex-direction: column; min-height: 0; }
+  .gt-card.is-feat .gt-art { flex: none; height: 150px; }
+  .gt-card.is-feat .gt-svg { left: 18px; bottom: 12px; width: calc(100% - 36px); height: 110px; }
+  .gt-card.is-feat .gt-tags { position: absolute; left: 16px; top: 14px; margin: 0; }
+  .gt-card.is-feat .gt-body { padding: 16px 16px 18px; gap: 6px; }
+  .gt-card.is-feat .gt-h { font-size: 23px; }
+  .gt-card.is-feat .gt-p { font-size: 14px; }
+  .gt-card.is-feat .gt-foot { margin-top: 4px; }
+  .gt-btn { min-height: 44px; padding: 0 16px; font-size: 14px; }
+  /* Cards two a row: a short picture, compact text */
+  .gt-art { height: 92px; }
+  .gt-ring.r1 { width: 140px; height: 140px; right: -50px; top: -64px; }
+  .gt-ring.r2 { width: 96px; height: 96px; right: -26px; top: -40px; }
+  .gt-svg { left: 12px; bottom: 8px; width: calc(100% - 24px); height: 60px; }
+  .gt-bars { left: 12px; right: 12px; bottom: 9px; gap: 5px; }
+  .gt-bar { grid-template-columns: 54px minmax(0, 1fr); gap: 6px; }
+  .gt-bar b { font-size: 9px; line-height: 1; }
+  .gt-bar i { height: 9px; }
+  .gt-tags { left: 12px; top: 10px; }
+  .gt-tag { height: 20px; padding: 0 8px; font-size: 10px; }
+  .gt-body { padding: 12px 14px 14px; gap: 4px; }
+  .gt-h { font-size: 16px; }
+  .gt-p { font-size: 13px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .gt-foot { padding-top: 6px; gap: 2px 8px; }
+  .gt-cta { font-size: 13px; }
+  .gt-time { font-size: 10px; }
+  .gt-g > [data-n="12"]:not(.is-feat) .gt-art { height: 110px; }
+  .gt-g > [data-n="12"]:not(.is-feat) .gt-p { -webkit-line-clamp: 2; }
+  /* Stages: the same dots and line, running down the page */
+  .gt-track { margin-top: 4px; }
+  .gt-line { position: absolute; left: 5px; top: 8px; bottom: 8px; width: 2px; height: auto; }
+  .gt-line i { width: 2px; height: auto; bottom: 0; transform-origin: top; animation-name: t-grow-y; }
+  .gt-stages { margin: 0; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .gt-stage { position: relative; padding-left: 26px; }
+  .gt-dot { position: absolute; left: 0; top: 2px; }
+  .gt-stage-k { margin-top: 0 !important; font-size: 11px; }
+  .gt-stage h3 { margin: 2px 0 2px; font-size: 16px; }
+  .gt-stage p:last-child { font-size: 13px; line-height: 1.45; }
+  /* Coming soon: two a row, wrapping; nothing scrolls sideways */
+  .gt-soon-l { gap: 8px; }
+  .gt-sc { flex: 1 1 calc(50% - 4px); padding: 12px; }
+  .gt-sc-h { font-size: 14px; }
+  .gt-sc-p { font-size: 12px; }
+}
+
+/* Reduced motion: nothing animates, and the end states show. */
+@media (prefers-reduced-motion: reduce) {
+  .gt .gt-up, .gt .t-up, .gt .t-up2, .gt .t-glow, .gt .t-s90, .gt .t-s32, .gt .t-draw2, .gt .t-fade, .gt .t-fillL, .gt .t-riseL, .gt .t-blink, .gt .t-grow { animation: none !important; }
+  .gt .t-draw2 { stroke-dasharray: none; }
+  .gt .press { transition: none; }
+  .gt .press:active, .gt .lift:hover { transform: none; }
+}
+
+/* =========================================================
+   2. Public skin (/guides.html): the --c-* tokens only
+   ========================================================= */
+[data-gt-mode="public"] {
+  --gt-mono: var(--tc-mono);
+  --gt-page: var(--c-page);
+  --gt-tile: var(--c-tile);
+  --gt-line: var(--c-line);
+  --gt-card-line: var(--c-line);
+  --gt-ink: var(--c-ink);
+  --gt-muted: var(--c-muted);
+  --gt-accent: var(--c-gold);
+  --gt-btn: var(--c-btn);
+  --gt-btn-ink: var(--c-btn-ink);
+  --gt-panel-tool: var(--c-powder);
+  --gt-panel-guide: var(--c-champ-tile);
+  --gt-ring-tool: var(--c-s2);
+  --gt-ring-guide: color-mix(in srgb, var(--c-gold) 30%, transparent);
+  --gt-ill-main: var(--c-s1);
+  --gt-ill-pale: var(--c-s2);
+  --gt-ill-acc: var(--c-gold);
+  --gt-ill-tile: var(--c-tile);
+  --gt-tag-tool-bg: var(--c-btn);
+  --gt-tag-tool-ink: var(--c-btn-ink);
+  --gt-tag-guide-bg: var(--c-tile);
+  --gt-tag-guide-ink: var(--c-ink);
+  --gt-m-tag-bg: var(--c-on-feat-accent);
+  --gt-m-tag-ink: var(--c-feat);
+  --gt-hero-bg: var(--c-deep);
+  --gt-hero-glow: var(--c-s2);
+  --gt-on-feat: var(--c-on-feat);
+  --gt-on-feat-accent: var(--c-on-feat-accent);
+  --gt-on-feat-muted: var(--c-on-feat-muted);
+  /* No shadows on the public site except hover lifts. */
+  --gt-card-shadow: none;
+  --gt-chip-shadow: none;
+  --gt-hover-shadow: 0 18px 40px color-mix(in srgb, var(--c-ink) 10%, transparent);
+  --gt-sec-gap: 56px;
+  font-family: var(--tc-font);
+  color: var(--c-ink);
+  background: var(--c-page);
+}
+.gt-wrap { max-width: 1280px; margin: 0 auto; padding-left: 32px; padding-right: 32px; }
+.gt-body-wrap { padding-top: 48px; padding-bottom: 80px; }
+:where([data-gt-mode="public"]) a { color: inherit; }
+
+/* The monthly email and the membership card (public only). */
+.gt-news { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.gt-nl, .gt-join { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 14px; padding: 32px; border-radius: 18px; }
+.gt-nl { background: var(--c-powder); }
+.gt-nl .gt-k { color: var(--c-ink); opacity: .75; }
+.gt-nl h2, .gt-join h2 { font-size: 30px; font-weight: 300; letter-spacing: -0.02em; line-height: 1.15; }
+.gt-nl-short { display: none; }
+.gt-nl form { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.gt-nl input { flex: 1 1 220px; min-height: 50px; padding: 0 18px; border-radius: 999px; font-family: inherit; font-size: 16px; color: var(--c-ink); background: var(--c-tile); border: 1px solid var(--c-s2); }
+.gt-nl button { min-height: 50px; padding: 0 22px; border: 0; border-radius: 999px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; color: var(--c-btn-ink); background: var(--c-btn); }
+.gt-nl-msg { font-size: 13px; color: var(--c-muted); }
+.gt-nl-msg.is-error { color: var(--c-warn); }
+.gt-join { background: var(--c-deep); color: var(--c-on-feat); }
+.gt-join > * { position: relative; }
+.gt-join-ring { position: absolute; width: 260px; height: 260px; right: -90px; bottom: -120px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--c-on-feat-accent) 22%, transparent); }
+.gt-join .gt-k { color: var(--c-on-feat-accent); }
+.gt-join p { font-size: 15px; line-height: 1.6; color: var(--c-on-feat-muted); }
+.gt-join a { align-self: flex-start; display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 999px; text-decoration: none; font-size: 15px; font-weight: 500; color: var(--c-deep); background: var(--c-on-feat-accent); }
+.gt-join a:focus-visible { outline-color: var(--c-on-feat-accent); }
+
+@media (max-width: 860px) {
+  .gt-wrap { padding-left: 16px; padding-right: 16px; }
+  .gt-body-wrap { padding-top: 28px; padding-bottom: 48px; }
+  .gt-news { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  /* The monthly email as a slim strip */
+  .gt-nl, .gt-join { padding: 20px; gap: 12px; }
+  .gt-nl .gt-k, .gt-nl-long { display: none; }
+  .gt-nl-short { display: inline; }
+  .gt-nl h2, .gt-join h2 { font-size: 20px; }
+  .gt-nl form { margin-top: 0; flex-wrap: nowrap; }
+  .gt-nl input { flex: 1 1 0; min-width: 0; min-height: 46px; padding: 0 16px; }
+  .gt-nl button { min-height: 46px; padding: 0 18px; }
+  .gt-nl-msg { font-size: 12px; }
+  .gt-join p { font-size: 14px; }
+}

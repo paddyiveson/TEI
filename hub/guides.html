@@ -10,54 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/hub/css/hub-tokens.css">
 <link rel="stylesheet" href="/hub/css/hub-shell.css">
-<style>
-/* Client Hub Guides & tools: the public guides and tools plus the members-only
-   tools (Wealth Forecast, coming soon, and the Optimisation Lab). */
-.gt-filters { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:12px; }
-.gt-chips { display:flex; flex-wrap:wrap; gap:6px; }
-.gt-count { margin-left:auto; font-size:12px; color:var(--muted); }
-.gt-sec { margin-top:28px; }
-.gt-sec-h { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; }
-.gt-sec-h h2 { font-size:20px; font-weight:400; letter-spacing:-0.01em; }
-.gt-sec-h p { font-size:12px; color:var(--muted); }
-.gt-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:16px; }
-.gt-card { display:flex; flex-direction:column; min-width:0; background:var(--tile); border:1px solid var(--line); border-radius:22px; overflow:hidden; text-decoration:none; color:inherit; transition:transform .2s ease, box-shadow .2s ease; }
-.gt-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
-.gt-card.is-soon { opacity:.6; }
-.gt-card.is-soon:hover { transform:none; box-shadow:none; }
-.gt-top { position:relative; height:120px; background:var(--powder); overflow:hidden; }
-.gt-card.members .gt-top { background:#0F1E36; }
-.gt-card.guide .gt-top { background:var(--champ); }
-.gt-ring { position:absolute; border-radius:50%; border:1px solid var(--gold); opacity:.25; }
-.gt-ring.r1 { width:220px; height:220px; right:-70px; top:-100px; }
-.gt-ring.r2 { width:140px; height:140px; right:-30px; top:-60px; border-style:dashed; }
-.gt-card.members .gt-ring { border-color:#E8D6A8; }
-.gt-tags { position:absolute; left:16px; top:14px; display:flex; gap:6px; }
-.gt-tag { font-size:11px; font-weight:500; padding:3px 10px; border-radius:999px; background:var(--tile); color:var(--text); }
-.gt-tag.m { background:#E8D6A8; color:#0F1E36; }
-.gt-body { padding:16px 18px 18px; display:flex; flex-direction:column; gap:6px; flex:1; }
-.gt-body h3 { font-size:18px; font-weight:500; letter-spacing:-0.01em; line-height:1.25; }
-.gt-body p { font-size:14px; color:var(--muted); line-height:1.5; }
-.gt-foot { margin-top:auto; padding-top:10px; display:flex; justify-content:space-between; font-size:13px; }
-.gt-foot span:first-child { color:var(--gold); font-weight:500; }
-.gt-foot span:last-child { font-family:'Geist Mono', monospace; font-size:11px; color:var(--muted); }
-.gt-empty { padding:32px 20px; border:1px dashed var(--line); border-radius:22px; text-align:center; color:var(--muted); }
-.gt-stages { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:12px; }
-.gt-stage { padding:16px; border-radius:18px; background:var(--tile); border:1px solid var(--line); }
-.gt-stage p { font-size:11px; color:var(--gold); }
-.gt-stage b { display:block; margin-top:4px; font-size:15px; font-weight:500; }
-.gt-stage span { display:block; margin-top:4px; font-size:13px; color:var(--muted); line-height:1.45; }
-@media (max-width:1100px) { .gt-stages { grid-template-columns:repeat(2, minmax(0,1fr)); } }
-@media (max-width:860px) {
-  .gt-grid { grid-template-columns:1fr; gap:12px; }
-  .gt-stages { grid-template-columns:1fr; }
-  .gt-chips { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
-  .gt-chips::-webkit-scrollbar { display:none; }
-  .gt-chips .hb-chip { flex:none; }
-  .hb-search { max-width:none; }
-  .gt-count { display:none; }
-}
-</style>
+<link rel="stylesheet" href="/assets/guides-tools.css">
+<link rel="stylesheet" href="/hub/css/guides-tools-hub.css">
 </head>
 <body>
 <script src="/hub/js/supabase-config.js"></script>
@@ -76,52 +30,67 @@
       <a href="/hub/suite/index.html">Investment suite</a>
       <a href="/hub/knowledge/index.html">Knowledge library</a>
       <a href="/index.html">Website</a>
+      <button type="button" class="hb-navout" data-hub-signout>Sign out</button>
       <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
     </nav>
   </div>
 </header>
 
-<main class="hb">
-  <div class="hb-head">
-    <div>
-      <p class="hb-kicker mono">Guides &amp; tools &middot; members</p>
-      <h1 class="hb-title">Learn by working it out yourself.</h1>
-      <p class="hb-intro">Every TEI guide and tool, plus the ones only members get, such as the Portfolio Optimisation Lab.</p>
-    </div>
-    <button type="button" class="hb-signout" data-hub-signout>Sign out</button>
-  </div>
+<main class="hb gt" data-gt-mode="hub">
 
-  <section aria-label="Filter guides and tools">
-    <div class="gt-filters">
-      <label class="hb-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input type="search" id="gtSearch" placeholder="Search, for example ISA, pension, property" aria-label="Search guides and tools"></label>
-      <div class="gt-chips" id="gtKinds" role="group" aria-label="Show"></div>
-      <span class="gt-count mono" id="gtCount" aria-live="polite"></span>
-    </div>
-    <div class="gt-chips" id="gtTopics" role="group" aria-label="Topics"></div>
-  </section>
+<!-- The same page as the public Guides & Tools (/guides.html), with the
+     members' finish: /hub/css/guides-tools-hub.css. Cards come from
+     /assets/guides-tools.json via /assets/guides-tools.js. -->
+<section class="gt-hero">
+<div class="gt-hero-glow t-glow" aria-hidden="true"></div>
+<div class="gt-hero-ring t-s90" aria-hidden="true"></div>
+<div class="gt-hero-in">
+<h1 class="gt-hero-h t-up">Understand it first. <span>Then run the numbers.</span></h1>
+<div class="gt-find t-up2">
+<label class="gt-search-wrap"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><span class="gt-sr">Search guides and tools</span><input id="gt-search" class="gt-search" type="search" placeholder="Search, e.g. ISA, pension, property" autocomplete="off"></label>
+<div class="gt-topics" id="gt-topics" role="group" aria-label="Topics"></div>
+</div>
+</div>
+</section>
 
-  <section class="gt-sec" id="gtMembersSec">
-    <div class="gt-sec-h"><h2>Members only</h2><p class="mono">Included in your membership</p></div>
-    <div class="gt-grid" id="gtMembers"></div>
-  </section>
+<!-- Members band: the tools only members get -->
+<section class="gt-sec gt-band" id="gt-members-sec" aria-labelledby="gt-members-h">
+<header class="gt-sh"><div><p class="gt-k">Members only</p><h2 id="gt-members-h">Included in your membership</h2></div></header>
+<div class="gt-g" id="gt-members"></div>
+</section>
 
-  <section class="gt-sec" id="gtAllSec">
-    <div class="gt-sec-h"><h2>Guides and tools</h2><p class="mono">Also free on the website</p></div>
-    <div class="gt-grid" id="gtAll"></div>
-  </section>
+<section class="gt-sec gt-lib-sec" id="gt-lib-sec" aria-labelledby="gt-count">
+<header class="gt-sh">
+<h2 id="gt-count" aria-live="polite">Guides and tools</h2>
+<div class="gt-kinds" id="gt-kinds" role="group" aria-label="Show"><button type="button" class="gt-kind" data-v="All" aria-pressed="true">All</button><button type="button" class="gt-kind" data-v="Guides" aria-pressed="false">Guides</button><button type="button" class="gt-kind" data-v="Tools" aria-pressed="false">Tools</button></div>
+</header>
+<div class="gt-g" id="gt-lib"></div>
+<p class="gt-empty" id="gt-empty" hidden>Nothing matches. Try another topic or clear the search.</p>
+</section>
 
-  <section class="gt-sec">
-    <div class="gt-sec-h"><h2>Start here: the five stages</h2><a class="mono" href="/hub/guides/stages.html" style="font-size:12px;color:var(--gold)">Read the full guide</a></div>
-    <div class="gt-stages">
-      <div class="gt-stage"><p class="mono">Stage 1</p><b>The Foundations</b><span>Never invested. Starting from scratch.</span></div>
-      <div class="gt-stage"><p class="mono">Stage 2</p><b>Building the Base</b><span>First investment made. Now structuring the portfolio properly.</span></div>
-      <div class="gt-stage"><p class="mono">Stage 3</p><b>Growing with Confidence</b><span>Invested and structured. Now developing market understanding and conviction.</span></div>
-      <div class="gt-stage"><p class="mono">Stage 4</p><b>Investment Philosophy</b><span>Developing a personal approach. Going beyond passive.</span></div>
-      <div class="gt-stage"><p class="mono">Stage 5</p><b>The Seasoned Investor</b><span>Advanced portfolio construction, life planning and long-term wealth management.</span></div>
-    </div>
-  </section>
+<section class="gt-sec gt-stages-sec" aria-labelledby="gt-stages-h">
+<header class="gt-sh">
+<div><p class="gt-k">Start here</p><h2 id="gt-stages-h">Five stages to the seasoned investor.</h2></div>
+<a class="gt-more" href="/guides/stages.html?from=hub">Read the full guide</a>
+</header>
+<div class="gt-track">
+<div class="gt-line" aria-hidden="true"><i class="t-grow"></i></div>
+<ol class="gt-stages">
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 1</p><h3>The Foundations</h3><p>Never invested. Starting from scratch.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 2</p><h3>Building the Base</h3><p>First investment made. Now structuring the portfolio properly.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 3</p><h3>Growing with Confidence</h3><p>Invested and structured. Now developing market understanding and conviction.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 4</p><h3>Investment Philosophy</h3><p>Developing a personal approach. Going beyond passive.</p></li>
+<li class="gt-stage"><span class="gt-dot" aria-hidden="true"></span><p class="gt-stage-k">Stage 5</p><h3>The Seasoned Investor</h3><p>Advanced portfolio construction, life planning and long-term wealth management.</p></li>
+</ol>
+</div>
+</section>
 
-  <div class="hb-foot" data-tei-boundary-footer="inherit"></div>
+<section class="gt-sec gt-soon" id="gt-soon" aria-labelledby="gt-soon-k">
+<p class="gt-k" id="gt-soon-k">Coming soon</p>
+<ul class="gt-soon-l" id="gt-soon-l"></ul>
+</section>
+
+<div class="hb-foot" data-tei-boundary-footer="inherit"></div>
 </main>
 
 <nav class="hb-tabs" aria-label="Main">
@@ -132,63 +101,9 @@
   <a href="/hub/wealth-os.html?page=menu"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></span>Me</a>
 </nav>
 
-<script>
-/* Guides and tools. Members-only tools first, then the guides and tools also
-   on the public site (opened in their Client Hub copies where one exists).
-   No href: a parked tool, shown as a Coming soon card that does not link. */
-(function () {
-  var ITEMS = [
-    { m: true, kind: 'Tools', title: 'Wealth Forecast', desc: 'Run thousands of simulations of your portfolio. Model contributions, returns, inflation and drawing down in retirement.', href: '', cta: 'Coming soon', time: '10 min', topics: ['Investing', 'Pensions'] },
-    { m: true, kind: 'Tools', title: 'Portfolio Optimisation Lab', desc: 'Analyse concentration, build scenarios against presets or your own targets, compare them and see the trades required.', href: '/hub/wealth-os.html?page=lab', cta: 'Open the lab', time: '10 min', topics: ['Investing'] },
-    { kind: 'Guides', title: 'TEI Principles', desc: 'The ideas behind every plan we build, from time in the market to the bear case.', href: '/guides/principles.html?from=hub', cta: 'Read the guide', time: '8 min read', topics: ['Investing'] },
-    { kind: 'Guides', title: 'Five Stages to the Seasoned Investor', desc: 'Where you are now, and what each next stage asks of you.', href: '', cta: 'Coming soon', time: '10 min read', topics: ['Investing', 'Budgeting'] },
-    { kind: 'Guides', title: 'The Tax Wrapper Guide', desc: 'Every ISA, pension and account type, and the order people tend to use them in.', href: '/guides/tax.html?from=hub', cta: 'Read the guide', time: '8 min read', topics: ['ISAs', 'Pensions'] },
-    { kind: 'Tools', title: 'Cost of Waiting Calculator', desc: 'See what delaying by one year, or five, costs you by retirement.', href: '/guides/cost-of-waiting.html?from=hub', cta: 'Open calculator', time: '2 min', topics: ['Investing', 'Pensions'] },
-    { kind: 'Tools', title: 'Property Calculator', desc: 'Mortgage, equity, stamp duty and a stress test on any purchase.', href: '', cta: 'Coming soon', time: '5 min', topics: ['Property'] },
-    { kind: 'Tools', title: 'Tax Scenario Tool', desc: 'Put in a few real numbers and see which wrapper decisions are worth something for you right now.', href: '', cta: 'Coming soon', time: '3 min', topics: ['Pensions', 'ISAs', 'Budgeting'] }
-  ];
-  var KINDS = ['All', 'Guides', 'Tools'];
-  var TOPICS = ['All topics', 'Budgeting', 'ISAs', 'Pensions', 'Property', 'Investing'];
-  var f = { kind: 'All', topic: 'All topics', q: '' };
-  function $(id) { return document.getElementById(id); }
-  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  try { var show = new URLSearchParams(location.search).get('show'); if (show === 'Guides' || show === 'Tools') f.kind = show; } catch (e) {}
-
-  function chips(list, cur) { return list.map(function (x) { return '<button type="button" class="hb-chip" data-v="' + esc(x) + '" aria-pressed="' + (x === cur ? 'true' : 'false') + '">' + esc(x) + '</button>'; }).join(''); }
-  function card(it, i) {
-    var cls = 'gt-card hb-up' + (it.m ? ' members' : '') + (it.kind === 'Guides' && !it.m ? ' guide' : '');
-    var tag = it.href ? 'a' : 'div';
-    return '<' + tag + ' class="' + cls + (it.href ? '' : ' is-soon') + '" style="animation-delay:' + Math.min(i, 8) * 40 + 'ms"' + (it.href ? ' href="' + esc(it.href) + '"' : ' aria-disabled="true"') + '>' +
-      '<div class="gt-top"><span class="gt-ring r1"></span><span class="gt-ring r2 hb-spin"></span><div class="gt-tags">' +
-      (it.m ? '<span class="gt-tag m">Members</span>' : '') + '<span class="gt-tag">' + (it.kind === 'Tools' ? 'Tool' : 'Guide') + '</span></div></div>' +
-      '<div class="gt-body"><h3>' + esc(it.title) + '</h3><p>' + esc(it.desc) + '</p><div class="gt-foot"><span>' + esc(it.cta) + '</span>' + (it.href ? '<span>' + esc(it.time) + '</span>' : '') + '</div></div></' + tag + '>';
-  }
-  function match(it) {
-    if (f.kind !== 'All' && it.kind !== f.kind) return false;
-    if (f.topic !== 'All topics' && it.topics.indexOf(f.topic) < 0) return false;
-    if (f.q && (it.title + ' ' + it.desc + ' ' + it.topics.join(' ')).toLowerCase().indexOf(f.q) < 0) return false;
-    return true;
-  }
-  function render() {
-    $('gtKinds').innerHTML = chips(KINDS, f.kind);
-    $('gtTopics').innerHTML = chips(TOPICS, f.topic);
-    var list = ITEMS.filter(match);
-    var mem = list.filter(function (x) { return x.m; }), pub = list.filter(function (x) { return !x.m; });
-    $('gtMembersSec').hidden = !mem.length;
-    $('gtMembers').innerHTML = mem.map(card).join('');
-    $('gtAll').innerHTML = pub.length ? pub.map(card).join('') : (mem.length ? '' : '<div class="gt-empty">Nothing matches. Try another topic or clear the search.</div>');
-    $('gtAllSec').hidden = !pub.length && !!mem.length;
-    $('gtCount').textContent = list.length + (list.length === 1 ? ' guide or tool' : ' guides and tools');
-  }
-  $('gtKinds').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) { f.kind = b.getAttribute('data-v'); render(); } });
-  $('gtTopics').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) { f.topic = b.getAttribute('data-v'); render(); } });
-  $('gtSearch').addEventListener('input', function () { f.q = this.value.trim().toLowerCase(); render(); });
-  render();
-})();
-</script>
+<script src="/assets/guides-tools.js" defer></script>
 <!-- Phones: the shared website and Client Hub bar (assets/mobile-nav.js),
-     not the Wealth OS tabs (Paddy, 20 Oct 2026). -->
-<style>.hb-tabs{ display:none !important; }</style>
+     not the Wealth OS tabs (Paddy, 20 Oct 2026); hidden in guides-tools-hub.css. -->
 <link rel="stylesheet" href="/assets/mobile-nav.css">
 <script src="/assets/mobile-nav.js" defer></script>
 </body>

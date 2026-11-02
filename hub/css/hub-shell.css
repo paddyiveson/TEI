@@ -32,6 +32,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .hb-nav a[aria-current="page"] { background:var(--chip); color:var(--text); }
 .hb-nav a.hb-open { margin-left:6px; padding:0 18px; font-weight:500; background:var(--navActive); color:var(--navActiveText); }
 .hb-nav a.hb-open:hover { opacity:.9; }
+/* Sign out sits in the bar on every Hub page, before Open Wealth OS (phones: in the Menu). */
+.hb-nav .hb-navout { font:inherit; font-size:14px; min-height:44px; padding:0 14px; border:0; border-radius:999px; background:none; color:var(--muted); cursor:pointer; }
+.hb-nav .hb-navout:hover { color:var(--text); background:var(--chip); }
 :root[data-theme="dark"] .hb-nav a.hb-open { box-shadow:0 0 0 1px rgba(232,214,168,0.25), 0 8px 24px rgba(232,214,168,0.20); }
 .hb-icon { display:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--tile); color:var(--text); cursor:pointer; align-items:center; justify-content:center; }
 .hb-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
@@ -76,4 +79,27 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
   .hb-tabs .tab-pill { flex:none; display:flex; align-items:center; justify-content:center; width:56px; height:30px; border-radius:999px; }
   .hb-tabs .tab-ic { display:block; flex:none; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
   .hb-tabs a[aria-current="page"] .tab-pill { background:var(--navActive); color:var(--navActiveText); }
+}
+
+/* Below 1300px the Hub bar's links sit closer, so the bar keeps its rows with
+   Sign out and the moon / sun button. */
+@media (max-width:1299px) and (min-width:861px) {
+  .hb-bar-in { gap:10px; }
+  .hb-nav { gap:0; }
+  .hb-nav a, .hb-nav .hb-navout { padding:0 9px; font-size:13px; }
+  .hb-nav a.hb-open { margin-left:4px; padding:0 14px; }
+}
+@media (max-width:1099px) and (min-width:861px) {
+  .hb-bar-in { padding:12px 24px; }
+  .hb-nav a, .hb-nav .hb-navout { padding:0 7px; }
+  .hb-nav a.hb-open { padding:0 12px; }
+}
+@media (max-width:960px) and (min-width:861px) {
+  /* The links in one row under the brand that swipes sideways, as the Hub
+     home folds its links at this width; the page never scrolls sideways. */
+  .hb-bar-in { flex-wrap:wrap; row-gap:6px; }
+  .hb-bar-in .tei-theme-btn { margin-left:auto; }
+  .hb-nav { order:3; flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 -24px; padding:0 24px 2px; }
+  .hb-nav::-webkit-scrollbar { display:none; }
+  .hb-nav > * { flex:none; }
 }
