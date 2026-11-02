@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Investment suite -- Client Hub</title>
+<title>Research -- Client Hub</title>
 <script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,8 +30,33 @@
 .su-head > * { position:relative; }
 .su-head .hb-intro { max-width:720px; }
 .su-sub-m { display:none; }
-.hb-nav .hb-navout { font:inherit; font-size:14px; min-height:44px; padding:0 14px; border:0; border-radius:999px; background:none; color:var(--muted); cursor:pointer; }
-.hb-nav .hb-navout:hover { color:var(--text); background:var(--chip); }
+/* Deep dives (8a, Paddy 2 Nov 2026): under the search and filters, each card
+   led by the article's own figure (/hub/js/hub-figures.js), then one line. */
+.su-deep { margin-bottom:40px; }
+.dd-g { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:14px; }
+.dd-c { position:relative; overflow:hidden; display:flex; flex-direction:column; min-width:0; border-radius:22px; text-decoration:none; color:var(--w-text); background:var(--w-tile); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.dd-c.lead { grid-column:span 7; background:var(--w-feat); border:1px solid var(--w-feat-line); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+.dd-c.side { grid-column:span 5; }
+.dd-g > .dd-c:only-child { grid-column:1 / -1; }
+.dd-cov { position:relative; display:block; height:190px; margin:10px 10px 0; border-radius:16px; overflow:hidden; background:var(--w-powder); }
+.dd-txt { display:flex; flex-direction:column; gap:8px; flex:1; padding:16px 22px 22px; }
+.dd-k { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-family:'Geist Mono', monospace; font-size:11px; letter-spacing:.04em; color:var(--w-muted); }
+.dd-c.lead .dd-k { color:rgba(247,244,237,.7); }
+.dd-tag { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px; background:var(--w-champ); border:1px solid var(--w-champ-line); color:var(--w-gold); }
+.dd-c.lead .dd-tag { background:#E8D6A8; border-color:#E8D6A8; color:#0F1E36; }
+.dd-h { font-size:24px; font-weight:300; letter-spacing:-0.025em; line-height:1.2; }
+.dd-c.lead .dd-h { font-size:28px; }
+.dd-s { font-size:14px; line-height:1.55; color:var(--w-muted); max-width:60ch; }
+.dd-c.lead .dd-s { color:rgba(247,244,237,.78); }
+.dd-go { margin-top:auto; display:inline-flex; align-items:center; gap:6px; padding-top:6px; font-size:14px; font-weight:500; color:var(--w-gold); }
+.dd-c.lead .dd-go, .nv-deep .dd-go { color:#E8D6A8; }
+.su-gc > .dd-badge { position:absolute; right:14px; top:14px; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:999px; background:var(--w-nav-active); color:var(--w-nav-active-text); font-size:11px; font-weight:500; }
+.nv-deep { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; justify-content:space-between; margin:0 0 16px; padding:16px 20px; border-radius:18px; background:var(--w-feat); border:1px solid var(--w-feat-line); color:#F7F4ED; text-decoration:none; }
+.nv-deep[hidden] { display:none; }
+.nv-deep b { font-size:16px; font-weight:400; }
+.nv-deep small { display:block; margin-bottom:2px; font-family:'Geist Mono', monospace; font-size:11px; color:rgba(247,244,237,.65); }
+@media (hover:hover) { .dd-c { transition:transform .25s ease; } .dd-c:hover { transform:translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .dd-c { transition:none; } .dd-c:hover { transform:none; } }
 /* The principles, as a quiet link under the intro (it goes to the guide) */
 .su-prl { display:inline-flex; align-items:center; gap:6px; min-height:40px; margin-top:6px; font-size:14px; color:var(--w-gold); text-decoration:none; }
 .su-prl b { font-weight:500; }
@@ -219,6 +244,14 @@
   .nv-pos { display:none; }
 }
 @media (max-width:860px) {
+  .dd-g { grid-template-columns:minmax(0, 1fr); gap:10px; }
+  .dd-c.lead, .dd-c.side { grid-column:auto; }
+  .dd-c { border-radius:18px; }
+  .dd-cov { height:150px; margin:8px 8px 0; }
+  .dd-txt { padding:14px 16px 18px; }
+  .dd-c.lead .dd-h { font-size:24px; }
+  .dd-h { font-size:20px; }
+  .su-deep { margin-bottom:28px; }
   /* A quiet header that leads into the cards: kicker, title, one line */
   .su-head { padding-top:8px; margin-bottom:16px; }
   .su-head .hb-kicker { font-size:11px; }
@@ -303,29 +336,14 @@
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
 
-<header class="hb-bar" id="hbBar">
-  <div class="hb-bar-in">
-    <a class="hb-brand" href="/hub/index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--gold)" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="var(--gold)" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="var(--gold)"/></svg>Client Hub</a>
-    <nav class="hb-nav" aria-label="Client Hub">
-      <a href="/hub/index.html">Home</a>
-      <a href="/hub/education/index.html">Learn</a>
-      <a href="/hub/videos.html">Videos</a>
-      <a href="/hub/guides.html">Guides &amp; tools</a>
-      <a href="/hub/articles.html">Articles</a>
-      <a href="/hub/suite/index.html" aria-current="page">Investment suite</a>
-      <a href="/hub/knowledge/index.html">Knowledge library</a>
-      <a href="/index.html">Website</a>
-      <button type="button" class="hb-navout" data-hub-signout>Sign out</button>
-      <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
-    </nav>
-  </div>
-</header>
+<div data-hub-header data-current="research"></div>
+<script src="/hub/js/hub-header.js"></script>
 
 <main class="hb">
   <!-- The notes list -->
   <div id="suList">
     <div class="su-head">
-      <p class="hb-kicker mono">Investment suite</p>
+      <p class="hb-kicker mono">Research</p>
       <h1 class="hb-title">Inside the companies we follow.</h1>
       <p class="hb-intro">Each note covers what the company does, why it matters, the key numbers, the bear case and what we are looking for, so conviction comes from the business, not the share price.</p>
       <p class="su-sub-m">Conviction in the business, not the share price.</p>
@@ -338,6 +356,9 @@
       <button type="button" class="su-fbtn" id="suFbtn" aria-label="Search notes" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
     </div>
 
+    <!-- Deep dives: longer reads on one company, each tied to its note
+         (suiteNote in /hub/members-articles.json). Filled by suite.js. -->
+    <section class="su-sec su-deep" id="suDeep" aria-labelledby="suDeepH" hidden></section>
     <div id="suNotes" aria-live="polite"></div>
     <section class="su-close" id="suClose" aria-labelledby="suCloseH"></section>
     <p class="su-note">Notes are education, not a recommendation to buy, sell or hold. Figures are as of the date on each note.</p>
@@ -358,6 +379,7 @@
     <div class="nv-grid">
       <nav class="nv-rail" aria-label="On this page"><p class="lab">On this page</p><ol class="nv-toc" id="nvToc"></ol></nav>
       <div class="nv-main">
+        <a class="nv-deep press" id="nvDeep" hidden></a>
         <div class="nv-frame">
           <iframe id="nvFrame" title="Investment note" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
           <div class="nv-load" id="nvLoad">Opening the note</div>
@@ -382,8 +404,7 @@
   </div>
 </dialog>
 
+<script src="/hub/js/hub-figures.js"></script>
 <script src="/hub/suite/suite.js"></script>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
-<script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

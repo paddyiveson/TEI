@@ -153,6 +153,22 @@
 }
 .kl-tile:active, .kl-feat:active { transform: scale(.985); }
 
+/* Library: Articles first, then Reference (8a, Paddy 2 Nov 2026). Article
+   cards use the library tiles; the lead is raised with a champagne edge. */
+.kl-sh { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; justify-content: space-between; margin: 0 0 14px; }
+.kl-sh h2 { font-size: 26px; font-weight: 300; letter-spacing: -0.03em; line-height: 1.2; }
+.kl-sh p { margin-top: 4px; font-size: 14px; color: var(--w-muted); }
+.kl-arts { margin-bottom: 40px; }
+.kl-arts[hidden], .kl-sh[hidden] { display: none; }
+.kl-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.kl-ag { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; }
+.kl-ag > * { grid-column: span var(--sp, 3); min-width: 0; }
+.kl-ag > .kl-tile.is-lead { grid-column: span 6; padding: 26px; background: var(--w-raised); border-color: var(--w-champ-line); }
+.kl-tile.is-lead .kl-tile-h { font-size: 28px; font-weight: 300; letter-spacing: -0.025em; }
+.kl-tile.is-lead .kl-tile-p { font-size: 15px; -webkit-line-clamp: 4; }
+.kl-time { margin-top: auto; padding-top: 6px; font-family: 'Geist Mono', ui-monospace, Menlo, monospace; font-size: 11px; color: var(--w-muted); }
+.kl-arts .kl-morebox { justify-content: flex-start; margin-top: 14px; }
+
 /* Search across every library */
 .kl-results .kl-result { margin-top: 0; }
 .kl-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; align-items: start; }
@@ -170,6 +186,8 @@
 
 /* ---------- 861 to 1099px ---------- */
 @media (max-width: 1099px) {
+  .kl-ag > * { grid-column: span 6; }
+  .kl-ag > .kl-tile.is-lead, .kl-ag > .kl-tile:last-child:nth-child(even) { grid-column: 1 / -1; }
   .kl-list.is-card, .kl-list.is-quote { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kl-list.is-row { grid-template-columns: minmax(0, 1fr); }
   .kl-libs > * { grid-column: span 6; }
@@ -178,6 +196,19 @@
 
 /* ---------- Phones (up to 860px) ---------- */
 @media (max-width: 860px) {
+  .kl-sh h2 { font-size: 22px; }
+  .kl-arts { margin-bottom: 32px; }
+  .kl-chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; }
+  .kl-chips::-webkit-scrollbar { display: none; }
+  .kl-chips .hb-chip { flex: none; }
+  .kl-ag { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .kl-ag > * { grid-column: span 1; }
+  .kl-ag > .kl-tile { min-height: 0; padding: 16px 14px; }
+  .kl-ag > .kl-tile .kl-tile-h { font-size: 15px; }
+  .kl-ag > .kl-tile .kl-tile-p { display: none; }
+  .kl-ag > .kl-tile.is-lead { grid-column: 1 / -1; padding: 20px 18px; }
+  .kl-ag > .kl-tile.is-lead .kl-tile-h { font-size: 22px; }
+  .kl-ag > .kl-tile.is-lead .kl-tile-p { display: -webkit-box; }
   .kl-head { margin-bottom: 16px; }
   .kl-head .hb-title { font-size: 24px; }
   .kl-line { margin-top: 8px; font-size: 14px; }

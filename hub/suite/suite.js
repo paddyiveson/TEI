@@ -1,6 +1,7 @@
 /* Investment suite: the notes list and the note view (/hub/suite/index.html).
  *
- * The list reads /hub/suite/notes/manifest.json and shows four sections:
+ * Research in the Client Hub nav. The list reads /hub/suite/notes/manifest.json
+ * and shows Deep dives (from /hub/members-articles.json), then four sections:
  * Growth Portfolio, Foundations, Top Ideas and Watchlist (grouped by theme).
  * A note opens on the same page (?note=<slug>): the note file loads into an
  * iframe that grows to the note's full height, so the page scrolls as one.
@@ -10,6 +11,7 @@
  */
 (function () {
   var CATS = ['Growth Portfolio', 'Foundations', 'Top Ideas', 'Watchlist'];
+  var DEEP = 'Deep dives';
   // Section descriptions: [wider screens, phones].
   var INTRO = {
     'Growth Portfolio': ['Long-term holdings at the forefront of technology, each carefully selected by the team.', 'Long-term holdings at the forefront of technology.'],
@@ -161,17 +163,53 @@
     $('suCats').setAttribute('aria-label', tabs ? 'Jump to a section' : 'Category');
     if (tabs) {
       $('suCats').innerHTML = CATS.map(function (k) { return '<button type="button" class="hb-chip" data-jump="' + esc(k) + '">' + esc(TAB[k]) + '</button>'; }).join('');
-    } else $('suCats').innerHTML = ['All'].concat(CATS).map(function (k) {
-      var n = k === 'All' ? all.length : inCat(k).length;
+    } else $('suCats').innerHTML = ['All'].concat(CATS, articles.length ? [DEEP] : []).map(function (k) {
+      var n = k === 'All' ? all.length : k === DEEP ? articles.length : inCat(k).length;
       return '<button type="button" class="hb-chip" data-cat="' + esc(k) + '" aria-pressed="' + (k === cat ? 'true' : 'false') + '">' + esc(k) + '<span class="n">' + n + '</span></button>';
     }).join('');
     if (!loaded) return;
     var show = tabs ? 'All' : cat;
-    var html = CATS.filter(function (c) { return show === 'All' || show === c; }).map(function (c) {
+    var deep = renderDeep(show);
+    var html = show === DEEP ? '' : CATS.filter(function (c) { return show === 'All' || show === c; }).map(function (c) {
       var list = inCat(c).filter(matches);
       return list.length ? section(c, list) : '';
     }).join('');
-    $('suNotes').innerHTML = html || '<div class="su-empty">No notes match that yet. Try another word, or browse <a href="/hub/articles.html">members&#39; articles</a>.</div>';
+    $('suNotes').innerHTML = html || (deep ? '' : '<div class="su-empty">No notes match that yet. Try another word, or a company name or ticker.</div>');
+    badges();
+  }
+
+  /* ---------- Deep dives (8a, Paddy 2 Nov 2026) ----------
+     Under the search and filters: the lead (featured) deep dive in navy, the
+     next beside it, each led by its own figure (/hub/js/hub-figures.js) and
+     one line. A company with a deep dive gets a badge on its card, and the
+     deep dive opens from the top of its note. */
+  function firstLine(s) { var m = String(s || '').match(/^[\s\S]*?[.!?](?=\s|$)/); return m ? m[0] : String(s || ''); }
+  function deepOf(n) { for (var i = 0; i < articles.length; i++) if (articles[i].suiteNote === n.slug) return articles[i]; return null; }
+  function deepUrl(a) { return '/hub/members/' + encodeURIComponent(a.slug) + '.html'; }
+  function deepMatches(a) { return !q || (a.title + ' ' + (a.short || '') + ' ' + (a.ticker || '') + ' ' + (a.teaser || '') + ' ' + (a.category || '')).toLowerCase().indexOf(q) >= 0; }
+  function deepCard(a, lead) {
+    var fig = window.TeiFigures ? window.TeiFigures.html(a.figure || 'line', { size: lead ? 'large' : 'small', caption: !lead }) : '';
+    return '<a class="dd-c press ' + (lead ? 'lead' : 'side') + '" href="' + deepUrl(a) + '">' +
+      '<span class="dd-cov" aria-hidden="true">' + fig + '</span>' +
+      '<span class="dd-txt"><span class="dd-k">' + (a.ticker ? '<span class="dd-tag">' + esc(a.ticker) + '</span>' : '') + esc(a.readTime ? a.readTime + ' min read' : a.category) + '</span>' +
+      '<span class="dd-h">' + esc(a.short || a.title) + '</span>' +
+      '<span class="dd-s">' + esc(firstLine(a.teaser)) + '</span>' +
+      '<span class="dd-go">Read the deep dive' + CHEV + '</span></span></a>';
+  }
+  function renderDeep(show) {
+    var box = $('suDeep');
+    var list = (show === 'All' || show === DEEP) ? articles.filter(deepMatches) : [];
+    list.sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0); });
+    box.hidden = !list.length;
+    box.innerHTML = list.length ? '<header class="su-sh"><h2 id="suDeepH">Deep dives</h2><p>' + (mqPhone.matches ? 'Longer reads on one company.' : 'Longer reads on one company, alongside its note.') + '</p></header>' +
+      '<div class="dd-g">' + list.map(function (a, i) { return deepCard(a, i === 0); }).join('') + '</div>' : '';
+    return list.length;
+  }
+  function badges() {
+    Array.prototype.forEach.call($('suNotes').querySelectorAll('.su-gc[data-note]'), function (c) {
+      var n = bySlug(c.getAttribute('data-note'));
+      if (n && deepOf(n) && !c.querySelector('.dd-badge')) c.insertAdjacentHTML('beforeend', '<span class="dd-badge">Deep dive</span>');
+    });
   }
 
   /* ---------- Closing grid ---------- */
@@ -180,8 +218,8 @@
       '<span class="s">Every note covers the same seven parts: what it does, thesis, the numbers, bull case, bear case, risks and valuation.</span><span class="go">Read our principles' + CHEV + '</span></a>';
   }
   function articleCard(a) {
-    return '<a class="su-cc press" href="/hub/members/' + encodeURIComponent(a.slug) + '.html"><span class="k">Members&#39; article · ' + esc(a.readTime ? a.readTime + ' min read' : a.category) + '</span>' +
-      '<span class="h">' + esc(a.short || a.title) + '</span><span class="s">' + esc(a.teaser || '') + '</span><span class="go">Read the article' + CHEV + '</span></a>';
+    return '<a class="su-cc press" href="/hub/members/' + encodeURIComponent(a.slug) + '.html"><span class="k">Deep dive · ' + esc(a.readTime ? a.readTime + ' min read' : a.category) + '</span>' +
+      '<span class="h">' + esc(a.short || a.title) + '</span><span class="s">' + esc(a.teaser || '') + '</span><span class="go">Read the deep dive' + CHEV + '</span></a>';
   }
   function noteCard(n, label) {
     return '<a class="su-cc brand press" style="--b:' + hex(n.brand) + '" href="' + noteUrl(n.slug) + '" data-note="' + esc(n.slug) + '"><span class="k">' + esc(label) + '</span>' +
@@ -223,7 +261,8 @@
 
   /* ---------- The note view ---------- */
   function setTop() {
-    var bar = $('hbBar'), top = mqPhone.matches ? 0 : bar.getBoundingClientRect().height;
+    // The shared Hub header (/hub/js/hub-header.js) is sticky at every width.
+    var bar = $('hubHeader'), top = bar ? bar.getBoundingClientRect().height : 0;
     document.documentElement.style.setProperty('--su-top', top + 'px');
     document.documentElement.style.setProperty('--nv-bar', $('nvBar').getBoundingClientRect().height + 'px');
   }
@@ -240,12 +279,15 @@
     current = n;
     if (how === 'push') { history.pushState({ note: slug }, '', noteUrl(slug)); fromList = true; }
     else if (how === 'replace') history.replaceState({ note: slug }, '', noteUrl(slug));
-    document.title = n.name + ' -- Investment suite -- Client Hub';
+    document.title = n.name + ' -- Research -- Client Hub';
     var l = inCat(n.category), i = l.indexOf(n);
     $('nvId').innerHTML = mark(n) + '<span class="b"><span class="n">' + esc(n.name) + '</span><span class="m">' + esc(n.ticker + ' · ' + n.category + (n.theme ? ' · ' + n.theme : '')) + '</span></span>';
     $('nvPos').textContent = (i + 1) + ' of ' + l.length;
     navBtn($('nvPrev'), l[i - 1], 'Previous note');
     navBtn($('nvNext'), l[i + 1], 'Next note');
+    var dd = deepOf(n), nd = $('nvDeep');
+    nd.hidden = !dd;
+    if (dd) { nd.href = deepUrl(dd); nd.innerHTML = '<span><small>Deep dive' + (dd.readTime ? ' · ' + esc(dd.readTime) + ' min read' : '') + '</small><b>' + esc(dd.short || dd.title) + '</b></span><span class="dd-go">Read the deep dive' + CHEV + '</span>'; }
     renderNoteClose(n);
     show('note');
     setTop();
@@ -261,7 +303,7 @@
     var was = current;
     current = null; teardown();
     if (push) history.pushState({}, '', '/hub/suite/index.html' + (cat !== 'All' ? '?cat=' + encodeURIComponent(cat) : ''));
-    document.title = 'Investment suite -- Client Hub';
+    document.title = 'Research -- Client Hub';
     show('list');
     renderList();
     window.scrollTo(0, listY);
@@ -516,12 +558,12 @@
 
   function route() {
     var p = new URLSearchParams(location.search), note = p.get('note'), c0 = p.get('cat');
-    cat = c0 && CATS.indexOf(c0) >= 0 ? c0 : 'All';
+    cat = c0 && (CATS.indexOf(c0) >= 0 || c0 === DEEP) ? c0 : 'All';
     if (note && bySlug(note)) openNote(note);
     else { fromList = false; if (current || $('suList').hidden) closeNote(false); }
   }
 
-  try { var c1 = new URLSearchParams(location.search).get('cat'); if (CATS.indexOf(c1) >= 0) cat = c1; } catch (e) {}
+  try { var c1 = new URLSearchParams(location.search).get('cat'); if (CATS.indexOf(c1) >= 0 || c1 === DEEP) cat = c1; } catch (e) {}
   setTop();
   renderList();
   Promise.all([
