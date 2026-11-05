@@ -1307,6 +1307,12 @@ body.tc-page .tc-members-head { background: var(--c-depth); }
   .tc-main.ar-wide .tc-guide::after { content: ""; display: table; clear: both; }
   .tc-main.ar-wide .tc-rail { float: left; width: 200px; margin: 0 48px 32px 0; }
   .tc-main.ar-wide .tc-rail-in { position: static; }
+  /* Width changes only between parts (Paddy, 5 Nov): the opening part sits beside
+     the rail; every later part starts below it, full width, under a faint rule,
+     so a heading never sits indented above full-width text. */
+  .tc-main.ar-wide .tc-body > .tc-toc-m + .tc-part { display: flow-root; }
+  .tc-main.ar-wide .tc-body > .tc-part ~ .tc-part { clear: left; }
+  .tc-main.ar-wide .tc-body > .tc-toc-m + .tc-part + .tc-part { padding-top: 40px; border-top: 1px solid var(--c-line); }
   html.tc-rail-gone .tc-main.ar-wide .tc-toc-m { display: block; position: fixed; top: var(--tei-hdr-h, 68px); left: 0; right: 0; z-index: 940; margin: 0; padding: 4px 32px; background: var(--c-page); border-bottom: 1px solid var(--c-line); box-shadow: 0 8px 24px rgba(15, 30, 54, 0.06); animation: tc-open .25s var(--tc-ease); }
   .tc-main.ar-wide .tc-toc-m summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; min-height: 44px; font-family: var(--tc-mono); font-size: 13px; color: var(--c-ink); }
   .tc-main.ar-wide .tc-toc-m summary::-webkit-details-marker { display: none; }
