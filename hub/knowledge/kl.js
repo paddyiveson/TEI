@@ -276,15 +276,64 @@
      The index
      ========================================================= */
   function indexPage() {
-    var libs = {};
-    Promise.all(LIBS.map(function (s) { return getJSON(BASE + 'data/' + s + '.json').then(function (d) { libs[s] = d; }); })).then(function () {
+    var libs = {}, arts = [];
+    // The website's articles (Library, 8a): open with ?from=hub so they keep
+    // the Hub header. A failed list leaves the reference libraries in place.
+    var artsLoad = getJSON('/articles.json').then(function (d) {
+      arts = (Array.isArray(d) ? d : d.articles || []).map(function (a) {
+        a._hay = [a.title, a.teaser, a.category, a.series && a.series.name].filter(Boolean).join(' ').toLowerCase();
+        return a;
+      });
+    }, function () { arts = []; });
+    Promise.all(LIBS.map(function (s) { return getJSON(BASE + 'data/' + s + '.json').then(function (d) { libs[s] = d; }); }).concat(artsLoad)).then(function () {
       LIBS.forEach(function (s) { libs[s].items.forEach(function (it) { it._hay = hay(it); }); });
+      articles();
       tiles();
       $('klAll').addEventListener('input', search);
       try { var q = new URLSearchParams(location.search).get('q'); if (q) { $('klAll').value = q; search.call($('klAll')); } } catch (e) {}
       main.classList.add('kl-ready');
     }).catch(function () {
-      $('klLibs').innerHTML = '<p class="kl-empty">The Knowledge library did not load. Please refresh the page.</p>';
+      $('klLibs').innerHTML = '<p class="kl-empty">The Library did not load. Please refresh the page.</p>';
+    });
+
+    /* ---------- Articles: a lead and six, a topic filter, then all ---------- */
+    var topic = 'All', allShown = false, SHOW = 7;
+    function artUrl(a) { return '/articles/' + encodeURIComponent(a.slug) + '.html?from=hub'; }
+    // Desktop spans so every row fills: the lead takes half the first row
+    // and two tiles the rest; then rows of four, the last row shared out.
+    function spansFor(m) {
+      if (m === 1) return [6];
+      var out = [3, 3], r = m - 2, full = Math.floor(r / 4) * 4, k = r - full, i;
+      for (i = 0; i < full; i++) out.push(3);
+      for (i = 0; i < k; i++) out.push(12 / k);
+      return out.slice(0, m);
+    }
+    function articles() {
+      var box = $('klArts');
+      if (!arts.length) { box.hidden = true; return; }
+      var topics = ['All'].concat(arts.map(function (a) { return a.category; }).filter(function (c, i, l) { return c && l.indexOf(c) === i; }));
+      var list = arts.filter(function (a) { return topic === 'All' || a.category === topic; });
+      // The featured article leads.
+      list.sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0); });
+      var shown = allShown ? list : list.slice(0, SHOW), sp = spansFor(shown.length - 1);
+      box.hidden = false;
+      box.innerHTML = '<header class="kl-sh"><div><h2 id="klArtsH">Articles</h2><p>Short reads on how money and markets work, and the habits that help.</p></div>' +
+        '<div class="kl-chips" role="group" aria-label="Topic">' + topics.map(function (t) {
+          return '<button type="button" class="hb-chip" data-topic="' + esc(t) + '" aria-pressed="' + (t === topic) + '">' + esc(t) + '</button>';
+        }).join('') + '</div></header>' +
+        '<div class="kl-ag">' + shown.map(function (a, i) {
+          return '<a class="kl-tile' + (i ? '' : ' is-lead') + '" href="' + artUrl(a) + '"' + (i ? ' style="--sp:' + sp[i - 1] + '"' : '') + '>' +
+            '<span class="kl-k mono">' + esc(a.category) + (a.series ? ' · ' + esc(a.series.name) : '') + '</span>' +
+            '<span class="kl-tile-h">' + esc(a.title) + '</span>' +
+            '<span class="kl-tile-p">' + esc(a.teaser || '') + '</span>' +
+            '<span class="kl-time">' + esc(a.readTime) + ' min read</span></a>';
+        }).join('') + '</div>' +
+        (list.length > SHOW ? '<div class="kl-morebox"><button type="button" class="kl-more" id="klArtMore">' + (allShown ? 'Show fewer' : 'All ' + list.length + ' articles') + '</button></div>' : '');
+    }
+    $('klArts').addEventListener('click', function (e) {
+      var t = e.target.closest('[data-topic]');
+      if (t) { topic = t.getAttribute('data-topic'); allShown = false; articles(); return; }
+      if (e.target.closest('#klArtMore')) { allShown = !allShown; articles(); }
     });
 
     function tiles() {
@@ -316,6 +365,8 @@
       var q = this.value.trim().toLowerCase();
       var box = $('klResults');
       $('klLibs').hidden = !!q;
+      $('klRefH').hidden = !!q;
+      $('klArts').hidden = !!q || !arts.length;
       box.hidden = !q;
       if (!q) { box.innerHTML = ''; return; }
       var groups = LIBS.map(function (s) {
@@ -323,13 +374,18 @@
         var hits = d.items.filter(function (it) { return it._hay.indexOf(q) > -1; });
         return { s: s, d: d, hits: hits };
       }).filter(function (g) { return g.hits.length; });
-      var total = groups.reduce(function (n, g) { return n + g.hits.length; }, 0);
+      // Articles first, as on the page.
+      var artHits = arts.filter(function (a) { return a._hay.indexOf(q) > -1; });
+      var total = artHits.length + groups.reduce(function (n, g) { return n + g.hits.length; }, 0);
       if (!total) {
-        box.innerHTML = '<p class="kl-empty">Nothing in the library matches "' + esc(this.value.trim()) + '". Try a shorter word.</p>';
+        box.innerHTML = '<p class="kl-empty">Nothing in the Library matches "' + esc(this.value.trim()) + '". Try a shorter word.</p>';
         return;
       }
-      box.innerHTML = '<p class="kl-result mono" aria-live="polite">' + total + ' result' + (total === 1 ? '' : 's') + ' in ' + groups.length + ' librar' + (groups.length === 1 ? 'y' : 'ies') + '</p>' +
-        '<div class="kl-groups">' + groups.map(function (g) {
+      var places = groups.length + (artHits.length ? 1 : 0);
+      box.innerHTML = '<p class="kl-result mono" aria-live="polite">' + total + ' result' + (total === 1 ? '' : 's') + ' in ' + places + ' place' + (places === 1 ? '' : 's') + '</p>' +
+        '<div class="kl-groups">' + (artHits.length ? '<section class="kl-group"><header><h2>Articles</h2><span class="mono">' + artHits.length + '</span></header><ul>' +
+          artHits.map(function (a) { return '<li><a href="' + artUrl(a) + '"><b>' + esc(a.title) + '</b>' + (a.teaser ? '<span>' + esc(a.teaser) + '</span>' : '') + '</a></li>'; }).join('') +
+          '</ul></section>' : '') + groups.map(function (g) {
           var url = BASE + g.s + '.html';
           return '<section class="kl-group"><header><h2>' + esc(g.d.title) + '</h2><span class="mono">' + g.hits.length + '</span></header><ul>' +
             g.hits.slice(0, 3).map(function (it) {

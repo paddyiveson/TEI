@@ -7,8 +7,20 @@
                            guide layout and every other component
    Light or dark comes from /hub/js/tei-theme.js, which sets data-theme on
    <html>: the visitor's device setting, or a member's own choice.
-   Behaviour (contents rail, reveal motion, tabs, charts, Hub back bar) is in
-   /assets/content.js; members-only sections are in /assets/members.js. */
+   Behaviour (contents rail, reveal motion, tabs, charts, the Client Hub
+   header on pages opened from the Hub) is in /assets/content.js;
+   members-only sections are in /assets/members.js. */
+
+/* Opened from the Client Hub (?from=hub, marked on <html> by tei-theme.js and
+   content.js): the Hub header (/hub/js/hub-header.js) replaces the public
+   one, so sticky bars offset by its height, and it stacks with the public
+   page's layers (the public header sat at 950). */
+html[data-from-hub] { --tei-hdr-h: var(--hh-h, 64px); }
+html[data-from-hub] .tei-hdr { display: none !important; }
+html[data-from-hub] .hh-bar { z-index: 950; }
+html[data-from-hub] .hh-tabs { z-index: 1000; }
+html[data-from-hub] .hh-scrim { z-index: 1090; }
+html[data-from-hub] .hh-menu { z-index: 1100; }
 
 /* ---------- 1. Theme tokens ---------- */
 :root {

@@ -1,9 +1,9 @@
 /* TEI site -- mobile navigation (see assets/mobile-nav.css).
    Builds the header, bottom bar and full-screen menu from one route table per
-   variant, so nav content lives in this file only. One bar for the website
-   and the Client Hub (Paddy, 20 Oct 2026: two phone navs, one for the
-   website and Hub, another inside Wealth OS, which has its own). Signed in,
-   Membership becomes Client Hub and Menu lists the Hub's sections.
+   variant, so nav content lives in this file only. This is the website's
+   bar; the Client Hub has its own (/hub/js/hub-header.js, 8a) and so does
+   Wealth OS. Signed in, Membership becomes Client Hub and Menu lists the
+   Hub's sections.
    Nothing here is visible above the 860px breakpoint (the CSS hides it). */
 (function () {
   'use strict';
@@ -67,14 +67,16 @@
       adviserLink: true
     },
   };
-  // The Client Hub's sections, listed in Menu when signed in.
+  // The Client Hub's sections, listed in Menu when signed in: the same
+  // sections, in the same order, as the Hub's own header (/hub/js/hub-header.js).
   var HUB_LINKS = [
     { label: 'Client Hub',         sub: 'Your dashboard',                href: '/hub/index.html' },
-    { label: 'Wealth OS',          sub: 'Your plan, accounts and goals', href: '/hub/wealth-os.html' },
     { label: 'Learn',              sub: 'Lessons, stage by stage',       href: '/hub/education/index.html' },
     { label: 'Videos',             sub: 'Watch it explained',            href: '/hub/videos.html' },
-    { label: 'Investment suite',   sub: 'Research notes',                href: '/hub/suite/index.html' },
-    { label: 'Knowledge library',  sub: 'Glossary, models, books',       href: '/hub/knowledge/index.html' }
+    { label: 'Guides &amp; tools', sub: 'Members\' guides and tools',     href: '/hub/guides.html' },
+    { label: 'Research',           sub: 'Company notes and deep dives',  href: '/hub/suite/index.html' },
+    { label: 'Library',            sub: 'Articles and reference',        href: '/hub/knowledge/index.html' },
+    { label: 'Wealth OS',          sub: 'Your plan, accounts and goals', href: '/hub/wealth-os.html' }
   ];
 
   var root = document.documentElement;
@@ -82,22 +84,18 @@
   var pageOverride = script && script.getAttribute('data-active');
   var cleanPath = (location.pathname || '/').replace(/\/+$/, '').replace(/\.html$/, '') || '/';
   var isHub = cleanPath === '/hub' || cleanPath.indexOf('/hub/') === 0;
+  // Client Hub pages, and guides, tools and articles opened from the Hub
+  // (?from=hub), carry the Hub's own header and phone bar
+  // (/hub/js/hub-header.js), so this file builds nothing there.
+  var fromHub = /(?:^|[?&])from=hub(?:&|$)/.test(location.search);
   // Signed in: on any Hub page, or the Supabase session cookie is present
   // (sb-...-auth-token, hub/js/supabase-client.js).
-  var signedIn = isHub || /(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '');
+  var signedIn = /(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '');
   var V = VARIANTS.site;
   if (signedIn) {
     V = Object.assign({}, VARIANTS.site, {
       members: true,
-      // On Client Hub pages Home is the Client Hub and the fourth tab opens
-      // Wealth OS (QA Sweep 1: Home used to leave for the website).
-      bar: isHub ? [
-        { id: 'hub',      label: 'Home',       href: '/hub/index.html', tab: 'home' },
-        { id: 'guides',   label: 'Guides',     href: '/hub/guides.html' },
-        { id: 'articles', label: 'Articles',   href: '/hub/articles.html' },
-        { id: 'wealth',   label: 'Wealth OS',  href: '/hub/wealth-os.html' },
-        { id: 'menu',     label: 'Menu',       href: null }
-      ] : [
+      bar: [
         { id: 'home',     label: 'Home',       href: '/index.html' },
         { id: 'guides',   label: 'Guides',     href: '/guides.html' },
         { id: 'articles', label: 'Articles',   href: '/articles.html' },
@@ -106,8 +104,6 @@
       ],
       headerActions: '<a class="tei-mhead-cta" href="/hub/wealth-os.html"><span>Open Wealth OS</span></a>'
     });
-    // On Client Hub pages the logo returns to the Client Hub, as on desktop.
-    if (isHub) { V.logoHref = '/hub/index.html'; V.logoLabel = 'Client Hub, home'; }
   }
 
   var barItems = {}, menuLinks = {};
@@ -124,11 +120,6 @@
   // overrides this.
   function detectPage() {
     var p = cleanPath;
-    if (isHub) {
-      if (p === '/hub/guides' || p.indexOf('/hub/guides/') === 0) return 'guides';
-      if (p === '/hub/articles' || p.indexOf('/hub/articles/') === 0) return 'articles';
-      return 'hub';
-    }
     if (p === '/' || p === '/index') return 'home';
     if (p === '/guides' || p.indexOf('/guides/') === 0) return 'guides';
     if (p === '/articles' || p.indexOf('/articles/') === 0) return 'articles';
@@ -377,7 +368,6 @@
      "Client Hub" instead of "Log in" without loading Supabase. Same link. */
   function markSignedIn() {
     if (!/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '')) return;
-    if (isHub && !document.querySelector('.tei-hdr')) return; // Hub pages with their own top bar
     var links = document.querySelectorAll('a[href="/hub/index.html"]');
     for (var i = 0; i < links.length; i++) {
       var a = links[i];
@@ -401,6 +391,7 @@
   }
 
   function init() {
+    if (isHub || fromHub || document.body.hasAttribute('data-hub-only')) return;
     root.classList.add('tei-mnav');
     root.classList.add('tei-site'); // the website look, on Hub pages too (one bar for both)
     if (isToolPage()) root.classList.add('tei-mtool');
@@ -409,8 +400,7 @@
     if (!hasFooter) root.classList.add('tei-mbar-nofooter');
 
     // Public pages carry their own static header; only build one if it is missing.
-    // The new Hub pages carry their own top bar (.hb-bar), so no extra header.
-    if (!document.querySelector('.tei-hdr, .hb-bar')) buildHeader();
+    if (!document.querySelector('.tei-hdr')) buildHeader();
     buildBar();
     buildMenu();
     setActive(pageOverride || detectPage());

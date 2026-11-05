@@ -31,22 +31,6 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .mono { font-family:'Geist Mono', ui-monospace, Menlo, monospace; }
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-/* Hub top bar (B2.4): sticky glass on desktop (B14) */
-.hb-bar { position:sticky; top:0; z-index:40; background:var(--w-glass); border-bottom:1px solid var(--w-glass-line); -webkit-backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); backdrop-filter:blur(var(--w-glass-blur)) saturate(140%); }
-.hb-bar-in { padding:14px 32px; display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; }
-.hb-brand { display:inline-flex; align-items:center; gap:10px; min-height:44px; text-decoration:none; font-weight:500; font-size:16px; }
-.hb-brand svg { flex:none; }
-.hb-nav { display:flex; flex-wrap:wrap; gap:4px; align-items:center; font-size:14px; }
-.hb-nav a { display:inline-flex; align-items:center; min-height:44px; padding:0 14px; border-radius:999px; text-decoration:none; color:var(--muted); }
-.hb-nav a:hover { color:var(--text); background:var(--chip); }
-.hb-nav a[aria-current="page"] { background:var(--chip); color:var(--text); }
-.hb-nav a.hb-open { margin-left:6px; padding:0 18px; font-weight:500; background:var(--navActive); color:var(--navActiveText); }
-.hb-nav a.hb-open:hover { opacity:.9; }
-.hb-nav .hb-navout { font:inherit; font-size:14px; min-height:44px; padding:0 14px; border:0; border-radius:999px; background:none; color:var(--muted); cursor:pointer; }
-.hb-nav .hb-navout:hover { color:var(--text); background:var(--chip); }
-:root[data-theme="dark"] .hb-nav a.hb-open { box-shadow:0 0 0 1px rgba(232,214,168,0.25), 0 8px 24px rgba(232,214,168,0.20); }
-.hb-icon { display:none; width:44px; height:44px; border-radius:50%; border:1px solid var(--line); background:var(--tile); color:var(--text); cursor:pointer; align-items:center; justify-content:center; }
-.hb-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 
 
 /* Page */
@@ -56,11 +40,6 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .vl-title { margin-top:8px; font-size:clamp(30px, 3.6vw, 42px); font-weight:300; letter-spacing:-0.03em; line-height:1.08; max-width:860px; }
 .vl-intro { margin-top:10px; font-size:16px; font-weight:300; color:var(--muted); max-width:620px; }
 .vl-head-side { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-.hb-signout { font-family:inherit; font-size:13px; min-height:44px; padding:0 12px; border:0; background:none; color:var(--muted); cursor:pointer; }
-.hb-signout:hover { color:var(--text); text-decoration:underline; }
-.hb-seg { display:inline-flex; padding:4px; border-radius:999px; border:1px solid var(--line); background:var(--tile); }
-.hb-seg button { font-family:inherit; font-size:13px; font-weight:500; min-height:36px; min-width:64px; padding:0 14px; border:0; border-radius:999px; cursor:pointer; background:transparent; color:var(--muted); }
-.hb-seg button[aria-pressed="true"] { background:var(--navActive); color:var(--navActiveText); }
 
 /* Featured row: New this week and Picked for your stage (homepage teaser) */
 .vl-top { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:16px; margin-bottom:20px; }
@@ -194,8 +173,6 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
 .vp-related a:hover { border-color:var(--muted); }
 .vp-disc { font-size:12px; color:var(--muted); line-height:1.6; border-top:1px solid var(--line); padding-top:12px; margin-top:4px; }
 
-/* Phone bottom bar: the Wealth OS tabs, Library active (spec A5). */
-.hb-tabs { display:none; }
 
 
 @keyframes vl-up { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
@@ -207,11 +184,7 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
 }
 
 @media (max-width:860px) {
-  .hb-bar { position:static; }
-  .hb-bar-in { padding:12px 16px; }
-  .hb-nav { display:none; }
-  .hb-icon { display:inline-flex; }
-  .hb { padding:20px 16px calc(84px + 24px); }
+  .hb { padding:20px 16px 24px; }
   .vl-top { grid-template-columns:1fr; gap:12px; }
   .vl-feat { flex-direction:column; padding:22px; gap:16px; }
   .vl-feat-l, .vl-feat-r { flex:none; }
@@ -234,34 +207,6 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
   .vl-grid { grid-template-columns:1fr; gap:12px; }
   .vp { padding:0; align-items:flex-end; }
   .vp-box { border-radius:24px 24px 0 0; max-height:100vh; }
-  .hb-tabs { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); position:fixed; left:0; right:0; bottom:0; z-index:50; padding:6px 8px calc(10px + env(safe-area-inset-bottom)); background:color-mix(in srgb, var(--side) 97%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-top:1px solid var(--line); }
-  .hb-tabs a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:56px; text-decoration:none; font-size:11px; font-weight:500; color:var(--muted); }
-  .hb-tabs a[aria-current="page"] { color:var(--text); font-weight:600; }
-  .hb-tabs .tab-pill { flex:none; display:flex; align-items:center; justify-content:center; width:56px; height:30px; border-radius:999px; }
-  .hb-tabs .tab-ic { display:block; flex:none; width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-  .hb-tabs a[aria-current="page"] .tab-pill { background:var(--navActive); color:var(--navActiveText); }
-}
-/* Below 1300px the Hub bar's links sit closer, so the bar keeps its rows with
-   Sign out and the moon / sun button. */
-@media (max-width:1299px) and (min-width:861px) {
-  .hb-bar-in { gap:10px; }
-  .hb-nav { gap:0; }
-  .hb-nav a, .hb-nav .hb-navout { padding:0 9px; font-size:13px; }
-  .hb-nav a.hb-open { margin-left:4px; padding:0 14px; }
-}
-@media (max-width:1099px) and (min-width:861px) {
-  .hb-bar-in { padding:12px 24px; }
-  .hb-nav a, .hb-nav .hb-navout { padding:0 7px; }
-  .hb-nav a.hb-open { padding:0 12px; }
-}
-@media (max-width:960px) and (min-width:861px) {
-  /* The links in one row under the brand that swipes sideways, as the Hub
-     home folds its links at this width; the page never scrolls sideways. */
-  .hb-bar-in { flex-wrap:wrap; row-gap:6px; }
-  .hb-bar-in .tei-theme-btn { margin-left:auto; }
-  .hb-nav { order:3; flex:1 1 100%; flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; margin:0 -24px; padding:0 24px 2px; }
-  .hb-nav::-webkit-scrollbar { display:none; }
-  .hb-nav > * { flex:none; }
 }
 </style>
 </head>
@@ -270,23 +215,8 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
 
-<header class="hb-bar">
-  <div class="hb-bar-in">
-    <a class="hb-brand" href="/hub/index.html"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="11.5" fill="none" stroke="var(--gold)" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="var(--gold)" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="var(--gold)"/></svg>Client Hub</a>
-    <nav class="hb-nav" aria-label="Client Hub">
-      <a href="/hub/index.html">Home</a>
-      <a href="/hub/education/index.html">Learn</a>
-      <a href="/hub/videos.html" aria-current="page">Videos</a>
-      <a href="/hub/guides.html">Guides &amp; tools</a>
-      <a href="/hub/articles.html">Articles</a>
-      <a href="/hub/suite/index.html">Investment suite</a>
-      <a href="/hub/knowledge/index.html">Knowledge library</a>
-      <a href="/index.html">Website</a>
-      <button type="button" class="hb-navout" data-hub-signout>Sign out</button>
-      <a class="hb-open" href="/hub/wealth-os.html">Open Wealth OS</a>
-    </nav>
-  </div>
-</header>
+<div data-hub-header data-current="videos"></div>
+<script src="/hub/js/hub-header.js"></script>
 
 <main class="hb">
   <div class="vl-head">
@@ -335,19 +265,7 @@ button.vc:hover { transform:translateY(-2px); box-shadow:var(--shadow); }
   </div>
 </div>
 
-<nav class="hb-tabs" aria-label="Main">
-  <a href="/hub/wealth-os.html"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/></svg></span>Home</a>
-  <a href="/hub/wealth-os.html?page=progress"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19h16"/><path d="M5 15.5l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7.5h4v4"/></svg></span>Wealth</a>
-  <a href="/hub/wealth-os.html?page=goals"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"/></svg></span>Plan</a>
-  <a href="/hub/index.html" aria-current="page"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 6.5C10.3 5 7.8 4.5 4 4.8v13.4c3.8-.3 6.3.2 8 1.6 1.7-1.4 4.2-1.9 8-1.6V4.8c-3.8-.3-6.3.2-8 1.7z"/><path d="M12 6.5v13.3"/></svg></span>Library</a>
-  <a href="/hub/wealth-os.html?page=menu"><span class="tab-pill"><svg class="tab-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.6 7-5.6s6.2 2 7 5.6"/></svg></span>Me</a>
-</nav>
 
 <script src="/hub/js/video-library.js"></script>
-<!-- Phones: the shared website and Client Hub bar (assets/mobile-nav.js),
-     not the Wealth OS tabs (Paddy, 20 Oct 2026). -->
-<style>.hb-tabs{ display:none !important; }</style>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
-<script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

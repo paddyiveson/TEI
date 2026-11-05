@@ -32,6 +32,7 @@
     '.tf-key{display:block;width:14px;height:0;border-top:2px solid var(--w-gold)}' +
     '.tf-key-b{border-top-style:dashed;border-top-color:var(--w-paid)}' +
     '.tf-dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--w-gold)}' +
+    '.tf-pt{position:absolute;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--w-paid)}' +
     '.tf-cap{position:absolute;left:8px;bottom:5px;font-family:' + MONO + ';font-size:9px;color:var(--w-text)}' +
     '.tf-draw{stroke-dasharray:1;animation:tf-draw 1.8s cubic-bezier(.6,.05,.2,1) .2s both}' +
     '.tf-bar{transform-box:fill-box;transform-origin:bottom;animation:tf-bar 1s cubic-bezier(.3,.8,.3,1) both}' +
@@ -86,12 +87,14 @@
     var grid = [40, 90, 140, 190].map(function (y) {
       return '<line x1="0" x2="400" y1="' + y + '" y2="' + y + '" style="stroke:var(--w-third);stroke-opacity:0.35" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>';
     }).join('');
-    var dots = DIV_DOTS.map(function (d) { return '<circle cx="' + d[0] + '" cy="' + d[1] + '" r="3.2" style="fill:var(--w-paid)"/>'; }).join('');
+    // The news dots sit outside the SVG, placed in %, so they stay round when
+    // a wide cover stretches the chart (preserveAspectRatio="none").
+    var dots = DIV_DOTS.map(function (d) { return '<span class="tf-pt" style="left:' + (d[0] / 4) + '%;top:' + (d[1] / 2.2).toFixed(1) + '%"></span>'; }).join('');
     return '<svg viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true" focusable="false">' + grad(id) + grid +
-        '<path d="M ' + pts(DIV_NEWS) + '" fill="none" style="stroke:var(--w-paid)" stroke-width="2" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/>' + dots +
+        '<path d="M ' + pts(DIV_NEWS) + '" fill="none" style="stroke:var(--w-paid)" stroke-width="2" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/>' +
         '<path d="M ' + pts(DIV_PRICE) + ' L 400 220 L 0 220 Z" fill="url(#' + id + ')"/>' +
         '<path class="tf-draw" pathLength="1" d="M ' + pts(DIV_PRICE) + '" fill="none" style="stroke:var(--w-gold)" stroke-width="2.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
-      '</svg>' +
+      '</svg>' + dots +
       '<span class="tf-dot" style="left:' + (high[0] / 4) + '%;top:' + (high[1] / 2.2).toFixed(1) + '%"></span>' +
       '<span class="tf-t" style="left:15%;top:14%">' + esc(f.high || 'January high') + '</span>' +
       '<span class="tf-t" style="right:12px;top:58%;text-align:right">' + esc(f.end || 'Under half') + '</span>' +
@@ -148,7 +151,7 @@
     var bottom = 66, h = 54;
     var s = function (x) { return h * x / v.max; };
     var bH = s(v.b), loH = s(v.lo), hiH = s(v.hi);
-    return '<svg viewBox="0 0 120 80" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
+    return '<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">' +
       '<rect x="26" y="' + (bottom - bH) + '" width="28" height="' + bH + '" rx="3" style="fill:var(--w-third)"/>' +
       '<rect x="66" y="' + (bottom - hiH) + '" width="28" height="' + (hiH - loH + 3) + '" rx="3" fill="none" style="stroke:var(--w-gold)" stroke-width="1.5" stroke-dasharray="3 2" vector-effect="non-scaling-stroke"/>' +
       '<rect x="66" y="' + (bottom - loH) + '" width="28" height="' + loH + '" rx="3" style="fill:var(--w-gold)"/>' +

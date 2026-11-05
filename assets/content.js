@@ -1,8 +1,8 @@
 /* TEI content library behaviour (Brand Content Design Spec, rebuild).
    Pairs with /assets/content.css on rebuilt guides, tools and articles.
-     - Shell: opened from the Client Hub (?from=hub), a navy back bar returns
-       there, and links to other content pages keep ?from=hub. Article pages
-       get their bar from /assets/article.js instead.
+     - Shell: opened from the Client Hub (?from=hub), the page shows the Hub
+       header (/hub/js/hub-header.js) instead of the public one, its back link
+       returns to the Hub, and links to other content pages keep ?from=hub.
      - Contents: the rail (desktop) and Contents dropdown (phones) are built
        from each <section class="tc-part" data-toc="..."> and follow the
        reader down the page.
@@ -29,21 +29,26 @@
       var h = a.getAttribute('href');
       if (h.indexOf('from=hub') < 0) a.setAttribute('href', h + (h.indexOf('?') < 0 ? '?' : '&') + 'from=hub');
     });
-    if (document.querySelector('.tei-article[data-slug]') || document.querySelector('.tc-hubbar')) return;
-    var back = document.body.getAttribute('data-hub-back') || '/hub/guides.html';
-    var label = document.body.getAttribute('data-hub-label') || 'Client Hub guides and tools';
-    var bar = document.createElement('div');
-    bar.className = 'tc-hubbar';
-    bar.setAttribute('style', 'background:#0F1E36;color:#F7F4ED;font-family:Geist,system-ui,sans-serif;font-size:14px;');
-    bar.innerHTML = '<div style="max-width:1280px;margin:0 auto;padding:10px 32px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap">' +
-      '<a href="' + back + '" style="color:#E8D6A8;text-decoration:none;display:inline-flex;align-items:center;min-height:36px">&lsaquo; ' + label + '</a>' +
-      '<a href="/hub/wealth-os.html" style="color:#AAB6C8;text-decoration:none;display:inline-flex;align-items:center;min-height:36px">Open Wealth OS</a></div>';
-    var hdr = document.querySelector('.tei-hdr');
-    if (hdr && hdr.parentNode) hdr.parentNode.insertBefore(bar, hdr.nextSibling);
-    else document.body.insertBefore(bar, document.body.firstChild);
-    // The hero breadcrumb points back to the public list; in the Hub it points back here.
-    each('.ar-back[data-public]', function (a) { a.setAttribute('href', back); a.lastChild.nodeValue = label; });
-    // Other links back to the public list (Next steps head and cards) point back here too.
+    // The Client Hub header in place of the public one (8a, Paddy 2 Nov 2026):
+    // articles sit in the Hub's Library, guides and tools in Guides & tools.
+    var article = !!document.querySelector('.tei-article[data-slug]');
+    var back = article ? '/hub/knowledge/index.html' : (document.body.getAttribute('data-hub-back') || '/hub/guides.html');
+    var label = article ? 'Library' : (document.body.getAttribute('data-hub-label') || 'Guides & tools');
+    document.documentElement.setAttribute('data-from-hub', '');
+    if (!document.querySelector('[data-hub-header], #hubHeader')) {
+      var host = document.createElement('div');
+      host.setAttribute('data-hub-header', '');
+      host.setAttribute('data-current', article ? 'library' : 'guides');
+      document.body.insertBefore(host, document.body.firstChild);
+      var sc = document.createElement('script');
+      sc.src = '/hub/js/hub-header.js';
+      document.body.appendChild(sc);
+    }
+    // The hero back link and other links to the public list point back into the Hub.
+    each('.ar-back[data-public], .ar-back[href="/articles.html"]', function (a) {
+      a.setAttribute('href', back);
+      if (a.lastChild && a.lastChild.nodeType === 3) a.lastChild.nodeValue = label;
+    });
     each('main a[data-public]:not(.ar-back)', function (a) { a.setAttribute('href', back); });
   }
 

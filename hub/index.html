@@ -356,7 +356,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
 
-<div data-hub-header data-current="home"></div>
+<div data-hub-header data-current=""></div>
 <script src="/hub/js/hub-header.js"></script>
 
 <main class="hl" id="main">
@@ -397,7 +397,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
   var SETUP = '/hub/wealth-os.html?page=setup';
   var EDU = '/hub/education/index.html';
   var COMMIT = '/hub/education/module.html?module=0.0';
-  var ARTICLES = '/hub/articles.html';
+  // Members' articles are the deep dives, in Research (8a).
+  var ARTICLES = '/hub/suite/index.html?cat=Deep%20dives';
   var SUITE = '/hub/suite/index.html';
   var GUIDES = '/hub/guides.html';
   var NOTES = '/hub/wealth-os.html?page=documents';
@@ -642,7 +643,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     var list = sortArticles(S.articles);
     var head = list[0];
     var label = head && head.type === 'video' ? 'Latest for members' : "Members' articles";
-    var html = '<section class="t t-art" aria-labelledby="dArtK"><div class="row"><p class="lab" id="dArtK">' + label + '</p><a class="lnk" href="' + ARTICLES + '">All articles</a></div>';
+    var html = '<section class="t t-art" aria-labelledby="dArtK"><div class="row"><p class="lab" id="dArtK">' + label + '</p><a class="lnk" href="' + ARTICLES + '">All deep dives</a></div>';
     if (!head) return html + '<p class="coach-empty">New members\' articles appear here.</p></section>';
     var video = head.type === 'video';
     var meta = video ? (head.duration ? esc(head.duration) : '') + (isRecent(head) ? (head.duration ? ' · ' : '') + 'New' : '')
@@ -794,7 +795,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     if (S.name) $('hubHeroGreeting').textContent = (nw ? 'Welcome to TEI, ' : 'Welcome back, ') + S.name;
     $('hlGrid').innerHTML = (nw ? dGettingStarted() : dPlan()) + dCoach() + dArticles() + dLearn(L) + dSuite() + dTools() + dKnow();
     $('hlPhone').innerHTML = (nw ? mGettingStarted() : mPlan()) + '<div class="m-pair">' + mCoach() + mLearn(L) + '</div>' + mArticles() + mSuite() + mTools();
-    if (window.TeiHubHeader) window.TeiHubHeader.setWealthOsHref(wealthOsHref());
+    if (window.TeiHubHeader) { window.TeiHubHeader.setWealthOsHref(wealthOsHref()); if (window.TeiHubHeader.setName) window.TeiHubHeader.setName(S.name); }
   }
 
   /* Book a session opens the clients' Cal.com Plan & Review event
