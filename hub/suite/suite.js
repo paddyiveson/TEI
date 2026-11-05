@@ -188,13 +188,16 @@
   function deepUrl(a) { return '/hub/members/' + encodeURIComponent(a.slug) + '.html'; }
   function deepMatches(a) { return !q || (a.title + ' ' + (a.short || '') + ' ' + (a.ticker || '') + ' ' + (a.teaser || '') + ' ' + (a.category || '')).toLowerCase().indexOf(q) >= 0; }
   function deepCard(a, lead) {
-    var fig = window.TeiFigures ? window.TeiFigures.html(a.figure || 'line', { size: lead ? 'large' : 'small', caption: !lead }) : '';
+    // Desktop: every card gets the full, labelled figure (the small one only
+    // suits thumbnails). Phones: two cards side by side, so small figures.
+    var phone = mqPhone.matches;
+    var fig = window.TeiFigures ? window.TeiFigures.html(a.figure || 'line', { size: phone ? 'small' : 'large' }) : '';
     return '<a class="dd-c press ' + (lead ? 'lead' : 'side') + '" href="' + deepUrl(a) + '">' +
       '<span class="dd-cov" aria-hidden="true">' + fig + '</span>' +
       '<span class="dd-txt"><span class="dd-k">' + (a.ticker ? '<span class="dd-tag">' + esc(a.ticker) + '</span>' : '') + esc(a.readTime ? a.readTime + ' min read' : a.category) + '</span>' +
       '<span class="dd-h">' + esc(a.short || a.title) + '</span>' +
       '<span class="dd-s">' + esc(firstLine(a.teaser)) + '</span>' +
-      '<span class="dd-go">Read the deep dive' + CHEV + '</span></span></a>';
+      '<span class="dd-go">' + (phone ? 'Read' : 'Read the deep dive') + CHEV + '</span></span></a>';
   }
   function renderDeep(show) {
     var box = $('suDeep');
