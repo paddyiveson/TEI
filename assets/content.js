@@ -66,6 +66,13 @@
     each('.tc-rail ol, .tc-toc-m ol', function (ol) { ol.innerHTML = html; });
     each('.tc-toc-m a', function (a) { a.addEventListener('click', function () { var d = a.closest('details'); if (d) d.open = false; }); });
     if (!('IntersectionObserver' in window)) return;
+    // Wide guides: the rail scrolls away with the opening of the page (content.css);
+    // once it is above the screen, the slim Contents bar takes its place.
+    var rail = document.querySelector('.tc-main.ar-wide .tc-rail');
+    if (rail) new IntersectionObserver(function (en) {
+      var e = en[en.length - 1];
+      document.documentElement.classList.toggle('tc-rail-gone', !e.isIntersecting && e.boundingClientRect.bottom < 0 && e.boundingClientRect.height > 0);
+    }).observe(rail);
     var links = document.querySelectorAll('.tc-rail a');
     var current = null;
     function mark(id) {

@@ -1293,3 +1293,30 @@ body.tc-page .tc-members-head { background: var(--c-depth); }
 @media (prefers-reduced-motion: reduce) {
   .m-armed .tc-journey-line i { transform: none !important; transition: none !important; }
 }
+
+/* ---------- Wide guides: content fills the space below the contents rail (Paddy, 5 Nov 2026) ----------
+   From 1101px the rail floats beside the opening of the guide instead of
+   holding a full-height column, so everything below it runs the full width.
+   Text and grids beside it narrow to fit (a grid or figure beside a float
+   keeps clear of it). Once the rail has scrolled above the screen,
+   content.js sets html.tc-rail-gone and the slim Contents bar (.tc-toc-m,
+   the phone and tablet bar) is fixed under the header, so the parts stay
+   one tap away. Tablets and phones are unchanged. */
+@media (min-width: 1101px) {
+  .tc-main.ar-wide .tc-guide { display: block; }
+  .tc-main.ar-wide .tc-guide::after { content: ""; display: table; clear: both; }
+  .tc-main.ar-wide .tc-rail { float: left; width: 200px; margin: 0 48px 32px 0; }
+  .tc-main.ar-wide .tc-rail-in { position: static; }
+  html.tc-rail-gone .tc-main.ar-wide .tc-toc-m { display: block; position: fixed; top: var(--tei-hdr-h, 68px); left: 0; right: 0; z-index: 940; margin: 0; padding: 4px 32px; background: var(--c-page); border-bottom: 1px solid var(--c-line); box-shadow: 0 8px 24px rgba(15, 30, 54, 0.06); animation: tc-open .25s var(--tc-ease); }
+  .tc-main.ar-wide .tc-toc-m summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; min-height: 44px; font-family: var(--tc-mono); font-size: 13px; color: var(--c-ink); }
+  .tc-main.ar-wide .tc-toc-m summary::-webkit-details-marker { display: none; }
+  .tc-main.ar-wide .tc-toc-m summary::after { content: ""; width: 8px; height: 8px; border-right: 1.5px solid var(--c-muted); border-bottom: 1.5px solid var(--c-muted); transform: rotate(45deg); transition: transform .25s ease; }
+  .tc-main.ar-wide .tc-toc-m[open] summary::after { transform: rotate(225deg); }
+  .tc-main.ar-wide .tc-toc-m ol { list-style: none; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); column-gap: 32px; margin: 4px 0 10px; padding: 0; }
+  .tc-main.ar-wide .tc-toc-m a { display: flex; gap: 10px; align-items: baseline; min-height: 44px; box-sizing: border-box; padding: 12px 0; border-top: 1px solid var(--c-line-soft); color: var(--c-ink); text-decoration: none; font-size: 15px; }
+  .tc-main.ar-wide .tc-toc-m a span { font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); }
+  .tc-main.ar-wide .tc-part { scroll-margin-top: calc(var(--tei-hdr-h, 68px) + 72px); }
+}
+@media (min-width: 1101px) and (prefers-reduced-motion: reduce) {
+  html.tc-rail-gone .tc-main.ar-wide .tc-toc-m { animation: none; }
+}
