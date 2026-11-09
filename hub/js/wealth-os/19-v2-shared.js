@@ -131,6 +131,27 @@ window.TEI = window.TEI || {};
       return false;
     }
   }
+  /* Questions and topics the client has added for the next session: open
+     session requests, oldest first, without the "Asked to book" request.
+     The wording each sender adds ("Question for the session on ...:",
+     "Would like to talk about ... at the next session (...)") is trimmed. */
+  function sessionText(m){
+    let s = String(m || '').trim();
+    let x = s.match(/^Would like to talk about this at the next session: "([\s\S]*)"$/); if(x) return x[1];
+    x = s.match(/^Would like to talk about ([\s\S]+?) at the next session\b/); if(x) return 'Talk about ' + x[1];
+    x = s.match(/^Would like to ask about ([\s\S]+?)\. No session booked yet\.$/); if(x) return 'Ask about ' + x[1];
+    return s.replace(/^Question for (?:the session on [^,]*,\s*\S+?|the next session):\s/, '');
+  }
+  const PAGE_NAMES = {home:'Home', wealth:'Wealth', progress:'Wealth', goals:'Goals', planning:'the forecast', forecast:'the forecast', cashflow:'cashflow', lab:'the Portfolio Lab', settings:'Settings'};
+  function sessionQuestions(client){
+    return (client.feedback||[]).filter(f=> f.area === 'session' && OPEN(f.status) && !/^Asked to book a session/.test(String(f.message||'')))
+      .map(f=>{ let text = sessionText(f.message);
+        const pg = PAGE_NAMES[f.pageContext];
+        if(text === 'Talk about this' && pg) text = 'Talk about ' + pg;
+        return {id:f.id, text, createdAt:f.createdAt}; })
+      .filter(q=> q.text)
+      .sort((a, b)=> String(a.createdAt||'').localeCompare(String(b.createdAt||'')));
+  }
   /* The label for the button: [text, done]. */
   function sessionButton(client, page){
     const next = nextSession(client), done = added(client, page);
@@ -184,6 +205,6 @@ window.TEI = window.TEI || {};
   }
 
   TEI.v2 = {RM, PHONE, esc, fmt, fk, sk, sgn, pc, cls, store, MON, CHEV, TICK, ARR, INFO, EYE,
-    countUp, onView, bindInfo, setHide, syncEye, note, staleLine, coachName, added, addToSession, nextSession, sessionWhen, sessionTitle, sessionButton,
+    countUp, onView, bindInfo, setHide, syncEye, note, staleLine, coachName, added, addToSession, nextSession, sessionWhen, sessionTitle, sessionQuestions, sessionButton,
     debts, payoff, addM, spanTxt, ageNow, shortDate};
 })();

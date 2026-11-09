@@ -472,6 +472,50 @@ TEI.render = TEI.render || {};
       text.textContent = 'Book a time with your coach and it will show here.';
       btn.textContent = 'Book a session';
     }
+      renderSessionQuestions(client, next);
+  }
+
+  /* Under the meeting details: the questions the client has added for the
+     session (from the Hub's Add a question box, or here), kept until the
+     coach closes them. Phones show a count; the tile opens Cal.com there. */
+  function renderSessionQuestions(client, next){
+    const tile = document.querySelector('.hm-t-session'), text = document.getElementById('whSessionText');
+    if(!tile || !text || !TEI.v2 || !TEI.v2.sessionQuestions) return;
+    let box = document.getElementById('whSessionQs');
+    if(!box){
+      box = document.createElement('div'); box.id = 'whSessionQs'; box.className = 'hm-sq';
+      text.insertAdjacentElement('afterend', box);
+      box.addEventListener('click', e=>{
+        if(e.target.closest('.hm-sq-add')){ const f = box.querySelector('.hm-sq-form'); f.hidden = false; box.querySelector('.hm-sq-add').hidden = true; f.querySelector('textarea').focus(); }
+        if(e.target.closest('.hm-sq-x')){ box.querySelector('.hm-sq-form').hidden = true; box.querySelector('.hm-sq-add').hidden = false; }
+        if(e.target.closest('.hm-sq-go')) sendSessionQuestion(client, box);
+      });
+    }
+    const qs = TEI.v2.sessionQuestions(client);
+    const n = qs.length, head = n ? (next ? 'For this session' : 'For your next session') + ' · ' + n + (n === 1 ? ' question' : ' questions') : '';
+    box.innerHTML = (n ? `<p class="hm-sq-h">${esc(head)}</p><ul class="hm-sq-l">` + qs.map(q=> `<li>${esc(q.text)}<small>Added ${esc(fmtDate(q.createdAt, {day:'numeric', month:'short'}))}</small></li>`).join('') + '</ul>' : '')
+      + (next || n ? `<button type="button" class="hm-sq-add">Add a question</button>` : '')
+      + `<div class="hm-sq-form" hidden><label class="hm-sq-lab" for="whSessionQ">Your question</label><textarea id="whSessionQ" maxlength="2000" rows="3"></textarea>`
+      + `<div class="hm-sq-acts"><em class="hm-sq-st" aria-live="polite"></em><button type="button" class="hm-sq-x">Cancel</button><button type="button" class="hm-btn hm-sq-go">Send</button></div></div>`;
+    box.hidden = !(next || n);
+    box.classList.toggle('has-q', n > 0);
+  }
+  async function sendSessionQuestion(client, box){
+    const ta = box.querySelector('textarea'), st = box.querySelector('.hm-sq-st'), go = box.querySelector('.hm-sq-go');
+    const q = ta.value.trim();
+    if(!q){ st.textContent = 'Type your question first.'; ta.focus(); return; }
+    if(client.meta.role === 'adviser'){ st.textContent = 'Clients send this to you. Nothing is sent while you preview.'; return; }
+    const next = TEI.v2.nextSession(client);
+    const msg = (next ? 'Question for the session on ' + TEI.v2.sessionWhen(next, true) + ': ' : 'Question for the next session: ') + q;
+    go.disabled = true; st.textContent = 'Sending…';
+    try{
+      const row = await TEI.wealthOS.saveFeedback(client.meta.clientId, 'session', 'home', msg, client.meta.role);
+      client.feedback = [{id:(row && row.id) || 'local-' + Date.now(), area:'session', pageContext:'home', message:msg, status:'new', submittedBy:'client', createdAt:new Date().toISOString()}].concat(client.feedback||[]);
+      renderSessionQuestions(client, next);
+    } catch(err){
+      console.error('Wealth OS: session question not sent', err);
+      go.disabled = false; st.textContent = 'That did not send. Please try again.';
+    }
   }
 
   TEI.render.home = function(client){
