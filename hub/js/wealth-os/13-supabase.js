@@ -526,7 +526,7 @@ window.TEI = window.TEI || {};
       }
 
       if(profile.role === 'adviser'){
-        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, user_id, last_updated, household_id, last_viewed_at').order('first_name', {ascending:true});
+        const { data: clients, error: clientsErr } = await w.from('clients').select('id, first_name, last_name, email, user_id, last_updated, household_id, last_viewed_at').order('first_name', {ascending:true});
         if(clientsErr) throw clientsErr;
         // Cross-client feedback inbox: RLS already grants advisers unrestricted
         // select on this table (see wealth_os_phase5_feedback.sql), so no
@@ -541,7 +541,15 @@ window.TEI = window.TEI || {};
         // to member names).
         const { data: households, error: householdsErr } = await w.from('households').select('*');
         if(householdsErr) throw householdsErr;
-        return { role:'adviser', clients: clients || [], feedback: feedback || [], households: households || [] };
+        // Upcoming Cal.com sessions (migration 022) for the Next session line
+        // and Book button on each client card. Fails soft: the list still loads.
+        let sessions = [];
+        try{
+          const ses = await w.from('sessions').select('client_id, title, start_at, end_at, status').eq('status', 'booked')
+            .gte('start_at', new Date(Date.now() - 4*3600000).toISOString()).order('start_at', {ascending:true});
+          if(!ses.error) sessions = ses.data || []; else console.warn('Wealth OS: sessions unavailable', ses.error);
+        } catch(e){ console.warn('Wealth OS: sessions unavailable', e); }
+        return { role:'adviser', clients: clients || [], feedback: feedback || [], households: households || [], sessions };
       }
 
       // client role: exactly one clients row, linked via user_id

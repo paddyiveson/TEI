@@ -420,6 +420,8 @@ window.TEI = window.TEI || {};
       return;
     }
     wrap.className = 'client-pill-grid';
+    const now = Date.now();
+    const nextOf = id=> (state.adviserSessions||[]).filter(x=> x.client_id === id && new Date(x.end_at || x.start_at).getTime() > now)[0] || null;
     wrap.innerHTML = visible.map(c=>{
       const name = nameOf(c);
       const initial = (c.first_name||name||'?').trim().charAt(0).toUpperCase() || '?';
@@ -441,6 +443,15 @@ window.TEI = window.TEI || {};
              <button type="button" class="btn-ghost" data-cancel-link="${c.id}" style="padding:6px 14px; font-size:12px;">Cancel</button>
            </div>`
         : '';
+      // Book: the clients' Cal.com event with this client's name and email
+      // filled in. The booking reaches wealth_os.sessions through the
+      // cal-booking-webhook function, matched on that email.
+      const next = nextOf(c.id);
+      const sessionLine = next
+        ? `<div class="cl-meta cl-session">Next session ${TEI.v2.sessionWhen({startAt:next.start_at}, true)}</div>`
+        : '';
+      const bookHref = 'https://cal.com/tei-ceo/plan-review?' + new URLSearchParams(Object.assign({name}, c.email ? {email:c.email} : {})).toString();
+      const noEmail = c.email ? '' : `<div class="cl-meta cl-noemail">No email on file, so bookings will not link to this client</div>`;
       return `<div class="client-pill">
         <div class="cl-top">
           <div class="cl-avatar">${initial}</div>
@@ -449,11 +460,13 @@ window.TEI = window.TEI || {};
         ${viewedLabel ? `<div class="cl-meta">${viewedLabel}</div>` : ''}
         ${householdBadge}
         <div class="cl-meta">${c.last_updated ? 'Last updated ' + updated : updated}</div>
+        ${sessionLine}${noEmail}
         ${picker}
         <div class="cl-actions">
           ${c.household_id
             ? `<button type="button" class="btn-ghost" data-unlink-household="${c.id}">Unlink</button>`
             : `<button type="button" class="btn-ghost" data-link-household="${c.id}">Link household</button>`}
+          <a class="btn-ghost cl-book" href="${bookHref.replace(/"/g,'&quot;')}" target="_blank" rel="noopener" aria-label="Book a session for ${name.replace(/"/g,'&quot;')}">Book</a>
           <button type="button" class="btn-ghost" data-open-client="${c.id}">Open</button>
         </div>
       </div>`;
@@ -584,6 +597,7 @@ window.TEI = window.TEI || {};
       if(!result) return; // redirected to login, or a load error is already shown elsewhere
       state.adviserClients = result.clients || [];
       state.adviserFeedback = result.feedback || [];
+      state.adviserSessions = result.sessions || [];
       renderClientListRows(state.adviserClients);
       renderFeedbackInbox();
     } catch(err){
@@ -753,6 +767,7 @@ window.TEI = window.TEI || {};
     if(result.role === 'adviser' && !result.client){
       state.adviserClients = result.clients || [];
       state.adviserFeedback = result.feedback || [];
+      state.adviserSessions = result.sessions || [];
       const urlClientId = new URLSearchParams(location.search).get('client');
       if(urlClientId){
         try{
