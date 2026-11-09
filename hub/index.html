@@ -333,6 +333,20 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
   .hl-date-s { display:inline; flex:none; font-size:11px; color:var(--w-muted); }
   .hl-foot-s { display:block; margin-top:12px; }
 }
+.ask { width:min(520px, calc(100vw - 32px)); max-height:calc(100dvh - 32px); padding:24px; border-radius:22px; border:1px solid var(--w-line); background:var(--w-bg); color:var(--w-text); box-shadow:0 24px 60px rgba(0,0,0,.45); }
+.ask::backdrop { background:rgba(5,10,20,.6); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+.ask h2 { margin:0; font-size:22px; font-weight:500; letter-spacing:-.01em; }
+.ask .ask-s { margin:6px 0 0; font-size:14px; color:var(--w-muted); }
+.ask label { display:block; margin-top:18px; font-size:13px; color:var(--w-muted); }
+.ask textarea { display:block; box-sizing:border-box; width:100%; min-height:130px; margin-top:6px; padding:12px 14px; border-radius:14px; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); font:inherit; font-size:15px; line-height:1.5; resize:vertical; }
+.ask textarea:focus-visible { outline:2px solid var(--w-gold); outline-offset:2px; }
+.ask .ask-acts { display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.ask .ask-st { margin-right:auto; font-size:13px; color:var(--w-muted); }
+.ask .ask-st.ok { color:var(--w-gold); }
+.ask .ask-st.err { color:#F0A97E; }
+.ask .btn { align-self:auto; }
+.m-coach .js-askq { margin-top:10px; }
+@media (max-width:560px) { .ask { padding:20px; } .ask .ask-acts .btn { flex:1; } .ask .ask-st { flex-basis:100%; } }
 </style>
 </head>
 <body>
@@ -622,8 +636,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       body = '<div class="coach-row"><div class="cal" aria-hidden="true"><span class="cal-m">' + p.mon + '</span><span class="cal-d">' + p.day + '</span><span class="cal-w">' + p.wd + '</span></div>' +
         '<div style="min-width:0"><p class="coach-k">Next session</p><h2 class="coach-h" style="margin-top:4px">' + esc(S.session.type || 'Session') + '</h2>' +
         '<p class="coach-s" style="margin-top:4px">' + esc([p.time, S.session.minutes ? S.session.minutes + ' min' : '', S.session.format || ''].filter(Boolean).join(' · ')) + '</p></div></div>' +
-        // "Add a question" opens Wealth OS, where any page's question can be added to the next session.
-        '<a class="btn btn-p press" href="' + esc(S.session.href || WOS) + '">Add a question</a>';
+        // "Add a question" opens a box on this page; the question goes to the coach as a session request.
+        '<button type="button" class="btn btn-p press js-askq">Add a question</button>';
     } else {
       var nw = isNew();
       body = '<div class="coach-row"><div class="cal cal-empty" aria-hidden="true">' + IC.calPlus + '</div>' +
@@ -741,9 +755,10 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     var body;
     if (S.session) {
       var p = sessionParts(S.session);
-      // The session itself opens it; "Add a question" lives there on phones (8.3).
+      // The session opens Wealth OS; "Add a question" opens the box on this page.
       body = '<a class="m-sess" href="' + esc(S.session.href || WOS) + '"><span class="cal" aria-hidden="true"><span class="cal-m">' + p.mon + '</span><span class="cal-d">' + p.day + '</span></span>' +
-        '<span style="min-width:0"><span class="h" style="display:block">' + esc(S.session.type || 'Session') + '</span><span class="s" style="display:block">' + esc(p.wd + ' · ' + p.time) + '</span></span></a>';
+        '<span style="min-width:0"><span class="h" style="display:block">' + esc(S.session.type || 'Session') + '</span><span class="s" style="display:block">' + esc(p.wd + ' · ' + p.time) + '</span></span></a>' +
+        '<button type="button" class="btn btn-p press js-askq">Add a question</button>';
     } else {
       body = '<p class="h">' + (isNew() ? 'Book your plan session' : 'Book a session') + '</p>' + bookBtn('Book');
     }
@@ -797,6 +812,53 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     $('hlPhone').innerHTML = (nw ? mGettingStarted() : mPlan()) + '<div class="m-pair">' + mCoach() + mLearn(L) + '</div>' + mArticles() + mSuite() + mTools();
     if (window.TeiHubHeader) { window.TeiHubHeader.setWealthOsHref(wealthOsHref()); if (window.TeiHubHeader.setName) window.TeiHubHeader.setName(S.name); }
   }
+
+  /* ---------- Add a question (next session) ----------
+     Saved as a session request (wealth_os.feedback, area 'session'), the same
+     as Wealth OS's "Add to next session". The insert emails the coach. */
+  function sessionWhenText(s) { var p = sessionParts(s); return p.wd + ' ' + p.day + ' ' + MON[toDate(s.start).getMonth()] + ', ' + p.time; }
+  function askBox() {
+    var d = $('hlAsk');
+    if (d) return d;
+    d = document.createElement('dialog');
+    d.id = 'hlAsk'; d.className = 'ask'; d.setAttribute('aria-labelledby', 'hlAskH');
+    d.innerHTML = '<form method="dialog" novalidate><h2 id="hlAskH">Add a question</h2><p class="ask-s" id="hlAskS"></p>' +
+      '<label for="hlAskQ">Your question</label><textarea id="hlAskQ" maxlength="2000" placeholder="For example, should I move my cash ISA to a stocks and shares ISA?"></textarea>' +
+      '<div class="ask-acts"><p class="ask-st" id="hlAskSt" aria-live="polite"></p><button type="button" class="btn" id="hlAskX">Cancel</button><button type="button" class="btn btn-p press" id="hlAskGo">Send to Paddy</button></div></form>';
+    document.body.appendChild(d);
+    $('hlAskX').addEventListener('click', function () { d.close(); });
+    $('hlAskGo').addEventListener('click', sendQuestion);
+    $('hlAskQ').addEventListener('input', function () { var st = $('hlAskSt'); if (st.className.indexOf('err') > -1) { st.textContent = ''; st.className = 'ask-st'; } });
+    return d;
+  }
+  function openAsk() {
+    var d = askBox();
+    $('hlAskS').textContent = S.session ? 'For your session on ' + sessionWhenText(S.session) + '. Paddy sees it before you meet.' : 'Paddy will pick it up before your next session.';
+    $('hlAskQ').value = ''; $('hlAskSt').textContent = ''; $('hlAskSt').className = 'ask-st'; $('hlAskGo').disabled = false;
+    if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+    setTimeout(function () { $('hlAskQ').focus(); }, 30);
+  }
+  function sendQuestion() {
+    var q = $('hlAskQ').value.trim(), st = $('hlAskSt'), go = $('hlAskGo');
+    if (!q) { st.textContent = 'Type your question first.'; st.className = 'ask-st err'; $('hlAskQ').focus(); return; }
+    if (!S.clientId || !window.teiSupabase) { st.textContent = 'This needs your client account. Please sign in again.'; st.className = 'ask-st err'; return; }
+    go.disabled = true; st.textContent = 'Sending…'; st.className = 'ask-st';
+    var msg = (S.session ? 'Question for the session on ' + sessionWhenText(S.session) + ': ' : 'Question for the next session: ') + q;
+    w().from('feedback').insert({ client_id: S.clientId, area: 'session', page_context: 'hub', message: msg, submitted_by: 'client' })
+      .then(function (r) {
+        if (r && r.error) throw r.error;
+        st.textContent = 'Sent. Paddy will see it before your session.'; st.className = 'ask-st ok';
+        setTimeout(function () { var d = $('hlAsk'); if (d && d.open) d.close(); }, 1800);
+      })
+      .catch(function (err) {
+        console.error('Client Hub: question not sent', err);
+        go.disabled = false; st.textContent = 'That did not send. Please try again.'; st.className = 'ask-st err';
+      });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.js-askq');
+    if (b) { e.preventDefault(); openAsk(); }
+  });
 
   /* Book a session opens the clients' Cal.com Plan & Review event
      (free, hidden, several lengths). Cal.com emails Paddy the booking. */
