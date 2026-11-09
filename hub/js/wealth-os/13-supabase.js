@@ -328,7 +328,12 @@ window.TEI = window.TEI || {};
         retirementAge: cf.retirement_age != null ? cf.retirement_age : undefined,
         yearlySpending: cf.yearly_spending != null ? Number(cf.yearly_spending) : undefined,
         // Plan settings safety net target in months (migration 011); safetyNet() reads it.
-        safetyNetMonths: cf.safety_net_months != null ? Number(cf.safety_net_months) : undefined
+        safetyNetMonths: cf.safety_net_months != null ? Number(cf.safety_net_months) : undefined,
+        // The rest of the Forecast plan (migration 020): saving rise %, one-offs, money view, last saved.
+        planSavingRise: cf.plan_saving_rise != null ? Number(cf.plan_saving_rise) : undefined,
+        planOneOffs: Array.isArray(cf.plan_one_offs) ? cf.plan_one_offs : undefined,
+        planReal: cf.plan_real != null ? !!cf.plan_real : undefined,
+        planSavedAt: cf.plan_saved_at || undefined
       },
       monteCarlo: cf.monte_carlo,
 
@@ -336,7 +341,11 @@ window.TEI = window.TEI || {};
 
       wealth:{
         assets: (bundle.wealthAssets||[]).map(a=>({id:a.id, type:a.type, value:a.value, notes:a.notes})),
-        liabilities: (bundle.wealthLiabilities||[]).map(l=>({id:l.id, type:l.type, balance:l.balance, linkedAssetId:l.linked_asset_id}))
+        liabilities: (bundle.wealthLiabilities||[]).map(l=>({id:l.id, type:l.type, balance:l.balance, linkedAssetId:l.linked_asset_id,
+          // Debt details (migration 019), named as the Debt Lab: apr and newApr in % a year.
+          name:l.name || '', apr:l.apr != null ? Number(l.apr) : null, minPay:l.min_pay != null ? Number(l.min_pay) : null,
+          termMonths:l.term_months != null ? Number(l.term_months) : null, endDate:l.end_date || null,
+          rateType:l.rate_type || null, changeDate:l.change_date || null, newApr:l.new_apr != null ? Number(l.new_apr) : null}))
       },
 
       insurance: (bundle.insurance||[]).map(i=>({id:i.id, type:i.type, provider:i.provider, details:i.details})),
@@ -665,7 +674,10 @@ window.TEI = window.TEI || {};
     return { client_id: clientId, type: a.type, value: a.value, notes: a.notes || null };
   }
   function wealthLiabilityToRow(clientId, l){
-    return { client_id: clientId, type: l.type, balance: l.balance, linked_asset_id: l.linkedAssetId || null };
+    const n = v=> (v === '' || v == null || isNaN(Number(v))) ? null : Number(v);
+    return { client_id: clientId, type: l.type, balance: l.balance, linked_asset_id: l.linkedAssetId || null,
+      name: l.name || null, apr: n(l.apr), min_pay: n(l.minPay), term_months: n(l.termMonths) != null ? Math.round(n(l.termMonths)) : null,
+      end_date: l.endDate || null, rate_type: l.rateType || null, change_date: l.changeDate || null, new_apr: n(l.newApr) };
   }
 
   function cashflowSettingsToRow(clientId, client){
@@ -691,7 +703,9 @@ window.TEI = window.TEI || {};
       // of this row keeps working on a database without those columns yet.
       ...(pref.retirementAge != null ? {retirement_age: pref.retirementAge} : {}),
       ...(pref.yearlySpending != null ? {yearly_spending: pref.yearlySpending} : {}),
-      ...(pref.safetyNetMonths != null ? {safety_net_months: pref.safetyNetMonths} : {})
+      ...(pref.safetyNetMonths != null ? {safety_net_months: pref.safetyNetMonths} : {}),
+      ...(pref.planSavedAt ? {plan_saving_rise: pref.planSavingRise != null ? pref.planSavingRise : null, plan_one_offs: pref.planOneOffs || [],
+        plan_real: pref.planReal !== false, plan_saved_at: pref.planSavedAt} : {})
     };
   }
 
@@ -807,6 +821,25 @@ window.TEI = window.TEI || {};
   }
   async function deleteWealthLiability(id){ await deleteRow('wealth_liabilities','id',id); }
 
+  /* Coach's note per page (brief D38). Each page's note lives in its own
+     existing column: Wealth = portfolio_coach, Forecast = forecast_coach,
+     Cashflow = cashflow_coach. A written note is mode 'manual' with a
+     message; updatedAt is the written date the stale line compares with
+     the client's last plan save. Clearing the text returns it to 'auto'. */
+  const NOTE_COLUMN = {wealth:'portfolio_coach', forecast:'forecast_coach', cashflow:'cashflow_coach'};
+  const NOTE_KEY = {wealth:'portfolioCoach', forecast:'forecastCoach', cashflow:'cashflowCoach'};
+  async function saveCoachNote(clientId, page, text, existing){
+    const col = NOTE_COLUMN[page];
+    if(!col) throw new Error('Unknown page for a coach note: ' + page);
+    const msg = String(text || '').trim();
+    const value = Object.assign({}, existing || {}, msg
+      ? {mode:'manual', message:msg, updatedAt:new Date().toISOString()}
+      : {mode:'auto', message:null, updatedAt:new Date().toISOString()});
+    const { error } = await wo(window.teiSupabase).from('clients').update({[col]: value}).eq('id', clientId);
+    if(error) throw error;
+    return value;
+  }
+
   async function saveDividendHolding(clientId, existingId, local){
     const row = dividendHoldingToRow(clientId, local);
     const saved = existingId ? await updateRow('dividend_holdings','id',existingId,row) : await insertRow('dividend_holdings', row);
@@ -816,8 +849,14 @@ window.TEI = window.TEI || {};
 
   async function saveCashflowSettings(clientId, client){
     const row = cashflowSettingsToRow(clientId, client);
-    const { data, error } = await wo(window.teiSupabase).from('cashflow_settings')
+    let { data, error } = await wo(window.teiSupabase).from('cashflow_settings')
       .upsert(row, { onConflict: 'client_id' }).select().single();
+    // Before migration 020 is applied the plan_* columns do not exist: save the
+    // rest so retirement age and yearly spending still keep, as before.
+    if(error && /plan_(saving_rise|one_offs|real|saved_at)/.test(error.message || '')){
+      ['plan_saving_rise', 'plan_one_offs', 'plan_real', 'plan_saved_at'].forEach(k=> delete row[k]);
+      ({ data, error } = await wo(window.teiSupabase).from('cashflow_settings').upsert(row, { onConflict: 'client_id' }).select().single());
+    }
     if(error) throw error;
     return data;
   }
@@ -1136,7 +1175,7 @@ window.TEI = window.TEI || {};
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
     saveIncome, deleteIncome, saveExpense, deleteExpense,
     saveAccountMonth, saveHoldingMonth, saveGoalMonth, saveAccountDeposit, saveCashflowMonth,
-    saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability,
+    saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability, saveCoachNote, NOTE_KEY,
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory, saveMonthlyWins,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
     saveClientSettings, setDocumentReviewStatus,

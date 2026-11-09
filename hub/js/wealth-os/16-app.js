@@ -45,6 +45,7 @@ window.TEI = window.TEI || {};
     renderPage(pageId);
     if(after === 'pf'){ const pf = document.getElementById('wlPortfolio'); if(pf) pf.scrollIntoView({block:'start'}); }
     if(after === 'update' && TEI.wealthPage) TEI.wealthPage.openUpdate();
+    if(after === 'debts' && TEI.cashflowPage && TEI.cashflowPage.focusDebts) requestAnimationFrame(()=> TEI.cashflowPage.focusDebts());
   }
 
   function rerenderCurrentPage(){ renderPage(state.currentPage); }
