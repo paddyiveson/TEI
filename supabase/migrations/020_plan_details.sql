@@ -1,5 +1,5 @@
 -- 020: the rest of the Forecast plan (TEI Launch v2, brief 3.2).
--- NOT YET APPLIED: waiting for Paddy's go-ahead on the SQL.
+-- Applied to production 2026-11-09 as migration "020_plan_details" (Paddy approved).
 --
 -- Save as my plan already writes retirement_age and yearly_spending here
 -- (migration 009). The v3.1 Forecast also keeps the saving rise, the
