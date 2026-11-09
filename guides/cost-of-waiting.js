@@ -411,6 +411,23 @@
   window.addEventListener('afterprint', function () { document.body.classList.remove('tl-printing'); });
 
   syncControls();
+  /* Prefill from the homepage teaser (TEI Launch v2): ?monthly=300&wait=1.
+     Each value is checked and clamped to the calculator's own limits
+     (monthly £50 to £10,000, wait 1 to 5 years); anything else is ignored. */
+  (function prefill() {
+    var q;
+    try { q = new URLSearchParams(window.location.search); } catch (e) { return; }
+    var m = Number(q.get('monthly')), w = Number(q.get('wait'));
+    if (q.get('monthly') !== null && q.get('monthly') !== '' && isFinite(m) && m > 0) {
+      state.monthly = Math.round(clamp(m, 50, 10000));
+      inputs.monthly.value = state.monthly;
+    }
+    if (q.get('wait') !== null && q.get('wait') !== '' && isFinite(w) && w > 0) {
+      state.wait = Math.round(clamp(w, 1, 5));
+      fitWait();
+    }
+    syncControls();
+  })();
   render();
   window.TeiCow.preparePrint = preparePrint;
 })();
