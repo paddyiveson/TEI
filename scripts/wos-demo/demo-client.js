@@ -6,6 +6,7 @@
      nodebts   no debts recorded
      noflags   no set-and-forget or earmarked accounts
      added     the Forecast and Cashflow topics are already added to the next session
+     nosession no Cal.com session booked
      stale     the plan and this month were changed after the notes were written
      light     light theme
    Today is taken from the browser clock. */
@@ -16,6 +17,7 @@
   var behind = has('behind'), noDebts = has('nodebts'), noFlags = has('noflags');
   if(has('light')){ try{ localStorage.setItem('tei-theme', 'light'); }catch(e){} }
 
+  var DIV1 = 'dddddddd-0000-4000-8000-000000000001', DIV2 = 'dddddddd-0000-4000-8000-000000000002', DIV3 = 'dddddddd-0000-4000-8000-000000000003';
   var CID = '11111111-2222-4333-8444-555555555555', UID = '99999999-8888-4777-8666-555555555555';
   var now = new Date();
   var mk = function(back){ var d = new Date(now.getFullYear(), now.getMonth() - back, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
@@ -137,9 +139,19 @@
         plan_saved_at: has('stale') ? iso(2) : null}],
       cashflow_months: cashflow_months,
       dividend_holdings: behind ? [] : [
-        {id: id(), client_id: CID, name: 'Aviva plc', yield: 7.1, growth: 4, amount: 2400, frequency: 'semiannual'},
-        {id: id(), client_id: CID, name: 'HSBC Holdings', yield: 6.2, growth: 3, amount: 1520, frequency: 'semiannual'},
-        {id: id(), client_id: CID, name: 'Vanguard FTSE All-World', yield: 1.6, growth: 5, amount: 9800, frequency: 'quarterly'}],
+        {id: DIV1, client_id: CID, name: 'Aviva plc', yield: 7.1, growth: 4, amount: 2400, frequency: 'semiannual', pay_months: [5, 9]},
+        {id: DIV2, client_id: CID, name: 'HSBC Holdings', yield: 6.2, growth: 3, amount: 1520, frequency: 'semiannual', pay_months: [4, 12]},
+        {id: DIV3, client_id: CID, name: 'Vanguard FTSE All-World', yield: 1.6, growth: 5, amount: 9800, frequency: 'quarterly', pay_months: [3, 6, 9, 12]}],
+      dividend_payments: behind ? [] : [
+        {id: id(), client_id: CID, dividend_holding_id: DIV3, paid_on: now.getFullYear() + '-03-26', amount: 38, source: 'manual'},
+        {id: id(), client_id: CID, dividend_holding_id: DIV2, paid_on: now.getFullYear() + '-04-24', amount: 47, source: 'manual'},
+        {id: id(), client_id: CID, dividend_holding_id: DIV1, paid_on: now.getFullYear() + '-05-20', amount: 84, source: 'manual'},
+        {id: id(), client_id: CID, dividend_holding_id: DIV3, paid_on: now.getFullYear() + '-06-25', amount: 39, source: 'manual'},
+        {id: id(), client_id: CID, dividend_holding_id: DIV1, paid_on: now.getFullYear() + '-09-24', amount: 86, source: 'manual'},
+        {id: id(), client_id: CID, dividend_holding_id: DIV3, paid_on: now.getFullYear() + '-09-25', amount: 40, source: 'manual'}],
+      sessions: has('nosession') ? [] : [
+        {id: id(), client_id: CID, cal_uid: 'demo-1', title: 'Plan review', start_at: new Date(now.getTime() + 11*864e5).toISOString().slice(0, 10) + 'T18:30:00Z',
+          end_at: new Date(now.getTime() + 11*864e5).toISOString().slice(0, 10) + 'T19:30:00Z', status: 'booked'}],
       wealth_assets: behind ? [] : [home],
       wealth_liabilities: liabilities,
       insurance: [], documents: [], feedback: feedback, households: [],

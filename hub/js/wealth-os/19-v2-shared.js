@@ -86,19 +86,38 @@ window.TEI = window.TEI || {};
   }
   function coachName(){ return 'Paddy Iveson, your coach'; }
 
-  /* ---------- Add to next session ----------
-     Bookings are made on Cal.com, so Wealth OS treats every client as
-     having a next session to add to (logged in the PR). Adding writes the
-     existing session request (wealth_os.feedback, area 'session', which
-     emails the coach) and the button stays "Added" while that request is
-     open. A coach previewing a client sends nothing. */
+  /* ---------- the next session (migration 022) ----------
+     Sessions come from Cal.com through the cal-booking-webhook function.
+     The next one is the earliest booked session that has not ended. */
+  function nextSession(client){
+    const now = Date.now();
+    return (client.sessions||[]).filter(x=> x.status === 'booked' && new Date(x.endAt || x.startAt).getTime() > now)
+      .sort((a, b)=> new Date(a.startAt) - new Date(b.startAt))[0] || null;
+  }
+  const DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function sessionWhen(x, withTime){
+    const d = new Date(x.startAt);
+    if(isNaN(d)) return '';
+    let t = DAY[d.getDay()] + ' ' + d.getDate() + ' ' + MON[d.getMonth()];
+    if(withTime) t += ', ' + d.toLocaleTimeString('en-GB', {hour:'numeric', minute:'2-digit', timeZone:'Europe/London'}).replace(':00', '').replace(' ', '');
+    return t;
+  }
+
+  /* ---------- Add to next session / Ask Paddy about this ----------
+     With a session booked, the client adds the page's topic to it; with
+     none, they ask Paddy about it. Both write the existing session request
+     (wealth_os.feedback, area 'session', which emails the coach). The
+     button stays "Added" (or "Sent") while that request is open. A coach
+     previewing a client sends nothing. */
   const OPEN = s=> !s || ['new', 'open', 'seen', 'in_progress'].indexOf(String(s)) >= 0;
   function added(client, page){
     return (client.feedback||[]).some(f=> f.area === 'session' && f.pageContext === page && OPEN(f.status));
   }
   async function addToSession(client, page, topic){
     if(client.meta.role === 'adviser'){ TEI.app.showToast('Clients send this to you. Nothing is sent while you preview.'); return false; }
-    const text = 'Would like to talk about ' + topic + ' at the next session.';
+    const next = nextSession(client);
+    const text = next ? 'Would like to talk about ' + topic + ' at the next session (' + sessionWhen(next) + ').'
+      : 'Would like to ask about ' + topic + '. No session booked yet.';
     try{
       await TEI.wealthOS.saveFeedback(client.meta.clientId, 'session', page, text, client.meta.role);
       client.feedback = [{id:'local-' + Date.now(), area:'session', pageContext:page, message:text, status:'new', submittedBy:'client', createdAt:new Date().toISOString()}].concat(client.feedback||[]);
@@ -108,6 +127,12 @@ window.TEI = window.TEI || {};
       TEI.app.showToast('That did not send. Please try again.');
       return false;
     }
+  }
+  /* The label for the button: [text, done]. */
+  function sessionButton(client, page){
+    const next = nextSession(client), done = added(client, page);
+    if(next) return done ? ['Added to your next session', true] : ['Add to next session', false];
+    return done ? ['Sent to Paddy', true] : ['Ask Paddy about this', false];
   }
 
   /* ---------- debts (migration 019) ----------
@@ -156,6 +181,6 @@ window.TEI = window.TEI || {};
   }
 
   TEI.v2 = {RM, PHONE, esc, fmt, fk, sk, sgn, pc, cls, store, MON, CHEV, TICK, ARR, INFO, EYE,
-    countUp, onView, bindInfo, setHide, syncEye, note, staleLine, coachName, added, addToSession,
+    countUp, onView, bindInfo, setHide, syncEye, note, staleLine, coachName, added, addToSession, nextSession, sessionWhen, sessionButton,
     debts, payoff, addM, spanTxt, ageNow, shortDate};
 })();

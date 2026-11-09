@@ -452,6 +452,27 @@ TEI.render = TEI.render || {};
       : `<a class="hm-link" href="${esc(n.url||'#')}" target="_blank" rel="noopener">Open</a>`;
   }
 
+  /* Next session (TEI Launch v2): the next Cal.com booking, from
+     wealth_os.sessions (migration 022, written by cal-booking-webhook).
+     With none, the tile keeps its Book a session button. */
+  function renderSession(client){
+    const next = TEI.v2 && TEI.v2.nextSession(client);
+    const title = document.getElementById('whSessionTitle'), text = document.getElementById('whSessionText');
+    const btn = document.getElementById('whSessionBtn'), cover = document.getElementById('whSessionCover');
+    if(!title) return;
+    if(next){
+      title.textContent = TEI.v2.sessionWhen(next, true);
+      text.textContent = next.title ? next.title + ' with your coach.' : 'With your coach.';
+      btn.textContent = 'Book another session';
+      btn.dataset.woRequest = 'book';
+      if(cover) cover.setAttribute('aria-label', 'Next session: ' + TEI.v2.sessionWhen(next, true));
+    } else if(title.textContent !== 'Request sent'){
+      title.textContent = 'Not booked yet';
+      text.textContent = 'Book a time with your coach and it will show here.';
+      btn.textContent = 'Book a session';
+    }
+  }
+
   TEI.render.home = function(client){
     renderHeader(client);
     renderSetup(client);
@@ -462,6 +483,7 @@ TEI.render = TEI.render || {};
     renderCashflow(client);
     renderLearn(client);
     renderNote(client);
+    renderSession(client);
     document.querySelectorAll('#page-home [data-hm-page]').forEach(a=>{
       a.onclick = (e)=>{ e.preventDefault(); TEI.app.showPage(a.dataset.hmPage); };
     });

@@ -80,6 +80,24 @@ window.TEI = window.TEI || {};
     }
   }
 
+  /* TEI Launch v2: dated dividend payments (migration 021) and Cal.com
+     sessions (022). Fail soft: an error leaves them empty rather than
+     blocking the whole client load. */
+  async function fetchV2Extras(w, clientId){
+    const out = { dividendPayments:[], sessions:[] };
+    try{
+      const [pay, ses] = await Promise.all([
+        w.from('dividend_payments').select('*').eq('client_id', clientId).order('paid_on', {ascending:false}),
+        w.from('sessions').select('*').eq('client_id', clientId).order('start_at', {ascending:true}),
+      ]);
+      if(!pay.error) out.dividendPayments = pay.data || [];
+      else console.warn('Wealth OS: dividend payments unavailable', pay.error);
+      if(!ses.error) out.sessions = ses.data || [];
+      else console.warn('Wealth OS: sessions unavailable', ses.error);
+    } catch(err){ console.warn('Wealth OS: v2 extras unavailable', err); }
+    return out;
+  }
+
   /* ---------- fetch: one client's full relational bundle ---------- */
   async function fetchClientBundle(supabase, clientId){
     const w = wo(supabase);
@@ -131,9 +149,12 @@ window.TEI = window.TEI || {};
     if(holdingMonthsRes.error) throw holdingMonthsRes.error;
 
     const contrib = await fetchContributionBundle(w, accountIds);
+    const extras = await fetchV2Extras(w, clientId);
 
     return {
       contrib,
+      dividendPayments: extras.dividendPayments,
+      sessions: extras.sessions,
       client: clientRes.data,
       accounts: accountsRes.data||[],
       holdings: holdingsRes.data||[],
@@ -337,7 +358,10 @@ window.TEI = window.TEI || {};
       },
       monteCarlo: cf.monte_carlo,
 
-      dividendHoldings: (bundle.dividendHoldings||[]).map(h=>({id:h.id, name:h.name, yield:h.yield, growth:h.growth, amount:h.amount, frequency:h.frequency||'annual'})),
+      dividendHoldings: (bundle.dividendHoldings||[]).map(h=>({id:h.id, name:h.name, yield:h.yield, growth:h.growth, amount:h.amount, frequency:h.frequency||'annual',
+        payMonths: Array.isArray(h.pay_months) ? h.pay_months.map(Number).filter(m=> m >= 1 && m <= 12) : []})),
+      dividendPayments: (bundle.dividendPayments||[]).map(p=>({id:p.id, holdingId:p.dividend_holding_id, paidOn:p.paid_on, amount:Number(p.amount)||0, source:p.source})),
+      sessions: (bundle.sessions||[]).map(x=>({id:x.id, calUid:x.cal_uid, title:x.title, startAt:x.start_at, endAt:x.end_at, status:x.status})),
 
       wealth:{
         assets: (bundle.wealthAssets||[]).map(a=>({id:a.id, type:a.type, value:a.value, notes:a.notes})),
@@ -656,7 +680,9 @@ window.TEI = window.TEI || {};
   }
 
   function dividendHoldingToRow(clientId, d){
-    return { client_id: clientId, name: d.name, yield: d.yield, growth: d.growth, amount: d.amount, frequency: d.frequency || 'annual' };
+    const row = { client_id: clientId, name: d.name, yield: d.yield, growth: d.growth, amount: d.amount, frequency: d.frequency || 'annual' };
+    if(Array.isArray(d.payMonths)) row.pay_months = d.payMonths; // migration 021
+    return row;
   }
 
   // income/wealth_assets/wealth_liabilities column names assumed from the
@@ -820,6 +846,17 @@ window.TEI = window.TEI || {};
     return saved.id;
   }
   async function deleteWealthLiability(id){ await deleteRow('wealth_liabilities','id',id); }
+
+  /* Dividend payments received (migration 021) and a holding's pay months. */
+  async function saveDividendPayment(clientId, p, source){
+    const row = await insertRow('dividend_payments', { client_id: clientId, dividend_holding_id: p.holdingId || null, paid_on: p.paidOn,
+      amount: p.amount, source: 'manual', last_edited_by: source || 'client' });
+    return {id:row.id, holdingId:row.dividend_holding_id, paidOn:row.paid_on, amount:Number(row.amount)||0, source:row.source};
+  }
+  async function deleteDividendPayment(id){ await deleteRow('dividend_payments', 'id', id); }
+  async function saveDividendPayMonths(holdingId, months){
+    return await updateRow('dividend_holdings', 'id', holdingId, { pay_months: months });
+  }
 
   /* Coach's note per page (brief D38). Each page's note lives in its own
      existing column: Wealth = portfolio_coach, Forecast = forecast_coach,
@@ -1175,7 +1212,7 @@ window.TEI = window.TEI || {};
     saveAccount, deleteAccount, saveHolding, deleteHolding, saveGoal, deleteGoal,
     saveIncome, deleteIncome, saveExpense, deleteExpense,
     saveAccountMonth, saveHoldingMonth, saveGoalMonth, saveAccountDeposit, saveCashflowMonth,
-    saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability, saveCoachNote, NOTE_KEY,
+    saveWealthAsset, deleteWealthAsset, saveWealthLiability, deleteWealthLiability, saveCoachNote, NOTE_KEY, saveDividendPayment, deleteDividendPayment, saveDividendPayMonths,
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory, saveMonthlyWins,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
     saveClientSettings, setDocumentReviewStatus,

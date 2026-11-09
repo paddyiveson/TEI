@@ -225,8 +225,8 @@ TEI.render = TEI.render || {};
     const doc = TEI.forecastView && TEI.forecastView.latest ? TEI.forecastView.latest(client) : null;
     const saved = (client.preferences||{}).planSavedAt || S.savedAt;
     const stale = n ? V.staleLine(n, saved) : '';
-    const added = V.added(client, 'planning');
-    const disc = added ? '<button type="button" class="lk2 done-s" aria-disabled="true">' + TICK + 'Added to your next session</button>' : '<button type="button" class="lk2 x-disc">Add to next session</button>';
+    const [label, done] = V.sessionButton(client, 'planning');
+    const disc = done ? '<button type="button" class="lk2 done-s" aria-disabled="true">' + TICK + label + '</button>' : '<button type="button" class="lk2 x-disc">' + label + '</button>';
     let h;
     if(n && doc) h = '<figure class="letter"><span class="qm" aria-hidden="true">“</span><blockquote>' + esc(n.text) + '”<span class="sig"><i></i>' + V.coachName() + (n.dateTxt ? ' · ' + n.dateTxt : '') + '</span>' + (stale ? '<span class="stale">' + stale + '</span>' : '') + '</blockquote></figure>' +
       '<div class="links"><button type="button" class="lk1 x-opendoc">Open your detailed forecast' + ARR + '</button>' + disc + '</div>';

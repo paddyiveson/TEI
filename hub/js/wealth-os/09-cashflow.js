@@ -212,8 +212,8 @@ TEI.render = TEI.render || {};
     const n = V.note(client, 'cashflow');
     const rec = (client.cashflowMonths||{})[currentMonthKey()];
     const stale = n && rec ? V.staleLine(n, rec.lastEditedAt) : '';
-    const added = V.added(client, 'cashflow');
-    const btn = added ? '<button type="button" class="pill done" aria-disabled="true">' + TICK + 'Added to your next session</button>' : '<button type="button" class="pill x-disc">Add to next session</button>';
+    const [label, done] = V.sessionButton(client, 'cashflow');
+    const btn = done ? '<button type="button" class="pill done" aria-disabled="true">' + TICK + label + '</button>' : '<button type="button" class="pill x-disc">' + label + '</button>';
     const el = q('.x-noteslot');
     el.innerHTML = '<p class="eb">Coach\'s corner</p>' + (n ? '<blockquote>“' + esc(n.text) + '”</blockquote><p class="sig"><i></i>' + V.coachName() + (n.dateTxt ? ' · ' + n.dateTxt : '') + '</p>' + (stale ? '<p class="stale">' + stale + '</p>' : '')
       : '<p class="nonote">Your coach adds a note here after your next cashflow check-in.</p>') + '<div class="cl">' + btn + '</div>';

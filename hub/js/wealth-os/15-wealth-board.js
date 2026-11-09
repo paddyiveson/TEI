@@ -334,13 +334,31 @@ TEI.render = TEI.render || {};
     const reinvAt = (p, k)=>{ const m = TEI.data.dividendPeriodsPerYear(p.freq); return p.amt*Math.pow(1 + p.g, k)*Math.pow(1 + p.yld/m, m*k)*p.yld; };
     const start = hist.length ? Math.max(hist[0].year, y0 - 6) : y0;
     const YRS = []; for(let y=start; y<=y0+3; y++) YRS.push(y);
-    const rec = YRS.map(y=>{ const h = hist.find(x=> x.year === y); return h && y < y0 ? Number(h.amount) : 0; });
+    // Logged payments (migration 021) count as received; the coach's yearly
+    // totals cover years with no logged payments.
+    const pays = (client.dividendPayments||[]).filter(p=> p.paidOn && p.amount > 0);
+    const paidIn = y=> pays.filter(p=> new Date(p.paidOn).getFullYear() === y).reduce((s, p)=> s + p.amount, 0);
+    const rec = YRS.map(y=>{ const logged = paidIn(y); if(y === y0) return logged; const h = hist.find(x=> x.year === y); return logged || (h ? Number(h.amount) : 0); });
+    const mNow = new Date().getMonth() + 1;
+    const paidMonths = new Set(pays.filter(p=> new Date(p.paidOn).getFullYear() === y0).map(p=> new Date(p.paidOn).getMonth() + 1));
+    // The next expected payment: the soonest pay month still to come, this month included if nothing has arrived yet.
+    let next = null;
+    hold.forEach((h, i)=>{
+      const months = (h.payMonths||[]).slice().sort((a, b)=> a - b); if(!months.length) return;
+      const each = (Number(h.amount)||0)*(Number(h.yield)||0)/100/months.length;
+      const due = months.map(m=> m > mNow || (m === mNow && !paidMonths.has(m)) ? m - mNow : m + 12 - mNow).sort((a, b)=> a - b)[0];
+      if(next == null || due < next.in) next = {in:due, month:((mNow - 1 + due) % 12) + 1, name:h.name, amount:each, col:PCOL[i % PCOL.length]};
+    });
+    const hasSchedule = hold.some(h=> (h.payMonths||[]).length) || pays.length > 0;
     const byPayer = payers.map(p=> YRS.map(y=> y >= y0 ? est(p, y - y0) : 0));
+    // This year: what has arrived counts as received, the rest of the estimate is still due.
+    const recThisYear = (client.dividendPayments||[]).filter(p=> p.paidOn && new Date(p.paidOn).getFullYear() === y0).reduce((s, p)=> s + (p.amount||0), 0);
+    if(recThisYear){ const tot0 = byPayer.reduce((s, a)=> s + a[YRS.indexOf(y0)], 0); const k = tot0 ? Math.max(0, tot0 - recThisYear)/tot0 : 0; byPayer.forEach(a=>{ a[YRS.indexOf(y0)] *= k; }); }
     const extra = YRS.map(y=> y > y0 ? Math.max(0, payers.reduce((s, p)=> s + reinvAt(p, y - y0) - est(p, y - y0), 0)) : 0);
     const yr = payers.reduce((s, p)=> s + est(p, 0), 0);
     const invested = payers.reduce((s, p)=> s + p.amt, 0);
     const growth = invested ? payers.reduce((s, p)=> s + p.g*p.amt, 0)/invested*100 : null;
-    return {payers, YRS, NOWI: YRS.indexOf(y0), rec, byPayer, extra, yr: yr || (hist.length ? hist[hist.length-1].amount : 0), invested, growth, y0,
+    return {payers, YRS, NOWI: YRS.indexOf(y0), rec, byPayer, extra, next, paidMonths, mNow, hasSchedule, recNow: paidIn(y0), yr: yr || (hist.length ? hist[hist.length-1].amount : 0), invested, growth, y0,
       cash4: payers.reduce((s, p)=> s + est(p, 3), 0), reinv4: payers.reduce((s, p)=> s + reinvAt(p, 3), 0)};
   }
   function drawDiv(client){
@@ -349,14 +367,17 @@ TEI.render = TEI.render || {};
     const tot = i=> D.rec[i] + D.byPayer.reduce((s, a)=> s + a[i], 0);
     const mmx = Math.max(1, ...D.YRS.map((_, i)=> tot(i)));
     const mini = D.YRS.map((_, i)=>{ const r = D.rec[i], e = tot(i) - r;
-      if(i === D.NOWI) return '<i class="now"><b class="due" style="height:' + (e/mmx*100) + '%"></b></i>';
+      if(i === D.NOWI) return '<i class="now"><b class="due" style="height:' + (e/mmx*100) + '%"></b>' + (r ? '<b style="height:' + (r/mmx*100) + '%"></b>' : '') + '</i>';
       return '<i><b class="' + (e ? 'e' : '') + '" style="height:' + Math.max((r + e)/mmx*100, 3) + '%"></b></i>'; }).join('');
     let h = '<div class="divcard' + (divOpen ? ' open' : '') + ' x-divcard"><div class="dhead">' +
       '<span class="ttl"><span class="lbl">Dividend income</span></span>' +
       '<span class="v v1 hd num fig">' + fmt(D.yr) + '<small class="u">p/a</small></span>' +
+      (D.hasSchedule ? '<span class="prog' + (divArm && !RM() ? ' arm' : '') + '"><span class="pb"><i style="width:' + Math.min(100, D.recNow/(D.yr||1)*100) + '%"></i></span><span class="fig num">' + fmt(D.recNow) + ' received</span></span>' : '') +
       '<span class="dv d1"></span><span class="dv d2"></span>' +
       '<span class="v v2 num fig">' + fmt(D.yr/12) + '<small class="u">p/m</small></span>' +
-      (D.invested ? '<span class="k k3">Yield</span><span class="v v3 num">' + (D.yr/D.invested*100).toFixed(1) + '%</span>' : '') +
+      (D.hasSchedule ? '<span class="x2"><span class="mdots" title="Months that have paid this year">' + V.MON.map((m, i)=> '<i class="' + (D.paidMonths.has(i + 1) ? 'on' : D.next && D.next.month === i + 1 ? 'nx' : '') + '" title="' + m + '"></i>').join('') + '</span></span>' : '') +
+      (D.next ? '<span class="k k3">Next payment</span><span class="v v3 num fig">c. ' + fmt(D.next.amount) + '</span><span class="x3"><span class="chip"><i style="background:' + D.next.col + '"></i>' + V.MON[D.next.month - 1] + ' · ' + esc(D.next.name) + '</span></span>'
+        : D.invested ? '<span class="k k3">Yield</span><span class="v v3 num">' + (D.yr/D.invested*100).toFixed(1) + '%</span>' : '') +
       '<span class="mini2' + (divArm && !RM() ? ' arm' : '') + '" aria-hidden="true">' + mini + '</span></div>' +
       (D.payers.length ? '<button type="button" class="dmore" aria-expanded="' + divOpen + '">' + (divOpen ? 'Hide details' : 'Show details') + CHEV + '</button>' : '');
     if(divOpen && D.payers.length){
@@ -389,7 +410,8 @@ TEI.render = TEI.render || {};
     }
     h += '</div>';
     slot.innerHTML = h;
-    if(divArm && !RM()){ const m = slot.querySelector('.mini2');
+    if(divArm && !RM()){ const m = slot.querySelector('.mini2'), pg = slot.querySelector('.prog');
+      if(pg) onView(m, ()=> requestAnimationFrame(()=> pg.classList.remove('arm')), .5);
       m.querySelectorAll('i').forEach((col, i)=> col.querySelectorAll('b').forEach(b=> b.style.transitionDelay = (i*60) + 'ms'));
       onView(m, ()=> requestAnimationFrame(()=>{ m.classList.remove('arm'); m.classList.add('go'); }), .5); }
     divArm = false;
@@ -472,10 +494,10 @@ TEI.render = TEI.render || {};
   }
   function drawReview(client){
     const all = items(client), look = all.filter(x=> x.s !== 'ok'), well = all.filter(x=> x.s === 'ok');
-    const n = V.note(client, 'wealth');
+    const n = V.note(client, 'wealth'), next = V.nextSession(client);
     const segs = '<span class="segbar" aria-hidden="true">' + all.map(x=> '<i class="g-' + x.s + '"></i>').join('') + '</span>';
     const att = look.filter(x=> x.s === 'att').length;
-    const sum = '<div class="sumline' + (n ? ' beside' : ' lead') + '">' + segs + '<span class="sumtxt"><span class="s1"><b class="num">' + look.length + '</b> talking point' + (look.length === 1 ? '' : 's') + (att ? ', ' + att + ' priority' : '') + '</span><span class="sdot d1">·</span><span class="s2"><b class="num">' + well.length + '</b> on track</span></span></div>';
+    const sum = '<div class="sumline' + (n ? ' beside' : ' lead') + '">' + segs + '<span class="sumtxt"><span class="s1"><b class="num">' + look.length + '</b> talking point' + (look.length === 1 ? '' : 's') + (att ? ', ' + att + ' priority' : '') + '</span><span class="sdot d1">·</span><span class="s2"><b class="num">' + well.length + '</b> on track</span>' + (next ? '<span class="sdot d2">·</span><span class="s3">Next session ' + V.sessionWhen(next) + '</span>' : '') + '</span></div>';
     let h = '';
     if(n) h += '<div class="rvtop"><figure class="letter f-newsreader"><span class="qm" aria-hidden="true">“</span><blockquote>' + esc(n.text) + '”<span class="sig"><span class="rule"></span>' + V.coachName() + (n.dateTxt ? ' · ' + n.dateTxt : '') + '</span></blockquote></figure>' + sum + '</div>';
     else h += sum + '<p class="nonote">Your coach will add a note after your next session.</p>';
@@ -554,12 +576,14 @@ TEI.render = TEI.render || {};
       + `<div class="wl-upd-debts" id="wlUpdDebts"><p class="wl-upd-acct"><span>Debts</span><b>${fmtGBP(V.debts(client).reduce((s, d)=> s + d.bal, 0))}</b></p>`
       + `<p class="hm-note">Your mortgage, loans and cards. Cashflow uses these to show what each one costs and when it clears.</p>`
       + ((client.wealth||{}).liabilities||[]).map(debtForm).join('')
-      + `<button type="button" class="wl-dbt-addbtn" id="wlDbtAdd">Add a debt</button></div>`;
+      + `<button type="button" class="wl-dbt-addbtn" id="wlDbtAdd">Add a debt</button></div>`
+      + divSection(client);
     setText('wlUpdPrices', TEI.calc.usPricesAsOfText(client));
     showRefresh(client);
     list.querySelectorAll('input[data-upd-account], input[data-upd-holding]').forEach(input=> input.addEventListener('change', ()=> saveRow(client, key, input)));
     list.querySelectorAll('.wl-dbt[data-debt]:not([data-debt="new"]) [data-dk]').forEach(el=> el.addEventListener('change', ()=> saveDebt(client, el.closest('.wl-dbt'))));
-    list.querySelectorAll('.wl-dbt-del').forEach(b=> b.addEventListener('click', ()=> removeDebt(client, b.closest('.wl-dbt'))));
+    list.querySelectorAll('.wl-dbt[data-debt] .wl-dbt-del').forEach(b=> b.addEventListener('click', ()=> removeDebt(client, b.closest('.wl-dbt'))));
+    wireDivSection(client, list);
     $('wlDbtAdd').addEventListener('click', ()=>{
       if(list.querySelector('.wl-dbt[data-debt="new"]')) return;
       $('wlDbtAdd').insertAdjacentHTML('beforebegin', debtForm({}));
@@ -567,6 +591,57 @@ TEI.render = TEI.render || {};
       box.querySelector('.wl-dbt-save').addEventListener('click', ()=> saveDebt(client, box));
       box.querySelector('input').focus();
     });
+  }
+  /* Dividends in Update balances (migration 021): the months each payer
+     usually pays, and the payments that arrived. Shown when the coach has
+     set up dividend payers. */
+  function divSection(client){
+    const hold = client.dividendHoldings || [];
+    if(!hold.length) return '';
+    const y0 = new Date().getFullYear();
+    const pays = (client.dividendPayments||[]).filter(p=> p.paidOn && new Date(p.paidOn).getFullYear() === y0).sort((a, b)=> a.paidOn < b.paidOn ? 1 : -1);
+    const nameOf = id=> (hold.find(h=> h.id === id) || {}).name || 'Dividend';
+    const today = new Date().toISOString().slice(0, 10);
+    return `<div class="wl-upd-debts wl-upd-divs" id="wlUpdDivs"><p class="wl-upd-acct"><span>Dividends</span><b>${fmtGBP(pays.reduce((s, p)=> s + p.amount, 0))} this year</b></p>`
+      + `<p class="hm-note">Which months each one usually pays, and each payment as it arrives.</p>`
+      + hold.map(h=> `<div class="wl-dbt" data-divh="${esc(h.id)}"><p class="wl-div-n">${esc(h.name)}</p><div class="wl-months" role="group" aria-label="${esc(h.name)} usually pays in">`
+        + V.MON.map((m, i)=> `<button type="button" data-m="${i + 1}" aria-pressed="${(h.payMonths||[]).includes(i + 1)}">${m}</button>`).join('') + `</div><em class="wl-upd-state" aria-live="polite"></em></div>`).join('')
+      + `<div class="wl-dbt wl-pay"><div class="wl-dbt-grid">`
+      + `<label class="wl-dbt-f"><span>Payer</span><select data-pk="holding">${hold.map(h=> `<option value="${esc(h.id)}">${esc(h.name)}</option>`).join('')}</select></label>`
+      + `<label class="wl-dbt-f"><span>Paid on</span><input data-pk="date" type="date" value="${today}" max="${today}"></label>`
+      + `<label class="wl-dbt-f"><span>Amount (£)</span><input data-pk="amount" type="number" inputmode="decimal" step="0.01" min="0"></label>`
+      + `</div><div class="wl-dbt-acts"><em class="wl-upd-state" aria-live="polite"></em><button type="button" class="hm-btn wl-pay-add">Log this payment</button></div></div>`
+      + (pays.length ? `<ul class="wl-pays">` + pays.map(p=> `<li data-pay="${esc(p.id)}"><span>${esc(nameOf(p.holdingId))}<small>${new Date(p.paidOn).toLocaleDateString('en-GB', {day:'numeric', month:'short'})}</small></span><b>${fmtGBP(p.amount)}</b><button type="button" class="wl-dbt-del">Remove</button></li>`).join('') + `</ul>` : '')
+      + `</div>`;
+  }
+  function wireDivSection(client, list){
+    list.querySelectorAll('[data-divh] .wl-months button').forEach(b=> b.addEventListener('click', async ()=>{
+      const box = b.closest('[data-divh]'), h = (client.dividendHoldings||[]).find(x=> x.id === box.dataset.divh), state = box.querySelector('.wl-upd-state');
+      if(!h) return;
+      b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+      const months = Array.from(box.querySelectorAll('.wl-months button[aria-pressed="true"]')).map(x=> Number(x.dataset.m));
+      state.textContent = 'Saving'; state.className = 'wl-upd-state';
+      try{ await TEI.wealthOS.saveDividendPayMonths(h.id, months); h.payMonths = months; state.textContent = 'Saved'; state.className = 'wl-upd-state ok'; updDirty = true; }
+      catch(err){ console.error('Wealth OS: pay months not saved', err); state.textContent = 'Not saved'; state.className = 'wl-upd-state bad'; }
+    }));
+    const add = list.querySelector('.wl-pay-add');
+    if(add) add.addEventListener('click', async ()=>{
+      const box = add.closest('.wl-pay'), state = box.querySelector('.wl-upd-state');
+      const v = k=> box.querySelector('[data-pk="' + k + '"]').value;
+      const amount = parseFloat(v('amount')), date = v('date');
+      if(!(amount > 0) || !date){ state.textContent = 'Add the date and amount'; state.className = 'wl-upd-state bad'; return; }
+      add.disabled = true; state.textContent = 'Saving'; state.className = 'wl-upd-state';
+      try{
+        const p = await TEI.wealthOS.saveDividendPayment(client.meta.clientId, {holdingId: v('holding'), paidOn: date, amount}, client.meta.role);
+        client.dividendPayments = [p].concat(client.dividendPayments||[]);
+        updDirty = true; buildUpdateList(client); const d = $('wlUpdDivs'); if(d) d.scrollIntoView({block:'nearest'});
+      } catch(err){ console.error('Wealth OS: payment not saved', err); state.textContent = 'Not saved'; state.className = 'wl-upd-state bad'; add.disabled = false; }
+    });
+    list.querySelectorAll('[data-pay] .wl-dbt-del').forEach(b=> b.addEventListener('click', async ()=>{
+      const id = b.closest('[data-pay]').dataset.pay;
+      try{ await TEI.wealthOS.deleteDividendPayment(id); client.dividendPayments = (client.dividendPayments||[]).filter(p=> p.id !== id); updDirty = true; buildUpdateList(client); }
+      catch(err){ console.error('Wealth OS: payment not removed', err); TEI.app.showToast('That did not save. Please try again.'); }
+    }));
   }
   function readDebt(box){
     const o = {};
