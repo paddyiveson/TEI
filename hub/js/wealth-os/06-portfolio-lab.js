@@ -200,6 +200,9 @@ TEI.render = TEI.render || {};
   }
 
   function renderPortfolioCoach(client, scopeAccountId){
+    // Wealth v2 shows the coach's note as a letter (15-wealth-board.js); this
+    // corner only draws where its old elements still exist.
+    if(!document.getElementById('pfcHeading')) return;
     document.getElementById('pfcHeading').textContent = 'Portfolio coach\'s corner' + acctHeadingSuffix(client, scopeAccountId);
     let pc;
     if(scopeAccountId){

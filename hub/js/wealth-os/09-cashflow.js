@@ -2,26 +2,31 @@ window.TEI = window.TEI || {};
 TEI.render = TEI.render || {};
 
 (function(){
-  /* Cashflow (redesign B12.8, spec B8, boards Cashflow and CashflowMobile).
-     Behavioural coaching around the wealth conversion rate. Every figure is
-     TEI.calc.cashflowMonth (this month: logged figures win over the standing
-     ones) and TEI.calc.safetyNet, which Home reads too. */
-  const {fmtGBP, currentMonthKey} = TEI.data;
-  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const MON_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const $ = id => document.getElementById(id);
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function setText(id, t){ const el = $(id); if(el) el.textContent = t; }
-  function money(n){ return (n < 0 ? '-' : '') + fmtGBP(Math.abs(Math.round(n))); }
-  function k(n){ const a = Math.abs(n); return (n < 0 ? '-' : '') + (a >= 1e6 ? '£' + (a/1e6).toFixed(2) + 'm' : a >= 1000 ? '£' + Math.round(a/1000) + 'k' : '£' + Math.round(a)); }
-  function pct(x){ return Math.round(x*100) + '%'; }
-  function keyParts(key){ const [y,m] = key.split('-').map(Number); return {y, m}; }
-  function monShort(key){ return MON[keyParts(key).m - 1]; }
-  function monLong(key){ const p = keyParts(key); return MON_LONG[p.m - 1] + ' ' + p.y; }
+  /* ================================================================
+     CASHFLOW v3.3 (TEI Launch v2, brief 3.3), the live tile finish.
+     Rows: hero (wealth conversion rate) + Safety net / Scenario corner +
+     Your habits / Debts + Coach's corner / Spending categories (coming
+     soon). Update this month is a drop-down on desktop and a bottom sheet
+     on phones; it saves as you type. Phone fold (D44): Scenario corner,
+     Your habits and Debts fold to eyebrow, heading, one peek line and a
+     chevron. Figures: TEI.calc.cashflowMonth and TEI.calc.safetyNet (the
+     same as Home), Forecast's model for the scenario, and the debts from
+     Update balances (migration 019).
+     ================================================================ */
+  const V = TEI.v2;
+  const {esc, fmt, fk, INFO, TICK, ARR, PHONE, bindInfo} = V;
+  const {currentMonthKey} = TEI.data;
+  const MON = V.MON, MON_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const $ = id=> document.getElementById(id);
+  const root = ()=> document.querySelector('.wo2-cf');
+  const q = s=> root().querySelector(s);
+  const HORIZON = 120;
+  const DCOL = ['var(--d1)', 'var(--d2)', 'var(--d3)'];
+  const keyParts = key=>{ const [y, m] = key.split('-').map(Number); return {y, m}; };
+  const monLong = key=> MON_LONG[keyParts(key).m - 1] + ' ' + keyParts(key).y;
   function target(client){ const t = Number((client.preferences||{}).wealthConversionTarget); return t > 0 ? t : 20; }
 
-  /* Health chip (thresholds decided 13 Oct 2026), against the client's own
-     wealth conversion target. Overspending overrides the rest. */
+  /* Home's health chip (thresholds decided 13 Oct 2026): unchanged. */
   function health(client, m){
     const rate = m.takeHome > 0 ? m.wealthBuilding/m.takeHome*100 : 0;
     const t = target(client);
@@ -30,265 +35,275 @@ TEI.render = TEI.render || {};
     if(rate >= t - 5) return {key:'steady', label:'Steady'};
     return {key:'attn', label:'Needs attention'};
   }
+  const CHIP = {over:'att', ok:'ok', steady:'steady', attn:'att'};
 
-  /* ---------- snapshot and this month ---------- */
-  function renderSnapshot(client, m){
-    const rate = m.takeHome > 0 ? m.wealthBuilding/m.takeHome : 0;
-    setText('cfConv', m.takeHome > 0 ? pct(rate) : '–');
-    setText('cfSnapMonth', MON_LONG[keyParts(m.key).m - 1] + ' · ' + money(m.takeHome) + ' take-home');
-    const h = health(client, m);
-    const chip = $('cfHealth');
-    chip.textContent = m.takeHome > 0 ? h.label : 'Add your take-home';
-    chip.className = 'cf-health cf-health--' + (m.takeHome > 0 ? h.key : 'none');
-    const tot = Math.max(m.takeHome, m.essentials + m.lifestyle + m.wealthBuilding, 1);
-    const parts = [[m.essentials, 'Essentials', 'cf-e'], [m.lifestyle, 'Lifestyle', 'cf-l'], [m.wealthBuilding, 'Wealth building', 'cf-w']];
-    $('cfFlow').innerHTML = parts.map(p=> `<span class="${p[2]}" style="width:${(Math.max(0,p[0])/tot*100).toFixed(1)}%"></span>`).join('');
-    $('cfFlow').setAttribute('aria-label', parts.map(p=> p[1] + ' ' + money(p[0])).join(', '));
-    $('cfFlowKey').innerHTML = parts.map(p=> `<div><p><i class="${p[2]}"></i>${p[1]}</p><b>${money(p[0])} <small>${pct(Math.max(0,p[0])/tot)}</small></b></div>`).join('');
+  /* The last twelve months, this month last: [take-home, essentials, lifestyle, wealth building]. */
+  function hist(client){
+    const out = [], n = new Date();
+    for(let b=11; b>=0; b--){
+      const d = new Date(n.getFullYear(), n.getMonth() - b, 1), key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      const logged = (client.cashflowMonths||{})[key];
+      if(!logged && b > 0) continue;
+      const m = TEI.calc.cashflowMonth(client, key);
+      out.push({key, v:[m.takeHome, m.essentials, m.lifestyle, m.wealthBuilding]});
+    }
+    return out;
   }
-  function renderThisMonth(client, m){
-    const left = m.takeHome - m.essentials - m.lifestyle - m.wealthBuilding;
-    const rows = [
-      ['Money in', money(m.takeHome), ''],
-      ['Essentials', money(-m.essentials), ''],
-      ['Lifestyle', money(-m.lifestyle), ''],
-      ['Wealth building', money(m.wealthBuilding), 'cf-gold'],
-      [left >= 0 ? 'Not yet allocated' : (m.essentials + m.lifestyle > m.takeHome ? 'Overspent' : 'Over take-home'), money(left), left < 0 ? 'cf-warn' : '']
-    ];
-    $('cfRows').innerHTML = rows.map(r=> `<div class="${r[2]}"><dt>${r[0]}</dt><dd>${r[1]}</dd></div>`).join('');
-    if(m.logged && m.lastEditedAt){
-      const d = new Date(m.lastEditedAt);
-      setText('cfUpdated', isNaN(d) ? 'Updated' : 'Updated ' + d.getDate() + ' ' + MON[d.getMonth()]);
-    } else setText('cfUpdated', m.logged ? 'Updated' : 'Your usual figures');
+  const conv = h=> h[0] > 0 ? h[3]/h[0]*100 : 0;
+
+  let mode = 'month', move = 150, open = null, over = {}, intro = true;
+  const FOLD = new Set();
+  const CHV = '<svg class="fchev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg>';
+  const FH = (id, eb, hd, pk)=> '<button type="button" class="fhead" data-f="' + id + '" aria-expanded="' + FOLD.has(id) + '"><span class="eb">' + eb + '</span><span class="hd">' + hd + '</span>' + (pk ? '<span class="peek">' + pk + '</span>' : '') + CHV + '</button>';
+  function countUp(el, to, f, dur){ if(!intro){ el.textContent = f(to); return; } V.countUp(el, to, f, dur); }
+
+  /* ---------- hero ---------- */
+  function drawHero(client, H, m){
+    const t = target(client), h = health(client, {takeHome:m[0], essentials:m[1], lifestyle:m[2], wealthBuilding:m[3]});
+    const c = m[0] > 0 ? m[3]/m[0]*100 : 0, d = c - t, body = q('.x-hbody');
+    const pts = Math.abs(Math.round(d));
+    const gapTxt = h.key === 'over' ? 'Spending is more than you took home' : pts === 0 ? 'Right on your ' + t + '% target' : pts + ' point' + (pts > 1 ? 's' : '') + ' ' + (d >= 0 ? 'above' : 'below') + ' your ' + t + '% target';
+    const nowKey = H[H.length - 1].key;
+    if(mode === 'month' || H.length < 2){
+      countUp(q('.x-big'), Math.round(c), v=> Math.round(v) + '%', 800);
+      q('.x-bigsub').textContent = 'of take-home goes into wealth';
+      q('.x-stat').innerHTML = m[0] > 0 ? '<span>' + gapTxt + '</span><span class="chip ' + CHIP[h.key] + '">' + h.label + '</span>' : '<span>Add your take-home in Update this month</span>';
+      const u = m[0] - m[1] - m[2] - m[3], tot = Math.max(m[0], m[1] + m[2] + m[3], 1);
+      let bar = [['w', m[3]], ['e', m[1]], ['l', m[2]]].filter(s=> s[1] > 0).map(s=> '<i class="' + s[0] + '" style="flex:' + s[1] + ' 1 0"></i>').join('');
+      if(u > 0) bar += '<i class="u" style="flex:' + u + ' 1 0"></i>';
+      const tl = Math.min(t/100*m[0]/tot*100, 100), pc = v=> m[0] ? Math.round(v/m[0]*100) : 0;
+      body.innerHTML = '<div class="flow" role="img" aria-label="Wealth building ' + fmt(m[3]) + ', essentials ' + fmt(m[1]) + ', lifestyle ' + fmt(m[2]) + '">' + bar + '<span class="tgt" style="left:' + tl + '%"><span>Target ' + t + '%</span></span></div>' +
+        '<div class="legend">' + [['Wealth building', 'var(--wlth)', m[3]], ['Essentials', 'var(--ess)', m[1]], ['Lifestyle', 'var(--life)', m[2]]].map(x=> '<div><span><i style="background:' + x[1] + '"></i>' + x[0] + '</span><b class="fig">' + fmt(x[2]) + '<small>' + pc(x[2]) + '%</small></b></div>').join('') +
+        '<div><span><i style="background:repeating-linear-gradient(135deg,rgba(238,242,248,.55) 0 2px,transparent 2px 4px)"></i>' + (u < 0 ? 'Over by' : 'Not yet allocated') + '</span><b class="fig' + (u < 0 ? ' dn' : '') + '">' + fmt(Math.abs(u)) + '</b></div></div>';
+      q('.x-hfoot').innerHTML = MON_LONG[keyParts(nowKey).m - 1] + ' · <span class="fig">' + fmt(m[0]) + '</span> take-home';
+    } else {
+      const cs = H.map(x=> conv(x.v)), tw = H.reduce((s, x)=> s + x.v[3], 0), tt = H.reduce((s, x)=> s + x.v[0], 0), avg = tt ? tw/tt*100 : 0, hit = cs.filter(x=> x >= t).length;
+      countUp(q('.x-big'), Math.round(avg), v=> Math.round(v) + '%', 800);
+      q('.x-bigsub').textContent = 'average over the last ' + (H.length === 12 ? '12 months' : H.length + ' months');
+      q('.x-stat').innerHTML = '<span><span class="fig">' + hit + ' of ' + H.length + '</span> months at or above your ' + t + '% target</span>';
+      const mx = Math.max(...cs, t)*1.15;
+      body.innerHTML = '<div class="bars" style="grid-template-columns:repeat(' + H.length + ',minmax(0,1fr))">' + cs.map((x, i)=> '<div class="bar' + (x >= t ? ' hit' : '') + (i === H.length - 1 ? ' now' : '') + '" title="' + MON[keyParts(H[i].key).m - 1] + ': ' + Math.round(x) + '%, ' + fmt(H[i].v[3]) + ' into wealth"><span style="bottom:' + (x/mx*100) + '%">' + Math.round(x) + '%</span><i style="height:' + (x/mx*100) + '%"></i></div>').join('') +
+        '<div class="tline" style="bottom:' + (t/mx*100) + '%"><span>Target ' + t + '%</span></div></div>' +
+        '<div class="maxis" aria-hidden="true" style="grid-template-columns:repeat(' + H.length + ',minmax(0,1fr))">' + H.map(x=> '<span>' + MON[keyParts(x.key).m - 1] + '</span>').join('') + '</div>';
+      q('.x-hfoot').textContent = MON[keyParts(H[0].key).m - 1] + ' ' + keyParts(H[0].key).y + ' to ' + MON[keyParts(nowKey).m - 1] + ' ' + keyParts(nowKey).y + ' · filled bars hit your target';
+    }
+    q('.x-updrate').textContent = Math.round(c) + '% into wealth';
+    q('.x-updmonth').textContent = 'Update ' + MON_LONG[keyParts(nowKey).m - 1];
   }
 
-  /* ---------- 12-month trend: logged months, plus this month ---------- */
-  function trendMonths(client){
-    const now = currentMonthKey();
-    const n = new Date(); const from = new Date(n.getFullYear(), n.getMonth()-11, 1);
-    const fromKey = from.getFullYear() + '-' + String(from.getMonth()+1).padStart(2,'0');
-    const keys = Object.keys(client.cashflowMonths||{}).filter(x=> x >= fromKey && x <= now).sort();
-    if(keys.indexOf(now) < 0) keys.push(now);
-    return keys.map(x=> TEI.calc.cashflowMonth(client, x));
-  }
-  function renderTrend(client, months){
-    const bars = $('cfBars');
-    if(months.length < 2){
-      setText('cfTrendHead', 'Your trend starts with your second month');
-      bars.innerHTML = '<p class="cf-empty">Use Update this month each month and the last year builds up here.</p>';
-      bars.setAttribute('aria-label', 'Not enough months logged yet');
+  /* ---------- safety net: the two-stage framework already in Wealth OS ---------- */
+  function drawSN(client, m){
+    const sn = TEI.calc.safetyNet(client), sp = sn.monthlySpend, cash = sn.current, el = q('.x-sn');
+    if(!sn.linked || !(sp > 0)){
+      el.innerHTML = '<p class="eb">Safety net</p><p class="hd">' + (!sn.linked ? 'No safety net account linked' : 'Add your spending') + '</p>' +
+        '<p class="sub">' + (!sn.linked ? 'Pick the account that holds your safety net cash in Settings, under Plan.' : 'Your monthly spending sets how many months your cash covers.') + '</p>';
       return;
     }
-    const conv = x => x.takeHome > 0 ? x.wealthBuilding/x.takeHome : 0;
-    const first = conv(months[0]), last = conv(months[months.length-1]);
-    const pts = Math.round((last - first)*100);
-    const since = ' since ' + monLong(months[0].key);
-    setText('cfTrendHead', pts === 0 ? 'Conversion steady' + since
-      : 'Conversion ' + (pts > 0 ? 'up ' : 'down ') + Math.abs(pts) + (Math.abs(pts) === 1 ? ' point' : ' points') + since);
-    const hmax = Math.max(...months.map(x=> x.essentials + x.lifestyle + x.wealthBuilding), 1);
-    bars.innerHTML = months.map((x,i)=>{
-      const used = x.essentials + x.lifestyle + x.wealthBuilding || 1;
-      const lastBar = i === months.length-1;
-      return `<div class="cf-bar${lastBar ? ' cf-bar-now' : ''}"><span class="mono">${pct(conv(x))}</span><div class="cf-stack" style="height:${(used/hmax*100).toFixed(1)}%; animation-delay:${(i*0.04).toFixed(2)}s"><i class="cf-w" style="height:${(x.wealthBuilding/used*100).toFixed(1)}%"></i><i class="cf-l" style="height:${(x.lifestyle/used*100).toFixed(1)}%"></i><i class="cf-e" style="height:${(x.essentials/used*100).toFixed(1)}%"></i></div><small class="mono">${monShort(x.key)}</small></div>`;
-    }).join('');
-    bars.setAttribute('aria-label', 'Monthly spending and wealth building, ' + monLong(months[0].key) + ' to ' + monLong(months[months.length-1].key) + '. Conversion rate from ' + pct(first) + ' to ' + pct(last) + '.');
+    const mo = cash/sp, u = Math.max(0, m[0] - m[1] - m[2] - m[3]);
+    const S = [['Working buffer', 1], ['Stage 2', 3], ['Full', sn.fullMonths]], b = [0, 1, 3, sn.fullMonths];
+    const nx = S.find(s=> cash < s[1]*sp);
+    let nextH;
+    if(nx){ const need = nx[1]*sp - cash, mths = u > 0 ? Math.ceil(need/u) : null;
+      nextH = '<div class="next panel"><span>Next: ' + nx[0] + '</span><b class="fig">' + fmt(need) + ' to go</b><small>' + (mths ? 'About ' + mths + ' month' + (mths > 1 ? 's' : '') + ' at your <span class="fig">' + fmt(u) + '</span> not yet allocated' : 'Set aside part of each month to reach it') + '</small></div>'; }
+    else nextH = '<div class="next panel"><span>All three stages</span><b>Complete</b><small>Spare cash can all go to wealth building</small></div>';
+    el.innerHTML = '<p class="eb">Safety net</p><p class="hd"><span class="fig">' + mo.toFixed(1) + '</span> months covered' + INFO('Safety net cash divided by your monthly spending, essentials plus lifestyle.') + '</p>' +
+      '<p class="sub"><span class="fig">' + fmt(cash) + '</span> cash · <span class="fig">' + fmt(sp) + '</span> a month of spending</p>' +
+      '<div class="segs" aria-hidden="true">' + [0, 1, 2].map(i=>{ const f = Math.max(0, Math.min((mo - b[i])/(b[i+1] - b[i]), 1)); return '<i class="' + (f >= 1 ? 'full' : '') + '"><b style="width:' + (f*100) + '%"></b></i>'; }).join('') + '</div>' +
+      '<div class="seglab">' + S.map(x=>{ const d = cash >= x[1]*sp; return '<div><b>' + (d ? TICK : '') + (x[0] === 'Working buffer' ? 'Buffer' : x[0]) + '</b><span class="fig">' + fmt(x[1]*sp) + '</span></div>'; }).join('') + '</div>' + nextH;
+    bindInfo(el);
   }
 
-  /* ---------- safety net: three stages, months of spending ---------- */
-  function renderSafetyNet(client){
-    const sn = TEI.calc.safetyNet(client);
-    const spend = sn.monthlySpend;
-    if(!sn.linked){
-      setText('cfNetHead', 'No safety net account linked');
-      setText('cfNetSub', '');
-    } else {
-      setText('cfNetHead', sn.months != null ? sn.months.toFixed(1) + ' months covered' : 'Add your spending');
-      setText('cfNetSub', money(sn.current) + ' cash · ' + money(spend) + ' a month of spending');
-    }
-    const months = sn.months || 0;
-    const defs = [['Working buffer', 1], ['Stage 2', 3], ['Full', sn.fullMonths]];
-    let prev = 0;
-    const st = defs.map(d=>{ const span = Math.max(0.0001, d[1]-prev), f = Math.max(0, Math.min(1, (months-prev)/span)); prev = d[1]; return {name:d[0], months:d[1], span, f, done: sn.linked && f >= 1}; });
-    $('cfNetBar').innerHTML = st.map(s=> `<span style="flex:${s.span}"><i class="hm-grow${s.done ? ' done' : ''}" style="width:${(s.f*100).toFixed(0)}%"></i></span>`).join('');
-    $('cfNetBar').setAttribute('aria-label', (sn.months != null ? sn.months.toFixed(1) : '0') + ' months of spending covered across three stages');
-    if(TEI.render.safetyLink) TEI.render.safetyLink(client, {box:'cfNetLink', msg:'cfNetLinkMsg', btn:'cfNetLinkBtn'});
-    $('cfStages').innerHTML = st.map(s=> `<li class="${s.done ? 'done' : ''}"><span class="cf-tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg></span><span><b>${s.name}</b> · ${s.months} ${s.months === 1 ? 'month' : 'months'}${s.done ? '<span class="gl-sr"> (done)</span>' : ''}</span><span class="mono">${spend > 0 ? money(spend*s.months) : '–'}</span></li>`).join('');
-    let note;
-    if(!sn.linked) note = 'Savings goals stay on Goals; this tile is the cash you keep for the unexpected.';
-    else if(months >= sn.fullMonths) note = 'Complete. Cash above ' + money(spend*sn.fullMonths) + ' could be redirected into wealth building.';
-    else if(months >= 3) note = 'Stage 2 done. Keep a small top-up going while most new money goes to wealth.';
-    else note = 'Building the buffer comes first. Most spare cash goes here until Stage 2.';
-    setText('cfNetNote', note);
+  /* ---------- scenario corner ---------- */
+  function scnRead(client, m){
+    const mx = Math.max(0, Math.floor(m[2]/25)*25), mv = Math.min(move, mx);
+    const a = TEI.forecast.project(client, m[3]), b2 = TEI.forecast.project(client, m[3] + mv);
+    const c0 = m[0] ? m[3]/m[0]*100 : 0, nc = m[0] ? (m[3] + mv)/m[0]*100 : 0;
+    const gap = a.fiAge != null && b2.fiAge != null ? a.fiAge - b2.fiAge : 0;
+    const card = (k, o, v, x)=> '<div class="rd panel"><span>' + k + '</span><s class="fig"' + (mv > 0 ? '' : ' style="visibility:hidden"') + '>' + o + '</s><b class="fig">' + v + '</b><small>' + (mv > 0 && x ? x : '') + '</small></div>';
+    return {mx, mv,
+      peek: 'Move <b class="fig">' + fmt(mv) + '</b> a month: <b class="fig">' + Math.round(nc) + '%</b> into wealth' + (gap > 0 ? ', free ' + gap + ' year' + (gap > 1 ? 's' : '') + ' sooner' : ''),
+      html: card('Conversion rate', Math.round(c0) + '%', Math.round(nc) + '%', '+' + Math.round(nc - c0) + ' points') + card('Wealth building', fmt(m[3]), fmt(m[3] + mv), '+' + fmt(mv) + ' a month') +
+        card('Extra by ' + a.retireAge, '£0', '+' + fk(b2.atRetire - a.atRetire), "in today's money") +
+        card('Independence', a.fiAge != null ? 'Free at ' + a.fiAge : 'Not by 80', b2.fiAge != null ? 'Free at ' + b2.fiAge : 'Not by 80', gap > 0 ? gap + ' year' + (gap > 1 ? 's' : '') + ' sooner' : a.fiAge == null && b2.fiAge != null ? 'Now within reach' : '')};
   }
-
-  /* ---------- scenario corner: Forecast's model ---------- */
-  let scenInc = 150;
-  function renderScenario(client, m){
-    const inc = Math.min(scenInc, Math.max(0, Math.floor(m.lifestyle/25)*25));
-    setText('cfScenIncFmt', money(inc));
-    const before = TEI.forecast ? TEI.forecast.project(client, m.wealthBuilding) : null;
-    const after = TEI.forecast ? TEI.forecast.project(client, m.wealthBuilding + inc) : null;
-    const rate = w => m.takeHome > 0 ? pct(w/m.takeHome) : '–';
-    const byWhat = before && before.retireAge != null ? 'Extra by ' + before.retireAge : 'Extra at retirement';
-    let fiTo = after ? after.fiLabel : '–';
-    if(before && after && before.fiMonth >= 0 && after.fiMonth >= 0 && before.fiMonth > after.fiMonth) fiTo += ' (' + (before.fiMonth - after.fiMonth) + ' mo sooner)';
-    const cells = [
-      ['Conversion rate', rate(m.wealthBuilding), rate(m.wealthBuilding + inc)],
-      ['Wealth building', money(m.wealthBuilding), money(m.wealthBuilding + inc)],
-      [byWhat, '£0', before && after ? '+' + k(after.atRetire - before.atRetire) : '–'],
-      ['Financial independence', before ? before.fiLabel : '–', fiTo]
-    ];
-    $('cfScenGrid').innerHTML = cells.map(c=> `<div><p>${esc(c[0])}</p><s>${esc(c[1])}</s><b>${esc(c[2])}</b></div>`).join('');
-    if(inc < scenInc && document.activeElement !== $('cfScenInc')) $('cfScenInc').value = String(inc);
+  function drawScn(client, m){
+    const s = scnRead(client, m), el = q('.x-scn');
+    el.classList.toggle('open', FOLD.has('scn'));
+    el.innerHTML = FH('scn', 'Scenario corner', 'What if you moved more into wealth?', s.peek) + '<div class="tb">' +
+      '<p class="scq">Move <b class="fig x-mvv">' + fmt(s.mv) + '</b> a month from lifestyle into wealth building</p>' +
+      '<input type="range" class="range x-mv" min="0" max="' + s.mx + '" step="25" value="' + s.mv + '" aria-label="Amount to move each month" style="--p:' + (s.mx ? s.mv/s.mx*100 : 0) + '%">' +
+      '<div class="sc4 x-scnr">' + s.html + '</div>' +
+      '<div class="scfoot"><p>Growth figures use 5% a year in today\'s money, as on Forecast.</p><button type="button" class="pill x-seefc">See it on Forecast' + ARR + '</button></div></div>';
+    q('.x-mv').addEventListener('input', e=>{ move = +e.target.value; const t = scnRead(client, m); q('.x-mvv').textContent = fmt(t.mv); const pk = el.querySelector('.peek'); if(pk) pk.innerHTML = t.peek; q('.x-scnr').innerHTML = t.html; e.target.style.setProperty('--p', (t.mx ? t.mv/t.mx*100 : 0) + '%'); });
+    q('.x-seefc').onclick = ()=> TEI.forecast.whatIf(Math.min(move, s.mx));
   }
 
   /* ---------- your habits ---------- */
-  function renderHabits(client, months){
-    const rows = [];
-    const conv = x => x.takeHome > 0 ? x.wealthBuilding/x.takeHome : 0;
-    if(months.length >= 2){
-      const first = conv(months[0]), last = conv(months[months.length-1]);
-      const pts = Math.round((last-first)*100);
-      rows.push([(pts > 0 ? '+' : '') + pts + ' pts', pts > 0 ? 'Conversion rate is climbing.' : pts < 0 ? 'Conversion rate has slipped.' : 'Conversion rate is holding steady.', 'From ' + pct(first) + ' in ' + monLong(months[0].key) + ' to ' + pct(last) + ' now.']);
-      const t = target(client)/100;
-      let streak = 0; for(let i=months.length-1; i>=0; i--){ if(conv(months[i]) >= t) streak++; else break; }
-      rows.push([streak + ' mo', 'Months in a row at your ' + Math.round(t*100) + '% target or more.', 'Consistency matters more than any single month.']);
-      const wTot = months.reduce((s,x)=> s + x.wealthBuilding, 0);
-      const lifeAvg = months.reduce((s,x)=> s + x.lifestyle, 0) / months.length;
-      const half = Math.floor(months.length/2);
-      const a = months.slice(0, half).reduce((s,x)=> s + x.lifestyle, 0) / Math.max(1, half);
-      const b = months.slice(half).reduce((s,x)=> s + x.lifestyle, 0) / Math.max(1, months.length - half);
-      const drift = b < a*0.97 ? ' and is drifting down.' : b > a*1.03 ? ' and is creeping up.' : ' and is holding steady.';
-      rows.push([money(wTot), months.length >= 12 ? 'Moved into wealth this year.' : 'Moved into wealth in ' + months.length + ' months.', 'Lifestyle averaged ' + money(lifeAvg) + ' a month' + drift]);
-    } else {
-      // Too early for a trend: the Cashflow signals from the shared engine.
-      TEI.calc.pickSignals(client, 'cashflow', 3).forEach(s=> rows.push(['', s.message, '']));
-      if(!rows.length) rows.push(['', 'Add your take-home and spending to see your habits here.', '']);
+  function drawHab(client, H, m){
+    const el = q('.x-hab'), t = target(client);
+    el.classList.toggle('open', FOLD.has('hab'));
+    if(H.length < 2){
+      el.innerHTML = FH('hab', 'Your habits', 'What the last year shows', 'Builds from your second month') + '<div class="tb"><div class="hrows"><div class="hr panel"><b class="fig">1</b><div><b>Month logged so far</b><span>Use Update this month each month and your habits show here.</span></div></div></div></div>';
+      return;
     }
-    $('cfHabits').innerHTML = rows.map(r=> `<li>${r[0] ? `<span class="cf-big">${esc(r[0])}</span>` : ''}<span><strong>${esc(r[1])}</strong>${r[2] ? `<br><span class="fc-muted">${esc(r[2])}</span>` : ''}</span></li>`).join('');
+    const cs = H.map(x=> conv(x.v)), hit = cs.filter(c=> c >= t).length, L = H.map(x=> x.v[2]), l4 = L.slice(-4);
+    const rising = l4.length === 4 && l4[1] > l4[0] && l4[2] > l4[1] && l4[3] > l4[2];
+    const tw = H.reduce((s, x)=> s + x.v[3], 0), la = L.reduce((s, x)=> s + x, 0)/H.length;
+    const prev = H[H.length - 2], prevName = MON_LONG[keyParts(prev.key).m - 1];
+    const startName = l4.length === 4 ? MON_LONG[keyParts(H[H.length - 4].key).m - 1] : '';
+    const rows = [
+      rising ? ['+' + fmt(l4[3] - l4[0]), 'Lifestyle up three months running', fmt(l4[0]) + ' in ' + startName + ', ' + fmt(l4[3]) + ' now.']
+        : [(m[2] >= prev.v[2] ? '+' : '−') + fmt(Math.abs(m[2] - prev.v[2])), 'Lifestyle against last month', fmt(prev.v[2]) + ' in ' + prevName + ', ' + fmt(m[2]) + ' now.'],
+      [hit + ' of ' + H.length, 'Months at or above your ' + t + '% target', hit >= H.length/2 ? 'Consistency matters more than any single month.' : 'Small regular moves close the gap fastest.'],
+      [fmt(tw), 'Moved into wealth in ' + H.length + ' months', 'Lifestyle averaged ' + fmt(la) + ' a month alongside it.']];
+    el.innerHTML = FH('hab', 'Your habits', 'What the last year shows', '<b class="fig">' + hit + ' of ' + H.length + '</b> months at target' + (rising ? ' · lifestyle up 3 months running' : '')) +
+      '<div class="tb"><div class="hrows">' + rows.map(r=> '<div class="hr panel"><b class="fig">' + r[0] + '</b><div><b>' + r[1] + '</b><span class="fig">' + r[2] + '</span></div></div>').join('') + '</div></div>';
+  }
+
+  /* ---------- debts (new, brief 3.3) ---------- */
+  function drawDebts(client, m){
+    const D = V.debts(client), el = q('.x-debts');
+    el.classList.toggle('open', FOLD.has('debts'));
+    if(!D.length){
+      el.innerHTML = FH('debts', 'Debts', 'No debts recorded', 'Add them in Update balances') + '<div class="tb"><p class="sub">Add a mortgage, loan or card in Update balances on Wealth, and this shows what each one costs and when it clears.</p><div class="scfoot"><button type="button" class="pill x-adddebt">Add a debt' + ARR + '</button></div></div>';
+      q('.x-adddebt').onclick = ()=>{ TEI.app.showPage('progress'); if(TEI.wealthPage) TEI.wealthPage.openUpdate('debts'); };
+      return;
+    }
+    const pay = D.reduce((s, d)=> s + d.pay, 0), tot = D.reduce((s, d)=> s + d.bal, 0), share = m[0] ? pay/m[0]*100 : 0;
+    const P = D.map(d=> Object.assign({d}, V.payoff(d)));
+    const first = P.filter(p=> p.m != null).sort((a, b)=> a.m - b.m)[0];
+    const newConv = first && m[0] ? (m[3] + first.d.pay)/m[0]*100 : 0, rest = Math.max(0, m[0] - pay);
+    const say = first ? esc(first.d.name) + ' clears in <b class="fig">' + V.addM(first.m) + '</b>. Moving its <b class="fig">' + fmt(first.d.pay) + '</b> a month into wealth would lift your rate from ' + Math.round(m[0] ? m[3]/m[0]*100 : 0) + '% to <b class="fig">' + Math.round(newConv) + '%</b>.' : '';
+    const pos = k=> Math.min(k/HORIZON*100, 100);
+    const rows = P.map((p, i)=>{
+      const d = p.d, o = open === d.id, long = p.m == null || p.m > HORIZON, w = long ? 100 : pos(p.m), col = DCOL[i % 3];
+      let mk = '';
+      if(d.promoM && d.promoM <= HORIZON) mk = '<span class="mk" style="left:' + pos(d.promoM) + '%"><span>0% ends</span></span>';
+      if(d.fixM && d.fixM <= HORIZON) mk = '<span class="mk" style="left:' + pos(d.fixM) + '%"><span>Fix ends</span></span>';
+      const end = long ? '' : '<span class="end" style="left:' + w + '%">' + V.addM(p.m).replace(' 20', " ’") + ' · <b class="fig">+' + fmt(d.pay) + '</b></span>';
+      const endL = long && p.m != null ? '<span class="end" style="right:0;left:auto;padding:0;top:-12px;font-size:12px">to ' + V.addM(p.m).slice(-4) + ' →</span>' : '';
+      return '<button type="button" class="tlrow" data-id="' + esc(d.id) + '" aria-expanded="' + o + '"><span class="nm"><b>' + esc(d.name) + '</b><span class="fig">' + fmt(d.bal) + '</span></span><span class="trk"><span class="ln"></span><span class="bd' + (long ? ' long' : '') + '" style="width:' + (long ? 96 : Math.max(w, 1.5)) + '%;background:' + col + '"></span>' + mk + end + endL + '</span></button>' + (o ? detail(d, p) : '');
+    }).join('');
+    const y0 = new Date().getFullYear(), ticks = [0, 48, 96, 120];
+    el.innerHTML = FH('debts', 'Debts', 'Repayments take <span class="fig">' + fmt(pay) + '</span> of your <span class="fig">' + fmt(m[0]) + '</span> a month', '') +
+      '<p class="sub"><span class="fig">' + Math.round(share) + '%</span> of take-home · <span class="fig">' + fmt(tot) + '</span> owed</p>' +
+      '<div class="sbar" role="img" aria-label="Debt repayments are ' + Math.round(share) + '% of take-home">' + P.map((p, i)=> '<i style="flex:' + p.d.pay + ' 1 0;background:' + DCOL[i % 3] + '"></i>').join('') + '<i class="rest" style="flex:' + rest + ' 1 0"></i></div>' +
+      '<div class="tb"><div class="slab">' + P.map((p, i)=> '<span><i style="background:' + DCOL[i % 3] + '"></i>' + esc(p.d.name) + ' <b class="fig">' + fmt(p.d.pay) + '</b></span>').join('') + '</div>' +
+      (say ? '<p class="say">' + say + '</p>' : '') +
+      '<div class="tl">' + rows + '<div class="taxis" aria-hidden="true">' + ticks.map(t=> '<span style="left:' + (t/HORIZON*100) + '%">' + (y0 + t/12) + '</span>').join('') + '</div></div></div>';
+    el.querySelectorAll('.tlrow').forEach(b=> b.onclick = ()=>{ open = open === b.dataset.id ? null : b.dataset.id; drawDebts(client, m); const again = el.querySelector('.tlrow[data-id="' + b.dataset.id + '"]'); if(again) again.focus(); });
+    el.querySelectorAll('.opts button').forEach(b=> b.onclick = ()=>{ over[open] = +b.dataset.x; drawDebts(client, m); });
+  }
+  function detail(d, p){
+    const x = over[d.id] || (d.bal > 20000 ? 100 : 50), pn = V.payoff(d, x);
+    const after = d.afterApr != null ? (d.afterApr*100).toFixed(1) + '%' : null;
+    const rate = d.promoM ? '0% until ' + V.addM(d.promoM) + (after ? ', then ' + after : '') : (d.apr*100).toFixed(1) + '%' + (d.fixM ? ' fixed until ' + V.addM(d.fixM) + (after ? ', then about ' + after : '') : '');
+    let res = '';
+    if(p.m != null && pn.m != null) res = 'Clears <b class="fig">' + V.spanTxt(p.m - pn.m) + '</b> sooner, with <b class="fig">' + fmt(p.i - pn.i) + '</b> less interest.';
+    if(d.promoM) res += ' To clear it before the 0% ends: <b class="fig">' + fmt(Math.ceil(d.bal/d.promoM)) + ' a month</b>.';
+    // The link to the Debt vs Investment Lab stays hidden until the Lab is live (Paddy, 9 Nov).
+    return '<div class="det panel"><p><span class="fig">' + rate + '</span> · <span class="fig">' + fmt(d.pay) + '</span> a month · clears <span class="fig">' + (p.m != null ? V.addM(p.m) : 'never at this payment') + '</span></p>' +
+      '<div class="row"><span>Pay more each month</span><div class="opts" role="group" aria-label="Extra each month">' + [50, 100, 250].map(v=> '<button type="button" data-x="' + v + '" aria-pressed="' + (v === x) + '">+£' + v + '</button>').join('') + '</div></div>' +
+      '<p class="res">' + res + '</p></div>';
   }
 
   /* ---------- coach's corner ---------- */
-  function computeCashflowCoach(client){
-    const cc = client.cashflowCoach || {};
-    if(cc.mode==='manual' && cc.message) return cc.message;
-    const s = TEI.calc.pickTopSignal(client, 'cashflow');
-    return s ? s.message : 'Add your income and spending to see how your money is turning into future wealth.';
+  function drawNote(client){
+    const n = V.note(client, 'cashflow');
+    const rec = (client.cashflowMonths||{})[currentMonthKey()];
+    const stale = n && rec ? V.staleLine(n, rec.lastEditedAt) : '';
+    const [label, done] = V.sessionButton(client, 'cashflow');
+    const btn = done ? '<button type="button" class="pill done" aria-disabled="true">' + TICK + label + '</button>' : '<button type="button" class="pill x-disc">' + label + '</button>';
+    const el = q('.x-noteslot');
+    el.innerHTML = '<p class="eb">Coach\'s corner</p>' + (n ? '<blockquote>“' + esc(n.text) + '”</blockquote><p class="sig"><i></i>' + V.coachName() + (n.dateTxt ? ' · ' + n.dateTxt : '') + '</p>' + (stale ? '<p class="stale">' + stale + '</p>' : '')
+      : '<p class="nonote">Your coach adds a note here after your next cashflow check-in.</p>') + '<div class="cl">' + btn + '</div>';
+    const b = el.querySelector('.x-disc'); if(b) b.onclick = async ()=>{ b.disabled = true; if(await V.addToSession(client, 'cashflow', 'my cashflow')) drawNote(client); else b.disabled = false; };
   }
 
-  function renderAll(client){
-    const m = TEI.calc.cashflowMonth(client);
-    const months = trendMonths(client);
-    renderSnapshot(client, m);
-    renderThisMonth(client, m);
-    renderTrend(client, months);
-    renderSafetyNet(client);
-    renderScenario(client, m);
-    renderHabits(client, months);
-    setText('cfcMessage', computeCashflowCoach(client));
-  }
-
-  /* ---------- Update this month: live, saves as you go ---------- */
-  let saveTimer = null, saving = Promise.resolve(), lastFocus = null;
-  function panelValues(){
-    const v = id => { const x = parseFloat($(id).value); return isNaN(x) ? 0 : Math.max(0, x); };
-    return {T: v('cfInT'), E: v('cfInE'), L: v('cfInL'), W: v('cfInW')};
-  }
-  function renderPanelSums(){
-    const p = panelValues();
-    setText('cfPanelConv', p.T > 0 ? pct(p.W/p.T) : '–');
-    const left = p.T - p.E - p.L - p.W;
-    setText('cfPanelLeftK', left >= 0 ? 'Not yet allocated' : (p.E + p.L > p.T ? 'Overspent' : 'Over take-home'));
-    setText('cfPanelLeft', money(left));
-    $('cfPanelLeft').className = left < 0 ? 'cf-warn' : '';
-  }
-  function onPanelInput(){
+  /* ---------- Update this month: saves as you type ---------- */
+  let SAVED = null, saveTimer = null, saving = Promise.resolve();
+  const IDS = [['x-inth', 0], ['x-ines', 1], ['x-inli', 2], ['x-inwe', 3]];
+  function current(client){ const m = TEI.calc.cashflowMonth(client); return [m.takeHome, m.essentials, m.lifestyle, m.wealthBuilding].map(v=> Math.round(v)); }
+  function openUpd(o){
+    const upd = q('.upd'), ub = q('.upbtn'), scrim = q('.scrim');
+    upd.hidden = !o; ub.setAttribute('aria-expanded', o ? 'true' : 'false'); scrim.hidden = !(o && PHONE()); root().classList.toggle('sheet-open', !!(o && PHONE()));
     const client = TEI.app.state.client;
-    if(!client) return;
-    const p = panelValues(), key = currentMonthKey();
+    if(o && client){ if(!SAVED) SAVED = current(client); fillUpd(client); if(PHONE()) q('.x-inth').focus(); }
+    if(!o) flush();
+  }
+  function fillUpd(client){ const m = current(client); IDS.forEach(([c, k])=> q('.' + c).value = m[k]); calcU(client); }
+  function calcU(client){ const m = current(client), u = m[0] - m[1] - m[2] - m[3], el = q('.x-calcu'); el.textContent = fmt(u); el.className = 'fig x-calcu' + (u < 0 ? ' dn' : ''); }
+  function onInput(e){
+    const client = TEI.app.state.client; if(!client) return;
+    const v = parseFloat(e.target.value), err = q('.x-upderr');
+    if(isNaN(v) || v < 0){ err.textContent = 'Enter an amount of £0 or more.'; err.hidden = false; return; }
+    err.hidden = true;
+    const vals = IDS.map(([c])=> Math.max(0, parseFloat(q('.' + c).value) || 0));
+    put(client, vals);
+    renderAll(client);
+    calcU(client);
+  }
+  function put(client, vals){
+    const key = currentMonthKey();
     client.cashflowMonths = client.cashflowMonths || {};
     const prev = client.cashflowMonths[key] || {};
-    client.cashflowMonths[key] = Object.assign({}, prev, {actualIncome: p.T, actualExpenses: p.E + p.L, essentials: p.E, lifestyle: p.L, wealthBuilding: p.W, lastEditedAt: new Date().toISOString()});
-    renderPanelSums();
-    renderAll(client);
-    setText('cfPanelState', 'Saving...');
+    client.cashflowMonths[key] = Object.assign({}, prev, {actualIncome: vals[0], actualExpenses: vals[1] + vals[2], essentials: vals[1], lifestyle: vals[2], wealthBuilding: vals[3], lastEditedAt: new Date().toISOString()});
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(()=> save(client, key, p), 700);
+    saveTimer = setTimeout(()=> save(client, key, vals), 700);
   }
-  function save(client, key, p){
+  function save(client, key, v){
+    saveTimer = null;
     saving = saving.then(async ()=>{
-      try{
-        await TEI.wealthOS.saveCashflowMonth(client.meta.clientId, key, p.T, p.E + p.L, client.meta.role, {essentials: p.E, lifestyle: p.L, wealthBuilding: p.W});
-        setText('cfPanelState', 'Saved');
-      } catch(err){
-        console.error('Wealth OS: could not save this month', err);
-        setText('cfPanelState', 'That did not save. Please try again.');
-        TEI.app.showToast('That did not save. Please try again.');
-      }
+      try{ await TEI.wealthOS.saveCashflowMonth(client.meta.clientId, key, v[0], v[1] + v[2], client.meta.role, {essentials: v[1], lifestyle: v[2], wealthBuilding: v[3]}); }
+      catch(err){ console.error('Wealth OS: could not save this month', err); TEI.app.showToast('That did not save. Please try again.'); }
     });
     return saving;
   }
   function flush(){
     if(!saveTimer) return;
     clearTimeout(saveTimer); saveTimer = null;
-    const client = TEI.app.state.client;
-    if(client) save(client, currentMonthKey(), panelValues());
-  }
-  function openPanel(){
-    const client = TEI.app.state.client;
-    if(!client) return;
-    const m = TEI.calc.cashflowMonth(client);
-    setText('cfPanelMonth', monLong(m.key));
-    $('cfInT').value = String(Math.round(m.takeHome));
-    $('cfInE').value = String(Math.round(m.essentials));
-    $('cfInL').value = String(Math.round(m.lifestyle));
-    $('cfInW').value = String(Math.round(m.wealthBuilding));
-    setText('cfPanelState', m.logged ? '' : 'These are your usual figures. Change any that were different this month.');
-    renderPanelSums();
-    lastFocus = document.activeElement;
-    $('cfPanelScrim').hidden = false;
-    $('cfPanel').hidden = false;
-    $('cfInT').focus();
-  }
-  function closePanel(){
-    if($('cfPanel').hidden) return;
-    flush();
-    $('cfPanel').hidden = true;
-    $('cfPanelScrim').hidden = true;
-    if(lastFocus && document.body.contains(lastFocus) && lastFocus.offsetParent) lastFocus.focus(); else $('cfUpdateBtn').focus();
+    const client = TEI.app.state.client; if(!client) return;
+    const rec = client.cashflowMonths[currentMonthKey()];
+    if(rec) save(client, currentMonthKey(), [rec.actualIncome, rec.essentials, rec.lifestyle, rec.wealthBuilding]);
   }
 
+  /* ---------- render ---------- */
+  function renderAll(client){
+    const H = hist(client), m = H[H.length - 1].v;
+    q('.x-dirty').hidden = !(SAVED && JSON.stringify(SAVED) !== JSON.stringify(current(client)));
+    drawHero(client, H, m); drawSN(client, m); drawScn(client, m); drawHab(client, H, m); drawDebts(client, m); drawNote(client);
+  }
   let wired = false;
   function wireOnce(){
-    if(wired) return;
-    wired = true;
-    $('cfUpdateBtn').addEventListener('click', openPanel);
-    $('cfPanelClose').addEventListener('click', closePanel);
-    $('cfPanelDone').addEventListener('click', closePanel);
-    $('cfPanelScrim').addEventListener('click', closePanel);
-    ['cfInT','cfInE','cfInL','cfInW'].forEach(id=> $(id).addEventListener('input', onPanelInput));
-    document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closePanel(); });
-    $('cfPanel').addEventListener('keydown', e=>{
-      if(e.key !== 'Tab') return;
-      const f = Array.from(e.currentTarget.querySelectorAll('input, button')).filter(el=> !el.disabled && el.offsetParent);
-      if(!f.length) return;
-      if(e.shiftKey && document.activeElement === f[0]){ e.preventDefault(); f[f.length-1].focus(); }
-      else if(!e.shiftKey && document.activeElement === f[f.length-1]){ e.preventDefault(); f[0].focus(); }
+    if(wired) return; wired = true;
+    q('.modes').querySelectorAll('button').forEach(b=> b.onclick = ()=>{ mode = b.dataset.m; q('.modes').querySelectorAll('button').forEach(x=> x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); intro = true; const c = TEI.app.state.client; if(c) renderAll(c); intro = false; });
+    q('.upbtn').onclick = ()=> openUpd(q('.upd').hidden);
+    q('.scrim').onclick = ()=> openUpd(false);
+    q('.x-done').onclick = ()=> openUpd(false);
+    IDS.forEach(([c])=> q('.' + c).addEventListener('input', onInput));
+    q('.x-undo').onclick = ()=>{ const c = TEI.app.state.client; if(c && SAVED){ put(c, SAVED.slice()); fillUpd(c); renderAll(c); TEI.app.showToast('Back to your saved figures'); } };
+    document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && root() && !q('.upd').hidden) openUpd(false); });
+    window.addEventListener('resize', ()=>{ if(root()) q('.scrim').hidden = !(PHONE() && !q('.upd').hidden); });
+    root().addEventListener('click', e=>{
+      const h = e.target.closest('.fhead'); if(!h || !PHONE()) return;
+      const id = h.dataset.f; FOLD.has(id) ? FOLD.delete(id) : FOLD.add(id);
+      h.parentElement.classList.toggle('open', FOLD.has(id)); h.setAttribute('aria-expanded', FOLD.has(id) ? 'true' : 'false');
     });
-    $('cfScenInc').addEventListener('input', e=>{
-      scenInc = parseInt(e.target.value, 10) || 0;
-      const client = TEI.app.state.client;
-      if(client) renderScenario(client, TEI.calc.cashflowMonth(client));
-    });
-    $('cfScenLink').addEventListener('click', e=>{ e.preventDefault(); TEI.app.showPage('planning'); });
+  }
+  /* From Wealth's Debts row: open the Debts tile and bring it into view. */
+  function focusDebts(){
+    FOLD.add('debts');
+    const el = q('.x-debts'); if(!el) return;
+    el.classList.add('open'); const h = el.querySelector('.fhead'); if(h) h.setAttribute('aria-expanded', 'true');
+    el.scrollIntoView({behavior: V.RM() ? 'auto' : 'smooth', block:'start'});
   }
 
   // Home's Cashflow tile reads the same target and health rule.
-  TEI.cashflowPage = { openUpdate: openPanel, target, health };
+  TEI.cashflowPage = { openUpdate: ()=>{ TEI.app.showPage('cashflow'); openUpd(true); }, target, health, focusDebts };
   TEI.render.cashflow = function(client){
     wireOnce();
-    $('cfScenInc').value = String(scenInc);
+    V.syncEye();
     renderAll(client);
+    intro = false;
   };
 })();
-

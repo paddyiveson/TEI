@@ -6,9 +6,15 @@
 <title>Wealth OS · TEI Client Hub</title>
 <script src="/hub/js/tei-theme.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=Schibsted+Grotesk:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@1,6..72,300;1,6..72,400&family=Spectral:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/hub/css/hub-tokens.css">
 <link rel="stylesheet" href="/hub/css/wealth-os.css">
+<!-- TEI Launch v2: Wealth OS shell and type, then the three pages. -->
+<link rel="stylesheet" href="/hub/css/wos2-shell.css">
+<link rel="stylesheet" href="/hub/css/wos2-wealth.css">
+<link rel="stylesheet" href="/hub/css/wos2-forecast.css">
+<link rel="stylesheet" href="/hub/css/wos2-cashflow.css">
+<link rel="stylesheet" href="/hub/css/wos2-light.css">
 </head>
 <body>
 
@@ -334,138 +340,69 @@ window.TeiTheme && TeiTheme.paint();</script>
      old Portfolio page in one. Element ids are unchanged, so the existing
      renderers (TEI.render.progress and TEI.render.portfolio) fill it. -->
 <div id="page-progress" class="page">
-<div class="hm wl">
-  <header class="hm-head">
-    <div>
-      <p class="hm-date">How much you have, and where it is</p>
-      <h1 class="hm-title">Wealth</h1>
-    </div>
-    <button type="button" class="hm-btn hm-btn-primary wl-update-btn" id="wlUpdateBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.8 2.8 0 0 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg><span class="wl-update-long">Update balances</span><span class="wl-update-short">Update</span></button>
-  </header>
-
-  <div class="hm-grid wl-grid">
-
-    <!-- 1. Net worth hero (B5.1). Figures from TEI.render.progress. -->
-    <section class="hm-tile hm-feat wl-hero" aria-labelledby="wlNetLabel">
-      <div class="wl-hero-top">
-        <div class="wl-hero-fig">
-          <div class="wl-hero-k"><p class="hm-label" id="wlNetLabel">Net worth</p><span class="hm-asof" id="whUpdated"></span></div>
-          <p class="hm-big wl-big"><span id="whNet">£0</span><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About your net worth" aria-describedby="wlTipTotal"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipTotal">Everything you own across all your accounts, at the latest prices and balances, minus any debts.</span></span></p>
-        </div>
-        <div class="wl-toggles">
-          <div class="wl-seg" id="timelineRangeToggle" role="group" aria-label="Chart range">
-            <button type="button" data-range="1m">1M</button>
-            <button type="button" data-range="3m">3M</button>
-            <button type="button" data-range="ytd">YTD</button>
-            <button type="button" data-range="1y">1Y</button>
-            <button type="button" data-range="3y">3Y</button>
-            <button type="button" data-range="5y">5Y</button>
-            <button type="button" data-range="all">All</button>
+<!-- Wealth v13.2 (TEI Launch v2, brief 3.1). Drawn by 15-wealth-board.js;
+     styles in /hub/css/wos2-wealth.css. No page title (Paddy, 8 Nov). -->
+<div class="wo2 wo2-wealth serif-h t-a fw-300">
+  <div class="wrap">
+    <section class="row1">
+      <article class="hero" aria-label="Net worth">
+        <div class="htop">
+          <span class="lbl hlab">Net worth</span>
+          <button class="icb" type="button" data-wo2-eye aria-pressed="false" aria-label="Hide figures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M4 4l16 16" style="display:none"/></svg></button>
+          <div class="hright">
+            <button type="button" class="obtn" id="wlUpdateBtn">Update balances</button>
+            <span class="asof"></span>
+            <button class="icb" id="whRefreshPricesBtn" type="button" aria-label="Refresh prices" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg></button>
           </div>
-          <div class="wl-seg" id="timelineViewToggle" role="group" aria-label="What the chart includes" style="display:none;" title="Investable = your accounts. Total adds property and other assets, less debts.">
-            <button type="button" data-view="investable">Investable</button>
-            <button type="button" data-view="total">Total</button>
-          </div>
+          <div class="ranges" role="group" aria-label="Range"></div>
         </div>
-      </div>
-      <!-- Fluid stats line (B5.1): gain for the period, money-weighted return
-           for the period, annualised return over all time. -->
-      <p class="wl-statline">
-        <span class="wl-st"><b id="wlStatGain">–</b><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About the gain" aria-describedby="wlTipGain"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipGain">How much your money grew or fell over the selected period, after taking out the money you paid in or withdrew.</span></span></span>
-        <span class="wl-st-sep" aria-hidden="true">·</span>
-        <span class="wl-st"><b id="wlStatPeriod">–</b><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About the period return" aria-describedby="wlTipPeriod"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipPeriod">Your return for the selected period. It is money-weighted, so new money you pay in never counts as growth.</span></span></span>
-        <span class="wl-st-sep" aria-hidden="true">·</span>
-        <span class="wl-st"><b id="wlStatAnn">–</b><span class="wl-i"><button type="button" class="wl-i-btn" aria-label="About the annual return" aria-describedby="wlTipAnn"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button><span class="wl-pop" role="tooltip" id="wlTipAnn">Your average yearly return since you started tracking, money-weighted. It always covers all time, whatever range you pick.</span></span></span>
-      </p>
-      <div class="wl-chart"><canvas id="chartWealthTimeline"></canvas><div class="wl-scrub" id="wlScrub" aria-hidden="true" hidden></div></div>
-      <div class="empty-state" id="timelineEmpty" style="display:none;"><div class="big">No history logged yet</div><div class="small">Your net worth history appears here once monthly balances are logged.</div></div>
-      <div class="wl-legend"><span><i class="wl-key wl-key-v" aria-hidden="true"></i>Value</span><span><i class="wl-key wl-key-p" aria-hidden="true"></i>Paid in</span><span class="wl-legend-hint"><span class="wl-hint-d">Move across the chart to see any month</span><span class="wl-hint-m">Drag across the chart to see any month</span></span></div>
-      <p class="wl-note" id="whRangeNote" hidden></p>
-      <p class="wl-note" id="whContribNote" style="display:none;"></p>
-      <div class="wl-prices"><p class="wl-note" id="whPricesStatus"></p><button type="button" class="wl-refresh" id="whRefreshPricesBtn" aria-label="Refresh US prices now" title="Refresh US prices now" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button></div>
+        <div class="numrow"><div class="big num fig x-nw"></div><div class="rng2" role="group" aria-label="Range"></div></div>
+        <div class="stats num x-stats"></div>
+        <div class="chart">
+          <svg viewBox="0 0 800 200" preserveAspectRatio="none" aria-hidden="true">
+            <defs><linearGradient id="w2ar" class="x-ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D3A2" stop-opacity=".34"/><stop offset="1" stop-color="#E8D3A2" stop-opacity="0"/></linearGradient></defs>
+            <g stroke="rgba(190,208,236,.08)"><line x1="0" y1="50" x2="800" y2="50" vector-effect="non-scaling-stroke"/><line x1="0" y1="100" x2="800" y2="100" vector-effect="non-scaling-stroke"/><line x1="0" y1="150" x2="800" y2="150" vector-effect="non-scaling-stroke"/></g>
+            <path class="x-area" fill="url(#w2ar)"/>
+            <path class="x-paid" fill="none" stroke="#AEBBD0" stroke-opacity=".6" stroke-width="1.3" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>
+            <path class="x-line" fill="none" stroke="#E8D3A2" stroke-width="2" vector-effect="non-scaling-stroke"/>
+          </svg>
+          <div class="vline"></div><div class="endpt"></div><div class="tip"></div>
+        </div>
+        <div class="axis x-axis"></div>
+        <p class="wl-sr" id="whPricesStatus" aria-live="polite"></p>
+      </article>
+      <section class="where" aria-label="Where it is">
+        <div class="donut"><svg viewBox="0 0 42 42" class="x-donut" role="img" aria-label="Share of your assets by group"></svg></div>
+        <button type="button" class="wtog" aria-expanded="false">Accounts and debts<svg class="chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5"/></svg></button>
+        <div class="grows"></div>
+      </section>
     </section>
-
-    <!-- 2. What this means (B5.1): coach's corner leads, then up to three
-         insights, then four health signals. TODO(H2 #7): wording and
-         priority rules come from the insight engine session; the cards
-         use the existing signals engine until then. -->
-    <div class="wl-sec">
-      <h2 class="wl-h2">What this means</h2>
-      <p class="hm-muted">Your coach's view first, then what stands out in your figures.</p>
-    </div>
-
-    <section class="hm-tile hm-feat wl-coach" id="pfcCard">
-      <p class="hm-label" id="pfcHeading">Coach's corner</p>
-      <p class="wl-coach-msg" id="pfcMessage">–</p>
-      <p class="wl-coach-from" id="wlCoachFrom" hidden>From your coach</p>
-      <div class="wl-coach-acts">
-        <button type="button" class="hm-btn wl-coach-btn" data-wo-request="session">Discuss next session</button>
-        <a href="#" class="hm-link wl-coach-link" id="pfcActionBtn" style="display:none;">–</a>
-      </div>
-      <p class="hm-note wo-req-state" aria-live="polite"></p>
-    </section>
-    <section class="hm-tile wl-lead" id="wlLead" hidden></section>
-
-    <div class="wl-ins" id="wlInsights"></div>
-
-    <section class="hm-tile wl-health" id="wlHealth" aria-labelledby="wlHealthK">
-      <div class="hm-row hm-row-wrap"><p class="hm-label" id="wlHealthK">Health</p><span class="hm-note">Simple signals, not a score</span></div>
-      <ul class="wl-signals" id="wlHealthList"></ul>
-    </section>
-
-    <!-- 3. Your accounts (B5.1): composition, then accounts grouped by
-         type with their holdings folded. -->
-    <section class="hm-tile wl-accts" id="wealthCompCard" aria-labelledby="wlAcctTitle">
-      <div class="hm-row hm-row-wrap">
-        <div><p class="hm-label">Your accounts</p><h2 class="wl-h2" id="wlAcctTitle">Your accounts</h2></div>
-        <span class="k-debtfree-pill" id="compDebtFreePill" style="display:none;">Debt free</span>
-      </div>
-      <div class="k-comp-bar wl-compbar" id="compBar"></div>
-      <div class="k-comp-legend wl-complegend" id="compLegend"></div>
-      <div class="wl-groups" id="wlAcctGroups"></div>
-      <div id="compLiabilities"></div>
-      <p class="hm-note" id="poPricesStatus"></p>
-      <p class="hm-note wl-warn" id="poDiscrepancy" style="display:none;"></p>
-    </section>
-
-    <!-- 4. Your portfolio, read only (B5.1). The full Portfolio Lab has its
-         own screen (B5.4). -->
-    <section class="hm-tile wl-pf" id="wlPortfolio" aria-labelledby="wlPfTitle">
-      <div class="wl-pf-head">
-        <div><p class="hm-label">Your portfolio</p><h2 class="wl-h2" id="wlPfTitle">Everything you own</h2></div>
-        <div class="wl-pf-switches" id="wlPfSwitches" role="group" aria-label="Include in the view"></div>
-      </div>
-      <div class="wl-tm" id="wlTreemap"></div>
-      <p class="hm-note wl-pf-note">Planning changes happen with your coach in <a href="#" class="hm-link wl-lab-link" data-wl-lab>Portfolio Lab</a>.</p>
-    </section>
-    <section class="hm-tile wl-move" aria-labelledby="wlMoveK">
-      <p class="hm-label" id="wlMoveK">Move needed for a 1% impact</p>
-      <p class="hm-muted hm-small">How far each of your six largest holdings would have to move to change your portfolio by 1%.</p>
-      <ol class="wl-movelist" id="wlMoveList"></ol>
-    </section>
-
-    <!-- 5. Dividends (B5.1), when there are dividend holdings or logged
-         yearly dividends. Carries over the old Portfolio tile: income, yield,
-         growth, the yearly chart (received, then estimated) with the
-         reinvest switch, and each payer's share.
-         TODO(H2 #12): "This tax year so far" and the next expected date need
-         dated payments linked to accounts. -->
-    <section class="hm-tile hm-champ wl-div" id="wlDividends" hidden>
-      <div class="wl-div-head"><p class="hm-label">Dividends</p><span id="wlDivSwitch"></span></div>
-      <div class="wl-div-top">
-        <div data-div-h><p class="wl-div-k">Expected a year</p><p class="wl-div-big" id="wlDivTotal">–</p></div>
-        <div data-div-h><p class="wl-div-k">A month, on average</p><p class="wl-div-mid" id="wlDivMonthly">–</p></div>
-        <div data-div-h><p class="wl-div-k">Yield</p><p class="wl-div-mid" id="wlDivYield">–</p></div>
-        <div><p class="wl-div-k">Dividend growth</p><p class="wl-div-mid" id="wlDivGrowth">–</p></div>
-      </div>
-      <div class="wl-div-chart" id="wlDivChart"></div>
-      <p class="wl-div-note" id="wlDivNote"></p>
-      <ul class="wl-divlist" id="wlDivList"></ul>
-    </section>
-
-    <p class="wl-past">Past returns do not tell you what future returns will be.</p>
-
+    <div class="x-panelslot"></div>
   </div>
+  <section class="band b-hold" aria-label="What it holds">
+    <div class="wrap">
+      <section class="sec x-holds">
+        <div class="hold3">
+          <div class="hbar"><p class="hsub"></p><div class="htog"></div></div>
+          <div class="tree2" aria-label="Holdings treemap"></div>
+          <div class="hlist">
+            <div class="hlh"><span>Holding</span><span class="mvh">1% move<button type="button" class="info rt" aria-label="What the 1% move means"><span aria-hidden="true">i</span><span class="bub" role="tooltip">How far a holding's price would need to change to move this view by 1%.</span></button></span></div>
+            <ul class="x-hlist"></ul>
+            <button type="button" class="hmore" hidden></button>
+          </div>
+        </div>
+        <p class="hm-note wl-warn" id="poDiscrepancy" style="display:none;"></p>
+        <p class="hm-note wl-sr" id="poPricesStatus"></p>
+        <div class="x-divslot"></div>
+      </section>
+    </div>
+  </section>
+  <section class="band x-review" aria-label="Review">
+    <div class="wrap"><div class="x-rvslot"></div>
+      <p class="foot">Past returns do not tell you what future returns will be. TEI provides financial coaching and education, not regulated financial advice.</p>
+    </div>
+  </section>
+</div>
 
   <!-- Update balances: a side panel on desktop, a bottom sheet on phones (B5). -->
   <div class="wl-scrim" id="wlUpdScrim" hidden></div>
@@ -479,7 +416,6 @@ window.TeiTheme && TeiTheme.paint();</script>
     <div class="wl-prices"><p class="hm-note" id="wlUpdPrices"></p><button type="button" class="wl-refresh" id="wlUpdRefreshBtn" aria-label="Refresh US prices now" title="Refresh US prices now" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button></div>
     <a href="#" class="hm-link" id="wlUpdMore">Money paid in and earlier months</a>
   </div>
-</div>
 </div>
 
 <!-- ============================= PORTFOLIO LAB ============================= -->
@@ -663,306 +599,179 @@ window.TeiTheme && TeiTheme.paint();</script>
 </div>
 <!-- ============================= PLANNING TOOLS ============================= -->
 <div id="page-planning" class="page">
-<!-- Redesign B12.7 (spec B7, boards Forecast and ForecastMobile). Filled by
-     TEI.render.planning. Every figure on the page comes from one projection
-     (TEI.calc.projectSeries), including the range of outcomes. -->
-<div class="hm fc">
-  <header class="hm-head fc-head">
-    <div>
-      <p class="hm-date">Plan</p>
-      <h1 class="hm-title"><span class="hm-greet-d">Forecast</span><span class="hm-greet-m">Plan</span></h1>
-      <p class="hm-muted fc-sub">Where today's money and habits lead, if nothing changes.</p>
-    </div>
-  </header>
-
-  <div class="hm-grid fc-grid">
-
-    <section class="hm-tile hm-feat fc-hero" aria-labelledby="fcEnd">
-      <div class="hm-orbit hm-spin" aria-hidden="true"></div>
-      <div class="fc-hero-top">
-        <div class="fc-hero-text">
-          <p class="hm-label">Wealth projection</p>
-          <p class="fc-at" id="fcAt"></p>
-          <p class="fc-end" id="fcEnd" aria-live="polite"></p>
-          <p class="fc-gap"><span id="fcMoneyNote"></span> · <span class="fc-gold" id="fcGap"></span></p>
-          <p class="fc-dob" id="fcDobNote" hidden>Add your date of birth in Settings to see this by age.</p>
-        </div>
-        <div class="fc-seg fc-modes" role="group" aria-label="Chart view">
-          <button type="button" data-fc-mode="plan" aria-pressed="true">Your plan</button>
-          <button type="button" data-fc-mode="hyp" aria-pressed="false">What if</button>
-          <button type="button" data-fc-mode="order" aria-pressed="false">Order of returns</button>
-        </div>
-      </div>
-
-      <div class="fc-chart">
-        <div class="fc-yaxis" id="fcYAxis" aria-hidden="true"></div>
-        <div class="fc-plot" id="fcPlot">
-          <div class="fc-grid-lines" id="fcGridLines" aria-hidden="true"></div>
-          <svg id="fcSvg" viewBox="0 0 600 200" preserveAspectRatio="none" role="img" aria-label="Wealth projection"></svg>
-          <div id="fcMarks" aria-hidden="true"></div>
-        </div>
-        <div class="fc-xaxis" id="fcXAxis" aria-hidden="true"></div>
-      </div>
-      <div class="fc-legend" id="fcLegend"></div>
-
-      <div class="fc-controls">
-        <p class="fc-insight" id="fcInsight"></p>
-        <div class="fc-control-row">
-          <div class="fc-seg" role="group" aria-label="Growth rate">
-            <button type="button" class="mono" data-fc-rate="0.02" aria-pressed="false">2%</button>
-            <button type="button" class="mono" data-fc-rate="0.05" aria-pressed="true">5%</button>
-            <button type="button" class="mono" data-fc-rate="0.08" aria-pressed="false">8%</button>
+<!-- Forecast v3.1 with the v3.2 range-labels fix (TEI Launch v2, brief 3.2).
+     Drawn by 08-forecast.js; styles in /hub/css/wos2-forecast.css. -->
+<div class="wo2 wo2-fc">
+  <div class="wrap">
+    <section class="row1">
+      <article class="hero" aria-label="Wealth projection">
+        <div class="htop">
+          <div class="modes" role="group" aria-label="Chart view">
+            <button type="button" data-m="plan" aria-pressed="true">Your plan</button>
+            <button type="button" data-m="whatif" aria-pressed="false">What if</button>
+            <button type="button" data-m="order" aria-pressed="false">Order of returns</button>
           </div>
-          <div class="fc-seg" role="group" aria-label="Money values">
-            <button type="button" data-fc-real="1" aria-pressed="true">Today's money</button>
-            <button type="button" data-fc-real="0" aria-pressed="false">Future money</button>
+          <button class="icb" type="button" data-wo2-eye aria-pressed="false" aria-label="Hide figures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M4 4l16 16" style="display:none"/></svg></button>
+        </div>
+        <div class="big x-big"></div>
+        <div class="stats x-stats"></div>
+        <div class="chart">
+          <svg class="x-csvg" viewBox="0 0 800 220" preserveAspectRatio="none" role="img"></svg>
+          <div class="x-clabs"></div>
+          <div class="vline"></div><div class="endpt"></div><div class="tip"></div>
+        </div>
+        <div class="axis x-axis" aria-hidden="true"></div>
+        <div class="x-ckey"></div>
+        <div class="hbot">
+          <div class="rates" role="group" aria-label="Growth a year after costs and inflation">
+            <button type="button" data-r="0.02" aria-pressed="false">2%</button><button type="button" data-r="0.05" aria-pressed="true">5%</button><button type="button" data-r="0.08" aria-pressed="false">8%</button>
           </div>
+          <span class="rlab">a year after costs and inflation</span>
+          <button type="button" class="adjbtn" aria-expanded="false"><span class="dirty x-dirty" hidden></span>Adjust<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
         </div>
-      </div>
+      </article>
 
-      <button type="button" class="fc-adj-open" id="fcAdjOpen" aria-controls="fcAdj" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span id="fcAdjOpenLabel">Adjust</span></button>
-
-      <!-- Adjust strip (B7.2): inside the hero on desktop, a bottom sheet on phones. -->
-      <div class="fc-scrim" id="fcAdjScrim" hidden></div>
-      <div class="fc-adj" id="fcAdj" role="group" aria-labelledby="fcAdjState">
-        <div class="fc-adj-sheet-head">
-          <div><p class="hm-label" id="fcAdjStateM"></p><h2 class="hm-h3">Adjust forecast</h2></div>
-          <span class="fc-adj-sheet-end" id="fcAdjEnd"></span>
+      <section class="close" aria-label="How close you are">
+        <div class="leadg"><div class="lead"><b class="num x-fiage"></b><span class="mark" role="img"></span></div>
+        <p class="leadsub x-fisub"></p></div>
+        <div class="rds">
+          <div class="rd"><span class="rk">Of the way<span class="x-fiinfo"></span></span><b class="num x-fipct"></b><div class="track"><i class="x-fibar"></i></div></div>
+          <div class="rd"><span class="rk"><span class="x-coastk">Coasting from</span><span class="x-coastinfo"></span></span><b class="num x-coastv"></b><div class="track"><i class="x-coastbar"></i></div></div>
+          <div class="rd tnum"><span class="rk">Your number<span class="x-numinfo"></span></span><b class="fig x-finum"></b></div>
         </div>
-        <div class="fc-adj-head">
-          <p class="hm-label fc-adj-state" id="fcAdjState">Adjust · your figures</p>
-          <div class="fc-adj-btns">
-            <button type="button" class="hm-btn fc-btn-ghost" id="fcReset">Reset to my figures</button>
-            <button type="button" class="hm-btn fc-btn-champ" id="fcSave">Save as my plan</button>
-          </div>
+        <div class="retire">
+          <label for="fc2Ret"><span>Retire at</span><b class="num x-retval"></b></label>
+          <input type="range" class="range x-ret" id="fc2Ret" min="55" max="68" step="1">
+          <div class="ends x-ends" aria-hidden="true"></div>
         </div>
-        <div class="fc-adj-grid">
-          <label class="fc-field">Monthly saving £<input type="number" inputmode="decimal" min="0" step="50" id="fcInPmt"></label>
-          <label class="fc-field">Starting pot £<input type="number" inputmode="decimal" min="0" step="1000" id="fcInP0"></label>
-          <label class="fc-field"><span id="fcInRetLabel">Retire at</span><input type="number" inputmode="numeric" min="55" max="68" step="1" id="fcInRet"></label>
-          <label class="fc-field">Yearly spending £<input type="number" inputmode="decimal" min="5000" step="1000" id="fcInYs"></label>
-          <label class="fc-field">Saving rises a year %<input type="number" inputmode="decimal" min="0" max="10" step="0.5" id="fcInRise"></label>
-        </div>
-        <div class="fc-oo">
-          <p class="fc-oo-note">One-off money in or out, such as a house deposit or an inheritance</p>
-          <label class="fc-field fc-oo-age"><span id="fcOoAgeLabel">At age</span><input type="number" inputmode="numeric" step="1" id="fcOoAge"></label>
-          <label class="fc-field fc-oo-amt">Amount £<input type="number" inputmode="decimal" min="0" step="1000" id="fcOoAmt"></label>
-          <div class="fc-seg" role="group" aria-label="Money in or out">
-            <button type="button" data-fc-dir="in" aria-pressed="true">Money in</button>
-            <button type="button" data-fc-dir="out" aria-pressed="false">Money out</button>
-          </div>
-          <button type="button" class="fc-oo-add" id="fcOoAdd">Add a one-off</button>
-          <div class="fc-oo-list" id="fcOoList"></div>
-        </div>
-        <p class="fc-adj-foot">Changes here are a what-if. Save as my plan keeps your retirement age and yearly spending in Plan settings.</p>
-        <button type="button" class="hm-btn hm-btn-primary fc-done" id="fcDone">Done</button>
-      </div>
-    </section>
-
-    <div class="fc-right">
-      <section class="hm-tile fc-over" aria-labelledby="fcOverK">
-        <div class="hm-row"><p class="hm-label" id="fcOverK">Financial future overview</p><span class="fc-chip" id="fcStatus"></span></div>
-        <div class="fc-pair">
-          <div class="fc-box"><p>FI number</p><b id="fcFiNum"></b><small id="fcFiHow"></small></div>
-          <div class="fc-box fc-box-champ"><p>Projected FI</p><b id="fcFiAge"></b><small class="fc-gold-t" id="fcFiWhen"></small></div>
-        </div>
-        <div>
-          <label for="fcRetRange" class="fc-ret-l"><span id="fcRetRangeLabel">Planned retirement age</span><strong id="fcRetVal"></strong></label>
-          <input id="fcRetRange" class="gl-range" type="range" min="55" max="68" step="1">
-          <div class="gl-ends" aria-hidden="true"><span id="fcRetMin">55</span><span id="fcRetMax">68</span></div>
-        </div>
-        <p class="hm-muted hm-small" id="fcStatusNote"></p>
+        <p class="leadsub x-noage" hidden>Add your date of birth in Settings to see this by your own age. Until then it assumes you are 40.</p>
       </section>
-
-      <section class="hm-tile hm-champ fc-doc" aria-labelledby="fcDocTitle">
-        <div class="fc-doc-top">
-          <span class="fc-doc-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 17l3-3 2 2 3-4"/></svg></span>
-          <div><p class="hm-label hm-gold">Built with your coach</p><h2 class="fc-doc-title" id="fcDocTitle">Your coach's forecast</h2></div>
-        </div>
-        <p class="hm-muted hm-small fc-doc-text">Your personal plan, built in session around your own goals and settings. This page updates live from your Wealth OS figures; your coach's forecast is the detailed version.</p>
-        <div class="fc-doc-foot"><span class="mono fc-doc-date" id="fcDocDate">Your coach adds this after your plan session.</span><button type="button" class="hm-btn hm-btn-primary" id="fcDocOpen" hidden>Open forecast</button></div>
-      </section>
-    </div>
-
-    <section class="hm-tile fc-comp" aria-labelledby="fcCompTitle">
-      <div><p class="hm-label" id="fcCompK"></p><h2 class="hm-h3" id="fcCompTitle">Today's habits do most of the work</h2></div>
-      <div class="fc-comp-bar" id="fcCompBar" role="img"></div>
-      <div class="fc-comp-key" id="fcCompKey"></div>
-      <div class="fc-plus"><b id="fcPlus100"></b><span id="fcPlusText"></span></div>
     </section>
 
-    <section class="hm-tile hm-powder fc-ind" aria-labelledby="fcIndTitle">
-      <div><p class="hm-label">Independence</p><h2 class="hm-h3" id="fcIndTitle">How close you are today</h2></div>
-      <div>
-        <div class="hm-row fc-ind-row"><span>Financial independence</span><span class="mono" id="fcFiPct"></span></div>
-        <div class="hm-bar hm-bar-lg"><span class="hm-grow" id="fcFiBar"></span></div>
-        <p class="hm-muted hm-small hm-mt" id="fcFiNote"></p>
+    <div class="scrim" hidden></div>
+    <section class="adj" aria-label="Adjust forecast" hidden>
+      <div class="adj-sh"><i></i><div><b>Adjust forecast</b><span class="fig x-adjend"></span></div></div>
+      <div class="fields">
+        <label class="fld" for="fc2Pmt">Monthly saving<span class="money"><span>£</span><input class="x-inpmt" id="fc2Pmt" type="number" inputmode="decimal" min="0" step="50"></span></label>
+        <label class="fld" for="fc2P0">Starting pot<span class="money"><span>£</span><input class="x-inp0" id="fc2P0" type="number" inputmode="decimal" min="0" step="1000"></span></label>
+        <label class="fld" for="fc2Ys">Yearly spending in retirement<span class="money"><span>£</span><input class="x-inys" id="fc2Ys" type="number" inputmode="decimal" min="5000" step="500"></span></label>
+        <label class="fld" for="fc2Rise">Saving rises a year<span class="money"><input class="x-inrise" id="fc2Rise" type="number" inputmode="decimal" min="0" max="10" step="0.5"><span>%</span></span></label>
+        <div class="fld"><span>Show figures in</span><div class="vals" role="group" aria-label="Money values"><button type="button" data-v="1" aria-pressed="true">Today's money</button><button type="button" data-v="0" aria-pressed="false">Future money</button></div></div>
       </div>
-      <div>
-        <div class="hm-row fc-ind-row"><span id="fcCoastLabel"></span><span class="mono" id="fcCoastPct"></span></div>
-        <div class="hm-bar hm-bar-lg"><span class="hm-grow hm-fill-gold" id="fcCoastBar"></span></div>
-        <p class="hm-muted hm-small hm-mt" id="fcCoastNote"></p>
+      <div class="adj-row">
+        <p class="note">One-off money in or out, such as a house deposit or an inheritance</p>
+        <label class="fld" for="fc2OoAge">At age<span class="money"><input class="x-ooage" id="fc2OoAge" type="number" inputmode="numeric" step="1"></span></label>
+        <label class="fld" for="fc2OoAmt">Amount<span class="money"><span>£</span><input class="x-ooamt" id="fc2OoAmt" type="number" inputmode="decimal" min="0" step="1000" value="15000"></span></label>
+        <div class="dir" role="group" aria-label="Money in or out"><button type="button" data-d="out" aria-pressed="true">Money out</button><button type="button" data-d="in" aria-pressed="false">Money in</button></div>
+        <button type="button" class="addoo x-ooadd">Add a one-off</button>
+        <div class="oolist x-oolist"></div>
       </div>
-    </section>
-
-    <section class="hm-tile fc-mc" aria-labelledby="fcMcHead">
-      <div class="fc-mc-top">
-        <div><p class="hm-label">Range of outcomes</p><h2 class="hm-h3" id="fcMcHead"></h2></div>
-        <div class="fc-dots" id="fcMcDots" aria-hidden="true"></div>
+      <div class="adj-foot">
+        <p>Changes here are a what if. Save as my plan keeps them as your plan.</p>
+        <div class="btns"><button type="button" class="gbtn x-reset">Reset to my figures</button><button type="button" class="cbtn x-save">Save as my plan</button></div>
       </div>
-      <div class="fc-mc-track" id="fcMcTrack" aria-hidden="true"></div>
-      <div class="fc-mc-figs">
-        <div><p>Tough markets</p><b id="fcP10"></b><small class="mono">1 in 10 paths do worse</small></div>
-        <div><p>Middle path</p><b id="fcP50"></b><small class="mono">Half above, half below</small></div>
-        <div><p>Strong markets</p><b id="fcP90"></b><small class="mono">1 in 10 paths do better</small></div>
-      </div>
-      <p class="hm-note" id="fcMcNote"></p>
+      <button type="button" class="done x-done">Done</button>
     </section>
-
-    <section class="hm-tile fc-know" aria-labelledby="fcKnowTitle">
-      <p class="hm-label">Things to know</p>
-      <h2 class="hm-h3" id="fcKnowTitle">What this is built on</h2>
-      <ul class="fc-know-list" id="fcKnow"></ul>
-    </section>
-
-    <section class="hm-tile fc-steps" aria-labelledby="fcStepsTitle">
-      <p class="hm-label">Next steps</p>
-      <h2 class="hm-h3" id="fcStepsTitle">What would move your forecast</h2>
-      <ol class="fc-steps-list" id="fcSteps"></ol>
-    </section>
-
-    <section class="hm-tile hm-feat fc-coach">
-      <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
-      <p class="hm-label">Coach's corner</p>
-      <p class="gl-coach-msg" id="fcMessage"></p>
-      <button type="button" class="hm-btn gl-coach-btn" data-wo-request="session">Discuss next session</button>
-      <p class="hm-note wo-req-state" aria-live="polite"></p>
-    </section>
-
   </div>
-  <p class="hm-note gl-foot">Projections are illustrative and for education only. Returns are not guaranteed and investments can fall as well as rise. TEI provides financial coaching and education, not regulated financial advice.</p>
+
+  <section class="band" aria-label="How sure, and what moves it">
+    <div class="wrap">
+      <div class="b3">
+        <div class="rbox">
+          <p class="bl x-rnglead"></p>
+          <p class="bs x-rngsub"></p>
+          <div class="dens x-dens" aria-hidden="true"></div>
+          <div class="dmk x-dmk"></div>
+        </div>
+        <div class="know">
+          <p class="klab">Things to know</p>
+          <ul class="x-know"></ul>
+        </div>
+      </div>
+      <div class="steps x-steps"></div>
+    </div>
+  </section>
+
+  <section class="x-closing" aria-label="From your coach">
+    <div class="wrap">
+      <div class="x-noteslot"></div>
+      <p class="foot">Projections are illustrative and for education only. Returns are not guaranteed and investments can fall as well as rise. TEI provides financial coaching and education, not regulated financial advice.</p>
+    </div>
+  </section>
 </div>
 </div>
+
 <!-- ============================= CASHFLOW ============================= -->
 <div id="page-cashflow" class="page">
-<!-- Redesign B12.8 (spec B8, boards Cashflow and CashflowMobile). Filled by
-     TEI.render.cashflow from TEI.calc.cashflowMonth, the same figures Home
-     shows. Update this month saves through saveCashflowMonth. -->
-<div class="hm cf">
-  <header class="hm-head cf-head">
-    <div>
-      <p class="hm-date">Plan</p>
-      <h1 class="hm-title"><span class="hm-greet-d">Cashflow</span><span class="hm-greet-m">Plan</span></h1>
-      <p class="hm-muted fc-sub">How your monthly money turns into wealth.</p>
-    </div>
-    <button type="button" class="hm-btn hm-btn-primary wl-update-btn" id="cfUpdateBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10.5 -10.5a2.8 2.8 0 0 0 -4 -4l-10.5 10.5v4"/><path d="M13.5 6.5l4 4"/></svg><span class="wl-update-long">Update this month</span><span class="wl-update-short">Update</span></button>
-  </header>
+<!-- Cashflow v3.3 with the phone fold (TEI Launch v2, brief 3.3). Drawn by
+     09-cashflow.js; styles in /hub/css/wos2-cashflow.css. -->
+<div class="wo2 wo2-cf">
+  <div class="wrap">
+    <section class="grid">
+      <article class="tile hero" aria-label="Wealth conversion rate">
+        <div class="htop">
+          <p class="eb">Wealth conversion rate</p>
+          <div class="modes" role="group" aria-label="View">
+            <button type="button" data-m="month" aria-pressed="true">This month</button>
+            <button type="button" data-m="year" aria-pressed="false">12 months</button>
+          </div>
+          <button class="icb" type="button" data-wo2-eye aria-pressed="false" aria-label="Hide figures"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="M4 4l16 16" style="display:none"/></svg></button>
+        </div>
+        <div class="hrow">
+          <div><div class="big fig x-big"></div><p class="bigsub x-bigsub"></p></div>
+          <div class="stat x-stat"></div>
+        </div>
+        <div class="hbody x-hbody"></div>
+        <div class="hbot">
+          <p class="x-hfoot"></p>
+          <button type="button" class="upbtn" aria-expanded="false"><span class="dirty x-dirty" hidden></span>Update this month<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 6l4 4 4-4"/></svg></button>
+        </div>
+      </article>
+      <article class="tile cool x-sn" aria-label="Safety net"></article>
+    </section>
 
-  <div class="hm-grid cf-grid">
-
-    <section class="hm-tile hm-feat cf-snap" aria-labelledby="cfConvK">
-      <div class="cf-snap-rate">
-        <p class="hm-label" id="cfConvK">Wealth conversion rate</p>
-        <p class="cf-conv" id="cfConv"></p>
-        <p class="cf-conv-sub">of take-home goes into wealth</p>
+    <div class="scrim" hidden></div>
+    <section class="upd" aria-label="Update this month" hidden>
+      <div class="upd-sh"><i></i><div><b class="x-updmonth">Update this month</b><span class="fig x-updrate"></span></div></div>
+      <div class="fields">
+        <label class="fld" for="cf2Th"><span class="k">Take-home pay</span><span class="money"><span>£</span><input class="x-inth" id="cf2Th" type="number" inputmode="decimal" min="0" step="50"></span></label>
+        <label class="fld" for="cf2Es"><span class="k"><i style="background:var(--ess)"></i>Essentials</span><span class="money"><span>£</span><input class="x-ines" id="cf2Es" type="number" inputmode="decimal" min="0" step="25"></span></label>
+        <label class="fld" for="cf2Li"><span class="k"><i style="background:var(--life)"></i>Lifestyle</span><span class="money"><span>£</span><input class="x-inli" id="cf2Li" type="number" inputmode="decimal" min="0" step="25"></span></label>
+        <label class="fld" for="cf2We"><span class="k"><i style="background:var(--wlth)"></i>Wealth building</span><span class="money"><span>£</span><input class="x-inwe" id="cf2We" type="number" inputmode="decimal" min="0" step="25"></span></label>
+        <div class="calc"><span>Not yet allocated</span><b class="fig x-calcu"></b></div>
       </div>
-      <div class="cf-snap-flow">
-        <div class="cf-snap-row"><span id="cfSnapMonth"></span><span class="cf-health" id="cfHealth"></span></div>
-        <div class="cf-flow" id="cfFlow" role="img"></div>
-        <div class="cf-flow-key" id="cfFlowKey"></div>
-      </div>
-    </section>
-
-    <section class="hm-tile cf-month" aria-labelledby="cfMonthK">
-      <div class="hm-row"><p class="hm-label" id="cfMonthK">This month</p><span class="mono cf-updated" id="cfUpdated"></span></div>
-      <dl class="cf-rows" id="cfRows"></dl>
-    </section>
-
-    <section class="hm-tile cf-trend" aria-labelledby="cfTrendHead">
-      <div class="cf-trend-top">
-        <div><p class="hm-label">Last 12 months</p><h2 class="hm-h3" id="cfTrendHead"></h2></div>
-        <div class="cf-keys" aria-hidden="true"><span><i class="cf-k-w"></i>Wealth building</span><span><i class="cf-k-l"></i>Lifestyle</span><span><i class="cf-k-e"></i>Essentials</span></div>
-      </div>
-      <div class="cf-bars" id="cfBars" role="img"></div>
-      <p class="hm-note" id="cfTrendNote">Built from your monthly updates. Wealth building sits on top; the % above each bar is that month's conversion rate.</p>
-    </section>
-
-    <section class="hm-tile hm-powder cf-net" aria-labelledby="cfNetHead">
-      <div><p class="hm-label">Safety net</p><h2 class="hm-h3" id="cfNetHead"></h2><p class="hm-muted hm-small" id="cfNetSub"></p></div>
-      <div class="cf-net-bar" id="cfNetBar" role="img"></div>
-      <ol class="cf-stages" id="cfStages"></ol>
-      <div class="hm-sn-link" id="cfNetLink" hidden><p class="hm-sn-warn" id="cfNetLinkMsg"></p><button type="button" class="hm-btn hm-btn-primary" id="cfNetLinkBtn"></button></div>
-      <p class="cf-net-note" id="cfNetNote"></p>
-    </section>
-
-    <section class="hm-tile hm-champ cf-scen" aria-labelledby="cfScenTitle">
-      <div><p class="hm-label hm-gold">Scenario corner</p><h2 class="hm-h3" id="cfScenTitle">What if you moved more into wealth?</h2></div>
-      <label for="cfScenInc" class="gl-q">Move <strong id="cfScenIncFmt"></strong> a month from lifestyle into wealth building</label>
-      <input id="cfScenInc" class="gl-range" type="range" min="0" max="500" step="25" value="150">
-      <div class="cf-scen-grid" id="cfScenGrid"></div>
-      <div class="cf-scen-foot">
-        <p class="hm-note">Growth figures use 5% a year in today's money, as on Forecast.</p>
-        <a href="#" class="hm-btn hm-btn-primary cf-scen-link" id="cfScenLink">See it on Forecast<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <p class="err x-upderr" hidden></p>
+      <div class="upd-foot">
+        <p>Saves as you type. Debt repayments sit inside essentials and lifestyle.</p>
+        <div class="btns"><button type="button" class="gbtn x-undo">Undo changes</button><button type="button" class="cbtn x-done">Done</button></div>
       </div>
     </section>
 
-    <section class="hm-tile cf-habits" aria-labelledby="cfHabitsTitle">
-      <p class="hm-label">Your habits</p>
-      <h2 class="hm-h3" id="cfHabitsTitle">What the last year shows</h2>
-      <ul class="cf-habit-list" id="cfHabits"></ul>
+    <section class="grid">
+      <article class="tile lift x-scn" aria-label="Scenario corner"></article>
+      <article class="tile x-hab" aria-label="Your habits"></article>
     </section>
 
-    <section class="cf-locked">
-      <div class="hm-row"><p class="hm-label">Coming soon</p><svg class="cf-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-      <h2>Spending categories</h2>
-      <p>Where lifestyle money goes: food, transport, subscriptions and more. Needs itemised spending, so it unlocks once that can be added.</p>
-      <ul><li>Itemised spending</li><li>Monthly</li></ul>
-    </section>
-    <section class="cf-locked">
-      <div class="hm-row"><p class="hm-label">Coming soon</p><svg class="cf-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-      <h2>Debts and mortgage</h2>
-      <p>Balances, rates, fix end dates and overpayments, alongside what each debt costs against investing.</p>
-      <ul><li>Mortgage</li><li>Loans</li><li>Cards</li></ul>
+    <section class="grid">
+      <article class="tile lift x-debts" aria-label="Debts"></article>
+      <article class="tile coach x-noteslot" aria-label="Coach's corner"></article>
     </section>
 
-    <section class="hm-tile hm-feat cf-coach">
-      <div class="hm-orbit hm-orbit-low" aria-hidden="true"></div>
-      <p class="hm-label">Coach's corner</p>
-      <p class="gl-coach-msg" id="cfcMessage"></p>
-      <button type="button" class="hm-btn gl-coach-btn" data-wo-request="session">Discuss next session</button>
-      <p class="hm-note wo-req-state" aria-live="polite"></p>
-    </section>
+    <article class="tile soon soonrow" aria-label="Spending categories, coming soon">
+      <div>
+        <p class="eb">Coming soon</p>
+        <p class="hd">Spending categories</p>
+        <p class="t">Where lifestyle money goes: food, transport, subscriptions and more. Unlocks once itemised spending can be added.</p>
+        <div class="tags"><span>Itemised spending</span><span>Monthly</span></div>
+      </div>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>
+    </article>
 
-  </div>
-  <p class="hm-note gl-foot">Figures are what you enter each month. Projections are illustrative and for education only. TEI provides financial coaching and education, not regulated financial advice.</p>
-
-  <!-- Update this month: a side panel on desktop, a bottom sheet on phones. -->
-  <div class="wl-scrim" id="cfPanelScrim" hidden></div>
-  <div class="wl-panel cf-panel" id="cfPanel" role="dialog" aria-modal="true" aria-labelledby="cfPanelTitle" hidden>
-    <div class="wl-panel-head">
-      <div><p class="hm-label" id="cfPanelMonth"></p><h2 class="hm-h3" id="cfPanelTitle">Update this month</h2></div>
-      <button type="button" class="wl-x" id="cfPanelClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button>
-    </div>
-    <p class="hm-muted hm-small">Round figures are fine. Changes save as you go.</p>
-    <div class="cf-fields">
-      <div class="cf-f"><label for="cfInT">Take-home pay</label><p>After tax, pension and deductions.</p><div class="cf-money"><span>£</span><input id="cfInT" type="number" inputmode="decimal" min="0" step="50"></div></div>
-      <div class="cf-f"><label for="cfInE">Essentials</label><p>Rent or mortgage, bills, food, transport.</p><div class="cf-money"><span>£</span><input id="cfInE" type="number" inputmode="decimal" min="0" step="50"></div></div>
-      <div class="cf-f"><label for="cfInL">Lifestyle</label><p>Everything else you spent.</p><div class="cf-money"><span>£</span><input id="cfInL" type="number" inputmode="decimal" min="0" step="50"></div></div>
-      <div class="cf-f"><label for="cfInW">Wealth building</label><p>ISAs, pension top-ups, investing, safety net.</p><div class="cf-money"><span>£</span><input id="cfInW" type="number" inputmode="decimal" min="0" step="50"></div></div>
-    </div>
-    <div class="cf-panel-sum"><span>Conversion rate</span><b id="cfPanelConv"></b></div>
-    <div class="cf-panel-sum"><span id="cfPanelLeftK"></span><b id="cfPanelLeft"></b></div>
-    <p class="hm-note cf-panel-state" id="cfPanelState" aria-live="polite"></p>
-    <button type="button" class="hm-btn hm-btn-primary cf-panel-done" id="cfPanelDone">Done</button>
+    <p class="foot">Figures are what you enter each month. Projections are illustrative and for education only. TEI provides financial coaching and education, not regulated financial advice.</p>
   </div>
 </div>
 </div>
 
-
-
-
-
-<!-- ============================= LIBRARY (phones) ============================= -->
 <!-- Spec B10 (board LibraryMobile), built 20 Oct 2026. The Library tab on
      phones: a switch over Plan | Learn | Meeting notes (one page, three
      views; #clientApp[data-mview] picks the view). On desktop the same
@@ -1807,6 +1616,13 @@ window.TeiTheme && TeiTheme.paint();</script>
     </div>
 
     <div class="subtab-panel active" id="subtab-profile">
+    <!-- Coach's notes per page (TEI Launch v2, D38): the letter on Wealth,
+         Forecast and Cashflow. Saved by 20-coach-notes.js. -->
+    <div class="card adv-notes-card" style="margin-bottom:16px;" data-adviser-only>
+      <h3 style="margin:0 0 6px; color:var(--cream); font-family:'Playfair Display',serif;">Coach's notes</h3>
+      <p style="margin:0 0 12px; font-size:13px; color:var(--cream-soft);">Each page shows its own note as a letter from you. Leave one empty and the page says a note comes after the next session.</p>
+      <div class="adv-notes" id="advNotes"></div>
+    </div>
     <div class="card" style="margin-bottom:16px;">
       <h3 style="margin:0 0 14px; color:var(--cream); font-family:'Playfair Display',serif;">Personal</h3>
       <div class="form-grid">
@@ -2222,6 +2038,7 @@ window.TeiTheme && TeiTheme.paint();</script>
 <script src="/hub/js/hub-boundary.js" data-footer="manual"></script>
 <script src="/hub/js/wealth-os/01-data.js"></script>
 <script src="/hub/js/wealth-os/02-charts.js"></script>
+<script src="/hub/js/wealth-os/19-v2-shared.js"></script>
 <script src="/hub/js/wealth-os/03-home.js"></script>
 <script src="/hub/js/wealth-os/04-wealth.js"></script>
 <script src="/hub/js/wealth-os/05-goals.js"></script>
@@ -2236,6 +2053,7 @@ window.TeiTheme && TeiTheme.paint();</script>
 <script src="/hub/js/wealth-os/14-feedback.js"></script>
 <script src="/hub/js/wealth-os/15-wealth-board.js"></script>
 <script src="/hub/js/wealth-os/16-app.js"></script>
+<script src="/hub/js/wealth-os/20-coach-notes.js"></script>
 <script src="/hub/js/wealth-os/17-forecast-viewer.js"></script>
 <script src="/hub/js/wealth-os/18-doc-viewer.js"></script>
 <script src="/hub/js/wealth-setup.js"></script>

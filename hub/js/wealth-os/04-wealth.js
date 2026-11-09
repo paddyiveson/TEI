@@ -502,12 +502,10 @@ TEI.render = TEI.render || {};
     return items;
   }
   TEI.render.wealthInsightItems = wealthInsightItems;
-  TEI.render.progress = function(client){
-    renderOverview(client);
-    wireTimelineToggle(client);
-    renderWealthPricesAsOf(client);
-    renderTimeline(client);
-    renderComposition(client);
-  };
+  /* Wealth v2 (TEI Launch v2) draws the page in 15-wealth-board.js and
+     reuses these sums, so the figures stay the same as before. */
+  TEI.wealthCalc = {investTotal, pensionTotal, cashAcctTotal, cryptoTotal, otherAssetsTotal, propertyValue,
+    liabilityGroups, liabilitiesTotal, grossAssetsTotal, totalNetWorth, totalNetWorthSeries,
+    filterKeysByRange, cumulativeContributionsSeries, accountLastUpdated};
 })();
 

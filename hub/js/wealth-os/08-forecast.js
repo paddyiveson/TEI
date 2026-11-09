@@ -2,536 +2,358 @@ window.TEI = window.TEI || {};
 TEI.render = TEI.render || {};
 
 (function(){
-  /* Forecast (redesign B12.7, spec B7, boards Forecast and ForecastMobile).
-     One model: the chart, the headline, every tile and the range of
-     outcomes all run TEI.calc.projectSeries month by month, with the same
-     saving, yearly rise and one-offs (B7 "One model only").
-     Locked assumptions, set by the coach and shown, not editable: growth
-     2/5/8% a year, inflation 2.5% a year, FI number = 25 x yearly spending
-     (fiMultiple / fiOverride respected). What-ifs live in `st` for the
-     session only; Save as my plan writes retirement age and yearly
-     spending to Plan settings, nothing else. */
-  const {fmtGBP} = TEI.data;
-  const EXPECTED_RATE = 0.05;           // the middle growth option (B7.1)
+  /* ================================================================
+     FORECAST v3.1 with the v3.2 range-labels fix (TEI Launch v2, brief 3.2)
+     The framed hero (Your plan, What if, Order of returns) to age 90;
+     beside it, unboxed, Free at N, Of the way, Coasting from, Your number
+     and the retirement slider; Adjust as a framed drop-down (a bottom
+     sheet on phones); a lighter band with the range of outcomes, Things to
+     know and next steps; the coach's note as a letter to close.
+     The maths follows the locked mock-up: yearly steps, growth "a year
+     after costs and inflation" (so today's money needs no deflating;
+     future money adds 2.5% a year back), 500 market paths with a 13%
+     spread, your number = 25 times yearly spending in retirement (or the
+     coach's own figure). Saved plan: retirement age and yearly spending
+     (migration 009) plus saving rise, one-offs and money view (020).
+     ================================================================ */
+  const V = TEI.v2;
+  const {esc, fmt, fk, sk, INFO, CHEV, TICK, ARR, RM, PHONE, countUp, bindInfo} = V;
+  const EXPECTED_RATE = 0.05;
   TEI.calc.EXPECTED_RATE = EXPECTED_RATE; // Home's actual-vs-plan line uses the same middle case
-  const RATES = [0.02, 0.05, 0.08];
-  const INFLATION = 0.025;
-  const DEFAULT_RETIRE_AGE = 60;        // Confirmed by Paddy (Oct 2026): 60 when no retirement age is set.
-  const DEFAULT_YEARS = 25;             // horizon when there is no date of birth
-  const MC_PATHS = 500, MC_SPREAD = 0.13, MC_SEED = 0x2F6B1D;
-  const LONG_MONTHS = 600;
-  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const $ = id => document.getElementById(id);
-  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function setText(id, t){ const el = $(id); if(el) el.textContent = t; }
-  function k(n){
-    const a = Math.abs(n), sign = n < 0 ? '-' : '';
-    if(a >= 1e6) return sign + '£' + (a/1e6).toFixed(2) + 'm';
-    if(a >= 1000) return sign + '£' + Math.round(a/1000) + 'k';
-    return sign + '£' + Math.round(a);
-  }
-  function round1000(n){ return Math.round(n/1000)*1000; }
-  function monthLabel(offset){ const n = new Date(); const d = new Date(n.getFullYear(), n.getMonth()+offset, 1); return MON[d.getMonth()] + ' ' + d.getFullYear(); }
+  const END = 90, INFL = 0.025, DEFAULT_RETIRE_AGE = 60, NO_DOB_AGE = 40;
+  const $ = id=> document.getElementById(id);
+  const root = ()=> document.querySelector('.wo2-fc');
+  const q = s=> root().querySelector(s);
+  const r1k = n=> Math.round(n/1000)*1000;
+  const clone = o=> JSON.parse(JSON.stringify(o));
+  const same = (a, b)=> JSON.stringify(a) === JSON.stringify(b);
 
-  /* ---------- the client's own figures (Adjust defaults) ---------- */
-  function ageNow(client){
-    const dob = (client.personal||{}).dob;
-    if(!dob) return null;
-    const d = new Date(dob), n = new Date();
-    if(isNaN(d)) return null;
-    let a = n.getFullYear() - d.getFullYear();
-    if(n.getMonth() < d.getMonth() || (n.getMonth() === d.getMonth() && n.getDate() < d.getDate())) a--;
-    return a >= 0 && a < 110 ? a : null;
-  }
-  function myFigures(client){
+  /* ---------- the client's plan ---------- */
+  function planOf(client){
     const prefs = client.preferences || {};
-    const age = ageNow(client);
+    const age = V.ageNow(client);
+    const AGE0 = age != null ? age : NO_DOB_AGE;
     const budget = TEI.calc.computeBudgetAndFI(client);
-    let ret = prefs.retirementAge != null ? Number(prefs.retirementAge) : DEFAULT_RETIRE_AGE;
-    if(age != null) ret = Math.max(ret, age + 1);
-    return {
-      pmt: Math.round(TEI.calc.actualTotalSavingInvesting(client)),
-      p0: Math.round(TEI.calc.latestNetWorth(client)),
-      ret,
-      years: DEFAULT_YEARS,
-      ys: prefs.yearlySpending != null ? Number(prefs.yearlySpending) : round1000(budget.annualSpend || 0),
-      rise: 0
-    };
+    let R = prefs.retirementAge != null ? Number(prefs.retirementAge) : DEFAULT_RETIRE_AGE;
+    R = Math.min(Math.max(R, Math.max(55, AGE0 + 1)), Math.max(68, AGE0 + 1));
+    return {AGE0, hasAge: age != null,
+      plan: {p0: Math.round(TEI.calc.latestNetWorth(client)), pmt: Math.round(TEI.calc.actualTotalSavingInvesting(client)),
+        rise: prefs.planSavingRise != null ? Number(prefs.planSavingRise)/100 : 0, R,
+        ys: prefs.yearlySpending != null ? Number(prefs.yearlySpending) : r1k(budget.annualSpend || 0),
+        oo: (prefs.planOneOffs || []).map(o=> ({age: Number(o.at != null ? o.at : o.age), amt: Number(o.amt)})).filter(o=> o.age > AGE0 && o.amt)},
+      real: prefs.planReal !== false,
+      fiOverride: prefs.fiOverride != null ? Number(prefs.fiOverride) : null, mult: Number(prefs.fiMultiple) || 25};
   }
 
-  /* What-if state: session only (B7.2 Persistence). */
-  let st = null;
-  function freshState(client){
-    const f = myFigures(client);
-    return {clientId: client.meta.clientId, base: f, pmt: f.pmt, p0: f.p0, ret: f.ret, years: f.years, ys: f.ys, rise: f.rise,
-      oneOffs: [], g: EXPECTED_RATE, real: true, mode: 'plan', saved: false,
-      ooAge: null, ooAmt: 20000, ooOut: false};
+  /* ---------- the model (as the mock-up) ---------- */
+  let S = null; // session state: {clientId, AGE0, PLAN, draft, mode, rate, real, ...}
+  const cur = ()=> S.mode === 'whatif' ? S.draft : S.PLAN;
+  const contrib = (p, a)=> a < p.R ? p.pmt*12*Math.pow(1 + p.rise, a - S.AGE0) : 0;
+  const ooAt = (p, a)=> p.oo.filter(o=> o.age === a).reduce((s, o)=> s + o.amt, 0);
+  function proj(p, r){
+    const out = [p.p0]; let v = p.p0;
+    for(let a=S.AGE0; a<END; a++){ v = v*(1 + r) + contrib(p, a) - (a >= p.R ? p.ys : 0) + ooAt(p, a + 1); if(v < 0) v = 0; out.push(v); }
+    return out;
   }
-  function changed(){
-    const b = st.base;
-    return st.pmt !== b.pmt || st.p0 !== b.p0 || st.ret !== b.ret || st.years !== b.years || st.ys !== b.ys || st.rise !== b.rise || st.oneOffs.length > 0;
+  const atR = (p, r)=> proj(p, r)[p.R - S.AGE0];
+  const fiNum = p=> S.fiOverride != null ? S.fiOverride : S.mult*p.ys;
+  function fiAge(p, r){
+    const F = fiNum(p); if(!(F > 0)) return null;
+    let v = p.p0; const q2 = Object.assign({}, p, {R:99});
+    for(let a=S.AGE0; a<=80; a++){ if(v >= F) return a; v = v*(1 + r) + contrib(q2, a) + ooAt(q2, a + 1); }
+    return null;
   }
+  function coastAge(p, r){
+    const F = fiNum(p); if(!(F > 0)) return null;
+    let v = p.p0;
+    for(let a=S.AGE0; a<=p.R; a++){ if(v*Math.pow(1 + r, p.R - a) >= F) return a; v = v*(1 + r) + contrib(p, a) + ooAt(p, a + 1); }
+    return null;
+  }
+  function mc(p, r){
+    let s = 11; const rnd = ()=>{ s = (s*16807) % 2147483647; return s/2147483647; };
+    const res = [];
+    for(let i=0; i<500; i++){
+      let v = p.p0;
+      for(let a=S.AGE0; a<p.R; a++){ const z = Math.sqrt(-2*Math.log(rnd()))*Math.cos(2*Math.PI*rnd()); v = Math.max(0, v*(1 + r + 0.13*z) + contrib(p, a) + ooAt(p, a + 1)); }
+      res.push(v);
+    }
+    res.sort((a, b)=> a - b);
+    return {p10:res[49], p50:res[249], p90:res[449], res};
+  }
+  const SEQ = [-.20, -.12, -.04, .04, .08, .10, .12, .06, 0, -.04];
+  function orderPaths(p, r){
+    const base = proj(p, r);
+    const run = offs=>{ const out = []; let v = base[p.R - S.AGE0];
+      for(let a=p.R; a<=END; a++){ out.push(v); const k = a - p.R, ret = r + (k < offs.length ? offs[k] : 0); v = Math.max(0, v*(1 + ret) - p.ys); }
+      return out; };
+    return {bad: run(SEQ), good: run(SEQ.slice().reverse())};
+  }
+  const dv = (v, age)=> S.real ? v : v*Math.pow(1 + INFL, age - S.AGE0);
+  const moneyWord = ()=> S.real ? "in today's money" : 'in future money';
 
-  /* ---------- the model ---------- */
-  function model(client){
-    const age = ageNow(client);
-    const prefs = client.preferences || {};
-    const years = age != null ? Math.max(1, st.ret - age) : Math.max(1, st.years);
-    const N = years * 12;
-    const mult = prefs.fiMultiple || 25;
-    const FI = prefs.fiOverride != null ? Number(prefs.fiOverride) : st.ys * mult;
-    const OO = {};
-    st.oneOffs.forEach(o=>{
-      const m = (age != null ? (o.at - age) : o.at) * 12;
-      if(m > 0 && m <= LONG_MONTHS) OO[m] = (OO[m]||0) + o.amt;
-    });
-    const rise = st.rise / 100;
-    const run = (rate, pmt, months, extra) => TEI.calc.projectSeries(st.p0, pmt, rate/12, months, Object.assign({rise, oneOffs: OO}, extra||{}));
-    const dfl = m => st.real ? Math.pow(1+INFLATION, m/12) : 1;
-    const fiAt = m => st.real ? FI : FI * Math.pow(1+INFLATION, m/12);
-    const dv = a => a.map((v,m)=> v / dfl(m));
-    const midN = run(st.g, st.pmt, N);
-    const mid = dv(midN);
-    const long = run(st.g, st.pmt, LONG_MONTHS);
-    let fiM = -1;
-    if(FI > 0) for(let m=0; m<=LONG_MONTHS; m++){ if(long[m] / dfl(m) >= fiAt(m)){ fiM = m; break; } }
-    return {age, years, N, FI, mult, OO, rise, run, dfl, fiAt, dv, midN, mid, fiM, override: prefs.fiOverride != null};
-  }
-  // The label for a point `y` years from today: an age, or a year count.
-  function atLabel(M, y){ return M.age != null ? String(M.age + y) : 'year ' + y; }
-  function horizonLabel(M){ return M.age != null ? 'At ' + (M.age + M.years) : 'In ' + M.years + ' years'; }
-  function byLabel(M){ return M.age != null ? 'by ' + (M.age + M.years) : 'in ' + M.years + ' years'; }
-
-  /* ---------- hero chart ---------- */
-  function renderHero(client, M){
-    const gold = '#E8D6A8', pale = '#9DB4D8', grey = '#AAB6C8';
-    const N = M.N;
-    let S, lo = null, hi = null;
-    if(st.mode === 'hyp'){
-      S = [{a: M.mid, col: gold, dash: '', style: 'solid', label: 'Keep saving ' + fmtGBP(st.pmt) + ' a month'},
-           {a: M.dv(M.run(st.g, st.pmt + 200, N)), col: pale, dash: '', style: 'solid', label: 'Save ' + fmtGBP(st.pmt + 200) + ' a month'},
-           {a: M.dv(M.run(st.g, 0, N)), col: grey, dash: '5 6', style: 'dashed', label: 'Stop saving today'}];
-    } else if(st.mode === 'order'){
-      S = [{a: M.dv(M.run(st.g, st.pmt, N, {shocks: {12: 0.75}})), col: gold, dash: '', style: 'solid', label: '25% fall in your first year'},
-           {a: M.dv(M.run(st.g, st.pmt, N, {shocks: {[N]: 0.75}})), col: grey, dash: '5 6', style: 'dashed', label: 'Same fall in your final year'}];
+  /* ---------- hero ---------- */
+  let cd = null, intro = true;
+  function drawHero(){
+    const p = cur(), big = q('.x-big'), stats = q('.x-stats');
+    let labels = '', keyH = '', ins = '';
+    if(S.mode !== 'order'){
+      const m = proj(p, S.rate), pl = proj(S.PLAN, S.rate);
+      const ages = m.map((_, i)=> S.AGE0 + i);
+      const series = [{v: m.map((x, i)=> dv(x, S.AGE0 + i)), main:1}];
+      if(S.mode === 'whatif') series.push({v: pl.map((x, i)=> dv(x, S.AGE0 + i)), ghost:1});
+      const F = fiNum(p), vR = dv(m[p.R - S.AGE0], p.R);
+      big.innerHTML = '<span class="fig x-bign"></span><small>at ' + p.R + '</small>';
+      if(intro) countUp(q('.x-bign'), r1k(vR), fmt, 900); else q('.x-bign').textContent = fk(vR);
+      if(S.mode === 'plan'){
+        const gap = m[p.R - S.AGE0] - F;
+        stats.innerHTML = F > 0 ? '<span class="' + (gap >= 0 ? 'up' : 'dn') + ' fig">' + (gap >= 0 ? fk(gap) + ' above' : fk(-gap) + ' short of') + ' your number</span><span class="dot">·</span><span>' + moneyWord() + '</span>'
+          : '<span>Add your yearly spending in retirement to see your number</span>';
+      } else {
+        const d = dv(m[p.R - S.AGE0], p.R) - dv(pl[S.PLAN.R - S.AGE0], S.PLAN.R);
+        stats.innerHTML = '<span class="' + (d >= 0 ? 'up' : 'dn') + ' fig">' + (d >= 0 ? '+' : '−') + fk(Math.abs(d)) + ' on your plan</span><span class="dot">·</span><span>' + moneyWord() + '</span>';
+        keyH = '<div class="ckey"><span><i style="background:var(--champ)"></i>What if</span><span><i class="dash"></i>Your plan</span></div>';
+      }
+      cd = {ages, series, F: F > 0 ? dv(F, p.R) : null, R: p.R};
     } else {
-      lo = M.dv(M.run(0.02, st.pmt, N)); hi = M.dv(M.run(0.08, st.pmt, N));
-      S = [{a: M.mid, col: gold, dash: '', style: 'solid', label: 'Your path at ' + Math.round(st.g*100) + '% a year'}];
+      const o = orderPaths(p, S.rate), ages = o.bad.map((_, i)=> p.R + i);
+      const series = [{v: o.bad.map((x, i)=> dv(x, ages[i])), col:'var(--loss)'}, {v: o.good.map((x, i)=> dv(x, ages[i])), col:'var(--gain)'}];
+      const ob = o.bad.findIndex(x=> x <= 0), og = o.good.findIndex(x=> x <= 0);
+      if(ob >= 0 && og < 0){ big.innerHTML = '<span class="fig">Runs out at ' + ages[ob] + '</span>'; stats.innerHTML = '<span>Bad years first</span><span class="dot">·</span><span>Good years first lasts past ' + END + '</span>'; }
+      else { const i75 = Math.max(0, Math.min(ages.length - 1, 75 - p.R)), d = Math.abs(o.good[i75] - o.bad[i75]);
+        big.innerHTML = '<span class="fig">' + fk(dv(d, 75)) + '</span><small>apart at 75</small>';
+        stats.innerHTML = '<span>Same ' + Math.round(S.rate*100) + '% average</span><span class="dot">·</span><span>different order</span>'; }
+      keyH = '<div class="ckey"><span><i style="background:var(--loss)"></i>Bad years first</span><span><i style="background:var(--gain)"></i>Good years first</span></div>';
+      ins = '<p class="insight">Same returns, in a different order. Losses just after you stop saving do the most damage, because you are selling to live while prices are low.</p>';
+      cd = {ages, series, R: p.R, order:1};
     }
-    let mx = Math.max(M.fiAt(N) * 1.18, M.mid[N] * 1.22, 1);
-    S.forEach(s=>{ mx = Math.max(mx, s.a[N] * 1.1); });
-    const Y = v => 196 - Math.min(Math.max(v,0), mx*1.03) / mx * 186;
-    const X = m => m / N * 600;
-    const step = Math.max(1, Math.floor(N/200));
-    const pth = a => { let p = ''; for(let m=0; m<=N; m+=step) p += (m ? 'L' : 'M') + X(m).toFixed(1) + ' ' + Y(a[m]).toFixed(1); if(N % step) p += 'L600 ' + Y(a[N]).toFixed(1); return p; };
-    let band = '';
-    if(hi){ band = pth(hi); for(let b=N - (N % step); b>=0; b-=step) band += 'L' + X(b).toFixed(1) + ' ' + Y(lo[b]).toFixed(1); band += ' Z'; }
-    const fia = []; for(let f=0; f<=N; f++) fia.push(M.fiAt(f));
-    $('fcSvg').innerHTML = (band ? `<path class="fc-band" d="${band}"></path>` : '') +
-      (M.FI > 0 ? `<path class="fc-fi" d="${pth(fia)}"></path>` : '') +
-      S.slice().reverse().map((s,i)=> `<path class="fc-line hm-draw${i === S.length-1 ? ' fc-line-main' : ''}" d="${pth(s.a)}" stroke="${s.col}"${s.dash ? ` stroke-dasharray="${s.dash}"` : ''}></path>`).join('');
-    $('fcSvg').setAttribute('aria-label', 'Projected wealth to ' + horizonLabel(M).toLowerCase().replace(/^at /, 'age ') + ', ending at ' + k(M.mid[N]) + (st.real ? ' in today\'s money' : ''));
-
-    // y axis: about four steps
-    const raw = mx/4, p10 = Math.pow(10, Math.floor(Math.log10(raw))), nn = raw/p10;
-    const yStep = (nn <= 1 ? 1 : nn <= 2 ? 2 : nn <= 2.5 ? 2.5 : nn <= 5 ? 5 : 10) * p10;
-    let yHtml = '', gHtml = '';
-    for(let v=0; v<=mx; v+=yStep){
-      const top = (Y(v)/2).toFixed(2) + '%';
-      yHtml += `<span style="top:${top}">${v === 0 ? '£0' : k(v)}</span>`;
-      gHtml += `<i style="top:${top}"></i>`;
-    }
-    $('fcYAxis').innerHTML = yHtml;
-    $('fcGridLines').innerHTML = gHtml;
-
-    // x axis: every five years, and the end
-    const ticks = [];
-    for(let y=0; y<M.years; y+=5) ticks.push(y);
-    if(ticks.length > 1 && M.years - ticks[ticks.length-1] < 3) ticks.pop();
-    ticks.push(M.years);
-    const y0 = new Date().getFullYear();
-    $('fcXAxis').innerHTML = ticks.map((y,i)=>{
-      const last = i === ticks.length-1;
-      const cls = i === 0 ? 'fc-x-first' : last ? 'fc-x-last' : '';
-      const top = M.age != null ? (i === 0 ? 'Age ' + M.age : String(M.age + y)) : (i === 0 ? 'Today' : y + ' yrs');
-      return `<span class="${cls}" style="left:${(y/M.years*100).toFixed(2)}%">${top}<small>${y0 + y}</small></span>`;
-    }).join('');
-
-    // FI marker and one-off markers
-    let marks = '';
-    if(st.mode === 'plan' && M.fiM >= 0 && M.fiM <= N){
-      const left = (X(M.fiM)/6).toFixed(2) + '%', top = (Y(M.mid[M.fiM])/2).toFixed(2) + '%';
-      marks += `<span class="fc-fi-dot" style="left:${left}; top:${top}"></span><span class="fc-fi-tag mono" style="left:${left}; top:${top}">FI ${M.age != null ? 'at ' + (M.age + Math.floor(M.fiM/12)) : 'in ' + Math.floor(M.fiM/12) + ' yrs'}</span>`;
-    }
-    Object.keys(M.OO).map(Number).filter(m=> m <= N).forEach(m=>{
-      const amt = M.OO[m];
-      marks += `<span class="fc-oo-line" style="left:${(m/N*100).toFixed(2)}%"></span><span class="fc-oo-tag mono" style="left:${(m/N*100).toFixed(2)}%">${amt < 0 ? '−' : '+'}${k(Math.abs(amt))}</span>`;
-    });
-    $('fcMarks').innerHTML = marks;
-
-    $('fcLegend').innerHTML = S.map(s=> `<span><i style="border-top:2px ${s.style} ${s.col}"></i>${esc(s.label)}</span>`).join('') +
-      (M.FI > 0 ? '<span><i class="fc-k-fi"></i>FI number</span>' : '');
-
-    // headline
-    const end = M.mid[N], diff = end - M.fiAt(N);
-    setText('fcAt', horizonLabel(M) + ', you are on course for');
-    setText('fcEnd', k(end));
-    setText('fcAdjEnd', k(end));
-    setText('fcMoneyNote', st.real ? 'In today\'s money' : 'In future money');
-    setText('fcGap', M.FI > 0 ? fmtGBP(round1000(Math.abs(diff))) + (diff >= 0 ? ' above your FI number' : ' short of your FI number') : 'Add your yearly spending to see your FI number');
-    $('fcDobNote').hidden = M.age != null;
-
-    let insight;
-    if(st.mode === 'hyp'){
-      insight = 'Stopping today would leave you ' + k(end - S[2].a[N]) + ' lower ' + byLabel(M) + '. Another £200 a month would add ' + k(S[1].a[N] - end) + '.';
-    } else if(st.mode === 'order'){
-      insight = 'Same returns, different order. A fall just before you stop work costs ' + k(S[0].a[N] - S[1].a[N]) + ' more than the same fall early on, because there is more money in the pot when it lands.';
-    } else if(M.FI <= 0){
-      insight = 'Add your yearly spending in Adjust to see when you could reach financial independence. The shaded band shows 2% to 8% a year.';
+    const all = cd.series.flatMap(s=> s.v).concat(cd.F ? [cd.F] : []), mx = Math.max(...all)*1.08 || 1, n = cd.ages.length;
+    const X = i=> i/(n - 1)*800, Y = v=> 214 - v/mx*204;
+    const path = v=> v.map((x, i)=> (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(x).toFixed(1)).join('');
+    let h = '<defs><linearGradient id="fc2ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D3A2" stop-opacity=".46"/><stop offset="1" stop-color="#E8D3A2" stop-opacity="0"/></linearGradient></defs>';
+    h += '<g stroke="rgba(190,208,236,.08)">' + [60, 110, 160].map(y=> '<line x1="0" y1="' + y + '" x2="800" y2="' + y + '" vector-effect="non-scaling-stroke"/>').join('') + '</g>';
+    const ri = cd.ages.indexOf(cd.R), ep = q('.endpt');
+    if(!cd.order){
+      h += '<line x1="' + X(ri) + '" y1="0" x2="' + X(ri) + '" y2="214" stroke="rgba(190,208,236,.3)" vector-effect="non-scaling-stroke"/>';
+      if(cd.F) h += '<line x1="0" y1="' + Y(cd.F) + '" x2="800" y2="' + Y(cd.F) + '" stroke="rgba(190,208,236,.45)" stroke-dasharray="3 5" vector-effect="non-scaling-stroke"/>';
+      cd.series.forEach(s=>{ if(s.ghost) h += '<path d="' + path(s.v) + '" fill="none" stroke="#AEBBD0" stroke-opacity=".7" stroke-width="1.4" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>'; });
+      const m = cd.series[0].v;
+      h += '<path d="' + path(m) + 'L800 214L0 214Z" fill="url(#fc2ar)"/><path d="' + path(m) + '" fill="none" stroke="#E8D3A2" stroke-width="2" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 6px rgba(232,211,162,.6)) drop-shadow(0 0 16px rgba(232,211,162,.28))"/>';
+      ep.hidden = false; ep.style.left = (X(ri)/8) + '%'; ep.style.top = (Y(m[ri])/2.2) + '%';
+      const fi = cd.F ? m.findIndex(x=> x >= cd.F) : -1;
+      labels = (fi > 0 && fi < ri ? '<span class="fipt" style="left:' + (X(fi)/8) + '%;top:' + (Y(m[fi])/2.2) + '%"></span><span class="filab" style="left:' + (X(fi)/8) + '%;top:' + (Y(m[fi])/2.2) + '%">Free at ' + cd.ages[fi] + '</span>' : '') +
+        (cd.F ? '<span class="clab" style="right:0;top:calc(' + (Y(cd.F)/2.2) + '% - 20px)">Your number <b class="fig">' + sk(cd.F) + '</b></span>' : '') +
+        '<span class="clab" style="left:calc(' + (X(ri)/8) + '% + 6px);top:0">Retire at ' + cd.R + '</span>';
     } else {
-      const fiY = Math.floor(M.fiM/12);
-      if(M.fiM < 0) insight = 'On your current path you do not reach your FI number in the next ' + (LONG_MONTHS/12) + ' years.';
-      else if(M.fiM <= N) insight = 'On your current path you reach your FI number ' + (M.age != null ? 'at ' + (M.age + fiY) + ', ' + (M.years - fiY) + (M.years - fiY === 1 ? ' year' : ' years') + ' before your planned retirement.' : 'in ' + fiY + (fiY === 1 ? ' year.' : ' years.'));
-      else insight = 'On your current path you reach your FI number ' + (M.age != null ? 'at ' + (M.age + fiY) + ', after your planned retirement at ' + (M.age + M.years) + '.' : 'in ' + fiY + ' years, after your planned retirement.');
-      insight += ' The shaded band shows 2% to 8% a year.';
+      cd.series.forEach(s=> h += '<path d="' + path(s.v) + '" fill="none" stroke="' + (s.col === 'var(--loss)' ? '#EBA48E' : '#9FD0A8') + '" stroke-width="2" vector-effect="non-scaling-stroke"/>');
+      ep.hidden = true;
+      labels = '<span class="clab" style="left:6px;top:0">Retire at ' + cd.R + '</span>';
     }
-    setText('fcInsight', insight);
-
-    document.querySelectorAll('[data-fc-mode]').forEach(b=> b.setAttribute('aria-pressed', b.dataset.fcMode === st.mode ? 'true' : 'false'));
-    document.querySelectorAll('[data-fc-rate]').forEach(b=> b.setAttribute('aria-pressed', Number(b.dataset.fcRate) === st.g ? 'true' : 'false'));
-    document.querySelectorAll('[data-fc-real]').forEach(b=> b.setAttribute('aria-pressed', (b.dataset.fcReal === '1') === st.real ? 'true' : 'false'));
+    q('.x-csvg').innerHTML = h; q('.x-clabs').innerHTML = labels; q('.x-ckey').innerHTML = keyH + ins;
+    let ticks = cd.order ? [cd.R, cd.R + 10, 75, END] : [S.AGE0, Math.round((S.AGE0 + cd.R)/2), cd.R, 75, END];
+    ticks = ticks.filter(t=> t >= cd.ages[0] && t <= END && (t === cd.R || t === cd.ages[0] || t === END || Math.abs(t - cd.R) > 5)).filter((t, i, a)=> a.indexOf(t) === i).sort((a, b)=> a - b);
+    q('.x-axis').innerHTML = ticks.map(t=> '<span style="left:' + ((t - cd.ages[0])/(n - 1)*100) + '%">' + t + '</span>').join('');
+    const chart = q('.chart');
+    if(intro && !RM()){ chart.classList.remove('drawin'); void chart.offsetWidth; chart.classList.add('drawin'); }
+    q('.x-csvg').setAttribute('aria-label', 'Projected wealth from age ' + cd.ages[0] + ' to ' + END + (S.real ? ", in today's money" : ', in future money'));
+    q('.x-adjend').textContent = fk(dv(atR(S.draft, S.rate), S.draft.R)) + ' at ' + S.draft.R;
   }
 
-  /* ---------- Adjust strip ---------- */
-  function renderAdjust(client, M){
-    const state = st.saved ? 'saved to Plan settings' : (changed() ? 'what-if, not saved' : 'your figures');
-    setText('fcAdjState', 'Adjust · ' + state);
-    setText('fcAdjStateM', state.charAt(0).toUpperCase() + state.slice(1));
-    setText('fcAdjOpenLabel', 'Adjust · ' + state);
-    const save = $('fcSave');
-    save.textContent = st.saved ? 'Saved' : 'Save as my plan';
-    const set = (id, v)=>{ const el = $(id); if(document.activeElement !== el) el.value = String(v); };
-    set('fcInPmt', st.pmt); set('fcInP0', st.p0); set('fcInYs', st.ys); set('fcInRise', st.rise);
-    const ret = $('fcInRet');
-    if(M.age != null){
-      setText('fcInRetLabel', 'Retire at');
-      ret.min = String(Math.max(55, M.age + 1)); ret.max = String(Math.max(68, M.age + 1));
-      set('fcInRet', st.ret);
-    } else {
-      setText('fcInRetLabel', 'Years to go');
-      ret.min = '1'; ret.max = '50';
-      set('fcInRet', st.years);
-    }
-    const ooAge = $('fcOoAge');
-    setText('fcOoAgeLabel', M.age != null ? 'At age' : 'In years');
-    const ooMin = M.age != null ? M.age + 1 : 1, ooMax = M.age != null ? M.age + M.years : M.years;
-    ooAge.min = String(ooMin); ooAge.max = String(ooMax);
-    if(st.ooAge == null || st.ooAge < ooMin || st.ooAge > ooMax) st.ooAge = Math.min(ooMax, ooMin + 4);
-    set('fcOoAge', st.ooAge); set('fcOoAmt', st.ooAmt);
-    document.querySelectorAll('[data-fc-dir]').forEach(b=> b.setAttribute('aria-pressed', (b.dataset.fcDir === 'out') === st.ooOut ? 'true' : 'false'));
-    $('fcOoAdd').disabled = st.oneOffs.length >= 4;
-    $('fcOoList').innerHTML = st.oneOffs.map((o,i)=>{
-      const label = (o.amt < 0 ? '−' : '+') + k(Math.abs(o.amt)) + (M.age != null ? ' at ' + o.at : ' in ' + o.at + ' yrs');
-      return `<span class="fc-oo-chip">${label}<button type="button" data-fc-oo-remove="${i}" aria-label="Remove ${label}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></span>`;
-    }).join('');
+  /* ---------- beside the hero ---------- */
+  function drawClose(){
+    const p = cur(), F = fiNum(p), fa = fiAge(p, S.rate), ca = coastAge(p, S.rate);
+    const ok = fa != null && fa <= p.R;
+    q('.x-fiage').innerHTML = !(F > 0) ? '<small>Add your spending</small>' : fa != null ? '<small>Free at</small>' + fa : '<small>Not free by</small>80';
+    const mk = q('.mark'); mk.className = 'mark' + (ok ? '' : ' att'); mk.title = ok ? 'On track' : 'Priority'; mk.setAttribute('aria-label', ok ? 'On track' : 'Priority');
+    const d = fa != null ? p.R - fa : null;
+    q('.x-fisub').textContent = !(F > 0) ? 'Set your yearly spending in Adjust' : d == null ? "At today's saving the pot does not reach your number" : d > 0 ? d + ' year' + (d > 1 ? 's' : '') + ' before you plan to retire' : d === 0 ? 'The year you plan to retire' : (-d) + ' year' + (-d > 1 ? 's' : '') + ' after you plan to retire';
+    const fp = F > 0 ? Math.min(p.p0/F, 1) : 0;
+    q('.x-fipct').textContent = Math.round(fp*100) + '%'; q('.x-fibar').style.width = (fp*100) + '%';
+    q('.x-fiinfo').innerHTML = INFO('How much of your number you already have: <span class="fig">' + fmt(p.p0) + '</span> of <span class="fig">' + fmt(F) + '</span>.');
+    const cp = F > 0 ? Math.min(p.p0*Math.pow(1 + S.rate, p.R - S.AGE0)/F, 1) : 0;
+    q('.x-coastk').textContent = ca != null ? 'Coasting from' : 'Not coasting by'; q('.x-coastv').textContent = ca != null ? ca : p.R;
+    q('.x-coastbar').style.width = (cp*100) + '%';
+    q('.x-coastinfo').innerHTML = INFO('The age when, if you stopped saving, your pot would still grow to your number by ' + p.R + ' at ' + Math.round(S.rate*100) + '% a year. The line shows how far today\'s pot gets you on its own.', 'rt');
+    q('.x-finum').innerHTML = '<span class="lg">' + fmt(F) + '</span><span class="sh">' + sk(F) + '</span>';
+    q('.x-numinfo').innerHTML = INFO(S.fiOverride != null ? 'Set by your coach for your plan.' : S.mult + ' times your yearly spending in retirement (<span class="fig">' + fmt(p.ys) + '</span>). A pot this size can pay that spending for life in most past markets, the 4% rule.', 'rt');
+    const rg = q('.x-ret'); rg.min = String(Math.max(55, S.AGE0 + 1)); rg.max = String(Math.max(68, S.AGE0 + 1)); rg.value = p.R;
+    rg.style.setProperty('--p', ((p.R - rg.min)/Math.max(1, rg.max - rg.min)*100) + '%'); q('.x-retval').textContent = p.R;
+    q('.x-ends').innerHTML = '<span>' + rg.min + '</span><span>' + rg.max + '</span>';
+    bindInfo(q('.close'));
   }
 
-  /* ---------- right column ---------- */
-  function renderOverview(client, M){
-    const onTrack = M.fiM >= 0 && M.fiM <= M.N;
-    const chip = $('fcStatus');
-    chip.textContent = M.FI > 0 ? (onTrack ? 'On track' : 'Behind plan') : 'No FI number yet';
-    chip.className = 'fc-chip' + (onTrack ? ' fc-chip-on' : '');
-    setText('fcFiNum', M.FI > 0 ? fmtGBP(M.FI) : '–');
-    setText('fcFiHow', M.override ? 'Set by your coach' : (M.FI > 0 ? M.mult + ' × ' + fmtGBP(st.ys) + ' a year' : 'Add your yearly spending'));
-    if(M.fiM >= 0){
-      setText('fcFiAge', M.age != null ? 'Age ' + (M.age + Math.floor(M.fiM/12)) : 'In ' + Math.floor(M.fiM/12) + ' yrs');
-      setText('fcFiWhen', monthLabel(M.fiM));
-    } else {
-      setText('fcFiAge', M.FI > 0 ? 'After ' + (M.age != null ? M.age + LONG_MONTHS/12 : LONG_MONTHS/12 + ' yrs') : '–');
-      setText('fcFiWhen', '');
-    }
-    const range = $('fcRetRange');
-    if(M.age != null){
-      setText('fcRetRangeLabel', 'Planned retirement age');
-      range.min = String(Math.max(55, M.age + 1)); range.max = String(Math.max(68, M.age + 1));
-      range.value = String(st.ret);
-      setText('fcRetVal', String(st.ret));
-    } else {
-      setText('fcRetRangeLabel', 'Years until you stop work');
-      range.min = '1'; range.max = '50';
-      range.value = String(st.years);
-      setText('fcRetVal', String(st.years));
-    }
-    setText('fcRetMin', range.min); setText('fcRetMax', range.max);
-    const pct = Math.round(st.g*100);
-    setText('fcStatusNote', M.FI <= 0 ? 'Add your yearly spending in Adjust to see this.' :
-      onTrack ? 'Your current saving reaches your FI number before you plan to stop work, at ' + pct + '% a year growth.'
-              : 'At ' + pct + '% a year, your current saving reaches your FI number after you plan to stop work.');
+  /* ---------- the lighter band ---------- */
+  const STEPS = [
+    {n:'Save £100 more a month', t:R=> 'Every month for the next ' + (R - S.AGE0) + ' years, rising with your saving.', f:x=>{ x.pmt += 100; }},
+    {n:'Let your saving rise with your pay', t:()=> 'Raise it 1% more each year than you do now.', f:x=>{ x.rise = Math.round((x.rise + 0.01)*1000)/1000; }},
+    {n:'Put a £5,000 bonus in at 40', t:()=> 'One lump sum early does more than the same sum later.', f:x=>{ x.oo.push({age: Math.max(40, S.AGE0 + 1), amt:5000}); }, label:()=> 'Put a £5,000 bonus in at ' + Math.max(40, S.AGE0 + 1)}];
+  function drawBand(){
+    const p = cur(), R = p.R, F = fiNum(p), qq = mc(p, S.rate);
+    const P10 = dv(qq.p10, R), P50 = dv(qq.p50, R), P90 = dv(qq.p90, R), Fd = dv(F, R);
+    q('.x-rnglead').innerHTML = '9 in 10 paths reach <span class="fig">' + fk(P10) + '</span>';
+    q('.x-rngsub').textContent = !(F > 0) ? 'Add your yearly spending to compare with your number.' : qq.p10 >= F ? 'Even a tough run of markets clears your number.' : qq.p50 >= F ? 'The middle path clears your number. A tough run would not.' : 'Most paths fall short of your number at ' + R + '.';
+    const vals = qq.res.map(v=> dv(v, R)), mx = Math.max(vals[484], Fd*1.08, 1), pcx = v=> (Math.min(v, mx)/mx*100).toFixed(2) + '%';
+    const NB = 40, bins = new Array(NB).fill(0); vals.forEach(v=>{ if(v > mx) return; const i = Math.min(NB - 1, Math.floor(v/mx*NB)); bins[i]++; });
+    const sm = bins.map((_, i)=> (bins[i-1]||0)*.25 + bins[i]*.5 + (bins[i+1]||0)*.25), bm = Math.max(...sm, 1);
+    const pts = sm.map((c, i)=> [((i + .5)/NB*600), 118 - c/bm*108]);
+    const d = 'M0 118 ' + pts.map(pp=> 'L' + pp[0].toFixed(1) + ' ' + pp[1].toFixed(1)).join(' ') + ' L600 118 Z';
+    const x10 = Math.min(P10, mx)/mx*600, x90 = Math.min(P90, mx)/mx*600;
+    q('.x-dens').innerHTML = '<svg viewBox="0 0 600 120" preserveAspectRatio="none" aria-hidden="true"><defs><clipPath id="fc2mid"><rect x="' + x10 + '" y="0" width="' + (x90 - x10) + '" height="120"/></clipPath></defs>' +
+      '<path d="' + d + '" fill="rgba(238,242,248,.07)"/><path d="' + d + '" fill="rgba(232,211,162,.26)" clip-path="url(#fc2mid)"/>' +
+      '<path d="' + pts.map((pp, i)=> (i ? 'L' : 'M') + pp[0].toFixed(1) + ' ' + pp[1].toFixed(1)).join(' ') + '" fill="none" stroke="rgba(238,242,248,.55)" stroke-width="1.2" vector-effect="non-scaling-stroke"/></svg>' +
+      (F > 0 ? '<span class="tgt' + (Math.min(Fd, mx)/mx > .7 ? ' flip' : '') + '" style="left:' + pcx(Fd) + '"><span>Your number</span></span>' : '');
+    q('.x-dmk').innerHTML = '<span class="pt" style="left:' + pcx(P10) + '"></span><span class="pt mid" style="left:' + pcx(P50) + '"></span><span class="pt" style="left:' + pcx(P90) + '"></span>' +
+      '<div class="drow"><span><b class="fig">' + sk(P10) + '</b>1 in 10 do worse</span><span class="mid"><b class="fig">' + sk(P50) + '</b>Middle path</span><span><b class="fig">' + sk(P90) + '</b>1 in 10 do better</span></div>';
+    q('.x-know').innerHTML = [
+      ['Growth a year, after costs and inflation', Math.round(S.rate*100) + '%'],
+      ["Inflation taken out for today's money", '2.5% a year'],
+      ['Spending in retirement', 'Flat each year'],
+      ['Range of outcomes', '500 market paths'],
+      ['State Pension', 'Not included']].map(k=> '<li><span>' + k[0] + '</span><b>' + k[1] + '</b></li>').join('');
+    const base = atR(p, S.rate), tot = base, share = tot > 0 ? 1 - p.p0*Math.pow(1 + S.rate, R - S.AGE0)/tot : 0;
+    const line = share >= .5 ? 'Most of your <span class="fig">' + fk(dv(tot, R)) + '</span> at ' + R + ' comes from what you save from here.' : 'Most of your pot at ' + R + ' comes from what you already have.';
+    q('.x-steps').innerHTML = '<div class="stepsh" style="padding:22px 4px 8px"><p class="stepline">' + line + '</p><p>What would move it, at ' + Math.round(S.rate*100) + '% a year</p></div>' + STEPS.map((s, i)=>{
+      const q2 = clone(p); s.f(q2); const dd = dv(atR(q2, S.rate), R) - dv(base, R);
+      return '<button type="button" class="st" data-i="' + i + '"><span class="n">' + (i + 1) + '</span><span class="t"><b>' + (s.label ? s.label() : s.n) + '</b><span>' + s.t(R) + '</span></span><span class="r"><b class="fig">+' + fk(dd) + '</b><small>at ' + R + '</small></span>' + CHEV + '</button>'; }).join('');
+    q('.x-steps').querySelectorAll('.st').forEach(b=> b.onclick = ()=>{
+      S.draft = clone(cur()); STEPS[+b.dataset.i].f(S.draft); setMode('whatif', true); openAdj(true);
+      q('.hero').scrollIntoView({behavior: RM() ? 'auto' : 'smooth', block:'start'}); TEI.app.showToast('Showing it as a what if'); });
   }
 
-  function renderComposition(client, M){
-    const N = M.N, tot = M.midN[N], end = M.mid[N];
-    const grown = M.run(st.g, 0, N, {oneOffs: {}})[N];
-    let paid = 0; for(let q=1; q<=N; q++) paid += st.pmt * Math.pow(1 + M.rise, Math.floor((q-1)/12));
-    const growth = Math.max(0, tot - grown - paid);
-    const parts = [[grown, 'Today\'s pot, grown', 'fc-c1'], [paid, 'New saving', 'fc-c2'], [growth, 'Growth on new saving', 'fc-c3']];
-    const sum = parts.reduce((s,p)=> s + Math.max(0, p[0]), 0) || 1;
-    setText('fcCompK', 'Where your ' + k(end) + ' comes from');
-    setText('fcCompTitle', grown >= paid + growth ? 'Today\'s pot does most of the work' : 'Today\'s habits do most of the work');
-    $('fcCompBar').innerHTML = parts.map(p=> `<span class="${p[2]}" style="width:${(Math.max(0,p[0])/sum*100).toFixed(1)}%"></span>`).join('');
-    $('fcCompBar').setAttribute('aria-label', parts.map(p=> p[1] + ' ' + Math.round(Math.max(0,p[0])/sum*100) + '%').join(', '));
-    $('fcCompKey').innerHTML = parts.map(p=> `<div><p><i class="${p[2]}"></i>${p[1]}</p><b>${k(Math.max(0,p[0])/sum*end)}</b><small class="mono">${Math.round(Math.max(0,p[0])/sum*100)}%</small></div>`).join('');
-    const plus = (M.run(st.g, st.pmt + 100, N)[N] - tot) / M.dfl(N);
-    setText('fcPlus100', '+' + k(plus));
-    setText('fcPlusText', 'Every extra £100 a month from today adds roughly this ' + byLabel(M) + '.');
-    return {paid, grown, growth, plus};
+  /* ---------- the close ---------- */
+  function drawNote(client){
+    const n = V.note(client, 'forecast');
+    const doc = TEI.forecastView && TEI.forecastView.latest ? TEI.forecastView.latest(client) : null;
+    const saved = (client.preferences||{}).planSavedAt || S.savedAt;
+    const stale = n ? V.staleLine(n, saved) : '';
+    const [label, done] = V.sessionButton(client, 'planning');
+    const disc = done ? '<button type="button" class="lk2 done-s" aria-disabled="true">' + TICK + label + '</button>' : '<button type="button" class="lk2 x-disc">' + label + '</button>';
+    let h;
+    if(n && doc) h = '<figure class="letter"><span class="qm" aria-hidden="true">“</span><blockquote>' + esc(n.text) + '”<span class="sig"><i></i>' + V.coachName() + (n.dateTxt ? ' · ' + n.dateTxt : '') + '</span>' + (stale ? '<span class="stale">' + stale + '</span>' : '') + '</blockquote></figure>' +
+      '<div class="links"><button type="button" class="lk1 x-opendoc">Open your detailed forecast' + ARR + '</button>' + disc + '</div>';
+    else if(n) h = '<figure class="letter"><span class="qm" aria-hidden="true">“</span><blockquote>' + esc(n.text) + '”<span class="sig"><i></i>' + V.coachName() + (n.dateTxt ? ' · ' + n.dateTxt : '') + '</span>' + (stale ? '<span class="stale">' + stale + '</span>' : '') + '</blockquote></figure>' +
+      '<div class="links"><p class="nonote">Your coach adds a detailed forecast after your plan session.</p>' + disc + '</div>';
+    else h = '<p class="nonote">Your coach adds a detailed forecast after your plan session.</p><div class="links" style="margin-left:0">' + disc + '</div>';
+    const slot = q('.x-noteslot'); slot.innerHTML = h;
+    const od = slot.querySelector('.x-opendoc'); if(od) od.onclick = ()=> TEI.forecastView.open(doc.id, 'planning');
+    const db = slot.querySelector('.x-disc'); if(db) db.onclick = async ()=>{ db.disabled = true; if(await V.addToSession(client, 'planning', 'my forecast')) drawNote(client); else db.disabled = false; };
   }
 
-  function renderIndependence(client, M){
-    if(M.FI <= 0){
-      ['fcFiPct','fcCoastPct'].forEach(id=> setText(id, '–'));
-      $('fcFiBar').style.width = '0%'; $('fcCoastBar').style.width = '0%';
-      setText('fcFiNote', 'Add your yearly spending to see your FI number.');
-      setText('fcCoastLabel', 'Coast FI'); setText('fcCoastNote', '');
-      return;
-    }
-    const fiPct = Math.min(100, st.p0 / M.FI * 100);
-    setText('fcFiPct', Math.round(fiPct) + '%');
-    $('fcFiBar').style.width = fiPct.toFixed(1) + '%';
-    setText('fcFiNote', fmtGBP(st.p0) + ' of ' + fmtGBP(M.FI) + '. Enough to live on your investments without working.');
-    // Coast FI: what today's pot would need to be to grow to the FI number by retirement with no more saving.
-    const fiThen = M.FI * Math.pow(1+INFLATION, M.N/12);
-    const need = fiThen / Math.pow(1 + st.g/12, M.N);
-    const coast = Math.min(100, st.p0 / need * 100);
-    setText('fcCoastLabel', 'Coast FI ' + byLabel(M));
-    setText('fcCoastPct', Math.round(coast) + '%');
-    $('fcCoastBar').style.width = coast.toFixed(1) + '%';
-    setText('fcCoastNote', coast >= 100
-      ? 'You have reached Coast FI. With no more saving at all, today\'s pot is projected to grow to your FI number ' + byLabel(M) + '.'
-      : 'You would need ' + fmtGBP(round1000(need)) + ' invested today to coast to your FI number ' + byLabel(M) + ' with no more saving.');
+  /* ---------- controls ---------- */
+  function setMode(m, keep){
+    S.mode = m;
+    q('.modes').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.m === m ? 'true' : 'false'));
+    if(m === 'whatif' && !keep && same(S.draft, S.PLAN)) openAdj(true);
+    render();
   }
-
-  /* Range of outcomes: 500 paths, fixed seed so results are stable. Each
-     year draws one return (average = the chosen growth, spread 13%) and the
-     path runs month by month through projectSeries with the same saving,
-     rise and one-offs as the main line. */
-  function renderOutcomes(client, M){
-    let seed = MC_SEED;
-    const rnd = ()=>{ seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
-    const N = M.N, Yr = M.years, fin = [];
-    const tgt = M.fiAt(N), dd = M.dfl(N);
-    let hit = 0;
-    for(let p=0; p<MC_PATHS; p++){
-      const yr = [];
-      for(let y=0; y<Yr; y++){ const z = Math.sqrt(-2*Math.log(rnd() || 1e-9)) * Math.cos(2*Math.PI*rnd()); yr.push(Math.max(-0.5, st.g + MC_SPREAD*z)); }
-      const v = M.run(st.g, st.pmt, N, {rateAt: m=> yr[Math.floor((m-1)/12)]/12})[N] / dd;
-      fin.push(v);
-      if(M.FI > 0 && v >= tgt) hit++;
-    }
-    fin.sort((a,b)=> a-b);
-    const p10 = fin[Math.floor(MC_PATHS*0.1)], p50 = fin[Math.floor(MC_PATHS*0.5)], p90 = fin[Math.floor(MC_PATHS*0.9)];
-    const tens = Math.round(hit / (MC_PATHS/10));
-    setText('fcMcHead', M.FI > 0 ? tens + ' in 10 paths reach your FI number ' + byLabel(M) : 'Where 500 market paths could leave you ' + byLabel(M));
-    $('fcMcDots').innerHTML = M.FI > 0 ? Array.from({length:10}, (_,i)=> `<i class="${i < tens ? 'on' : ''}"></i>`).join('') : '';
-    const sc = Math.max(p90, tgt) * 1.08 || 1;
-    const pc = x => (x/sc*100).toFixed(1) + '%';
-    $('fcMcTrack').innerHTML = `<span class="fc-mc-base"></span><span class="fc-mc-range hm-grow" style="left:${pc(p10)}; width:${((p90-p10)/sc*100).toFixed(1)}%"></span><span class="fc-mc-med" style="left:${pc(p50)}"></span>` +
-      (M.FI > 0 ? `<span class="fc-mc-fi" style="left:${pc(tgt)}"></span><span class="fc-mc-fi-tag mono" style="left:${pc(tgt)}">FI number</span>` : '');
-    setText('fcP10', k(p10)); setText('fcP50', k(p50)); setText('fcP90', k(p90));
-    setText('fcMcNote', MC_PATHS + ' simulated market paths at ' + Math.round(st.g*100) + '% average growth, with ups and downs like real markets. Value ' + byLabel(M) + ', ' + (st.real ? 'in today\'s money' : 'in future money') + '.');
+  function openAdj(o){
+    const adj = q('.adj'), ab = q('.adjbtn'), scrim = q('.scrim');
+    adj.hidden = !o; ab.setAttribute('aria-expanded', o ? 'true' : 'false'); scrim.hidden = !(o && PHONE()); root().classList.toggle('sheet-open', !!(o && PHONE()));
+    if(o){ fillAdj(); if(PHONE()){ const f = adj.querySelector('input'); if(f) f.focus(); } }
   }
-
-  function renderKnow(client, M){
-    const items = [
-      ['Growth is after charges.', 'Your chosen rate applies to everything you hold. Real returns vary year to year and can be negative.'],
-      ['Inflation at 2.5% a year.', 'Today\'s money shows what future sums would buy now.'],
-      st.rise ? ['Saving starts at ' + fmtGBP(st.pmt) + ' a month and rises ' + st.rise + '% a year.', 'Rises are your what-if, not a forecast of pay.']
-              : ['Saving stays at ' + fmtGBP(st.pmt) + ' a month.', 'Pay rises and higher contributions are not assumed, so this leans cautious.'],
-      M.override ? ['Your FI number is set by your coach.', 'It is ' + fmtGBP(M.FI) + '. A rule of thumb, not a guarantee.']
-                 : ['FI number is ' + M.mult + ' times yearly spending.', 'Based on ' + fmtGBP(st.ys) + ' a year. A rule of thumb, not a guarantee.'],
-      ['Tax, fees and pension access rules are simplified.', 'Your coach\'s forecast covers these in more detail.']
-    ];
-    $('fcKnow').innerHTML = items.map(i=> `<li><span class="fc-dotk" aria-hidden="true"></span><span><strong>${esc(i[0])}</strong> <span class="fc-muted">${esc(i[1])}</span></span></li>`).join('');
+  function fillAdj(){
+    q('.x-inpmt').value = S.draft.pmt; q('.x-inp0').value = S.draft.p0; q('.x-inys').value = S.draft.ys; q('.x-inrise').value = +(S.draft.rise*100).toFixed(1);
+    q('.vals').querySelectorAll('button').forEach(x=> x.setAttribute('aria-pressed', (x.dataset.v === '1') === S.real ? 'true' : 'false'));
+    const ooAge = q('.x-ooage'); ooAge.min = String(S.AGE0 + 1); ooAge.max = String(END - 1); if(!ooAge.value) ooAge.value = String(Math.min(END - 1, S.AGE0 + 6));
+    q('.x-oolist').innerHTML = S.draft.oo.map((o, i)=> '<span class="oo"><span class="fig">' + (o.amt < 0 ? '−' : '+') + fmt(Math.abs(o.amt)) + '</span> at ' + o.age + '<button type="button" data-i="' + i + '" aria-label="Remove this one-off"><svg viewBox="0 0 12 12" width="10" height="10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6"/></svg></button></span>').join('');
+    q('.x-oolist').querySelectorAll('button').forEach(b=> b.onclick = ()=>{ S.draft.oo.splice(+b.dataset.i, 1); edited(); });
   }
-
-  function renderSteps(client, M, comp){
-    const newPct = Math.round(comp.paid / Math.max(1, comp.paid + comp.grown + comp.growth) * 100);
-    const steps = [
-      ['01', 'Keep ' + fmtGBP(st.pmt) + ' a month going in', 'New saving builds ' + newPct + '% of your pot ' + byLabel(M) + '.', ''],
-      ['02', 'Test £100 more a month', 'Adds roughly ' + k(comp.plus) + ' ' + byLabel(M) + '. Try it in What if above.', ''],
-      // TODO(B12.9): a step the coach sets for this client. Until there is a
-      // field for it, this card points to the next session.
-      ['03', 'Agree your next step with your coach', 'At your next session, pick the one change worth testing here.', 'fc-step-champ']
-    ];
-    $('fcSteps').innerHTML = steps.map(s=> `<li class="${s[3]}"><span class="mono fc-gold-t">${s[0]}</span><b>${esc(s[1])}</b><span class="fc-muted">${esc(s[2])}</span></li>`).join('');
-  }
-
-  /* Coach's corner: the coach's own note for Forecast when they wrote one,
-     otherwise the top Forecast signal (the same engine as Wealth and Goals). */
-  function computeForecastCoach(client){
-    const fc = client.forecastCoach || {};
-    if(fc.mode==='manual' && fc.message) return {message:fc.message};
-    const s = TEI.calc.pickTopSignal(client, 'forecast');
-    return {message: s ? s.message : 'Increasing your monthly investment, even by a small amount, could bring your financial independence target closer.'};
-  }
-
-  /* ---------- render ---------- */
-  function renderAll(client){
-    const M = model(client);
-    renderHero(client, M);
-    renderAdjust(client, M);
-    renderOverview(client, M);
-    const comp = renderComposition(client, M);
-    renderIndependence(client, M);
-    renderOutcomes(client, M);
-    renderKnow(client, M);
-    renderSteps(client, M, comp);
-  }
-  let pending = 0;
-  function rerender(){
-    const client = TEI.app.state.client;
-    if(!client || !st) return;
-    cancelAnimationFrame(pending);
-    pending = requestAnimationFrame(()=> renderAll(client));
-  }
-
-  /* ---------- Save as my plan (B7.2): retirement age and yearly spending only ---------- */
+  function edited(){ if(S.mode !== 'whatif'){ S.mode = 'whatif'; q('.modes').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.m === 'whatif' ? 'true' : 'false')); } fillAdj(); render(); }
   async function savePlan(){
-    const client = TEI.app.state.client;
-    if(!client || !st) return;
-    const btn = $('fcSave');
+    const client = TEI.app.state.client; if(!client) return;
     const prefs = client.preferences = client.preferences || {};
-    const before = {retirementAge: prefs.retirementAge, yearlySpending: prefs.yearlySpending};
-    if(ageNow(client) != null) prefs.retirementAge = st.ret;
-    prefs.yearlySpending = st.ys;
-    btn.disabled = true;
-    try{
-      await TEI.wealthOS.saveCashflowSettings(client.meta.clientId, client);
-    } catch(err){
-      console.error('Wealth OS: could not save Plan settings', err);
-      Object.assign(prefs, before);
-      btn.disabled = false;
-      TEI.app.showToast('That did not save. Please try again.');
-      return;
+    const before = Object.assign({}, prefs);
+    if(S.hasAge) prefs.retirementAge = S.draft.R;
+    prefs.yearlySpending = S.draft.ys;
+    prefs.planSavingRise = Math.round(S.draft.rise*1000)/10;
+    prefs.planOneOffs = S.draft.oo.map(o=> ({at:o.age, amt:o.amt}));
+    prefs.planReal = S.real;
+    prefs.planSavedAt = new Date().toISOString();
+    const btn = q('.x-save'); btn.disabled = true;
+    try{ await TEI.wealthOS.saveCashflowSettings(client.meta.clientId, client); }
+    catch(err){
+      console.error('Wealth OS: could not save the plan', err);
+      Object.keys(prefs).forEach(k=> delete prefs[k]); Object.assign(prefs, before);
+      btn.disabled = false; TEI.app.showToast('That did not save. Please try again.'); return;
     }
     btn.disabled = false;
-    // The saved figures are now "your figures"; what-ifs other than these two stay as they are.
-    st.base = Object.assign({}, st.base, {ret: st.ret, ys: st.ys});
-    st.saved = true;
-    TEI.app.showToast('Saved to Plan settings');
-    rerender();
+    S.savedAt = prefs.planSavedAt;
+    S.PLAN = clone(S.draft);
+    drawNote(client); setMode('plan', true); openAdj(false); TEI.app.showToast('Saved as your plan');
   }
-
-  function num(el, lo, hi){
-    let v = parseFloat(el.value);
-    if(isNaN(v)) return null;
-    if(lo != null) v = Math.max(lo, v);
-    if(hi != null) v = Math.min(hi, v);
-    return v;
-  }
-
-  /* ---------- phone Adjust sheet ---------- */
-  let lastFocus = null;
-  function openSheet(){
-    lastFocus = document.activeElement;
-    $('fcAdj').classList.add('open');
-    $('fcAdjScrim').hidden = false;
-    $('fcAdjOpen').setAttribute('aria-expanded', 'true');
-    $('fcAdj').setAttribute('role', 'dialog');
-    $('fcAdj').setAttribute('aria-modal', 'true');
-    const f = $('fcInPmt'); if(f) f.focus();
-  }
-  function closeSheet(){
-    if(!$('fcAdj').classList.contains('open')) return;
-    $('fcAdj').classList.remove('open');
-    $('fcAdjScrim').hidden = true;
-    $('fcAdjOpen').setAttribute('aria-expanded', 'false');
-    $('fcAdj').setAttribute('role', 'group');
-    $('fcAdj').removeAttribute('aria-modal');
-    if(lastFocus && lastFocus.offsetParent) lastFocus.focus();
+  function render(){
+    q('.x-dirty').hidden = same(S.draft, S.PLAN);
+    drawHero(); drawClose(); drawBand();
   }
 
   let wired = false;
   function wireOnce(){
-    if(wired) return;
-    wired = true;
-    const client = ()=> TEI.app.state.client;
-    const age = ()=> ageNow(client());
-    const onInput = (id, fn)=> $(id).addEventListener('input', ()=>{ fn(); st.saved = false; rerender(); });
-    onInput('fcInPmt', ()=>{ const v = num($('fcInPmt'), 0); if(v != null) st.pmt = v; });
-    onInput('fcInP0', ()=>{ const v = num($('fcInP0'), 0); if(v != null) st.p0 = v; });
-    onInput('fcInYs', ()=>{ const v = num($('fcInYs'), 5000); if(v != null) st.ys = v; });
-    onInput('fcInRise', ()=>{ const v = num($('fcInRise'), 0, 10); if(v != null) st.rise = v; });
-    const setRet = el=>{
-      const a = age();
-      const v = a != null ? num(el, Math.max(55, a+1), Math.max(68, a+1)) : num(el, 1, 50);
-      if(v == null) return;
-      if(a != null) st.ret = Math.round(v); else st.years = Math.round(v);
-    };
-    onInput('fcInRet', ()=> setRet($('fcInRet')));
-    onInput('fcRetRange', ()=> setRet($('fcRetRange')));
-    // Typed values are tidied to their limits when the box is left.
-    ['fcInPmt','fcInP0','fcInYs','fcInRise','fcInRet'].forEach(id=> $(id).addEventListener('change', rerender));
-    $('fcOoAge').addEventListener('input', ()=>{ const v = parseInt($('fcOoAge').value, 10); if(!isNaN(v)) st.ooAge = v; });
-    $('fcOoAmt').addEventListener('input', ()=>{ const v = num($('fcOoAmt'), 0); if(v != null) st.ooAmt = v; });
-    document.querySelectorAll('[data-fc-dir]').forEach(b=> b.addEventListener('click', ()=>{ st.ooOut = b.dataset.fcDir === 'out'; rerender(); }));
-    $('fcOoAdd').addEventListener('click', ()=>{
-      const a = age(), years = a != null ? st.ret - a : st.years;
-      const lo = a != null ? a+1 : 1, hi = a != null ? a + years : years;
-      const at = Math.min(hi, Math.max(lo, Math.round(st.ooAge || lo)));
-      if(!st.ooAmt || st.oneOffs.length >= 4) return;
-      st.oneOffs.push({at, amt: st.ooOut ? -st.ooAmt : st.ooAmt});
-      st.saved = false;
-      rerender();
+    if(wired) return; wired = true;
+    q('.modes').querySelectorAll('button').forEach(b=> b.onclick = ()=> setMode(b.dataset.m));
+    q('.rates').querySelectorAll('button').forEach(b=> b.onclick = ()=>{ S.rate = +b.dataset.r; q('.rates').querySelectorAll('button').forEach(x=> x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); render(); });
+    q('.x-ret').addEventListener('input', e=>{ const v = +e.target.value; if(S.mode === 'whatif') S.draft.R = v; else { S.PLAN.R = v; S.draft.R = v; } render(); });
+    q('.adjbtn').onclick = ()=> openAdj(q('.adj').hidden);
+    q('.scrim').onclick = ()=> openAdj(false);
+    q('.x-done').onclick = ()=> openAdj(false);
+    [['x-inpmt', 'pmt', 1], ['x-inp0', 'p0', 1], ['x-inys', 'ys', 1], ['x-inrise', 'rise', .01]].forEach(([c, k, m])=> q('.' + c).addEventListener('input', e=>{
+      const v = parseFloat(e.target.value); if(isNaN(v) || v < 0) return;
+      S.draft[k] = Math.round(v*m*10000)/10000;
+      if(S.mode !== 'whatif'){ S.mode = 'whatif'; q('.modes').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.m === 'whatif' ? 'true' : 'false')); }
+      render(); }));
+    let ooDir = 'out';
+    q('.dir').querySelectorAll('button').forEach(b=> b.onclick = ()=>{ ooDir = b.dataset.d; q('.dir').querySelectorAll('button').forEach(x=> x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); });
+    q('.x-ooadd').onclick = ()=>{
+      const a = parseInt(q('.x-ooage').value, 10), m = parseFloat(q('.x-ooamt').value);
+      if(!(a > S.AGE0 && a < END) || !(m > 0)){ TEI.app.showToast('Enter an age from ' + (S.AGE0 + 1) + ' to ' + (END - 1) + ' and an amount'); return; }
+      S.draft.oo.push({age:a, amt: ooDir === 'out' ? -m : m}); edited(); };
+    q('.vals').querySelectorAll('button').forEach(b=> b.onclick = ()=>{ S.real = b.dataset.v === '1'; q('.vals').querySelectorAll('button').forEach(x=> x.setAttribute('aria-pressed', x === b ? 'true' : 'false')); render(); });
+    q('.x-reset').onclick = ()=>{ S.draft = clone(S.PLAN); fillAdj(); render(); TEI.app.showToast('Back to your figures'); };
+    q('.x-save').onclick = savePlan;
+    document.addEventListener('keydown', e=>{ if(e.key === 'Escape' && root() && !q('.adj').hidden && PHONE()) openAdj(false); });
+    const chart = q('.chart'), tip = q('.tip'), vl = q('.vline');
+    chart.addEventListener('pointermove', e=>{
+      if(!cd) return;
+      const r = chart.getBoundingClientRect(), n = cd.ages.length; let i = Math.round((e.clientX - r.left)/r.width*(n - 1)); i = Math.max(0, Math.min(n - 1, i));
+      const x = i/(n - 1)*100; vl.style.display = tip.style.display = 'block'; vl.style.left = x + '%'; tip.style.left = Math.min(Math.max(x, 16), 84) + '%';
+      tip.innerHTML = '<span>Age ' + cd.ages[i] + '</span>' + cd.series.map(s=> '<i style="background:' + (s.ghost ? '#AEBBD0' : s.col || 'var(--champ)') + '"></i><b class="fig" style="font-weight:500">' + fk(s.v[i]) + '</b>').join('');
     });
-    $('fcOoList').addEventListener('click', e=>{
-      const b = e.target.closest('[data-fc-oo-remove]');
-      if(!b) return;
-      st.oneOffs.splice(Number(b.dataset.fcOoRemove), 1);
-      rerender();
-    });
-    $('fcReset').addEventListener('click', ()=>{
-      const base = st.base;
-      Object.assign(st, {pmt: base.pmt, p0: base.p0, ret: base.ret, years: base.years, ys: base.ys, rise: base.rise, oneOffs: [], saved: false});
-      rerender();
-    });
-    $('fcSave').addEventListener('click', savePlan);
-    document.querySelectorAll('[data-fc-mode]').forEach(b=> b.addEventListener('click', ()=>{ st.mode = b.dataset.fcMode; rerender(); }));
-    document.querySelectorAll('[data-fc-rate]').forEach(b=> b.addEventListener('click', ()=>{ st.g = Number(b.dataset.fcRate); rerender(); }));
-    document.querySelectorAll('[data-fc-real]').forEach(b=> b.addEventListener('click', ()=>{ st.real = b.dataset.fcReal === '1'; rerender(); }));
-    $('fcAdjOpen').addEventListener('click', openSheet);
-    $('fcDone').addEventListener('click', closeSheet);
-    $('fcAdjScrim').addEventListener('click', closeSheet);
-    document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeSheet(); });
+    chart.addEventListener('pointerleave', ()=>{ vl.style.display = tip.style.display = 'none'; });
+    window.addEventListener('resize', ()=>{ if(root() && !q('.adj').hidden) q('.scrim').hidden = !PHONE(); });
   }
 
-  /* Forecast's model for other pages (Cashflow's Scenario corner, B8): the
-     client's own figures, not this session's what-ifs, at 5% a year in
-     today's money. monthly replaces the monthly saving. Returns the value at
-     retirement, the months until the FI number and how to label them. */
+  /* Forecast's model for other pages (Cashflow's Scenario corner): the
+     client's own plan at 5% a year after inflation, with a different
+     monthly saving. Same maths as this page. */
+  function withPlan(client, fn){
+    const keep = S;
+    const P = planOf(client);
+    S = {AGE0:P.AGE0, fiOverride:P.fiOverride, mult:P.mult, real:true, PLAN:P.plan, draft:P.plan, mode:'plan', rate:EXPECTED_RATE};
+    try{ return fn(P); } finally { S = keep; }
+  }
   TEI.forecast = {
     project(client, monthly){
-      const f = myFigures(client);
-      const prefs = client.preferences || {};
-      const age = ageNow(client);
-      const years = age != null ? Math.max(1, f.ret - age) : f.years;
-      const N = years*12;
-      const FI = prefs.fiOverride != null ? Number(prefs.fiOverride) : f.ys * (prefs.fiMultiple || 25);
-      const series = TEI.calc.projectSeries(f.p0, monthly, EXPECTED_RATE/12, LONG_MONTHS);
-      const real = m => series[m] / Math.pow(1+INFLATION, m/12);
-      let fiM = -1;
-      if(FI > 0) for(let m=0; m<=LONG_MONTHS; m++){ if(real(m) >= FI){ fiM = m; break; } }
-      return {age, years, retireAge: age != null ? f.ret : null, atRetire: real(N), fiMonth: fiM,
-        fiLabel: fiM < 0 ? (FI > 0 ? 'Not within ' + (LONG_MONTHS/12) + ' years' : 'No FI number yet') : (age != null ? 'Age ' + (age + Math.floor(fiM/12)) : 'In ' + Math.floor(fiM/12) + ' yrs')};
-    }
+      return withPlan(client, P=>{
+        const p = Object.assign({}, P.plan, {pmt: monthly});
+        const fa = fiAge(p, EXPECTED_RATE);
+        return {age:P.AGE0, retireAge:p.R, atRetire: atR(p, EXPECTED_RATE), fiAge: fa, fiLabel: fa != null ? 'Free at ' + fa : 'Not by 80'};
+      });
+    },
+    /* Opens Forecast in What if with the monthly saving raised (Cashflow's "See it on Forecast"). */
+    whatIf(extraMonthly){ pendingWhatIf = extraMonthly; TEI.app.showPage('planning'); }
   };
+  let pendingWhatIf = null;
 
   TEI.render.planning = function(client){
+    if(!S || S.clientId !== client.meta.clientId){
+      const P = planOf(client);
+      S = {clientId: client.meta.clientId, AGE0:P.AGE0, hasAge:P.hasAge, fiOverride:P.fiOverride, mult:P.mult, real:P.real,
+        PLAN: clone(P.plan), draft: clone(P.plan), mode:'plan', rate:EXPECTED_RATE, savedAt:null};
+    }
     wireOnce();
-    if(!st || st.clientId !== client.meta.clientId) st = freshState(client);
-    setText('fcMessage', computeForecastCoach(client).message);
-    renderAll(client);
+    V.syncEye();
+    q('.x-noage').hidden = S.hasAge;
+    if(pendingWhatIf){ S.draft = clone(S.PLAN); S.draft.pmt += pendingWhatIf; pendingWhatIf = null; setMode('whatif', true); openAdj(true); }
+    else render();
+    drawNote(client);
+    intro = false;
   };
 })();
-

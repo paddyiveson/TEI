@@ -32,6 +32,8 @@ window.TEI = window.TEI || {};
     if(pageId === 'documents' && TEI.settings){ TEI.settings.open('documents'); return; }
     if(pageId === 'portfolio'){ pageId = 'progress'; after = 'pf'; }
     else if(pageId === 'update'){ pageId = 'progress'; after = 'update'; }
+    // Wealth's Debts row opens Cashflow at its Debts tile (TEI Launch v2).
+    if(opts === 'debts' && pageId === 'cashflow') after = 'debts';
     if(PAGES.indexOf(pageId) === -1) pageId = 'home';
     state.currentPage = pageId;
     document.querySelectorAll('.page').forEach(el=> el.classList.toggle('active', el.id === 'page-'+pageId));
@@ -45,6 +47,7 @@ window.TEI = window.TEI || {};
     renderPage(pageId);
     if(after === 'pf'){ const pf = document.getElementById('wlPortfolio'); if(pf) pf.scrollIntoView({block:'start'}); }
     if(after === 'update' && TEI.wealthPage) TEI.wealthPage.openUpdate();
+    if(after === 'debts' && TEI.cashflowPage && TEI.cashflowPage.focusDebts) requestAnimationFrame(()=> TEI.cashflowPage.focusDebts());
   }
 
   function rerenderCurrentPage(){ renderPage(state.currentPage); }
