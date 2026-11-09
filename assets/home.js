@@ -252,25 +252,13 @@ var TITLES=[['Thursday, 6 November 2026','Good morning, Priya',''],['How much yo
 
 /* ---------- the four tools, detailed ---------- */
 function tools(){
-  var fc='<svg class="ch" viewBox="0 0 400 170" preserveAspectRatio="none" style="height:170px"><path d="M0 160 C100 150 190 120 260 82 S360 20 400 6 L400 40 C360 56 310 86 260 108 S100 158 0 162Z" fill="rgba(185,202,230,.16)"/><line x1="0" x2="400" y1="30" y2="30" stroke="rgba(232,214,168,.35)" stroke-dasharray="3 5"/><text x="4" y="24" font-size="10" fill="#AAB6C8" font-family="Geist Mono,monospace">Goal £250,000</text><path d="M0 164 C120 160 220 146 300 128 S380 108 400 104" fill="none" stroke="#C9D3E3" stroke-opacity=".7" stroke-dasharray="4 4"/><path d="M0 161 C100 152 190 126 260 96 S360 36 400 22" fill="none" stroke="#E8D6A8" stroke-width="2.4"/><circle cx="371" cy="30" r="4.5" fill="#E8D6A8"/><text x="330" y="52" font-size="10" fill="#E8D6A8" font-family="Geist Mono,monospace">2039</text></svg>';
-  var lab_unused='<svg class="ch" viewBox="0 0 400 130" preserveAspectRatio="none" style="height:130px"><path d="M0 120 L40 110 80 114 120 96 160 100 200 78 240 84 280 60 320 66 360 36 400 24" fill="none" stroke="#E8D6A8" stroke-width="2.4"/><path d="M0 120 L40 112 80 116 120 102 160 104 200 88 240 92 280 74 320 78 360 54 400 44" fill="none" stroke="#7488A8" stroke-width="2"/><text x="4" y="12" font-size="10" fill="#AAB6C8" font-family="Geist Mono,monospace">10 years, £10,000 start</text></svg>';
   var V=[
+   ['Members\' articles','In-depth research, explained in plain English',
+    '<img class="tlimg" src="/assets/img/home/tool-article.webp" alt="A members\' article: Nebius, sizing up the opportunity, with three headline figures." loading="lazy" width="2000" height="1260"><div class="fine">A recent members\' article. Education, not a recommendation.</div>',0],
    ['Portfolio Lab','Test a mix before you change anything',
     '<img class="tlimg" src="/assets/img/home/tool-lab.webp" alt="The Portfolio Lab: a treemap of everything a member owns, by account, then five stages: Analyse, Optimise, Compare, Implement and Results." loading="lazy" width="1668" height="1083"><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
-   ['Wealth Forecast','When you reach your goal, and what moves the date',
-    '<div><h4>First home and beyond: £250,000 by 2040</h4><div class="sub">Change the inputs and the date moves with them.</div></div>'+
-    '<div class="sl" style="--w:55%">Into wealth each month<b style="font-weight:500;color:#F7F4ED">£620</b><span class="tr"><i></i><b></b></span></div>'+
-    '<div class="sl" style="--w:40%">Growth a year, after fees<b style="font-weight:500;color:#F7F4ED">5%</b><span class="tr"><i></i><b></b></span></div>'+fc+
-    '<div class="stats"><div class="st"><div class="k">Projected</div><b>£262,400</b></div><div class="st"><div class="k">Goal reached</div><b>2039</b></div><div class="st"><div class="k">Likely range</div><b>£214k–£318k</b></div></div><div class="fine">Illustrative projection in today\'s money. Not a guarantee.</div>',1],
-   ['Tax Scenario','Compare the tax on a move before you make it',
-    '<div><h4>Salary sacrifice: £200 a month into your pension</h4><div class="sub">Same job, same salary. Two ways of being paid.</div></div>'+
-    '<div class="cols2"><div class="tbl"><div class="h">Today</div><div class="r">Salary<b>£42,000</b></div><div class="r">Income tax<b>£5,886</b></div><div class="r">National Insurance<b>£2,354</b></div><div class="r">Take-home<b>£33,760</b></div><div class="r">Into pension<b>£0</b></div></div>'+
-    '<div class="tbl hi"><div class="h" style="color:#E8D6A8">With salary sacrifice</div><div class="r">Salary<b>£39,600</b></div><div class="r">Income tax<b>£5,406</b></div><div class="r">National Insurance<b>£2,162</b></div><div class="r">Take-home<b>£32,032</b></div><div class="r">Into pension<b>£2,400</b></div></div></div>'+
-    '<div class="callout">Take-home falls by <b>£1,728</b> a year, but <b>£2,400</b> goes into your pension: about <b>£1.39</b> in your pension for every £1 less in your pocket.</div><div class="fine">Example for 2026/27 tax bands in England. Your coach checks your own figures.</div>',1],
-   ['Portfolio Strategy','Your own written rules for buying, holding and selling',
-    '<div style="display:flex;gap:14px;align-items:center"><svg width="92" height="92" viewBox="0 0 36 36"><circle cx="18" cy="18" r="13" fill="none" stroke="#B9CAE6" stroke-width="6" stroke-dasharray="18 100" stroke-dashoffset="-63.7" transform="rotate(-90 18 18)"/><circle cx="18" cy="18" r="13" fill="none" stroke="#E8D6A8" stroke-width="6" stroke-dasharray="63.7 100" transform="rotate(-90 18 18)"/></svg><div><h4>Core and satellite</h4><div class="sub">Target 80% core, 20% satellite.<br>Today: <b style="color:#E8D6A8;font-weight:500">82%</b> core, <b style="color:#B9CAE6;font-weight:500">18%</b> satellite.</div></div></div>'+
-    '<div><div class="rule"><span>Core stays between 75% and 85%</span><span class="pill ok">Within range</span></div><div class="rule"><span>No single satellite holding over 5%</span><span class="pill att">1 at 6.1%</span></div><div class="rule"><span>Rebalance once a year, each April</span><span class="pill">Next: Apr 2027</span></div><div class="rule"><span>Sell a satellite if the reason you bought it changes</span><span class="pill">Written down</span></div></div>'+
-    '<div class="callout">Your rules, agreed with your coach, so decisions are made calmly and not in the moment.</div>',1]
+   ['Coach Forecast','Your written forecast, built by your coach',
+    '<img class="tlimg" src="/assets/img/home/tool-forecast.webp" alt="A Coach Forecast for a sample member: how her pensions, Lifetime ISA, cash and investments build year by year towards a goal line." loading="lazy" width="2000" height="1220"><div class="fine">An example Coach Forecast, for a sample member. Illustrative, not a guarantee.</div>',0]
   ];
   return '<div class="card-tools"><div class="tl-top"><div class="t" data-tt>'+V[0][0]+'<small data-ts>'+V[0][1]+'</small></div><span class="lockb">'+LOCK+'Members only</span></div>'+
     V.map(function(v,i){return '<div class="tview'+(i===0?' on':'')+'" data-i="'+i+'" data-name="'+v[0]+'" data-sub="'+v[1]+'"'+(v[3]?' data-soon="1"':'')+'>'+(v[3]?'<span class="tsoon">Coming soon · preview</span>':'')+v[2]+'</div>';}).join('')+
@@ -340,7 +328,6 @@ var member=false,heroScene=null,echo=null;
 function setWho(m){
   member=!!m;window.TEI_MEMBER=member;body.classList.toggle('member',member);
   msBuild();startEcho();
-  var s=$('sbar');if(s&&member)s.classList.remove('show');
 }
 
 /* ---------- hero ---------- */
@@ -438,7 +425,7 @@ document.querySelectorAll('.ptabs button').forEach(function(b){b.addEventListene
 function msBuild(){
   var mem=member,S=window.TEIShow,m=$('mshow');
   if(window.__osT)clearTimeout(window.__osT);if(window.__tlT)clearTimeout(window.__tlT);
-  var tabs=['Wealth','Forecast','Cashflow'].map(function(n,i){return '<button type="button" class="ostab" role="tab" data-t="'+i+'" aria-selected="'+(i===0)+'">'+n+'<span class="pr"><i></i></span></button>';}).join('');
+  var tabs=['Wealth','Live forecast','Cashflow'].map(function(n,i){return '<button type="button" class="ostab" role="tab" data-t="'+i+'" aria-selected="'+(i===0)+'">'+n+'<span class="pr"><i></i></span></button>';}).join('');
   var tmp=document.createElement('div');tmp.innerHTML=S.tools();
   var tv=[].slice.call(tmp.querySelectorAll('.tview'));
   var list=tv.map(function(v,i){return '<button type="button" class="lsi" role="tab" data-j="'+i+'" aria-selected="'+(i===0)+'"><b>'+v.getAttribute('data-name')+(v.getAttribute('data-soon')?'<span class="soon">Coming soon</span>':'')+'</b><small>'+v.getAttribute('data-sub')+'</small><span class="pr"><i></i></span></button>';}).join('');
@@ -453,7 +440,7 @@ function msBuild(){
         :'<div class="oscta"><a class="btn xl" href="'+L.membership+'">See everything members get</a><p>or <a class="lnk" href="'+L.book+'" target="_blank" rel="noopener">book a 30-minute call</a> first</p></div>')+
     '<div class="tl2"><div class="tl2h"><span class="lockb">'+(mem?'<svg viewBox="0 0 12 12"><path d="M2.5 6.5l2.2 2.2L9.5 3.8"/></svg>In your membership':S.LOCK+'Members only')+'</span><h3 class="h">There is more inside, for members.</h3></div>'+
       '<div class="ls"><div class="lsl" role="tablist" aria-label="Member tools">'+list+'</div><div class="lss">'+stage+'</div></div>'+
-      '<div class="also4"><p class="alsoh">Also included</p><div class="also"><div><b>Research notes</b>Company and theme notes</div><div><b>Members\' articles</b>Themes, in depth</div><div><b>Lessons</b>Five stages, at your pace</div><div><b>Knowledge library</b>Every term in one place</div></div></div></div>';
+      '<div class="also4"><p class="alsoh">Also included</p><div class="also"><div><b>Research notes</b>Company and theme notes</div><div><b>Tax and strategy tools</b>Coming soon</div><div><b>Lessons</b>Five stages, at your pace</div><div><b>Knowledge library</b>Every term in one place</div></div></div></div>';
   osTour(m);tlRotate(m);
 }
 function osTour(m){
@@ -581,15 +568,12 @@ function watchVid(){
   vio.observe(hcv);
 }
 
-/* ---------- phone scroll: hero fades and drifts up, the sticky bar slides in ---------- */
-var sbar=$('sbar');
+/* ---------- phone scroll: hero fades and drifts up ---------- */
 window.addEventListener('scroll',function(){
   if(!isPhone())return;
   var hh=$('top').offsetHeight,st=window.scrollY,sk=clamp((st-30)/(hh*0.75)),cp=$('top').querySelector('.copy');
   if(heroScene){heroScene.sk=sk;if(reduce)heroScene.frame(performance.now());}
   if(!reduce){cp.style.opacity=String(1-sk);cp.style.transform='translateY('+(-sk*36).toFixed(1)+'px)';}
-  var past=st>hh*0.6,atEnd=st+window.innerHeight>$('call').getBoundingClientRect().top+st+60;
-  sbar.classList.toggle('show',past&&!atEnd&&!member);
 },{passive:true});
 
 /* ---------- tools lift point and star mask follow the real layout ---------- */

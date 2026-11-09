@@ -262,7 +262,6 @@ body.sheet-on .sheet{transform:none}
 .res-foot{display:flex;justify-content:space-between;gap:10px;margin-top:14px;font-size:13px}
 .res-foot a{color:var(--c-gold);text-decoration:none}
 .res-foot button{border:0;background:transparent;color:var(--c-muted);cursor:pointer;font-size:13px;padding:0}
-.sbar{display:none}
 
 /* ================= v4 overrides ================= */
 .hp{background:var(--bg-hero)}
@@ -738,7 +737,6 @@ h2.h{font-weight:700;letter-spacing:-.02em}
 .vid .fmt{font-size:11px}
 
 /* buttons: main champagne buttons glow at rest (decided 8 Nov); not in the header, sticky bar or newsletter */
-.sbar .btn{box-shadow:none}
 .btn.champ:hover,.btn.champ:focus-visible,.mshow .btn:not(.o):hover{box-shadow:0 0 0 1px rgba(232,214,168,.45),0 8px 28px rgba(232,214,168,.28)}
 .nl .btn{box-shadow:none}
 
@@ -1060,10 +1058,6 @@ body[data-sc="a"] .mshow .mc-fc .sl,body[data-sc="b"] .mshow .mc-fc .sl,body[dat
 
 /* Phone (was the review frame's phone view) */
 @media (max-width:860px){
-  .sbar{display:flex;position:absolute;left:20px;right:20px;bottom:94px;z-index:19;align-items:center;justify-content:space-between;gap:10px;padding:6px 6px 6px 14px;border-radius:999px;background:rgba(15,30,54,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--n-ink);font-size:12.5px;box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 1px 0 rgba(232,214,168,.2);transform:translateY(16px);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
-  .sbar.show{transform:none;opacity:1;pointer-events:auto}
-  .sbar .btn{min-height:34px;font-size:13px;padding:0 14px}
-  .sbar span{color:var(--n-sub)}
   .scrim{position:absolute;z-index:30;border-radius:36px}
   .sheet{position:absolute;z-index:31;top:auto;left:0;right:0;bottom:0;width:auto;height:82%;border-radius:22px 22px 36px 36px;transform:translateY(100%);padding:12px 18px 28px}
   body.sheet-on .sheet{transform:none}
@@ -1071,7 +1065,6 @@ body[data-sc="a"] .mshow .mc-fc .sl,body[data-sc="b"] .mshow .mc-fc .sl,body[dat
   .sheet .sh-top h2{font-size:19px}
   .qwrap h3{font-size:17px}
   .opts button{font-size:14px;min-height:44px}
-  .sbar{left:12px;right:12px;bottom:92px;background:rgba(18,35,61,.96);border:1px solid rgba(232,214,168,.2)}
 }
 
 /* ================= Production (not in the mock-up) ================= */
@@ -1101,13 +1094,11 @@ body.hp-body .tei-ftr + footer a{color:var(--sub)!important}
 body.hp-body .tei-ftr + footer .footer-logo-mark{color:var(--champ)!important}
 @media (max-width:860px){ body.hp-body .tei-ftr + footer{padding-bottom:calc(var(--tei-mbar-total) + 20px)!important} }
 
-/* The sticky "£30 discovery call" bar and the stage check sheet sit above the
-   shared header (950), phone bar (1000) and Menu (1100) on a real page. */
-.sbar{position:fixed}
+/* The stage check sheet sits above the shared header (950), phone bar (1000)
+   and Menu (1100) on a real page. */
 .scrim{z-index:1190}
 .sheet{z-index:1200}
 @media (max-width:860px){
-  .sbar{position:fixed;left:12px;right:12px;bottom:calc(var(--tei-mbar-total) + 10px);z-index:990}
   .scrim{position:fixed;border-radius:0}
   .sheet{position:fixed;height:82%;max-height:calc(100dvh - 24px);border-radius:22px 22px 0 0;padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
 }
@@ -1130,4 +1121,22 @@ body.sheet-on .sheet{visibility:visible;transition:transform .38s cubic-bezier(.
   .hp .hero .anchor{font-size:clamp(153px,10.4vw,200px)}
   .hp .hero .dek{font-size:clamp(19px,1.2vw,22px)}
   .hp .hero{min-height:max(680px,calc(100vh - 68px))}
+}
+
+/* Phone bottom bar, homepage (Paddy, 9 Nov): navy and see-through, so the
+   dark page carries on under it instead of a light strip. */
+@media (max-width:860px){
+  html.tei-site body.hp-body .tei-mbar{background:rgba(11,23,41,.62);border-top:1px solid rgba(232,214,168,.14);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
+  html.tei-site body.hp-body .tei-mbar-item{color:#AAB6C8}
+  html.tei-site body.hp-body .tei-mbar-item[aria-current="page"]{color:#F7F4ED}
+  html.tei-site body.hp-body .tei-mbar-item[aria-current="page"] .tei-mbar-pill{background:#E8D6A8;color:#0F1E36}
+  html.tei-site body.hp-body .tei-mbar-item:focus-visible{outline-color:#E8D6A8}
+}
+
+/* Footer, homepage (Paddy, 9 Nov): the link row and the legal text use the
+   same wide column and gutter as the page above. */
+@media (min-width:1100px){
+  body.hp-body .tei-ftr-in{box-sizing:border-box;max-width:1760px;padding-inline:clamp(32px,4vw,72px)}
+  body.hp-body .tei-ftr + footer{padding-left:clamp(32px,4vw,72px)!important;padding-right:clamp(32px,4vw,72px)!important}
+  body.hp-body .tei-ftr + footer > *{max-width:calc(1760px - 2 * clamp(32px,4vw,72px))!important}
 }
