@@ -26,7 +26,9 @@ const DEMO = fs.readFileSync(path.join(__dirname, 'wos-demo', 'demo-client.js'),
 const TYPES = {'.html':'text/html', '.js':'text/javascript', '.css':'text/css', '.json':'application/json', '.svg':'image/svg+xml', '.png':'image/png', '.webp':'image/webp', '.jpg':'image/jpeg'};
 const PAGES = [['progress', 'wealth'], ['planning', 'forecast'], ['cashflow', 'cashflow']];
 // The feedback button, toasts and the site footer are not part of the screens.
-const HIDE = '.feedback-fab,#toast,#disclaimerBar,.tei-boundary-footer,.tei-boundary,#sideSetupBtn{display:none!important}'
+// Nor is the phone's fixed bottom tab bar: a full-page capture bakes it in
+// mid-page, and the homepage frame draws its own pinned bar.
+const HIDE = '.feedback-fab,#toast,#disclaimerBar,.tei-boundary-footer,.tei-boundary,#sideSetupBtn,#clientApp .m-tabs{display:none!important}'
   // The fixed sidebar runs the full height of a full-page capture.
   + '.app-shell{position:relative}#clientApp .sidebar{position:absolute!important;height:auto!important;min-height:100%!important;bottom:0}';
 
