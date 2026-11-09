@@ -94,6 +94,9 @@ window.TEI = window.TEI || {};
     return (client.sessions||[]).filter(x=> x.status === 'booked' && new Date(x.endAt || x.startAt).getTime() > now)
       .sort((a, b)=> new Date(a.startAt) - new Date(b.startAt))[0] || null;
   }
+  /* Cal.com titles read "Plan Review between The Everyday Investor and Jane Smith";
+     show the event name only. */
+  function sessionTitle(x){ return String((x && x.title) || '').replace(/\s+between\s[\s\S]*$/i, '').trim(); }
   const DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   function sessionWhen(x, withTime){
     const d = new Date(x.startAt);
@@ -181,6 +184,6 @@ window.TEI = window.TEI || {};
   }
 
   TEI.v2 = {RM, PHONE, esc, fmt, fk, sk, sgn, pc, cls, store, MON, CHEV, TICK, ARR, INFO, EYE,
-    countUp, onView, bindInfo, setHide, syncEye, note, staleLine, coachName, added, addToSession, nextSession, sessionWhen, sessionButton,
+    countUp, onView, bindInfo, setHide, syncEye, note, staleLine, coachName, added, addToSession, nextSession, sessionWhen, sessionTitle, sessionButton,
     debts, payoff, addM, spanTxt, ageNow, shortDate};
 })();
