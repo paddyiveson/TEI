@@ -254,11 +254,11 @@ var TITLES=[['Thursday, 6 November 2026','Good morning, Priya',''],['How much yo
 function tools(){
   var V=[
    ['Members\' articles','In-depth research, explained in plain English',
-    '<img class="tlimg" src="/assets/img/home/tool-article.webp" alt="A members\' article: Nebius, sizing up the opportunity, with three headline figures." loading="lazy" width="2000" height="1260"><div class="fine">A recent members\' article. Education, not a recommendation.</div>',0],
+    '<div class="tlmedia"><img src="/assets/img/home/tool-article.webp" alt="A members\' article: Nebius, sizing up the opportunity, with three headline figures." loading="lazy" width="2000" height="1260"></div><div class="fine">A recent members\' article. Education, not a recommendation.</div>',0],
    ['Portfolio Lab','Test a mix before you change anything',
-    '<img class="tlimg" src="/assets/img/home/tool-lab.webp" alt="The Portfolio Lab: a treemap of everything a member owns, by account, then five stages: Analyse, Optimise, Compare, Implement and Results." loading="lazy" width="1668" height="1083"><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
+    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="28.6" poster="/assets/img/home/tool-lab-poster.webp" aria-label="A walkthrough of the Portfolio Lab with example holdings: filtering by account, choosing the Equal weight preset, then Compare, Implement and Results."><source src="/assets/video/tool-lab.mp4" type="video/mp4"></video></div><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
    ['Coach Forecast','Your written forecast, built by your coach',
-    '<img class="tlimg" src="/assets/img/home/tool-forecast.webp" alt="A Coach Forecast for a sample member: how her pensions, Lifetime ISA, cash and investments build year by year towards a goal line." loading="lazy" width="2000" height="1220"><div class="fine">An example Coach Forecast, for a sample member. Illustrative, not a guarantee.</div>',0]
+    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="18.7" poster="/assets/img/home/tool-forecast.webp" aria-label="A Coach Forecast for a sample member: switching between cautious, central and optimistic growth, testing a market fall, and showing only what counts towards the goal."><source src="/assets/video/tool-forecast.mp4" type="video/mp4"></video></div><div class="fine">An example Coach Forecast, for a sample member. Illustrative, not a guarantee.</div>',0]
   ];
   return '<div class="card-tools"><div class="tl-top"><div class="t" data-tt>'+V[0][0]+'<small data-ts>'+V[0][1]+'</small></div><span class="lockb">'+LOCK+'Members only</span></div>'+
     V.map(function(v,i){return '<div class="tview'+(i===0?' on':'')+'" data-i="'+i+'" data-name="'+v[0]+'" data-sub="'+v[1]+'"'+(v[3]?' data-soon="1"':'')+'>'+(v[3]?'<span class="tsoon">Coming soon · preview</span>':'')+v[2]+'</div>';}).join('')+
@@ -470,15 +470,26 @@ function osTour(m){
   go(0,false);
 }
 function tlRotate(m){
-  var bs=[].slice.call(m.querySelectorAll('.lsi')),vs=[].slice.call(m.querySelectorAll('.lss .tview')),i=0,paused=false,dur=6000;
+  /* Items rotate every 6s. An item with a video stays up until the video ends,
+     plays only while the list is on screen, and loops once someone picks it. */
+  var bs=[].slice.call(m.querySelectorAll('.lsi')),vs=[].slice.call(m.querySelectorAll('.lss .tview')),i=0,paused=false,seen=false,DUR=6000;
+  function vid(j){return vs[j]&&vs[j].querySelector('video');}
+  function dur(j){var v=vid(j);if(!v)return DUR;var d=(isFinite(v.duration)&&v.duration)||parseFloat(v.getAttribute('data-dur'))||6;return Math.max(DUR,(d-(v.currentTime||0))*1000+400);}
+  function play(j){var v=vid(j);if(!v||reduce||!seen)return;v.loop=paused;var p=v.play();if(p&&p.catch)p.catch(function(){});}
+  function bar(j,ms,from){var c=bs[j].querySelector('.pr i');c.style.transition='none';c.style.transform='scaleX('+(from||0)+')';if(paused||reduce||!seen)return;void c.offsetWidth;c.style.transition='transform '+ms+'ms linear';c.style.transform='scaleX(1)';}
+  function tick(){clearTimeout(window.__tlT);if(paused||reduce||!seen)return;var ms=dur(i),v=vid(i),from=v&&v.duration?Math.min(1,v.currentTime/v.duration):0;bar(i,ms,from);window.__tlT=setTimeout(function(){go((i+1)%bs.length);},ms);}
   function go(j,user){if(!bs[0].isConnected)return;i=j;clearTimeout(window.__tlT);
-    bs.forEach(function(b,k){b.setAttribute('aria-selected',k===j?'true':'false');var p=b.querySelector('.pr i');p.style.transition='none';p.style.transform='scaleX(0)';});
-    vs.forEach(function(v,k){v.classList.toggle('on',k===j);});
     if(user)paused=true;
-    if(!paused&&!reduce){var c=bs[j].querySelector('.pr i');void c.offsetWidth;c.style.transition='transform '+dur+'ms linear';c.style.transform='scaleX(1)';window.__tlT=setTimeout(function(){go((i+1)%bs.length);},dur);}}
+    bs.forEach(function(b,k){b.setAttribute('aria-selected',k===j?'true':'false');var p=b.querySelector('.pr i');p.style.transition='none';p.style.transform='scaleX(0)';});
+    vs.forEach(function(v,k){v.classList.toggle('on',k===j);var x=vid(k);if(x&&k!==j){x.pause();try{x.currentTime=0;}catch(e){}}});
+    var v=vid(j);if(v){try{v.currentTime=0;}catch(e){}if(reduce)v.controls=true;play(j);}
+    tick();}
   bs.forEach(function(b){b.addEventListener('click',function(){go(+b.getAttribute('data-j'),true);});});
-  var ls=m.querySelector('.ls');ls.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse'){paused=true;clearTimeout(window.__tlT);bs[i].querySelector('.pr i').style.transition='none';}});
-  ls.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'){paused=false;go(i);}});
+  var ls=m.querySelector('.ls');
+  ls.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse'&&!paused){paused=true;clearTimeout(window.__tlT);var c=bs[i].querySelector('.pr i');c.style.transform=getComputedStyle(c).transform;c.style.transition='none';var v=vid(i);if(v)v.loop=true;ls.__hover=true;}});
+  ls.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&ls.__hover){ls.__hover=false;paused=false;var v=vid(i);if(v)v.loop=false;tick();}});
+  if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){seen=e.isIntersecting;var v=vid(i);if(seen){play(i);tick();}else{clearTimeout(window.__tlT);if(v)v.pause();}});},{threshold:.35}).observe(ls);}
+  else seen=true;
   go(0);
 }
 
