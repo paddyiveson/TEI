@@ -1,0 +1,257 @@
+/* TEI content library behaviour (Brand Content Design Spec, rebuild).
+   Pairs with /assets/content.css on rebuilt guides, tools and articles.
+     - Shell: opened from the Client Hub (?from=hub), the page shows the Hub
+       header (/hub/js/hub-header.js) instead of the public one, its back link
+       returns to the Hub, and links to other content pages keep ?from=hub.
+     - Contents: the rail (desktop) and Contents dropdown (phones) are built
+       from each <section class="tc-part" data-toc="..."> and follow the
+       reader down the page.
+     - Expandable cards: inside [data-tc-one], opening one closes the others.
+     - Tabs: [data-tc-tabs] holds role="tab" buttons and their panels.
+     - Motion: blocks rise in as they reach the screen, bars grow, .tc-chart
+       figures draw in once seen. None of it under prefers-reduced-motion.
+     - Chart.js (tools): shared fonts, colours and a left-to-right draw-in.
+     - Closing pair: .ar-end boxes balanced side by side (balanceEnd).
+   Exposes window.TeiContent for page scripts (replay a chart, read colours). */
+(function () {
+  'use strict';
+
+  var calm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // data-hub-only on <body>: a page that lives in the Client Hub (no ?from=hub needed).
+  var fromHub = /(?:^|[?&])from=hub(?:&|$)/.test(location.search) || document.body.hasAttribute('data-hub-only');
+  var each = function (sel, fn, root) { Array.prototype.forEach.call((root || document).querySelectorAll(sel), fn); };
+
+  /* ---------- Shell ---------- */
+  function hubShell() {
+    if (!fromHub) return;
+    // Links to other content pages stay inside the Hub shell.
+    each('main a[href^="/guides/"], main a[href^="/articles/"]', function (a) {
+      var h = a.getAttribute('href');
+      if (h.indexOf('from=hub') < 0) a.setAttribute('href', h + (h.indexOf('?') < 0 ? '?' : '&') + 'from=hub');
+    });
+    // The Client Hub header in place of the public one (8a, Paddy 2 Nov 2026):
+    // articles sit in the Hub's Library, guides and tools in Guides & tools.
+    var article = !!document.querySelector('.tei-article[data-slug]');
+    var back = article ? '/hub/knowledge/index.html' : (document.body.getAttribute('data-hub-back') || '/hub/guides.html');
+    var label = article ? 'Library' : (document.body.getAttribute('data-hub-label') || 'Guides & tools');
+    document.documentElement.setAttribute('data-from-hub', '');
+    if (!document.querySelector('[data-hub-header], #hubHeader')) {
+      var host = document.createElement('div');
+      host.setAttribute('data-hub-header', '');
+      host.setAttribute('data-current', article ? 'library' : 'guides');
+      document.body.insertBefore(host, document.body.firstChild);
+      var sc = document.createElement('script');
+      sc.src = '/hub/js/hub-header.js';
+      document.body.appendChild(sc);
+    }
+    // The hero back link and other links to the public list point back into the Hub.
+    each('.ar-back[data-public], .ar-back[href="/articles.html"]', function (a) {
+      a.setAttribute('href', back);
+      if (a.lastChild && a.lastChild.nodeType === 3) a.lastChild.nodeValue = label;
+    });
+    each('main a[data-public]:not(.ar-back)', function (a) { a.setAttribute('href', back); });
+  }
+
+  /* ---------- Contents rail ---------- */
+  function contents() {
+    var parts = document.querySelectorAll('.tc-part[data-toc]');
+    if (!parts.length) return;
+    // An empty data-toc-no lists the part without a number (closing blocks such
+    // as "What this does not say" and Summary); numbering skips those parts.
+    var n = 0;
+    var html = Array.prototype.map.call(parts, function (p) {
+      var no = p.hasAttribute('data-toc-no') ? p.getAttribute('data-toc-no') : ('0' + (++n)).slice(-2);
+      return '<li><a href="#' + p.id + '"' + (no ? '><span>' + no + '</span>' : ' class="is-plain">') + p.getAttribute('data-toc') + '</a></li>';
+    }).join('');
+    each('.tc-rail ol, .tc-toc-m ol', function (ol) { ol.innerHTML = html; });
+    each('.tc-toc-m a', function (a) { a.addEventListener('click', function () { var d = a.closest('details'); if (d) d.open = false; }); });
+    if (!('IntersectionObserver' in window)) return;
+    // Wide guides: the rail scrolls away with the opening of the page (content.css);
+    // once it is above the screen, the slim Contents bar takes its place.
+    var rail = document.querySelector('.tc-main.ar-wide .tc-rail');
+    if (rail) new IntersectionObserver(function (en) {
+      var e = en[en.length - 1];
+      document.documentElement.classList.toggle('tc-rail-gone', !e.isIntersecting && e.boundingClientRect.bottom < 0 && e.boundingClientRect.height > 0);
+    }).observe(rail);
+    var links = document.querySelectorAll('.tc-rail a');
+    var current = null;
+    function mark(id) {
+      if (id === current) return;
+      current = id;
+      Array.prototype.forEach.call(links, function (a) { a.setAttribute('aria-current', a.getAttribute('href') === '#' + id ? 'true' : 'false'); });
+      var label = document.querySelector('.tc-toc-m summary span');
+      var part = document.getElementById(id);
+      if (label && part) label.textContent = part.getAttribute('data-toc');
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) mark(en.target.id); });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    mark(parts[0].id);
+    Array.prototype.forEach.call(parts, function (p) { io.observe(p); });
+  }
+
+  /* ---------- Expandable groups and tabs ---------- */
+  function groups() {
+    each('[data-tc-one]', function (g) {
+      g.addEventListener('toggle', function (e) {
+        var d = e.target;
+        if (!d.open || d.tagName !== 'DETAILS') return;
+        each('details', function (o) { if (o !== d && o.closest('[data-tc-one]') === g) o.open = false; }, g);
+      }, true);
+    });
+    each('[data-tc-tabs]', function (box) {
+      var tabs = box.querySelectorAll('[role="tab"]');
+      function pick(t) {
+        Array.prototype.forEach.call(tabs, function (b) {
+          var on = b === t;
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+          b.tabIndex = on ? 0 : -1;
+          var p = document.getElementById(b.getAttribute('aria-controls'));
+          if (p) p.hidden = !on;
+        });
+      }
+      Array.prototype.forEach.call(tabs, function (b, i) {
+        b.addEventListener('click', function () { pick(b); });
+        b.addEventListener('keydown', function (e) {
+          var k = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+          if (!k) return;
+          var n = tabs[(i + k + tabs.length) % tabs.length];
+          pick(n); n.focus();
+        });
+      });
+    });
+  }
+
+  /* ---------- Motion ---------- */
+  var REVEAL = '.tc-tile, .tc-two, .tc-flow, .tc-steps, .tc-matrix, .tc-feature, .tc-sleeves, .tc-callout, .tc-icons, .tc-timeline, ' +
+    '.tc-inline-link, .tc-related, .tc-cta, .tc-members, .tc-pcard, .tc-table-wrap, .visual-block, .ar-figure, .pull-quote, .ar-takeaways, .ar-not';
+  function reveal() {
+    if (calm || !('IntersectionObserver' in window)) return;
+    var els = Array.prototype.filter.call(document.querySelectorAll(REVEAL), function (el) {
+      return !(el.parentElement && el.parentElement.closest(REVEAL));
+    });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add('tc-in');
+        io.unobserve(en.target);
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+    els.forEach(function (el) { el.classList.add('tc-reveal'); io.observe(el); });
+  }
+
+  // SVG figures marked .tc-chart draw in the first time they are seen;
+  // redrawn(el) runs it again after a page script redraws a seen figure.
+  function replay(el) {
+    if (calm || !el) return;
+    each('.draw', function (p) { if (p.getTotalLength) p.style.setProperty('--len', Math.ceil(p.getTotalLength()) + 1); }, el);
+    el.classList.remove('is-drawing'); void el.offsetWidth; el.classList.add('is-drawing');
+  }
+  function charts() {
+    if (calm || !('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.setAttribute('data-seen', '1');
+        replay(en.target);
+        io.unobserve(en.target);
+      });
+    }, { threshold: 0.35 });
+    each('.tc-chart', function (c) { io.observe(c); });
+  }
+  function redrawn(el) { if (el && el.getAttribute('data-seen')) replay(el); }
+
+  /* ---------- The closing pair ----------
+     div.ar-end holds "What this does not say" beside the Summary (or "How the
+     numbers work" on tools). From 1100px wide, try "What this does not say"
+     at 4 to 7 of the 12 columns and the Summary with all its cards in one row,
+     2 or 3 a row (only counts that divide evenly), and keep the pair whose
+     heights are closest. .is-set then shares out the small leftover, so the
+     two boxes end level and neither is left with empty space at the bottom.
+     Narrower screens stack the two, so nothing is set. */
+  function balanceEnd(end) {
+    var not = end.querySelector(':scope > .ar-not'), sum = end.querySelector(':scope > .ar-takeaways');
+    var list = sum && sum.querySelector('.principle-list');
+    end.classList.remove('is-set');
+    end.style.removeProperty('--not-w');
+    if (list) list.style.removeProperty('--sum-k');
+    if (!not || !list || !window.matchMedia('(min-width: 1100px)').matches) return;
+    var n = list.children.length, best = null;
+    var rows = [n, 2, 3].filter(function (k, i, all) { return k > 0 && all.indexOf(k) === i && n % k === 0; });
+    [4, 5, 6, 7].forEach(function (w) {
+      end.style.setProperty('--not-w', w);
+      rows.forEach(function (k) {
+        list.style.setProperty('--sum-k', k);
+        var d = Math.abs(not.offsetHeight - sum.offsetHeight);
+        if (!best || d < best.d) best = { d: d, w: w, k: k };
+      });
+    });
+    end.style.setProperty('--not-w', best.w);
+    list.style.setProperty('--sum-k', best.k);
+    end.setAttribute('data-gap', best.d);
+    end.classList.add('is-set');
+  }
+  function closingPairs() {
+    if (!document.querySelector('.ar-end')) return;
+    var all = function () { each('.ar-end', balanceEnd); };
+    all();
+    // Fonts change the heights: balance again once they have loaded, and on resize.
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(all);
+    var timer;
+    window.addEventListener('resize', function () { clearTimeout(timer); timer = setTimeout(all, 150); });
+  }
+
+  /* ---------- Chart.js (tools) ---------- */
+  function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  var drawIn = {
+    id: 'teiDrawIn',
+    beforeDatasetsDraw: function (chart) {
+      var a = chart.chartArea, st = chart.$tei || (chart.$tei = {});
+      if (!a) return;
+      if (st.start == null) st.start = performance.now();
+      var p = Math.min(1, (performance.now() - st.start) / 1100);
+      if (p >= 1) return;
+      chart.ctx.save();
+      chart.ctx.beginPath();
+      chart.ctx.rect(a.left - 4, a.top - 10, (a.width + 8) * (1 - Math.pow(1 - p, 3)), a.height + 20);
+      chart.ctx.clip();
+      st.clipped = true;
+      requestAnimationFrame(function () { if (chart.ctx) chart.draw(); });
+    },
+    afterDatasetsDraw: function (chart) { var st = chart.$tei; if (st && st.clipped) { chart.ctx.restore(); st.clipped = false; } }
+  };
+  function chartSkin() {
+    var C = window.Chart;
+    if (!C || C.__teiSkin) return;
+    C.__teiSkin = true;
+    C.defaults.font.family = "'Geist', system-ui, sans-serif";
+    C.defaults.color = cssVar('--c-muted') || '#4E5B70';
+    C.defaults.borderColor = cssVar('--c-line-soft') || 'rgba(19, 33, 58, 0.08)';
+    if (calm) C.defaults.animation = false;
+    else C.register(drawIn);
+  }
+
+  // Phones: a figure caption longer than three lines shows its first sentence, and a link
+  // opens the rest: "How this was calculated" for a data caption, otherwise "Read more".
+  // The full caption stays in the markup, so it reads in full with JS off and on desktop.
+  function captions() {
+    if (!window.matchMedia || !window.matchMedia('(max-width: 860px)').matches) return;
+    Array.prototype.forEach.call(document.querySelectorAll('body.tc-page .visual-caption'), function (cap) {
+      var lh = parseFloat(getComputedStyle(cap).lineHeight) || 17;
+      if (cap.getBoundingClientRect().height <= lh * 3.2) return;
+      var html = cap.innerHTML, m = html.match(/^([\s\S]*?[.:])\s([\s\S]*)$/);
+      if (!m) return;
+      var data = /Investing\.com|Journal|[Cc]alculated|[Dd]iscounted|[Ii]llustrat/.test(html);
+      cap.classList.add('tc-cap');
+      cap.innerHTML = '<span class="tc-cap-lead">' + m[1] + '</span><span class="tc-cap-full">' + html + '</span>' +
+        '<button type="button" class="tc-cap-btn" aria-expanded="false">' + (data ? 'How this was calculated' : 'Read more') + '</button>';
+      cap.querySelector('.tc-cap-btn').addEventListener('click', function () { cap.classList.add('is-open'); this.setAttribute('aria-expanded', 'true'); });
+    });
+  }
+
+  function run() { hubShell(); contents(); groups(); reveal(); charts(); chartSkin(); closingPairs(); captions(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+  window.addEventListener('load', chartSkin);
+
+  window.TeiContent = { calm: calm, fromHub: fromHub, replay: replay, redrawn: redrawn, cssVar: cssVar, balanceEnd: balanceEnd };
+})();

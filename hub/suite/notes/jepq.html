@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JPMorgan Nasdaq Equity Premium Income ETF (JEPQ) - TEI Foundation Note</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A2540; --navy-dk:#061729; --slate:#4B5563;
+  --cream:#F7F4ED; --white:#ffffff;
+  --jpm-blue:#0A2540; --jpm-grey:#5B6B7C; --jpm-lt:#EEF2F6;
+  --text:#1a1a2e; --mid:#4a5568; --lt:#718096;
+  --green:#2D7D52; --red:#C0392B; --radius:10px;
+}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);line-height:1.7}
+
+.hero{background:linear-gradient(160deg,var(--navy) 0%,var(--navy-dk) 100%);padding:44px 40px 40px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(91,107,124,.15) 0%,transparent 70%)}
+.brand-row{display:flex;align-items:center;gap:8px;margin-bottom:24px;position:relative}
+.brand-mark{width:22px;height:22px;border-radius:50%;border:1px solid rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.6)}
+.brand-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;position:relative}
+.tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.05em;padding:5px 12px;border-radius:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.75)}
+.tag.role{background:rgba(91,107,124,.25);border-color:rgba(91,107,124,.5);color:#B8C4D0}
+.meta-line{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.04em;margin-bottom:16px;position:relative}
+.hero h1{font-family:'DM Serif Display',serif;font-size:36px;color:#fff;line-height:1.18;margin-bottom:14px;position:relative}
+.hero h1 em{font-style:italic;color:#B8C4D0}
+.hero p.lead{font-size:14px;color:rgba(255,255,255,.65);max-width:640px;line-height:1.8;position:relative}
+.hero-stats{position:absolute;top:44px;right:40px;text-align:right}
+.hero-stats .label{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.hero-stats .val{font-family:'DM Serif Display',serif;font-size:26px;color:#fff}
+.hero-stats .sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);margin-top:6px}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);background:var(--white);border-bottom:1px solid #E5E7EB}
+.stat-cell{padding:18px 20px;border-right:1px solid #E5E7EB}
+.stat-cell:last-child{border-right:none}
+.stat-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--lt);margin-bottom:6px}
+.stat-val{font-family:'DM Serif Display',serif;font-size:22px;color:var(--navy)}
+.stat-val.green{color:var(--green)}
+
+.section{max-width:960px;margin:0 auto;padding:40px 40px}
+.section-label{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--jpm-grey);margin-bottom:8px;display:block}
+.section h2{font-family:'DM Serif Display',serif;font-size:24px;color:var(--navy);margin-bottom:16px}
+.section p{font-size:14px;color:var(--mid);line-height:1.85;margin-bottom:14px}
+.section p strong{color:var(--navy)}
+
+.role-card{background:var(--jpm-lt);border-left:3px solid var(--jpm-grey);border-radius:0 8px 8px 0;padding:24px 28px;margin-top:8px}
+.role-card p{margin-bottom:0}
+
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:16px}
+.holdings-list{list-style:none}
+.holdings-list li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #E5E7EB;font-size:13px}
+.holdings-list li:last-child{border-bottom:none}
+.holdings-list .name{color:var(--navy);font-weight:500}
+.holdings-list .pct{font-family:'JetBrains Mono',monospace;color:var(--jpm-grey)}
+
+.mech-box{background:var(--white);border:1px solid #E5E7EB;border-radius:8px;padding:20px 22px;margin-top:8px}
+.mech-box h4{font-size:13px;color:var(--navy);margin-bottom:8px;font-weight:600}
+.mech-box p{font-size:13px;margin-bottom:0}
+
+.risk-list{list-style:none;margin-top:8px}
+.risk-list li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #E5E7EB}
+.risk-list li:last-child{border-bottom:none}
+.risk-dot{width:6px;height:6px;border-radius:50%;background:var(--jpm-grey);flex-shrink:0;margin-top:7px}
+.risk-list .risk-text{font-size:13px;color:var(--mid);line-height:1.7}
+.risk-list .risk-text strong{color:var(--navy)}
+
+.illus-table{width:100%;border-collapse:collapse;margin-top:16px;background:var(--white);border-radius:8px;overflow:hidden;border:1px solid #E5E7EB}
+.illus-table th{background:var(--navy);color:#fff;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;padding:12px 16px;text-align:left;font-weight:500}
+.illus-table td{padding:12px 16px;font-size:13px;border-bottom:1px solid #E5E7EB;color:var(--mid)}
+.illus-table tr:last-child td{border-bottom:none}
+.illus-table td:first-child{font-weight:600;color:var(--navy)}
+.illus-table td.income{color:var(--green);font-weight:600;font-family:'JetBrains Mono',monospace}
+.illus-note{font-size:11.5px;color:var(--lt);margin-top:10px;line-height:1.7;font-style:italic}
+.threshold-box{background:var(--navy);border-radius:10px;padding:26px 30px;margin-top:24px;position:relative;overflow:hidden}
+.threshold-tag{position:absolute;top:0;right:0;background:#C9A84C;color:#0A2540;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:7px 16px 7px 14px;border-radius:0 10px 0 12px;display:flex;align-items:center;gap:5px;z-index:1}
+.threshold-box::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(91,107,124,.2) 0%,transparent 70%)}
+.threshold-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#B8C4D0;margin-bottom:10px;position:relative}
+.threshold-num{font-family:'DM Serif Display',serif;font-size:32px;color:#fff;margin-bottom:4px;position:relative}
+.threshold-sub{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px;position:relative}
+.threshold-box p{color:rgba(255,255,255,.7);font-size:13.5px;line-height:1.8;margin-bottom:0;position:relative}
+.threshold-steps{display:flex;gap:8px;margin:18px 0;position:relative;flex-wrap:wrap}
+.threshold-step{background:rgba(255,255,255,.08);border-radius:6px;padding:8px 12px;font-size:11.5px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:6px}
+.threshold-step .arrow{color:#B8C4D0}
+.verdict{background:var(--navy);border-radius:10px;padding:28px 32px;margin-top:8px}
+.verdict p{color:rgba(255,255,255,.75);margin-bottom:0;font-size:14px}
+.verdict p strong{color:#fff}
+
+.tei-footer{background:var(--navy-dk);padding:28px 40px;display:flex;align-items:center;gap:14px}
+.tei-footer .fmark{width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:13px;color:rgba(255,255,255,.5);flex-shrink:0}
+.tei-footer .fdisc{font-size:10.5px;color:rgba(255,255,255,.3);line-height:1.7}
+
+@media(max-width:700px){
+  .hero{padding:32px 20px}
+  .hero-stats{position:static;text-align:left;margin-top:16px}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .stat-cell{border-bottom:1px solid #E5E7EB}
+  .section{padding:32px 20px}
+  .comp-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="brand-row">
+    <div class="brand-mark">&#10022;</div>
+    <span class="brand-label">The Everyday Investor &middot; Financial Coaching &amp; Education</span>
+  </div>
+  <div class="tag-row">
+    <span class="tag role">TEI FOUNDATION SLEEVE &middot; US EQUITY INCOME</span>
+    <span class="tag">COVERED CALL STRATEGY</span>
+  </div>
+  <div class="meta-line">FOUNDATION NOTE &middot; JULY 2026</div>
+  <h1>JEPQ:<br><em>Income From the Nasdaq,<br>Without Owning It Outright</em></h1>
+  <p class="lead">An actively managed fund that holds a Nasdaq-100-style portfolio and sells call options against it every month, converting the volatility of big tech into a steady, high monthly payout. It is not designed to outperform. It is designed to pay you while you wait.</p>
+  <div class="hero-stats">
+    <div class="label">Distribution Yield</div>
+    <div class="val">~12.6%</div>
+    <div class="sub">LSE: JEPQ &middot; via Trading 212</div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-cell"><div class="stat-label">Fund size</div><div class="stat-val">$40.7B</div></div>
+  <div class="stat-cell"><div class="stat-label">Expense ratio</div><div class="stat-val">0.35%</div></div>
+  <div class="stat-cell"><div class="stat-label">Holdings</div><div class="stat-val">~100</div></div>
+  <div class="stat-cell"><div class="stat-label">Distributions</div><div class="stat-val green">Monthly</div></div>
+</div>
+
+<div class="section">
+  <span class="section-label">What it is</span>
+  <h2>A fund built to do one job well.</h2>
+  <p>JEPQ is an actively managed exchange traded fund run by J.P. Morgan. It holds a portfolio of roughly 100 large US technology and growth companies built around the Nasdaq-100 index, names like Microsoft, Apple, NVIDIA, Alphabet and Micron. On top of that, the fund managers sell call options against the portfolio every month.</p>
+  <p>The fund is accessed here through its London Stock Exchange listing (LSE: JEPQ), the same underlying US strategy in a UCITS structure, tradeable in an ISA or SIPP through Trading 212 without needing a separate international brokerage account.</p>
+  <p>Selling a call option means giving someone else the right to buy your shares at a set price in the future, in exchange for an upfront payment called a premium. JEPQ collects that premium every month and pays almost all of it straight out to investors as income, on top of the ordinary dividends the underlying shares already pay.</p>
+  <p>The result is a fund that behaves like a milder, income-focused version of owning the Nasdaq-100 directly. You give up some of the upside if tech shares rally hard, in exchange for a large, steady monthly payment regardless of what the market does.</p>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <span class="section-label">Role in the portfolio</span>
+  <h2>Why it sits in the Foundation sleeve.</h2>
+  <div class="role-card">
+    <p>JEPQ earns its place in the Foundation sleeve for two separate reasons, not one.</p>
+    <p><strong>First, broad exposure to the big US names in one holding.</strong> Buying Microsoft, Apple, NVIDIA, Alphabet and roughly 95 other Nasdaq-100-style companies individually would mean dozens of separate positions, each needing to be sized, monitored and rebalanced. JEPQ does that in a single line, giving the portfolio genuine exposure to the companies actually driving US markets without the admin of holding them all directly.</p>
+    <p><strong>Second, the income.</strong> The Growth sleeve is built to compound over many years, concentrated in a small number of high-conviction names. That works, but it produces no income along the way and can sit through long, uncomfortable drawdowns. JEPQ converts part of the portfolio's exposure to big US tech into a monthly cash income, smoothing the ride and giving the portfolio something that pays out regardless of whether Growth names are up or down that month.</p>
+    <p>It is not chosen because we expect it to be the best performer. It is chosen because of the two jobs it does alongside everything else.</p>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <span class="section-label">Yield and income profile</span>
+  <h2>Where the ~12.6% actually comes from.</h2>
+  <p>JEPQ's trailing twelve month yield has run at roughly 10-13%, paid out in equal monthly instalments rather than one annual dividend. It is important to understand that this yield is not primarily company dividends. The Nasdaq-100 names JEPQ holds pay very little in ordinary dividends. Almost all of the income comes from the option premiums collected each month.</p>
+  <div class="mech-box">
+    <h4>Why the payout moves over time</h4>
+    <p>Option premiums are larger when markets are more volatile and when interest rates are higher. That means JEPQ's monthly payment is not fixed, it will typically shrink somewhat in calmer markets or if interest rates fall, and grow larger during volatile periods. Since inception in 2022, monthly income has generally run between 0.8% and 1.2% of the fund's value.</p>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <span class="section-label">Income illustration</span>
+  <h2>What the monthly payment could actually look like.</h2>
+  <p>Based on the LSE-listed unit price of ~&pound;21 and a trailing yield of ~12%, here is what different starting amounts translate to in practice. These are illustrative only, since the yield moves with market volatility and interest rates, and the underlying strategy is still USD-based even though the units trade in sterling.</p>
+  <table class="illus-table">
+    <tr><th>Investment</th><th>Approx. units</th><th>Monthly income</th><th>Annual income</th></tr>
+    <tr><td>£100</td><td>~5 shares</td><td class="income">~£1.00</td><td class="income">~£12</td></tr>
+    <tr><td>£500</td><td>~24 shares</td><td class="income">~£5.00</td><td class="income">~£60</td></tr>
+    <tr><td>£1,000</td><td>~48 shares</td><td class="income">~£10.00</td><td class="income">~£120</td></tr>
+    <tr><td>£2,500</td><td>~119 shares</td><td class="income">~£25.00</td><td class="income">~£300</td></tr>
+    <tr><td>£5,000</td><td>~238 shares</td><td class="income">~£50.00</td><td class="income">~£600</td></tr>
+    <tr><td>£10,000</td><td>~476 shares</td><td class="income">~£100.00</td><td class="income">~£1200</td></tr>
+  </table>
+  <p class="illus-note">Figures are approximate and rounded for illustration. The underlying option premiums are generated in US dollars, so the sterling value of each distribution will move slightly with the exchange rate as well as the fund's own yield.</p>
+
+  <div class="threshold-box">
+    <div class="threshold-tag">&#9733; Income-focused insight</div>
+    <div class="threshold-label">The self-sustaining threshold</div>
+    <div class="threshold-num">~&pound;2,100</div>
+    <div class="threshold-sub">roughly 100 units, at current price and yield</div>
+    <p>There is a point where the monthly distribution alone becomes large enough to buy a full additional unit. Below that point, dividend reinvestment buys a fraction of a unit each month. Above it, every distribution mechanically adds a whole new unit to the holding, which then generates its own income the following month.</p>
+    <div class="threshold-steps">
+      <div class="threshold-step">Dividend received</div>
+      <div class="threshold-step arrow">&rarr;</div>
+      <div class="threshold-step">Auto-reinvested</div>
+      <div class="threshold-step arrow">&rarr;</div>
+      <div class="threshold-step">Buys one more unit</div>
+      <div class="threshold-step arrow">&rarr;</div>
+      <div class="threshold-step">Next month's income rises</div>
+    </div>
+    <p>At that stage the position is compounding on its own each month, without needing any further contribution. Below roughly &pound;2,100 invested, reinvestment still works, it simply builds toward a fraction of a unit until the balance crosses the threshold. Since the yield itself moves with market conditions, this figure will drift over time, but the mechanic behind it does not change.</p>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <span class="section-label">Composition</span>
+  <h2>What is actually inside it.</h2>
+  <div class="comp-grid">
+    <div>
+      <p style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;">Top holdings (illustrative)</p>
+      <ul class="holdings-list">
+        <li><span class="name">NVIDIA</span><span class="pct">~8-9%</span></li>
+        <li><span class="name">Apple</span><span class="pct">~7-8%</span></li>
+        <li><span class="name">Microsoft</span><span class="pct">~7-8%</span></li>
+        <li><span class="name">Alphabet</span><span class="pct">~5-6%</span></li>
+        <li><span class="name">Micron Technology</span><span class="pct">~4-5%</span></li>
+        <li><span class="name">Remaining ~95 names</span><span class="pct">Balance</span></li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:12px;font-weight:600;color:var(--navy);margin-bottom:10px;">The mechanics, plainly</p>
+      <div class="mech-box" style="margin-top:0;">
+        <p>Own ~100 Nasdaq-100-style stocks, sell monthly call options against roughly 20-75% of the portfolio's value, collect the premium, pay it out. Top 10 holdings typically make up around 40% of the fund. Holdings are reviewed and rebalanced regularly to track the underlying index.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <span class="section-label">Risk profile</span>
+  <h2>What to actually understand before holding this.</h2>
+  <ul class="risk-list">
+    <li><div class="risk-dot"></div><div class="risk-text"><strong>Capped upside.</strong> If Nasdaq-100 names rally sharply, JEPQ will lag well behind, since gains above the option strike prices are given away to whoever bought the calls.</div></li>
+    <li><div class="risk-dot"></div><div class="risk-text"><strong>Still equity risk.</strong> The high yield does not protect the underlying share price. In a genuine tech sell-off, JEPQ's unit price falls too, just as it would for direct ownership.</div></li>
+    <li><div class="risk-dot"></div><div class="risk-text"><strong>Yield is not guaranteed.</strong> The monthly payment moves with volatility and rates. A calmer market or falling rates can meaningfully reduce the income paid out.</div></li>
+    <li><div class="risk-dot"></div><div class="risk-text"><strong>Tax treatment of distributions</strong> can be more complex than a simple dividend, since option premium income is often taxed differently. Held inside an ISA or SIPP this is not a practical concern.</div></li>
+  </ul>
+</div>
+
+<div class="section" style="padding-top:0;">
+  <div class="verdict">
+    <p><strong>The role, in one line:</strong> JEPQ is not held for growth. It is held so that part of the portfolio pays you every month, regardless of what the Growth sleeve is doing, in exchange for giving up some of the upside if tech shares run hard.</p>
+  </div>
+</div>
+
+<div class="tei-footer">
+  <div class="fmark">&#10022;</div>
+  <div class="fdisc">This document is for information and education purposes only. It does not constitute financial advice or a personal recommendation. Fund figures are illustrative and subject to change. Distributions are variable and not guaranteed. Please consult a qualified financial adviser before making any investment decision.</div>
+</div>
+
+</body>
+</html>

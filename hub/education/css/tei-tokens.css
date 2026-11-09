@@ -39,49 +39,25 @@ a { color: inherit; }
 /* ---------- Shell: header + sidebar layout ---------- */
 .shell { min-height: 100vh; }
 
+/* The Client Hub header (/hub/js/hub-header.js) sits above; this row is
+   the breadcrumb trail under it (8a). Empty on the stages page. */
 header.tei-header {
-  position: sticky; top: 0; z-index: 20;
-  background: var(--navy); color: #fff;
-  padding: 0 28px; height: 58px;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 8px; min-height: 44px;
+  padding: 8px 28px; background: var(--cream); border-bottom: 1px solid var(--cream-dark);
+  font-size: 13px; color: var(--ink-soft);
 }
-header.tei-header .brand {
-  font-family: 'Playfair Display', serif; font-weight: 700; font-size: 17px;
-  display: flex; align-items: center; gap: 10px; letter-spacing: 0.01em;
-  color: #fff; text-decoration: none;
-}
-header.tei-header .brand .mark {
-  width: 22px; height: 22px; border: 1.5px solid var(--gold); border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: var(--gold); font-family: 'Inter', sans-serif; font-weight: 600;
-}
-header.tei-header .crumb { font-size: 12.5px; color: #B8C4D9; display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; margin: 0 16px; }
-header.tei-header .crumb a { color: #B8C4D9; text-decoration: none; }
-header.tei-header .crumb a:hover { color: #fff; text-decoration: underline; }
-header.tei-header .crumb .sep { color: #5A6E8C; }
-header.tei-header .edu-exit {
-  margin-left: auto;
-  font-size: 12px;
-  color: #B8C4D9;
-  text-decoration: none;
-  white-space: nowrap;
-  padding-right: 16px;
-  border-right: 1px solid rgba(255,255,255,.15);
-}
-header.tei-header .edu-exit:hover { color: var(--gold); }
-header.tei-header .edu-signout {
-  font-size: 12px;
-  color: #B8C4D9;
-  text-decoration: none;
-  white-space: nowrap;
-}
-header.tei-header .edu-signout:hover { color: var(--gold); }
+header.tei-header:empty { display: none; }
+header.tei-header a { color: var(--navy-mid); text-decoration: none; }
+header.tei-header a:hover { text-decoration: underline; }
+header.tei-header .sep { color: var(--ink-soft); opacity: .6; }
+header.tei-header span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 560px) { header.tei-header { padding: 8px 16px; } }
 
 .layout { display: grid; grid-template-columns: 248px 1fr; max-width: 1180px; margin: 0 auto; }
 aside.tei-sidebar {
   padding: 32px 20px; border-right: 1px solid var(--cream-dark);
-  position: sticky; top: 58px; align-self: start;
-  height: calc(100vh - 58px); overflow-y: auto;
+  position: sticky; top: var(--hh-h, 64px); align-self: start;
+  height: calc(100vh - var(--hh-h, 64px)); overflow-y: auto;
 }
 aside .stage-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); font-weight: 600; margin-bottom: 14px; padding-left: 8px; }
 aside .mod { display: block; padding: 10px 8px; border-radius: 8px; font-size: 13.5px; margin-bottom: 2px; color: var(--navy-mid); text-decoration: none; }

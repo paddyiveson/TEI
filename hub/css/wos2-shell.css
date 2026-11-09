@@ -1,0 +1,79 @@
+/* TEI Launch v2: the Wealth OS shell and type (brief section 2).
+   Wealth OS only: this file loads on hub/wealth-os.html and is scoped to
+   #clientApp, so the adviser workspace, the rest of the Client Hub and the
+   public site keep Geist. Schibsted Grotesk for words, Inter (tabular) for
+   figures, Newsreader italic for the coach's notes only, Geist Mono only
+   on chart axes and the Cashflow tile eyebrows. */
+#clientApp{
+  --wo2-sans:"Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --wo2-figs:"Inter", ui-sans-serif, system-ui, sans-serif;
+  --wo2-read:"Newsreader", Georgia, "Times New Roman", serif;
+  --font-display:var(--wo2-sans); --font-body:var(--wo2-sans);
+  font-family:var(--wo2-sans);
+}
+#clientApp .hm, #clientApp .sidebar, #clientApp .m-tabs, #clientApp .wl-panel{ font-family:var(--wo2-sans); }
+/* Labels that used Geist Mono read as words now. */
+#clientApp .hm-date, #clientApp .hm-label, #clientApp .hm-asof, #clientApp .gl-when, #clientApp .gl-acct,
+#clientApp .gl-m-d, #clientApp .gl-ring-text small, #clientApp .hm-sn-stages li b{ font-family:var(--wo2-sans); }
+/* Figures: Inter with tabular figures. */
+#clientApp .hm-big, #clientApp .hm-num, #clientApp .num, #clientApp .fig, #clientApp .wl-upd-row input{ font-family:var(--wo2-figs); font-variant-numeric:tabular-nums; }
+
+/* The ground: one deep textured navy in dark (#070F1D), as the three pages. */
+[data-theme="dark"] #clientApp, #clientApp[data-theme="dark"]{ --w-bg:#070F1D; --w-side:#060D19; background:#070F1D; }
+[data-theme="dark"] #clientApp .sidebar, #clientApp[data-theme="dark"] .sidebar{ background:#060D19; border-right-color:rgba(190,208,236,.08); }
+[data-theme="dark"] #clientApp .m-tabs, #clientApp[data-theme="dark"] .m-tabs{ background:rgba(10,22,40,.94); border-top-color:rgba(190,208,236,.14); }
+
+/* Page titles (Paddy, 8 Nov): Home is the only Wealth OS page with a heading
+   title. Elsewhere the h1 stays for screen readers but is not shown. */
+#clientApp .page:not(#page-home) .hm-head .hm-title,
+#clientApp .page:not(#page-home) .hm-head .hm-date{ position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+#clientApp .page:not(#page-home) .hm-head:not(:has(button, a, select)){ display:none; }
+#clientApp .wl-sr{ position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* The three v2 pages bring their own padding and ground. */
+#clientApp .wo2{ position:relative; min-height:100vh; color:var(--fg); font-family:var(--wo2-sans); font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+#clientApp .wo2 [hidden], #clientApp .wl-panel[hidden], #clientApp .wl-scrim[hidden]{ display:none !important; }
+:where(#clientApp .wo2) .wrap{ max-width:none; margin:0; }
+/* The app's old section padding does not apply on these pages. */
+:where(#clientApp .wo2) section{ padding-top:0; padding-bottom:0; }
+/* Low specificity, so the page styles from the mock-ups win. */
+:where(#clientApp .wo2) :where(button){ font:inherit; color:inherit; background:none; border:0; cursor:pointer; text-align:inherit; padding:0; }
+:where(#clientApp .wo2) :where(input){ font:inherit; color:inherit; }
+#clientApp .wo2 button:focus-visible, #clientApp .wo2 a:focus-visible, #clientApp .wo2 input:focus-visible{ outline:2px solid var(--champ); outline-offset:2px; border-radius:8px; }
+#clientApp .wo2 h1, #clientApp .wo2 h2, #clientApp .wo2 h3{ font-family:var(--wo2-sans); }
+#clientApp .wo2 .foot{ margin:40px 0 0; padding-top:16px; border-top:1px solid var(--line); font-size:12.5px; color:var(--softer); }
+#clientApp .wo2 .letter blockquote, #clientApp .wo2 .coach blockquote{ font-family:var(--wo2-read); }
+#clientApp .wo2 .icb.spin svg{ animation:wlv_sp .7s linear; }
+.wo-hide-figs #clientApp .wo2 .fig{ filter:blur(7px); user-select:none; }
+
+/* Update balances: the debts section (brief 3.5). */
+.wl-upd-debts{ margin-top:18px; padding-top:14px; border-top:1px solid var(--w-line); }
+.wl-dbt{ margin-top:12px; padding:12px; border:1px solid var(--w-line); border-radius:12px; }
+.wl-dbt-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px 12px; }
+.wl-dbt-f{ display:flex; flex-direction:column; gap:4px; font-size:12.5px; color:var(--w-muted); min-width:0; }
+.wl-dbt-f input, .wl-dbt-f select{ box-sizing:border-box; width:100%; min-height:44px; padding:0 10px; border:1px solid var(--w-line); border-radius:10px; background:var(--w-bg); color:var(--w-text); font:inherit; font-size:16px; }
+.wl-dbt-acts{ display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:10px; }
+.wl-dbt-acts .wl-upd-state{ margin-right:auto; }
+.wl-dbt-del{ min-height:44px; padding:0 12px; border:0; background:none; color:var(--w-muted); font:inherit; font-size:13.5px; cursor:pointer; text-decoration:underline; text-underline-offset:3px; }
+.wl-dbt-addbtn{ margin-top:12px; min-height:44px; padding:0 16px; border:1px dashed var(--w-line); border-radius:999px; background:none; color:var(--w-text); font:inherit; font-size:14px; cursor:pointer; }
+
+/* Coach notes in the adviser workspace (D38): one small form per page. */
+.adv-notes{ display:grid; gap:14px; }
+.adv-note label{ display:flex; flex-direction:column; gap:6px; font-size:13px; }
+.adv-note textarea{ box-sizing:border-box; width:100%; min-height:96px; padding:10px 12px; border:1px solid var(--line, #D9D3C4); border-radius:10px; font:inherit; font-size:15px; resize:vertical; }
+.adv-note .adv-note-row{ display:flex; align-items:center; gap:12px; margin-top:6px; font-size:12.5px; opacity:.8; }
+
+/* Phone bottom sheets sit above the Wealth OS tab bar (80) and the feedback button (95).
+   The page root isolates its grain, so the whole root lifts while a sheet is open. */
+@media (max-width:860px){
+  #clientApp .wo2.sheet-open{ z-index:121; }
+}
+
+/* Update balances: dividends (migration 021). */
+.wl-div-n{ margin:0 0 8px; font-size:14px; color:var(--w-text); }
+.wl-months{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:6px; }
+.wl-months button{ min-height:44px; border:1px solid var(--w-line); border-radius:10px; background:none; color:var(--w-muted); font:inherit; font-size:13px; cursor:pointer; }
+.wl-months button[aria-pressed="true"]{ background:var(--w-nav-active); border-color:var(--w-nav-active); color:var(--w-nav-active-text); }
+.wl-pays{ list-style:none; margin:10px 0 0; padding:0; }
+.wl-pays li{ display:grid; grid-template-columns:minmax(0,1fr) auto auto; gap:10px; align-items:center; padding:6px 0; border-top:1px solid var(--w-line); font-size:14px; }
+.wl-pays li small{ display:block; font-size:12px; color:var(--w-muted); }

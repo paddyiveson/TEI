@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoFi Technologies (SOFI) – TEI Top Ideas Investment Note</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue:#0094F5;
+    --blue-dark:#003A8C;
+    --blue-mid:#005FD8;
+    --blue-light:#3DB8FF;
+    --blue-dim:#E8F4FF;
+    --tei-navy:#2B4170;
+    --ink:#0A0A14;
+    --ink-mid:#2D3748;
+    --ink-light:#64748B;
+    --paper:#F4F8FF;
+    --white:#FFFFFF;
+    --rule:#DDEEFF;
+    --gold:#B8860B;
+    --gold-dim:#FEF3C7;
+    --risk:#991B1B;
+    --risk-dim:#FEE2E2;
+    --success:#166534;
+    --success-dim:#DCFCE7;
+    --col:720px;
+  }
+  body{font-family:'Inter',sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.75;margin:0;padding:0}
+  .page{max-width:var(--col);margin:0 auto;padding:0 24px}
+
+  
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,var(--blue-dark) 0%,#001A5E 100%);padding:0;position:relative;overflow:hidden}
+  .hero-accent-bar{height:4px;background:linear-gradient(90deg,var(--blue) 0%,var(--blue-light) 60%,transparent 100%)}
+  .hero::before{content:'';position:absolute;top:-80px;right:-60px;width:400px;height:400px;border-radius:50%;background:rgba(0,148,245,.12);pointer-events:none}
+  .hero::after{content:'';position:absolute;bottom:-40px;left:0;width:300px;height:300px;border-radius:50%;background:rgba(61,184,255,.05);pointer-events:none}
+  .hero-content{padding:44px 40px 48px;position:relative}
+  .hero-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+  .hero-badge-col{display:flex;flex-direction:column;gap:8px}
+  .fund-label{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;background:rgba(0,148,245,.2);color:#7ED5FF;padding:4px 12px;border-radius:3px;border:1px solid rgba(0,148,245,.35)}
+  .hero-date{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+  .hero-mktcap{text-align:right}
+  .hero-mktcap-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:3px}
+  .hero-mktcap-value{font-family:'DM Serif Display',serif;font-size:28px;color:white;line-height:1}
+  .hero-mktcap-sub{font-size:11px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;margin-top:2px}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:42px;line-height:1.08;letter-spacing:-.02em;color:#fff;margin-bottom:10px}
+  .hero h1 em{font-style:italic;color:#7ED5FF}
+  .hero-sub{font-size:15px;color:rgba(255,255,255,.55);max-width:540px;line-height:1.65}
+  .hero-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:rgba(0,148,245,.15);color:#7ED5FF;border:1px solid rgba(0,148,245,.3);padding:3px 10px;border-radius:3px;margin-top:14px;margin-right:6px}
+
+  /* DISCONNECT BANNER */
+  .disconnect-banner{background:linear-gradient(90deg,#0AADFF 0%,#0085D4 100%);padding:14px 40px;display:flex;align-items:center;gap:20px}
+  .db-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7);min-width:80px}
+  .db-val{font-family:'DM Serif Display',serif;font-size:22px;color:white}
+  .db-note{font-size:13px;color:rgba(255,255,255,.85);line-height:1.4}
+  .db-sep{width:1px;height:30px;background:rgba(255,255,255,.3)}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border-bottom:1px solid var(--rule)}
+  .stat{background:var(--white);padding:18px 16px}
+  .stat-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px}
+  .stat-value{font-family:'DM Serif Display',serif;font-size:21px;color:var(--ink);line-height:1.15}
+  .stat-value.b{color:var(--blue)} .stat-value.g{color:var(--success)} .stat-value.r{color:var(--risk)} .stat-value.gold{color:var(--gold)}
+
+  /* BODY */
+  section{margin-bottom:52px}
+  h2{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ink);margin-bottom:16px;padding-bottom:12px;border-bottom:1.5px solid var(--rule)}
+  h3{font-weight:600;font-size:14.5px;color:var(--ink);margin-top:28px;margin-bottom:8px}
+  p{color:var(--ink-mid);margin-bottom:14px} p:last-child{margin-bottom:0}
+  strong{color:var(--ink);font-weight:600}
+
+  /* TAGS */
+  .tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:3px;margin-right:6px;margin-bottom:7px}
+  .tag.b{background:var(--blue-dim);color:var(--blue-mid)}
+  .tag.r{background:var(--risk-dim);color:var(--risk)}
+  .tag.gold{background:var(--gold-dim);color:var(--gold)}
+  .tag.g{background:var(--success-dim);color:var(--success)}
+
+  /* CALLOUT */
+  .box{border-left:3px solid var(--blue);background:var(--blue-dim);padding:16px 20px;border-radius:0 6px 6px 0;margin:22px 0}
+  .box p{color:var(--ink-mid);margin:0}
+  .box.risk{border-color:var(--risk);background:var(--risk-dim)}
+  .box.g{border-color:var(--success);background:var(--success-dim)}
+  .box.gold{border-color:var(--gold);background:var(--gold-dim)}
+
+  /* EXPLAINER */
+  .explainer{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:24px;margin:20px 0}
+  .explainer-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .explainer-label::before{content:'';display:inline-block;width:20px;height:2px;background:var(--blue);border-radius:2px}
+  .explainer h4{font-family:'DM Serif Display',serif;font-size:19px;color:var(--ink);margin-bottom:10px;font-weight:400}
+  .explainer p{color:var(--ink-mid);font-size:14.5px}
+  .analogy{background:var(--blue-dim);border-radius:6px;padding:12px 16px;margin-top:12px;font-size:13.5px;color:var(--ink-mid);font-style:italic}
+  .analogy strong{color:var(--blue-mid);font-style:normal}
+
+  /* THREE SEGMENTS - INTERACTIVE */
+  .segment-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:24px 0}
+  .segment{background:var(--white);border:1.5px solid var(--rule);border-radius:10px;padding:20px 18px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s;user-select:none}
+  .segment:hover{border-color:var(--blue-light);background:var(--blue-dim)}
+  .segment.active{border-color:var(--blue);border-width:2px;background:var(--blue-dim);box-shadow:0 0 0 2px rgba(0,148,245,.15)}
+  .segment-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+  .segment-icon{font-size:26px;margin-bottom:8px;display:block}
+  .segment-title{font-family:'DM Serif Display',serif;font-size:17px;color:var(--ink);margin-bottom:6px;font-weight:400}
+  .segment-desc{font-size:12px;color:var(--ink-mid);line-height:1.55}
+  .segment-stat{margin-top:12px;padding-top:12px;border-top:1px solid var(--rule)}
+  .segment-stat-val{font-family:'DM Serif Display',serif;font-size:20px;color:var(--blue)}
+  .segment-stat-label{font-size:10px;color:var(--ink-light);font-family:'JetBrains Mono',monospace;letter-spacing:.05em}
+  .segment-hint{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue-light);margin-top:8px}
+  /* SEGMENT DETAIL PANEL */
+  .seg-detail{background:var(--blue-dark);border-radius:10px;padding:28px;margin-bottom:24px;display:none}
+  .seg-detail.visible{display:block}
+  .seg-detail-eyebrow{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:6px}
+  .seg-detail-title{font-family:'DM Serif Display',serif;font-size:22px;color:white;margin-bottom:12px}
+  .seg-detail-body{font-size:13.5px;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:20px}
+  .seg-detail-body strong{color:white}
+  .seg-products{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+  .seg-product-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:4px;font-size:12px;color:rgba(255,255,255,.75);padding:4px 11px;font-weight:500}
+  .seg-product-chip.new{border-color:rgba(0,148,245,.5);color:#7ED5FF;background:rgba(0,148,245,.15)}
+  .seg-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.08);border-radius:8px;overflow:hidden}
+  .seg-metric{padding:14px 14px;background:rgba(0,0,0,.2)}
+  .seg-metric-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:4px}
+  .seg-metric-val{font-family:'DM Serif Display',serif;font-size:20px;color:#7ED5FF}
+
+  /* FLYWHEEL */
+  .fspl{background:var(--blue-dark);border-radius:10px;padding:28px;margin:20px 0;position:relative;overflow:hidden}
+  .fspl::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(0,148,245,.1)}
+  .fspl-title{font-family:'DM Serif Display',serif;font-size:20px;color:white;margin-bottom:6px}
+  .fspl-sub{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:20px}
+  .fspl-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;position:relative}
+  .fspl-step{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:14px 12px;text-align:center}
+  .fspl-step-num{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.3);margin-bottom:6px;letter-spacing:.08em}
+  .fspl-step-icon{font-size:20px;margin-bottom:6px}
+  .fspl-step-name{font-weight:700;font-size:12px;color:white;margin-bottom:4px}
+  .fspl-step-desc{font-size:11px;color:rgba(255,255,255,.5);line-height:1.5}
+
+  /* PROFITABILITY TIMELINE */
+  .profit-track{background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:20px 0}
+  .profit-header{background:var(--blue);padding:14px 22px;display:flex;align-items:center;justify-content:space-between}
+  .profit-header h4{color:white;font-family:'DM Serif Display',serif;font-size:17px;font-weight:400;margin:0}
+  .profit-header span{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:rgba(255,255,255,.5);letter-spacing:.08em;text-transform:uppercase}
+  .profit-rows{padding:0}
+  .profit-row{display:grid;grid-template-columns:80px 1fr 100px;align-items:center;gap:16px;padding:11px 22px;border-bottom:1px solid var(--rule)}
+  .profit-row:last-child{border-bottom:none}
+  .profit-row.milestone{background:var(--success-dim)}
+  .profit-qtr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-light)}
+  .profit-bar-wrap{height:20px;background:var(--rule);border-radius:4px;overflow:hidden}
+  .profit-bar-fill{height:100%;border-radius:4px;background:var(--blue);display:flex;align-items:center;padding-left:8px}
+  .profit-bar-label{font-size:11px;color:white;font-weight:600}
+  .profit-net{font-family:'DM Serif Display',serif;font-size:16px;color:var(--success);text-align:right}
+
+  /* REVENUE BAR */
+  .bar-wrap{margin:20px 0}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .bar-yr{min-width:48px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-light)}
+  .bar-track{flex:1;height:24px;background:var(--rule);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:10px}
+  .bar-fill.actual{background:var(--blue-dark)}
+  .bar-fill.proj{background:var(--blue);opacity:.8}
+  .bar-fill.target{background:var(--blue-light);opacity:.9}
+  .bar-label{font-size:12px;color:white;font-weight:600;white-space:nowrap}
+
+  /* KPI GRID */
+  .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:20px 0}
+  .kpi-card{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:18px 16px}
+  .kpi-card-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px}
+  .kpi-card-value{font-family:'DM Serif Display',serif;font-size:24px;color:var(--blue);line-height:1.15}
+  .kpi-card-change{font-size:12px;color:var(--success);margin-top:2px;font-weight:600}
+  .kpi-card-note{font-size:11px;color:var(--ink-light);margin-top:3px}
+
+  /* COMPARE */
+  .compare{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px}
+  .compare th{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-light);text-align:left;padding:10px 14px;border-bottom:2px solid var(--rule)}
+  .compare th:not(:first-child){text-align:center}
+  .compare td{padding:12px 14px;border-bottom:1px solid var(--rule);color:var(--ink-mid);vertical-align:top}
+  .compare td:not(:first-child){text-align:center}
+  .compare tr:last-child td{border-bottom:none}
+  .compare .metric{font-weight:600;color:var(--ink);font-size:13px}
+  .compare tr.sofi-row td{background:var(--blue-dim)}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  .dot.g{background:var(--success)} .dot.r{background:var(--risk)} .dot.y{background:#d97706} .dot.b{background:var(--blue)}
+
+  /* CATALYST */
+  .catalyst-row{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--rule)}
+  .catalyst-row:last-child{border-bottom:none}
+  .cat-dot{width:10px;height:10px;border-radius:50%;background:var(--blue);margin-top:6px;flex-shrink:0}
+  .cat-dot.done{background:var(--success)}
+  .cat-dot.risk{background:var(--risk)}
+  .cat-text{font-size:13.5px;color:var(--ink-mid)}
+  .cat-text strong{color:var(--ink)}
+
+  /* VERDICT */
+  .verdict{background:var(--blue-dark);border-radius:8px;padding:32px 36px;margin-top:48px;position:relative;overflow:hidden}
+  .verdict::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-light),transparent)}
+  .verdict h3{font-family:'DM Serif Display',serif;font-size:22px;color:#fff;margin:0 0 18px;font-weight:400}
+  .verdict p{color:rgba(255,255,255,.55);margin-bottom:12px}
+  .verdict p:last-child{margin-bottom:0}
+  .verdict strong{color:#7ED5FF}
+
+  /* TEI FOOTER */
+  .tei-footer{background:var(--tei-navy);margin-top:52px;padding:18px 40px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .tei-footer-logo{display:flex;align-items:center;gap:10px;opacity:.8}
+  .tei-footer-logo img{height:44px;width:auto}
+  .tei-footer-divider{width:1px;height:28px;background:rgba(255,255,255,.15)}
+  .tei-footer-text{font-size:11px;color:rgba(255,255,255,.4);line-height:1.6;flex:1}
+  .tei-footer-text strong{color:rgba(255,255,255,.6);font-weight:600}
+
+  @media(max-width:640px){
+    .hero-content{padding:36px 20px}
+    .hero h1{font-size:28px}
+    .hero-top{flex-direction:column;gap:14px}
+    .disconnect-banner{flex-wrap:wrap;padding:12px 20px}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .segment-grid{grid-template-columns:1fr}
+    .seg-metrics{grid-template-columns:repeat(2,1fr)}
+    .fspl-steps{grid-template-columns:repeat(2,1fr)}
+    .kpi-grid{grid-template-columns:1fr 1fr}
+    .compare td,.compare th{padding:8px;font-size:12px}
+    .tei-footer{flex-direction:column;text-align:center;padding:20px}
+  }
+  /* TEI HERO WATERMARK */
+  .hero-tei-logo{height:34px;width:auto;opacity:.55;display:block;margin-bottom:16px}
+
+  /* TEI BRAND MARK */
+  .tei-brand-mark{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+  .tei-brand-mark img{height:26px;width:auto;mix-blend-mode:screen;opacity:0.65;}
+  .tei-brand-mark-text{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.9);}
+</style>
+</head>
+<body>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-accent-bar"></div>
+  <div class="hero-content">
+    <div class="tei-brand-mark">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAFACAYAAABEGxgbAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nOzdd3hT5dsH8O85Sbp3S+lmlVEoyC6jgMiUqSJDQQS3uP2JC9EXF24ciDgAFVGmyt4go1C2jDJKgQJtaemgeybnvH8AQpuTNm0zmvT7uS644MnJyZ2cjOd+poCaGD1aFXwRXUVJ1ReC3AlAKwCBANwAaGp0TiIiIiIiqouKAeQAuCQARyFglw6la5P3/5VZk5MJ1Tk4qMu4UBHSMwKECQCCa/KARERERERk83SQsVpSyV8n71u6vTp3NCoBCegwuoFaLb4vAJMAONQkQiIiIiIisj8y5G0y5P8lH1j2rzHHV5mAhHQd96Agy98A8Kl1dEREREREZI+0giB80EDn8cGhQz+UVXagwQSkU6cnNOlizhwZeMz08RERERERkR36RyeJo1MO/ZFh6ADFBCSo03AXleiyHMDdZguNiIiIiIjsj4AEnU7ql3Jo2SWlm8WKBZ06PaFh8kFERERERDUiI1wlijuCuowLVbpZLwFJF3PmgMkHERERERHVXGMV5LXhUeM9Kt5QLgEJ6TJ2POd8EBERERGRCbQtkcp+rliouvmPgA6jG6hEYS0AZ0tGRURERERE9kqI8Axpk5abHHfwZsl/PSBqtfg+uNQuERERERGZkix83KjThMCb/xWB6zuc39hkkIiIiIiIyJQ8JFE78+Z/xOt/Sc+AO5wTEREREZFZyBNCoh5sDgAiRo9WCRAmWDskIiIiIiKyWypB0r4AAEJw19HdRVncY+2IiIiIiIjIrl1TuToHiaKk6mvtSIiIiIiIyO55a/OL+ooQ5E7WjoSIiIiIiOyfIGCgCKCltQMhIiIiIqL6QOggAgis8jgiIiIiIqJak1qIANysHQYREREREdUHgo8I7v9BRERERESW4ShaOwIiIiIiIqo/mIAQEREREZHFMAEhIiIiIiKLYQJCREREREQWwwSEiIiIiIgshgkIERERERFZDBMQIiIiIiKyGCYgRERERERkMUxAiIiIiIjIYpiAEBERERGRxTABISIiIiIii2ECQkREREREFsMEhIiIiIiILIYJCBERERERWQwTECIiIiIishgmIEREREREZDFMQIiIiIiIyGKYgBARERERkcUwASEiIiIiIothAkJERERE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QkREREREkmEAISIiIiIiyTCAEBERERGRZBhAiIiIiIhIMgwgREREREQkGQYQIiIiIiKSDAMIERERERFJhgGEiIiIiIgkwwBCRERERESSYQAhIiIiIiLJMIAQEREREZFkGECIiIiIiEgyDCBERERERCQZBhAiIiIiIpIMAwgREREREUmGAYSIiIiIiCTDAEJERERERJJhACEiIiIiIskwgBARERERkWQUANRyF0FERERERDZBrQBQJ3cVRERERERkExoUAHLlroKIiIiIiGxCmUKEeFzuKoiIiIiIyPqJgnhGoRQUu+QuhIiIiIiIrJ8CijSFVqlNAseBEBERERGRmYmimKQoPryhBcC3chdDRERERERW7ULR0fB0BQCICuUqAFqZCyIiIiIiIqslrAH+rVMAQHHqt2chYo3cJRERERERkVVSiyrt+8DVK6FrhacA1MtVERERERERWSkBnxYf3lACXBVAio5/Vwrgn7IVRURERERE1qhKVOqeu/I/yqu31JeeTncPiIoFECZ5WUREREREZHUEAcuLUtenX/l/RaftooOgugtAhrRlERERERGR9RHfv3Bk3YarWzoHEOSlrqnXQlgA4LxUZRERERERkXURga1FLpWPdG7XCyAAUHr0uyKtTjcDAvLMXxoREREREVkTEdiq0zUvw759ms7bDAYQAChN33BBh7aJAPaZszgiIiIiIrIm4vvFLhU3laZvaTa0VWmo8YqGkpyW+tDBa9zaXHSCIExFN4GFiIiIiIhsWpUgYHnR0fVv4vx5XVc7CcYezX/CshhBxFsCMNs09RERERERkRVQQ8CnolL3XPHhDTU97Wx0ALnCP3HpNQodHgSERQBUfSqRiIiIiIgsXREgrBZV2vevLDJojF4HkCsCJt3qBY0wHxCmCRBiAV0gIHgCcOzrMYmIiIiIaMBpA9AIEcWiQsxVQJEmimJS0dHwdODfXT5q1ZX/D6hlpEWg9XdgAAAAAElFTkSuQmCC" alt="The Everyday Investor">
+      <span class="tei-brand-mark-text">The Everyday Investor &nbsp;&#183;&nbsp; Financial Coaching & Education</span>
+    </div>
+
+    <div class="hero-top">
+      <div class="hero-badge-col">
+        <span class="fund-label">TEI Top Ideas - Digital Banking</span>
+        <span class="hero-date">Investment Note &middot; July 2026</span>
+      </div>
+      <div class="hero-mktcap">
+        <p class="hero-mktcap-label">Current Market Cap</p>
+        <p class="hero-mktcap-value">~$22B</p>
+        <p class="hero-mktcap-sub">NASDAQ: SOFI &middot; ~$17&ndash;18</p>
+      </div>
+    </div>
+    <h1>SoFi Technologies:<br><em>The Bank Built</em><br>for Your Phone</h1>
+    <p class="hero-sub">One app. One login. Your entire financial life - borrowing, saving, spending, investing, and protection all in one place. SoFi is a fully licensed US bank that has delivered 10 consecutive quarters of profit, is growing revenue at 41% per year, added over a million new members last quarter, and trades 40% below where it was six months ago. The fundamentals and the stock price are pointing in opposite directions.</p>
+    <div>
+      <span class="hero-tag">&#x1F3E6; National Bank Charter</span>
+      <span class="hero-tag">&#x1F4C8; 10 Consec. GAAP Profits</span>
+      <span class="hero-tag">&#x1F91D; 14.7M Members</span>
+      <span class="hero-tag">&#x1F9E0; Galileo B2B Platform</span>
+    </div>
+  </div>
+</div>
+
+<!-- DISCONNECT BANNER -->
+<div class="disconnect-banner">
+  <div class="db-label">52-wk High</div>
+  <div class="db-val">$32.73</div>
+  <div class="db-sep"></div>
+  <div class="db-label">Current</div>
+  <div class="db-val">~$17.50</div>
+  <div class="db-sep"></div>
+  <div class="db-note"><strong>Down ~47% from peak</strong> - yet Q1 2026 was the best quarter in company history. Net income up 134%. Revenue up 41%. More members added than ever before. The fundamentals have never been stronger.</div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><p class="stat-label">Q1 2026 Revenue</p><p class="stat-value b">$1.1B</p></div>
+  <div class="stat"><p class="stat-label">Revenue Growth YoY</p><p class="stat-value g">+41%</p></div>
+  <div class="stat"><p class="stat-label">Q1 Net Income</p><p class="stat-value g">$167M (+134%)</p></div>
+  <div class="stat"><p class="stat-label">Total Members</p><p class="stat-value b">14.7M (+35%)</p></div>
+  <div class="stat"><p class="stat-label">Total Deposits</p><p class="stat-value b">$40.2B</p></div>
+  <div class="stat"><p class="stat-label">Loan Originations Q1</p><p class="stat-value b">$12.2B (+68%)</p></div>
+  <div class="stat"><p class="stat-label">2026 Revenue Guidance</p><p class="stat-value b">$4.655B</p></div>
+  <div class="stat"><p class="stat-label">2026 Net Income Guide</p><p class="stat-value g">$825M (+72%)</p></div>
+  <div class="stat"><p class="stat-label">Avg Analyst Target</p><p class="stat-value gold">$20.90 (+20%)</p></div>
+</div>
+
+<div class="page" style="padding-top:52px;">
+
+<!-- START HERE -->
+<section>
+  <h2>Start Here: What Is SoFi and Why Does It Exist?</h2>
+
+  <p>SoFi Technologies started life in 2011 as a student loan refinancing company. The name stood for &ldquo;Social Finance.&rdquo; Fourteen years later it is something considerably more ambitious: a fully licensed national bank, a B2B financial infrastructure business, a crypto exchange, an investing platform, a credit card provider, and an insurance marketplace - all accessible through a single app on your phone, with one login and one unified view of your financial life.</p>
+
+  <p>The company is headquartered in San Francisco and led by CEO <strong>Anthony Noto</strong>, a former Goldman Sachs banker, NFL CFO, and Twitter COO who joined in 2018 and has driven the transformation from niche lender to full-service digital bank. In 2022, SoFi obtained a <strong>national bank charter</strong> from the US Office of the Comptroller of the Currency - a milestone that changed the economics of the business fundamentally, in ways that most investors still underappreciate.</p>
+
+  <div class="explainer">
+    <p class="explainer-label">The Problem</p>
+    <h4>Why Is Managing Your Money Still So Complicated?</h4>
+    <p>Think about what it takes to manage your finances today. You probably have a current account at a high street bank. A savings account somewhere else (because they offer a better rate). A stocks and shares ISA or investment account at a third provider. Your mortgage or personal loan at a fourth. Your credit card at a fifth. Insurance through a broker. A pension through your employer&apos;s chosen provider. Each has a separate app. Each has a separate login. None of them talk to each other. You can&apos;t see your full financial picture in one place. Moving money between them takes time and incurs fees. And your high street bank charges you little-to-nothing for holding your money, while offering you products that are rarely the best value available.</p>
+    <p>This fragmentation is not an accident - it is how the traditional banking industry was built, in an era before smartphones, before cloud computing, and before open banking. SoFi was built from scratch in the opposite direction: <strong>start with the app and build the bank around it</strong>, rather than take a legacy institution and try to retrofit a digital interface onto decades of old infrastructure.</p>
+    <div class="analogy">
+      <strong>Think of it this way:</strong> Traditional banking is like a high street with ten specialist shops - a money lender, a savings bank, a stockbroker, an insurance agent, a foreign exchange counter - each on a different street, each requiring a separate visit and membership card. SoFi is the supermarket that puts all of them under one roof, with a loyalty card that rewards you for spending across departments, and a staff who can see your entire shopping history to give you relevant offers.
+    </div>
+  </div>
+
+  <div class="explainer">
+    <p class="explainer-label">The Bank Charter</p>
+    <h4>Why Having a Banking Licence Changes Everything</h4>
+    <p>This is the detail that separates SoFi from every other fintech app - and it&apos;s the one most people gloss over. Before January 2022, SoFi was a fintech company that had to borrow money at relatively high rates from other banks and the capital markets to fund the loans it made. This was expensive and limited its margins.</p>
+    <p>With a <strong>national bank charter</strong>, SoFi became SoFi Bank, N.A. - a fully regulated US bank, supervised by the OCC and the Federal Reserve. This gave it the legal right to take deposits directly from customers and use those deposits to fund its lending at a dramatically lower cost. Instead of borrowing at 5-6%, SoFi can fund its loans with deposits paying 1-4% - a structural cost advantage that compounds with every new member who opens a savings account.</p>
+    <p>Today, SoFi holds <strong>$40.2 billion in customer deposits</strong>, which fund over <strong>90% of its lending liabilities</strong>. The net interest margin - the profit from lending at a higher rate than it pays depositors - is approximately 5.72%. This is the engine that turned SoFi from a loss-making fintech into a consistently profitable bank.</p>
+    <div class="analogy">
+      <strong>Think of it this way:</strong> Before the bank charter, SoFi was like a pub that had to buy all its beer from a middleman at full retail price, then sell it to customers at a small markup. After the charter, it got a brewery licence. Now it makes its own beer at cost price and keeps the full margin. The product is the same. The economics are completely different.
+    </div>
+  </div>
+
+  <div class="explainer">
+    <p class="explainer-label">The Strategy</p>
+    <h4>The Financial Services Productivity Loop: SoFi&apos;s Growth Engine</h4>
+    <p>SoFi&apos;s growth strategy is built around a concept management calls the <strong>Financial Services Productivity Loop (FSPL)</strong>. The logic is simple: attract a member with one product, then cross-sell additional products over time, increasing both the revenue per member and the member&apos;s loyalty to the platform.</p>
+    <p>Typically, a new SoFi member joins for either a <strong>high-yield savings account</strong> (currently offering market-leading rates) or a <strong>personal loan</strong> (for debt consolidation or a large purchase). Once they are in the app, they see the full product suite: investing, credit card, mortgage, student loan refinancing, insurance, crypto, personal finance management. The more products a member uses, the more data SoFi has on them, the better it can underwrite credit for them, and the lower the risk of default. More products also means more interchange revenue, more interest income, and more fee revenue from a single acquisition cost.</p>
+    <p>In Q1 2026, SoFi reported a <strong>cross-buy rate of 43%</strong> - meaning 43% of members who joined for one product had bought at least one other product. Super-scaled customers (those using three or more products) have materially lower churn, lower credit risk, and higher lifetime value than single-product members. The flywheel compounds with every new member added.</p>
+  </div>
+</section>
+
+<!-- THREE SEGMENTS -->
+<section>
+  <h2>The Three Business Segments</h2>
+  <p>SoFi reports in three distinct segments. Understanding each is important because they have different growth rates, margin profiles, and strategic value - and collectively they describe a business that is more diversified, and more durable, than most people realise.</p>
+
+  <div class="segment-grid">
+    <div class="segment active" id="seg-lending" onclick="showSegment('lending')">
+      <p class="segment-num">Segment 01</p>
+      <span class="segment-icon">&#x1F4B0;</span>
+      <p class="segment-title">Lending</p>
+      <p class="segment-desc">Personal loans, student loans, home loans. Original business, still the largest revenue contributor - funded by the $40.2B deposit base.</p>
+      <div class="segment-stat">
+        <p class="segment-stat-val">$12.2B</p>
+        <p class="segment-stat-label">Q1 2026 originations (+68% YoY)</p>
+      </div>
+      <p class="segment-hint">&#x25BC; Click to explore</p>
+    </div>
+    <div class="segment" id="seg-financial" onclick="showSegment('financial')">
+      <p class="segment-num">Segment 02 - Growth Engine</p>
+      <span class="segment-icon">&#x1F4F1;</span>
+      <p class="segment-title">Financial Services</p>
+      <p class="segment-desc">SoFi Money, Invest, Credit Card, Crypto, Insurance, SoFiUSD. The fastest-growing segment with the most long-term margin potential.</p>
+      <div class="segment-stat">
+        <p class="segment-stat-val">$429M</p>
+        <p class="segment-stat-label">Q1 2026 revenue (+41% YoY)</p>
+      </div>
+      <p class="segment-hint">&#x25BC; Click to explore</p>
+    </div>
+    <div class="segment" id="seg-tech" onclick="showSegment('tech')">
+      <p class="segment-num">Segment 03</p>
+      <span class="segment-icon">&#x2699;&#xFE0F;</span>
+      <p class="segment-title">Technology Platform</p>
+      <p class="segment-desc">Galileo (payment APIs) + Technisys (cloud core banking). B2B infrastructure powering 120M+ accounts. The &ldquo;AWS of fintech&rdquo; vision.</p>
+      <div class="segment-stat">
+        <p class="segment-stat-val">$122M</p>
+        <p class="segment-stat-label">Q4 2025 revenue - recovering</p>
+      </div>
+      <p class="segment-hint">&#x25BC; Click to explore</p>
+    </div>
+  </div>
+
+  <!-- SEGMENT DETAIL PANEL -->
+  <div class="seg-detail visible" id="seg-detail-lending">
+    <p class="seg-detail-eyebrow">&#x1F4B0;&nbsp; Segment 01 - Lending</p>
+    <p class="seg-detail-title">Personal Loans &bull; Student Loans &bull; Home Loans &bull; Home Equity</p>
+    <p class="seg-detail-body">SoFi&apos;s original business and still the largest revenue engine by volume. What transformed the lending economics entirely was the <strong>2022 bank charter</strong>: SoFi can now fund loans using its $40.2B deposit base instead of expensive wholesale borrowing. This cuts the cost of funding by 100-200 basis points, widening net interest margins to approximately <strong>5.72%</strong>. No non-bank fintech competitor can replicate this structural cost advantage without obtaining their own charter. Loan originations hit a <strong>record $12.2B in Q1 2026</strong>, up 68% year-on-year, with personal loans ($8.8B) the dominant product. The student loan market returned to full activity after the US government&apos;s pandemic-era repayment pause ended, providing a significant tailwind to refinancing volumes.</p>
+    <div class="seg-products">
+      <span class="seg-product-chip">Personal Loans</span>
+      <span class="seg-product-chip">Student Loan Refinancing</span>
+      <span class="seg-product-chip">Home Loans (Mortgage)</span>
+      <span class="seg-product-chip new">Home Equity Line of Credit</span>
+      <span class="seg-product-chip new">Small Business Loans (Jun 2026)</span>
+    </div>
+    <div class="seg-metrics">
+      <div class="seg-metric"><p class="seg-metric-label">Q1 Originations</p><p class="seg-metric-val">$12.2B</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">YoY Growth</p><p class="seg-metric-val">+68%</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">Deposit Funding</p><p class="seg-metric-val">&gt;90%</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">Net Interest Margin</p><p class="seg-metric-val">5.72%</p></div>
+    </div>
+  </div>
+
+  <div class="seg-detail" id="seg-detail-financial">
+    <p class="seg-detail-eyebrow">&#x1F4F1;&nbsp; Segment 02 - Financial Services</p>
+    <p class="seg-detail-title">Banking &bull; Investing &bull; Credit Cards &bull; Crypto &bull; Insurance &bull; SoFiUSD</p>
+    <p class="seg-detail-body">The fastest-growing segment and the clearest expression of the &ldquo;everything app&rdquo; vision. Financial Services revenue grew <strong>41% year-on-year to $429M in Q1 2026</strong> with a <strong>46% contribution margin</strong> - and critically, it is predominantly fee-based rather than interest-rate-dependent. This means it is structurally more resilient to interest rate cycles than the Lending segment. Annualised spend across SoFi Money and Credit Card reached <strong>nearly $25 billion</strong>, generating interchange revenue up 54% YoY. Brokerage revenue more than doubled. The newest product - <strong>SoFiUSD</strong>, a US dollar-backed stablecoin issued by SoFi Bank N.A. offering 4.2% yield - positions SoFi as the first major chartered US bank to bridge traditional banking and digital assets natively within one app. Forbes named SoFi the <strong>#1 US Bank in 2026</strong>. J.D. Power ranked it <strong>#1 for DIY investing</strong>.</p>
+    <div class="seg-products">
+      <span class="seg-product-chip">SoFi Money (Checking & Savings)</span>
+      <span class="seg-product-chip">SoFi Invest (Stocks, ETFs)</span>
+      <span class="seg-product-chip">SoFi Credit Card</span>
+      <span class="seg-product-chip">SoFi Crypto</span>
+      <span class="seg-product-chip">SoFi Insurance</span>
+      <span class="seg-product-chip">SoFi Relay (PFM)</span>
+      <span class="seg-product-chip new">SoFiUSD Stablecoin (4.2% yield)</span>
+      <span class="seg-product-chip new">AI Investing Platform (Jun 2026)</span>
+      <span class="seg-product-chip new">Retail IPO Access (SpaceX etc.)</span>
+    </div>
+    <div class="seg-metrics">
+      <div class="seg-metric"><p class="seg-metric-label">Q1 2026 Revenue</p><p class="seg-metric-val">$429M</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">YoY Growth</p><p class="seg-metric-val">+41%</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">Contribution Margin</p><p class="seg-metric-val">46%</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">Annual Card Spend</p><p class="seg-metric-val">~$25B</p></div>
+    </div>
+  </div>
+
+  <div class="seg-detail" id="seg-detail-tech">
+    <p class="seg-detail-eyebrow">&#x2699;&#xFE0F;&nbsp; Segment 03 - Technology Platform</p>
+    <p class="seg-detail-title">Galileo APIs &bull; Technisys Core Banking &bull; The &ldquo;AWS of Fintech&rdquo;</p>
+    <p class="seg-detail-body">The most strategically important segment long-term - and currently the most troubled. <strong>Galileo</strong> is a payment-processing and card-issuing API platform that other fintechs and banks plug into to power their own products. Robinhood, Revolut, and hundreds of other financial apps run on Galileo infrastructure. <strong>Technisys</strong> is a cloud-native core banking platform serving traditional banks and fintechs in the US and Latin America. Together they power over <strong>120 million enabled accounts</strong> across the Americas. The vision: become the back-end infrastructure layer for the entire fintech industry - the Amazon Web Services of financial technology. The challenge: <strong>Chime migrated off Galileo</strong> in 2025 to build its own core banking stack, causing a 23% year-on-year decline in enabled accounts in Q4 2025 - a significant blow to the B2B thesis. Management has confirmed sequential recovery is underway, with Q1 2026 showing improvement. Galileo&apos;s long-term target: a <strong>$1 billion annual revenue engine</strong>, at the highest margins of any SoFi segment.</p>
+    <div class="seg-products">
+      <span class="seg-product-chip">Galileo Payment APIs</span>
+      <span class="seg-product-chip">Card Issuing Infrastructure</span>
+      <span class="seg-product-chip">Technisys Core Banking SaaS</span>
+      <span class="seg-product-chip">Account & Ledger Management</span>
+      <span class="seg-product-chip">API-first B2B Banking-as-a-Service</span>
+    </div>
+    <div class="seg-metrics">
+      <div class="seg-metric"><p class="seg-metric-label">Enabled Accounts</p><p class="seg-metric-val">120M+</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">Q4 2025 Revenue</p><p class="seg-metric-val">$122M</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">Account Growth Q4</p><p class="seg-metric-val" style="color:#FF9999;">-23% YoY</p></div>
+      <div class="seg-metric"><p class="seg-metric-label">Long-term Target</p><p class="seg-metric-val">$1B</p></div>
+    </div>
+  </div>
+
+  <div class="fspl">
+    <p class="fspl-title">The Financial Services Productivity Loop</p>
+    <p class="fspl-sub">SoFi&apos;s Self-Compounding Member Flywheel</p>
+    <div class="fspl-steps">
+      <div class="fspl-step">
+        <p class="fspl-step-num">Step 01</p>
+        <div class="fspl-step-icon">&#x1F3A3;</div>
+        <p class="fspl-step-name">Acquire</p>
+        <p class="fspl-step-desc">Member joins for high-yield savings or personal loan. Best-in-class rates drive organic acquisition.</p>
+      </div>
+      <div class="fspl-step">
+        <p class="fspl-step-num">Step 02</p>
+        <div class="fspl-step-icon">&#x1F4CA;</div>
+        <p class="fspl-step-name">Cross-Sell</p>
+        <p class="fspl-step-desc">43% cross-buy rate. Members add investing, credit card, mortgage, crypto from within one app.</p>
+      </div>
+      <div class="fspl-step">
+        <p class="fspl-step-num">Step 03</p>
+        <div class="fspl-step-icon">&#x1F9E0;</div>
+        <p class="fspl-step-name">Data Compounds</p>
+        <p class="fspl-step-desc">More products = richer financial profile = better AI underwriting = lower credit risk = wider margins.</p>
+      </div>
+      <div class="fspl-step">
+        <p class="fspl-step-num">Step 04</p>
+        <div class="fspl-step-icon">&#x1F504;</div>
+        <p class="fspl-step-name">Flywheel Spins</p>
+        <p class="fspl-step-desc">Lower risk, higher ARPU, lower churn. Profits fund product development. More products attract more members. Repeat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROFITABILITY -->
+<section>
+  <h2>The Profitability Inflection: 10 Quarters of Consecutive GAAP Profit</h2>
+
+  <p>For most of its history, SoFi was a loss-making company investing aggressively in growth. The bank charter changed this. From Q4 2023 onwards, SoFi has recorded positive GAAP net income for <strong>ten consecutive quarters</strong> - not adjusted, not pro-forma, not non-GAAP. Actual GAAP profit, every quarter. This is a rare milestone in fintech. Robinhood achieved GAAP profitability recently. Chime is still private and has not disclosed public financials. Monzo reached UK GAAP profitability in 2023 but at a much smaller scale. No UK neobank has achieved SoFi&apos;s combination of member scale and consistent profit.</p>
+
+  <div class="profit-track">
+    <div class="profit-header">
+      <h4>10 Consecutive GAAP Profitable Quarters</h4>
+      <span>Net income per quarter</span>
+    </div>
+    <div class="profit-rows">
+      <div class="profit-row"><span class="profit-qtr">Q4 2023</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:10%;"><span class="profit-bar-label"></span></div></div><span class="profit-net">$48M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q1 2024</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:15%;"></div></div><span class="profit-net">$88M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q2 2024</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:7%;"></div></div><span class="profit-net">$17M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q3 2024</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:8%;"></div></div><span class="profit-net">~$61M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q4 2024</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:22%;"></div></div><span class="profit-net">~$130M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q1 2025</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:12%;"></div></div><span class="profit-net">$71M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q2 2025</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:18%;"></div></div><span class="profit-net">~$108M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q3 2025</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:24%;"></div></div><span class="profit-net">~$143M</span></div>
+      <div class="profit-row"><span class="profit-qtr">Q4 2025</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:29%;"></div></div><span class="profit-net">$174M</span></div>
+      <div class="profit-row milestone"><span class="profit-qtr" style="color:var(--success);font-weight:700;">Q1 2026</span><div class="profit-bar-wrap"><div class="profit-bar-fill" style="width:100%;background:var(--success);"><span class="profit-bar-label">Record - best quarter ever</span></div></div><span class="profit-net">$167M</span></div>
+    </div>
+  </div>
+
+  <p>The consistency of this profitability run matters more than any single quarter. The Rule of 40 score (combining revenue growth rate and profit margin) has been above 40 for <strong>18 consecutive quarters</strong> - with Q1 2026 scoring 72. This is not a company that occasionally stumbles into profit. The economics have structurally shifted.</p>
+
+  <div class="box g">
+    <p><strong>S&P 500 watch:</strong> Ten consecutive quarters of GAAP profitability satisfies one of the key criteria for S&P 500 index inclusion. If SoFi is added to the S&P 500, it would trigger automatic buying from the trillions of dollars in passive index funds that track the index - a structural demand catalyst entirely independent of fundamental performance. Multiple analysts have flagged this as a near-term re-rating catalyst for 2026.</p>
+  </div>
+
+  <h3>Revenue Trajectory</h3>
+  <div class="bar-wrap">
+    <div class="bar-row"><span class="bar-yr">FY2022</span><div class="bar-track"><div class="bar-fill actual" style="width:18%;"><span class="bar-label">$1.5B</span></div></div></div>
+    <div class="bar-row"><span class="bar-yr">FY2023</span><div class="bar-track"><div class="bar-fill actual" style="width:25%;"><span class="bar-label">$2.1B</span></div></div></div>
+    <div class="bar-row"><span class="bar-yr">FY2024</span><div class="bar-track"><div class="bar-fill actual" style="width:31%;"><span class="bar-label">$2.6B</span></div></div></div>
+    <div class="bar-row"><span class="bar-yr">FY2025</span><div class="bar-track"><div class="bar-fill actual" style="width:43%;"><span class="bar-label">$3.58B (+36%)</span></div></div></div>
+    <div class="bar-row"><span class="bar-yr">2026E</span><div class="bar-track"><div class="bar-fill proj" style="width:61%;"><span class="bar-label">$4.655B (guided, +30%)</span></div></div></div>
+    <div class="bar-row"><span class="bar-yr">2027E</span><div class="bar-track"><div class="bar-fill proj" style="width:78%;"><span class="bar-label">~$5.9B (consensus, +27%)</span></div></div></div>
+    <div class="bar-row"><span class="bar-yr">2028E</span><div class="bar-track"><div class="bar-fill target" style="width:100%;"><span class="bar-label">~$7.5B (bull case, 38-42% EPS CAGR mgmt target)</span></div></div></div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <p class="kpi-card-label">Adj. EBITDA Q1 2026</p>
+      <p class="kpi-card-value">$340M</p>
+      <p class="kpi-card-change">+62% YoY</p>
+      <p class="kpi-card-note">31% EBITDA margin - expanding each quarter</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-card-label">Rule of 40 Score</p>
+      <p class="kpi-card-value" style="color:var(--success);">72</p>
+      <p class="kpi-card-change">18 consecutive quarters above 40</p>
+      <p class="kpi-card-note">Growth (41%) + margin (31%) = 72. Elite tier globally.</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-card-label">Fee-Based Revenue</p>
+      <p class="kpi-card-value">$443M</p>
+      <p class="kpi-card-change">+53% YoY (Q4 2025)</p>
+      <p class="kpi-card-note">~$1.8B annualised run rate - capital-light and compounding</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-card-label">Book Value Per Share</p>
+      <p class="kpi-card-value">$8.26</p>
+      <p class="kpi-card-change">+$1.79 in Q4 2025 alone</p>
+      <p class="kpi-card-note">Stock at ~$17.50 = trading at ~2.1x book value</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-card-label">Net Interest Margin</p>
+      <p class="kpi-card-value">5.72%</p>
+      <p class="kpi-card-change">Funded by $40.2B deposits</p>
+      <p class="kpi-card-note">Deposit funding cuts cost of capital vs non-bank fintechs</p>
+    </div>
+    <div class="kpi-card">
+      <p class="kpi-card-label">Products Per Member</p>
+      <p class="kpi-card-value">1.51</p>
+      <p class="kpi-card-change">Cross-buy rate 43%</p>
+      <p class="kpi-card-note">Each additional product deepens retention and ARPU</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY UNDERVALUED -->
+<section>
+  <h2>The Undervaluation Case: Best Quarter Ever, Stock at a Two-Year Low</h2>
+
+  <p>The disconnect between SoFi&apos;s operational performance and its share price is the defining investment question of 2026. The business recorded its best results in company history. The stock trades at approximately half its January peak. Understanding why requires being honest about what is causing the discount - and whether each cause is structural or temporary.</p>
+
+  <h3>Three Reasons the Stock Is Depressed</h3>
+
+  <p><strong>1. Muddy Waters Research short report (March 30, 2026).</strong> The well-known short-seller published a report calling SoFi a &ldquo;financial engineering treadmill,&rdquo; alleging that profitability metrics are managed through accounting choices and capital structure rather than genuine business improvement, and claiming charge-off rates are understated by nearly 3x. SoFi management responded aggressively, calling the report &ldquo;factually inaccurate and misleading&rdquo; and exploring legal action. Muddy Waters, which has &ldquo;been sued a number of times and remains undefeated,&rdquo; has not retracted. Short interest rose to 13.24% of the float (165 million shares), amplifying downward price pressure. Until the accounting allegations are definitively rebutted by future audited results - or by a regulatory clean bill of health - the cloud will persist. This is the single most important overhang on the stock.</p>
+
+  <p><strong>2. Unchanged FY2026 guidance after a record Q1.</strong> When a company beats its numbers by as much as SoFi did in Q1 ($50M revenue beat, net income up 134%), investors expect the annual guidance to be raised. SoFi maintained its full-year 2026 guidance at $4.655B in adjusted revenue and $825M in net income rather than raising it. The stock fell 10% on the day. Management&apos;s explanation: macro uncertainty, specifically elevated interest rates and consumer credit risk, justified conservative guidance. But many investors interpreted the unchanged guidance as a sign that Q1 was front-loaded or that headwinds in Q2-Q4 would be material.</p>
+
+  <p><strong>3. Galileo wound - Technology Platform decline.</strong> In Q4 2025, the Technology Platform segment reported a 23% year-over-year decline in total enabled accounts, primarily because Chime - one of Galileo&apos;s largest clients - migrated its core banking platform away from Galileo to an in-house solution. This is the one genuinely weak spot in SoFi&apos;s operating results and the reason the B2B technology infrastructure thesis that supports the premium multiple is under pressure. If Galileo is losing marquee clients, the path to becoming &ldquo;the AWS of fintech&rdquo; becomes harder to argue. Management has communicated that the Technology Platform is recovering, with Q1 2026 showing sequential improvement, but the account decline remains an open narrative question.</p>
+
+  <div class="box gold">
+    <p><strong>Why these are temporary, not structural:</strong> Muddy Waters allegations are addressed by continuing to report GAAP audited profits - each additional profitable quarter makes the &ldquo;financial engineering&rdquo; narrative harder to sustain. Unchanged guidance is conservative management behaviour in an uncertain rate environment, not evidence of deterioration (Q2 guidance suggested continued sequential growth). The Galileo wound is painful but not fatal - SoFi has 120M+ enabled accounts and continues signing new enterprise clients. None of these three factors touch the underlying consumer business, the deposit franchise, or the member growth story, all of which are accelerating.</p>
+  </div>
+
+  <h3>The Valuation Disconnect in Numbers</h3>
+  <p>At roughly $17.50 and a market cap of ~$22B, SoFi trades at approximately:</p>
+  <p>- <strong>4.7x 2026 guided adjusted net revenue</strong> of $4.655B (for a business growing at 30%+ and guiding to $825M net income)</p>
+  <p>- <strong>2.1x book value</strong> ($8.26 per share), which is cheaper than most regional US banks despite growing far faster</p>
+  <p>- A <strong>PEG ratio of approximately 0.70</strong> - meaning the market is paying less than 1x for each unit of growth. A PEG below 1 conventionally signals undervaluation relative to earnings growth trajectory.</p>
+  <p>- <strong>27x trailing earnings</strong> - elevated for a bank, but not for a 41%-revenue-growth technology platform with 10 consecutive profitable quarters</p>
+  <p>For context: <strong>Robinhood (HOOD)</strong> trades at approximately 20-25x revenue on a smaller base. <strong>JPMorgan</strong>, America&apos;s most valuable bank, trades at approximately 14-15x earnings on ~6% revenue growth. SoFi is growing at 7x the pace of JPMorgan and trades at a similar absolute earnings multiple. Cathie Wood&apos;s ARK invest purchased shares in June 2026. CEO Anthony Noto personally purchased $251,000 of shares on the open market - a strong insider confidence signal.</p>
+</section>
+
+<!-- COMPETITOR COMPARISON -->
+<section>
+  <h2>How SoFi Compares to the Competition</h2>
+
+  <table class="compare">
+    <thead>
+      <tr><th>Dimension</th><th>SoFi (SOFI)</th><th>Robinhood (HOOD)</th><th>Monzo (UK)</th><th>JPMorgan (JPM)</th></tr>
+    </thead>
+    <tbody>
+      <tr class="sofi-row"><td class="metric">Bank charter</td><td><span class="dot g"></span>Yes - SoFi Bank N.A.</td><td><span class="dot r"></span>No (brokerage only)</td><td><span class="dot g"></span>Yes (UK banking licence)</td><td><span class="dot g"></span>Yes (oldest US bank)</td></tr>
+      <tr><td class="metric">Revenue model</td><td>Interest + fees + B2B tech</td><td>PFOF + crypto + subscriptions</td><td>Interest + fees</td><td>Interest + fees + IB</td></tr>
+      <tr class="sofi-row"><td class="metric">Members / customers</td><td><span class="dot g"></span>14.7M (growing 35% YoY)</td><td>~26M funded accounts</td><td>~13M UK customers</td><td>~90M US customers</td></tr>
+      <tr><td class="metric">Revenue growth</td><td><span class="dot g"></span>+41% YoY</td><td><span class="dot g"></span>~50%+ YoY</td><td>~100%+ YoY (small base)</td><td><span class="dot y"></span>~6% YoY</td></tr>
+      <tr class="sofi-row"><td class="metric">GAAP profitability</td><td><span class="dot g"></span>10 consec. quarters</td><td><span class="dot g"></span>Yes (recent)</td><td><span class="dot g"></span>Yes (UK, 2023)</td><td><span class="dot g"></span>Yes (decades)</td></tr>
+      <tr><td class="metric">Product breadth</td><td><span class="dot g"></span>Loans, bank, invest, insurance, crypto, B2B</td><td>Invest, crypto, cash card</td><td>Bank account, loans, savings</td><td>Everything, but fragmented digital UX</td></tr>
+      <tr class="sofi-row"><td class="metric">B2B infrastructure</td><td><span class="dot g"></span>Galileo + Technisys</td><td><span class="dot r"></span>No</td><td><span class="dot r"></span>No</td><td><span class="dot y"></span>Chase for Business (limited)</td></tr>
+      <tr><td class="metric">US market cap</td><td>~$22B</td><td>~$30B+</td><td>~$5.9B (private)</td><td>~$750B+</td></tr>
+      <tr class="sofi-row"><td class="metric">Price-to-revenue</td><td><span class="dot g"></span>~4.7x 2026E</td><td>~20x+</td><td>N/A (private)</td><td>~5x</td></tr>
+      <tr><td class="metric">Unique advantage</td><td>Bank charter + FSPL + Galileo B2B</td><td>Retail investor community, crypto</td><td>UK brand loyalty, simplicity</td><td>Scale, trust, global network</td></tr>
+    </tbody>
+  </table>
+
+  <p>The most revealing comparison is with Robinhood. HOOD has a higher market cap (~$30B vs SoFi&apos;s ~$22B) despite offering a narrower product set, no banking charter, no B2B infrastructure business, and trading at a far higher revenue multiple. SoFi has the bank licence HOOD does not, the deposit base HOOD does not, the B2B technology platform HOOD does not, and a product suite more than twice as broad. If the market ever assigns SoFi the multiple it assigns HOOD, the share price would double.</p>
+
+  <p>The comparison with <strong>Monzo</strong> is instructive for UK clients. Monzo is the closest British equivalent - a digital-first bank challenging legacy institutions - but it operates only in the UK, has no US market position, no equivalent of Galileo, and has reached profitability only recently at a fraction of SoFi&apos;s scale. SoFi is, in essence, what Monzo is aspiring to become: a fully integrated, profitable digital bank with a B2B infrastructure layer and a self-compounding membership model.</p>
+</section>
+
+<!-- CATALYSTS -->
+<section>
+  <h2>Key Catalysts to Watch</h2>
+  <div class="catalyst-row"><div class="cat-dot done"></div><p class="cat-text"><strong>Forbes #1 US Bank 2026 + J.D. Power #1 DIY investing:</strong> Brand recognition reaching an all-time high (10% unaided awareness). Awards validate the product quality and drive organic member acquisition at low cost.</p></div>
+  <div class="catalyst-row"><div class="cat-dot done"></div><p class="cat-text"><strong>SoFiUSD stablecoin launched:</strong> A US dollar-backed stablecoin issued by SoFi Bank, N.A., offering 4.2% yield. Blockchain connectivity opens a new payment infrastructure revenue line and positions SoFi as the first major bank to bridge traditional banking and digital assets natively.</p></div>
+  <div class="catalyst-row"><div class="cat-dot done"></div><p class="cat-text"><strong>Small Business Loans launched (June 2026):</strong> New lending vertical targeting SME customers - a segment that traditional banks underserve and where digital-first underwriting has the biggest competitive advantage. Opens a new ARPU expansion lever.</p></div>
+  <div class="catalyst-row"><div class="cat-dot"></div><p class="cat-text"><strong>Q2 2026 earnings (July/August 2026):</strong> The most important near-term binary. Does guidance get raised? Does Galileo account growth return? Does net income continue above $150M? A guidance raise here would be the catalyst that breaks the post-Muddy Waters downtrend.</p></div>
+  <div class="catalyst-row"><div class="cat-dot"></div><p class="cat-text"><strong>S&P 500 inclusion:</strong> Ten consecutive profitable quarters satisfies a key eligibility criterion. Inclusion would trigger billions in mandatory passive index buying. Multiple analysts have flagged this as a 2026 event worth pricing in.</p></div>
+  <div class="catalyst-row"><div class="cat-dot"></div><p class="cat-text"><strong>Muddy Waters resolution:</strong> Either SoFi wins a legal action, the Q2/Q3 audited results definitively rebut the accounting allegations, or an external review clears management. Any one of these lifts the short interest overhang that is amplifying every negative catalyst.</p></div>
+  <div class="catalyst-row"><div class="cat-dot"></div><p class="cat-text"><strong>Galileo recovery:</strong> Net enterprise account growth returning to positive would restore the B2B infrastructure thesis. Management has guided for Technology Platform sequential improvement through 2026. Confirmation in Q2 reactivates the premium multiple case.</p></div>
+</section>
+
+<!-- RISKS -->
+<section>
+  <h2>Risks: Clear-Eyed</h2>
+  <div style="margin-bottom:16px;">
+    <span class="tag r">Muddy Waters cloud</span>
+    <span class="tag r">Galileo wound</span>
+    <span class="tag r">Consumer credit risk</span>
+    <span class="tag r">Dilution history</span>
+    <span class="tag gold">Macro / rate environment</span>
+    <span class="tag gold">Guidance conservatism</span>
+  </div>
+
+  <p><strong>Muddy Waters accounting allegations remain unresolved.</strong> The short report alleged near-3x understatement of charge-off rates, which if accurate would significantly impair the reported profitability picture. SoFi management has disputed this vigorously. Independent verification requires continued audited reporting. Until this is definitively put to rest, institutional investors will maintain a higher risk premium on the stock.</p>
+
+  <p><strong>Consumer lending in a softening economy.</strong> SoFi&apos;s personal loan book is unsecured consumer credit - the category most vulnerable to rising unemployment or consumer stress. At $7.5B per quarter of personal loan originations, a meaningful deterioration in US employment could accelerate charge-offs beyond what current models assume. Q1 2026 net charge-offs of $201M (vs $169M a year earlier) already show modest pressure.</p>
+
+  <p><strong>Galileo client concentration and platform risk.</strong> The Chime departure showed that even large B2B platform clients can migrate away. If other top Galileo clients - Robinhood, Revolut, or other major fintechs - were to follow Chime&apos;s example and build their own banking infrastructure, the Technology Platform thesis unravels significantly.</p>
+
+  <p><strong>Dilution has been material.</strong> SoFi raised $3 billion in two share offerings during 2025 (July at $20.85, December at $27.50), adding approximately 126 million shares. December buyers are still underwater at current prices, creating persistent selling pressure as they rebalance or cut losses. Shares outstanding grew 13.65% year-over-year in 2025.</p>
+
+  <div class="box risk">
+    <p>SoFi is emphatically not a &ldquo;set and forget&rdquo; position. It requires monitoring Galileo account trends, charge-off rate evolution, and the Muddy Waters overhang at every quarterly earnings print. The bull case is compelling at $17.50. The bear case - rising credit losses, confirmed accounting irregularities, Galileo further deteriorating - is not trivial. Position size accordingly and treat the Q2 earnings call as a decision point.</p>
+  </div>
+</section>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <h3>Bottom Line: The World&apos;s Best Quarter, the World&apos;s Most Sceptical Market</h3>
+  <p>SoFi reported the best quarter in its history on April 29, 2026. Revenue up 41%. Net income up 134%. 10th consecutive GAAP profit. More new members than ever before. The stock fell 10% on the day. It is now trading at approximately half its January 2026 peak, while the underlying business has never been stronger.</p>
+  <p><strong>The core argument for buying SOFI now</strong> rests on three facts: a banking franchise with $40.2 billion in deposits that funds loans at a structural cost advantage no non-bank fintech can match; a member flywheel adding 1 million new members per quarter with 43% cross-buy rates and compounding lifetime value; and a valuation at ~4.7x forward revenue with a 0.70 PEG ratio that the comparable fintech universe would price at 10-20x if the cloud were to lift.</p>
+  <p><strong>The honest risk framing:</strong> The Muddy Waters report is serious, even if you believe management&apos;s denials. Galileo is genuinely wounded. The unchanged Q1 guidance raised legitimate questions about Q2-Q4 visibility. And the dilution from December&apos;s $27.50 offering means there are 50+ million shares sitting underwater that create persistent selling pressure. This is a stock that deserves careful position sizing, not a maximum conviction bet.</p>
+  <p><strong>What to watch:</strong> Q2 earnings are the single most important near-term event. A guidance raise there, combined with Galileo account improvement and stable charge-off rates, resolves the three biggest investor concerns in one report. If all three deliver, the Muddy Waters narrative becomes very difficult to sustain against three consecutive quarters of accelerating, independently audited results.</p>
+  <p><strong>TEI positioning:</strong> Long-term hold, presently seriously undervalued but out of favour. The combination of a national bank charter, FSPL flywheel, Galileo B2B optionality, S&P 500 candidacy, and accelerating profitability makes this a genuinely differentiated financial services franchise at a price that doesn&apos;t reflect it. Patience and quarterly vigilance are both required.</p>
+</div>
+
+</div>
+
+<!-- TEI FOOTER -->
+<div class="tei-footer">
+  <div class="tei-footer-logo">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAFACAYAAABEGxgbAAAABmJLR0QA/wD/AP+gvaeTAAAgAElEQVR4nOzdd3hT5dsH8O85Sbp3S+lmlVEoyC6jgMiUqSJDQQS3uP2JC9EXF24ciDgAFVGmyt4go1C2jDJKgQJtaemgeybnvH8AQpuTNm0zmvT7uS644MnJyZ2cjOd+poCaGD1aFXwRXUVJ1ReC3AlAKwCBANwAaGp0TiIiIiIiqouKAeQAuCQARyFglw6la5P3/5VZk5MJ1Tk4qMu4UBHSMwKECQCCa/KARERERERk83SQsVpSyV8n71u6vTp3NCoBCegwuoFaLb4vAJMAONQkQiIiIiIisj8y5G0y5P8lH1j2rzHHV5mAhHQd96Agy98A8Kl1dEREREREZI+0giB80EDn8cGhQz+UVXagwQSkU6cnNOlizhwZeMz08RERERERkR36RyeJo1MO/ZFh6ADFBCSo03AXleiyHMDdZguNiIiIiIjsj4AEnU7ql3Jo2SWlm8WKBZ06PaFh8kFERERERDUiI1wlijuCuowLVbpZLwFJF3PmgMkHERERERHVXGMV5LXhUeM9Kt5QLgEJ6TJ2POd8EBERERGRCbQtkcp+rliouvmPgA6jG6hEYS0AZ0tGRURERERE9kqI8Axpk5abHHfwZsl/PSBqtfg+uNQuERERERGZkix83KjThMCb/xWB6zuc39hkkIiIiIiIyJQ8JFE78+Z/xOt/Sc+AO5wTEREREZFZyBNCoh5sDgAiRo9WCRAmWDskIiIiIiKyWypB0r4AAEJw19HdRVncY+2IiIiIiIjIrl1TuToHiaKk6mvtSIiIiIiIyO55a/OL+ooQ5E7WjoSIiIiIiOyfIGCgCKCltQMhIiIiIqL6QOggAgis8jgiIiIiIqJak1qIANysHQYREREREdUHgo8I7v9BRERERESW4ShaOwIiIiIiIqo/mIAQEREREZHFMAEhIiIiIiKLYQJCREREREQWwwSEiIiIiIgshgkIERERERFZDBMQIiIiIiKyGCYgRERERERkMUxAiIiIiIjIYpiAEBERERGRxTABISIiIiIii2ECQkREREREFsMEhIiIiIiILIYJCBERERERWQwTECIiIiIishgmIEREREREZDFMQIiIiIiIyGKYgBARERERkcUwASEiIiIiIothAkJERERE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QkREREREkmEAISIiIiIiyTCAEBERERGRZBhAiIiIiIhIMgwgREREREQkGQYQIiIiIiKSDAMIERERERFJhgGEiIiIiIgkwwBCRERERESSYQAhIiIiIiLJMIAQEREREZFkGECIiIiIiEgyDCBERERERCQZBhAiIiIiIpIMAwgREREREUmGAYSIiIiIiCTDAEJERERERJJhACEiIiIiIskwgBARERERkWQUANRyF0FERERERDZBrQBQJ3cVRERERERkExoUAHLlroKIiIiIiGxCmUKEeFzuKoiIiIiIyPqJgnhGoRQUu+QuhIiIiIiIrJ8CijSFVqlNAseBEBERERGRmYmimKQoPryhBcC3chdDRERERERW7ULR0fB0BQCICuUqAFqZCyIiIiIiIqslrAH+rVMAQHHqt2chYo3cJRERERERkVVSiyrt+8DVK6FrhacA1MtVERERERERWSkBnxYf3lACXBVAio5/Vwrgn7IVRURERERE1qhKVOqeu/I/yqu31JeeTncPiIoFECZ5WUREREREZHUEAcuLUtenX/l/RaftooOgugtAhrRlERERERGR9RHfv3Bk3YarWzoHEOSlrqnXQlgA4LxUZRERERERkXURga1FLpWPdG7XCyAAUHr0uyKtTjcDAvLMXxoREREREVkTEdiq0zUvw759ms7bDAYQAChN33BBh7aJAPaZszgiIiIiIrIm4vvFLhU3laZvaTa0VWmo8YqGkpyW+tDBa9zaXHSCIExFN4GFiIiIiIhsWpUgYHnR0fVv4vx5XVc7CcYezX/CshhBxFsCMNs09RERERERkRVQQ8CnolL3XPHhDTU97Wx0ALnCP3HpNQodHgSERQBUfSqRiIiIiIgsXREgrBZV2vevLDJojF4HkCsCJt3qBY0wHxCmCRBiAV0gIHgCcOzrMYmIiIiIaMBpA9AIEcWiQsxVQJEmimJS0dHwdODfXT5q1ZX/D6hlpEWg9XdgAAAAAElFTkSuQmCC" alt="The Everyday Investor">
+  </div>
+  <div class="tei-footer-text">
+    <strong>Prepared by The Everyday Investor</strong><br>
+    This document is for information and education purposes only. It does not constitute financial advice or a personal investment recommendation. SOFI is a financial services company carrying consumer credit risk. All projections are management guidance and analyst estimates. Please consult a qualified financial adviser before making any investment decision.
+  </div>
+</div>
+
+<script>
+function showSegment(key) {
+  // Deactivate all cards
+  ['lending','financial','tech'].forEach(function(k) {
+    var card = document.getElementById('seg-' + k);
+    var panel = document.getElementById('seg-detail-' + k);
+    if (card) card.classList.remove('active');
+    if (panel) { panel.classList.remove('visible'); panel.style.display = 'none'; }
+  });
+  // Activate selected
+  var activeCard = document.getElementById('seg-' + key);
+  var activePanel = document.getElementById('seg-detail-' + key);
+  if (activeCard) activeCard.classList.add('active');
+  if (activePanel) { activePanel.classList.add('visible'); activePanel.style.display = 'block'; }
+}
+// Initialise
+showSegment('lending');
+</script>
+</body>
+</html>

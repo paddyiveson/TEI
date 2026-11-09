@@ -1,0 +1,699 @@
+/* TEI motion patterns (article refresh, Oct 2026).
+   Shared, opt-in: a page links this file after /assets/content.css and
+   /assets/motion.js before </body>. Colours are the theme tokens from
+   content.css, so light and dark both work. Nothing here defines tokens.
+
+   Patterns (driven by data-m="..." in the markup, behaviour in motion.js):
+     bar-fill       horizontal bars whose segments grow to their values
+     count-up       a number that counts to its value
+     slice-cut      a segment that detaches from its bar and drops away
+     toggle-result  controls that drive a result, with a winner that flips
+     scene          a figure whose steps arrive in order when it scrolls in
+
+   Under prefers-reduced-motion every pattern shows its end state, unanimated. */
+
+/* ---------- bar-fill: the bars ----------
+   <div class="m-bars" style="--max:6756">
+     <div class="m-row">
+       <span class="m-k">LISA</span>
+       <div class="m-bar"><i class="m-s1" style="--v:4000"></i><i class="m-s2" style="--v:1000"></i></div>
+       <b class="m-v">£5,000</b>
+     </div>
+   </div>
+   Every segment's width is its --v over the group's --max. */
+.m-bars { display: grid; gap: 18px; margin: 6px 0 4px; }
+.m-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "k v" "bar bar"; gap: 8px 12px; align-items: baseline; }
+.m-k { grid-area: k; font-size: 14px; line-height: 1.35; color: var(--c-ink); }
+.m-k small { display: block; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.m-v { grid-area: v; font-size: 20px; line-height: 1.1; font-weight: 300; letter-spacing: -0.02em; color: var(--c-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-bar { grid-area: bar; display: flex; gap: 2px; height: 22px; }
+.m-bar i { display: block; flex: none; height: 100%; width: calc(var(--v, 0) / var(--max, 1) * 100%); border-radius: 4px; transform-origin: left; }
+.m-bar i:first-child { border-radius: 8px 4px 4px 8px; }
+.m-bar i:last-child { border-radius: 4px 8px 8px 4px; }
+.m-bar i:only-child { border-radius: 8px; }
+.m-bar i[hidden] { display: none; }
+
+/* Segment colours: what the money is, not which wrapper it sits in. */
+.m-s1 { background: var(--c-s1); }      /* the saver's own money */
+.m-s2 { background: var(--c-s2); }      /* government top-up: bonus or tax relief */
+.m-s3 { background: var(--c-s3); }      /* National Insurance saved */
+.m-s4 { background: var(--c-s4); }      /* employer money */
+.m-tax { background: var(--c-warn); }   /* tax or charges taken away */
+.m-free { background: var(--c-s2); }    /* tax-free part */
+.m-grow { background: var(--c-grow); }    /* growth: money the pot earned on its own */
+.tc-key i.m-s1, .tc-key i.m-s2, .tc-key i.m-s3, .tc-key i.m-s4, .tc-key i.m-tax, .tc-key i.m-free, .tc-key i.m-grow { height: 10px; width: 10px; border-radius: 3px; }
+
+/* The one key number of a figure, on the featured blue tile (the same in both themes). */
+.m-callout { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 20px; padding: 18px 22px; border-radius: 18px; background: var(--c-key); box-shadow: var(--c-key-shadow); }
+.m-callout b { font-size: 40px; line-height: 1; font-weight: 300; letter-spacing: -0.03em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.m-callout span { flex: 1 1 220px; font-size: 14px; line-height: 1.5; color: var(--c-key-text); }
+
+/* Scene label above a figure title */
+.m-scene-no { display: block; margin: 0 0 6px; font-family: var(--tc-mono); font-size: 12px; color: var(--c-gold); }
+
+/* ---------- toggle-result: controls and the verdict ---------- */
+.m-controls { display: grid; gap: 16px; margin: 4px 0 22px; }
+.m-controls .ar-seg { margin-top: 0; max-width: 100%; }
+.m-verdict { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* Result tiles sit on the blue feature tile (--c-key), one theme on every refreshed page (Paddy, 28 Oct, Batch 2). */
+.m-verdict > div { position: relative; padding: 16px 18px; border-radius: 16px; background: var(--c-key); box-shadow: var(--c-key-shadow); border: 1px solid transparent; transition: border-color .3s ease, background-color .3s ease; }
+.m-verdict small { display: block; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; color: var(--c-key-text); }
+.m-verdict b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 400; letter-spacing: -0.02em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.m-verdict p { margin: 6px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; font-weight: 500 !important; color: var(--c-key-text) !important; }
+/* The winning tile of a toggle stays champagne with depth, so it stands out from the blue. */
+.m-verdict > div.is-win { background: var(--c-depth); border-color: transparent; box-shadow: var(--c-depth-shadow); }
+.m-verdict > div.is-win small, .m-verdict > div.is-win p { color: var(--c-muted) !important; }
+.m-verdict > div.is-win b { color: var(--c-ink); }
+.m-win { display: none; position: absolute; top: 14px; right: 14px; padding: 3px 9px; border-radius: 999px; background: var(--c-btn); color: var(--c-btn-ink); font-family: var(--tc-mono); font-size: 11px; }
+.m-verdict > div.is-win .m-win { display: inline-block; }
+.m-line { margin: 14px 0 0 !important; padding: 16px 20px; border-radius: 16px; background: var(--c-feature); color: var(--c-on-feature) !important; font-size: 16px !important; line-height: 1.5 !important; font-weight: 400 !important; }
+.m-line strong { color: #E8D6A8; font-weight: 500; }
+
+@media (min-width: 861px) {
+  .m-row { grid-template-columns: 170px minmax(0, 1fr) 96px; grid-template-areas: "k bar v"; align-items: center; gap: 16px; }
+  .m-v { text-align: right; }
+  .m-controls { grid-template-columns: auto minmax(0, 1fr); align-items: end; gap: 24px; }
+}
+@media (max-width: 860px) {
+  .m-v { font-size: 18px; }
+  .m-bar { height: 18px; }
+  .m-callout b { font-size: 34px; }
+  .m-verdict { grid-template-columns: minmax(0, 1fr); }
+  .m-verdict b { font-size: 26px; }
+}
+
+/* ---------- Motion ----------
+   motion.js adds .m-armed to a [data-m="scene"] figure (only when motion is
+   allowed), then .m-on when it scrolls into view. Without .m-armed (no JS,
+   or reduced motion) everything below shows its end state.
+   Timing: rows arrive one after another (--r), segments within a row
+   follow each other (--i); both are set by motion.js. */
+.m-bar i { transition: width .6s var(--tc-ease); }
+
+/* bar-fill */
+.m-armed .m-bar i { transform: scaleX(0); }
+.m-armed.m-on .m-bar i {
+  transform: none;
+  transition: transform .8s cubic-bezier(.33, 1, .68, 1), width .6s var(--tc-ease);
+  transition-delay: calc(var(--r, 0) * 260ms + var(--i, 0) * 140ms + 150ms), 0s;
+}
+.m-armed .m-v, .m-armed .m-k { opacity: 0; transform: translateY(6px); }
+.m-armed.m-on .m-v, .m-armed.m-on .m-k { opacity: 1; transform: none; transition: opacity .5s ease, transform .5s var(--tc-ease); transition-delay: calc(var(--r, 0) * 260ms + 100ms); }
+.m-armed .m-callout { opacity: 0; transform: translateY(10px); }
+.m-armed.m-on .m-callout { opacity: 1; transform: none; transition: opacity .6s ease, transform .6s var(--tc-ease); transition-delay: var(--m-after, 900ms); }
+
+/* slice-cut: the segment ends detached below its bar, tilted, slightly faded.
+   This is the end state with or without motion; motion plays the cut. */
+.m-bar { position: relative; }
+.m-bars .m-bar i[data-m="slice-cut"] { transform: translate(6px, 12px) rotate(5deg); opacity: .75; outline: 1px dashed var(--c-warn); outline-offset: 2px; }
+.m-armed .m-bars .m-bar i[data-m="slice-cut"] { transform: scaleX(0); }
+.m-armed.m-on .m-bars .m-bar i[data-m="slice-cut"] {
+  transform: translate(6px, 12px) rotate(5deg);
+  animation: m-cut 1.5s cubic-bezier(.33, 1, .68, 1) both;
+  animation-delay: calc(var(--r, 0) * 260ms + var(--i, 0) * 140ms + 150ms);
+}
+@keyframes m-cut {
+  0%   { transform: scaleX(0); opacity: 1; outline-color: transparent; }
+  40%  { transform: none; opacity: 1; outline-color: transparent; }
+  60%  { transform: translate(0, 0) rotate(0); opacity: 1; outline-color: var(--c-warn); }
+  100% { transform: translate(6px, 12px) rotate(5deg); opacity: .75; outline-color: var(--c-warn); }
+}
+.m-row:has([data-m="slice-cut"]) { padding-bottom: 12px; }
+
+/* toggle-result: the winning tile pulses once when the result flips */
+.m-verdict > div.is-flip { animation: m-flip .6s var(--tc-ease); }
+@keyframes m-flip { 0% { transform: scale(.97); } 60% { transform: scale(1.015); } 100% { transform: none; } }
+.m-line { transition: background-color .3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .m-bar i, .m-verdict > div, .m-line { transition: none !important; }
+  .m-armed .m-bar i, .m-armed .m-v, .m-armed .m-k, .m-armed .m-callout { transform: none !important; opacity: 1 !important; }
+  .m-armed .m-bars .m-bar i[data-m="slice-cut"] { animation: none !important; transform: translate(6px, 12px) rotate(5deg) !important; }
+  .m-verdict > div.is-flip { animation: none; }
+}
+
+/* A bar on its own, no label or value (e.g. above a breakdown table) */
+.m-row-bare { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "bar" !important; margin-bottom: 14px; }
+
+/* Facts list: a member's own inputs, each with where it came from */
+.m-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 0 0 20px; }
+.m-facts > div { padding: 12px 14px; border-radius: 14px; background: var(--c-tile-2); }
+.m-facts dt { font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.m-facts dd { margin: 4px 0 0; font-size: 18px; font-weight: 400; color: var(--c-ink); font-variant-numeric: tabular-nums; }
+.m-facts dd small { display: block; margin-top: 2px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-muted); }
+.tc-members-body .tc-callout { margin: 0 0 20px; }
+.tc-members-body p.tc-na { margin: 18px 0 0; font-size: 13px; line-height: 1.55; font-weight: 400; color: var(--c-muted); }
+
+/* Breakdown rows: a sum worked line by line in a figure, label left and
+   amount right. .is-total marks a running total, .is-tax a charge.
+   <div class="m-breakdown"><div><span>Paid in</span><b>£4,000</b></div>…</div> */
+.m-breakdown { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 16px; }
+.m-breakdown > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; background: var(--c-tile-2); font-size: 14px; color: var(--c-ink); }
+.m-breakdown b { font-weight: 500; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.m-breakdown > .is-total { background: var(--c-champ-tile); }
+.m-breakdown > .is-tax { background: var(--c-warn-tile); }
+.m-breakdown > .is-tax b { color: var(--c-warn); }
+
+/* =========================================================================
+   A2 additions (Missing the Best Days, Oct 2026): dot-field, line-draw,
+   pair-link and a compact stepper. Same rules as above: theme tokens only,
+   and every figure reads as its end state without JS or motion.
+   ========================================================================= */
+
+/* Compact stepper: an .ar-seg with many short options (0 / 10 / 20 ...) that
+   must still fit a 390px phone. */
+.ar-seg.m-steps { flex-wrap: wrap; }
+.ar-seg.m-steps button { min-width: 44px; padding: 0 10px; font-variant-numeric: tabular-nums; }
+
+/* ---------- dot-field ----------
+   <div class="m-dots" data-m="dot-field"><canvas></canvas></div>
+   One canvas holds every point (thousands of trading days); motion.js draws
+   it and lights a chosen subset. Colours come from the theme tokens. */
+.m-dots { position: relative; margin: 4px 0 6px; }
+.m-dots canvas { display: block; width: 100%; height: auto; }
+.m-dots-ends { display: flex; justify-content: space-between; margin-top: 6px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+.tc-key i.m-k-dot, .tc-key i.m-k-lit, .tc-key i.m-k-low { width: 9px; height: 9px; border-radius: 50%; }
+.m-k-dot { background: var(--c-s4); opacity: .55; }
+.m-k-lit { background: var(--c-gold); }
+.m-k-low { background: var(--c-warn); }
+
+/* ---------- line-draw ----------
+   <div class="m-chart" data-m="line-draw">
+     <svg viewBox="0 0 1000 400" preserveAspectRatio="none">
+       <g class="m-grid">…</g><path class="m-gap"/><path class="m-ref"/><path class="m-line-a"/>
+     </svg>
+     <div class="m-yaxis"><span style="--y:20%">$80k</span>…</div>
+     <div class="m-xaxis"><span style="--x:50%">2015</span>…</div>
+   </div>
+   The SVG stretches to the box; strokes stay 2px at any size. Axis labels are
+   HTML, placed in % along each axis, so text never squashes. */
+.m-chart { position: relative; height: 320px; margin: 8px 0 30px 44px; }
+.m-chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-chart path, .m-chart line { vector-effect: non-scaling-stroke; }
+.m-grid line { stroke: var(--c-line-soft); stroke-width: 1; }
+.m-grid line.m-base { stroke: var(--c-line); }
+.m-ref { fill: none; stroke: var(--c-s1); stroke-width: 2; stroke-linejoin: round; }
+.m-line-a { fill: none; stroke: var(--c-warn); stroke-width: 2; stroke-linejoin: round; }
+.m-gap { fill: var(--c-warn); opacity: .1; stroke: none; }
+.m-start { stroke: var(--c-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.m-yaxis span, .m-xaxis span { position: absolute; font-family: var(--tc-mono); font-size: 11px; line-height: 1; color: var(--c-muted); white-space: nowrap; }
+.m-yaxis span { right: calc(100% + 8px); top: var(--y); transform: translateY(-50%); }
+.m-xaxis span { top: calc(100% + 10px); left: var(--x); transform: translateX(-50%); }
+.m-ends { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.m-verdict + .m-verdict { margin-top: 10px; }
+.m-bars + .m-ends { margin-top: 18px; }
+.m-ends > div { padding: 14px 16px; border-radius: 16px; background: var(--c-key); box-shadow: var(--c-key-shadow); }
+.m-ends small { display: flex; align-items: center; gap: 8px; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; color: var(--c-key-text); }
+.m-ends small i, .m-verdict small i { flex: none; width: 16px; height: 3px; border-radius: 2px; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .75); }
+.m-ends b { display: block; margin-top: 4px; font-size: 30px; line-height: 1.15; font-weight: 400; letter-spacing: -0.02em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.m-ends p { margin: 4px 0 0 !important; font-size: 13px !important; line-height: 1.45 !important; font-weight: 500 !important; color: var(--c-key-text) !important; }
+.m-i-ref { background: var(--c-s1); }
+.m-i-a { background: var(--c-warn); }
+/* A line that grows above the money put in (a pot and what was paid into it):
+   .is-growth draws it and the gap between them in the growth colour, not as a loss. */
+.m-chart.is-growth .m-line-a { stroke: var(--c-grow); }
+.m-chart.is-growth .m-gap { fill: var(--c-grow); opacity: .14; }
+:root[data-theme="dark"] .m-chart.is-growth .m-gap { opacity: .16; }
+.m-i-grow { background: var(--c-grow); }
+/* A steady worked example drawn with more weight (.is-bold, Paddy 28 Oct):
+   thicker lines, a stronger shaded gap, a taller chart, and the end value of
+   each line pinned at the right-hand edge. The higher pin's label sits above
+   its dot and the lower one's below, so the two never overlap.
+   <div class="m-pins" aria-hidden="true">
+     <i class="m-pin is-grow" style="--y:4%"></i><span class="m-pin-v is-up" style="--y:4%">£11,519</span>
+     <i class="m-pin is-ref" style="--y:16.7%"></i><span class="m-pin-v is-down" style="--y:16.7%">£10,000</span>
+   </div>   (--y in % from the top, as for the axis labels) */
+.m-chart.is-bold { height: 380px; }
+.m-chart.is-bold .m-ref, .m-chart.is-bold .m-line-a { stroke-width: 3; }
+.m-chart.is-bold .m-gap, :root[data-theme="dark"] .m-chart.is-bold .m-gap { opacity: .3; }
+.m-pins { position: absolute; inset: 0; pointer-events: none; }
+.m-pin { position: absolute; left: 100%; top: var(--y); width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; box-shadow: 0 0 0 3px var(--c-tile); }
+.m-pin.is-ref { background: var(--c-s1); }
+.m-pin.is-grow { background: var(--c-grow); }
+.m-pin.is-a { background: var(--c-warn); }
+.m-pin-v { position: absolute; right: 14px; top: var(--y); transform: translateY(-50%); padding: 2px 8px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 11px; line-height: 1.4; color: var(--c-ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.m-pin-v.is-up { transform: translateY(calc(-100% - 2px)); }
+.m-pin-v.is-down { transform: translateY(2px); }
+.m-armed .m-pins { opacity: 0; }
+.m-armed.m-on .m-pins { opacity: 1; transition: opacity .4s ease 2.6s; }
+@media (prefers-reduced-motion: reduce) { .m-armed .m-pins { opacity: 1 !important; transition: none !important; } }
+
+/* ---------- pair-link ----------
+   A strip of daily moves for one stretch of dates. Bars go up for gains and
+   down for falls; best days are gold, worst days rust, and an arc joins each
+   best day to its nearest worst day with the gap in trading days.
+   <div class="m-strip" data-m="pair-link">
+     <svg viewBox="0 0 W 200" preserveAspectRatio="none">…</svg>
+     <span class="m-gapl" style="--x:..%;--y:..px">2</span>
+     <div class="m-xaxis">…</div>
+   </div>
+   <ul class="m-pairs">…</ul> lists the same pairs in words. */
+.m-strip-h { margin: 18px 0 2px; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+.m-strip-h small { margin-left: 8px; font-family: var(--tc-mono); font-size: 11px; font-weight: 400; color: var(--c-muted); }
+.m-strip { position: relative; height: 200px; margin: 0 0 30px; }
+.m-strip svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-strip path, .m-strip line { vector-effect: non-scaling-stroke; }
+.m-strip .m-day { fill: var(--c-s4); opacity: .5; }
+.m-strip .m-best { fill: var(--c-gold); }
+.m-strip .m-worst { fill: var(--c-warn); }
+.m-strip .m-axis { stroke: var(--c-line); stroke-width: 1; }
+.m-strip .m-arc { fill: none; stroke: var(--c-ink); stroke-width: 1.25; stroke-dasharray: 3 3; opacity: .7; }
+.m-gapl { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -110%); padding: 1px 6px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 10.5px; line-height: 1.4; color: var(--c-ink); white-space: nowrap; }
+.m-pairs { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 6px; }
+.m-pairs li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 10px 14px; border-radius: 12px; background: var(--c-tile-2); font-size: 13.5px; line-height: 1.45; color: var(--c-ink); }
+.m-pairs .m-dn { color: var(--c-warn); font-variant-numeric: tabular-nums; }
+.m-pairs .m-up { color: var(--c-gold); font-variant-numeric: tabular-nums; }
+.m-pairs .m-then { color: var(--c-muted); }
+.m-pairs small { margin-left: auto; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); }
+
+@media (max-width: 860px) {
+  .m-chart { height: 240px; margin-left: 38px; }
+  .m-ends b { font-size: 24px; }
+  .m-strip { height: 170px; }
+  .m-pairs small { margin-left: 0; width: 100%; }
+  .m-strip[data-dense] .m-gapl { display: none; }
+}
+
+/* ---------- A2 motion ----------
+   dot-field and line-draw animate in motion.js (canvas pops, SVG clip wipe
+   and morph). pair-link is CSS only: motion.js arms each .m-strip on its own
+   and adds .m-on when it reaches the screen. The day bars rise from the
+   baseline, then each pair (--p, in date order) lights up in turn: worst and
+   best bars take their colour, the arc and gap label appear, and the pair's
+   line in the list below slides in. Unpaired best days light up last. */
+.m-strip.m-armed .m-days { transform: scaleY(0); transform-box: view-box; transform-origin: 50% 60%; }
+.m-strip.m-armed.m-on .m-days { transform: none; transition: transform .8s cubic-bezier(.33, 1, .68, 1) .1s; }
+.m-strip.m-armed .m-days .m-best, .m-strip.m-armed .m-days .m-worst { fill: var(--c-s4); opacity: .5; }
+.m-strip.m-armed.m-on .m-days .m-best, .m-strip.m-armed.m-on .m-days .m-worst { opacity: 1; transition: fill .35s ease, opacity .35s ease; transition-delay: calc(950ms + var(--p, 0) * 520ms); }
+.m-strip.m-armed.m-on .m-days .m-best { fill: var(--c-gold); }
+.m-strip.m-armed.m-on .m-days .m-worst { fill: var(--c-warn); }
+.m-strip.m-armed .m-pair { opacity: 0; }
+.m-strip.m-armed.m-on .m-pair { opacity: 1; transition: opacity .45s ease; transition-delay: calc(1150ms + var(--p, 0) * 520ms); }
+.m-strip.m-armed .m-gapl { opacity: 0; transform: translate(-50%, -80%) scale(.6); }
+.m-strip.m-armed.m-on .m-gapl { opacity: 1; transform: translate(-50%, -110%); transition: opacity .35s ease, transform .45s cubic-bezier(.34, 1.56, .64, 1); transition-delay: calc(1300ms + var(--p, 0) * 520ms); }
+.m-strip.m-armed + .m-pairs li { opacity: 0; transform: translateY(8px); }
+.m-strip.m-armed.m-on + .m-pairs li { opacity: 1; transform: none; transition: opacity .45s ease, transform .45s var(--tc-ease); transition-delay: calc(1200ms + var(--p, 0) * 520ms); }
+
+@media (prefers-reduced-motion: reduce) {
+  .m-strip.m-armed .m-days, .m-strip.m-armed .m-pair, .m-strip.m-armed .m-gapl, .m-strip.m-armed + .m-pairs li { transform: none !important; opacity: 1 !important; transition: none !important; }
+  .m-strip.m-armed .m-days .m-best { fill: var(--c-gold) !important; opacity: 1 !important; }
+  .m-strip.m-armed .m-days .m-worst { fill: var(--c-warn) !important; opacity: 1 !important; }
+  .m-strip.m-armed .m-gapl { transform: translate(-50%, -110%) !important; }
+}
+
+/* ---------- Phones: compact figure cards (spec 4) ----------
+   Every figure on a refreshed page (body.tc-page) runs compact on phones:
+   smaller numbers, tiles two a row, label notes on the label line, shorter
+   charts and strips. The card itself (padding, corners) is in
+   /assets/article.css. Pages not yet refreshed keep their spacing. */
+@media (max-width: 860px) {
+  body.tc-page .m-scene-no { margin-bottom: 4px; font-size: 10px; }
+  body.tc-page .visual-title { font-size: 15px; }
+  body.tc-page .visual-sub { margin-bottom: 10px; font-size: 10.5px; }
+  body.tc-page .visual-caption { margin-top: 10px; padding-top: 8px; font-size: 11.5px; line-height: 1.45; }
+  body.tc-page .tc-key { gap: 4px 10px; margin: 0 0 8px; font-size: 10.5px; }
+  body.tc-page .m-controls { gap: 8px; margin: 0 0 10px; }
+  body.tc-page .ar-seg button { min-height: 38px; font-size: 12px; }
+  body.tc-page .ar-seg.m-steps button { min-width: 40px; padding: 0 8px; }
+  body.tc-page .m-callout { flex-wrap: nowrap; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 12px; }
+  body.tc-page .m-callout b { flex: none; font-size: 24px; }
+  body.tc-page .m-callout span { font-size: 12.5px; line-height: 1.4; }
+  body.tc-page .m-k small { display: inline; margin-left: 6px; font-size: 10px; }
+  body.tc-page .m-bars .m-row { margin-bottom: 6px; }
+  body.tc-page .m-v { font-size: 15px; }
+  body.tc-page .m-bar { height: 13px; }
+  body.tc-page .m-verdict, body.tc-page .m-ends { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  body.tc-page .m-verdict > div, body.tc-page .m-ends > div { padding: 10px; border-radius: 12px; }
+  body.tc-page .m-verdict b, body.tc-page .m-ends b { font-size: 19px; }
+  body.tc-page .m-verdict p, body.tc-page .m-ends p { margin-top: 2px !important; font-size: 11px !important; }
+  body.tc-page .m-ends small { gap: 6px; font-size: 11px; }
+  body.tc-page .m-win { top: 8px; right: 8px; padding: 2px 7px; font-size: 10px; }
+  body.tc-page .m-line { margin-top: 8px !important; padding: 10px 12px; border-radius: 12px; font-size: 13px !important; }
+  body.tc-page .m-chart { margin: 4px 0 26px 36px; }
+  body.tc-page .m-chart:not(.m-lane) { height: 180px; }
+  body.tc-page .m-chart.is-bold { height: 220px; }
+  body.tc-page .m-pin-v { font-size: 10px; padding: 1px 6px; }
+  body.tc-page .m-yaxis span, body.tc-page .m-xaxis span { font-size: 10px; }
+  body.tc-page .m-strip-h { margin: 10px 0 0; font-size: 13px; }
+  body.tc-page .m-strip { height: 110px; margin-bottom: 24px; }
+  body.tc-page .m-pairs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  body.tc-page .m-pairs li { margin: 0; padding: 6px 8px; gap: 2px 8px; border-radius: 10px; font-size: 11px; }
+  body.tc-page .m-pairs small { font-size: 10px; }
+  body.tc-page .m-dots { margin: 0 0 4px; }
+  body.tc-page .m-dots-ends { margin-top: 4px; font-size: 10px; }
+  body.tc-page .m-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  body.tc-page .m-facts > div { padding: 8px 10px; }
+  body.tc-page .m-facts dd { font-size: 15px; }
+  body.tc-page .m-breakdown { gap: 5px; }
+  body.tc-page .m-breakdown > div { padding: 8px 10px; font-size: 13px; }
+  /* One figure, one screen (Paddy, 28 Oct, Batch 2 phone pass). A chart with no
+     y-axis keeps no gutter for one; steppers share the full width; the Ahead
+     badge sits on the tile's top edge, clear of its label. */
+  body.tc-page .m-chart.is-flat, body.tc-page .m-chart.is-bare { margin-left: 0; }
+  body.tc-page .m-controls .ar-seg { display: flex; width: 100%; }
+  body.tc-page .m-controls .ar-seg button { flex: 1 1 0; min-width: 0; }
+  body.tc-page .m-win { top: 0; right: 10px; transform: translateY(-50%); }
+  /* Bold lines thin out on a short chart, so two close lines stay apart; pins
+     marked .is-desk give way to the tiles below. */
+  body.tc-page .m-chart.is-bold .m-ref, body.tc-page .m-chart.is-bold .m-line-a { stroke-width: 2; }
+  :root body.tc-page .m-chart.is-bold .m-gap { opacity: .4; }
+  body.tc-page .m-pin.is-desk, body.tc-page .m-pin-v.is-desk { display: none; }
+  /* Strips shorter, each pair on one line; the gaps read from the list, not bubbles. */
+  body.tc-page .m-strip { height: 80px; margin-bottom: 22px; }
+  body.tc-page .m-pairs { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  body.tc-page .m-pairs li { flex-wrap: nowrap; padding: 5px 10px; white-space: nowrap; }
+  body.tc-page .m-pairs small { width: auto; margin-left: auto; }
+  body.tc-page .m-strip .m-gapl { display: none; }
+  body.tc-page .m-strip .m-xaxis span:first-child { transform: none; }
+  /* Sliders: label and value beside the track, one row each. */
+  body.tc-page .visual-block .tc-controls { gap: 0; margin: 0 0 10px; }
+  body.tc-page .visual-block .tc-field { display: grid; grid-template-columns: 142px minmax(0, 1fr); align-items: center; gap: 12px; }
+  body.tc-page .visual-block .tc-field label { align-items: baseline; margin: 0; font-size: 11px; }
+  body.tc-page .visual-block .tc-field output { font-size: 14px; }
+  body.tc-page .visual-block .tc-field input[type="range"] { min-height: 34px; }
+  /* Feature stats side by side, each number over its line. */
+  body.tc-page .m-feature { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 6px; border-radius: 12px; }
+  body.tc-page .m-feature > div { flex-direction: column; align-items: flex-start; gap: 4px; padding: 10px 12px; }
+  body.tc-page .m-feature > div + div { border-top: 0; border-left: 1px solid rgba(232, 214, 168, .22); }
+  body.tc-page .m-feature b { min-width: 0; font-size: 19px; }
+  body.tc-page .m-chart.is-tall.is-decide { height: 200px; }
+  body.tc-page .tc-key.is-phone-hide { display: none; }
+  body.tc-page .m-feature span { font-size: 11px; line-height: 1.35; }
+}
+
+
+/* =========================================================================
+   REF-Short additions (Buying the Top, Oct 2026): line markers. Same rules:
+   theme tokens only, and every figure reads as its end state without JS or
+   motion.
+   ========================================================================= */
+
+/* ---------- line markers ----------
+   Dots placed on a line-draw chart and sized by a value, with a strip of
+   stage names under the chart. An illustration with no money axis uses
+   .m-chart.is-bare (no room kept for y-axis labels).
+   <div class="m-chart is-bare" data-m="line-draw">
+     <svg …>…</svg>
+     <span class="m-note" style="--x:70%;--y:100%">The top</span>
+     <div class="m-marks" aria-hidden="true"><i style="--x:10%;--y:87%;--s:.1;--t:650ms"></i>…</div>
+   </div>
+   <ol class="m-stages"><li><b>Pessimism</b><small>Quietest</small></li>…</ol>
+   --x / --y place a dot in % of the chart (on the line's own points), --s
+   (0 to 1) sets its size and --t is when it pops after the scene plays:
+   time it to when the line wipes past it. Stages are equal columns, so put
+   the dots at the column centres (10/30/50/70/90% for five). */
+.m-chart.is-bare { margin-left: 0; margin-bottom: 14px; }
+.m-marks i { position: absolute; left: var(--x); top: var(--y); width: calc(10px + var(--s, 0) * 26px); height: calc(10px + var(--s, 0) * 26px); border-radius: 50%; background: var(--c-gold); box-shadow: 0 0 0 3px var(--c-tile); transform: translate(-50%, -50%); }
+.m-note { position: absolute; left: var(--x); top: var(--y); transform: translate(8px, -100%); padding-bottom: 6px; font-family: var(--tc-mono); font-size: 11px; line-height: 1; color: var(--c-muted); white-space: nowrap; }
+.m-stages { display: grid; grid-template-columns: repeat(var(--n, 5), minmax(0, 1fr)); gap: 0 6px; margin: 0; padding: 0; list-style: none; text-align: center; }
+.m-stages b { display: block; font-size: 13px; font-weight: 500; line-height: 1.3; color: var(--c-ink); }
+.m-stages small { display: block; margin-top: 2px; font-size: 12px; line-height: 1.35; color: var(--c-muted); }
+.tc-key i.m-k-mark { width: 10px; height: 10px; border-radius: 50%; background: var(--c-gold); }
+
+/* ---------- lanes ----------
+   Slim line-draw charts under a main chart, on the same timeline: one per
+   series (e.g. forces that build and fade), each a line with the area under
+   it shaded. A dashed rule at --x carries one moment of the main chart (the
+   top) down through them. Each lane is an ordinary line-draw chart, given
+   TeiMotion.line(lane, { max, ref: series, a: zeros }), so its line draws
+   with the main chart and the shading follows.
+   <div class="m-lanes" style="--x:70%"><div class="m-lanes-h">…</div>
+     <div class="m-lane-h"><b>Name</b>One line.</div>
+     <div class="m-chart is-bare m-lane" data-m="line-draw"><svg …>
+       <path class="m-gap"/><path class="m-line-a"/><path class="m-ref"/></svg></div>…</div> */
+.m-lanes { position: relative; margin: 6px 0 10px; }
+.m-lanes::before { content: ""; position: absolute; left: var(--x, 50%); top: 0; bottom: 0; border-left: 1px dashed var(--c-muted); opacity: .55; }
+.m-lanes-h { margin: 0 0 8px; font-family: var(--tc-mono); font-size: 12px; color: var(--c-gold); }
+.m-lane-h { font-size: 13px; line-height: 1.35; color: var(--c-muted); }
+.m-lane-h b { margin-right: 6px; font-weight: 500; color: var(--c-ink); }
+.m-chart.m-lane { height: 44px; margin: 2px 0 12px; }
+.m-lane .m-ref { stroke: var(--c-gold); }
+.m-lane .m-gap { fill: var(--c-gold); opacity: .22; }
+.m-lane .m-line-a { stroke: var(--c-line); stroke-width: 1; }
+/* Fit to the screen: on a phone the whole figure fits one screen; in the wide
+   article layout (1100px+) the chart takes its height from the window. */
+@media (max-width: 860px) {
+  .visual-block[data-m="scene"] .m-chart.is-bare:not(.m-lane) { height: 180px; }
+  .visual-block[data-m="scene"] .m-chart.m-lane { height: 26px; margin: 2px 0 8px; }
+  .m-lanes-h { margin-bottom: 4px; font-size: 11px; }
+  .m-lane-h { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
+@media (min-width: 1100px) {
+  /* The figure around the chart is about 560px tall; the chart takes what the window has left. */
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-bare:not(.m-lane) { height: clamp(150px, calc(100vh - 652px), 300px); }
+  .ar-v .visual-block[data-m="scene"] .m-chart.m-lane { height: 28px; margin-bottom: 8px; }
+  /* A line chart with axes in the wide layout: the same idea, its figure is about 550px around it. */
+  .ar-v .visual-block[data-m="scene"] .m-chart:not(.is-bare) { height: clamp(220px, calc(100vh - 644px), 320px); }
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-bold { height: clamp(280px, calc(100vh - 560px), 380px); }
+}
+
+/* Motion: each dot pops as the line wipes past it; the note and the lanes'
+   dashed rule follow the peak. */
+.m-armed .m-lanes::before { opacity: 0; }
+.m-armed.m-on .m-lanes::before { opacity: .55; transition: opacity .4s ease 1.1s; }
+@media (prefers-reduced-motion: reduce) { .m-armed .m-lanes::before { opacity: .55 !important; transition: none !important; } }
+.m-armed .m-marks i { transform: translate(-50%, -50%) scale(0); }
+.m-armed.m-on .m-marks i { transform: translate(-50%, -50%); transition: transform .5s cubic-bezier(.34, 1.56, .64, 1); transition-delay: var(--t, 1200ms); }
+.m-armed .m-note, .m-armed .m-chart.is-bare .m-start { opacity: 0; }
+.m-armed.m-on .m-note, .m-armed.m-on .m-chart.is-bare .m-start { opacity: 1; transition: opacity .4s ease 1.1s; }
+@media (prefers-reduced-motion: reduce) {
+  .m-armed .m-marks i { transform: translate(-50%, -50%) !important; transition: none !important; }
+  .m-armed .m-note, .m-armed .m-chart.is-bare .m-start { opacity: 1 !important; transition: none !important; }
+}
+@media (max-width: 860px) {
+  .visual-block[data-m="scene"] .m-chart.is-bare { margin: 4px 0 12px; }
+  .m-marks i { width: calc(8px + var(--s, 0) * 18px); height: calc(8px + var(--s, 0) * 18px); }
+  .m-note { font-size: 10px; }
+  .m-stages { gap: 0 2px; }
+  .m-stages b { font-size: 11px; }
+  .m-stages small { font-size: 10.5px; }
+}
+
+/* ---------- Tier 2 Batch 2 parts (28 Oct 2026, chosen from working mock-ups) ----------
+   .m-reveal      children appear one by one when the scene plays (motion.js sets --i)
+   .m-lab, .m-dot floating chart labels and markers, placed by --x / --y, shown after --t
+   .m-chart.is-noise / .is-peg / .is-decide / .is-oil / .is-solo / .is-short / .is-over
+   .m-zone, .m-peg   the price paid as a dashed line, with the zone above and below
+   .m-fork, .m-path  one headline, two paths
+   .m-hundreds       100 dots, the counted ones light up
+   .m-chain          seven links with the markets' fast lane; .m-chain-sm on phones
+   .m-bond, .m-par   a bar against a dashed reference value
+   .m-cols           yearly columns
+   .m-feature        the key result on the blue tile: each stat beside its description
+   .m-fromto         supporting numbers as a plain "from -> to" list
+   .m-why            a plain-English explanation strip inside a figure */
+.m-armed .m-reveal > * { opacity: 0; transform: translateY(10px); }
+.m-armed.m-on .m-reveal > * { opacity: 1; transform: none; transition: opacity .45s ease, transform .45s var(--tc-ease); transition-delay: calc(var(--i, 0) * 240ms + 150ms); }
+
+.m-labs { position: absolute; inset: 0; pointer-events: none; }
+.m-lab { position: absolute; left: var(--x); top: var(--y); transform: translate(-50%, -140%); padding: 2px 8px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-line); font-family: var(--tc-mono); font-size: 11px; line-height: 1.4; color: var(--c-ink); white-space: nowrap; }
+.m-lab.is-below { transform: translate(-50%, 40%); }
+.m-lab.is-left { transform: translate(calc(-100% - 10px), -50%); }
+.m-lab.is-gold { border-color: var(--c-gold); color: var(--c-gold); }
+.m-lab.is-phone { display: none; }
+.m-dot { position: absolute; left: var(--x); top: var(--y); width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; box-shadow: 0 0 0 3px var(--c-tile); }
+.m-dot.is-grow { background: var(--c-grow); }
+.m-dot.is-warn { background: var(--c-warn); }
+.m-dot.is-gold { background: var(--c-gold); }
+.m-dot.is-ink { background: var(--c-s1); }
+.m-armed .m-lab { opacity: 0; }
+.m-armed.m-on .m-lab { opacity: 1; transition: opacity .4s ease; transition-delay: var(--t, 1800ms); }
+.m-armed .m-dot { transform: scale(0); }
+.m-armed.m-on .m-dot { transform: none; transition: transform .5s cubic-bezier(.34, 1.56, .64, 1); transition-delay: var(--t, 1600ms); }
+
+/* Signal under static: the steady value line is the signal, the price is static around it. */
+.m-chart.is-flat { margin-left: 0; }
+.m-chart.is-noise .m-ref { stroke: var(--c-s1); stroke-width: 3; }
+.m-chart.is-noise .m-line-a { stroke: var(--c-s4); stroke-width: 1.5; }
+.m-chart.is-noise .m-gap, .m-chart.is-solo .m-gap, .m-chart.is-solo .m-line-a, .m-chart.is-peg .m-gap, .m-chart.is-oil .m-gap, .m-chart.is-over .m-gap, .m-chart.is-over .m-line-a { display: none; }
+.tc-key i.m-i-noise { background: var(--c-s4); }
+.m-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.m-lists .m-breakdown { margin-bottom: 6px; }
+.m-lists .m-breakdown > div { padding: 9px 12px; font-size: 13px; }
+.m-lists .is-signal > div { background: var(--c-champ-tile); }
+
+/* The fork: one headline, two paths. */
+.m-fork { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+.m-fork-head { grid-column: 1 / -1; justify-self: center; position: relative; margin-bottom: 34px; padding: 12px 18px; border-radius: 14px; background: var(--c-feature); color: var(--c-on-feature); font-size: 15px; }
+.m-fork-head::before { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 14px; background: var(--c-line); }
+.m-fork-head::after { content: ""; position: absolute; left: 25%; right: 25%; top: calc(100% + 14px); height: 18px; border: 2px solid var(--c-line); border-bottom: 0; border-radius: 14px 14px 0 0; }
+.m-path { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.m-path li { position: relative; padding: 12px 14px; border-radius: 14px; background: var(--c-tile-2); font-size: 14px; line-height: 1.45; color: var(--c-ink); }
+.m-path li.m-path-h { padding: 0 0 2px; background: none; font-family: var(--tc-mono); font-size: 11px; color: var(--c-muted); text-align: center; }
+.m-path li + li::before { content: ""; position: absolute; left: 50%; top: -9px; width: 2px; height: 9px; background: var(--c-line); }
+.m-path li.m-path-h + li::before { display: none; }
+.m-path li.is-end { background: var(--c-depth); box-shadow: var(--c-depth-shadow); }
+.m-path.is-plain li.is-end { background: var(--c-tile-2); border: 1px dashed var(--c-line); box-shadow: none; }
+
+/* The peg: a dashed price paid, with a gain zone above and a loss zone below. */
+.m-zone { position: absolute; left: 0; right: 0; pointer-events: none; }
+.m-zone.is-up { top: 0; bottom: calc(100% - var(--y)); background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--c-grow) 14%, transparent)); }
+.m-zone.is-down { top: var(--y); bottom: 0; background: linear-gradient(to top, transparent, color-mix(in srgb, var(--c-warn) 12%, transparent)); }
+.m-zone b { position: absolute; left: 10px; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; }
+.m-zone.is-up b { top: 8px; color: var(--c-grow); }
+.m-zone.is-down b { bottom: 8px; color: var(--c-warn); }
+.m-peg { position: absolute; left: 0; right: 0; top: var(--y); border-top: 2px dashed var(--c-gold); }
+.m-peg > span { position: absolute; right: 0; top: -22px; font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); }
+.m-chart.is-peg .m-ref { stroke-width: 2.5; }
+.m-zd { display: inline-block; flex: none; width: 9px; height: 9px; margin-right: 7px; border-radius: 50%; vertical-align: 1px; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .75); }
+.m-zd.is-up { background: var(--c-grow); }
+.m-zd.is-down { background: var(--c-warn); }
+
+/* A hundred dots: out of every 100, the counted ones light up. */
+.m-hundreds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.m-hundred { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 5px; max-width: 260px; }
+.m-hundred i { aspect-ratio: 1; border-radius: 50%; background: var(--c-s4); opacity: .3; }
+.m-hundred i.is-lit { opacity: 1; background: var(--c-gold); }
+.m-hundred.is-loss i.is-lit { background: var(--c-warn); }
+.m-armed .m-hundred i.is-lit { opacity: .3; background: var(--c-s4); transform: scale(.6); }
+.m-armed.m-on .m-hundred i.is-lit { opacity: 1; background: var(--c-gold); transform: none; transition: transform .45s cubic-bezier(.34, 1.56, .64, 1), background-color .2s ease, opacity .2s ease; transition-delay: var(--t, 300ms); }
+.m-armed.m-on .m-hundred.is-loss i.is-lit { background: var(--c-warn); }
+.m-hundred-h { margin: 0 0 10px; padding: 12px 14px; border-radius: 16px; background: var(--c-key); box-shadow: var(--c-key-shadow); font-size: 13px; color: var(--c-key-text); }
+.m-hundred-h small { display: flex; align-items: center; margin-bottom: 4px; font-family: var(--tc-mono); font-size: 11px; font-weight: 500; color: var(--c-key-text); }
+.m-hundred-h b { margin-right: 6px; font-size: 28px; font-weight: 300; letter-spacing: -0.02em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+
+/* The chain, with the markets' fast lane from link 1 to link 5 (desktop); four steps on phones. */
+.m-chain { position: relative; padding-top: 74px; }
+.m-chain ol { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; counter-reset: link; }
+.m-chain li { position: relative; padding: 14px 14px 16px; border-radius: 16px; background: var(--c-tile-2); counter-increment: link; }
+.m-chain li::before { content: counter(link); display: grid; place-items: center; width: 26px; height: 26px; margin-bottom: 10px; border-radius: 50%; background: var(--c-s1); color: var(--c-tile); font-family: var(--tc-mono); font-size: 12px; }
+.m-chain li.is-fast::before { background: var(--c-gold); }
+.m-chain li.is-end { background: var(--c-key); box-shadow: var(--c-key-shadow); }
+.m-chain li.is-end h4 { color: var(--c-key-num); }
+.m-chain li.is-end p { color: var(--c-key-text) !important; }
+.m-chain li.is-end::before { background: var(--c-key-num); color: var(--c-key); }
+.m-chain h4 { margin: 0 0 6px; font-size: 15px; line-height: 1.3; font-weight: 500; color: var(--c-ink); }
+.m-chain li p { margin: 0 !important; font-size: 13px !important; line-height: 1.5 !important; color: var(--c-muted) !important; }
+.m-chain-fast { position: absolute; left: calc((100% - 60px) / 14); width: calc((100% - 60px) / 7 * 4 + 40px); top: 6px; height: 64px; }
+.m-chain-fast svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.m-chain-fast path { fill: none; stroke: var(--c-gold); stroke-width: 2.5; stroke-dasharray: 1; stroke-dashoffset: 0; vector-effect: non-scaling-stroke; }
+.m-chain-fast span { position: absolute; left: 50%; top: -4px; transform: translateX(-50%); padding: 2px 10px; border-radius: 999px; background: var(--c-tile); border: 1px solid var(--c-gold); font-family: var(--tc-mono); font-size: 11px; color: var(--c-gold); white-space: nowrap; }
+.m-chain-slow { display: flex; align-items: center; gap: 10px; margin: 14px 0 0 !important; padding-left: calc((100% - 60px) / 7 + 10px); padding-right: calc((100% - 60px) / 7 * 3 + 30px); font-family: var(--tc-mono); font-size: 11px !important; color: var(--c-muted) !important; }
+.m-chain-slow::before, .m-chain-slow::after { content: ""; flex: 1; border-top: 2px dotted var(--c-s4); }
+.m-armed .m-chain-fast path { stroke-dashoffset: 1; }
+.m-armed.m-on .m-chain-fast path { stroke-dashoffset: 0; transition: stroke-dashoffset 1s ease-in-out 2.2s; }
+.m-armed .m-chain-fast span, .m-armed .m-chain-slow { opacity: 0; }
+.m-armed.m-on .m-chain-fast span, .m-armed.m-on .m-chain-slow { opacity: 1; transition: opacity .4s ease 3s; }
+.m-chain-sm { display: none; }
+
+/* A bar against a dashed reference value (the bond's issue price). */
+.m-bond .m-bar { position: relative; }
+.m-bond .m-bar i { background: var(--c-s1); transition: width .5s var(--tc-ease); }
+.m-bond .m-bar i.is-down { background: var(--c-warn); }
+.m-bond .m-bar i.is-up { background: var(--c-grow); }
+.m-par { position: absolute; top: -6px; bottom: -6px; left: calc(100 / var(--max) * 100%); border-left: 2px dashed var(--c-gold); }
+.m-par span { position: absolute; top: -18px; right: 4px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-gold); white-space: nowrap; }
+.m-scale { display: flex; justify-content: space-between; margin-top: -4px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-muted); }
+
+/* Yearly columns: each year's amount, and what it is worth today. */
+.m-why { margin: 4px 0 14px !important; padding: 12px 14px; border-left: 3px solid var(--c-gold); background: var(--c-tile-2); border-radius: 0 12px 12px 0; font-size: 14px !important; line-height: 1.55 !important; color: var(--c-ink) !important; }
+.m-why strong { font-weight: 500; }
+.m-cols-row { margin: 6px 0 14px; }
+.m-cols-h { margin-bottom: 6px; font-size: 14px; color: var(--c-ink); }
+.m-cols { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); align-items: end; gap: 6px; height: 120px; padding-bottom: 2px; border-bottom: 1px solid var(--c-line); }
+.m-cols i { display: block; height: calc(var(--v, 0) / 20 * 100%); border-radius: 6px 6px 2px 2px; background: var(--c-s1); transition: height .6s var(--tc-ease), background-color .3s ease; }
+.m-cols.is-pv i { background: var(--c-grow); }
+.m-cols i.is-zero { height: 3px; background: var(--c-line); }
+.m-cols-x { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin-top: 4px; font-family: var(--tc-mono); font-size: 10.5px; color: var(--c-muted); text-align: center; }
+.m-armed .m-cols i { height: 0; }
+.m-armed.m-on .m-cols i { height: calc(var(--v, 0) / 20 * 100%); transition-delay: var(--t, 0ms); }
+.m-armed.m-on .m-cols i.is-zero { height: 3px; }
+
+/* The feature: the key result on the blue tile, each stat beside its description. */
+.m-feature { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 8px; border-radius: 18px; background: var(--c-key); box-shadow: var(--c-key-shadow); overflow: hidden; }
+.m-feature > div { display: flex; align-items: center; gap: 14px; padding: 14px 18px; }
+.m-feature > div + div { border-left: 1px solid rgba(232, 214, 168, .22); }
+.m-feature b { flex: none; font-size: 30px; line-height: 1; font-weight: 300; letter-spacing: -0.03em; color: var(--c-key-num); font-variant-numeric: tabular-nums; }
+.m-feature span { font-size: 13px; line-height: 1.4; font-weight: 500; color: var(--c-key-text); }
+/* Supporting numbers: a plain list, less emphasis than the feature. */
+.m-fromto { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; margin: 12px 0 0; }
+.m-fromto.is-one { grid-template-columns: minmax(0, 1fr); }
+.m-fromto > div { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--c-line); font-size: 13px; }
+.m-fromto dt { display: flex; align-items: center; gap: 8px; color: var(--c-muted); }
+.m-fromto dt i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+.m-fromto dd { margin: 0; color: var(--c-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.m-keyrow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px; margin-top: 10px; }
+.m-keyrow .m-strip-h, .m-keyrow .tc-key { margin: 0; }
+
+/* Charts in this batch: Palantir's three decisions, oil against yields, shares alone, a band and a date line. */
+.m-chart.is-decide > svg .m-ref { stroke: url(#m-g-held); stroke-width: 2.5; }
+.m-chart.is-over { position: absolute !important; inset: 0; height: auto !important; margin: 0 !important; }
+.m-chart.is-over .m-ref { stroke: url(#m-g-add); stroke-width: 2.5; }
+.m-s-pre { stop-color: var(--c-s4); }
+.m-s-held { stop-color: var(--c-s1); }
+.m-s-none { stop-color: var(--c-s4); stop-opacity: 0; }
+.m-s-add { stop-color: var(--c-grow); }
+.tc-key i.m-i-pre, .m-fromto i.m-i-pre { background: var(--c-s4); }
+.tc-key i.m-i-oil, .m-fromto i.m-i-oil { background: var(--c-oil); }
+.m-fromto i.m-i-grow { background: var(--c-grow); }
+.m-chart.is-oil .m-ref { stroke: var(--c-grow); }
+.m-chart.is-oil .m-line-a { stroke: var(--c-oil); stroke-width: 2.25; }
+.m-chart.is-solo .m-ref { stroke-width: 2.5; }
+.m-band { position: absolute; top: -6px; bottom: -6px; left: var(--x); width: calc(var(--p) - var(--x)); background: color-mix(in srgb, var(--c-warn) 9%, transparent); border-left: 1px solid color-mix(in srgb, var(--c-warn) 35%, transparent); border-right: 1px solid color-mix(in srgb, var(--c-warn) 35%, transparent); pointer-events: none; }
+.m-vline { position: absolute; top: -6px; bottom: -6px; left: var(--x); border-left: 2px dashed var(--c-gold); pointer-events: none; }
+.m-armed .m-band, .m-armed .m-vline { opacity: 0; }
+.m-armed.m-on .m-band, .m-armed.m-on .m-vline { opacity: 1; transition: opacity .5s ease 1.8s; }
+@media (min-width: 1100px) {
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-tall { height: clamp(260px, calc(100vh - 560px), 360px); }
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-short { height: 110px; margin-bottom: 12px; }
+  .ar-v .visual-block[data-m="scene"] .m-chart.is-solo.is-main { height: clamp(200px, calc(100vh - 640px), 260px); }
+}
+@media (max-width: 1099px) {
+  .m-chain { display: none; }
+  .m-chain-sm { display: flex; flex-direction: column; gap: 6px; }
+  .m-chain-sm > div { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px 12px; border-radius: 14px; background: var(--c-tile-2); }
+  .m-chain-sm > div > b { display: grid; place-items: center; height: 30px; border-radius: 999px; background: var(--c-s1); color: var(--c-tile); font-family: var(--tc-mono); font-size: 11px; font-weight: 500; }
+  .m-chain-sm > div.is-fast > b { background: var(--c-gold); }
+  .m-chain-sm > div.is-slow { background: transparent; border: 1px dashed var(--c-line); }
+  .m-chain-sm > div.is-end { background: var(--c-key); box-shadow: var(--c-key-shadow); }
+  .m-chain-sm > div.is-end span, .m-chain-sm > div.is-end strong { color: var(--c-key-text); }
+  .m-chain-sm > div.is-end > b { background: var(--c-key-num); color: var(--c-key); }
+  .m-chain-sm span { font-size: 12.5px; line-height: 1.4; color: var(--c-muted); }
+  .m-chain-sm strong { display: block; font-size: 14px; font-weight: 500; color: var(--c-ink); }
+  .m-chain-skip { position: relative; margin: 0 !important; padding: 6px 12px 6px 30px !important; font-family: var(--tc-mono); font-size: 11px !important; line-height: 1.4 !important; color: var(--c-gold) !important; }
+  .m-chain-skip::before { content: "\2193"; position: absolute; left: 14px; top: 5px; }
+}
+@media (max-width: 860px) {
+  body.tc-page .m-chart.is-tall { height: 240px; }
+  body.tc-page .m-chart.is-peg { height: 270px; }
+  body.tc-page .m-chart.is-short { height: 90px; }
+  body.tc-page .m-chart.is-solo.is-main { height: 140px; }
+  .m-lab { font-size: 10px; }
+  .m-lab.is-desk, .m-dot.is-desk { display: none; }
+  .m-lab.is-phone { display: block; }
+  .m-long { display: none; }
+  .m-zone b { font-size: 10px; }
+  .m-lists, .m-hundreds { gap: 10px; }
+  .m-fork { gap: 0 8px; }
+  .m-path li { padding: 10px; font-size: 13px; }
+  .m-hundred { gap: 3px; }
+  .m-hundred-h { padding: 10px 12px; }
+  .m-hundred-h b { font-size: 20px; margin-right: 4px; }
+  .m-hundred-h small { font-size: 10.5px; }
+  .m-cols { height: 72px; gap: 4px; }
+  .m-feature { grid-template-columns: minmax(0, 1fr); }
+  .m-feature > div { gap: 12px; padding: 10px 14px; }
+  .m-feature > div + div { border-left: 0; border-top: 1px solid rgba(232, 214, 168, .22); }
+  .m-feature b { min-width: 76px; font-size: 22px; }
+  .m-feature span { font-size: 12px; }
+  .m-fromto { grid-template-columns: minmax(0, 1fr); }
+  .m-fromto > div { padding: 5px 0; font-size: 12px; }
+  .m-fromto.is-phone-hide { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-armed .m-reveal > *, .m-armed .m-lab, .m-armed .m-dot, .m-armed .m-hundred i.is-lit, .m-armed .m-cols i, .m-armed .m-chain-fast span, .m-armed .m-chain-slow, .m-armed .m-band, .m-armed .m-vline { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .m-armed .m-hundred i.is-lit { background: var(--c-gold) !important; }
+  .m-armed .m-hundred.is-loss i.is-lit { background: var(--c-warn) !important; }
+  .m-armed .m-cols i { height: calc(var(--v, 0) / 20 * 100%) !important; }
+  .m-armed .m-chain-fast path { stroke-dashoffset: 0 !important; transition: none !important; }
+}
+/* A feature or list in the notes beside a short text: one column, rows stacked. */
+@media (min-width: 1100px) {
+  .ar-notes .m-feature, .ar-notes .m-fromto { grid-template-columns: minmax(0, 1fr); }
+  .ar-notes .m-feature { margin-top: 0; }
+  .ar-notes .m-feature > div + div { border-left: 0; border-top: 1px solid rgba(232, 214, 168, .22); }
+  .ar-notes .m-fromto { margin-top: 0; }
+}
+/* The article body sets paragraph colour; the dot headings sit on the blue tile. */
+body.tc-page .m-hundred-h, body.tc-page .m-hundred-h span { color: var(--c-key-text) !important; }
+body.tc-page .m-hundred-h b { color: var(--c-key-num) !important; }

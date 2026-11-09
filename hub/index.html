@@ -2,118 +2,338 @@
 <html lang="en" data-tei-page="hub-home">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Client Hub -- The Everyday Investor</title>
+<!-- Light or dark before the page paints (tei-theme key, dark by default on /hub/). -->
+<script src="/hub/js/tei-theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/hub/css/hub-tokens.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
-:root {
-  --navy: #1D3557; --navy-dk: #0f1e3a; --navy-md: #2B4C7E; --navy-tint: #EDF2F8;
-  --cream: #F7F4ED; --cream-dk: #EDE8DA;
-  --gold: #C9A84C; --gold-dk: #b8922d; --gold-lt: #FBF4E0;
-  --text: #1a1a2e; --mid: #4a5568; --lt: #5f6b7a; --white: #ffffff;
-  --shadow: 0 4px 28px rgba(29,53,87,.10);
+/* Client Hub home, the lobby (BUILD_Client_Hub_Lobby v1.2; boards HubLobby
+   and HubLobbyMobile). Colours come from /hub/css/hub-tokens.css. Navy
+   featured tiles use fixed colours so they look the same in both themes. */
+:root { color-scheme:light; }
+:root[data-theme="dark"] { color-scheme:dark; }
+* { box-sizing:border-box; }
+html, body { margin:0; }
+body { font-family:'Geist', system-ui, -apple-system, sans-serif; background:var(--w-bg); color:var(--w-text); font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+p, h1, h2, h3, ol, ul { margin:0; }
+ol, ul { padding:0; list-style:none; }
+a { color:inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid var(--w-gold); outline-offset:2px; }
+.t-feat a:focus-visible, .t-feat button:focus-visible { outline-color:#E8D6A8; }
+.mono { font-family:'Geist Mono', ui-monospace, Menlo, monospace; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+/* ---------- Page header row ---------- */
+.hl { padding:28px 32px 40px; }
+.hl-head { display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between; margin-bottom:24px; }
+.hl-date { font-size:12px; color:var(--w-muted); }
+.hl-title { margin-top:6px; font-size:36px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
+.hl-date-s { display:none; }
+.hl-head-side { display:flex; align-items:center; gap:8px; }
+
+/* ---------- Shared tile recipes (2.2) ---------- */
+.hl-grid { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:16px; }
+.t { position:relative; min-width:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:26px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); display:flex; flex-direction:column; animation:hl-up .7s cubic-bezier(.2,.8,.2,1) both; }
+.t-champ { background:var(--w-champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
+.t-feat { overflow:hidden; background:#14376E; border-color:rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+.t-feat .glow, .t-feat .glow2 { position:absolute; border-radius:50%; pointer-events:none; }
+.t-feat .glow { width:700px; height:700px; right:-16%; top:-70%; background:radial-gradient(closest-side, rgba(232,214,168,0.26), rgba(232,214,168,0)); }
+.t-feat .glow2 { width:520px; height:520px; left:-18%; bottom:-80%; background:radial-gradient(closest-side, rgba(185,202,230,0.18), rgba(185,202,230,0)); }
+.lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--w-gold); }
+.t-feat .lab { color:#E8D6A8; }
+.row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.lnk { display:inline-flex; align-items:center; min-height:40px; font-size:13px; text-decoration:none; color:var(--w-gold); }
+.lnk-m { color:var(--w-muted); }
+.lnk:hover { text-decoration:underline; }
+.btn { align-self:flex-start; display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:0 18px; border-radius:999px; border:1px solid var(--w-line); background:transparent; color:var(--w-text); font-family:inherit; font-size:14px; font-weight:500; text-decoration:none; cursor:pointer; }
+.btn-p { border-color:transparent; background:var(--w-nav-active); color:var(--w-nav-active-text); box-shadow:var(--w-btn-glow); }
+.btn-c { border-color:transparent; background:#E8D6A8; color:#0F1E36; box-shadow:0 0 0 1px rgba(232,214,168,0.35), 0 6px 22px rgba(232,214,168,0.28); }
+.btn svg, .chev { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; flex:none; }
+.btn[aria-disabled="true"] { opacity:.7; cursor:default; }
+.press { transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease; }
+.press:active { transform:scale(.985); }
+@media (hover:hover) { .lift:hover { transform:translateY(-2px); } }
+.pill { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; padding:4px 10px; border-radius:999px; background:var(--w-chip); border:1px solid var(--w-line); }
+
+/* ---------- 4.1 Your plan (hero) ---------- */
+.t-plan { grid-column:span 8; padding:30px; min-height:300px; flex-direction:row; flex-wrap:wrap; gap:24px; }
+.t-plan-text { position:relative; flex:1 1 300px; display:flex; flex-direction:column; gap:14px; min-width:0; }
+.t-plan h2, .t-gs h2 { font-size:30px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
+.t-plan .btn-c { min-height:46px; padding:0 22px; font-size:15px; }
+.docs { display:flex; flex-wrap:wrap; gap:10px; margin-top:auto; }
+.doc { flex:1 1 180px; display:flex; gap:12px; align-items:center; padding:12px; border-radius:16px; text-decoration:none; background:rgba(255,255,255,0.06); border:1px solid rgba(232,214,168,0.22); }
+.doc-ic { flex:none; position:relative; overflow:hidden; display:block; width:38px; height:48px; border-radius:6px; background:#F7F4ED; box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+.doc-ic i { position:absolute; display:block; left:6px; height:2px; background:#C9D3E3; }
+.doc-ic .band { left:0; right:0; top:0; height:12px; }
+.doc-ic .l1 { right:6px; top:18px; } .doc-ic .l2 { right:12px; top:24px; } .doc-ic .l3 { right:8px; top:30px; }
+.doc-ic .gold { width:14px; bottom:6px; height:6px; background:#E8D6A8; }
+.doc-t { display:block; font-size:14px; font-weight:500; }
+.doc-d { display:block; margin-top:3px; font-size:11px; color:#C9D3E3; }
+.t-plan-chart { position:relative; flex:1 1 280px; min-height:200px; }
+.t-plan-chart svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.pt { position:absolute; width:0; height:0; }
+.pt i { position:absolute; display:block; border-radius:50%; }
+.pt .halo { left:-6px; top:-6px; width:12px; height:12px; background:rgba(232,214,168,0.5); animation:hl-pulse 2.2s ease-out infinite; }
+.pt .dot { left:-5px; top:-5px; width:10px; height:10px; background:#E8D6A8; box-shadow:0 0 14px rgba(232,214,168,0.9); }
+.bar-r { transform-box:fill-box; transform-origin:bottom; animation:hl-bar 1s cubic-bezier(.3,.8,.3,1) both; }
+.draw { stroke-dasharray:1; animation:hl-draw 1.8s cubic-bezier(.6,.05,.2,1) .2s both; }
+
+/* ---------- 5.2 Getting started (new client hero) ---------- */
+.t-gs { grid-column:span 8; padding:30px; flex-direction:row; flex-wrap:wrap; gap:28px; }
+.t-gs-text { position:relative; flex:1 1 260px; display:flex; flex-direction:column; gap:14px; min-width:0; }
+.t-gs-line { font-size:14px; line-height:1.55; color:#C9D3E3; }
+.gs-prog { margin-top:auto; }
+.gs-count { display:flex; justify-content:space-between; font-size:11px; color:#C9D3E3; margin-bottom:8px; }
+.segs { display:flex; gap:4px; }
+.segs i { flex:1; display:block; height:6px; border-radius:999px; background:rgba(255,255,255,0.14); }
+.segs i.on { background:#E8D6A8; }
+.steps-l { position:relative; flex:1.4 1 380px; display:flex; flex-direction:column; gap:8px; }
+.st { display:flex; gap:14px; align-items:center; padding:14px 16px; border-radius:16px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); }
+.st-n { flex:none; width:32px; height:32px; border-radius:50%; border:1.5px solid #AAB6C8; display:inline-flex; align-items:center; justify-content:center; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:#AAB6C8; }
+.st-n svg { width:16px; height:16px; fill:none; stroke:#0F1E36; stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+.st-b { flex:1; min-width:0; }
+.st-t { display:block; font-size:15px; font-weight:500; color:#C9D3E3; }
+.st-s { display:block; margin-top:2px; font-size:12px; color:#AAB6C8; }
+.st-a { flex:none; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:#AAB6C8; }
+.st.cur { background:rgba(255,255,255,0.08); border-color:rgba(232,214,168,0.45); }
+.st.cur .st-n { border-color:#E8D6A8; color:#E8D6A8; box-shadow:0 0 12px rgba(232,214,168,0.45); }
+.st.cur .st-t { color:#F7F4ED; }
+.st.cur .btn { min-height:40px; padding:0 16px; font-size:13px; flex:none; }
+.st.done .st-n { background:#E8D6A8; border-color:#E8D6A8; }
+
+/* ---------- 4.2 Your coach ---------- */
+.t-coach { grid-column:span 4; padding:26px; gap:16px; animation-delay:.04s; }
+.cal { flex:none; width:70px; height:78px; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; background:var(--w-tile); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.cal-m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-gold); }
+.cal-d { font-size:30px; font-weight:300; line-height:1; letter-spacing:-0.03em; }
+.cal-w { font-size:11px; color:var(--w-muted); }
+.cal-empty { background:none; box-shadow:none; border:1.5px dashed var(--w-line); color:var(--w-gold); }
+.cal-empty svg { width:26px; height:26px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; }
+.coach-row { display:flex; gap:16px; align-items:center; }
+.coach-k { font-size:12px; color:var(--w-muted); }
+.coach-h { font-size:22px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
+.coach-s { margin-top:6px; font-size:13px; line-height:1.5; color:var(--w-muted); }
+.coach-foot { margin-top:auto; padding-top:14px; border-top:1px solid var(--w-line); }
+.coach-foot .k { font-size:11px; color:var(--w-muted); }
+.coach-foot .h { margin-top:6px; font-size:15px; line-height:1.4; }
+.coach-foot .lnks { display:flex; gap:16px; margin-top:4px; }
+.coach-empty { font-size:13px; line-height:1.5; color:var(--w-muted); }
+
+/* ---------- 4.3 Members' articles ---------- */
+.t-art { grid-column:span 8; padding:26px; gap:18px; animation-delay:.08s; }
+.art-head { display:flex; flex-wrap:wrap; gap:22px; text-decoration:none; align-items:stretch; border-radius:18px; }
+.cover { position:relative; overflow:hidden; display:block; border-radius:18px; background:var(--w-powder); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-2); }
+:root[data-theme="light"] .cover { box-shadow:var(--w-shadow-2); }
+.art-head .cover { flex:1 1 300px; min-height:220px; }
+.cover-video { background:#14376E; background-size:cover; background-position:center; }
+.cover-video .vglow { position:absolute; inset:0; background:radial-gradient(closest-side, rgba(232,214,168,0.22), rgba(232,214,168,0)); }
+.play { position:absolute; left:50%; top:50%; width:72px; height:72px; margin:-36px 0 0 -36px; border-radius:50%; background:#E8D6A8; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 10px rgba(232,214,168,0.16), 0 10px 30px rgba(0,0,0,0.35); }
+.play svg { width:26px; height:26px; }
+.vtag { position:absolute; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; border-radius:999px; padding:4px 10px; }
+.vtag-mo { left:14px; top:14px; color:#0F1E36; background:#E8D6A8; }
+.vtag-dur { right:14px; bottom:14px; color:#F7F4ED; background:rgba(8,17,31,0.7); }
+.art-text { flex:1 1 260px; display:flex; flex-direction:column; gap:10px; min-width:0; padding:4px 0; }
+.art-meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.art-meta .m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-muted); }
+.art-title { font-size:28px; font-weight:300; letter-spacing:-0.03em; line-height:1.15; }
+.art-teaser { font-size:15px; line-height:1.55; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.art-cta { margin-top:auto; display:inline-flex; align-items:center; gap:6px; min-height:40px; font-size:14px; font-weight:500; color:var(--w-gold); }
+.art-more { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; border-top:1px solid var(--w-line); padding-top:16px; }
+.art-card { display:flex; gap:14px; align-items:center; padding:10px; border-radius:16px; background:var(--w-raised); text-decoration:none; }
+.art-card .cover { flex:none; width:64px; height:64px; border-radius:12px; box-shadow:none; }
+.art-card .m { display:block; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-muted); }
+.art-card .h { display:block; margin-top:4px; font-size:15px; font-weight:500; line-height:1.3; }
+
+/* ---------- 4.4 Continue learning ---------- */
+.t-learn { grid-column:span 4; padding:24px; gap:18px; animation-delay:.12s; }
+.ring-w { position:relative; flex:none; width:92px; height:92px; }
+:root[data-theme="dark"] .ring-w { filter:drop-shadow(0 0 10px rgba(232,214,168,0.45)); }
+.ring-w svg { display:block; }
+.ring-c { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.ring-n { font-size:24px; font-weight:300; line-height:1; }
+.ring-of { font-size:10px; color:var(--w-muted); }
+.ring-fill { animation:hl-ring 1.6s cubic-bezier(.3,.8,.3,1) .2s both; }
+.learn-row { display:flex; gap:18px; align-items:center; }
+.learn-where { font-size:12px; color:var(--w-muted); }
+.learn-title { margin-top:4px; font-size:18px; font-weight:400; letter-spacing:-0.01em; line-height:1.3; }
+.stepper { display:flex; align-items:center; }
+.stepper li { display:flex; align-items:center; gap:6px; min-width:0; flex:1 1 0; }
+.stepper li:last-child { flex:0 0 auto; }
+.stepper .d { flex:none; width:12px; height:12px; border-radius:50%; border:1.5px solid var(--w-muted); }
+.stepper .done .d { border-color:var(--w-gold); background:var(--w-gold); }
+.stepper .now .d { border-color:var(--w-gold); }
+:root[data-theme="dark"] .stepper .now .d { box-shadow:0 0 10px rgba(232,214,168,0.7); }
+.stepper .l { font-size:12px; white-space:nowrap; color:var(--w-muted); }
+.stepper .done .l, .stepper .now .l { color:var(--w-text); }
+.stepper .ln { flex:1; height:1px; margin:0 6px; background:var(--w-line); }
+.t-learn .btn { margin-top:auto; }
+
+/* ---------- 4.5 Investment suite ---------- */
+.t-suite { grid-column:span 6; padding:24px; gap:14px; animation-delay:.16s; }
+.lead { position:relative; overflow:hidden; display:flex; gap:16px; align-items:flex-start; padding:18px; border-radius:18px; text-decoration:none; background:var(--w-raised); }
+:root[data-theme="dark"] .lead { box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-2); }
+.lead .top { position:absolute; left:0; right:0; top:0; height:3px; }
+.mk { flex:none; display:inline-flex; align-items:center; justify-content:center; color:#FFFFFF; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-weight:500; }
+.lead .mk { width:52px; height:52px; border-radius:14px; font-size:14px; }
+.lead-b { min-width:0; display:flex; flex-direction:column; gap:6px; }
+.lead-meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.lead-meta .c { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; padding:3px 9px; border-radius:999px; border:1px solid var(--w-line); }
+.lead-meta .m, .nrow .m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; color:var(--w-muted); }
+.lead-n { font-size:20px; font-weight:400; letter-spacing:-0.02em; }
+.lead-s { font-size:14px; line-height:1.5; color:var(--w-muted); }
+.bb { display:inline-flex; gap:8px; align-items:center; font-size:12px; color:var(--w-muted); }
+.bb i { display:block; width:8px; height:8px; border-radius:50%; }
+.nrow { display:flex; gap:14px; align-items:center; min-height:56px; padding:6px 4px; border-top:1px solid var(--w-line); text-decoration:none; }
+.nrow .mk { width:36px; height:36px; border-radius:10px; font-size:11px; }
+.nrow-b { flex:1; min-width:0; }
+.nrow-b .n { display:block; font-size:15px; }
+.nrow-b .m { display:block; }
+.nrow .chev { color:var(--w-muted); }
+
+/* ---------- 4.6 Guides & tools, 4.7 Knowledge library ---------- */
+.t-tools { grid-column:span 3; padding:20px; gap:8px; animation-delay:.2s; }
+.tool { display:flex; gap:12px; align-items:center; padding:10px; border-radius:14px; background:var(--w-raised); text-decoration:none; }
+.tool-ic { flex:none; width:40px; height:40px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; background:var(--w-tile); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); color:var(--w-gold); }
+.tool-ic svg, .app-ic svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.tool .n { display:block; font-size:14px; font-weight:500; }
+.tool .s { display:block; font-size:12px; color:var(--w-muted); }
+.tool.off { opacity:.6; }
+.t-know { grid-column:span 3; padding:20px; gap:12px; animation-delay:.24s; }
+.search { display:flex; align-items:center; gap:8px; min-height:44px; padding:0 14px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-raised); color:var(--w-muted); }
+.search:focus-within { border-color:var(--w-gold); }
+.search svg { width:16px; height:16px; flex:none; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+.search input { flex:1; min-width:0; min-height:42px; border:0; padding:0; background:transparent; outline:none; font-family:inherit; font-size:13px; color:var(--w-text); }
+.search input::placeholder { color:var(--w-muted); }
+.chips { display:flex; flex-wrap:wrap; gap:6px; }
+.chips a { display:inline-flex; align-items:center; min-height:32px; padding:0 12px; border-radius:999px; background:var(--w-chip); border:1px solid var(--w-line); text-decoration:none; font-size:12px; }
+
+/* ---------- Footer (7) ---------- */
+.hl-foot { margin-top:28px; max-width:980px; }
+.hl-foot .tei-boundary, .hl-foot .tei-boundary p { margin:0; padding:0; text-align:left; max-width:none; font-family:inherit; font-size:12px; line-height:1.6; color:var(--w-muted); background:none; border:0; }
+.hl-foot .tei-boundary a, .hl-foot-s a { color:var(--w-text); }
+.hl-foot-s { display:none; margin:2px 4px 0; font-size:11px; line-height:1.5; color:var(--w-muted); }
+.hl-foot-s a { display:inline-block; padding:13px 0; margin:-13px 0; }
+
+/* ---------- Phone (8): its own condensed layout ---------- */
+.hl-m { display:none; }
+.mt { position:relative; min-width:0; background:var(--w-tile); border:1px solid var(--w-line); border-radius:22px; padding:14px; box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); display:flex; flex-direction:column; gap:10px; animation:hl-up .6s cubic-bezier(.2,.8,.2,1) both; }
+.mt .lab { font-size:11px; }
+/* Header-row links keep a 44px target without making the row taller. */
+.mt > .row .lnk { min-height:44px; margin:-10px 0; font-size:12px; }
+.mt.t-feat { padding:16px; overflow:hidden; background:#14376E; border-color:rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+.mt.t-feat .glow { width:420px; height:420px; right:-40%; top:-90%; }
+.m-plan { display:grid; grid-template-columns:minmax(0, 1fr) 118px; gap:8px 12px; }
+.m-plan h2, .m-gs h2 { position:relative; font-size:20px; font-weight:300; letter-spacing:-0.02em; line-height:1.15; }
+.m-plan-text { position:relative; min-width:0; display:flex; flex-direction:column; gap:6px; }
+.m-chart { position:relative; min-height:76px; }
+.m-chart svg { position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+.m-chart .pt .halo { left:-5px; top:-5px; width:10px; height:10px; }
+.m-chart .pt .dot { left:-4px; top:-4px; width:8px; height:8px; }
+.m-acts { position:relative; grid-column:1 / -1; display:flex; gap:8px; align-items:center; }
+.m-acts .btn { flex:none; padding:0 16px; }
+.m-doc { flex:1; min-width:0; display:flex; gap:7px; align-items:center; min-height:44px; padding:0 8px; border-radius:12px; text-decoration:none; background:rgba(255,255,255,0.06); border:1px solid rgba(232,214,168,0.22); font-size:12px; font-weight:500; }
+.m-doc .doc-ic { width:16px; height:20px; border-radius:3px; box-shadow:none; }
+.m-doc .doc-ic .band { height:5px; }
+.m-doc .doc-ic i { left:3px; height:1.5px; }
+.m-doc .doc-ic .l1 { right:3px; top:8px; } .m-doc .doc-ic .l2 { right:5px; top:12px; }
+.m-doc span:last-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.m-gs .row { position:relative; align-items:baseline; }
+.m-gs .segs i { height:5px; }
+.m-cur { position:relative; display:flex; gap:12px; align-items:center; padding:12px; border-radius:14px; background:rgba(255,255,255,0.08); border:1px solid rgba(232,214,168,0.45); }
+.m-cur .st-n { width:28px; height:28px; font-size:11px; border-color:#E8D6A8; color:#E8D6A8; box-shadow:0 0 12px rgba(232,214,168,0.45); }
+.m-cur .mc-t { display:block; font-size:14px; font-weight:500; }
+.m-cur .mc-s { display:block; font-size:11px; color:#AAB6C8; }
+.m-cur .btn { flex:none; padding:0 14px; font-size:13px; }
+.m-later { position:relative; display:flex; flex-direction:column; gap:6px; padding:0 4px; }
+.m-later li { display:flex; gap:10px; align-items:center; font-size:12px; color:#C9D3E3; }
+.m-later .n { flex:none; width:20px; height:20px; border-radius:50%; border:1px solid rgba(255,255,255,0.25); display:inline-flex; align-items:center; justify-content:center; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:10px; color:#AAB6C8; }
+.m-later .done .n { background:#E8D6A8; border-color:#E8D6A8; color:#0F1E36; }
+.m-pair { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+.m-coach { background:var(--w-champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); animation-delay:.05s; }
+.m-sess { display:flex; gap:10px; align-items:center; text-decoration:none; }
+.m-sess .cal { width:44px; height:50px; border-radius:12px; gap:0; }
+.m-sess .cal-m { font-size:9px; }
+.m-sess .cal-d { font-size:20px; }
+.m-coach .h { font-size:14px; font-weight:500; line-height:1.25; }
+.m-coach .s { margin-top:2px; font-size:11px; color:var(--w-muted); }
+.m-coach .btn { align-self:stretch; margin-top:auto; min-height:44px; font-size:13px; }
+.m-note { margin-top:auto; display:flex; align-items:center; gap:6px; min-height:44px; border-top:1px solid var(--w-line); text-decoration:none; font-size:12px; color:var(--w-muted); }
+.m-note svg { width:14px; height:14px; flex:none; fill:none; stroke:var(--w-gold); stroke-width:1.8; stroke-linecap:round; }
+.m-note span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.m-learn { text-decoration:none; animation-delay:.1s; }
+.m-learn .ring-w { width:50px; height:50px; }
+:root[data-theme="dark"] .m-learn .ring-w { filter:drop-shadow(0 0 8px rgba(232,214,168,0.45)); }
+.m-learn .ring-n { font-size:15px; }
+.m-learn .of { display:block; font-size:11px; color:var(--w-muted); }
+.m-learn .stg { display:block; margin-top:2px; font-size:12px; font-weight:500; line-height:1.25; }
+.m-learn .go { margin-top:auto; display:flex; align-items:center; justify-content:space-between; min-height:44px; border-top:1px solid var(--w-line); font-size:12px; font-weight:500; color:var(--w-gold); }
+.m-ring-fill { animation:hl-ring-s 1.6s cubic-bezier(.3,.8,.3,1) .2s both; }
+.m-art { padding:14px 0 14px 14px; animation-delay:.14s; }
+.m-art > .row { padding-right:14px; }
+.snap { display:flex; gap:10px; overflow-x:auto; padding-right:14px; scroll-snap-type:x mandatory; scrollbar-width:none; overscroll-behavior-x:contain; }
+.snap::-webkit-scrollbar { display:none; }
+.card { flex:0 0 150px; scroll-snap-align:start; display:flex; flex-direction:column; gap:7px; text-decoration:none; }
+.card.head { flex-basis:228px; }
+.card .cover { height:84px; border-radius:14px; box-shadow:none; }
+.card.head .cover { height:112px; }
+.card .m { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:10px; color:var(--w-muted); }
+.card .h { font-size:12px; font-weight:500; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.card.head .h { font-size:14px; }
+/* One or two articles: no swipe, the cards share the tile's width so none is
+   cut off, with matching covers. Three or more keep the swipe row (8.3). */
+.snap.fit { display:grid; grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr); overflow:visible; }
+.snap.fit.one { grid-template-columns:minmax(0, 1fr); }
+.snap.fit .card .cover { height:112px; }
+.card .play { width:44px; height:44px; margin:-22px 0 0 -22px; box-shadow:0 0 0 7px rgba(232,214,168,0.16); }
+.card .play svg { width:16px; height:16px; }
+.card .vtag, .card .newp { font-size:9px; padding:3px 7px; }
+.card .vtag-mo { left:8px; top:8px; }
+.newp { position:absolute; right:8px; top:8px; font-family:'Geist Mono', ui-monospace, Menlo, monospace; color:#0F1E36; background:#E8D6A8; border-radius:999px; }
+.m-suite { animation-delay:.18s; }
+.minis { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+.mini { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:6px; padding:10px; min-height:76px; border-radius:14px; background:var(--w-raised); text-decoration:none; }
+.mini .top { position:absolute; left:0; right:0; top:0; height:3px; }
+.mini .tk { display:flex; gap:6px; align-items:center; font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; font-weight:500; }
+.mini .mk { width:24px; height:24px; border-radius:7px; font-size:9px; font-weight:400; }
+.mini .n { font-size:12px; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.mini .w { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:9px; color:var(--w-muted); }
+.m-tools { gap:12px; animation-delay:.22s; }
+.apps { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:6px; }
+.app { display:flex; flex-direction:column; align-items:center; gap:6px; min-height:64px; text-decoration:none; }
+.app-ic { width:44px; height:44px; border-radius:14px; display:inline-flex; align-items:center; justify-content:center; background:var(--w-raised); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); color:var(--w-gold); }
+.app .n { font-size:11px; text-align:center; line-height:1.2; }
+.app.off { opacity:.6; }
+
+@keyframes hl-up { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+@keyframes hl-draw { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
+@keyframes hl-pulse { 0% { transform:scale(1); opacity:.6; } 100% { transform:scale(3.4); opacity:0; } }
+@keyframes hl-bar { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+@keyframes hl-ring { from { stroke-dashoffset:263.9; } }
+@keyframes hl-ring-s { from { stroke-dashoffset:131.9; } }
+@media (prefers-reduced-motion: reduce) {
+  .t, .mt, .bar-r, .draw, .pt .halo, .ring-fill, .m-ring-fill { animation:none; }
+  .draw { stroke-dasharray:none; }
+  .pt .halo { display:none; }
+  .press, .lift { transition:none; }
+  .press:active, .lift:hover { transform:none; }
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--text); line-height: 1.7; }
-a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
-nav {
-  background: var(--navy); width: 100%; height: 68px; display: flex; align-items: center;
-  justify-content: space-between; padding: 0 48px; position: sticky; top: 0; z-index: 200;
-  box-shadow: 0 2px 16px rgba(0,0,0,.2);
-}
-.nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-logo-mark { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--gold); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--gold); flex-shrink: 0; }
-.nav-logo-text { font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: var(--gold); font-weight: 600; line-height: 1.35; }
-.nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
-.nav-links a { color: rgba(247,244,237,.65); text-decoration: none; font-size: 13px; font-weight: 500; letter-spacing: .03em; transition: color .2s; }
-.nav-links a:hover, .nav-links a.active { color: var(--gold); }
-.nav-mobile-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 4px; }
-.nav-mobile-toggle span { width: 22px; height: 2px; background: var(--cream); border-radius: 2px; display: block; }
-.nav-mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: var(--navy); flex-direction: column; padding: 8px 0; border-bottom: 2px solid rgba(201,168,76,.3); z-index: 199; box-shadow: 0 4px 20px rgba(0,0,0,.3); }
-.nav-mobile-menu a { color: rgba(247,244,237,.8); text-decoration: none; padding: 14px 24px; font-size: 15px; font-weight: 500; border-bottom: 1px solid rgba(255,255,255,.06); display: block; transition: color .2s; }
-.nav-mobile-menu a:hover { color: var(--gold); }
-.nav-mobile-menu.open { display: flex; }
-.hub-auth-item { display: flex; align-items: center; gap: 10px; }
-.hub-auth-email { font-size: 12px; color: rgba(247,244,237,.45); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.hub-auth-signout, .hub-auth-signout-mobile { color: rgba(247,244,237,.65) !important; font-size: 13px !important; }
-.hub-auth-signout:hover, .hub-auth-signout-mobile:hover { color: var(--gold) !important; }
-
-/* ---------- Hero ---------- */
-.hub-hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy-dk) 100%); padding: 26px 40px; text-align: center; }
-.hub-hero h1 { font-family: 'Playfair Display', serif; font-weight: 600; font-size: clamp(19px, 2.1vw, 24px); color: var(--cream); margin: 0; }
-
-/* ---------- Featured suites (masthead band) ---------- */
-.hub-featured { background: var(--navy-dk); }
-.hub-featured-grid { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr; }
-.hub-featured-item {
-  padding: var(--section-pad-y-tight) 48px; position: relative; text-decoration: none;
-  display: flex; flex-direction: column;
-  transition: background .2s;
-}
-.hub-featured-item:hover { background: rgba(255,255,255,.03); }
-.hub-featured-item + .hub-featured-item { border-left: 1px solid rgba(201,168,76,.18); }
-.hub-featured-eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 14px; }
-.hub-featured-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 24px; color: var(--white); margin-bottom: 10px; }
-.hub-featured-desc { font-size: 13px; color: rgba(247,244,237,.5); max-width: 280px; margin-bottom: 22px; }
-.hub-featured-link { display: inline-flex; align-items: center; gap: 8px; margin-top: auto; align-self: flex-start; font-size: 12.5px; font-weight: 600; letter-spacing: .03em; color: var(--gold); }
-.hub-featured-link .arrow { transition: transform .2s; display: inline-block; }
-.hub-featured-item:hover .hub-featured-link .arrow { transform: translateX(4px); }
-
-/* ---------- Body / card grid ---------- */
-.hub-body { max-width: 1040px; margin: 0 auto; padding: var(--section-pad-y-tight) 40px var(--section-pad-y); }
-
-.hub-body-head { text-align: center; margin-bottom: var(--heading-gap); }
-.hub-body-eyebrow { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
-.hub-body-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 22px; color: var(--navy); }
-
-.hub-quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--card-gap); margin-bottom: var(--card-gap); }
-.hub-quick-card {
-  display: flex; align-items: center; gap: 14px; background: var(--white); border: 1px solid var(--cream-dk);
-  border-radius: 10px; padding: 18px 20px; text-decoration: none;
-  transition: border-color .18s ease, transform .18s ease;
-}
-.hub-quick-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-.hub-quick-icon {
-  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--gold);
-  display: flex; align-items: center; justify-content: center; font-size: 14px;
-  color: var(--gold-dk); flex-shrink: 0;
-}
-.hub-quick-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 13.5px; color: var(--navy); flex: 1; line-height: 1.35; }
-.hub-quick-arrow { color: var(--gold-dk); font-size: 14px; flex-shrink: 0; transition: transform .18s ease; }
-.hub-quick-card:hover .hub-quick-arrow { transform: translateX(3px); }
-
-.hub-library-banner {
-  display: flex; align-items: center; justify-content: space-between; gap: 24px;
-  background: var(--navy-tint); border: 1px solid var(--cream-dk); border-radius: 14px;
-  padding: 34px 38px; text-decoration: none; transition: border-color .18s ease, transform .18s ease;
-}
-.hub-library-banner:hover { border-color: var(--gold); transform: translateY(-2px); }
-.hub-library-text { max-width: 460px; }
-.hub-library-eyebrow { font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-dk); font-weight: 700; margin-bottom: 8px; }
-.hub-library-title { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 19px; color: var(--navy); margin-bottom: 6px; }
-.hub-library-desc { font-size: 13px; color: var(--mid); }
-.hub-library-cta {
-  display: inline-flex; align-items: center; gap: 8px; background: var(--navy); color: var(--cream);
-  font-size: 12.5px; font-weight: 600; padding: 13px 24px; border-radius: 8px; white-space: nowrap; flex-shrink: 0;
-  transition: background .18s ease, color .18s ease;
-}
-.hub-library-banner:hover .hub-library-cta { background: var(--gold); color: var(--navy); }
-
-@media(max-width: 700px) {
-  nav { padding: 0 20px; }
-  .nav-links { display: none; }
-  .nav-mobile-toggle { display: flex; }
-  .hub-featured-grid { grid-template-columns: 1fr; }
-  .hub-featured-item + .hub-featured-item { border-left: none; border-top: 1px solid rgba(201,168,76,.18); }
-  .hub-featured-item { padding: 32px 20px; }
-  .hub-body { padding: var(--section-pad-y-tight) 20px; }
-  .hub-quick-grid { grid-template-columns: 1fr; gap: 12px; }
-  .hub-library-banner { flex-direction: column; align-items: flex-start; padding: 28px 26px; }
+/* 960px and below (2.3, 8): the phone structure, stretched up to 960px. */
+@media (max-width:960px) {
+  .hl { padding:12px 12px 16px; }
+  .hl-grid, .hl-date, .hl-head-side, .hl-foot { display:none; }
+  .hl-m { display:flex; flex-direction:column; gap:10px; }
+  .hl-head { flex-wrap:nowrap; align-items:baseline; gap:8px; margin:0 0 10px; padding:0 4px; }
+  .hl-head > div:first-child { display:contents; }
+  .hl-title { margin:0; font-size:22px; }
+  .hl-date-s { display:inline; flex:none; font-size:11px; color:var(--w-muted); }
+  .hl-foot-s { display:block; margin-top:12px; }
 }
 </style>
-<link rel="stylesheet" href="/assets/mobile-nav.css">
-<link rel="stylesheet" href="/assets/tei-base.css">
 </head>
 <body>
 <script>
@@ -135,192 +355,515 @@ nav {
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
+
+<div data-hub-header data-current=""></div>
+<script src="/hub/js/hub-header.js"></script>
+
+<main class="hl" id="main">
+  <div class="hl-head">
+    <div>
+      <p class="hl-date mono" id="hlDate"></p>
+      <h1 class="hl-title" id="hubHeroGreeting">Welcome back</h1>
+    </div>
+    <span class="hl-date-s mono" id="hlDateShort"></span>
+  </div>
+
+  <!-- Desktop bento (4): filled by the script below once the person's records load. -->
+  <div class="hl-grid" id="hlGrid"></div>
+  <!-- 960px and below (8): the same lobby, condensed. -->
+  <div class="hl-m" id="hlPhone"></div>
+
+  <div class="hl-foot" data-tei-boundary-footer="inherit"></div>
+  <p class="hl-foot-s">Coaching and education, not regulated financial advice. <a href="/about.html#how-we-work">How we work</a></p>
+</main>
+
+<script src="/hub/education/js/embedded-data.js"></script>
+<script src="/hub/js/hub-figures.js"></script>
 <script>
-/* Personalises the hero heading with the signed-in user's first name.
-   Checks wealth_os.profiles.first_name first (covers advisers, who have
-   no wealth_os.clients row of their own -- see hub/wealth-os.html's wo()
-   helper), then falls back to wealth_os.clients.first_name for client
-   logins. Neither set keeps the plain "Welcome back." from the markup. */
+/* Client Hub home. Reads the signed-in person's own records the way the
+   Hub always has: first name (profiles, then clients), the coach's setup
+   request (clients.setup_request), documents (wealth_os.documents: the
+   newest 'forecast' is the Wealth Plan, 'note' rows are meeting notes),
+   lesson progress (education_progress) and the theme (clients.theme). Then
+   the members' lists: /hub/members-articles.json, the suite manifest and
+   /hub/members-tools.json. No figures from the client record are shown.
+
+   No document is a Wealth Plan yet -> the new client layout (5). */
 (function () {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", run);
-  } else {
-    run();
+  var MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var HOW = '/about.html#how-we-work';
+  var WOS = '/hub/wealth-os.html';
+  var SETUP = '/hub/wealth-os.html?page=setup';
+  var EDU = '/hub/education/index.html';
+  var COMMIT = '/hub/education/module.html?module=0.0';
+  // Members' articles are the deep dives, in Research (8a).
+  var ARTICLES = '/hub/suite/index.html?cat=Deep%20dives';
+  var SUITE = '/hub/suite/index.html';
+  var GUIDES = '/hub/guides.html';
+  var NOTES = '/hub/wealth-os.html?page=documents';
+  var BOOK = 'https://cal.com/tei-ceo/plan-review';
+  var DAY = 86400000;
+
+  var IC = {
+    chev: '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 6l6 6-6 6"/></svg>',
+    tick: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 12.5l4 4 8-9"/></svg>',
+    calPlus: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17M12 13v4M10 15h4"/></svg>',
+    search: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>',
+    note: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7zM10 12h5M10 16h5"/></svg>',
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.5v13l11-6.5z" fill="#0F1E36"/></svg>'
+  };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function toDate(str) { var d = new Date(str); return isNaN(d) ? null : d; }
+  function shortDate(str) { var d = toDate(str); return d ? d.getDate() + ' ' + MON[d.getMonth()] + ' ' + d.getFullYear() : ''; }
+  function dayMonth(str) { var d = toDate(str); return d ? d.getDate() + ' ' + MON[d.getMonth()] : ''; }
+  function newest(list) { return list.slice().sort(function (a, b) { return String(b.uploaded_at || '').localeCompare(String(a.uploaded_at || '')); }); }
+  function icon(path, cls) { return '<svg' + (cls ? ' class="' + cls + '"' : '') + ' viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + esc(path) + '"/></svg>'; }
+  function hexOk(c) { return /^#[0-9a-f]{3,8}$/i.test(String(c || '')) ? c : '#14376E'; }
+
+  var now = new Date();
+  $('hlDate').textContent = DAYS[now.getDay()] + ' ' + now.getDate() + ' ' + MON[now.getMonth()] + ' ' + now.getFullYear();
+  $('hlDateShort').textContent = DAYS[now.getDay()].slice(0, 3) + ' ' + now.getDate() + ' ' + MON[now.getMonth()];
+
+  var S = {
+    name: '', clientId: null, hasThemeColumn: false,
+    docsLoaded: false, plan: null, lastNote: null,
+    // TODO(Paddy to confirm): a separate "Coach's forecast" document. Only
+    // one plan document type exists today ('forecast', the Wealth Plan), so
+    // the second document link (4.1) stays hidden until there is a type for it.
+    forecast: null,
+    // TODO(Paddy to confirm): booked sessions. There is no session or booking
+    // data yet (no table), so this stays null and the coach tile shows the
+    // "Book a session" version. When sessions are recorded, fill it with
+    // { start: ISO date-time, type: 'Review session', minutes: 60,
+    //   format: 'Video call', href: the session } and the booked layout,
+    // "Add a question" and Getting started step 3 all switch on.
+    session: null,
+    setup: null, progress: null, progressLoaded: false,
+    articles: [], notes: [], tools: [],
+    booked: false
+  };
+
+  /* ---------- derived ---------- */
+  function isNew() { return !!S.clientId && S.docsLoaded && !S.plan; }
+
+  function learning() {
+    var data = window.TEI_DATA;
+    var done = (S.progress && S.progress.completed_lessons) || {};
+    var committed = !!(S.progress && S.progress.commitment_completed_at);
+    var order = [];
+    var mods = data ? data.MODULES : [];
+    mods.forEach(function (m) { (m.lessonSequence || []).forEach(function (id, i) { order.push({ id: id, mod: m, idx: i + 1, of: m.lessonSequence.length }); }); });
+    var total = order.length || 36;
+    var count = order.filter(function (l) { return done[l.id]; }).length;
+    var next = order.filter(function (l) { return !done[l.id]; })[0];
+    var lesson = next && data ? data.LESSONS.filter(function (l) { return l.id === next.id; })[0] : null;
+    var stage1Done = order.filter(function (l) { return l.mod.stage === 1; }).every(function (l) { return done[l.id]; });
+    var stageNow = !committed ? 0 : (!stage1Done ? 1 : (next ? 2 : 3));
+    var r = { total: total, count: count, stageNow: stageNow, committed: committed };
+    if (!committed) {
+      r.where = 'Start here'; r.title = 'Investor Learning Commitment'; r.cta = 'Start here'; r.href = COMMIT; r.short = 'Start here'; r.phoneCta = 'Start here';
+    } else if (lesson) {
+      r.where = 'Stage ' + next.mod.stage + ' · ' + next.mod.name + ' · lesson ' + next.idx + ' of ' + next.of;
+      r.short = 'Stage ' + next.mod.stage + ' · ' + next.mod.stageName;
+      r.title = lesson.title;
+      r.cta = count ? 'Resume lesson' : 'Start lesson';
+      r.phoneCta = count ? 'Resume' : 'Start';
+      r.href = '/hub/education/lesson.html?lesson=' + encodeURIComponent(lesson.id);
+    } else {
+      r.where = 'Every stage complete'; r.short = 'All complete'; r.title = 'Every lesson complete'; r.cta = 'Review lessons'; r.phoneCta = 'Review'; r.href = EDU;
+    }
+    return r;
   }
 
-  function run() {
-    var greeting = document.getElementById("hubHeroGreeting");
-    if (!greeting) return;
-    var log = function () {
-      console.log.apply(console, ["[hub-greeting]"].concat(Array.prototype.slice.call(arguments)));
-    };
-    var w = function () {
-      return window.teiSupabase.schema("wealth_os");
-    };
-
-    log("starting");
-
-    TeiAuth.waitForReady()
-      .then(function () {
-        log("supabase ready, calling getUser()");
-        return TeiAuth.getUser();
-      })
-      .then(function (result) {
-        log("getUser() result", result);
-        var user = result.data && result.data.user;
-        if (!user) {
-          log("no signed-in user, stopping");
-          return null;
-        }
-        log("querying wealth_os.profiles for user_id", user.id);
-        return w()
-          .from("profiles")
-          .select("first_name")
-          .eq("user_id", user.id)
-          .maybeSingle()
-          .then(function (profileResult) {
-            log("profiles query result", profileResult);
-            var profileName = profileResult.data && profileResult.data.first_name;
-            if (profileName) return profileName;
-            log("no profile first_name, querying wealth_os.clients");
-            return w()
-              .from("clients")
-              .select("first_name")
-              .eq("user_id", user.id)
-              .maybeSingle()
-              .then(function (clientResult) {
-                log("clients query result", clientResult);
-                return clientResult.data && clientResult.data.first_name;
-              });
-          });
-      })
-      .then(function (firstName) {
-        log("resolved firstName:", firstName);
-        if (firstName) greeting.textContent = "Welcome back, " + firstName + ".";
-      })
-      .catch(function (err) {
-        console.error("[hub-greeting] failed:", err);
-      });
+  /* Getting started (5.2). Step 1 shows only once the coach has sent a setup
+     request; done when finished. The current step is the first not done. */
+  function steps() {
+    var list = [];
+    var req = S.setup;
+    if (req && (req.status === 'sent' || req.status === 'in_progress' || req.status === 'finished')) {
+      var left = req.left != null ? Number(req.left) : null;
+      list.push({ title: 'Finish setting up Wealth OS', sub: left != null ? left + (left === 1 ? ' question left' : ' questions left') : 'A few questions left',
+        done: req.status === 'finished', action: 'Continue', href: SETUP, setup: true });
+    }
+    list.push({ title: 'Start the learning commitment', sub: 'Your first lesson', done: !!(S.progress && S.progress.commitment_completed_at), action: 'Start', href: COMMIT });
+    // TODO(Paddy to confirm): done when a future session is booked; there is no session data yet (see S.session).
+    list.push({ title: 'Book your plan session', sub: 'We go through your plan together', done: !!S.session, action: 'Book a session', book: true });
+    list.push({ title: 'Your Wealth Plan arrives here', sub: 'Added by your coach after the session', done: !!S.plan, wait: 'After step ' + list.length });
+    var cur = -1;
+    list.forEach(function (s, i) { if (cur < 0 && !s.done) cur = i; });
+    list.forEach(function (s, i) { s.n = i + 1; s.current = i === cur; });
+    return { list: list, cur: cur, total: list.length, done: list.filter(function (s) { return s.done; }).length };
   }
+
+  function wealthOsHref() {
+    if (!isNew()) return WOS;
+    var st = steps();
+    var c = st.list[st.cur];
+    return c && c.setup ? SETUP : WOS;
+  }
+
+  function sortArticles(list) {
+    return list.slice().sort(function (a, b) {
+      if (!!b.featured !== !!a.featured) return b.featured ? 1 : -1;
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+  }
+  function artHref(a) {
+    // TODO(Paddy to confirm): where members' videos are hosted. Until then a
+    // video opens its own src, or the Videos page.
+    if (a.type === 'video') return a.src || '/hub/videos.html';
+    return '/hub/members/' + encodeURIComponent(a.slug) + '.html';
+  }
+  function isRecent(a) { var d = toDate(a.date); return !!d && (now - d) / DAY <= 14 && (now - d) >= -DAY; }
+
+  function noteWhen(n) {
+    var m = String(n.updatedOn || '').match(/^(\d{4})-(\d{2})/);
+    return m ? MON[Number(m[2]) - 1] + ' ' + m[1] : (n.updated || '');
+  }
+  function suiteNotes() {
+    return S.notes.filter(function (n) { return n.href; })
+      .map(function (n, i) { return { n: n, i: i }; })
+      .sort(function (a, b) { return String(b.n.updatedOn || '').localeCompare(String(a.n.updatedOn || '')) || a.i - b.i; })
+      .map(function (x) { return x.n; }).slice(0, 3);
+  }
+
+  /* ---------- shared pieces ---------- */
+  function docIcon(band) {
+    return '<span class="doc-ic" aria-hidden="true"><i class="band" style="background:' + band + '"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="gold"></i></span>';
+  }
+  function heroChart(phone) {
+    var h = phone ? [14, 20, 27, 35, 44, 54, 66] : [34, 46, 58, 72, 88, 104, 124, 146, 170];
+    var W = phone ? 120 : 320, H = phone ? 80 : 200, bw = phone ? 11 : 22, step = phone ? 17 : 36, rx = phone ? 3 : 5;
+    var id = phone ? 'hlMb' : 'hlDb';
+    var line = phone ? 'M 5 70 C 30 66, 50 58, 66 46 S 100 18, 116 6' : 'M 11 172 C 70 162, 110 150, 150 126 S 240 70, 309 18';
+    var bars = h.map(function (v, j) { return '<rect class="bar-r" x="' + j * step + '" y="' + (H - v) + '" width="' + bw + '" height="' + v + '" rx="' + rx + '" fill="url(#' + id + ')" style="animation-delay:' + (0.05 * j).toFixed(2) + 's"/>'; }).join('');
+    var area = phone ? '' : '<path d="' + line + ' L 309 200 L 11 200 Z" fill="url(#' + id + 'a)"/>';
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
+      '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D6A8" stop-opacity="0.34"/><stop offset="1" stop-color="#E8D6A8" stop-opacity="0.04"/></linearGradient>' +
+      '<linearGradient id="' + id + 'a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8D6A8" stop-opacity="0.30"/><stop offset="1" stop-color="#E8D6A8" stop-opacity="0"/></linearGradient></defs>' +
+      bars + area +
+      '<path class="draw" pathLength="1" d="' + line + '" fill="none" stroke="#E8D6A8" stroke-width="' + (phone ? 2 : 2.4) + '" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>' +
+      '<span class="pt" aria-hidden="true" style="left:' + (phone ? '96.6%;top:7.5%' : '96.5%;top:9%') + '"><i class="halo"></i><i class="dot"></i></span>';
+  }
+  function glows() { return '<span class="glow" aria-hidden="true"></span><span class="glow2" aria-hidden="true"></span>'; }
+  function bookBtn(label, cls) {
+    return '<a class="btn btn-p press ' + (cls || '') + '" href="' + BOOK + '" target="_blank" rel="noopener noreferrer">' + esc(label) + '</a>';
+  }
+  function cover(a, size, phone) {
+    if (a.type === 'video') {
+      var poster = a.poster ? ' style="background-image:url(\'' + encodeURI(String(a.poster)).replace(/'/g, '%27') + '\')"' : '';
+      return '<span class="cover cover-video"' + poster + ' aria-hidden="true"><span class="vglow"></span><span class="play">' + IC.play + '</span>' +
+        '<span class="vtag vtag-mo">Members only</span>' + (a.duration && !phone ? '<span class="vtag vtag-dur">' + esc(a.duration) + '</span>' : '') + '</span>';
+    }
+    return '<span class="cover" aria-hidden="true">' + window.TeiFigures.html(a.figure || 'line', { size: size, caption: phone }) +
+      (phone && a._isHead && isRecent(a) ? '<span class="newp">New</span>' : '') + '</span>';
+  }
+  function ring(phone, L) {
+    var r = phone ? 21 : 42, c = phone ? 131.9 : 263.9, sz = phone ? 50 : 92, vb = phone ? 50 : 96, sw = phone ? 5 : 8, mid = vb / 2;
+    var off = (c * (1 - Math.min(L.count, L.total) / L.total)).toFixed(1);
+    return '<span class="ring-w" style="display:block"><svg width="' + sz + '" height="' + sz + '" viewBox="0 0 ' + vb + ' ' + vb + '" role="img" aria-label="' + L.count + ' of ' + L.total + ' lessons complete">' +
+      '<circle cx="' + mid + '" cy="' + mid + '" r="' + r + '" fill="none" style="stroke:var(--w-track)" stroke-width="' + sw + '"/>' +
+      (L.count ? '<circle class="' + (phone ? 'm-ring-fill' : 'ring-fill') + '" cx="' + mid + '" cy="' + mid + '" r="' + r + '" fill="none" style="stroke:var(--w-gold)" stroke-width="' + sw + '" stroke-linecap="round" stroke-dasharray="' + c + '" stroke-dashoffset="' + off + '" transform="rotate(-90 ' + mid + ' ' + mid + ')"/>' : '') +
+      '</svg><span class="ring-c" aria-hidden="true"><span class="ring-n">' + L.count + '</span>' + (phone ? '' : '<span class="ring-of mono">of ' + L.total + '</span>') + '</span></span>';
+  }
+
+  /* ---------- desktop tiles ---------- */
+  function dPlan() {
+    var docs = [];
+    if (S.plan) docs.push({ title: 'Wealth Plan', date: S.plan.uploaded_at, band: '#14376E', href: WOS + '#forecast/' + encodeURIComponent(S.plan.id) + '/planning' });
+    if (S.forecast) docs.push({ title: "Coach's forecast", date: S.forecast.uploaded_at, band: '#83661C', href: WOS + '#doc/' + encodeURIComponent(S.forecast.id) + '/documents' });
+    return '<section class="t t-feat t-plan" aria-labelledby="dPlanK">' + glows() +
+      '<div class="t-plan-text"><p class="lab" id="dPlanK">Your plan</p>' +
+      '<h2>Your plan, live. Every account and goal.</h2>' +
+      '<a class="btn btn-c press" href="' + WOS + '">Open Wealth OS' + IC.chev + '</a>' +
+      (docs.length ? '<div class="docs">' + docs.map(function (d) {
+        return '<a class="doc press lift" href="' + esc(d.href) + '">' + docIcon(d.band) + '<span style="min-width:0"><span class="doc-t">' + esc(d.title) + '</span><span class="doc-d mono">Updated ' + esc(shortDate(d.date)) + '</span></span></a>';
+      }).join('') + '</div>' : '') +
+      '</div><div class="t-plan-chart">' + heroChart(false) + '</div></section>';
+  }
+
+  function stepAction(s, phone) {
+    if (s.done) return '<span class="st-a">Done</span>';
+    if (!s.current) return '<span class="st-a">' + esc(s.wait || 'Next') + '</span>';
+    if (s.wait) return '<span class="st-a">' + esc(s.wait) + '</span>';
+    if (s.book) return '<a class="btn btn-c press" href="' + BOOK + '" target="_blank" rel="noopener noreferrer">' + esc(s.action) + '</a>';
+    return '<a class="btn btn-c press" href="' + esc(s.href) + '">' + esc(s.action) + '</a>';
+  }
+  function segs(st) { return '<span class="segs" aria-hidden="true">' + st.list.map(function (s) { return '<i' + (s.done || s.current ? ' class="on"' : '') + '></i>'; }).join('') + '</span>'; }
+  function gsTitle(st) { return (st.total === 4 ? 'Four' : 'Three') + ' steps, then your plan goes live here.'; }
+  function stepLabel(st) { return 'Step ' + (st.cur < 0 ? st.total : st.cur + 1) + ' of ' + st.total; }
+
+  function dGettingStarted() {
+    var st = steps();
+    var hasSetup = st.list[0] && st.list[0].setup;
+    return '<section class="t t-feat t-gs" aria-labelledby="dGsK">' + glows() +
+      '<div class="t-gs-text"><p class="lab" id="dGsK">Getting started</p><h2>' + gsTitle(st) + '</h2>' +
+      (hasSetup ? '<p class="t-gs-line">Your coach has filled in most of Wealth OS from your first session. These steps finish the job.</p>' : '') +
+      '<div class="gs-prog"><p class="gs-count mono"><span>' + stepLabel(st) + '</span><span>' + st.done + ' of ' + (st.total - 1) + ' done</span></p>' + segs(st) + '</div></div>' +
+      '<ol class="steps-l">' + st.list.map(function (s) {
+        return '<li class="st' + (s.current ? ' cur' : '') + (s.done ? ' done' : '') + '"' + (s.current ? ' aria-current="step"' : '') + '>' +
+          '<span class="st-n" aria-hidden="true">' + (s.done ? IC.tick : s.n) + '</span>' +
+          '<span class="st-b"><span class="st-t">' + esc(s.title) + '</span><span class="st-s">' + esc(s.sub) + '</span></span>' + stepAction(s) + '</li>';
+      }).join('') + '</ol></section>';
+  }
+
+  function sessionParts(s) {
+    var d = toDate(s.start) || now;
+    return { mon: MON[d.getMonth()].toUpperCase(), day: d.getDate(), wd: DAYS[d.getDay()].slice(0, 3),
+      time: ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) };
+  }
+  function dCoach() {
+    var body;
+    if (S.session) {
+      var p = sessionParts(S.session);
+      body = '<div class="coach-row"><div class="cal" aria-hidden="true"><span class="cal-m">' + p.mon + '</span><span class="cal-d">' + p.day + '</span><span class="cal-w">' + p.wd + '</span></div>' +
+        '<div style="min-width:0"><p class="coach-k">Next session</p><h2 class="coach-h" style="margin-top:4px">' + esc(S.session.type || 'Session') + '</h2>' +
+        '<p class="coach-s" style="margin-top:4px">' + esc([p.time, S.session.minutes ? S.session.minutes + ' min' : '', S.session.format || ''].filter(Boolean).join(' · ')) + '</p></div></div>' +
+        // TODO(Paddy to confirm): "Add a question" attaches to a booked session; wire it when session data exists.
+        '<a class="btn btn-p press" href="' + esc(S.session.href || WOS) + '">Add a question</a>';
+    } else {
+      var nw = isNew();
+      body = '<div class="coach-row"><div class="cal cal-empty" aria-hidden="true">' + IC.calPlus + '</div>' +
+        '<div style="min-width:0"><h2 class="coach-h">' + (nw ? 'Book your plan session' : 'Book a session') + '</h2>' +
+        '<p class="coach-s">' + esc((nw ? 'We go through your Wealth Plan together. Pick a time that suits you.' : 'Book a time with your coach and it will show here.')) + '</p></div></div>' +
+        bookBtn('Book a session');
+    }
+    var foot = S.lastNote
+      ? '<div class="coach-foot"><p class="k mono">Last session · ' + esc(shortDate(S.lastNote.uploaded_at)) + '</p><p class="h">' + esc(S.lastNote.name || 'Meeting note') + '</p>' +
+        '<div class="lnks"><a class="lnk" href="' + esc(noteHref(S.lastNote)) + '">Open notes</a><a class="lnk lnk-m" href="' + NOTES + '">All notes</a></div></div>'
+      : '<p class="coach-foot coach-empty">Notes from each session appear here after it.</p>';
+    return '<section class="t t-champ t-coach press lift" aria-labelledby="dCoachK"><p class="lab" id="dCoachK">Your coach</p>' + body + foot + '</section>';
+  }
+  function noteHref(n) { return n.storage_path ? WOS + '#doc/' + encodeURIComponent(n.id) + '/documents' : NOTES; }
+
+  function dArticles() {
+    var list = sortArticles(S.articles);
+    var head = list[0];
+    var label = head && head.type === 'video' ? 'Latest for members' : "Members' articles";
+    var html = '<section class="t t-art" aria-labelledby="dArtK"><div class="row"><p class="lab" id="dArtK">' + label + '</p><a class="lnk" href="' + ARTICLES + '">All deep dives</a></div>';
+    if (!head) return html + '<p class="coach-empty">New members\' articles appear here.</p></section>';
+    var video = head.type === 'video';
+    var meta = video ? (head.duration ? esc(head.duration) : '') + (isRecent(head) ? (head.duration ? ' · ' : '') + 'New' : '')
+      : esc(head.readTime) + ' min read' + (isRecent(head) ? ' · New' : '');
+    html += '<a class="art-head press" href="' + esc(artHref(head)) + '">' + cover(head, 'large', false) +
+      '<span class="art-text"><span class="art-meta"><span class="pill">' + (video ? 'Video · Members only' : esc(head.category)) + '</span><span class="m">' + meta + '</span></span>' +
+      '<span class="art-title">' + esc(head.short || head.title) + '</span><span class="art-teaser">' + esc(head.teaser) + '</span>' +
+      '<span class="art-cta">' + (video ? 'Watch now' : 'Read the article') + IC.chev + '</span></span></a>';
+    var more = list.slice(1, 3);
+    if (more.length) {
+      html += '<div class="art-more">' + more.map(function (a) {
+        var m = a.type === 'video' ? 'Video' + (a.duration ? ' · ' + a.duration : '') : (a.category + ' · ' + a.readTime + ' min');
+        return '<a class="art-card press lift" href="' + esc(artHref(a)) + '">' + cover(a, 'small', false) +
+          '<span style="min-width:0"><span class="m">' + esc(m) + '</span><span class="h">' + esc(a.short || a.title) + '</span></span></a>';
+      }).join('') + '</div>';
+    }
+    return html + '</section>';
+  }
+
+  function dLearn(L) {
+    var labels = ['Start here', 'Stage 1', 'Stage 2'];
+    return '<section class="t t-learn press lift" aria-labelledby="dLearnK"><div class="row"><p class="lab" id="dLearnK">Continue learning</p><a class="lnk lnk-m" href="' + EDU + '">All stages</a></div>' +
+      '<div class="learn-row">' + ring(false, L) + '<div style="min-width:0"><p class="learn-where">' + esc(L.where) + '</p><h2 class="learn-title">' + esc(L.title) + '</h2></div></div>' +
+      '<ol class="stepper" aria-label="Stages">' + labels.map(function (l, i) {
+        var st = i < L.stageNow ? 'done' : (i === L.stageNow ? 'now' : 'todo');
+        var word = st === 'done' ? ', done' : (st === 'now' ? ', current' : '');
+        return '<li class="' + st + '"' + (st === 'now' ? ' aria-current="step"' : '') + '><span class="d" aria-hidden="true"></span><span class="l">' + l + '<span class="sr">' + word + '</span></span>' + (i < 2 ? '<span class="ln" aria-hidden="true"></span>' : '') + '</li>';
+      }).join('') + '</ol>' +
+      '<a class="btn press" href="' + esc(L.href) + '">' + esc(L.cta) + '</a></section>';
+  }
+
+  function dSuite() {
+    var top = suiteNotes();
+    var html = '<section class="t t-suite" aria-labelledby="dSuiteK"><div class="row"><p class="lab" id="dSuiteK">Investment suite</p><a class="lnk" href="' + SUITE + '">All notes</a></div>';
+    if (!top.length) return html + '<p class="coach-empty">Research notes appear here.</p></section>';
+    var l = top[0], b = hexOk(l.brand);
+    html += '<a class="lead press lift" href="' + esc(l.href) + '"><span class="top" aria-hidden="true" style="background:' + b + '"></span>' +
+      '<span class="mk" aria-hidden="true" style="background:' + b + '">' + esc(l.mark) + '</span>' +
+      '<span class="lead-b"><span class="lead-meta"><span class="c">' + esc(l.category) + '</span><span class="m">' + esc(l.ticker) + (noteWhen(l) ? ' · Updated ' + esc(noteWhen(l)) : '') + '</span></span>' +
+      '<span class="lead-n">' + esc(l.name) + '</span>' + (l.line || l.summary ? '<span class="lead-s">' + esc(l.line || l.summary) + '</span>' : '') +
+      (l.category === 'Foundations' ? '' : '<span class="bb"><span style="display:inline-flex;gap:3px" aria-hidden="true"><i style="background:var(--w-pos)"></i><i style="background:var(--w-warn)"></i></span>Bull and bear case</span>') +
+      '</span></a>';
+    html += top.slice(1).map(function (n) {
+      var c = hexOk(n.brand);
+      return '<a class="nrow press" href="' + esc(n.href) + '"><span class="mk" aria-hidden="true" style="background:' + c + '">' + esc(n.mark) + '</span>' +
+        '<span class="nrow-b"><span class="n">' + esc(n.name) + '</span><span class="m">' + esc(n.ticker + ' · ' + n.category + (noteWhen(n) ? ' · Updated ' + noteWhen(n) : '')) + '</span></span>' + IC.chev + '</a>';
+    }).join('');
+    return html + '</section>';
+  }
+
+  function dTools() {
+    return '<section class="t t-tools" aria-labelledby="dToolsK"><div class="row"><p class="lab" id="dToolsK">Guides &amp; tools</p><a class="lnk lnk-m" href="' + GUIDES + '">All</a></div>' +
+      S.tools.slice(0, 4).map(function (t) {
+        var inner = '<span class="tool-ic" aria-hidden="true">' + icon(t.icon) + '</span><span style="min-width:0"><span class="n">' + esc(t.name) + '</span><span class="s">' + (t.href ? 'Members only' : 'Coming soon') + '</span></span>';
+        return t.href ? '<a class="tool press lift" href="' + esc(t.href) + '">' + inner + '</a>' : '<span class="tool off" aria-disabled="true">' + inner + '</span>';
+      }).join('') + '</section>';
+  }
+
+  // TODO(G6): search the whole Knowledge library (E5); until then, as before, the search runs on the glossary.
+  function searchForm(id, placeholder) {
+    return '<form class="search" action="/hub/knowledge/glossary.html" method="get" role="search">' + IC.search +
+      '<label class="sr" for="' + id + '">Search the Knowledge library</label><input id="' + id + '" name="q" type="search" placeholder="' + esc(placeholder) + '" autocomplete="off"></form>';
+  }
+  function dKnow() {
+    var chips = [['Glossary', 'glossary'], ['Mental models', 'mental-models'], ['Quote library', 'quote-library'], ['Book library', 'book-library']];
+    return '<section class="t t-know" aria-labelledby="dKnowK"><div class="row"><p class="lab" id="dKnowK">Knowledge library</p><a class="lnk lnk-m" href="/hub/knowledge/">Open</a></div>' +
+      searchForm('dKnowQ', 'Search terms, e.g. compounding') +
+      '<div class="chips">' + chips.map(function (c) { return '<a href="/hub/knowledge/' + c[1] + '.html">' + c[0] + '</a>'; }).join('') + '</div></section>';
+  }
+
+  /* ---------- phone tiles (8.3) ---------- */
+  function mPlan() {
+    var docs = [];
+    if (S.plan) docs.push({ short: 'Plan', aria: 'Wealth Plan, updated ' + shortDate(S.plan.uploaded_at), band: '#14376E', href: WOS + '#forecast/' + encodeURIComponent(S.plan.id) + '/planning' });
+    if (S.forecast) docs.push({ short: 'Forecast', aria: "Coach's forecast, updated " + shortDate(S.forecast.uploaded_at), band: '#83661C', href: WOS + '#doc/' + encodeURIComponent(S.forecast.id) + '/documents' });
+    return '<section class="mt t-feat m-plan" aria-labelledby="mPlanK"><span class="glow" aria-hidden="true"></span>' +
+      '<div class="m-plan-text"><p class="lab" id="mPlanK">Your plan</p><h2>Your plan, live. Every account and goal.</h2></div>' +
+      '<div class="m-chart">' + heroChart(true) + '</div>' +
+      '<div class="m-acts"><a class="btn btn-c press" href="' + WOS + '">Open Wealth OS</a>' +
+      docs.map(function (d) { return '<a class="m-doc press" href="' + esc(d.href) + '" aria-label="' + esc(d.aria) + '">' + docIcon(d.band) + '<span>' + d.short + '</span></a>'; }).join('') +
+      '</div></section>';
+  }
+  function mGettingStarted() {
+    var st = steps();
+    var c = st.list[st.cur];
+    return '<section class="mt t-feat m-gs" aria-labelledby="mGsK"><span class="glow" aria-hidden="true"></span>' +
+      '<div class="row"><p class="lab" id="mGsK">Getting started</p><span class="mono" style="font-size:11px;color:#C9D3E3">' + stepLabel(st) + '</span></div>' +
+      '<h2>' + gsTitle(st) + '</h2>' + '<div style="position:relative">' + segs(st) + '</div>' +
+      (c ? '<div class="m-cur"><span class="st-n" aria-hidden="true">' + c.n + '</span><span style="flex:1;min-width:0"><span class="mc-t">' + esc(c.title) + '</span><span class="mc-s">' + esc(c.sub) + '</span></span>' + stepAction(c, true) + '</div>' : '') +
+      '<ol class="m-later">' + st.list.filter(function (s) { return !s.current; }).map(function (s) {
+        return '<li' + (s.done ? ' class="done"' : '') + '><span class="n" aria-hidden="true">' + s.n + '</span>' + esc(s.title) + (s.done ? '<span class="sr">, done</span>' : '') + '</li>';
+      }).join('') + '</ol></section>';
+  }
+  function mCoach() {
+    var body;
+    if (S.session) {
+      var p = sessionParts(S.session);
+      // The session itself opens it; "Add a question" lives there on phones (8.3).
+      body = '<a class="m-sess" href="' + esc(S.session.href || WOS) + '"><span class="cal" aria-hidden="true"><span class="cal-m">' + p.mon + '</span><span class="cal-d">' + p.day + '</span></span>' +
+        '<span style="min-width:0"><span class="h" style="display:block">' + esc(S.session.type || 'Session') + '</span><span class="s" style="display:block">' + esc(p.wd + ' · ' + p.time) + '</span></span></a>';
+    } else {
+      body = '<p class="h">' + (isNew() ? 'Book your plan session' : 'Book a session') + '</p>' + bookBtn('Book');
+    }
+    var foot = S.lastNote ? '<a class="m-note" href="' + esc(noteHref(S.lastNote)) + '">' + IC.note + '<span>Notes · ' + esc(dayMonth(S.lastNote.uploaded_at)) + '</span></a>' : '';
+    return '<section class="mt m-coach" aria-labelledby="mCoachK"><p class="lab" id="mCoachK">Your coach</p>' + body + foot + '</section>';
+  }
+  function mLearn(L) {
+    return '<a class="mt m-learn press" href="' + esc(L.href) + '" aria-labelledby="mLearnK mLearnS"><span class="lab" id="mLearnK">Continue learning</span>' +
+      '<span style="display:flex;gap:10px;align-items:center">' + ring(true, L) +
+      '<span style="min-width:0"><span class="of">of ' + L.total + ' lessons</span><span class="stg">' + esc(L.short) + '</span></span></span>' +
+      '<span class="go" id="mLearnS">' + esc(L.phoneCta) + IC.chev + '</span></a>';
+  }
+  function mArticles() {
+    var list = sortArticles(S.articles);
+    var head = list[0];
+    var label = head && head.type === 'video' ? 'Latest for members' : "Members' articles";
+    return '<section class="mt m-art" aria-labelledby="mArtK"><div class="row"><p class="lab" id="mArtK">' + label + '</p><a class="lnk" href="' + ARTICLES + '">All</a></div>' +
+      '<div class="snap' + (list.length <= 2 ? ' fit' + (list.length === 1 ? ' one' : '') : '') + '">' + list.map(function (a, i) {
+        a._isHead = i === 0;
+        var m = a.type === 'video' ? 'Video' + (a.duration ? ' · ' + a.duration : '') : (a.category + ' · ' + a.readTime + ' min');
+        return '<a class="card press' + (i === 0 ? ' head' : '') + '" href="' + esc(artHref(a)) + '">' + cover(a, 'small', true) +
+          '<span class="m">' + esc(m) + '</span><span class="h">' + esc(a.short || a.title) + '</span></a>';
+      }).join('') + '</div></section>';
+  }
+  function mSuite() {
+    return '<section class="mt m-suite" aria-labelledby="mSuiteK"><div class="row"><p class="lab" id="mSuiteK">Investment suite</p><a class="lnk" href="' + SUITE + '">All notes</a></div>' +
+      '<div class="minis">' + suiteNotes().map(function (n) {
+        var c = hexOk(n.brand);
+        var first = String(n.name).split(' ')[0];
+        var short = first.length > 3 ? first : n.name;
+        return '<a class="mini press" href="' + esc(n.href) + '" aria-label="' + esc(n.name + ' note') + '"><span class="top" aria-hidden="true" style="background:' + c + '"></span>' +
+          '<span class="tk"><span class="mk" aria-hidden="true" style="background:' + c + '">' + esc(n.mark) + '</span>' + esc(n.ticker) + '</span>' +
+          '<span class="n">' + esc(short) + '</span>' + (noteWhen(n) ? '<span class="w">Upd ' + esc(noteWhen(n)) + '</span>' : '') + '</a>';
+      }).join('') + '</div></section>';
+  }
+  function mTools() {
+    return '<section class="mt m-tools" aria-labelledby="mToolsK"><div class="row"><p class="lab" id="mToolsK">Members\' tools</p><a class="lnk lnk-m" href="' + GUIDES + '">Guides &amp; tools</a></div>' +
+      '<div class="apps">' + S.tools.slice(0, 4).map(function (t) {
+        var inner = '<span class="app-ic" aria-hidden="true">' + icon(t.icon) + '</span><span class="n">' + esc(t.short || t.name) + '</span>';
+        return t.href ? '<a class="app press" href="' + esc(t.href) + '" aria-label="' + esc(t.name) + '">' + inner + '</a>'
+          : '<span class="app off" aria-disabled="true" aria-label="' + esc(t.name + ', coming soon') + '">' + inner + '</span>';
+      }).join('') + '</div>' + searchForm('mKnowQ', 'Knowledge library: search a term') + '</section>';
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    var L = learning();
+    var nw = isNew();
+    if (S.name) $('hubHeroGreeting').textContent = (nw ? 'Welcome to TEI, ' : 'Welcome back, ') + S.name;
+    $('hlGrid').innerHTML = (nw ? dGettingStarted() : dPlan()) + dCoach() + dArticles() + dLearn(L) + dSuite() + dTools() + dKnow();
+    $('hlPhone').innerHTML = (nw ? mGettingStarted() : mPlan()) + '<div class="m-pair">' + mCoach() + mLearn(L) + '</div>' + mArticles() + mSuite() + mTools();
+    if (window.TeiHubHeader) { window.TeiHubHeader.setWealthOsHref(wealthOsHref()); if (window.TeiHubHeader.setName) window.TeiHubHeader.setName(S.name); }
+  }
+
+  /* Book a session opens the clients' Cal.com Plan & Review event
+     (free, hidden, several lengths). Cal.com emails Paddy the booking. */
+
+  /* Theme (3.3): the client's clients.theme wins when set; a change is kept
+     on this device (tei-theme) and on the record. */
+  if (window.TeiHubHeader) {
+    window.TeiHubHeader.onThemePick(function (t) {
+      if (!S.clientId || !S.hasThemeColumn) return;
+      w().from('clients').update({ theme: t }).eq('id', S.clientId)
+        .then(function (r) { if (r && r.error) console.error('Client Hub: theme not saved', r.error); }, function () {});
+    });
+  }
+
+  function w() { return window.teiSupabase.schema('wealth_os'); }
+  function soft(p) { return Promise.resolve(p).then(function (r) { return r && !r.error ? r.data : null; }, function () { return null; }); }
+  function getJson(url) { return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }).catch(function (err) { console.error('Client Hub: could not load', err); return []; }); }
+
+  function loadRecords() {
+    if (!window.TeiAuth) return Promise.resolve();
+    return TeiAuth.waitForReady()
+      .then(function () { return TeiAuth.getUser(); })
+      .then(function (res) {
+        var user = res && res.data && res.data.user;
+        if (!user) return;
+        return Promise.all([
+          soft(window.teiSupabase.from('education_progress').select('completed_lessons, commitment_completed_at').eq('user_id', user.id).maybeSingle())
+            .then(function (p) { S.progress = p; S.progressLoaded = true; }),
+          // First name: the profile first (advisers have no client row), then the client row.
+          soft(w().from('profiles').select('first_name').eq('user_id', user.id).maybeSingle()).then(function (pr) {
+            return soft(w().from('clients').select('id, first_name').eq('user_id', user.id).maybeSingle()).then(function (client) {
+              S.name = (pr && pr.first_name) || (client && client.first_name) || '';
+              if (!client) return;
+              S.clientId = client.id;
+              return Promise.all([
+                // Setup request (migration 013) and theme (migration 011) are read on
+                // their own, so either column missing fails soft.
+                soft(w().from('clients').select('setup_request').eq('id', client.id).maybeSingle()).then(function (r) { S.setup = r ? r.setup_request : null; }),
+                soft(w().from('clients').select('theme').eq('id', client.id).maybeSingle()).then(function (r) {
+                  if (!r) return;
+                  S.hasThemeColumn = true;
+                  if ((r.theme === 'light' || r.theme === 'dark') && window.TeiTheme && window.TeiTheme.resolved() !== r.theme) {
+                    window.TeiTheme.set(r.theme);
+                  }
+                }),
+                soft(w().from('documents').select('id, name, type, storage_path, uploaded_at').eq('client_id', client.id)).then(function (docs) {
+                  if (!docs) return;
+                  S.docsLoaded = true;
+                  S.plan = newest(docs.filter(function (d) { return d.type === 'forecast' && d.storage_path; }))[0] || null;
+                  S.lastNote = newest(docs.filter(function (d) { return d.type === 'note'; }))[0] || null;
+                })
+              ]);
+            });
+          })
+        ]);
+      })
+      .catch(function (err) { console.error('Client Hub: could not load your details', err); });
+  }
+
+  function timeout(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  Promise.all([
+    Promise.race([loadRecords(), timeout(8000)]),
+    getJson('/hub/members-articles.json').then(function (l) { S.articles = Array.isArray(l) ? l : []; }),
+    getJson('/hub/suite/notes/manifest.json').then(function (l) { S.notes = Array.isArray(l) ? l : []; }),
+    getJson('/hub/members-tools.json').then(function (l) { S.tools = Array.isArray(l) ? l : []; })
+  ]).then(render, function (err) { console.error('Client Hub:', err); render(); });
 })();
 </script>
-
-<nav>
-  <a class="nav-logo" href="/hub/index.html">
-    <div class="nav-logo-mark">&#10022;</div>
-    <span class="nav-logo-text">The Everyday<br>Investor</span>
-  </a>
-  <ul class="nav-links">
-    <li><a href="/hub/index.html" class="active">Dashboard</a></li>
-    <li><a href="/hub/wealth-os.html">Wealth OS</a></li>
-    <li><a href="/hub/suite.html">Investment Suite</a></li>
-    <li><a href="/hub/education/index.html">Education Platform</a></li>
-    <li><a href="/hub/guides.html">Guides &amp; Tools</a></li>
-    <li><a href="/hub/articles.html">Articles</a></li>
-    <li><a href="/hub/knowledge/index.html">Knowledge Library</a></li>
-    <li style="border-left:1px solid rgba(201,168,76,.25);padding-left:20px;"><a href="/">Visit Website &#8599;</a></li>
-  </ul>
-  <button class="nav-mobile-toggle" id="navToggle" onclick="toggleNav()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-<div class="nav-mobile-menu" id="navMobileMenu">
-  <a href="/hub/index.html" onclick="closeNav()" class="active">Dashboard</a>
-  <a href="/hub/wealth-os.html" onclick="closeNav()">Wealth OS</a>
-  <a href="/hub/suite.html" onclick="closeNav()">Investment Suite</a>
-  <a href="/hub/education/index.html" onclick="closeNav()">Education Platform</a>
-  <a href="/hub/guides.html" onclick="closeNav()">Guides &amp; Tools</a>
-  <a href="/hub/articles.html" onclick="closeNav()">Articles</a>
-  <a href="/hub/knowledge/index.html" onclick="closeNav()">Knowledge Library</a>
-  <a href="/">Visit Website &#8599;</a>
-</div>
-
-<div class="hub-hero">
-  <h1 id="hubHeroGreeting">Welcome back.</h1>
-</div>
-
-<div class="hub-featured">
-  <div class="hub-featured-grid">
-    <a class="hub-featured-item" href="/hub/wealth-os.html">
-      <div class="hub-featured-eyebrow">Your Numbers</div>
-      <div class="hub-featured-title">Wealth OS</div>
-      <div class="hub-featured-desc">Your accounts, holdings, goals and cashflow in one live dashboard</div>
-      <span class="hub-featured-link">Open Wealth OS <span class="arrow">&#8594;</span></span>
-    </a>
-    <a class="hub-featured-item" href="/hub/suite.html">
-      <div class="hub-featured-eyebrow">Research &amp; Analysis</div>
-      <div class="hub-featured-title">Investment Suite</div>
-      <div class="hub-featured-desc">14 research notes across Growth, Foundation, Top Ideas &amp; Watchlist</div>
-      <span class="hub-featured-link">Enter the suite <span class="arrow">&#8594;</span></span>
-    </a>
-    <a class="hub-featured-item" href="/hub/education/index.html">
-      <div class="hub-featured-eyebrow">Learning Path</div>
-      <div class="hub-featured-title">Education Platform</div>
-      <div class="hub-featured-desc">30 lessons across Financial Foundations and Investor Understanding, at your own pace</div>
-      <span class="hub-featured-link">Start learning <span class="arrow">&#8594;</span></span>
-    </a>
-  </div>
-</div>
-
-<div class="hub-body">
-
-  <div class="hub-body-head">
-    <p class="hub-body-eyebrow">Quick Access</p>
-    <p class="hub-body-title">A few of the most useful, close at hand</p>
-  </div>
-
-  <div class="hub-quick-grid">
-    <a class="hub-quick-card" href="/hub/guides/costofwaiting.html">
-      <span class="hub-quick-icon">&#9889;</span>
-      <span class="hub-quick-title">Cost of Waiting Calculator</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/wealthforecast.html">
-      <span class="hub-quick-icon">&#128200;</span>
-      <span class="hub-quick-title">Wealth Forecast</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/tax.html">
-      <span class="hub-quick-icon">&#127974;</span>
-      <span class="hub-quick-title">The Tax Wrapper Guide</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/property.html">
-      <span class="hub-quick-icon">&#127968;</span>
-      <span class="hub-quick-title">Property Investment Calculator</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/guides/portfolio-optimisation-lab.html">
-      <span class="hub-quick-icon">&#128202;</span>
-      <span class="hub-quick-title">Portfolio Optimisation Lab</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-    <a class="hub-quick-card" href="/hub/knowledge/index.html">
-      <span class="hub-quick-icon">&#128218;</span>
-      <span class="hub-quick-title">Knowledge Library</span>
-      <span class="hub-quick-arrow">&#8594;</span>
-    </a>
-  </div>
-
-  <a class="hub-library-banner" href="/hub/guides.html">
-    <div class="hub-library-text">
-      <p class="hub-library-eyebrow">The Full Library</p>
-      <p class="hub-library-title">Every guide, framework and calculator we've built</p>
-      <p class="hub-library-desc">TEI Principles, the Five Stages framework, tax wrappers, portfolio strategy, and every tool in between -- all in one place.</p>
-    </div>
-    <span class="hub-library-cta">Browse Guides &amp; Tools <span class="arrow">&#8594;</span></span>
-  </a>
-
-</div>
-
-<script>
-function toggleNav() {
-  document.getElementById('navMobileMenu').classList.toggle('open');
-}
-function closeNav() {
-  document.getElementById('navMobileMenu').classList.remove('open');
-}
-</script>
-<script src="/assets/mobile-nav.js" defer></script>
 </body>
 </html>

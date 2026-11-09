@@ -15,16 +15,45 @@
  * every gated page gets the same control, regardless of layout.
  */
 (function () {
+  // Loading screen in the redesign style (spec B1.2): the page background,
+  // the ring mark and Geist, light or dark from the shared "tei-theme" key, so
+  // the hand-off to the sign-in page or the Hub never flashes the old look.
+  // Light, dark, or follow the device; dark when nothing is saved, as in
+  // hub/js/tei-theme.js (which normally loads first and decides).
+  var dark = false;
+  if (window.TeiTheme) dark = window.TeiTheme.resolved() === "dark";
+  else {
+    var pref = null;
+    try { pref = localStorage.getItem("tei-theme"); } catch (e) {}
+    dark = pref === "dark" || (pref !== "light" && (pref !== "system" || !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)));
+  }
+  var bg = dark ? "#08111F" : "#EEEAE1";
+  var ink = dark ? "#F7F4ED" : "#13213A";
+  var muted = dark ? "#AAB6C8" : "#4E5B70";
+  var gold = dark ? "#E8D6A8" : "#14376E";
   var overlay = document.createElement("div");
   overlay.id = "hubGate";
+  overlay.setAttribute("role", "status");
+  overlay.setAttribute("aria-live", "polite");
   overlay.style.cssText =
-    "position:fixed;inset:0;z-index:5000;background:linear-gradient(160deg,#1D3557 0%,#0f1e3a 100%);" +
-    "display:flex;align-items:center;justify-content:center;padding:24px;";
+    "position:fixed;inset:0;z-index:5000;background:" + bg + ";color:" + ink + ";" +
+    "display:flex;align-items:center;justify-content:center;padding:24px;" +
+    "font-family:'Geist',system-ui,-apple-system,'Segoe UI',sans-serif;";
   overlay.innerHTML =
-    '<div style="max-width:380px;width:100%;text-align:center;">' +
-    '<div style="width:44px;height:44px;border-radius:50%;border:1.5px solid #C9A84C;display:flex;align-items:center;justify-content:center;font-size:20px;color:#C9A84C;margin:0 auto 24px;">&#10022;</div>' +
-    '<p style="font-family:\'Playfair Display\',serif;font-size:24px;color:#F7F4ED;margin-bottom:10px;">Client Hub</p>' +
-    '<p style="font-size:13px;color:rgba(247,244,237,.55);line-height:1.7;">Checking your sign-in&hellip;</p>' +
+    "<style>@keyframes hubGateSpin{to{transform:rotate(360deg)}}" +
+    "@media (prefers-reduced-motion:reduce){#hubGate .hg-spin{animation:none!important}}</style>" +
+    '<div style="text-align:center;">' +
+    '<div style="position:relative;width:56px;height:56px;margin:0 auto 22px;">' +
+    '<svg width="56" height="56" viewBox="0 0 26 26" aria-hidden="true" focusable="false">' +
+    '<circle cx="13" cy="13" r="11.5" fill="none" stroke="' + gold + '" stroke-opacity=".35" stroke-width="1"/>' +
+    '<circle cx="13" cy="13" r="6" fill="none" stroke="' + gold + '" stroke-opacity=".5" stroke-width="1"/>' +
+    '<circle cx="13" cy="13" r="2.4" fill="' + gold + '"/></svg>' +
+    '<svg class="hg-spin" width="56" height="56" viewBox="0 0 26 26" aria-hidden="true" focusable="false" ' +
+    'style="position:absolute;inset:0;animation:hubGateSpin 1.4s linear infinite;">' +
+    '<path d="M13 1.5a11.5 11.5 0 0 1 11.5 11.5" fill="none" stroke="' + gold + '" stroke-width="1.4" stroke-linecap="round"/></svg>' +
+    "</div>" +
+    '<p style="margin:0;font-size:15px;font-weight:400;letter-spacing:-0.01em;">The Everyday Investor</p>' +
+    '<p style="margin:6px 0 0;font-size:13px;font-weight:300;color:' + muted + ';">Checking your sign-in&hellip;</p>' +
     "</div>";
   document.body.insertBefore(overlay, document.body.firstChild);
 
@@ -33,8 +62,10 @@
     window.location.replace("/hub/login.html?redirect=" + redirect);
   }
 
+  // After signing out, the website home page (Paddy, 30 Oct 2026).
+  function goHome() { window.location.replace("/index.html"); }
   function signOut() {
-    TeiAuth.signOut().then(goToLogin).catch(goToLogin);
+    TeiAuth.signOut().then(goHome).catch(goHome);
   }
 
   /** Small floating pill for pages with no shared .nav-links (tool pages, articles, suite.html). */
@@ -115,6 +146,15 @@
 
   function injectSignedInUI(user) {
     var email = (user && user.email) || "Signed in";
+    // A page with its own Sign out control (the redesigned Client Hub) just
+    // has it wired up; nothing is added to the page.
+    var own = document.querySelectorAll("[data-hub-signout]");
+    if (own.length) {
+      Array.prototype.forEach.call(own, function (el) {
+        el.addEventListener("click", function (e) { e.preventDefault(); signOut(); });
+      });
+      return;
+    }
     var navLinks = document.querySelector(".nav-links");
     if (navLinks) {
       renderNavSignOut(navLinks, document.querySelector(".nav-mobile-menu"), email);
@@ -142,7 +182,13 @@
         return;
       }
       overlay.remove();
-      injectSignedInUI(user);
+      // This script sits at the top of <body>, so wait for the rest of the
+      // page before looking for its nav or its own Sign out control.
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", function () { injectSignedInUI(user); });
+      } else {
+        injectSignedInUI(user);
+      }
       loadBoundaryWording();
     })
     .catch(goToLogin);

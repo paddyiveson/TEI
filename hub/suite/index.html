@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Research -- Client Hub</title>
+<script src="/hub/js/tei-theme.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/hub/css/hub-tokens.css">
+<link rel="stylesheet" href="/hub/css/hub-shell.css">
+<style>
+/* Investment suite (Bold). One page, two views: the notes list, in four
+   sections by category, and a note, which opens here (?note=<slug>) with the
+   Hub bar, a note bar and a contents rail around it. Notes come from
+   /hub/suite/notes/manifest.json and live one file each beside it. Scripts:
+   /hub/suite/suite.js. Brand-coloured cards keep fixed light text in both
+   themes, like the Hub home's featured tiles. */
+.lab { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; color:var(--w-gold); }
+.press { transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease; }
+.press:active { transform:scale(.985); }
+@media (hover:hover) { .lift:hover { transform:translateY(-2px); box-shadow:var(--w-shadow-2); } }
+.chev { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+.mk { flex:none; display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:11px; background:var(--w-chip); border:1px solid var(--w-line); color:var(--w-gold); font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:12px; font-weight:500; letter-spacing:.02em; }
+.upd { font-family:'Geist Mono', ui-monospace, Menlo, monospace; font-size:11px; padding:3px 9px; border-radius:999px; background:var(--w-nav-active); color:var(--w-nav-active-text); white-space:nowrap; }
+
+/* ---------- Header. On phones it becomes a navy tile with the section counts ---------- */
+.su-head { position:relative; margin-bottom:20px; }
+.su-head > * { position:relative; }
+.su-head .hb-intro { max-width:720px; }
+.su-sub-m { display:none; }
+/* Deep dives (8a, Paddy 2 Nov 2026): under the search and filters, each card
+   led by the article's own figure (/hub/js/hub-figures.js), then one line. */
+.su-deep { margin-bottom:40px; }
+.dd-g { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:14px; }
+.dd-c { position:relative; overflow:hidden; display:flex; flex-direction:column; min-width:0; border-radius:22px; text-decoration:none; color:var(--w-text); background:var(--w-tile); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.dd-c.lead { grid-column:span 7; background:var(--w-feat); border:1px solid var(--w-feat-line); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+.dd-c.side { grid-column:span 5; }
+.dd-g > .dd-c:only-child { grid-column:1 / -1; }
+.dd-cov { position:relative; display:block; height:clamp(190px, 15vw, 240px); margin:10px 10px 0; border-radius:16px; overflow:hidden; background:var(--w-powder); }
+.dd-txt { display:flex; flex-direction:column; gap:8px; flex:1; padding:16px 22px 22px; }
+.dd-k { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-family:'Geist Mono', monospace; font-size:11px; letter-spacing:.04em; color:var(--w-muted); }
+.dd-c.lead .dd-k { color:rgba(247,244,237,.7); }
+.dd-tag { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px; background:var(--w-champ); border:1px solid var(--w-champ-line); color:var(--w-gold); }
+.dd-c.lead .dd-tag { background:#E8D6A8; border-color:#E8D6A8; color:#0F1E36; }
+.dd-h { font-size:24px; font-weight:300; letter-spacing:-0.025em; line-height:1.2; }
+.dd-c.lead .dd-h { font-size:28px; }
+.dd-s { font-size:14px; line-height:1.55; color:var(--w-muted); max-width:60ch; }
+.dd-c.lead .dd-s { color:rgba(247,244,237,.78); }
+.dd-go { margin-top:auto; display:inline-flex; align-items:center; gap:6px; padding-top:6px; font-size:14px; font-weight:500; color:var(--w-gold); }
+.dd-c.lead .dd-go, .nv-deep .dd-go { color:#E8D6A8; }
+.su-gc > .dd-badge { position:absolute; right:14px; top:14px; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:999px; background:var(--w-nav-active); color:var(--w-nav-active-text); font-size:11px; font-weight:500; }
+.nv-deep { display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; justify-content:space-between; margin:0 0 16px; padding:16px 20px; border-radius:18px; background:var(--w-feat); border:1px solid var(--w-feat-line); color:#F7F4ED; text-decoration:none; }
+.nv-deep[hidden] { display:none; }
+.nv-deep b { font-size:16px; font-weight:400; }
+.nv-deep small { display:block; margin-bottom:2px; font-family:'Geist Mono', monospace; font-size:11px; color:rgba(247,244,237,.65); }
+@media (hover:hover) { .dd-c { transition:transform .25s ease; } .dd-c:hover { transform:translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .dd-c { transition:none; } .dd-c:hover { transform:none; } }
+/* The principles, as a quiet link under the intro (it goes to the guide) */
+.su-prl { display:inline-flex; align-items:center; gap:6px; min-height:40px; margin-top:6px; font-size:14px; color:var(--w-gold); text-decoration:none; }
+.su-prl b { font-weight:500; }
+.su-prl:hover { text-decoration:underline; }
+
+/* ---------- Toolbar: search and categories, held under the Hub bar ---------- */
+.su-tools { position:sticky; top:var(--su-top, 0px); z-index:30; display:flex; flex-wrap:wrap; gap:10px 12px; align-items:center; margin:0 -32px 20px; padding:10px 32px; background:color-mix(in srgb, var(--w-bg) 90%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid transparent; }
+.su-tools.is-stuck { border-bottom-color:var(--w-glass-line); }
+.su-tools .hb-search { max-width:300px; }
+.su-cats { display:flex; flex-wrap:wrap; gap:8px; }
+.su-cats .n { font-family:'Geist Mono', monospace; font-size:11px; opacity:.7; margin-left:6px; }
+/* Phones: the sections as tabs that follow the scroll */
+.su-cats.is-tabs { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:4px; padding:4px; border-radius:999px; background:var(--w-tile); border:1px solid var(--w-line); }
+.su-cats.is-tabs .hb-chip { min-height:38px; padding:0 4px; border:0; background:none; font-size:13px; white-space:nowrap; }
+.su-cats.is-tabs .hb-chip[aria-current="true"] { background:var(--w-nav-active); color:var(--w-nav-active-text); }
+.su-fbtn { display:none; }
+
+/* ---------- Sections ---------- */
+.su-sec + .su-sec { margin-top:40px; }
+.su-sh { display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline; margin-bottom:14px; }
+.su-sh h2 { font-size:26px; font-weight:300; letter-spacing:-0.03em; line-height:1.2; }
+.su-sh p { font-size:14px; color:var(--w-muted); max-width:640px; }
+.su-g { display:grid; grid-template-columns:repeat(12, minmax(0, 1fr)); gap:12px; }
+.su-g > * { min-width:0; grid-column:span var(--span, 12); }
+.su-g > .is-lead { grid-row:span var(--rows, 1); }
+
+/* The step down in impact: Growth cards (brand ground, varied sizes, like
+   the Hub home), Foundations tiles (tinted), Top Ideas rows with a line,
+   Watchlist rows. Two corner sizes: 18px outside, 12px inside. */
+
+/* Growth Portfolio: a flat tint of the company's colour, its colour on the
+   top edge and the ticker. The lead card is the only one with a glow. */
+.su-gc { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:6px; min-height:170px; padding:18px; border-radius:18px; text-decoration:none; color:var(--w-text); background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+
+.su-gc > * { position:relative; }
+.su-gc .top { display:flex; align-items:center; gap:8px; }
+.su-gc .tk { display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:6px; background:var(--w-champ); border:1px solid var(--w-champ-line); color:var(--w-gold); font-family:'Geist Mono', monospace; font-size:11px; font-weight:500; letter-spacing:.02em; }
+.su-gc .upd { margin-left:auto; background:#E8D6A8; color:#0F1E36; }
+.su-gc .nm { margin-top:4px; font-size:19px; font-weight:400; letter-spacing:-0.02em; line-height:1.2; }
+.su-gc .th { font-size:13px; color:var(--w-muted); }
+.su-gc .ln { margin-top:2px; font-size:13px; line-height:1.5; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.su-gc .go { margin-top:auto; padding-top:4px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
+.su-gc.is-lead { flex-direction:row; gap:0; padding:0; color:#F7F4ED; background:#14376E; border-color:rgba(232,214,168,0.35); box-shadow:var(--w-feat-shadow); }
+/* Lead card: the text on the left, the note's three figures stacked on the right */
+.su-gc.is-lead .lt { flex:1.5 1 0; min-width:0; display:flex; flex-direction:column; gap:6px; padding:24px; }
+.su-gc.is-lead .tk { background:rgba(232,214,168,0.14); border-color:transparent; color:#E8D6A8; }
+.su-gc.is-lead .th { color:#AEB9CA; }
+.su-gc.is-lead .ln { color:#C9D3E3; }
+.su-gc.is-lead .go { color:#E8D6A8; }
+.su-gc.is-lead::before { content:''; position:absolute; width:600px; height:600px; left:-20%; top:-75%; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.14), rgba(232,214,168,0)); pointer-events:none; }
+/* The lead card's ticker, large and faint, so its extra height is not empty */
+/* Three figures from the note, dated, so the lead card's height carries substance */
+.su-gc .figs { flex:1 1 0; min-width:0; display:flex; flex-direction:column; padding:10px 24px 18px; border-left:1px solid rgba(232,214,168,0.16); }
+.su-gc .fig { flex:1; display:flex; flex-direction:column; justify-content:center; gap:3px; padding:10px 0; border-bottom:1px solid rgba(232,214,168,0.12); }
+.su-gc .fig b { font-size:22px; font-weight:300; letter-spacing:-0.02em; line-height:1.1; font-variant-numeric:tabular-nums; }
+.su-gc .fig span { font-size:12px; line-height:1.35; color:#AEB9CA; }
+.su-gc .figs-k { padding-top:10px; font-family:'Geist Mono', monospace; font-size:10px; color:#8FA3C4; }
+.su-gc.is-lead .k { font-family:'Geist Mono', monospace; font-size:11px; color:#E8D6A8; }
+.su-gc.is-lead .nm { margin-top:10px; font-size:34px; font-weight:300; letter-spacing:-0.03em; line-height:1.1; }
+.su-gc.is-lead .th { font-size:15px; }
+.su-gc.is-lead .ln { margin-top:4px; font-size:16px; line-height:1.5; -webkit-line-clamp:4; }
+.su-gc.is-lead .go { margin-top:auto; padding-top:12px; }
+.su-gc.is-wide .ln { -webkit-line-clamp:2; }
+@media (hover:hover) { .su-gc:hover { border-color:var(--w-champ-line); transform:translateY(-2px); } .su-gc.is-lead:hover { border-color:rgba(232,214,168,0.7); } }
+.su-gc:focus-visible { outline-color:#E8D6A8; }
+
+/* Foundations: two tinted tiles, calmer than Growth, richer than a row */
+.su-fc { position:relative; display:flex; flex-direction:column; gap:4px; padding:18px; border-radius:18px; text-decoration:none; background:var(--w-champ); border:1px solid var(--w-champ-line); }
+/* Warm in dark too: the page with a little champagne over it (the shared
+   champagne tile token is navy in dark) */
+:root[data-theme="dark"] .su-fc { background:rgba(232,214,168,0.07); border-color:rgba(232,214,168,0.24); }
+
+.su-fc .top { display:flex; align-items:center; gap:10px; }
+.su-fc .tk { font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-muted); }
+.su-fc .nm { font-size:17px; font-weight:400; letter-spacing:-0.02em; line-height:1.25; }
+.su-fc .th { font-size:13px; color:var(--w-muted); }
+.su-fc .ln { margin-top:2px; font-size:13px; line-height:1.5; color:var(--w-text); opacity:.85; }
+.su-fc .go { margin-top:auto; padding-top:6px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
+@media (hover:hover) { .su-fc:hover { transform:translateY(-2px); } }
+
+/* Top Ideas: rows with a line, in one tile */
+/* Top Ideas: small cards (ticker, name, theme) */
+.su-ic { display:flex; flex-direction:column; align-items:flex-start; gap:4px; padding:14px 16px; border-radius:18px; text-decoration:none; color:var(--w-text); background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.su-ic .tk { margin-bottom:6px; display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:6px; background:var(--w-champ); border:1px solid var(--w-champ-line); color:var(--w-gold); font-family:'Geist Mono', monospace; font-size:10.5px; font-weight:500; }
+.su-ic .nm { font-size:15px; font-weight:500; line-height:1.25; }
+.su-ic .th { font-size:12px; color:var(--w-muted); }
+@media (hover:hover) { .su-ic:hover { border-color:var(--w-champ-line); transform:translateY(-2px); } }
+
+/* Watchlist: one tile per theme, a row per company */
+.su-wt { height:100%; display:flex; flex-direction:column; gap:12px; padding:16px; border-radius:18px; background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.su-wt-h { display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+.su-wt-h .c { font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-muted); }
+/* Rows share the tile's height, so tiles in a row line up with no gap */
+/* The theme's companies as pills */
+.su-wt-l { display:flex; flex-wrap:wrap; gap:8px; }
+.su-pl { display:inline-flex; align-items:center; gap:8px; min-height:38px; padding:0 14px 0 5px; border-radius:999px; text-decoration:none; color:var(--w-text); background:var(--w-chip); border:1px solid var(--w-line); font-size:13.5px; white-space:nowrap; }
+.su-pl .i { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:var(--w-tile); border:1px solid var(--w-line); color:var(--w-gold); font-family:'Geist Mono', monospace; font-size:10px; font-weight:500; }
+@media (hover:hover) { .su-pl:hover { border-color:var(--w-champ-line); } }
+.su-wr { display:flex; align-items:center; gap:12px; min-height:48px; padding:6px 0; border-bottom:1px solid var(--w-line); text-decoration:none; }
+
+.su-wr .mk { width:32px; height:32px; border-radius:10px; font-size:11px; }
+.su-wr .b { flex:1; min-width:0; }
+.su-wr .n { display:block; font-size:15px; font-weight:500; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.su-wr .m { display:block; margin-top:2px; font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.su-wr .chev { color:var(--w-muted); }
+@media (hover:hover) { .su-wr:hover { background:var(--w-chip); } .su-wr:hover .chev { color:var(--w-gold); } }
+.su-wr[aria-current="true"] { background:var(--w-chip); }
+.su-wr[aria-current="true"] .n::after { content:' · Open'; font-weight:400; color:var(--w-muted); }
+
+.su-empty { padding:40px; border-radius:26px; border:1.5px dashed var(--w-line); text-align:center; font-size:15px; color:var(--w-muted); }
+.su-empty a { color:var(--w-gold); }
+
+/* ---------- Closing grid: three cards and the session tile ---------- */
+.su-close { margin-top:44px; }
+.su-close-h { margin-bottom:14px; font-size:22px; font-weight:300; letter-spacing:-0.02em; }
+.su-cg { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:16px; }
+.su-cc { position:relative; overflow:hidden; display:flex; flex-direction:column; gap:8px; min-height:200px; padding:22px; border-radius:24px; text-decoration:none; background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.su-cc .k { font-family:'Geist Mono', monospace; font-size:11.5px; color:var(--w-gold); }
+.su-cc .h { font-size:19px; font-weight:400; letter-spacing:-0.02em; line-height:1.25; }
+.su-cc .s { font-size:13.5px; line-height:1.5; color:var(--w-muted); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+.su-cc .go { margin-top:auto; padding-top:8px; display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; color:var(--w-gold); }
+.su-cc .top { display:flex; align-items:center; gap:10px; }
+.su-cc.champ { background:var(--w-champ); border-color:var(--w-champ-line); box-shadow:inset 0 1px 0 var(--w-champ-edge), var(--w-shadow-1); }
+
+.su-cc.feat { background:#14376E; border-color:rgba(232,214,168,0.45); color:#F7F4ED; box-shadow:var(--w-feat-shadow); }
+.su-cc.feat::before { content:''; position:absolute; width:520px; height:520px; right:-40%; top:-90%; border-radius:50%; background:radial-gradient(closest-side, rgba(232,214,168,0.24), rgba(232,214,168,0)); pointer-events:none; }
+.su-cc.feat > * { position:relative; }
+.su-cc.feat .k { color:#E8D6A8; }
+.su-cc.feat .s { color:#C9D3E3; -webkit-line-clamp:4; }
+.su-cc.feat .btn { white-space:nowrap; margin-top:auto; align-self:flex-start; display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 18px; border-radius:999px; background:#E8D6A8; color:#0F1E36; font-size:14px; font-weight:500; box-shadow:0 0 0 1px rgba(232,214,168,0.35), 0 6px 22px rgba(232,214,168,0.28); }
+.su-cc.feat:focus-visible { outline-color:#E8D6A8; }
+@media (hover:hover) { .su-cc:hover { transform:translateY(-2px); box-shadow:var(--w-shadow-2); } .su-cc.feat:hover { box-shadow:var(--w-feat-shadow); } }
+
+.su-note { margin-top:28px; font-size:12px; line-height:1.6; color:var(--w-muted); max-width:880px; }
+
+/* ---------- Note view ---------- */
+.nv-bar { position:sticky; top:var(--su-top, 0px); z-index:30; display:flex; align-items:center; gap:14px; margin:-8px -32px 20px; padding:10px 32px; background:color-mix(in srgb, var(--w-bg) 90%, transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-bottom:1px solid var(--w-glass-line); }
+.nv-back { flex:none; display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 16px 0 12px; border-radius:999px; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); font-size:14px; text-decoration:none; }
+.nv-back .chev { transform:rotate(180deg); }
+.nv-id { flex:1; min-width:0; display:flex; align-items:center; gap:12px; outline:none; }
+.nv-id .b { min-width:0; }
+.nv-id .n { display:block; font-size:17px; font-weight:500; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.nv-id .m { display:block; font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.nv-act { flex:none; display:flex; align-items:center; gap:8px; }
+.nv-pos { font-family:'Geist Mono', monospace; font-size:11px; color:var(--w-muted); padding:0 4px; }
+.nv-ic { display:inline-flex; align-items:center; justify-content:center; width:44px; height:44px; border-radius:50%; border:1px solid var(--w-line); background:var(--w-tile); color:var(--w-text); text-decoration:none; cursor:pointer; }
+.nv-ic.prev .chev { transform:rotate(180deg); }
+.nv-ic[aria-disabled="true"] { opacity:.35; pointer-events:none; }
+.nv-sw { display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0 18px; border-radius:999px; border:0; background:var(--w-nav-active); color:var(--w-nav-active-text); font-family:inherit; font-size:14px; font-weight:500; cursor:pointer; box-shadow:var(--w-btn-glow); }
+.nv-sw svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+
+.nv-grid { display:grid; grid-template-columns:220px minmax(0, 1fr); gap:24px; align-items:start; }
+.nv-rail { position:sticky; top:calc(var(--su-top, 0px) + var(--nv-bar, 64px) + 16px); max-height:calc(100vh - var(--su-top, 0px) - var(--nv-bar, 64px) - 32px); overflow:auto; padding:16px 10px 10px; border-radius:22px; background:var(--w-tile); border:1px solid var(--w-line); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-1); }
+.nv-rail .lab { padding:0 8px 8px; }
+.nv-toc { list-style:none; margin:0; padding:0; }
+.nv-toc a { display:flex; gap:10px; align-items:flex-start; padding:8px; border-radius:12px; font-size:13px; line-height:1.4; color:var(--w-muted); text-decoration:none; }
+.nv-toc a::before { content:''; flex:none; width:6px; height:6px; margin-top:6px; border-radius:50%; background:var(--w-line); }
+.nv-toc a:hover { color:var(--w-text); background:var(--w-chip); }
+.nv-toc a[aria-current="true"] { color:var(--w-row-active-text); background:var(--w-row-active-bg); box-shadow:var(--w-row-active-shadow); }
+.nv-toc a[aria-current="true"]::before { background:var(--w-row-active-dot); box-shadow:var(--w-row-active-glow); }
+.nv-frame { position:relative; overflow:hidden; border-radius:26px; border:1px solid var(--w-line); background:#FFFFFF; box-shadow:var(--w-shadow-1); min-height:70vh; }
+.nv-frame iframe { display:block; width:100%; height:70vh; border:0; }
+.nv-load { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:14px; color:#4E5B70; background:#F7F4ED; transition:opacity .25s ease; }
+.nv-load[hidden] { display:flex; opacity:0; pointer-events:none; }
+.nv-warn { margin-top:16px; font-size:12px; line-height:1.6; color:var(--w-muted); max-width:880px; }
+
+/* Switch note: a sheet listing every note */
+.nv-sheet { width:min(620px, calc(100vw - 32px)); max-height:min(760px, calc(100vh - 64px)); padding:0; border-radius:26px; border:1px solid var(--w-line); background:var(--w-overlay); color:var(--w-text); box-shadow:var(--w-shadow-2); }
+.nv-sheet::backdrop { background:rgba(8,17,31,.55); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); }
+.nv-sheet-in { display:flex; flex-direction:column; max-height:inherit; }
+.nv-sheet-h { display:flex; align-items:center; gap:12px; padding:18px 18px 12px; border-bottom:1px solid var(--w-line); }
+.nv-sheet-h h2 { flex:1; font-size:20px; font-weight:400; letter-spacing:-0.02em; }
+.nv-sheet-q { padding:12px 18px 0; }
+.nv-sheet-q .hb-search { max-width:none; }
+.nv-sheet .nv-x { display:inline-flex; }
+.nv-sheet-b { overflow:auto; padding:6px 14px 16px; }
+.nv-sheet-g .lab { display:block; padding:14px 4px 4px; }
+.nv-sheet .su-wr:last-child { border-bottom:0; }
+
+@media (prefers-reduced-motion: reduce) { .press, .su-gc, .su-cc, .nv-load { transition:none; } }
+@media (max-width:1099px) {
+  .su-cg { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .nv-grid { grid-template-columns:minmax(0, 1fr); }
+  .nv-rail { display:none; }
+  .nv-pos { display:none; }
+}
+@media (max-width:860px) {
+  /* Phones: the deep dives side by side, each a compact card (Paddy 5 Nov) */
+  .dd-g { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+  .dd-c.lead, .dd-c.side { grid-column:auto; }
+  .dd-c { border-radius:18px; }
+  .dd-cov { height:96px; margin:6px 6px 0; border-radius:13px; }
+  .dd-txt { gap:6px; padding:10px 12px 14px; }
+  .dd-k { gap:6px; font-size:10px; letter-spacing:0; }
+  .dd-tag { height:20px; padding:0 6px; }
+  .dd-h, .dd-c.lead .dd-h { font-size:16px; letter-spacing:-0.015em; line-height:1.25; }
+  .dd-s { display:none; }
+  .dd-go { font-size:13px; gap:4px; }
+  .su-deep { margin-bottom:28px; }
+  /* A quiet header that leads into the cards: kicker, title, one line */
+  .su-head { padding-top:8px; margin-bottom:16px; }
+  .su-head .hb-kicker { font-size:11px; }
+  .su-head .hb-title { margin-top:8px; font-size:24px; text-wrap:balance; }
+  .su-head .hb-intro, .su-prl { display:none; }
+  .su-sub-m { display:block; margin-top:6px; font-size:14px; font-weight:300; color:var(--w-muted); }
+  /* One slim bar, held at the top: the sections as tabs, and search behind an icon */
+  .su-tools { top:0; margin:0 -16px 20px; padding:8px 16px; flex-wrap:nowrap; gap:8px; }
+  .su-tools .hb-search { display:none; flex:1; max-width:none; min-height:42px; }
+  .su-tools.is-find .hb-search { display:flex; }
+  .su-tools.is-find .su-cats { display:none; }
+  .su-fbtn { flex:none; display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; margin-right:-8px; border-radius:50%; border:0; background:none; color:var(--w-muted); cursor:pointer; }
+  .su-fbtn svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; }
+  .su-cats.is-tabs { flex:1; min-width:0; display:flex; flex-wrap:nowrap; justify-content:space-between; padding:0; border:0; background:none; gap:2px; }
+  .su-cats.is-tabs .hb-chip { position:relative; flex:none; min-height:40px; padding:0 8px; font-size:12px; }
+  /* The current section: a soft pill and a short gold rule, quieter than the cards */
+  /* The current section: brighter text and a short gold rule, nothing else */
+  .su-cats.is-tabs .hb-chip { background:none; color:var(--w-muted); }
+  .su-cats.is-tabs .hb-chip[aria-current="true"] { background:none; color:var(--w-text); }
+  .su-cats.is-tabs .hb-chip[aria-current="true"]::after { content:''; position:absolute; left:50%; bottom:4px; width:18px; height:2px; margin-left:-9px; border-radius:2px; background:var(--w-gold); }
+  .su-sec:first-child { padding-top:4px; }
+  .su-sec + .su-sec { margin-top:32px; }
+  .su-sh { flex-direction:column; gap:2px; margin-bottom:12px; }
+  .su-sh h2 { font-size:19px; }
+  .su-sh p { font-size:12px; opacity:.85; }
+  .su-g { gap:10px; }
+  .su-gc { min-height:0; gap:4px; padding:12px; }
+  .su-gc .tk { height:20px; padding:0 7px; font-size:10px; }
+  .su-gc .upd { display:none; }
+  .su-gc .nm { margin-top:6px; font-size:14.5px; }
+  .su-gc .th { font-size:11px; }
+  .su-gc .ln, .su-gc .go { display:none; }
+  .su-gc.is-lead { flex-direction:column; }
+  .su-gc.is-lead .lt { padding:16px 16px 12px; gap:4px; }
+  .su-gc.is-lead .nm { margin-top:6px; font-size:19px; }
+  .su-gc.is-lead .th { font-size:12px; }
+  .su-gc.is-lead .ln { display:-webkit-box; font-size:12.5px; -webkit-line-clamp:3; }
+  .su-gc.is-lead::before { width:300px; height:300px; right:-120px; top:-150px; }
+  .su-gc .figs { display:grid; grid-template-columns:minmax(0, 0.9fr) minmax(0, 1.55fr) minmax(0, 1.05fr); align-items:start; padding:10px 16px 12px; border-left:0; border-top:1px solid rgba(232,214,168,0.16); }
+  /* The middle figure has the longest label, so its column is wider */
+  .su-gc .fig { flex:none; justify-content:flex-start; padding:0 8px; gap:1px; border-bottom:0; border-left:1px solid rgba(232,214,168,0.12); }
+  .su-gc .fig:first-child { padding-left:0; border-left:0; }
+  .su-gc .fig b { font-size:15px; }
+  .su-gc .fig span { font-size:9px; }
+  /* Most phones: each column as wide as its label, so none wraps */
+  @media (min-width:375px) { .su-gc .figs { grid-template-columns:auto auto auto; justify-content:space-between; } .su-gc .fig span { white-space:nowrap; } }
+  .su-gc .figs-k { grid-column:1 / -1; padding-top:8px; font-size:9px; }
+  .su-fc { padding:14px; gap:2px; }
+  .su-fc .nm { font-size:15px; }
+  .su-fc .th { font-size:11.5px; }
+  .su-fc .ln { font-size:12.5px; -webkit-line-clamp:2; display:-webkit-box; -webkit-box-orient:vertical; overflow:hidden; }
+  .su-fc .go { display:none; }
+
+  .su-wr { min-height:46px; }
+  .su-wr .n { font-size:13.5px; }
+  .su-wr .m { font-size:10px; }
+  /* Rows on phones: the initials name the company, so no ticker */
+  .su-wr .mt { display:none; }
+  .su-wt-h .lab { font-size:11px; }
+  .su-close { margin-top:32px; }
+  .su-cg { gap:10px; }
+  .su-cc { min-height:0; gap:6px; padding:16px; border-radius:20px; }
+  .su-cc .h { font-size:15px; }
+  .su-cc .s { font-size:12.5px; }
+  .su-cc.feat .s { -webkit-line-clamp:3; }
+  .su-cc.feat .btn { min-height:40px; padding:0 14px; font-size:13px; }
+  .nv-bar { top:0; gap:10px; margin:-20px -16px 0; padding:8px 16px; }
+  .nv-back { width:44px; padding:0; justify-content:center; }
+  .nv-back span { display:none; }
+  .nv-id .mk { width:30px; height:30px; border-radius:9px; font-size:11px; }
+  .nv-id .n { font-size:15px; }
+  .nv-ic { display:none; }
+  .nv-sw { padding:0 14px; }
+  .nv-sw span { display:none; }
+  .nv-frame { margin:0 -16px; border-radius:0; border-left:0; border-right:0; box-shadow:none; }
+  .nv-sheet { width:100vw; max-width:none; max-height:86vh; margin:auto 0 0; border-radius:24px 24px 0 0; }
+}
+</style>
+</head>
+<body>
+<script src="/hub/js/supabase-config.js"></script>
+<script src="/hub/js/supabase-client.js"></script>
+<script src="/hub/js/hub-gate.js"></script>
+
+<div data-hub-header data-current="research"></div>
+<script src="/hub/js/hub-header.js"></script>
+
+<main class="hb">
+  <!-- The notes list -->
+  <div id="suList">
+    <div class="su-head">
+      <p class="hb-kicker mono">Research</p>
+      <h1 class="hb-title">Inside the companies we follow.</h1>
+      <p class="hb-intro">Each note covers what the company does, why it matters, the key numbers, the bear case and what we are looking for, so conviction comes from the business, not the share price.</p>
+      <p class="su-sub-m">Conviction in the business, not the share price.</p>
+      <a class="su-prl" href="/guides/principles.html?from=hub"><b>Our principles:</b> the thinking behind every note<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+    </div>
+
+    <div class="su-tools" id="suTools">
+      <label class="hb-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><span class="sr">Search notes</span><input id="suSearch" type="search" placeholder="Company, ticker or theme" autocomplete="off"></label>
+      <div class="su-cats" id="suCats" role="group" aria-label="Category"></div>
+      <button type="button" class="su-fbtn" id="suFbtn" aria-label="Search notes" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
+    </div>
+
+    <!-- Deep dives: longer reads on one company, each tied to its note
+         (suiteNote in /hub/members-articles.json). Filled by suite.js. -->
+    <section class="su-sec su-deep" id="suDeep" aria-labelledby="suDeepH" hidden></section>
+    <div id="suNotes" aria-live="polite"></div>
+    <section class="su-close" id="suClose" aria-labelledby="suCloseH"></section>
+    <p class="su-note">Notes are education, not a recommendation to buy, sell or hold. Figures are as of the date on each note.</p>
+  </div>
+
+  <!-- One note, opened from the list -->
+  <div id="suView" hidden>
+    <div class="nv-bar" id="nvBar">
+      <a class="nv-back press" id="nvBack" href="/hub/suite/index.html"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><span>All notes</span><span class="sr"> (back to the Investment suite)</span></a>
+      <div class="nv-id" id="nvId" tabindex="-1"></div>
+      <div class="nv-act">
+        <a class="nv-ic prev press" id="nvPrev" href="#"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+        <span class="nv-pos" id="nvPos"></span>
+        <a class="nv-ic next press" id="nvNext" href="#"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+        <button type="button" class="nv-sw press" id="nvSwitch" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9"/></svg><span>Switch note</span><span class="sr"> (opens a list of every note)</span></button>
+      </div>
+    </div>
+    <div class="nv-grid">
+      <nav class="nv-rail" aria-label="On this page"><p class="lab">On this page</p><ol class="nv-toc" id="nvToc"></ol></nav>
+      <div class="nv-main">
+        <a class="nv-deep press" id="nvDeep" hidden></a>
+        <div class="nv-frame">
+          <iframe id="nvFrame" title="Investment note" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"></iframe>
+          <div class="nv-load" id="nvLoad">Opening the note</div>
+        </div>
+        <p class="nv-warn">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees. This note explains how a business works and the case for and against it. It is not a recommendation to buy, sell or hold the shares. Single companies can fall much further than a diversified fund, and can lose all of their value. The author may hold shares in companies discussed.</p>
+      </div>
+    </div>
+    <section class="su-close" id="nvClose" aria-labelledby="nvCloseH"></section>
+  </div>
+
+  <div class="hb-foot" data-tei-boundary-footer="inherit"></div>
+</main>
+
+<dialog class="nv-sheet" id="nvSheet" aria-labelledby="nvSheetH">
+  <div class="nv-sheet-in">
+    <div class="nv-sheet-h">
+      <h2 id="nvSheetH">Switch note</h2>
+      <button type="button" class="nv-ic nv-x" id="nvSheetX" aria-label="Close"><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="nv-sheet-q"><label class="hb-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg><span class="sr">Search notes</span><input id="nvSheetQ" type="search" placeholder="Company, ticker or theme" autocomplete="off"></label></div>
+    <div class="nv-sheet-b" id="nvSheetB"></div>
+  </div>
+</dialog>
+
+<script src="/hub/js/hub-figures.js"></script>
+<script src="/hub/suite/suite.js"></script>
+</body>
+</html>

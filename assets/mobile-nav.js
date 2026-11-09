@@ -1,13 +1,18 @@
 /* TEI site -- mobile navigation (see assets/mobile-nav.css).
    Builds the header, bottom bar and full-screen menu from one route table per
-   variant, so nav content lives in this file only. Two variants, picked from
-   the URL: the public site, and the Client Hub (anything under /hub/).
+   variant, so nav content lives in this file only. This is the website's
+   bar; the Client Hub has its own (/hub/js/hub-header.js, 8a) and so does
+   Wealth OS. Signed in, Membership becomes Client Hub and Menu lists the
+   Hub's sections.
    Nothing here is visible above the 860px breakpoint (the CSS hides it). */
 (function () {
   'use strict';
 
-  // Same link the site's existing "Book a discovery call" buttons use.
-  var BOOK_URL = 'https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F';
+  // Every "Book a call" button on the public site points at /book. Where that
+  // goes is set in one place: the /book redirect in vercel.json.
+  var BOOK_URL = '/book';
+  // "Chat on WhatsApp first", the secondary link beside Book a call.
+  var WHATSAPP_URL = 'https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F';
 
   // Tabler-style outline icons: 24px viewBox, stroke set in CSS.
   var ICONS = {
@@ -31,22 +36,29 @@
   // href === null marks the Menu button (opens the full-screen menu). Bar ids
   // that aren't in the bar (e.g. About) light up Menu instead.
   var VARIANTS = {
-    // Guides and Tools are one page on the public site, so they share one item.
+    // Public site: bottom bar Home, Guides, Articles, Membership, Menu. The
+    // Menu screen lists every page, so the whole site is reachable on a phone.
+    // The header itself is static markup on each page (.tei-hdr, /style.css);
+    // headerActions is only a fallback for a page that has none.
     site: {
       logoHref: '/index.html',
       logoLabel: 'The Everyday Investor, home',
+      rings: true,     // ring-and-dot tab icons instead of the outline icons
+      siteMenu: true,  // the Menu screen from buildSiteMenu(); the bar stays visible under it
       bar: [
-        { id: 'home',     label: 'Home',               icon: 'home', href: '/index.html' },
-        { id: 'guides',   label: 'Guides &amp; Tools', icon: 'book', href: '/guides.html' },
-        { id: 'articles', label: 'Articles',           icon: 'news', href: '/articles.html' },
-        { id: 'menu',     label: 'Menu',               icon: 'menu', href: null }
+        { id: 'home',       label: 'Home',       href: '/index.html' },
+        { id: 'guides',     label: 'Guides',     href: '/guides.html' },
+        { id: 'articles',   label: 'Articles',   href: '/articles.html' },
+        { id: 'membership', label: 'Membership', href: '/membership.html' },
+        { id: 'menu',       label: 'Menu',       href: null }
       ],
       links: [
-        { id: 'home',     label: 'Home',               icon: 'home',       href: '/index.html' },
-        { id: 'about',    label: 'About',              icon: 'info',       href: '/about.html' },
-        { id: 'guides',   label: 'Guides &amp; Tools', icon: 'book',       href: '/guides.html' },
-        { id: 'articles', label: 'Articles',           icon: 'news',       href: '/articles.html' },
-        { id: 'hub',      label: 'Client Hub',         icon: 'usercircle', href: '/hub/index.html' }
+        { id: 'home',       label: 'Home',               href: '/index.html' },
+        { id: 'about',      label: 'About',              href: '/about.html' },
+        { id: 'hww',        label: 'How we work',        href: '/about.html#how-we-work' },
+        { id: 'guides',     label: 'Guides &amp; Tools', href: '/guides.html' },
+        { id: 'articles',   label: 'Articles',           href: '/articles.html' },
+        { id: 'membership', label: 'Membership',         href: '/membership.html' }
       ],
       headerActions:
         '<a class="tei-mhead-cta" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer"><span>Book a call</span></a>' +
@@ -54,41 +66,49 @@
       book: true,
       adviserLink: true
     },
-    // Same destinations as the Hub's existing top nav.
-    hub: {
-      logoHref: '/hub/index.html',
-      logoLabel: 'The Everyday Investor, Client Hub dashboard',
-      bar: [
-        { id: 'dashboard', label: 'Dashboard', icon: 'dashboard', href: '/hub/index.html' },
-        { id: 'wealth',    label: 'Wealth OS', icon: 'chartline', href: '/hub/wealth-os.html' },
-        { id: 'education', label: 'Learn',     icon: 'school',    href: '/hub/education/index.html' },
-        { id: 'library',   label: 'Library',   icon: 'books',     href: '/hub/knowledge/index.html' },
-        { id: 'menu',      label: 'Menu',      icon: 'menu',      href: null }
-      ],
-      links: [
-        { id: 'dashboard', label: 'Dashboard',          icon: 'dashboard', href: '/hub/index.html' },
-        { id: 'wealth',    label: 'Wealth OS',          icon: 'chartline', href: '/hub/wealth-os.html' },
-        { id: 'suite',     label: 'Investment Suite',   icon: 'briefcase', href: '/hub/suite.html' },
-        { id: 'education', label: 'Education Platform', icon: 'school',    href: '/hub/education/index.html' },
-        { id: 'guides',    label: 'Guides &amp; Tools', icon: 'book',      href: '/hub/guides.html' },
-        { id: 'library',   label: 'Knowledge Library',  icon: 'books',     href: '/hub/knowledge/index.html' },
-        { id: 'site',      label: 'Visit Website &#8599;', icon: 'world',  href: '/' }
-      ],
-      headerActions: '<a class="tei-mhead-cta tei-mhead-cta--ghost" href="/"><span>Visit website</span></a>',
-      book: false,
-      adviserLink: false
-    }
   };
+  // The Client Hub's sections, listed in Menu when signed in: the same
+  // sections, in the same order, as the Hub's own header (/hub/js/hub-header.js).
+  var HUB_LINKS = [
+    { label: 'Client Hub',         sub: 'Your dashboard',                href: '/hub/index.html' },
+    { label: 'Learn',              sub: 'Lessons, stage by stage',       href: '/hub/education/index.html' },
+    { label: 'Videos',             sub: 'Watch it explained',            href: '/hub/videos.html' },
+    { label: 'Guides &amp; tools', sub: 'Members\' guides and tools',     href: '/hub/guides.html' },
+    { label: 'Research',           sub: 'Company notes and deep dives',  href: '/hub/suite/index.html' },
+    { label: 'Library',            sub: 'Articles and reference',        href: '/hub/knowledge/index.html' },
+    { label: 'Wealth OS',          sub: 'Your plan, accounts and goals', href: '/hub/wealth-os.html' }
+  ];
 
   var root = document.documentElement;
   var script = document.currentScript || document.querySelector('script[src*="mobile-nav.js"]');
   var pageOverride = script && script.getAttribute('data-active');
   var cleanPath = (location.pathname || '/').replace(/\/+$/, '').replace(/\.html$/, '') || '/';
   var isHub = cleanPath === '/hub' || cleanPath.indexOf('/hub/') === 0;
-  var V = isHub ? VARIANTS.hub : VARIANTS.site;
+  // Client Hub pages, and guides, tools and articles opened from the Hub
+  // (?from=hub), carry the Hub's own header and phone bar
+  // (/hub/js/hub-header.js), so this file builds nothing there.
+  var fromHub = /(?:^|[?&])from=hub(?:&|$)/.test(location.search);
+  // Signed in: on any Hub page, or the Supabase session cookie is present
+  // (sb-...-auth-token, hub/js/supabase-client.js).
+  var signedIn = /(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '');
+  var V = VARIANTS.site;
+  if (signedIn) {
+    V = Object.assign({}, VARIANTS.site, {
+      members: true,
+      bar: [
+        { id: 'home',     label: 'Home',       href: '/index.html' },
+        { id: 'guides',   label: 'Guides',     href: '/guides.html' },
+        { id: 'articles', label: 'Articles',   href: '/articles.html' },
+        { id: 'hub',      label: 'Client Hub', href: '/hub/index.html' },
+        { id: 'menu',     label: 'Menu',       href: null }
+      ],
+      headerActions: '<a class="tei-mhead-cta" href="/hub/wealth-os.html"><span>Open Wealth OS</span></a>'
+    });
+  }
 
   var barItems = {}, menuLinks = {};
-  var menu, menuBtn, closeBtn;
+  var menu, menuBtn, closeBtn, barEl;
+  var currentPage = '';
   var isOpen = false, lastFocus = null, savedY = 0;
   var inerted = [];
 
@@ -100,18 +120,10 @@
   // overrides this.
   function detectPage() {
     var p = cleanPath;
-    if (isHub) {
-      if (p === '/hub' || p === '/hub/index') return 'dashboard';
-      if (p.indexOf('/hub/knowledge') === 0) return 'library';
-      if (p.indexOf('/hub/education') === 0) return 'education';
-      if (p === '/hub/wealth-os') return 'wealth';
-      if (p === '/hub/suite') return 'suite';
-      if (p === '/hub/guides' || p.indexOf('/hub/guides/') === 0) return 'guides';
-      return '';
-    }
     if (p === '/' || p === '/index') return 'home';
     if (p === '/guides' || p.indexOf('/guides/') === 0) return 'guides';
-    if (p === '/articles') return 'articles';
+    if (p === '/articles' || p.indexOf('/articles/') === 0) return 'articles';
+    if (p === '/membership') return 'membership';
     if (p === '/about') return 'about';
     return '';
   }
@@ -131,11 +143,28 @@
         '<span class="tei-mhead-text">The Everyday<br>Investor</span>' +
       '</a>' +
       '<div class="tei-mhead-actions">' + V.headerActions.replace('@user@', svg('user')) + '</div>';
+    // The moon / sun button, on pages with a dark theme (hub/js/tei-theme.js).
+    if (window.TeiTheme && window.TeiTheme.button) { var acts = head.querySelector('.tei-mhead-actions'); acts.insertBefore(window.TeiTheme.button(), acts.firstChild); window.TeiTheme.mount(); }
     // Appended (not inserted first): pages such as guides/stages.html style
     // body children with :nth-child, so anything placed before them would
     // change desktop rendering even while hidden.
     document.body.appendChild(head);
   }
+
+  /* Line icons for the bottom bar, shared with Wealth OS and the Client Hub:
+     each sits in a pill that fills when its tab is the current page. */
+  var TAB_ICONS = {
+    home: '<path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/>',
+    guides: '<path d="M5 5.5A1.5 1.5 0 0 1 6.5 4H18v14H6.5A1.5 1.5 0 0 0 5 19.5z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H18v-3"/><path d="M9 8h5"/>',
+    articles: '<rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M8 9h8M8 12.5h8M8 16h5"/>',
+    membership: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/>',
+    hub: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1.3" fill="currentColor" stroke="none"/>',
+    menu: '<path d="M5 7.5h14M5 12h14M5 16.5h14"/>',
+    dashboard: '<path d="M4 10.5 12 4l8 6.5"/><path d="M6 9v10a1 1 0 0 0 1 1h3.5v-5.5h3V20H17a1 1 0 0 0 1-1V9"/>',
+    wealth: '<path d="M4 19h16"/><path d="M5 15.5l4.5-4.5 3.5 3 6-6.5"/><path d="M15 7.5h4v4"/>',
+    education: '<path d="M3 9.5 12 5l9 4.5-9 4.5z"/><path d="M7 11.5v4c1.4 1.4 3.1 2 5 2s3.6-.6 5-2v-4"/>',
+    library: '<path d="M12 6.5C10.3 5 7.8 4.5 4 4.8v13.4c3.8-.3 6.3.2 8 1.6 1.7-1.4 4.2-1.9 8-1.6V4.8c-3.8-.3-6.3.2-8 1.7z"/><path d="M12 6.5v13.3"/>'
+  };
 
   /* ---------------- bottom bar ---------------- */
   function buildBar() {
@@ -155,55 +184,112 @@
         el.setAttribute('aria-controls', 'teiMenu');
         menuBtn = el;
       }
-      el.innerHTML = svg(item.icon) + '<span class="tei-mbar-label">' + item.label + '</span>';
+      el.innerHTML = '<span class="tei-mbar-pill" aria-hidden="true">' + (TAB_ICONS[item.tab || item.id] ? '<svg viewBox="0 0 24 24" focusable="false">' + TAB_ICONS[item.tab || item.id] + '</svg>' : svg(item.icon)) + '</span>' +
+        '<span class="tei-mbar-label">' + item.label + '</span>';
       barItems[item.id] = el;
       bar.appendChild(el);
     });
     document.body.appendChild(bar);
+    barEl = bar;
+  }
+
+  /* ---------------- public site Menu screen ---------------- */
+  // Pages, Members, Get started, then the short not-advice line.
+  function buildSiteMenu() {
+    var mark = '<svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true" focusable="false">' +
+      '<circle cx="13" cy="13" r="11.5" fill="none" stroke="#E8D6A8" stroke-width="1.4"/>' +
+      '<circle cx="13" cy="13" r="6" fill="none" stroke="#E8D6A8" stroke-opacity=".5" stroke-width="1.2"/>' +
+      '<circle cx="13" cy="13" r="2.4" fill="#E8D6A8"/></svg>';
+    var pages = V.links.map(function (item) {
+      return '<li><a class="tei-smenu-page" data-id="' + item.id + '" href="' + item.href + '">' +
+        '<span>' + item.label + '</span>' + svg('chevron') + '</a></li>';
+    }).join('');
+    return '<div class="tei-smenu-top">' +
+        '<a class="tei-smenu-brand" href="' + V.logoHref + '">' + mark + '<span>The Everyday Investor</span></a>' +
+        '<button type="button" class="tei-menu-close tei-smenu-close" aria-label="Close menu">' + svg('x') + '</button>' +
+      '</div>' +
+      '<div class="tei-smenu-body">' +
+        // Signed in, the Client Hub's sections come first.
+        (V.members ? membersMenuHTML() : '') +
+        '<div role="navigation" aria-label="Pages">' +
+          '<p class="tei-smenu-label">Pages</p>' +
+          '<ul class="tei-smenu-pages">' + pages + '</ul>' +
+        '</div>' +
+        (V.members ? '' :
+        '<div>' +
+          '<p class="tei-smenu-label">Members</p>' +
+          '<div class="tei-smenu-cards">' +
+            '<a class="tei-smenu-card" href="/hub/index.html"><span class="tei-smenu-card-t">Log in</span><span class="tei-smenu-card-s">Client Hub and Wealth OS</span></a>' +
+            '<a class="tei-smenu-card" href="/admin/login.html"><span class="tei-smenu-card-t">Adviser sign in</span><span class="tei-smenu-card-s">For TEI staff</span></a>' +
+          '</div>' +
+        '</div>' +
+        '<div class="tei-smenu-start">' +
+          '<a class="tei-smenu-book" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer">Book a call</a>' +
+          '<a class="tei-smenu-wa" href="' + WHATSAPP_URL + '" target="_blank" rel="noopener noreferrer">Chat on WhatsApp first</a>' +
+          // TODO(copy sheet): the line about the free first call and the fact
+          // find fee goes here once its wording is approved.
+        '</div>') +
+        '<p class="tei-smenu-note">Financial coaching and education, not regulated financial advice.</p>' +
+      '</div>';
+  }
+
+  // Signed in: the Client Hub's sections in place of Log in and Book a call.
+  function membersMenuHTML() {
+    return '<div>' +
+      '<p class="tei-smenu-label">Client Hub</p>' +
+      '<div class="tei-smenu-cards">' +
+      HUB_LINKS.map(function (l) {
+        return '<a class="tei-smenu-card" href="' + l.href + '"><span class="tei-smenu-card-t">' + l.label + '</span><span class="tei-smenu-card-s">' + l.sub + '</span></a>';
+      }).join('') +
+      '</div>' +
+      '<button type="button" class="tei-smenu-out">Sign out</button>' +
+    '</div>';
+  }
+
+  // Sign out from the Menu (Client Hub pages carry no Sign out of their own
+  // on phones). TeiAuth is loaded on Hub pages; elsewhere /hub/sign-out.html
+  // ends the session (going straight to the sign-in page left it signed in).
+  function signOut() {
+    function go() { location.replace('/index.html'); } // after signing out: the website home page
+    if (window.TeiAuth && window.TeiAuth.signOut) window.TeiAuth.signOut().then(go, go);
+    else location.href = '/hub/sign-out.html'; // public pages: that page loads the library and ends the session
   }
 
   /* ---------------- full-screen menu ---------------- */
   function buildMenu() {
-    var links = V.links.map(function (item) {
-      return '<li><a class="tei-menu-link" data-id="' + item.id + '" href="' + item.href + '">' +
-        '<span class="tei-menu-link-icon">' + svg(item.icon) + '</span>' +
-        '<span class="tei-menu-link-label">' + item.label + '</span>' +
-        '<span class="tei-menu-link-chev">' + svg('chevron') + '</span>' +
-      '</a></li>';
-    }).join('');
-
     menu = document.createElement('div');
-    menu.className = 'tei-menu';
+    menu.className = 'tei-menu' + (V.siteMenu ? ' tei-menu--site' : '');
     menu.id = 'teiMenu';
     menu.setAttribute('role', 'dialog');
-    menu.setAttribute('aria-modal', 'true');
-    menu.setAttribute('aria-labelledby', 'teiMenuTitle');
     menu.hidden = true;
-    menu.innerHTML =
-      '<div class="tei-menu-top">' +
-        '<h2 class="tei-menu-title" id="teiMenuTitle">Menu</h2>' +
-        '<button type="button" class="tei-menu-close" aria-label="Close menu">' + svg('x') + '</button>' +
-      '</div>' +
-      '<div class="tei-menu-body">' +
-        (V.book ? '<a class="tei-menu-book" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer">Book a discovery call</a>' +
-          '<div class="tei-menu-hww"><a href="/how-we-work">How we work</a></div>' : '') +
-        '<ul class="tei-menu-list' + (V.book ? '' : ' tei-menu-list--first') + '">' + links + '</ul>' +
-      '</div>' +
-      (V.adviserLink ? '<div class="tei-menu-foot"><a href="/admin/login.html">Adviser sign in</a></div>' : '');
+    // The bottom bar stays usable under this screen, so it is not modal.
+    menu.setAttribute('aria-label', 'Menu');
+    menu.innerHTML = buildSiteMenu();
     document.body.appendChild(menu);
 
     closeBtn = menu.querySelector('.tei-menu-close');
-    Array.prototype.forEach.call(menu.querySelectorAll('.tei-menu-link, .tei-menu-hww a, .tei-menu-foot a'), function (a) {
+    var outBtn = menu.querySelector('.tei-smenu-out');
+    if (outBtn) outBtn.addEventListener('click', signOut);
+    Array.prototype.forEach.call(menu.querySelectorAll('a[href]'), function (a) {
       if (a.hasAttribute('data-id')) menuLinks[a.getAttribute('data-id')] = a;
       // Same-tab navigation: close first so a bfcache "Back" doesn't restore an open menu.
       a.addEventListener('click', function () { closeMenu(false); });
     });
     closeBtn.addEventListener('click', function () { closeMenu(true); });
-    menuBtn.addEventListener('click', openMenu);
+    // On the public site the Menu tab opens and closes the screen.
+    menuBtn.addEventListener('click', function () {
+      if (V.siteMenu && isOpen) closeMenu(true); else openMenu();
+    });
   }
 
+
+  // Tab order while the menu is open. On the public site the bar is part of it.
   function focusables() {
-    return Array.prototype.slice.call(menu.querySelectorAll('a[href], button:not([disabled])'));
+    var items = Array.prototype.slice.call(menu.querySelectorAll('a[href], button:not([disabled])'));
+    if (V.siteMenu && barEl) {
+      items = items.concat(Array.prototype.slice.call(barEl.querySelectorAll('a[href], button:not([disabled])')));
+    }
+    return items;
   }
 
   function openMenu() {
@@ -218,10 +304,12 @@
     // Everything behind the dialog becomes inert (unreachable by Tab / screen reader).
     Array.prototype.forEach.call(document.body.children, function (el) {
       if (el === menu || el.tagName === 'SCRIPT' || el.inert) return;
+      if (V.siteMenu && el === barEl) return; // the bar stays live under the Menu screen
       el.inert = true;
       inerted.push(el);
     });
     menuBtn.setAttribute('aria-expanded', 'true');
+    if (V.siteMenu) markBar('menu'); // the Menu tab is the active tab while it is open
     closeBtn.focus();
   }
 
@@ -236,6 +324,7 @@
     try { window.scrollTo({ top: savedY, left: 0, behavior: 'instant' }); }
     catch (e) { window.scrollTo(0, savedY); }
     menuBtn.setAttribute('aria-expanded', 'false');
+    if (V.siteMenu) markBar(barItems[currentPage] ? currentPage : 'menu');
     if (restoreFocus !== false && lastFocus && lastFocus.focus) {
       try { lastFocus.focus({ preventScroll: true }); } catch (e) { lastFocus.focus(); }
     }
@@ -252,35 +341,70 @@
     var items = focusables();
     if (!items.length) return;
     var first = items[0], last = items[items.length - 1], active = document.activeElement;
-    if (!menu.contains(active)) { e.preventDefault(); first.focus(); }
+    if (items.indexOf(active) === -1) { e.preventDefault(); first.focus(); }
     else if (e.shiftKey && active === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
   }
 
   /* ---------------- active state ---------------- */
-  function setActive(page) {
-    var barId = barItems[page] ? page : 'menu';
+  function markBar(barId) {
     Object.keys(barItems).forEach(function (key) {
       if (key === barId) barItems[key].setAttribute('aria-current', 'page');
       else barItems[key].removeAttribute('aria-current');
     });
+  }
+
+  function setActive(page) {
+    currentPage = page;
+    markBar(barItems[page] ? page : 'menu');
     Object.keys(menuLinks).forEach(function (key) {
       if (key === page) menuLinks[key].setAttribute('aria-current', 'page');
       else menuLinks[key].removeAttribute('aria-current');
     });
   }
 
+  /* Signed in already? The Supabase session lives in an sb-...-auth-token
+     cookie (hub/js/supabase-client.js), so the public header can say
+     "Client Hub" instead of "Log in" without loading Supabase. Same link. */
+  function markSignedIn() {
+    if (!/(?:^|;\s*)sb-[^=;]+-auth-token(?:\.0)?=/.test(document.cookie || '')) return;
+    var links = document.querySelectorAll('a[href="/hub/index.html"]');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      if (a.classList.contains('tei-hdr-link')) {
+        a.textContent = 'Client Hub';
+        // Desktop: Sign out beside Client Hub (QA Sweep 1: there was none off the Hub pages).
+        if (!a.parentNode.querySelector('.tei-hdr-out')) {
+          var out = document.createElement('a');
+          out.className = 'tei-hdr-link tei-hdr-out';
+          out.href = '/hub/sign-out.html';
+          out.textContent = 'Sign out';
+          a.parentNode.insertBefore(out, a.nextSibling);
+        }
+      }
+      else if (a.classList.contains('tei-hdr-hub') || a.classList.contains('tei-mhead-hub')) a.setAttribute('aria-label', 'Open the Client Hub');
+      else {
+        var t = a.querySelector('.tei-smenu-card-t');
+        if (t) t.textContent = 'Client Hub';
+      }
+    }
+  }
+
   function init() {
+    if (isHub || fromHub || document.body.hasAttribute('data-hub-only')) return;
     root.classList.add('tei-mnav');
+    root.classList.add('tei-site'); // the website look, on Hub pages too (one bar for both)
     if (isToolPage()) root.classList.add('tei-mtool');
     var hasFooter = false, i, kids = document.body.children;
     for (i = 0; i < kids.length; i++) if (kids[i].tagName === 'FOOTER') hasFooter = true;
     if (!hasFooter) root.classList.add('tei-mbar-nofooter');
 
-    buildHeader();
+    // Public pages carry their own static header; only build one if it is missing.
+    if (!document.querySelector('.tei-hdr')) buildHeader();
     buildBar();
     buildMenu();
     setActive(pageOverride || detectPage());
+    markSignedIn();
 
     document.addEventListener('keydown', onKeydown);
     // Leaving mobile width while the menu is open: put the page back.

@@ -1,36 +1,34 @@
 // Plain script, not an ES module (see content-store.js for why).
 // Relies on window.ContentStore and window.CompletionStore.
 
-/** Renders the sticky header. `crumb` is a short text description of
- *  where the client currently is (e.g. "Module 1.1 -- Financial
- *  Foundations"). Kept as plain text for now -- Learning Journal and
- *  Investor Dashboard links join this nav once those Build Steps land. */
 /**
- * Renders the header: a brand mark that links back to the landing page,
- * plus a breadcrumb trail. `crumbs` is an array of {label, href} objects
- * (href omitted or null for the current, non-clickable segment) -- e.g.
- * [{label:"Stage 2"}, {label:"How Markets Work", href:"module.html?module=2.3"}, {label:"Price Discovery"}].
- * A plain string is also accepted for backward compatibility and is
- * rendered as a single non-clickable segment.
+ * Puts the shared Client Hub header (/hub/js/hub-header.js, 8a) above the
+ * page, with Learn marked, and renders the breadcrumb trail into `root`
+ * (header.tei-header) as a quiet row under it. `crumbs` is an array of
+ * {label, href} objects (href omitted or null for the current, non-clickable
+ * segment) -- e.g. [{label:"Stage 2"}, {label:"How Markets Work",
+ * href:"module.html?module=2.3"}, {label:"Price Discovery"}]. A plain string
+ * is also accepted and rendered as a single non-clickable segment. With no
+ * crumbs (the stages page) the row stays empty and hidden.
  */
 function renderHeader(root, crumbs) {
-  const list = typeof crumbs === "string" ? (crumbs ? [{ label: crumbs }] : []) : crumbs || [];
-  const crumbHTML = list
-    .map((c) => (c.href ? `<a href="${c.href}">${c.label}</a>` : `<span>${c.label}</span>`))
-    .join('<span class="sep">/</span>');
-  root.innerHTML = `
-    <a class="brand" href="/hub/education/index.html"><span class="mark">T</span>TEI &nbsp;Education</a>
-    <span class="crumb">${crumbHTML}</span>
-    <a href="/" class="edu-exit">Visit Website &#8599;</a>
-    <a href="#" class="edu-signout" data-tei-signout>Sign out</a>
-  `;
-  const signOut = root.querySelector("[data-tei-signout]");
-  if (signOut && window.TeiHubAuth) {
-    signOut.addEventListener("click", function (e) {
-      e.preventDefault();
-      TeiHubAuth.signOut();
-    });
+  if (!document.querySelector("[data-hub-header], #hubHeader")) {
+    const host = document.createElement("div");
+    host.setAttribute("data-hub-header", "");
+    host.setAttribute("data-current", "learn");
+    host.setAttribute("data-no-theme", ""); // Learn is light only
+    root.parentNode.insertBefore(host, root);
+    const sc = document.createElement("script");
+    sc.src = "/hub/js/hub-header.js";
+    document.body.appendChild(sc);
   }
+  const list = typeof crumbs === "string" ? (crumbs ? [{ label: crumbs }] : []) : crumbs || [];
+  if (!list.length) { root.innerHTML = ""; return; }
+  root.setAttribute("role", "navigation");
+  root.setAttribute("aria-label", "Breadcrumb");
+  root.innerHTML = [{ label: "All stages", href: "/hub/education/index.html" }].concat(list)
+    .map((c) => (c.href ? `<a href="${c.href}">${c.label}</a>` : `<span>${c.label}</span>`))
+    .join('<span class="sep" aria-hidden="true">/</span>');
 }
 
 /**
