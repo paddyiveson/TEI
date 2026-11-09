@@ -254,11 +254,11 @@ var TITLES=[['Thursday, 6 November 2026','Good morning, Priya',''],['How much yo
 function tools(){
   var V=[
    ['Members\' articles','In-depth research, explained in plain English',
-    '<div class="tlmedia"><img src="/assets/img/home/tool-article.webp" alt="A members\' article: Nebius, sizing up the opportunity, with three headline figures." loading="lazy" width="2000" height="1260"></div><div class="fine">A recent members\' article. Education, not a recommendation.</div>',0],
+    '<div class="tlmedia"><img src="/assets/img/home/tool-article.webp" alt="A members\' article, Nebius: Sizing up the Opportunity. Everything under the title is blurred, with a Members only label." loading="lazy" width="2000" height="1260"></div><div class="fine">A recent members\' article. The full article is in the Client Hub.</div>',0],
    ['Portfolio Lab','Test a mix before you change anything',
-    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="28.6" poster="/assets/img/home/tool-lab-poster.webp" aria-label="A walkthrough of the Portfolio Lab with example holdings: filtering by account, choosing the Equal weight preset, then Compare, Implement and Results."><source src="/assets/video/tool-lab.mp4" type="video/mp4"></video></div><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
+    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="28.9" data-ch="0:Analyse|5.7:Optimise|12.9:Compare|17.8:Implement|21.9:Results" poster="/assets/img/home/tool-lab-poster.webp" aria-label="A walkthrough of the Portfolio Lab with example holdings: filtering by account, choosing the Equal weight preset, then Compare, Implement and Results."><source src="/assets/video/tool-lab.mp4" type="video/mp4"></video></div><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
    ['Coach Forecast','Your written forecast, built by your coach',
-    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="18.7" poster="/assets/img/home/tool-forecast.webp" aria-label="A Coach Forecast for a sample member: switching between cautious, central and optimistic growth, testing a market fall, and showing only what counts towards the goal."><source src="/assets/video/tool-forecast.mp4" type="video/mp4"></video></div><div class="fine">An example Coach Forecast, for a sample member. Illustrative, not a guarantee.</div>',0]
+    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="18.8" data-ch="0:Growth rates|8.4:What if|13.6:Towards the goal" poster="/assets/img/home/tool-forecast.webp" aria-label="A Coach Forecast for a sample member: switching between cautious, central and optimistic growth, testing a market fall, and showing only what counts towards the goal."><source src="/assets/video/tool-forecast.mp4" type="video/mp4"></video></div><div class="fine">An example Coach Forecast, for a sample member. Illustrative, not a guarantee.</div>',0]
   ];
   return '<div class="card-tools"><div class="tl-top"><div class="t" data-tt>'+V[0][0]+'<small data-ts>'+V[0][1]+'</small></div><span class="lockb">'+LOCK+'Members only</span></div>'+
     V.map(function(v,i){return '<div class="tview'+(i===0?' on':'')+'" data-i="'+i+'" data-name="'+v[0]+'" data-sub="'+v[1]+'"'+(v[3]?' data-soon="1"':'')+'>'+(v[3]?'<span class="tsoon">Coming soon · preview</span>':'')+v[2]+'</div>';}).join('')+
@@ -469,12 +469,47 @@ function osTour(m){
   first.forEach(function(x){if(x.complete)left--;else x.addEventListener('load',function(){if(--left===0)go(i,false);},{once:true});});
   go(0,false);
 }
+/* Video controls for the member tools: play and pause, a scrubber with chapter
+   marks, the time, playback speed, and chapter buttons that skip to a step. */
+function vcx(v,onUse){
+  var box=v.closest('.tlmedia'),ch=(v.getAttribute('data-ch')||'').split('|').filter(Boolean).map(function(s){var k=s.indexOf(':');return [parseFloat(s.slice(0,k)),s.slice(k+1)];});
+  var est=parseFloat(v.getAttribute('data-dur'))||10,SP=[1,1.5,2],si=0,raf=0;
+  var PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>';
+  function len(){return (isFinite(v.duration)&&v.duration)||est;}
+  function mmss(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+  var w=document.createElement('div');w.className='vcx';
+  w.innerHTML='<div class="vcx-bar" role="group" aria-label="Video controls"><button type="button" class="vcx-pp" aria-label="Play">'+PLAY+'</button>'+
+    '<div class="vcx-track"><i class="vcx-fill"></i>'+ch.slice(1).map(function(c){return '<b class="vcx-tick" style="left:'+(c[0]/est*100).toFixed(2)+'%"></b>';}).join('')+
+    '<input class="vcx-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Seek"></div>'+
+    '<span class="vcx-t tnum">0:00 / '+mmss(est)+'</span><button type="button" class="vcx-sp" aria-label="Playback speed, 1 times">1&times;</button></div>'+
+    (ch.length?'<div class="vcx-ch" role="group" aria-label="Skip to">'+ch.map(function(c,k){return '<button type="button" data-k="'+k+'">'+c[1]+'</button>';}).join('')+'</div>':'');
+  box.insertAdjacentElement('afterend',w);
+  var pp=w.querySelector('.vcx-pp'),seek=w.querySelector('.vcx-seek'),fill=w.querySelector('.vcx-fill'),tt=w.querySelector('.vcx-t'),sp=w.querySelector('.vcx-sp'),cbs=[].slice.call(w.querySelectorAll('.vcx-ch button'));
+  function paint(){var d=len(),c=v.currentTime||0,p=Math.min(1,c/d);fill.style.width=(p*100)+'%';if(document.activeElement!==seek)seek.value=String(Math.round(p*1000));
+    tt.textContent=mmss(c)+' / '+mmss(d);seek.setAttribute('aria-valuetext',mmss(c)+' of '+mmss(d));
+    var on=0;ch.forEach(function(x,k){if(c>=x[0]-0.05)on=k;});cbs.forEach(function(b,k){if(k===on)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');});}
+  function loop(){paint();if(!v.paused)raf=requestAnimationFrame(loop);}
+  function state(){var on=!v.paused&&!v.ended;pp.innerHTML=on?PAUSE:PLAY;pp.setAttribute('aria-label',on?'Pause':'Play');cancelAnimationFrame(raf);if(on)raf=requestAnimationFrame(loop);else paint();}
+  function go(){var p=v.play();if(p&&p.catch)p.catch(function(){});}
+  ['play','pause','ended','loadedmetadata','seeked'].forEach(function(e){v.addEventListener(e,state);});
+  box.addEventListener('click',function(){onUse();if(v.paused)go();else v.pause();});
+  pp.addEventListener('click',function(){onUse();if(v.paused)go();else v.pause();});
+  seek.addEventListener('input',function(){onUse();try{v.currentTime=seek.value/1000*len();}catch(e){}paint();});
+  sp.addEventListener('click',function(){onUse();si=(si+1)%SP.length;v.playbackRate=SP[si];sp.innerHTML=SP[si]+'&times;';sp.setAttribute('aria-label','Playback speed, '+SP[si]+' times');});
+  cbs.forEach(function(b){b.addEventListener('click',function(){onUse();try{v.currentTime=ch[+b.getAttribute('data-k')][0];}catch(e){}paint();go();});});
+  v.addEventListener('ratechange',function(){var k=SP.indexOf(v.playbackRate);if(k>-1){si=k;sp.innerHTML=SP[k]+'&times;';}});
+  paint();
+}
 function tlRotate(m){
   /* Items rotate every 6s. An item with a video stays up until the video ends,
      plays only while the list is on screen, and loops once someone picks it. */
   var bs=[].slice.call(m.querySelectorAll('.lsi')),vs=[].slice.call(m.querySelectorAll('.lss .tview')),i=0,paused=false,seen=false,DUR=6000;
   function vid(j){return vs[j]&&vs[j].querySelector('video');}
-  function dur(j){var v=vid(j);if(!v)return DUR;var d=(isFinite(v.duration)&&v.duration)||parseFloat(v.getAttribute('data-dur'))||6;return Math.max(DUR,(d-(v.currentTime||0))*1000+400);}
+  function vlen(v){return (isFinite(v.duration)&&v.duration)||parseFloat(v.getAttribute('data-dur'))||6;}
+  function dur(j){var v=vid(j);if(!v)return DUR;return Math.max(DUR,(vlen(v)-(v.currentTime||0))/(v.playbackRate||1)*1000+400);}
+  /* someone used a video's controls: the list stops rotating and the video loops */
+  function takeOver(){paused=true;clearTimeout(window.__tlT);var c=bs[i].querySelector('.pr i');c.style.transition='none';c.style.transform='scaleX(0)';var v=vid(i);if(v)v.loop=true;}
+  vs.forEach(function(view){var v=view.querySelector('video');if(v)vcx(v,takeOver);});
   function play(j){var v=vid(j);if(!v||reduce||!seen)return;v.loop=paused;var p=v.play();if(p&&p.catch)p.catch(function(){});}
   function bar(j,ms,from){var c=bs[j].querySelector('.pr i');c.style.transition='none';c.style.transform='scaleX('+(from||0)+')';if(paused||reduce||!seen)return;void c.offsetWidth;c.style.transition='transform '+ms+'ms linear';c.style.transform='scaleX(1)';}
   function tick(){clearTimeout(window.__tlT);if(paused||reduce||!seen)return;var ms=dur(i),v=vid(i),from=v&&v.duration?Math.min(1,v.currentTime/v.duration):0;bar(i,ms,from);window.__tlT=setTimeout(function(){go((i+1)%bs.length);},ms);}
@@ -482,7 +517,7 @@ function tlRotate(m){
     if(user)paused=true;
     bs.forEach(function(b,k){b.setAttribute('aria-selected',k===j?'true':'false');var p=b.querySelector('.pr i');p.style.transition='none';p.style.transform='scaleX(0)';});
     vs.forEach(function(v,k){v.classList.toggle('on',k===j);var x=vid(k);if(x&&k!==j){x.pause();try{x.currentTime=0;}catch(e){}}});
-    var v=vid(j);if(v){try{v.currentTime=0;}catch(e){}if(reduce)v.controls=true;play(j);}
+    var v=vid(j);if(v){try{v.currentTime=0;}catch(e){}play(j);}
     tick();}
   bs.forEach(function(b){b.addEventListener('click',function(){go(+b.getAttribute('data-j'),true);});});
   var ls=m.querySelector('.ls');

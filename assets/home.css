@@ -1141,16 +1141,44 @@ body.sheet-on .sheet{visibility:visible;transition:transform .38s cubic-bezier(.
   body.hp-body .tei-ftr + footer > *{max-width:calc(1760px - 2 * clamp(32px,4vw,72px))!important}
 }
 
-/* Member tools (Paddy, 9 Nov): a smaller preview, so the "Also included" row
-   carries more weight. Every preview sits in the same 4:3 frame, so the stage
-   does not change height between an image and a video. */
-.mshow .tlmedia{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0B1729;box-shadow:0 0 0 1px rgba(201,211,227,.14)}
+/* Member tools (Paddy, 9 Nov): previews keep their original size and share one
+   3:2 frame, so the stage does not change height between an image and a video.
+   Videos carry their own controls: play, a scrubber with chapter marks, speed
+   and chapter buttons. The "Also included" row below carries more weight. */
+.mshow .tlmedia{position:relative;aspect-ratio:3/2;border-radius:10px;overflow:hidden;background:#0B1729;box-shadow:0 0 0 1px rgba(201,211,227,.14)}
 .mshow .tlmedia img,.mshow .tlmedia video{display:block;width:100%;height:100%;object-fit:cover;object-position:top center}
+.mshow .tlmedia video{cursor:pointer}
 .mshow .lss .tview .fine{margin-top:10px}
-@media (min-width:861px){
-  .mshow .ls{grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:48px;align-items:center}
-  .mshow .lss{max-width:640px;justify-self:end;width:100%}
-  .mshow .lss .tview{min-height:0;padding:14px}
+/* All previews share one grid cell, so the stage keeps the height of the tallest
+   and does not jump as the list rotates. */
+.mshow .lss{display:grid}
+.mshow .lss{grid-template-columns:minmax(0,1fr)}
+.mshow .lss .tview{display:flex;grid-area:1/1;visibility:hidden;min-width:0}
+.mshow .vcx,.mshow .vcx-ch{min-width:0}
+.mshow .lss .tview.on{visibility:visible}
+.mshow .vcx{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.mshow .vcx-bar{display:flex;align-items:center;gap:12px}
+.mshow .vcx button{font:inherit;cursor:pointer;color:var(--ink);background:none;border:0;padding:0}
+.mshow .vcx-pp{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--champ)!important;color:#0F1E36!important}
+.mshow .vcx-pp svg{width:16px;height:16px;fill:currentColor}
+.mshow .vcx-track{position:relative;flex:1;height:24px;min-width:60px}
+.mshow .vcx-track::before{content:"";position:absolute;left:0;right:0;top:10px;height:4px;border-radius:4px;background:rgba(201,211,227,.18)}
+.mshow .vcx-fill{position:absolute;left:0;top:10px;height:4px;border-radius:4px;background:var(--champ);width:0;pointer-events:none}
+.mshow .vcx-tick{position:absolute;top:7px;width:2px;height:10px;margin-left:-1px;border-radius:1px;background:rgba(247,244,237,.55);pointer-events:none}
+.mshow .vcx-seek{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.mshow .vcx-track:focus-within::before{box-shadow:0 0 0 2px rgba(232,214,168,.55)}
+.mshow .vcx-t{flex:none;font-family:var(--mono);font-size:12px;color:var(--muted);min-width:76px;text-align:right}
+.mshow .vcx-sp{flex:none;min-width:44px;height:30px;padding:0 10px!important;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(232,214,168,.35);font-family:var(--mono)!important;font-size:12.5px!important}
+.mshow .vcx-ch{display:flex;gap:6px;flex-wrap:wrap}
+.mshow .vcx-ch button{min-height:30px;padding:0 12px!important;border-radius:999px;font-size:12.5px!important;color:var(--muted)!important;box-shadow:inset 0 0 0 1px rgba(201,211,227,.18)}
+.mshow .vcx-ch button[aria-current="true"]{color:#0F1E36!important;background:var(--champ)!important;box-shadow:none}
+.mshow .vcx button:focus-visible{outline:2px solid var(--champ);outline-offset:2px}
+@media (hover:hover){.mshow .vcx-ch button:hover{color:var(--ink)!important}.mshow .vcx-sp:hover{box-shadow:inset 0 0 0 1px var(--champ)}}
+@media (max-width:860px){
+  .mshow .vcx-bar{gap:8px}
+  .mshow .vcx-t{min-width:0;font-size:11px}
+  .mshow .vcx-ch{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .mshow .vcx-ch button{flex:none;min-height:32px}
 }
 .mshow .also4{margin-top:56px}
 .mshow .also4 .alsoh{margin:0 0 14px;font-size:14px;color:var(--sub)}
