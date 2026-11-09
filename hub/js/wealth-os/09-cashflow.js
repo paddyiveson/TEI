@@ -226,7 +226,7 @@ TEI.render = TEI.render || {};
   function current(client){ const m = TEI.calc.cashflowMonth(client); return [m.takeHome, m.essentials, m.lifestyle, m.wealthBuilding].map(v=> Math.round(v)); }
   function openUpd(o){
     const upd = q('.upd'), ub = q('.upbtn'), scrim = q('.scrim');
-    upd.hidden = !o; ub.setAttribute('aria-expanded', o ? 'true' : 'false'); scrim.hidden = !(o && PHONE());
+    upd.hidden = !o; ub.setAttribute('aria-expanded', o ? 'true' : 'false'); scrim.hidden = !(o && PHONE()); root().classList.toggle('sheet-open', !!(o && PHONE()));
     const client = TEI.app.state.client;
     if(o && client){ if(!SAVED) SAVED = current(client); fillUpd(client); if(PHONE()) q('.x-inth').focus(); }
     if(!o) flush();

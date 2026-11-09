@@ -247,7 +247,7 @@ TEI.render = TEI.render || {};
   }
   function openAdj(o){
     const adj = q('.adj'), ab = q('.adjbtn'), scrim = q('.scrim');
-    adj.hidden = !o; ab.setAttribute('aria-expanded', o ? 'true' : 'false'); scrim.hidden = !(o && PHONE());
+    adj.hidden = !o; ab.setAttribute('aria-expanded', o ? 'true' : 'false'); scrim.hidden = !(o && PHONE()); root().classList.toggle('sheet-open', !!(o && PHONE()));
     if(o){ fillAdj(); if(PHONE()){ const f = adj.querySelector('input'); if(f) f.focus(); } }
   }
   function fillAdj(){
