@@ -434,12 +434,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
     // one plan document type exists today ('forecast', the Wealth Plan), so
     // the second document link (4.1) stays hidden until there is a type for it.
     forecast: null,
-    // TODO(Paddy to confirm): booked sessions. There is no session or booking
-    // data yet (no table), so this stays null and the coach tile shows the
-    // "Book a session" version. When sessions are recorded, fill it with
-    // { start: ISO date-time, type: 'Review session', minutes: 60,
-    //   format: 'Video call', href: the session } and the booked layout,
-    // "Add a question" and Getting started step 3 all switch on.
+    // The next booked session, from wealth_os.sessions (migration 022, written
+    // by the cal-booking-webhook function from Cal.com): { start, end, type,
+    // minutes, href }. Null shows the "Book a session" version of the coach tile.
     session: null,
     setup: null, progress: null, progressLoaded: false,
     articles: [], notes: [], tools: [],
@@ -610,6 +607,9 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       }).join('') + '</ol></section>';
   }
 
+  // Cal.com titles read "Plan Review between The Everyday Investor and Jane Smith";
+  // the tile shows the event name only.
+  function sessionTitle(title) { return String(title || '').replace(/\s+between\s[\s\S]*$/i, '').trim() || 'Session'; }
   function sessionParts(s) {
     var d = toDate(s.start) || now;
     return { mon: MON[d.getMonth()].toUpperCase(), day: d.getDate(), wd: DAYS[d.getDay()].slice(0, 3),
@@ -622,7 +622,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       body = '<div class="coach-row"><div class="cal" aria-hidden="true"><span class="cal-m">' + p.mon + '</span><span class="cal-d">' + p.day + '</span><span class="cal-w">' + p.wd + '</span></div>' +
         '<div style="min-width:0"><p class="coach-k">Next session</p><h2 class="coach-h" style="margin-top:4px">' + esc(S.session.type || 'Session') + '</h2>' +
         '<p class="coach-s" style="margin-top:4px">' + esc([p.time, S.session.minutes ? S.session.minutes + ' min' : '', S.session.format || ''].filter(Boolean).join(' · ')) + '</p></div></div>' +
-        // TODO(Paddy to confirm): "Add a question" attaches to a booked session; wire it when session data exists.
+        // "Add a question" opens Wealth OS, where any page's question can be added to the next session.
         '<a class="btn btn-p press" href="' + esc(S.session.href || WOS) + '">Add a question</a>';
     } else {
       var nw = isNew();
@@ -841,6 +841,16 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
                   if ((r.theme === 'light' || r.theme === 'dark') && window.TeiTheme && window.TeiTheme.resolved() !== r.theme) {
                     window.TeiTheme.set(r.theme);
                   }
+                }),
+                // Next session: the earliest booked one that has not ended yet.
+                soft(w().from('sessions').select('title, start_at, end_at, status').eq('client_id', client.id).eq('status', 'booked')
+                  .gte('start_at', new Date(Date.now() - 4 * 3600000).toISOString()).order('start_at', { ascending: true }).limit(5)).then(function (rows) {
+                  var t0 = Date.now();
+                  var next = (rows || []).filter(function (x) { var e = toDate(x.end_at || x.start_at); return e && e.getTime() > t0; })[0];
+                  if (!next) return;
+                  var st = toDate(next.start_at), en = toDate(next.end_at);
+                  S.session = { start: next.start_at, end: next.end_at, type: sessionTitle(next.title),
+                    minutes: st && en ? Math.round((en - st) / 60000) : 0, href: WOS };
                 }),
                 soft(w().from('documents').select('id, name, type, storage_path, uploaded_at').eq('client_id', client.id)).then(function (docs) {
                   if (!docs) return;

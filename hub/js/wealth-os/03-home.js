@@ -462,7 +462,8 @@ TEI.render = TEI.render || {};
     if(!title) return;
     if(next){
       title.textContent = TEI.v2.sessionWhen(next, true);
-      text.textContent = next.title ? next.title + ' with your coach.' : 'With your coach.';
+      const name = TEI.v2.sessionTitle(next);
+      text.textContent = name ? name + ' with your coach.' : 'With your coach.';
       btn.textContent = 'Book another session';
       btn.dataset.woRequest = 'book';
       if(cover) cover.setAttribute('aria-label', 'Next session: ' + TEI.v2.sessionWhen(next, true));
