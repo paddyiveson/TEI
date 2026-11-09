@@ -252,25 +252,13 @@ var TITLES=[['Thursday, 6 November 2026','Good morning, Priya',''],['How much yo
 
 /* ---------- the four tools, detailed ---------- */
 function tools(){
-  var fc='<svg class="ch" viewBox="0 0 400 170" preserveAspectRatio="none" style="height:170px"><path d="M0 160 C100 150 190 120 260 82 S360 20 400 6 L400 40 C360 56 310 86 260 108 S100 158 0 162Z" fill="rgba(185,202,230,.16)"/><line x1="0" x2="400" y1="30" y2="30" stroke="rgba(232,214,168,.35)" stroke-dasharray="3 5"/><text x="4" y="24" font-size="10" fill="#AAB6C8" font-family="Geist Mono,monospace">Goal £250,000</text><path d="M0 164 C120 160 220 146 300 128 S380 108 400 104" fill="none" stroke="#C9D3E3" stroke-opacity=".7" stroke-dasharray="4 4"/><path d="M0 161 C100 152 190 126 260 96 S360 36 400 22" fill="none" stroke="#E8D6A8" stroke-width="2.4"/><circle cx="371" cy="30" r="4.5" fill="#E8D6A8"/><text x="330" y="52" font-size="10" fill="#E8D6A8" font-family="Geist Mono,monospace">2039</text></svg>';
-  var lab_unused='<svg class="ch" viewBox="0 0 400 130" preserveAspectRatio="none" style="height:130px"><path d="M0 120 L40 110 80 114 120 96 160 100 200 78 240 84 280 60 320 66 360 36 400 24" fill="none" stroke="#E8D6A8" stroke-width="2.4"/><path d="M0 120 L40 112 80 116 120 102 160 104 200 88 240 92 280 74 320 78 360 54 400 44" fill="none" stroke="#7488A8" stroke-width="2"/><text x="4" y="12" font-size="10" fill="#AAB6C8" font-family="Geist Mono,monospace">10 years, £10,000 start</text></svg>';
   var V=[
+   ['Members\' articles','In-depth research, explained in plain English',
+    '<div class="tlmedia"><img src="/assets/img/home/tool-article.webp" alt="A members\' article, Nebius: Sizing up the Opportunity. Everything under the title is blurred, with a Members only label." loading="lazy" width="2000" height="1260"></div><div class="fine">A recent members\' article. The full article is in the Client Hub.</div>',0],
    ['Portfolio Lab','Test a mix before you change anything',
-    '<img class="tlimg" src="/assets/img/home/tool-lab.webp" alt="The Portfolio Lab: a treemap of everything a member owns, by account, then five stages: Analyse, Optimise, Compare, Implement and Results." loading="lazy" width="1668" height="1083"><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
-   ['Wealth Forecast','When you reach your goal, and what moves the date',
-    '<div><h4>First home and beyond: £250,000 by 2040</h4><div class="sub">Change the inputs and the date moves with them.</div></div>'+
-    '<div class="sl" style="--w:55%">Into wealth each month<b style="font-weight:500;color:#F7F4ED">£620</b><span class="tr"><i></i><b></b></span></div>'+
-    '<div class="sl" style="--w:40%">Growth a year, after fees<b style="font-weight:500;color:#F7F4ED">5%</b><span class="tr"><i></i><b></b></span></div>'+fc+
-    '<div class="stats"><div class="st"><div class="k">Projected</div><b>£262,400</b></div><div class="st"><div class="k">Goal reached</div><b>2039</b></div><div class="st"><div class="k">Likely range</div><b>£214k–£318k</b></div></div><div class="fine">Illustrative projection in today\'s money. Not a guarantee.</div>',1],
-   ['Tax Scenario','Compare the tax on a move before you make it',
-    '<div><h4>Salary sacrifice: £200 a month into your pension</h4><div class="sub">Same job, same salary. Two ways of being paid.</div></div>'+
-    '<div class="cols2"><div class="tbl"><div class="h">Today</div><div class="r">Salary<b>£42,000</b></div><div class="r">Income tax<b>£5,886</b></div><div class="r">National Insurance<b>£2,354</b></div><div class="r">Take-home<b>£33,760</b></div><div class="r">Into pension<b>£0</b></div></div>'+
-    '<div class="tbl hi"><div class="h" style="color:#E8D6A8">With salary sacrifice</div><div class="r">Salary<b>£39,600</b></div><div class="r">Income tax<b>£5,406</b></div><div class="r">National Insurance<b>£2,162</b></div><div class="r">Take-home<b>£32,032</b></div><div class="r">Into pension<b>£2,400</b></div></div></div>'+
-    '<div class="callout">Take-home falls by <b>£1,728</b> a year, but <b>£2,400</b> goes into your pension: about <b>£1.39</b> in your pension for every £1 less in your pocket.</div><div class="fine">Example for 2026/27 tax bands in England. Your coach checks your own figures.</div>',1],
-   ['Portfolio Strategy','Your own written rules for buying, holding and selling',
-    '<div style="display:flex;gap:14px;align-items:center"><svg width="92" height="92" viewBox="0 0 36 36"><circle cx="18" cy="18" r="13" fill="none" stroke="#B9CAE6" stroke-width="6" stroke-dasharray="18 100" stroke-dashoffset="-63.7" transform="rotate(-90 18 18)"/><circle cx="18" cy="18" r="13" fill="none" stroke="#E8D6A8" stroke-width="6" stroke-dasharray="63.7 100" transform="rotate(-90 18 18)"/></svg><div><h4>Core and satellite</h4><div class="sub">Target 80% core, 20% satellite.<br>Today: <b style="color:#E8D6A8;font-weight:500">82%</b> core, <b style="color:#B9CAE6;font-weight:500">18%</b> satellite.</div></div></div>'+
-    '<div><div class="rule"><span>Core stays between 75% and 85%</span><span class="pill ok">Within range</span></div><div class="rule"><span>No single satellite holding over 5%</span><span class="pill att">1 at 6.1%</span></div><div class="rule"><span>Rebalance once a year, each April</span><span class="pill">Next: Apr 2027</span></div><div class="rule"><span>Sell a satellite if the reason you bought it changes</span><span class="pill">Written down</span></div></div>'+
-    '<div class="callout">Your rules, agreed with your coach, so decisions are made calmly and not in the moment.</div>',1]
+    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="28.9" data-ch="0:Analyse|5.7:Optimise|12.9:Compare|17.8:Implement|21.9:Results" poster="/assets/img/home/tool-lab-poster.webp" aria-label="A walkthrough of the Portfolio Lab with example holdings: filtering by account, choosing the Equal weight preset, then Compare, Implement and Results."><source src="/assets/video/tool-lab.mp4" type="video/mp4"></video></div><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
+   ['Coach Forecast','Your written forecast, built by your coach',
+    '<div class="tlmedia"><video muted playsinline preload="none" data-dur="18.8" data-ch="0:Growth rates|8.4:What if|13.6:Towards the goal" poster="/assets/img/home/tool-forecast.webp" aria-label="A Coach Forecast for a sample member: switching between cautious, central and optimistic growth, testing a market fall, and showing only what counts towards the goal."><source src="/assets/video/tool-forecast.mp4" type="video/mp4"></video></div><div class="fine">An example Coach Forecast, for a sample member. Illustrative, not a guarantee.</div>',0]
   ];
   return '<div class="card-tools"><div class="tl-top"><div class="t" data-tt>'+V[0][0]+'<small data-ts>'+V[0][1]+'</small></div><span class="lockb">'+LOCK+'Members only</span></div>'+
     V.map(function(v,i){return '<div class="tview'+(i===0?' on':'')+'" data-i="'+i+'" data-name="'+v[0]+'" data-sub="'+v[1]+'"'+(v[3]?' data-soon="1"':'')+'>'+(v[3]?'<span class="tsoon">Coming soon · preview</span>':'')+v[2]+'</div>';}).join('')+
@@ -340,7 +328,6 @@ var member=false,heroScene=null,echo=null;
 function setWho(m){
   member=!!m;window.TEI_MEMBER=member;body.classList.toggle('member',member);
   msBuild();startEcho();
-  var s=$('sbar');if(s&&member)s.classList.remove('show');
 }
 
 /* ---------- hero ---------- */
@@ -438,7 +425,7 @@ document.querySelectorAll('.ptabs button').forEach(function(b){b.addEventListene
 function msBuild(){
   var mem=member,S=window.TEIShow,m=$('mshow');
   if(window.__osT)clearTimeout(window.__osT);if(window.__tlT)clearTimeout(window.__tlT);
-  var tabs=['Wealth','Forecast','Cashflow'].map(function(n,i){return '<button type="button" class="ostab" role="tab" data-t="'+i+'" aria-selected="'+(i===0)+'">'+n+'<span class="pr"><i></i></span></button>';}).join('');
+  var tabs=['Wealth','Live forecast','Cashflow'].map(function(n,i){return '<button type="button" class="ostab" role="tab" data-t="'+i+'" aria-selected="'+(i===0)+'">'+n+'<span class="pr"><i></i></span></button>';}).join('');
   var tmp=document.createElement('div');tmp.innerHTML=S.tools();
   var tv=[].slice.call(tmp.querySelectorAll('.tview'));
   var list=tv.map(function(v,i){return '<button type="button" class="lsi" role="tab" data-j="'+i+'" aria-selected="'+(i===0)+'"><b>'+v.getAttribute('data-name')+(v.getAttribute('data-soon')?'<span class="soon">Coming soon</span>':'')+'</b><small>'+v.getAttribute('data-sub')+'</small><span class="pr"><i></i></span></button>';}).join('');
@@ -453,7 +440,7 @@ function msBuild(){
         :'<div class="oscta"><a class="btn xl" href="'+L.membership+'">See everything members get</a><p>or <a class="lnk" href="'+L.book+'" target="_blank" rel="noopener">book a 30-minute call</a> first</p></div>')+
     '<div class="tl2"><div class="tl2h"><span class="lockb">'+(mem?'<svg viewBox="0 0 12 12"><path d="M2.5 6.5l2.2 2.2L9.5 3.8"/></svg>In your membership':S.LOCK+'Members only')+'</span><h3 class="h">There is more inside, for members.</h3></div>'+
       '<div class="ls"><div class="lsl" role="tablist" aria-label="Member tools">'+list+'</div><div class="lss">'+stage+'</div></div>'+
-      '<div class="also4"><p class="alsoh">Also included</p><div class="also"><div><b>Research notes</b>Company and theme notes</div><div><b>Members\' articles</b>Themes, in depth</div><div><b>Lessons</b>Five stages, at your pace</div><div><b>Knowledge library</b>Every term in one place</div></div></div></div>';
+      '<div class="also4"><p class="alsoh">Also included</p><div class="also"><div><b>Research notes</b>Company and theme notes</div><div><b>Tax and strategy tools</b>Coming soon</div><div><b>Lessons</b>Five stages, at your pace</div><div><b>Knowledge library</b>Every term in one place</div></div></div></div>';
   osTour(m);tlRotate(m);
 }
 function osTour(m){
@@ -482,16 +469,62 @@ function osTour(m){
   first.forEach(function(x){if(x.complete)left--;else x.addEventListener('load',function(){if(--left===0)go(i,false);},{once:true});});
   go(0,false);
 }
+/* Video controls for the member tools: play and pause, a scrubber with chapter
+   marks, the time, playback speed, and chapter buttons that skip to a step. */
+function vcx(v,onUse){
+  var box=v.closest('.tlmedia'),ch=(v.getAttribute('data-ch')||'').split('|').filter(Boolean).map(function(s){var k=s.indexOf(':');return [parseFloat(s.slice(0,k)),s.slice(k+1)];});
+  var est=parseFloat(v.getAttribute('data-dur'))||10,SP=[1,1.5,2],si=0,raf=0;
+  var PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>';
+  function len(){return (isFinite(v.duration)&&v.duration)||est;}
+  function mmss(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+  var w=document.createElement('div');w.className='vcx';
+  w.innerHTML='<div class="vcx-bar" role="group" aria-label="Video controls"><button type="button" class="vcx-pp" aria-label="Play">'+PLAY+'</button>'+
+    '<div class="vcx-track"><i class="vcx-fill"></i>'+ch.slice(1).map(function(c){return '<b class="vcx-tick" style="left:'+(c[0]/est*100).toFixed(2)+'%"></b>';}).join('')+
+    '<input class="vcx-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Seek"></div>'+
+    '<span class="vcx-t tnum">0:00 / '+mmss(est)+'</span><button type="button" class="vcx-sp" aria-label="Playback speed, 1 times">1&times;</button></div>'+
+    (ch.length?'<div class="vcx-ch" role="group" aria-label="Skip to">'+ch.map(function(c,k){return '<button type="button" data-k="'+k+'">'+c[1]+'</button>';}).join('')+'</div>':'');
+  box.insertAdjacentElement('afterend',w);
+  var pp=w.querySelector('.vcx-pp'),seek=w.querySelector('.vcx-seek'),fill=w.querySelector('.vcx-fill'),tt=w.querySelector('.vcx-t'),sp=w.querySelector('.vcx-sp'),cbs=[].slice.call(w.querySelectorAll('.vcx-ch button'));
+  function paint(){var d=len(),c=v.currentTime||0,p=Math.min(1,c/d);fill.style.width=(p*100)+'%';if(document.activeElement!==seek)seek.value=String(Math.round(p*1000));
+    tt.textContent=mmss(c)+' / '+mmss(d);seek.setAttribute('aria-valuetext',mmss(c)+' of '+mmss(d));
+    var on=0;ch.forEach(function(x,k){if(c>=x[0]-0.05)on=k;});cbs.forEach(function(b,k){if(k===on)b.setAttribute('aria-current','true');else b.removeAttribute('aria-current');});}
+  function loop(){paint();if(!v.paused)raf=requestAnimationFrame(loop);}
+  function state(){var on=!v.paused&&!v.ended;pp.innerHTML=on?PAUSE:PLAY;pp.setAttribute('aria-label',on?'Pause':'Play');cancelAnimationFrame(raf);if(on)raf=requestAnimationFrame(loop);else paint();}
+  function go(){var p=v.play();if(p&&p.catch)p.catch(function(){});}
+  ['play','pause','ended','loadedmetadata','seeked'].forEach(function(e){v.addEventListener(e,state);});
+  box.addEventListener('click',function(){onUse();if(v.paused)go();else v.pause();});
+  pp.addEventListener('click',function(){onUse();if(v.paused)go();else v.pause();});
+  seek.addEventListener('input',function(){onUse();try{v.currentTime=seek.value/1000*len();}catch(e){}paint();});
+  sp.addEventListener('click',function(){onUse();si=(si+1)%SP.length;v.playbackRate=SP[si];sp.innerHTML=SP[si]+'&times;';sp.setAttribute('aria-label','Playback speed, '+SP[si]+' times');});
+  cbs.forEach(function(b){b.addEventListener('click',function(){onUse();try{v.currentTime=ch[+b.getAttribute('data-k')][0];}catch(e){}paint();go();});});
+  v.addEventListener('ratechange',function(){var k=SP.indexOf(v.playbackRate);if(k>-1){si=k;sp.innerHTML=SP[k]+'&times;';}});
+  paint();
+}
 function tlRotate(m){
-  var bs=[].slice.call(m.querySelectorAll('.lsi')),vs=[].slice.call(m.querySelectorAll('.lss .tview')),i=0,paused=false,dur=6000;
+  /* Items rotate every 6s. An item with a video stays up until the video ends,
+     plays only while the list is on screen, and loops once someone picks it. */
+  var bs=[].slice.call(m.querySelectorAll('.lsi')),vs=[].slice.call(m.querySelectorAll('.lss .tview')),i=0,paused=false,seen=false,DUR=6000;
+  function vid(j){return vs[j]&&vs[j].querySelector('video');}
+  function vlen(v){return (isFinite(v.duration)&&v.duration)||parseFloat(v.getAttribute('data-dur'))||6;}
+  function dur(j){var v=vid(j);if(!v)return DUR;return Math.max(DUR,(vlen(v)-(v.currentTime||0))/(v.playbackRate||1)*1000+400);}
+  /* someone used a video's controls: the list stops rotating and the video loops */
+  function takeOver(){paused=true;clearTimeout(window.__tlT);var c=bs[i].querySelector('.pr i');c.style.transition='none';c.style.transform='scaleX(0)';var v=vid(i);if(v)v.loop=true;}
+  vs.forEach(function(view){var v=view.querySelector('video');if(v)vcx(v,takeOver);});
+  function play(j){var v=vid(j);if(!v||reduce||!seen)return;v.loop=paused;var p=v.play();if(p&&p.catch)p.catch(function(){});}
+  function bar(j,ms,from){var c=bs[j].querySelector('.pr i');c.style.transition='none';c.style.transform='scaleX('+(from||0)+')';if(paused||reduce||!seen)return;void c.offsetWidth;c.style.transition='transform '+ms+'ms linear';c.style.transform='scaleX(1)';}
+  function tick(){clearTimeout(window.__tlT);if(paused||reduce||!seen)return;var ms=dur(i),v=vid(i),from=v&&v.duration?Math.min(1,v.currentTime/v.duration):0;bar(i,ms,from);window.__tlT=setTimeout(function(){go((i+1)%bs.length);},ms);}
   function go(j,user){if(!bs[0].isConnected)return;i=j;clearTimeout(window.__tlT);
-    bs.forEach(function(b,k){b.setAttribute('aria-selected',k===j?'true':'false');var p=b.querySelector('.pr i');p.style.transition='none';p.style.transform='scaleX(0)';});
-    vs.forEach(function(v,k){v.classList.toggle('on',k===j);});
     if(user)paused=true;
-    if(!paused&&!reduce){var c=bs[j].querySelector('.pr i');void c.offsetWidth;c.style.transition='transform '+dur+'ms linear';c.style.transform='scaleX(1)';window.__tlT=setTimeout(function(){go((i+1)%bs.length);},dur);}}
+    bs.forEach(function(b,k){b.setAttribute('aria-selected',k===j?'true':'false');var p=b.querySelector('.pr i');p.style.transition='none';p.style.transform='scaleX(0)';});
+    vs.forEach(function(v,k){v.classList.toggle('on',k===j);var x=vid(k);if(x&&k!==j){x.pause();try{x.currentTime=0;}catch(e){}}});
+    var v=vid(j);if(v){try{v.currentTime=0;}catch(e){}play(j);}
+    tick();}
   bs.forEach(function(b){b.addEventListener('click',function(){go(+b.getAttribute('data-j'),true);});});
-  var ls=m.querySelector('.ls');ls.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse'){paused=true;clearTimeout(window.__tlT);bs[i].querySelector('.pr i').style.transition='none';}});
-  ls.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'){paused=false;go(i);}});
+  var ls=m.querySelector('.ls');
+  ls.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse'&&!paused){paused=true;clearTimeout(window.__tlT);var c=bs[i].querySelector('.pr i');c.style.transform=getComputedStyle(c).transform;c.style.transition='none';var v=vid(i);if(v)v.loop=true;ls.__hover=true;}});
+  ls.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse'&&ls.__hover){ls.__hover=false;paused=false;var v=vid(i);if(v)v.loop=false;tick();}});
+  if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){seen=e.isIntersecting;var v=vid(i);if(seen){play(i);tick();}else{clearTimeout(window.__tlT);if(v)v.pause();}});},{threshold:.35}).observe(ls);}
+  else seen=true;
   go(0);
 }
 
@@ -581,15 +614,12 @@ function watchVid(){
   vio.observe(hcv);
 }
 
-/* ---------- phone scroll: hero fades and drifts up, the sticky bar slides in ---------- */
-var sbar=$('sbar');
+/* ---------- phone scroll: hero fades and drifts up ---------- */
 window.addEventListener('scroll',function(){
   if(!isPhone())return;
   var hh=$('top').offsetHeight,st=window.scrollY,sk=clamp((st-30)/(hh*0.75)),cp=$('top').querySelector('.copy');
   if(heroScene){heroScene.sk=sk;if(reduce)heroScene.frame(performance.now());}
   if(!reduce){cp.style.opacity=String(1-sk);cp.style.transform='translateY('+(-sk*36).toFixed(1)+'px)';}
-  var past=st>hh*0.6,atEnd=st+window.innerHeight>$('call').getBoundingClientRect().top+st+60;
-  sbar.classList.toggle('show',past&&!atEnd&&!member);
 },{passive:true});
 
 /* ---------- tools lift point and star mask follow the real layout ---------- */

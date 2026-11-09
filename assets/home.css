@@ -262,7 +262,6 @@ body.sheet-on .sheet{transform:none}
 .res-foot{display:flex;justify-content:space-between;gap:10px;margin-top:14px;font-size:13px}
 .res-foot a{color:var(--c-gold);text-decoration:none}
 .res-foot button{border:0;background:transparent;color:var(--c-muted);cursor:pointer;font-size:13px;padding:0}
-.sbar{display:none}
 
 /* ================= v4 overrides ================= */
 .hp{background:var(--bg-hero)}
@@ -738,7 +737,6 @@ h2.h{font-weight:700;letter-spacing:-.02em}
 .vid .fmt{font-size:11px}
 
 /* buttons: main champagne buttons glow at rest (decided 8 Nov); not in the header, sticky bar or newsletter */
-.sbar .btn{box-shadow:none}
 .btn.champ:hover,.btn.champ:focus-visible,.mshow .btn:not(.o):hover{box-shadow:0 0 0 1px rgba(232,214,168,.45),0 8px 28px rgba(232,214,168,.28)}
 .nl .btn{box-shadow:none}
 
@@ -1060,10 +1058,6 @@ body[data-sc="a"] .mshow .mc-fc .sl,body[data-sc="b"] .mshow .mc-fc .sl,body[dat
 
 /* Phone (was the review frame's phone view) */
 @media (max-width:860px){
-  .sbar{display:flex;position:absolute;left:20px;right:20px;bottom:94px;z-index:19;align-items:center;justify-content:space-between;gap:10px;padding:6px 6px 6px 14px;border-radius:999px;background:rgba(15,30,54,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--n-ink);font-size:12.5px;box-shadow:0 10px 30px rgba(0,0,0,.25),inset 0 1px 0 rgba(232,214,168,.2);transform:translateY(16px);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
-  .sbar.show{transform:none;opacity:1;pointer-events:auto}
-  .sbar .btn{min-height:34px;font-size:13px;padding:0 14px}
-  .sbar span{color:var(--n-sub)}
   .scrim{position:absolute;z-index:30;border-radius:36px}
   .sheet{position:absolute;z-index:31;top:auto;left:0;right:0;bottom:0;width:auto;height:82%;border-radius:22px 22px 36px 36px;transform:translateY(100%);padding:12px 18px 28px}
   body.sheet-on .sheet{transform:none}
@@ -1071,7 +1065,6 @@ body[data-sc="a"] .mshow .mc-fc .sl,body[data-sc="b"] .mshow .mc-fc .sl,body[dat
   .sheet .sh-top h2{font-size:19px}
   .qwrap h3{font-size:17px}
   .opts button{font-size:14px;min-height:44px}
-  .sbar{left:12px;right:12px;bottom:92px;background:rgba(18,35,61,.96);border:1px solid rgba(232,214,168,.2)}
 }
 
 /* ================= Production (not in the mock-up) ================= */
@@ -1101,13 +1094,11 @@ body.hp-body .tei-ftr + footer a{color:var(--sub)!important}
 body.hp-body .tei-ftr + footer .footer-logo-mark{color:var(--champ)!important}
 @media (max-width:860px){ body.hp-body .tei-ftr + footer{padding-bottom:calc(var(--tei-mbar-total) + 20px)!important} }
 
-/* The sticky "£30 discovery call" bar and the stage check sheet sit above the
-   shared header (950), phone bar (1000) and Menu (1100) on a real page. */
-.sbar{position:fixed}
+/* The stage check sheet sits above the shared header (950), phone bar (1000)
+   and Menu (1100) on a real page. */
 .scrim{z-index:1190}
 .sheet{z-index:1200}
 @media (max-width:860px){
-  .sbar{position:fixed;left:12px;right:12px;bottom:calc(var(--tei-mbar-total) + 10px);z-index:990}
   .scrim{position:fixed;border-radius:0}
   .sheet{position:fixed;height:82%;max-height:calc(100dvh - 24px);border-radius:22px 22px 0 0;padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
 }
@@ -1130,4 +1121,73 @@ body.sheet-on .sheet{visibility:visible;transition:transform .38s cubic-bezier(.
   .hp .hero .anchor{font-size:clamp(153px,10.4vw,200px)}
   .hp .hero .dek{font-size:clamp(19px,1.2vw,22px)}
   .hp .hero{min-height:max(680px,calc(100vh - 68px))}
+}
+
+/* Phone bottom bar, homepage (Paddy, 9 Nov): navy and see-through, so the
+   dark page carries on under it instead of a light strip. */
+@media (max-width:860px){
+  html.tei-site body.hp-body .tei-mbar{background:rgba(11,23,41,.62);border-top:1px solid rgba(232,214,168,.14);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%)}
+  html.tei-site body.hp-body .tei-mbar-item{color:#AAB6C8}
+  html.tei-site body.hp-body .tei-mbar-item[aria-current="page"]{color:#F7F4ED}
+  html.tei-site body.hp-body .tei-mbar-item[aria-current="page"] .tei-mbar-pill{background:#E8D6A8;color:#0F1E36}
+  html.tei-site body.hp-body .tei-mbar-item:focus-visible{outline-color:#E8D6A8}
+}
+
+/* Footer, homepage (Paddy, 9 Nov): the link row and the legal text use the
+   same wide column and gutter as the page above. */
+@media (min-width:1100px){
+  body.hp-body .tei-ftr-in{box-sizing:border-box;max-width:1760px;padding-inline:clamp(32px,4vw,72px)}
+  body.hp-body .tei-ftr + footer{padding-left:clamp(32px,4vw,72px)!important;padding-right:clamp(32px,4vw,72px)!important}
+  body.hp-body .tei-ftr + footer > *{max-width:calc(1760px - 2 * clamp(32px,4vw,72px))!important}
+}
+
+/* Member tools (Paddy, 9 Nov): previews keep their original size and share one
+   3:2 frame, so the stage does not change height between an image and a video.
+   Videos carry their own controls: play, a scrubber with chapter marks, speed
+   and chapter buttons. The "Also included" row below carries more weight. */
+.mshow .tlmedia{position:relative;aspect-ratio:3/2;border-radius:10px;overflow:hidden;background:#0B1729;box-shadow:0 0 0 1px rgba(201,211,227,.14)}
+.mshow .tlmedia img,.mshow .tlmedia video{display:block;width:100%;height:100%;object-fit:cover;object-position:top center}
+.mshow .tlmedia video{cursor:pointer}
+.mshow .lss .tview .fine{margin-top:10px}
+/* All previews share one grid cell, so the stage keeps the height of the tallest
+   and does not jump as the list rotates. */
+.mshow .lss{display:grid}
+.mshow .lss{grid-template-columns:minmax(0,1fr)}
+.mshow .lss .tview{display:flex;grid-area:1/1;visibility:hidden;min-width:0}
+.mshow .vcx,.mshow .vcx-ch{min-width:0}
+.mshow .lss .tview.on{visibility:visible}
+.mshow .vcx{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+.mshow .vcx-bar{display:flex;align-items:center;gap:12px}
+.mshow .vcx button{font:inherit;cursor:pointer;color:var(--ink);background:none;border:0;padding:0}
+.mshow .vcx-pp{flex:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--champ)!important;color:#0F1E36!important}
+.mshow .vcx-pp svg{width:16px;height:16px;fill:currentColor}
+.mshow .vcx-track{position:relative;flex:1;height:24px;min-width:60px}
+.mshow .vcx-track::before{content:"";position:absolute;left:0;right:0;top:10px;height:4px;border-radius:4px;background:rgba(201,211,227,.18)}
+.mshow .vcx-fill{position:absolute;left:0;top:10px;height:4px;border-radius:4px;background:var(--champ);width:0;pointer-events:none}
+.mshow .vcx-tick{position:absolute;top:7px;width:2px;height:10px;margin-left:-1px;border-radius:1px;background:rgba(247,244,237,.55);pointer-events:none}
+.mshow .vcx-seek{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.mshow .vcx-track:focus-within::before{box-shadow:0 0 0 2px rgba(232,214,168,.55)}
+.mshow .vcx-t{flex:none;font-family:var(--mono);font-size:12px;color:var(--muted);min-width:76px;text-align:right}
+.mshow .vcx-sp{flex:none;min-width:44px;height:30px;padding:0 10px!important;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(232,214,168,.35);font-family:var(--mono)!important;font-size:12.5px!important}
+.mshow .vcx-ch{display:flex;gap:6px;flex-wrap:wrap}
+.mshow .vcx-ch button{min-height:30px;padding:0 12px!important;border-radius:999px;font-size:12.5px!important;color:var(--muted)!important;box-shadow:inset 0 0 0 1px rgba(201,211,227,.18)}
+.mshow .vcx-ch button[aria-current="true"]{color:#0F1E36!important;background:var(--champ)!important;box-shadow:none}
+.mshow .vcx button:focus-visible{outline:2px solid var(--champ);outline-offset:2px}
+@media (hover:hover){.mshow .vcx-ch button:hover{color:var(--ink)!important}.mshow .vcx-sp:hover{box-shadow:inset 0 0 0 1px var(--champ)}}
+@media (max-width:860px){
+  .mshow .vcx-bar{gap:8px}
+  .mshow .vcx-t{min-width:0;font-size:11px}
+  .mshow .vcx-ch{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .mshow .vcx-ch button{flex:none;min-height:32px}
+}
+.mshow .also4{margin-top:56px}
+.mshow .also4 .alsoh{margin:0 0 14px;font-size:14px;color:var(--sub)}
+.mshow .also4 .also{gap:14px;border-top:0}
+.mshow .also4 .also div{padding:20px 20px 18px;border:0;border-radius:14px;background:rgba(12,26,48,.55);box-shadow:inset 0 0 0 1px rgba(201,211,227,.14),inset 0 1px 0 rgba(232,214,168,.14);font-size:14px;line-height:1.45;color:var(--muted)}
+.mshow .also4 .also b{font-size:18px;font-weight:500;letter-spacing:-.01em;margin-bottom:6px;color:var(--ink)}
+@media (max-width:860px){
+  .mshow .also4{margin-top:28px}
+  .mshow .also4 .also{gap:10px}
+  .mshow .also4 .also div{padding:14px;font-size:13px}
+  .mshow .also4 .also b{font-size:15px;margin-bottom:3px}
 }
