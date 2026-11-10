@@ -467,13 +467,16 @@ body::before{display:none}
 .chart-zoom{display:none}
 @media (max-width:860px){
   .tbl{overflow:visible}
-  table.nums,table.nums thead,table.nums tbody{display:block}
-  table.nums tr{display:grid;grid-template-columns:minmax(0,1fr) 5.6em 6.4em;column-gap:12px;row-gap:4px;padding:14px 0;border-bottom:1px solid var(--line-soft)}
-  table.nums thead tr{padding:0 0 10px;border-bottom:1px solid var(--line)}
-  table.nums th,table.nums td{padding:0;border:0;display:block}
-  table.nums td.n,table.nums th.n{text-align:right;white-space:normal}
+  /* One grid for the whole table, so the figure and change columns share a
+     width across rows and never wrap. */
+  table.nums{display:grid;grid-template-columns:minmax(0,1fr) max-content max-content}
+  table.nums thead,table.nums tbody,table.nums tr{display:contents}
+  table.nums th,table.nums td{display:block;padding:14px 0 0;border:0;border-top:1px solid var(--line-soft)}
+  table.nums td.n,table.nums th.n{padding-left:14px;text-align:right;white-space:nowrap}
+  table.nums thead th{padding-top:0;padding-bottom:10px;border-top:0}
   table.nums th:nth-child(4){display:none}
-  table.nums td:nth-child(4){grid-column:1/-1;color:var(--muted);font-size:14.5px;line-height:1.5;margin-top:2px}
+  table.nums tbody tr:first-child td{border-top-color:var(--line)}
+  table.nums td:nth-child(4){grid-column:1/-1;border-top:0;padding:4px 0 14px;color:var(--muted);font-size:14.5px;line-height:1.5}
   .chart-img{position:relative;cursor:zoom-in}
   .chart-img img{min-width:0}
   .chart-zoom{display:inline-flex;align-items:center;gap:6px;position:absolute;right:8px;top:8px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink);font-size:13px;font-weight:500;pointer-events:none}
