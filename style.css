@@ -81,6 +81,17 @@
 }
 .tei-hdr-link:hover { color: var(--tei-cream); }
 .tei-hdr-link[aria-current="page"] { color: var(--tei-champagne); }
+/* Home icon: desktop only, before the first link. The brand name also goes
+   home, but visitors miss it. The phone bar has its own Home. */
+.tei-hdr-home {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 44px;
+  color: var(--tei-muted-on-dark); text-decoration: none;
+  border-radius: var(--tei-radius-pill);
+}
+.tei-hdr-home svg { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) { .tei-hdr-home:hover { color: var(--tei-cream); } }
+.tei-hdr--home .tei-hdr-home { display: none; }
 .tei-hdr-actions { display: flex; align-items: center; gap: 4px; flex: none; }
 .tei-hdr-book {
   display: inline-flex; align-items: center; justify-content: center;
@@ -104,6 +115,40 @@
 /* The header replaces each guide page's own "Back" pill and tax.html's bar. */
 .tei-hdr ~ a[href="/guides.html"][style*="position:fixed"],
 .tei-hdr ~ header { display: none !important; }
+
+/* -- 2b. Book a call / WhatsApp captions --
+   One short line under each option wherever both are offered together.
+   Same size and colour as a figure caption; at most two lines on phones. */
+.tei-opts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px 24px; }
+.tei-opt { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.tei-opt-cap {
+  max-width: 34ch; margin: 0; padding: 0;
+  font-family: var(--tei-font, inherit); font-size: 12.5px; font-weight: 400; line-height: 1.45;
+  color: var(--c-muted, #6B7383); text-align: left;
+}
+.tei-opts--dark .tei-opt-cap, .tei-menu--site .tei-opt-cap { color: #AAB6C8; }
+.tei-opts--dark { margin-top: 20px; }
+/* Homepage closing block: centred, button and link the same height. */
+.cl .tei-opts { justify-content: center; align-items: flex-start; }
+.cl .tei-opt { align-items: center; }
+.cl .tei-opt > a { min-height: 50px; }
+.cl .tei-opt-cap { text-align: center; }
+/* Quiz result and tool cards: the caption sits tight under its option. */
+.go2 .tei-opt-cap { margin: -2px 2px 2px; }
+.res p.tei-opt-cap { font-size: 12.5px; line-height: 1.45; }
+.res-foot .tei-opt { gap: 4px; }
+.tl-card .tl-card-go .tei-opt { align-items: stretch; }
+.tl-next .tl-card .tl-card-go p.tei-opt-cap { margin: 0 2px; max-width: 34ch; font-size: 12.5px; font-weight: 400; line-height: 1.45; }
+.tl-next.is-lead > .tl-card:first-child .tl-card-go { align-items: flex-start; }
+.tl-next.is-lead > .tl-card:first-child .tl-card-go .tei-opt { align-items: flex-start; }
+.tl-next.is-lead > .tl-card:first-child .tl-card-go .tc-btn { min-height: 46px; }
+.tei-smenu-start .tei-opt-cap { max-width: none; margin: -4px 0 4px; text-align: center; }
+@media (max-width: 860px) {
+  .tei-opt-cap, .res p.tei-opt-cap, .tl-next .tl-card .tl-card-go p.tei-opt-cap { font-size: 11.5px; }
+  .tei-opts { flex-direction: column; align-items: stretch; gap: 14px; }
+  .tei-opts--dark .tei-opt > a { align-self: flex-start; }
+  .cl .tei-opts { align-items: center; }
+}
 
 /* -- 3. Footer -- */
 /* The link row. It sits directly above the page's own <footer>, which keeps

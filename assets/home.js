@@ -579,12 +579,14 @@ function renderQ(){
   qz.querySelectorAll('.opts button').forEach(function(b){b.addEventListener('click',function(){ans[qi]=b.getAttribute('data-a');qi++;renderQ();var f=qz.querySelector('button');if(f)f.focus();});});
   var bk=qz.querySelector('.qback');if(bk)bk.addEventListener('click',function(){qi--;renderQ();});
 }
+/* Captions under Book a call and WhatsApp where both are offered together. */
+var CAP_BOOK='A 30-minute discovery call for \u00A330, taken off your first month if you join.',CAP_WA='Not ready for a call? Send us a question first. No charge, no obligation.';
 function renderR(){
-  var key=result(),x=R[key];
+  var key=result(),x=R[key],hasBook=x.a.some(function(a){return a[3]===L.book;});
   qz.innerHTML='<div class="qdots"><i class="on"></i><i class="on"></i><i class="on"></i><span>Your result</span></div><div class="res"><div class="stg">'+x.stg+'</div><h3>'+x.h+'</h3><p>'+x.p+'</p>'+
-    '<div class="go2">'+x.a.map(function(a){return '<a href="'+a[3]+'" class="'+a[2]+'"'+(a[3]===L.book?' target="_blank" rel="noopener"':'')+'><span><small>'+a[0]+'</small><b>'+a[1]+'</b></span><span aria-hidden="true">→</span></a>';}).join('')+'</div>'+
+    '<div class="go2">'+x.a.map(function(a){var bk=a[3]===L.book;return '<a href="'+a[3]+'" class="'+a[2]+'"'+(bk?' target="_blank" rel="noopener"':'')+'><span><small>'+a[0]+'</small><b>'+a[1]+'</b></span><span aria-hidden="true">→</span></a>'+(bk?'<p class="tei-opt-cap">'+CAP_BOOK+'</p>':'');}).join('')+'</div>'+
     '<form class="mailme" id="mm" novalidate><label for="mm-e" style="position:absolute;left:-9999px">Email address</label><input id="mm-e" type="email" placeholder="Email me my result (optional)" autocomplete="email"><button class="btn o" type="submit">Send</button></form><p class="sent" id="mm-ok" hidden>Sent. Check your inbox.</p>'+
-    '<div class="res-foot"><a href="'+L.wa+'" target="_blank" rel="noopener">Rather talk first? WhatsApp us</a><button type="button" id="rt">Retake</button></div></div>';
+    '<div class="res-foot"><div class="tei-opt"><a href="'+L.wa+'" target="_blank" rel="noopener">Rather talk first? WhatsApp us</a>'+(hasBook?'<p class="tei-opt-cap">'+CAP_WA+'</p>':'')+'</div><button type="button" id="rt">Retake</button></div></div>';
   $('rt').addEventListener('click',function(){ans=[];qi=0;renderQ();});
   /* "Email me my result" goes to leads, source stage-check, with the stage. */
   $('mm').addEventListener('submit',function(e){e.preventDefault();var v=$('mm-e').value.trim(),ok=$('mm-ok'),btn=this.querySelector('button');
