@@ -7,6 +7,11 @@
  * header is in place before the page paints. data-current names the section
  * to mark: learn, videos, guides, research or library (empty on Hub home).
  *
+ * Reading pages (members' articles): add data-back="<href>" (and optionally
+ *   data-back-label, default "Back"). On phones the bottom bar goes, so the
+ *   article has the screen, and a back chevron sits before Client Hub
+ *   (Paddy, 10 Nov 2026). Desktop is unchanged.
+ *
  * Desktop: Client Hub (logo, Hub home) · Home (the website) | Learn · Videos ·
  *   Guides & tools · Research · Library · Open Wealth OS · account menu.
  * 860px and below: logo · house (the website) · account in the header; the
@@ -95,6 +100,8 @@
     '.hh-seg button[aria-pressed="true"]{background:var(--w-tile);color:var(--w-text);box-shadow:var(--w-shadow-1)}' +
     '.hh-div{height:1px;margin:6px 4px;background:var(--w-line)}' +
     '.hh-tabs{display:none}' +
+    '.hh-back{display:none;flex:none;width:40px;height:44px;margin-left:-10px;align-items:center;justify-content:center;border-radius:12px;color:var(--w-text);text-decoration:none}' +
+    '.hh-back .hh-ic{width:22px;height:22px}' +
     '@media (hover:hover){.hh-nav a:hover,.hh-row:hover{color:var(--w-text);background:var(--w-chip)}.hh-acct:hover{border-color:var(--w-gold)}}' +
     '.hh-bar a:focus-visible,.hh-bar button:focus-visible,.hh-menu a:focus-visible,.hh-menu button:focus-visible,.hh-tabs a:focus-visible{outline:2px solid var(--w-gold);outline-offset:2px}' +
     '@media (max-width:1099px) and (min-width:861px){.hh-bar{padding:0 24px;gap:8px}.hh-nav a{padding:0 9px;font-size:13.5px}.hh-sep{margin:0 4px}.hh-wos{padding:0 14px;margin-left:6px}}' +
@@ -115,6 +122,8 @@
       /* Room for the bar: in the footer where the page has one, else on the body. */
       'body{padding-bottom:var(--hh-bar)}' +
       'html.hh-footer body{padding-bottom:0}html.hh-footer body>footer{padding-bottom:calc(28px + var(--hh-bar)) !important}' +
+      /* Reading pages: no bottom bar, a back chevron before Client Hub. */
+      'html.hh-reading{--hh-bar:0px}html.hh-reading .hh-tabs{display:none}html.hh-reading .hh-back{display:inline-flex}' +
     '}' +
     '@media (prefers-reduced-motion:reduce){.hh-wos,.hh-tabs a{transition:none}}';
 
@@ -139,6 +148,8 @@
   document.head.appendChild(st);
 
   var current = host.getAttribute('data-current') || '';
+  var back = host.getAttribute('data-back') || '';
+  if (back) document.documentElement.classList.add('hh-reading');
   // data-no-theme: a light-only page (Learn) shows no theme switch.
   var themable = !host.hasAttribute('data-no-theme');
   function cur(k) { return k === current ? ' aria-current="page"' : ''; }
@@ -164,6 +175,7 @@
 
   host.outerHTML =
     '<header class="hh-bar" id="hubHeader">' +
+      (back ? '<a class="hh-back" href="' + esc(back) + '" aria-label="' + esc(host.getAttribute('data-back-label') || 'Back') + '"><svg class="hh-ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg></a>' : '') +
       '<a class="hh-brand" href="/hub/index.html">' + MARK + 'Client Hub</a>' +
       '<nav class="hh-nav" aria-label="Client Hub">' + nav + '</nav>' +
       '<a class="hh-wos" data-hub-wos href="' + WOS + '">Open Wealth OS</a>' +
