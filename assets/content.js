@@ -83,11 +83,32 @@
       var part = document.getElementById(id);
       if (label && part) label.textContent = part.getAttribute('data-toc');
     }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) { if (en.isIntersecting) mark(en.target.id); });
-    }, { rootMargin: '-30% 0px -60% 0px' });
-    mark(parts[0].id);
-    Array.prototype.forEach.call(parts, function (p) { io.observe(p); });
+    // The active part is the last one whose top has passed 35% of the screen,
+    // or the last part once the page reaches the bottom (its top may never get
+    // that high). Worked out from the scroll position, so it is right on load,
+    // after a hash link, after the End key and when the browser restores scroll.
+    var ticking = false;
+    function sync() {
+      ticking = false;
+      var doc = document.documentElement;
+      var id = parts[0].id;
+      if (window.scrollY + window.innerHeight >= doc.scrollHeight - 2 && window.scrollY > 0) {
+        id = parts[parts.length - 1].id;
+      } else {
+        var line = window.innerHeight * 0.35;
+        for (var i = 0; i < parts.length; i++) {
+          if (parts[i].getBoundingClientRect().top <= line) id = parts[i].id; else break;
+        }
+      }
+      mark(id);
+    }
+    function queue() { if (!ticking) { ticking = true; window.requestAnimationFrame(sync); } }
+    sync();
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    window.addEventListener('hashchange', queue);
+    window.addEventListener('load', queue);
+    window.addEventListener('pageshow', queue);
   }
 
   /* ---------- Expandable groups and tabs ---------- */

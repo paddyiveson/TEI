@@ -225,9 +225,9 @@
         '</div>' +
         '<div class="tei-smenu-start">' +
           '<a class="tei-smenu-book" href="' + BOOK_URL + '" target="_blank" rel="noopener noreferrer">Book a call</a>' +
+          '<p class="tei-opt-cap">A 30-minute discovery call for \u00A330, taken off your first month if you join.</p>' +
           '<a class="tei-smenu-wa" href="' + WHATSAPP_URL + '" target="_blank" rel="noopener noreferrer">Chat on WhatsApp first</a>' +
-          // TODO(copy sheet): the line about the free first call and the fact
-          // find fee goes here once its wording is approved.
+          '<p class="tei-opt-cap">Not ready for a call? Send us a question first. No charge, no obligation.</p>' +
         '</div>') +
         '<p class="tei-smenu-note">Financial coaching and education, not regulated financial advice.</p>' +
       '</div>';

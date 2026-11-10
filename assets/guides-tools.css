@@ -329,6 +329,25 @@
 .gt-body-wrap { padding-top: 48px; padding-bottom: 80px; }
 :where([data-gt-mode="public"]) a { color: inherit; }
 
+/* Public page (V3 quick wins): the hero flows into the page instead of
+   ending on a hard edge, and the page uses the homepage's wide container.
+   The Hub copy keeps its own finish. */
+[data-gt-mode="public"] .gt-hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 96px;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--gt-page) 0%, transparent) 0%, color-mix(in srgb, var(--gt-page) 18%, transparent) 35%, color-mix(in srgb, var(--gt-page) 60%, transparent) 65%, var(--gt-page) 100%);
+  pointer-events: none;
+}
+[data-gt-mode="public"] .gt-hero-in { padding-bottom: 104px; }
+[data-gt-mode="public"] .gt-body-wrap { padding-top: 8px; }
+@media (min-width: 1100px) {
+  [data-gt-mode="public"] .gt-wrap { max-width: 1760px; padding-left: clamp(32px, 4vw, 72px); padding-right: clamp(32px, 4vw, 72px); }
+}
+@media (max-width: 860px) {
+  [data-gt-mode="public"] .gt-hero::after { height: 56px; }
+  [data-gt-mode="public"] .gt-hero-in { padding-bottom: 60px; }
+  [data-gt-mode="public"] .gt-body-wrap { padding-top: 4px; }
+}
+
 /* The monthly email and the membership card (public only). */
 .gt-news { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
 .gt-nl, .gt-join { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 14px; padding: 32px; border-radius: 18px; }
