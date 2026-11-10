@@ -39,6 +39,10 @@
 .dd-c.side { grid-column:span 5; }
 .dd-g > .dd-c:only-child { grid-column:1 / -1; }
 .dd-cov { position:relative; display:block; height:clamp(190px, 15vw, 240px); margin:10px 10px 0; border-radius:16px; overflow:hidden; background:var(--w-powder); }
+.dd-cov.is-img { background:#070F1D; height:auto; aspect-ratio:16 / 9; }
+.dd-g.is-trio > .dd-c { grid-column:span 4; }
+@media (min-width:861px) { .t-sr-d { position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; } }
+.dd-cov.is-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
 .dd-txt { display:flex; flex-direction:column; gap:8px; flex:1; padding:16px 22px 22px; }
 .dd-k { display:flex; flex-wrap:wrap; gap:8px; align-items:center; font-family:'Geist Mono', monospace; font-size:11px; letter-spacing:.04em; color:var(--w-muted); }
 .dd-c.lead .dd-k { color:rgba(247,244,237,.7); }
@@ -246,7 +250,11 @@
 @media (max-width:860px) {
   /* Phones: the deep dives side by side, each a compact card (Paddy 5 Nov) */
   .dd-g { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
-  .dd-c.lead, .dd-c.side { grid-column:auto; }
+  .dd-c.lead, .dd-c.side, .dd-g.is-trio > .dd-c { grid-column:auto; }
+  .dd-g.is-odd > .dd-c:last-child { grid-column:1 / -1; flex-direction:row; align-items:stretch; }
+  .dd-g.is-odd > .dd-c:last-child .dd-cov { flex:0 0 48%; margin:6px 0 6px 6px; align-self:center; }
+  .dd-g.is-odd > .dd-c:last-child .dd-txt { flex:1; min-width:0; }
+  .dd-cov.is-img { height:auto; }
   .dd-c { border-radius:18px; }
   .dd-cov { height:96px; margin:6px 6px 0; border-radius:13px; }
   .dd-txt { gap:6px; padding:10px 12px 14px; }

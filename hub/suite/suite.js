@@ -186,16 +186,22 @@
   function firstLine(s) { var m = String(s || '').match(/^[\s\S]*?[.!?](?=\s|$)/); return m ? m[0] : String(s || ''); }
   function deepOf(n) { for (var i = 0; i < articles.length; i++) if (articles[i].suiteNote === n.slug) return articles[i]; return null; }
   function deepUrl(a) { return '/hub/members/' + encodeURIComponent(a.slug) + '.html'; }
-  function deepMatches(a) { return !q || (a.title + ' ' + (a.short || '') + ' ' + (a.ticker || '') + ' ' + (a.teaser || '') + ' ' + (a.category || '')).toLowerCase().indexOf(q) >= 0; }
+  function deepMatches(a) { return !q || (a.title + ' ' + (a.short || '') + ' ' + (a.ticker || '') + ' ' + (a.tickers || []).join(' ') + ' ' + (a.teaser || '') + ' ' + (a.category || '')).toLowerCase().indexOf(q) >= 0; }
   function deepCard(a, lead) {
     // Desktop: every card gets the full, labelled figure (the small one only
     // suits thumbnails). Phones: two cards side by side, so small figures.
     var phone = mqPhone.matches;
-    var fig = window.TeiFigures ? window.TeiFigures.html(a.figure || 'line', { size: phone ? 'small' : 'large' }) : '';
+    // A deep dive with a thumbnail set leads with its wide image (alt is empty:
+    // the card's own title says what it is).
+    var img = a.images && a.images.card;
+    var fig = img ? '<img src="' + esc(img) + '" alt="" loading="lazy" decoding="async">' :
+      (window.TeiFigures ? window.TeiFigures.html(a.figure || 'line', { size: phone ? 'small' : 'large' }) : '');
     return '<a class="dd-c press ' + (lead ? 'lead' : 'side') + '" href="' + deepUrl(a) + '">' +
-      '<span class="dd-cov" aria-hidden="true">' + fig + '</span>' +
+      '<span class="dd-cov' + (img ? ' is-img' : '') + '" aria-hidden="true">' + fig + '</span>' +
       '<span class="dd-txt"><span class="dd-k">' + (a.ticker ? '<span class="dd-tag">' + esc(a.ticker) + '</span>' : '') + esc(a.readTime ? a.readTime + ' min read' : a.category) + '</span>' +
-      '<span class="dd-h">' + esc(a.short || a.title) + '</span>' +
+      // With a thumbnail the title is already in the image, so from 861px it is
+      // kept for screen readers only. Phones keep it: the image is too small to read.
+      '<span class="dd-h' + (img ? ' t-sr-d' : '') + '">' + esc(a.short || a.title) + '</span>' +
       '<span class="dd-s">' + esc(firstLine(a.teaser)) + '</span>' +
       '<span class="dd-go">' + (phone ? 'Read' : 'Read the deep dive') + CHEV + '</span></span></a>';
   }
@@ -205,7 +211,8 @@
     list.sort(function (a, b) { return (b.featured ? 1 : 0) - (a.featured ? 1 : 0); });
     box.hidden = !list.length;
     box.innerHTML = list.length ? '<header class="su-sh"><h2 id="suDeepH">Deep dives</h2><p>' + (mqPhone.matches ? 'Longer reads on one company.' : 'Longer reads on one company, alongside its note.') + '</p></header>' +
-      '<div class="dd-g">' + list.map(function (a, i) { return deepCard(a, i === 0); }).join('') + '</div>' : '';
+      // Three fill one row of three; an odd count's last card spans the row on phones (no orphan tiles).
+      '<div class="dd-g' + (list.length === 3 ? ' is-trio' : '') + (list.length % 2 ? ' is-odd' : '') + '">' + list.map(function (a, i) { return deepCard(a, i === 0); }).join('') + '</div>' : '';
     return list.length;
   }
   function badges() {

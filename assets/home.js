@@ -250,11 +250,39 @@ function app(kind){
 }
 var TITLES=[['Thursday, 6 November 2026','Good morning, Priya',''],['How much you have, and where it is','Wealth','Update balances'],['Where you are heading','Forecast','']];
 
+/* ---------- the members' article tease (Paddy, 10 Nov 2026) ----------
+   One slot, many teases. /assets/home-teases.json lists them (slug, image,
+   alt, link; width, height and bg optional) and "live" names the one shown.
+   Switching it changes this slot only: no code change, nothing else rebuilt.
+   The tease links to the membership page, never to the article. TEASE is the
+   live NBIS tease, so the slot still works if the config cannot be read. */
+var TEASE={slug:'nbis-current',image:'/assets/img/home/tool-article.webp',width:2000,height:1260,
+  alt:'A members\' article, Nebius: Sizing up the Opportunity. Everything under the title is blurred, with a Members only label.',link:'/membership.html'};
+function hx(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function teaseLink(t){return /^\/(?!\/)/.test(t.link||'')?t.link:'/membership.html';}
+function teaseHtml(t){
+  var wide=t.width&&t.height&&t.width/t.height>1.6;
+  return '<a class="tlmedia tltease'+(wide?' is-wide':'')+'" href="'+hx(teaseLink(t))+'" data-tease="'+hx(t.slug)+'"'+(t.bg?' style="background:'+hx(t.bg)+'"':'')+'>'+
+    '<img src="'+hx(t.image)+'" alt="'+hx(t.alt)+'" loading="lazy" decoding="async"'+(t.width?' width="'+(+t.width)+'" height="'+(+t.height)+'"':'')+'></a>';
+}
+function teaseApply(t){
+  TEASE=t;
+  [].forEach.call(document.querySelectorAll('[data-tease]'),function(a){a.outerHTML=teaseHtml(t);});
+}
+(function(){
+  if(!window.fetch)return;
+  fetch('/assets/home-teases.json',{cache:'no-cache'}).then(function(r){return r.ok?r.json():null;}).then(function(c){
+    if(!c||!c.teases)return;
+    var t=c.teases.filter(function(x){return x&&x.slug===c.live;})[0];
+    if(t&&t.image&&t.alt&&t.slug!==TEASE.slug)teaseApply(t);
+  }).catch(function(){});
+})();
+
 /* ---------- the four tools, detailed ---------- */
 function tools(){
   var V=[
    ['Members\' articles','In-depth research, explained in plain English',
-    '<div class="tlmedia"><img src="/assets/img/home/tool-article.webp" alt="A members\' article, Nebius: Sizing up the Opportunity. Everything under the title is blurred, with a Members only label." loading="lazy" width="2000" height="1260"></div><div class="fine">A recent members\' article. The full article is in the Client Hub.</div>',0],
+    teaseHtml(TEASE)+'<div class="fine">A recent members\' article. The full article is in the Client Hub.</div>',0],
    ['Portfolio Lab','Test a mix before you change anything',
     '<div class="tlmedia"><video muted playsinline preload="none" data-dur="28.9" data-ch="0:Analyse|5.7:Optimise|12.9:Compare|17.8:Implement|21.9:Results" poster="/assets/img/home/tool-lab-poster.webp" aria-label="A walkthrough of the Portfolio Lab with example holdings: filtering by account, choosing the Equal weight preset, then Compare, Implement and Results."><source src="/assets/video/tool-lab.mp4" type="video/mp4"></video></div><div class="fine">The live Portfolio Lab, with example holdings.</div>',0],
    ['Coach Forecast','Your written forecast, built by your coach',
