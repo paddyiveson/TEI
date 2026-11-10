@@ -129,6 +129,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 .cover { position:relative; overflow:hidden; display:block; border-radius:18px; background:var(--w-powder); box-shadow:inset 0 1px 0 var(--w-edge), var(--w-shadow-2); }
 :root[data-theme="light"] .cover { box-shadow:var(--w-shadow-2); }
 .art-head .cover { flex:1 1 300px; min-height:220px; }
+.cover-img { background:#070F1D; }
+.cover-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
 .cover-video { background:#14376E; background-size:cover; background-position:center; }
 .cover-video .vglow { position:absolute; inset:0; background:radial-gradient(closest-side, rgba(232,214,168,0.22), rgba(232,214,168,0)); }
 .play { position:absolute; left:50%; top:50%; width:72px; height:72px; margin:-36px 0 0 -36px; border-radius:50%; background:#E8D6A8; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 10px rgba(232,214,168,0.16), 0 10px 30px rgba(0,0,0,0.35); }
@@ -568,6 +570,15 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       var poster = a.poster ? ' style="background-image:url(\'' + encodeURI(String(a.poster)).replace(/'/g, '%27') + '\')"' : '';
       return '<span class="cover cover-video"' + poster + ' aria-hidden="true"><span class="vglow"></span><span class="play">' + IC.play + '</span>' +
         '<span class="vtag vtag-mo">Members only</span>' + (a.duration && !phone ? '<span class="vtag vtag-dur">' + esc(a.duration) + '</span>' : '') + '</span>';
+    }
+    // An article with a thumbnail set (assets/img/members/<slug>/) leads with
+    // its image: the square one in the small desktop tiles, the wide one
+    // elsewhere. Without one, its figure as before.
+    var im = a.images;
+    if (im && (im.card || im.square)) {
+      var src = size === 'small' && !phone && im.square ? im.square : (im.card || im.square);
+      return '<span class="cover cover-img" aria-hidden="true"><img src="' + esc(src) + '" alt="" loading="lazy" decoding="async">' +
+        (phone && a._isHead && isRecent(a) ? '<span class="newp">New</span>' : '') + '</span>';
     }
     return '<span class="cover" aria-hidden="true">' + window.TeiFigures.html(a.figure || 'line', { size: size, caption: phone }) +
       (phone && a._isHead && isRecent(a) ? '<span class="newp">New</span>' : '') + '</span>';

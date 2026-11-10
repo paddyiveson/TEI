@@ -11,7 +11,11 @@
    The homepage alt text names the article, so update it in assets/home.js when
    the article changes.
 
-   Writes assets/img/home/tool-article.webp (2000x1260). */
+   Writes assets/img/home/tool-article.webp (2000x1260).
+
+   Also exported as capture({slug, width, height, scale, out, png, hide}) for
+   scripts/members-art/render.js, which makes each article's own-style 1600x900
+   homepage tease the same way (Paddy, 10 Nov 2026). */
 'use strict';
 const http = require('http');
 const fs = require('fs');
@@ -19,8 +23,7 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const ROOT = path.resolve(__dirname, '..');
-const OUT = path.join(ROOT, 'assets', 'img', 'home', 'tool-article.webp');
-const W = 1000, H = 630, SCALE = 2;
+const DEFAULT_OUT = path.join(ROOT, 'assets', 'img', 'home', 'tool-article.webp');
 // The members' pages sit behind the Hub sign-in, so the test-only demo client stands in.
 const DEMO = fs.readFileSync(path.join(__dirname, 'wos-demo', 'demo-client.js'), 'utf8') + '\n' +
   fs.readFileSync(path.join(__dirname, 'wos-demo', 'fake-supabase.js'), 'utf8');
@@ -44,8 +47,10 @@ function serve(){
   });
 }
 
-(async ()=>{
-  const art = pick(process.argv[2]);
+async function capture(opt){
+  opt = opt || {};
+  const W = opt.width || 1000, H = opt.height || 630, SCALE = opt.scale || 2, OUT = opt.out || DEFAULT_OUT;
+  const art = pick(opt.slug);
   console.log('article:', art.slug, '-', art.title);
   const srv = await serve();
   const base = 'http://localhost:' + srv.address().port;
@@ -55,7 +60,8 @@ function serve(){
   const page = await ctx.newPage();
   await page.goto(base + '/hub/members/' + art.slug + '.html', {waitUntil:'networkidle'}).catch(()=>{});
   // The article only: no Hub header, menu or tab bar.
-  await page.addStyleTag({content:'#hubHeader,.hh-scrim,.hh-menu,.hh-tabs,.feedback-fab{display:none!important}html,body{padding-top:0!important;margin-top:0!important}'});
+  const hide = ['#hubHeader', '.hh-scrim', '.hh-menu', '.hh-tabs', '.feedback-fab'].concat(opt.hide || []).join(',');
+  await page.addStyleTag({content: hide + '{display:none!important}html,body{padding-top:0!important;margin-top:0!important}'});
   await page.evaluate(()=> document.fonts && document.fonts.ready);
   await page.evaluate(()=> window.scrollTo(0, 0));
   await page.waitForTimeout(600);
@@ -95,12 +101,22 @@ function serve(){
     x.beginPath(); x.moveTo(lx + 3 * s, ly + 6 * s); x.lineTo(lx + 3 * s, ly + 3 * s); x.arc(lx + 7 * s, ly + 3 * s, 4 * s, Math.PI, 0); x.lineTo(lx + 11 * s, ly + 6 * s); x.stroke();
     x.fillStyle = '#E8D6A8'; x.textBaseline = 'middle';
     x.fillText(label, lx + 24 * s, cy + 1 * s);
-    return c.toDataURL('image/webp', 0.84).split(',')[1];
+    return [c.toDataURL('image/webp', 0.84).split(',')[1], c.toDataURL('image/png').split(',')[1]];
   }, {b64: png.toString('base64'), cut, scale: SCALE});
 
-  fs.writeFileSync(OUT, Buffer.from(data, 'base64'));
+  fs.mkdirSync(path.dirname(OUT), {recursive: true});
+  fs.writeFileSync(OUT, Buffer.from(data[0], 'base64'));
+  if(opt.png) fs.writeFileSync(opt.png, Buffer.from(data[1], 'base64'));
   console.log('wrote', path.relative(ROOT, OUT), Math.round(fs.statSync(OUT).size / 1024) + 'KB');
-  console.log('Now update the alt text of the Members\' articles preview in assets/home.js to name: ' + art.title);
   await browser.close();
   srv.close();
-})().catch(err=>{ console.error(err); process.exit(1); });
+  return art;
+}
+
+module.exports = { capture };
+
+if(require.main === module){
+  capture({slug: process.argv[2]}).then(art=>{
+    console.log('Now update the alt text of the Members\' articles preview in assets/home.js to name: ' + art.title);
+  }).catch(err=>{ console.error(err); process.exit(1); });
+}
