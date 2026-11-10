@@ -481,6 +481,78 @@ body::before{display:none}
   .chart-img img{min-width:0}
   .chart-zoom{display:inline-flex;align-items:center;gap:6px;position:absolute;right:8px;top:8px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink);font-size:13px;font-weight:500;pointer-events:none}
 }
+/* Phones, screen budget (Paddy, 10 Nov 2026): hero and the two-minute
+   version within about two screens, the company list within one, and no
+   section that runs for screen after screen. */
+@media (max-width:860px){
+  main .wrap{gap:28px;padding-block:20px 40px}
+  .band{padding-block:28px}
+  .sec-h{gap:6px}
+  .sec-h h2{font-size:21px;line-height:1.25}
+  .sec-h p{font-size:15px;line-height:1.5}
+  .kicker{font-size:13px}
+  /* hero */
+  .hero .wrap{padding-block:16px 22px;gap:10px}
+  .hero .back{margin:0 0 -4px;min-height:36px;font-size:14px}
+  .meta{font-size:12.5px;gap:0 12px;line-height:1.5}
+  .hero h1{font-size:26px;line-height:1.15}
+  .dek{font-size:15px;line-height:1.5}
+  .hq{margin-top:8px}
+  .hq-head{font-size:11.5px;padding-bottom:4px}
+  .hq-list li{padding-block:8px;gap:4px 16px}
+  .hq-tk span{display:none}
+  .hq-tk b{font-size:14px}
+  .hq-q{font-size:14px;line-height:1.35}
+  /* the two-minute version */
+  .sum{gap:16px}
+  .srow{gap:8px 16px;padding-block:14px}
+  .s-tk b{font-size:15px}.s-tk span{font-size:13px}
+  .s-num{gap:2px}
+  .s-num b{font-size:22px}
+  .s-num span{font-size:12.5px;line-height:1.4}
+  .res{font-size:13.5px;gap:2px;line-height:1.4}
+  .s-why{font-size:15px;line-height:1.5}
+  .s-why a{margin-top:4px;font-size:13.5px}
+  .lesson{font-size:16px;line-height:1.5}
+  /* the company list */
+  .co>summary{padding-block:14px;gap:12px}
+  .co-tk{font-size:12.5px;margin-bottom:4px}
+  .co-t{gap:2px}
+  .co-t h2{font-size:18px;line-height:1.25}
+  .co-t p{font-size:14px;line-height:1.45}
+  .co-body{gap:24px;padding-bottom:28px}
+  .lead{font-size:16px;line-height:1.6}
+  /* side by side, the matrix, the closing box */
+  .cmp{gap:24px}
+  .two{gap:24px}
+  /* Side by side repeats the hero's stage track and questions: on phones
+     the table is one line per company (growth and cash flow) and the
+     track is left to the hero. */
+  #compare .track,#compare .track-l{display:none}
+  #compare table.stack{display:grid;grid-template-columns:minmax(0,1fr) max-content max-content}
+  #compare table.stack thead,#compare table.stack tbody,#compare table.stack tr{display:contents}
+  #compare table.stack th,#compare table.stack td{display:block;padding:10px 0;border:0;border-top:1px solid var(--line-soft)}
+  #compare table.stack thead th{display:block;padding-top:0;border-top:0;font-size:12.5px}
+  #compare table.stack th:nth-child(2),#compare table.stack td:nth-child(2){display:none}
+  #compare table.stack td.n,#compare table.stack th.n{padding-left:16px;text-align:right;white-space:nowrap}
+  #compare table.stack td[data-label]::before{content:none}
+  #compare table.stack tbody tr:first-child td{border-top-color:var(--line)}
+  .pc-ph .nm{font-size:15px}
+  .chart-h{gap:4px}
+  .chart-h b{font-size:16px}
+  .chart-h span{font-size:14px;line-height:1.5}
+  .cap{font-size:12.5px;line-height:1.45}
+  .pc-ctl button{min-height:36px;padding:5px 12px;font-size:13px}
+  .pc-lg{gap:4px 14px;font-size:13px;margin-bottom:4px}
+  table.nums td:nth-child(4){font-size:14px;line-height:1.45}
+  table.nums td:first-child{-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word}
+  .thesis p{font-size:16px}
+  .not{padding:16px 18px;gap:10px}
+  .not h2{font-size:17px}
+  .not ul{font-size:14.5px;gap:6px;line-height:1.5}
+  .plain>summary{padding-block:12px;min-height:52px}
+  .plain>summary h2{font-size:17px}
+}
 .cz{position:fixed;inset:0;z-index:200;background:var(--page);overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .cz[hidden]{display:none}
 .cz-bar{position:sticky;top:0;left:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:calc(8px + env(safe-area-inset-top,0px)) 16px 8px;background:var(--page);border-bottom:1px solid var(--line)}
@@ -1417,7 +1489,7 @@ function fmtD(s){var a=s.split("-");return +a[2]+" "+MON[a[1]-1]+" "+a[0]}
 function fmtP(v){return (v>0?"+":v<0?"-":"")+Math.abs(v).toFixed(1)+"%"}
 function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
 var monthIdx=[];D.dates.forEach(function(s,i){if(i&&s.slice(5,7)!==D.dates[i-1].slice(5,7))monthIdx.push(i)});
-var fig=document.getElementById('prices'),tip=document.getElementById('pc-tip'),hidden={},view='multi',played=reduce||!('IntersectionObserver' in window);
+var fig=document.getElementById('prices'),tip=document.getElementById('pc-tip'),hidden={},view=window.matchMedia('(max-width:860px)').matches?'together':'multi',played=reduce||!('IntersectionObserver' in window);
 var NS="http://www.w3.org/2000/svg";
 function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 function frame(svg,W,H,m){
@@ -1453,7 +1525,7 @@ function drawMulti(){var box=fig.querySelector('.pc-multi');box.innerHTML='';cro
   })}
 function drawTogether(){var box=fig.querySelector('.pc-together');box.innerHTML='';var lg=document.createElement('div');lg.className='pc-lg';
   CO.forEach(function(c){var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',!hidden[c[0]]);b.innerHTML='<i style="background:var(--c-'+c[0]+')"></i>'+c[1].replace('&','&amp;');b.onclick=function(){hidden[c[0]]=!hidden[c[0]];drawTogether()};lg.appendChild(b)});
-  box.appendChild(lg);var W=box.clientWidth||1000,H=Math.round(Math.min(440,Math.max(300,W*.42))),m={t:10,r:W<520?60:140,b:26,l:46};
+  box.appendChild(lg);var W=box.clientWidth||1000,H=W<520?240:Math.round(Math.min(440,Math.max(300,W*.42))),m={t:10,r:W<520?60:140,b:26,l:46};
   var svg=el("svg",{viewBox:"0 0 "+W+" "+H,role:"img","aria-label":"The four share prices in 2026 on one scale"},box),f=frame(svg,W,H,m);
   var shown=CO.filter(function(c){return !hidden[c[0]]});
   shown.forEach(function(c){el("path",{d:path(c[0],f.x,f.y),fill:"none",stroke:css("--c-"+c[0]),"stroke-width":2,"stroke-linejoin":"round"},svg)});
@@ -1469,6 +1541,8 @@ function drawTogether(){var box=fig.querySelector('.pc-together');box.innerHTML=
 function drawTable(){var me=[];D.dates.forEach(function(s,i){if(i===N-1||s.slice(5,7)!==D.dates[i+1].slice(5,7))me.push(i)});
   fig.querySelector('.pc-table').innerHTML='<div class="tbl"><table><thead><tr><th>Date</th>'+CO.map(function(c){return '<th class="n">'+c[1].replace('&','&amp;')+'</th>'}).join('')+'</tr></thead><tbody>'+[0].concat(me).map(function(i){return '<tr><td>'+fmtD(D.dates[i])+'</td>'+CO.map(function(c){return '<td class="n">'+(i?fmtP(pct[c[0]][i]):'0.0%')+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>'}
 function render(){['multi','together','table'].forEach(function(v){fig.querySelector('.pc-'+v).hidden=v!==view});if(view==='multi')drawMulti();else if(view==='together')drawTogether();else drawTable()}
+fig.querySelectorAll('[data-v]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===view)});
+// Phones open on the four lines together: one chart instead of four stacked.
 fig.querySelectorAll('[data-v]').forEach(function(b){b.onclick=function(){view=b.dataset.v;played=true;fig.querySelectorAll('[data-v]').forEach(function(x){x.setAttribute('aria-pressed',x===b)});render()}});
 render();
 var rt,lw=innerWidth;addEventListener('resize',function(){if(innerWidth===lw)return;lw=innerWidth;clearTimeout(rt);rt=setTimeout(function(){played=true;render()},150)});
