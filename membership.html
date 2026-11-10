@@ -2,84 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#070F1D">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Membership | The Everyday Investor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;family=Schibsted+Grotesk:wght@400;500;600;700&amp;family=Inter:wght@300;400;500&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/style.css">
 <link rel="stylesheet" href="/assets/mobile-nav.css">
 <link rel="stylesheet" href="/assets/compliance.css">
-<style>
-/* Membership (redesign phase G4, spec C6). Static sections carry the board's
-   sizes and colours inline. The classes below are the parts that change
-   state: the support picker, the best-fit tier, the compare table and the
-   FAQ. Shared header and footer: /style.css. */
-body{margin:0;background:#F7F4ED}
-.tei-page{font-family:'Geist',system-ui,sans-serif;color:#13213A;background:#F7F4ED}
-:where(.tei-page) a{color:inherit}
-.tei-page a:hover{opacity:.85}
-.tei-page a:focus-visible,.tei-page button:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:10px}
-.tei-page [id]{scroll-margin-top:84px}
-@keyframes t-up{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
-@keyframes t-glow{0%,100%{opacity:.22;transform:scale(1)}50%{opacity:.4;transform:scale(1.08)}}
-@keyframes t-spin{to{transform:rotate(360deg)}}
-@keyframes t-halo{0%{box-shadow:0 0 0 0 rgba(232,214,168,.5)}70%,100%{box-shadow:0 0 0 14px rgba(232,214,168,0)}}
-.t-up{animation:t-up .9s cubic-bezier(.2,.8,.2,1) both}
-.t-up2{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .15s both}
-.t-up3{animation:t-up .9s cubic-bezier(.2,.8,.2,1) .3s both}
-.t-glow{animation:t-glow 8s ease-in-out infinite}
-.t-s90{animation:t-spin 90s linear infinite}
-.t-s32{animation:t-spin 32s linear infinite}
-.t-halo{animation:t-halo 2.4s ease-out infinite}
-.t-tier{transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease}
-.mb-fit{display:inline-flex;flex-wrap:wrap;justify-content:center;padding:4px;border-radius:999px;border:1px solid rgba(232,214,168,0.22);background:rgba(255,255,255,0.04)}
-.mb-fit button{font-family:inherit;cursor:pointer;border:0;min-height:44px;padding:0 16px;border-radius:999px;font-size:14px;font-weight:500;background:transparent;color:#F7F4ED}
-.mb-fit button[aria-pressed="true"]{background:#E8D6A8;color:#0F1E36}
-.mb-tier{position:relative;background:#FFFFFF;color:#13213A;border:2px solid #DEDAD0;border-radius:28px;padding:30px;display:flex;flex-direction:column;gap:16px;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
-.mb-tier.is-fit{background:#0F1E36;color:#F7F4ED;border-color:#E8D6A8;transform:translateY(-8px);box-shadow:0 24px 50px rgba(11,23,41,0.25)}
-.mb-tier p,.mb-tier h2{margin:0}
-.mb-tier-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.mb-tier h2{font-size:24px;font-weight:400}
-.mb-badge{display:none;font-family:'Geist Mono',monospace;font-size:11px;padding:4px 10px;border-radius:999px;background:#E8D6A8;color:#0F1E36}
-.mb-tier.is-fit .mb-badge{display:inline-flex}
-.mb-amount{font-size:52px;font-weight:300;letter-spacing:-0.04em}
-.mb-muted{color:#4E5B70}
-.mb-tier.is-fit .mb-muted{color:#AAB6C8}
-.mb-price .mb-muted,.mb-suits{font-size:15px}
-.mb-suits{line-height:1.55}
-.mb-places{font-family:'Geist Mono',monospace;font-size:12px}
-.mb-points{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45}
-.mb-points li{display:flex;gap:10px}
-.mb-points svg{flex:none;margin-top:1px;stroke:#83661C}
-.mb-tier.is-fit .mb-points svg{stroke:#E8D6A8}
-.mb-start{margin-top:auto;display:flex;align-items:center;justify-content:center;min-height:52px;border-radius:999px;text-decoration:none;font-size:16px;font-weight:500;background:transparent;color:#0F1E36;border:1px solid #DEDAD0}
-.mb-tier.is-fit .mb-start{background:#E8D6A8;border-color:#E8D6A8;animation:t-halo 2.4s ease-out infinite}
-.mb-table{width:100%;min-width:640px;border-collapse:collapse;font-size:15px}
-.mb-table thead th{text-align:center;padding:18px 16px;font-weight:500}
-.mb-table thead th:first-child{text-align:left;padding:18px 24px;color:#4E5B70}
-.mb-table thead th div{font-weight:300;font-size:13px;color:#4E5B70}
-.mb-table thead th.is-fit{background:#F0E7D0}
-.mb-table tbody tr{border-top:1px solid #EEEAE0}
-.mb-table tbody th{text-align:left;padding:16px 24px;font-weight:400}
-.mb-table td{text-align:center;padding:16px;color:#13213A}
-.mb-table td.is-fit{background:#FBF7EC}
-.tei-faq-item{border-top:1px solid #EEEAE0}
-.tei-faq-item:first-child{border-top-color:transparent}
-.tei-faq-item h3{margin:0;font:inherit}
-.tei-faq-item button{font-family:inherit;cursor:pointer;width:100%;min-height:64px;display:flex;justify-content:space-between;align-items:center;gap:16px;background:transparent;border:0;padding:0;color:#13213A;font-size:17px;text-align:left}
-.tei-faq-item button svg{flex:none;transition:transform .2s ease}
-.tei-faq-item button[aria-expanded="true"] svg{transform:rotate(45deg)}
-.tei-faq-item p{margin:0 0 20px;font-size:15px;line-height:1.6;font-weight:300;color:#4E5B70}
-@media (max-width: 860px){
-.t-pad{padding-left:16px !important;padding-right:16px !important}
-.t-sec{padding-top:48px !important;padding-bottom:48px !important}
-.t-span{grid-column:span 12 !important}
-}
-@media (prefers-reduced-motion: reduce){.t-up,.t-up2,.t-up3,.t-glow,.t-s90,.t-s32,.t-halo,.mb-tier.is-fit .mb-start{animation:none}.mb-tier,.tei-faq-item button svg{transition:none}}
-</style>
+<link rel="stylesheet" href="/assets/site-ground.css">
+<link rel="stylesheet" href="/assets/site-pages.css">
+<link rel="stylesheet" href="/assets/site-type.css">
 </head>
-<body>
+<body class="tei-ground">
 <!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
 <div class="tei-hdr" role="banner">
   <div class="tei-hdr-in">
@@ -99,99 +35,101 @@ body{margin:0;background:#F7F4ED}
   </div>
 </div>
 
-<main class="tei-page">
+<main class="tei-page g-page" id="main">
 
-<section style="background: #0B1729; color: #F7F4ED; position: relative; overflow: hidden">
-<div class="t-glow" style="position: absolute; width: 700px; height: 700px; left: 50%; margin-left: -350px; top: -300px; border-radius: 50%; background: #B9CAE6; filter: blur(160px)" aria-hidden="true"></div>
-<div class="t-s90" style="position: absolute; width: 1000px; height: 1000px; left: 50%; margin-left: -500px; top: -300px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.10)" aria-hidden="true"></div>
-<div class="t-pad" style="position: relative; max-width: 1280px; margin: 0 auto; padding: 56px 32px 64px; text-align: center">
-<p class="t-up" style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #E8D6A8">Membership</p>
-<h1 class="t-up2" style="margin: 16px auto 0; max-width: 900px; font-size: clamp(44px, 6vw, 80px); line-height: 1; font-weight: 300; letter-spacing: -0.045em">One plan. <span style="color: #E8D6A8">The support you choose.</span></h1>
-<p class="t-up3" style="margin: 24px auto 0; max-width: 600px; font-size: 19px; line-height: 1.6; font-weight: 300; color: #AAB6C8">Every member gets the same hands-on start: a fact find, a written Wealth Plan and Forecast, and Wealth OS. The tiers differ in how much time you get after that.</p>
-<div class="t-up3" style="margin: 36px auto 0; max-width: 760px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center">
-<span style="font-size: 15px; color: #AAB6C8">After setup, I would like</span>
-<div class="mb-fit" role="group" aria-label="Support level"><button type="button" data-fit="0" aria-pressed="true">Help when I ask</button><button type="button" data-fit="1" aria-pressed="false">Regular sessions</button><button type="button" data-fit="2" aria-pressed="false">The most support</button></div>
-</div>
+<section class="g-band g-hero">
+<div class="g-glow g-glow-hero" aria-hidden="true"></div>
+<div class="g-w g-in">
+<p class="g-eye">Membership</p>
+<h1>One plan. <span class="g-accent">The support you choose.</span></h1>
+<p class="g-dek">Every member gets the same hands-on start: a fact find, a written Wealth Plan and Forecast, and Wealth OS. The tiers differ in how much time you get after that.</p>
 </div>
 </section>
 
-<section id="tiers" style="background: linear-gradient(#0B1729 0, #0B1729 120px, #F7F4ED 120px)">
-<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; align-items: stretch">
+<!-- TIERS: the support picker, then the three tiers; the best fit is the one framed card -->
+<section id="tiers" class="g-band g-b1 g-from0 is-long" aria-label="Tiers">
+<div class="g-w is-tight">
+<div class="mb-pick">
+<span>After setup, I would like</span>
+<div class="mb-fit" role="group" aria-label="Support level"><button type="button" data-fit="0" aria-pressed="true">Help when I ask</button><button type="button" data-fit="1" aria-pressed="false">Regular sessions</button><button type="button" data-fit="2" aria-pressed="false">The most support</button></div>
+</div>
+<div class="mb-tiers">
 <div class="mb-tier is-fit" data-tier="0"> <div class="mb-tier-top"><h2>Core</h2><span class="mb-badge">Best fit</span></div> <p class="mb-price"><span class="mb-amount">&pound;25</span><span class="mb-muted"> a month</span></p> <p class="mb-muted mb-suits">You are confident with your plan and want help when you ask.</p> <ul class="mb-points"><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Full review session twice a year</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Wealth Plan and Forecast refreshed yearly</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Message replies within a week</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Extra full sessions &pound;50 each</span></li></ul> <a class="mb-start" href="/book" target="_blank" rel="noopener noreferrer">Book a call to start</a> </div>
 <div class="mb-tier" data-tier="1"> <div class="mb-tier-top"><h2>Momentum</h2><span class="mb-badge">Best fit</span></div> <p class="mb-price"><span class="mb-amount">&pound;40</span><span class="mb-muted"> a month</span></p> <p class="mb-muted mb-suits">You want a regular check-in to stay on track.</p> <ul class="mb-points"><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Full review session every quarter</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Wealth Plan and Forecast refreshed twice a year</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Message replies within 2 working days</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>One extra session free a year, then &pound;30</span></li></ul> <a class="mb-start" href="/book" target="_blank" rel="noopener noreferrer">Book a call to start</a> </div>
 <div class="mb-tier" data-tier="2"> <div class="mb-tier-top"><h2>Inner Circle</h2><span class="mb-badge">Best fit</span></div> <p class="mb-price"><span class="mb-amount">&pound;50</span><span class="mb-muted"> a month</span></p> <p class="mb-muted mb-suits">You are making bigger changes or want the most support.</p>
 <p class="mb-muted mb-places">Limited to 5 members</p> <ul class="mb-points"><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Full review session every quarter</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>A 30-minute check-in every month, if needed</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Plan refreshed quarterly and after any big life change</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg><span>Message replies within 1 working day</span></li></ul> <a class="mb-start" href="/book" target="_blank" rel="noopener noreferrer">Book a call to start</a> </div>
 </div>
-<p class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 8px 32px 0; font-size: 14px; color: #4E5B70; text-align: center">Monthly Direct Debit through GoCardless. 3-month minimum term, then one month's notice.</p>
-<p class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 18px 32px 0; font-size: 18px; font-weight: 300; color: #13213A; text-align: center">Most members start with more support and move down a tier as they need us less.</p>
-</section>
-
-<!-- EVERY MEMBER GETS (light bento) -->
-<section style="background: #F7F4ED">
-<div class="t-pad t-sec" style="max-width: 1280px; margin: 0 auto; padding: 80px 32px">
-<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">Every member gets</p>
-<h2 style="margin: 14px 0 0; max-width: 720px; font-size: clamp(32px, 4.2vw, 52px); line-height: 1.05; font-weight: 300; letter-spacing: -0.035em">The same start, whichever tier you choose.</h2>
-<div style="margin-top: 40px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px">
-<div style="grid-column: span 7; background: #0F1E36; color: #F7F4ED; border-radius: 26px; padding: 32px; position: relative; overflow: hidden; min-height: 260px; box-sizing: border-box" class="t-span">
-<div class="t-s32" style="position: absolute; width: 300px; height: 300px; right: -100px; top: -130px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.22)" aria-hidden="true"></div>
-<p style="position: relative; margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">Setup phase</p>
-<h3 style="position: relative; margin: 12px 0 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">Your first 3 months: as many sessions as it takes.</h3>
-<p style="position: relative; margin: 14px 0 0; max-width: 520px; font-size: 16px; line-height: 1.6; color: #AAB6C8">Usually 3 to 4. You leave setup with a written Wealth Plan and Forecast and a working Wealth OS. Then your tier's rhythm starts.</p>
-</div>
-<div style="grid-column: span 5; background: #DFE6F2; border-radius: 26px; padding: 32px" class="t-span"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #0F1E36; opacity: .75">Wealth OS</p><h3 style="margin: 12px 0 0; font-size: 26px; font-weight: 300; letter-spacing: -0.02em">Your plan, live, on any device.</h3><p style="margin: 12px 0 0; font-size: 15px; line-height: 1.6; color: #4E5B70">Every account and goal in one place, your forecast, cashflow, and the next step from your coach.</p></div>
-<div style="grid-column: span 4; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 26px; padding: 28px" class="t-span"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Client Hub</p><h3 style="margin: 12px 0 0; font-size: 22px; font-weight: 400">36 lessons, and growing</h3><p style="margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: #4E5B70">The first two stages of the education platform, plus guides, tools, members' articles, the investment suite and the knowledge library.</p></div>
-<div style="grid-column: span 4; background: #F0E7D0; border-radius: 26px; padding: 28px" class="t-span"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Support</p><h3 style="margin: 12px 0 0; font-size: 22px; font-weight: 400">Something happened? Message us.</h3><p style="margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: #4E5B70">A pay rise, a bonus, a market fall, a house. How fast we reply depends on your tier.</p></div>
-<div style="grid-column: span 4; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 26px; padding: 28px" class="t-span"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">Community</p><h3 style="margin: 12px 0 0; font-size: 22px; font-weight: 400">Members' WhatsApp group</h3><p style="margin: 10px 0 0; font-size: 15px; line-height: 1.55; color: #4E5B70">Questions, ideas and progress, alongside other members.</p></div>
-</div>
+<p class="mb-terms">Monthly Direct Debit through GoCardless. 3-month minimum term, then one month's notice.</p>
+<p class="mb-most">Most members start with more support and move down a tier as they need us less.</p>
 </div>
 </section>
 
-<!-- INVESTMENT SUITE TEASER (blurred sample note; placeholder bars only, never real note text) -->
-<section style="background: #F7F4ED">
-<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px">
-<div style="background: #0F1E36; color: #F7F4ED; border-radius: 28px; padding: 40px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center; position: relative; overflow: hidden">
-<div class="t-s90" style="position: absolute; width: 640px; height: 640px; left: -280px; bottom: -380px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.14)" aria-hidden="true"></div>
-<div style="position: relative; flex: 1 1 340px; min-width: 0">
-<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">Investment suite · members only</p>
-<h2 style="margin: 12px 0 0; font-size: clamp(30px, 3.6vw, 44px); line-height: 1.08; font-weight: 300; letter-spacing: -0.03em">Research notes that show the bear case as clearly as the bull case.</h2>
-<p style="margin: 16px 0 0; font-size: 16px; line-height: 1.6; color: #AAB6C8">Every note follows the same structure, so you learn how to read a business, not just what we think of it. Notes are education, never a recommendation to buy or sell.</p>
-<ul style="list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px"><li style="font-family: 'Geist Mono', monospace; font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(232,214,168,0.3); color: #E8D6A8">Growth Portfolio</li><li style="font-family: 'Geist Mono', monospace; font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(232,214,168,0.3); color: #E8D6A8">Foundations</li><li style="font-family: 'Geist Mono', monospace; font-size: 12px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(232,214,168,0.3); color: #E8D6A8">Watchlist</li></ul>
+<!-- EVERY MEMBER GETS: setup is the one framed box, the rest on the band -->
+<section class="g-band g-b1" aria-labelledby="mb-every-h">
+<div class="g-w">
+<p class="g-eye">Every member gets</p>
+<h2 class="g-h2" id="mb-every-h">The same start, whichever tier you choose.</h2>
+<div class="mb-every">
+<div class="g-feat mb-setup"><p class="g-eye">Setup phase</p><h3>Your first 3 months: as many sessions as it takes.</h3><p class="g-lede">Usually 3 to 4. You leave setup with a written Wealth Plan and Forecast and a working Wealth OS. Then your tier's rhythm starts.</p></div>
+<div class="mb-gets">
+<div><p class="mb-k">Wealth OS</p><h3 class="g-h3">Your plan, live, on any device.</h3><p class="g-p">Every account and goal in one place, your forecast, cashflow, and the next step from your coach.</p></div>
+<div><p class="mb-k">Client Hub</p><h3 class="g-h3">36 lessons, and growing</h3><p class="g-p">The first two stages of the education platform, plus guides, tools, members' articles, the investment suite and the knowledge library.</p></div>
+<div><p class="mb-k">Support</p><h3 class="g-h3">Something happened? Message us.</h3><p class="g-p">A pay rise, a bonus, a market fall, a house. How fast we reply depends on your tier.</p></div>
+<div><p class="mb-k">Community</p><h3 class="g-h3">Members' WhatsApp group</h3><p class="g-p">Questions, ideas and progress, alongside other members.</p></div>
 </div>
-<div style="position: relative; flex: 1 1 420px; min-width: 0; background: #FFFFFF; color: #13213A; border-radius: 22px; padding: 26px; overflow: hidden" role="img" aria-label="A sample research note with its content hidden">
-<div style="display: flex; justify-content: space-between; align-items: center"><span style="width: 160px; height: 18px; border-radius: 6px; background: #DEDAD0; filter: blur(4px)"></span><span style="font-family: 'Geist Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 999px; background: #F0E7D0; color: #83661C">Sample note</span></div>
-<div style="margin-top: 16px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">Snapshot</p><div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px; filter: blur(3px)"><span style="height: 9px; width: 92%; border-radius: 5px; background: #DEDAD0"></span><span style="height: 9px; width: 60%; border-radius: 5px; background: #DEDAD0"></span></div></div>
-<div style="margin-top: 16px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">Thesis</p><div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px; filter: blur(3px)"><span style="height: 9px; width: 88%; border-radius: 5px; background: #DEDAD0"></span><span style="height: 9px; width: 74%; border-radius: 5px; background: #DEDAD0"></span></div></div>
-<div style="margin-top: 16px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">Bull case</p><div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px; filter: blur(3px)"><span style="height: 9px; width: 80%; border-radius: 5px; background: #DFE6F2"></span><span style="height: 9px; width: 56%; border-radius: 5px; background: #DFE6F2"></span></div></div>
-<div style="margin-top: 16px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">Bear case</p><div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px; filter: blur(3px)"><span style="height: 9px; width: 84%; border-radius: 5px; background: #F0E7D0"></span><span style="height: 9px; width: 62%; border-radius: 5px; background: #F0E7D0"></span></div></div>
-<div style="margin-top: 16px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">Key risks</p><div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px; filter: blur(3px)"><span style="height: 9px; width: 70%; border-radius: 5px; background: #DEDAD0"></span><span style="height: 9px; width: 48%; border-radius: 5px; background: #DEDAD0"></span></div></div>
-<div style="margin-top: 16px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 11px; color: #83661C">What would change our mind</p><div style="margin-top: 8px; display: flex; flex-direction: column; gap: 6px; filter: blur(3px)"><span style="height: 9px; width: 76%; border-radius: 5px; background: #DEDAD0"></span><span style="height: 9px; width: 40%; border-radius: 5px; background: #DEDAD0"></span></div></div>
-<div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 70px 26px 24px; background: linear-gradient(rgba(255,255,255,0), #FFFFFF 55%); text-align: center"><p style="margin: 0; font-size: 16px; font-weight: 500">Full research notes are for members</p><a href="#tiers" style="display: inline-flex; align-items: center; margin-top: 12px; min-height: 44px; padding: 0 20px; border-radius: 999px; background: #0F1E36; color: #E8D6A8; text-decoration: none; font-size: 15px; font-weight: 500">Compare the tiers</a></div>
+</div>
+</div>
+</section>
+
+<!-- INVESTMENT SUITE TEASER (blurred sample note; placeholder bars only, never real note text). The sample note is the one framed box. -->
+<section class="g-band g-b2 g-from1 is-long" aria-labelledby="mb-suite-h">
+<div class="g-glow g-glow-side" aria-hidden="true"></div>
+<div class="g-w">
+<div class="mb-suite">
+<div class="mb-suite-t">
+<p class="g-eye">Investment suite &middot; members only</p>
+<h2 class="g-h2" id="mb-suite-h">Research notes that show the bear case as clearly as the bull case.</h2>
+<p class="g-lede">Every note follows the same structure, so you learn how to read a business, not just what we think of it. Notes are education, never a recommendation to buy or sell.</p>
+<ul class="mb-chips"><li>Growth Portfolio</li><li>Foundations</li><li>Watchlist</li></ul>
+</div>
+<div class="g-feat mb-note" role="img" aria-label="A sample research note with its content hidden">
+<div class="mb-note-top"><span class="mb-blur mb-w160"></span><span class="mb-note-tag">Sample note</span></div>
+<div class="mb-note-part"><p>Snapshot</p><span class="mb-bar mb-w92"></span><span class="mb-bar mb-w60"></span></div>
+<div class="mb-note-part"><p>Thesis</p><span class="mb-bar mb-w88"></span><span class="mb-bar mb-w74"></span></div>
+<div class="mb-note-part"><p>Bull case</p><span class="mb-bar mb-w80"></span><span class="mb-bar mb-w56"></span></div>
+<div class="mb-note-part"><p>Bear case</p><span class="mb-bar mb-w84"></span><span class="mb-bar mb-w62"></span></div>
+<div class="mb-note-part"><p>Key risks</p><span class="mb-bar mb-w70"></span><span class="mb-bar mb-w48"></span></div>
+<div class="mb-note-part"><p>What would change our mind</p><span class="mb-bar mb-w76"></span><span class="mb-bar mb-w40"></span></div>
+<div class="mb-note-lock"><p>Full research notes are for members</p><a class="g-btn" href="#tiers">Compare the tiers</a></div>
 </div>
 </div>
 </div>
 </section>
 
 <!-- HOW MEMBERSHIP WORKS -->
-<section style="background: #F7F4ED">
-<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px">
-<p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 13px; color: #83661C">How membership works</p>
-<h2 style="margin: 14px 0 0; max-width: 720px; font-size: clamp(30px, 3.8vw, 46px); line-height: 1.05; font-weight: 300; letter-spacing: -0.035em">Simple terms, written down.</h2>
-<div style="margin-top: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px"><div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; padding: 24px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">01</p><h3 style="margin: 10px 0 0; font-size: 20px; font-weight: 400">Setup</h3><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Your first 3 months, with as many sessions as it takes. Usually 3 to 4.</p></div>
-<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; padding: 24px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">02</p><h3 style="margin: 10px 0 0; font-size: 20px; font-weight: 400">Minimum term</h3><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">3 months, covering setup.</p></div>
-<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; padding: 24px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">03</p><h3 style="margin: 10px 0 0; font-size: 20px; font-weight: 400">Notice</h3><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">One month after the minimum term. Message us or use Ask to cancel in Wealth OS.</p></div>
-<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; padding: 24px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">04</p><h3 style="margin: 10px 0 0; font-size: 20px; font-weight: 400">Changing tier</h3><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Any time, with a month's notice, by message or in Wealth OS.</p></div>
-<div style="background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 22px; padding: 24px"><p style="margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #83661C">05</p><h3 style="margin: 10px 0 0; font-size: 20px; font-weight: 400">Extra sessions</h3><p style="margin: 8px 0 0; font-size: 15px; line-height: 1.55; font-weight: 300; color: #4E5B70">Core &pound;50 each. Momentum one free a year, then &pound;30. Inner Circle has monthly check-ins.</p></div></div>
+<section class="g-band g-b1 g-from2 is-long" aria-labelledby="mb-how-h">
+<div class="g-w">
+<p class="g-eye">How membership works</p>
+<h2 class="g-h2" id="mb-how-h">Simple terms, written down.</h2>
+<div class="g-cols is-5">
+<div><span class="g-k">01</span><h3 class="g-h3">Setup</h3><p class="g-p">Your first 3 months, with as many sessions as it takes. Usually 3 to 4.</p></div>
+<div><span class="g-k">02</span><h3 class="g-h3">Minimum term</h3><p class="g-p">3 months, covering setup.</p></div>
+<div><span class="g-k">03</span><h3 class="g-h3">Notice</h3><p class="g-p">One month after the minimum term. Message us or use Ask to cancel in Wealth OS.</p></div>
+<div><span class="g-k">04</span><h3 class="g-h3">Changing tier</h3><p class="g-p">Any time, with a month's notice, by message or in Wealth OS.</p></div>
+<div><span class="g-k">05</span><h3 class="g-h3">Extra sessions</h3><p class="g-p">Core &pound;50 each. Momentum one free a year, then &pound;30. Inner Circle has monthly check-ins.</p></div>
+</div>
 </div>
 </section>
 
 <!-- COMPARE TABLE -->
-<section style="background: #F7F4ED">
-<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px">
-<h2 style="margin: 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">Compare the tiers</h2>
-<div style="margin-top: 20px; overflow-x: auto; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 24px">
+<section class="g-band g-b1" aria-labelledby="mb-compare-h">
+<div class="g-w is-tight">
+<h2 class="g-h2" id="mb-compare-h">Compare the tiers</h2>
+<div class="mb-table-wrap">
 <table class="mb-table">
 <thead><tr><th scope="col">&nbsp;</th><th scope="col" data-tier="0" class="is-fit">Core<div>&pound;25 a month</div></th><th scope="col" data-tier="1">Momentum<div>&pound;40 a month</div></th><th scope="col" data-tier="2">Inner Circle<div>&pound;50 a month</div></th></tr></thead>
-<tbody><tr><th scope="row">Setup phase</th><td data-tier="0" class="is-fit">Included</td><td data-tier="1">Included</td><td data-tier="2">Included</td></tr>
+<tbody>
+<tr><th scope="row">Setup phase</th><td data-tier="0" class="is-fit">Included</td><td data-tier="1">Included</td><td data-tier="2">Included</td></tr>
 <tr><th scope="row">Wealth OS, Client Hub, members' articles, WhatsApp community</th><td data-tier="0" class="is-fit">Included</td><td data-tier="1">Included</td><td data-tier="2">Included</td></tr>
 <tr><th scope="row">Message support, reply within</th><td data-tier="0" class="is-fit">A week</td><td data-tier="1">2 working days</td><td data-tier="2">1 working day</td></tr>
 <tr><th scope="row">Full review session (60 min)</th><td data-tier="0" class="is-fit">Twice a year</td><td data-tier="1">Quarterly</td><td data-tier="2">Quarterly</td></tr>
@@ -200,37 +138,46 @@ body{margin:0;background:#F7F4ED}
 <tr><th scope="row">Coach's next step set in Wealth OS</th><td data-tier="0" class="is-fit">After each session</td><td data-tier="1">After each session</td><td data-tier="2">After each session and check-in</td></tr>
 <tr><th scope="row">Written notes</th><td data-tier="0" class="is-fit">After each session</td><td data-tier="1">After each session</td><td data-tier="2">Full notes after each session; next step updated after each check-in</td></tr>
 <tr><th scope="row">Extra full sessions</th><td data-tier="0" class="is-fit">&pound;50 each</td><td data-tier="1">One free a year, then &pound;30</td><td data-tier="2">Not needed (monthly check-ins)</td></tr>
-<tr><th scope="row">Places</th><td data-tier="0" class="is-fit">Open</td><td data-tier="1">Open</td><td data-tier="2">Limited to 5</td></tr></tbody>
+<tr><th scope="row">Places</th><td data-tier="0" class="is-fit">Open</td><td data-tier="1">Open</td><td data-tier="2">Limited to 5</td></tr>
+</tbody>
 </table>
 </div>
-<p style="margin: 12px 0 0; font-size: 13px; color: #4E5B70">Inner Circle is the best value per session. Most members start with more support and move down a tier as they need us less.</p>
+<p class="g-small">Inner Circle is the best value per session. Most members start with more support and move down a tier as they need us less.</p>
 </div>
 </section>
 
-<!-- FAQ + DISCOVERY -->
-<section style="background: #F7F4ED">
-<div class="t-pad" style="max-width: 1280px; margin: 0 auto; padding: 0 32px 80px; display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
-<div style="flex: 1 1 340px; min-width: 0; background: #0B1729; color: #F7F4ED; border-radius: 26px; padding: 32px; position: relative; overflow: hidden">
-<div class="t-s32" style="position: absolute; width: 240px; height: 240px; right: -90px; bottom: -110px; border-radius: 50%; border: 1px dashed rgba(232,214,168,0.22)" aria-hidden="true"></div>
-<p style="position: relative; margin: 0; font-family: 'Geist Mono', monospace; font-size: 12px; color: #E8D6A8">Start here</p>
-<h2 style="position: relative; margin: 12px 0 0; font-size: 30px; font-weight: 300; letter-spacing: -0.02em">A 30-minute discovery call.</h2>
-<p style="position: relative; margin: 12px 0 0; font-size: 15px; line-height: 1.6; color: #AAB6C8">The first step is a 30-minute discovery call. We talk through where you are and how TEI works, then decide together whether it is a fit. Tiers come afterwards. The call is &pound;30, paid when you book. It comes off your first month if you join, and you get it back in full if you cancel before the call. It is free if you were referred. Rather talk first? <a href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank" rel="noopener noreferrer" style="color: #E8D6A8">Message us on WhatsApp</a> and we will arrange the call with you.</p>
+<!-- FAQ: the discovery call details lead (they were on the old Start here card) -->
+<section class="g-band g-b1" aria-labelledby="mb-faq-h">
+<div class="g-w is-tight">
+<div class="mb-faq">
+<div><p class="g-eye">Questions</p><h2 class="g-h2" id="mb-faq-h">Before you start.</h2></div>
+<div class="mb-faq-l">
+<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b5" aria-expanded="true" aria-controls="mb-faq-p5"><span>How does the discovery call work?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p5" role="region" aria-labelledby="mb-faq-b5">The first step is a 30-minute discovery call. We talk through where you are and how TEI works, then decide together whether it is a fit. Tiers come afterwards. The call is &pound;30, paid when you book. It comes off your first month if you join, and you get it back in full if you cancel before the call. It is free if you were referred. Rather talk first? <a href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a> and we will arrange the call with you. One-off sessions for non-members: coming soon. Referral rewards are coming soon.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b0" aria-expanded="false" aria-controls="mb-faq-p0"><span>Is membership financial advice?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p0" role="region" aria-labelledby="mb-faq-b0" hidden>No. It is coaching and education. We explain how things work and show how choices could play out, and every decision stays yours.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b1" aria-expanded="false" aria-controls="mb-faq-p1"><span>Is there a minimum term?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p1" role="region" aria-labelledby="mb-faq-b1" hidden>Yes, 3 months. That covers your setup phase. After that, membership runs month to month with one month's notice.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b2" aria-expanded="false" aria-controls="mb-faq-p2"><span>How do I cancel?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p2" role="region" aria-labelledby="mb-faq-b2" hidden>Send us a message, or use Ask to cancel in Wealth OS under Settings and Membership. We ask for one month's notice after the minimum term.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b3" aria-expanded="false" aria-controls="mb-faq-p3"><span>Can I change tier later?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p3" role="region" aria-labelledby="mb-faq-b3" hidden>Yes, at any time with a month's notice. Most members start with more support and move down a tier as they need us less.</p></div>
+<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b4" aria-expanded="false" aria-controls="mb-faq-p4"><span>What if I only want one session?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p4" role="region" aria-labelledby="mb-faq-b4" hidden>One-off sessions for non-members are coming soon. For now, every coaching relationship starts with the discovery call.</p></div>
+</div>
+</div>
+</div>
+</section>
+
+<!-- CLOSE (shared, /assets/site-ground.css) -->
+<section class="g-band g-b0 g-from1 g-close" aria-labelledby="g-close-h">
+<div class="g-glow g-glow-close" aria-hidden="true"></div>
+<div class="g-w">
+<p class="g-eye">Start here</p>
+<h2 class="g-h2" id="g-close-h">A 30-minute discovery call.</h2>
+<p class="g-lede">We talk through where you are and how TEI works, then decide together whether it is a fit.</p>
 <div class="tei-opts tei-opts--dark">
-<div class="tei-opt"><a href="/book" target="_blank" rel="noopener noreferrer" class="t-halo" style="position: relative; display: inline-flex; align-items: center; min-height: 52px; padding: 0 24px; border-radius: 999px; background: #E8D6A8; color: #0F1E36; text-decoration: none; font-size: 16px; font-weight: 500">Book a call</a><p class="tei-opt-cap">A 30-minute discovery call for &pound;30, taken off your first month if you join.</p></div>
-<div class="tei-opt"><a href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank" rel="noopener noreferrer" style="position: relative; display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; color: #F7F4ED">Chat on WhatsApp first</a><p class="tei-opt-cap">Not ready for a call? Send us a question first. No charge, no obligation.</p></div>
-</div>
-<p style="position: relative; margin: 18px 0 0; font-size: 13px; color: #AAB6C8">One-off sessions for non-members: coming soon. Referral rewards are coming soon.</p>
-</div>
-<div style="flex: 1.4 1 420px; min-width: 0; background: #FFFFFF; border: 1px solid #DEDAD0; border-radius: 26px; padding: 12px 28px">
-<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b0" aria-expanded="true" aria-controls="mb-faq-p0"><span>Is membership financial advice?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p0" role="region" aria-labelledby="mb-faq-b0">No. It is coaching and education. We explain how things work and show how choices could play out, and every decision stays yours.</p></div>
-<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b1" aria-expanded="false" aria-controls="mb-faq-p1"><span>Is there a minimum term?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p1" role="region" aria-labelledby="mb-faq-b1" hidden>Yes, 3 months. That covers your setup phase. After that, membership runs month to month with one month's notice.</p></div>
-<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b2" aria-expanded="false" aria-controls="mb-faq-p2"><span>How do I cancel?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p2" role="region" aria-labelledby="mb-faq-b2" hidden>Send us a message, or use Ask to cancel in Wealth OS under Settings and Membership. We ask for one month's notice after the minimum term.</p></div>
-<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b3" aria-expanded="false" aria-controls="mb-faq-p3"><span>Can I change tier later?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p3" role="region" aria-labelledby="mb-faq-b3" hidden>Yes, at any time with a month's notice. Most members start with more support and move down a tier as they need us less.</p></div>
-<div class="tei-faq-item"><h3><button type="button" id="mb-faq-b4" aria-expanded="false" aria-controls="mb-faq-p4"><span>What if I only want one session?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#83661C" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h3><p id="mb-faq-p4" role="region" aria-labelledby="mb-faq-b4" hidden>One-off sessions for non-members are coming soon. For now, every coaching relationship starts with the discovery call.</p></div>
+<div class="tei-opt"><a class="g-btn" href="/book" target="_blank" rel="noopener noreferrer">Book a call</a><p class="tei-opt-cap">A 30-minute discovery call for &pound;30, taken off your first month if you join.</p></div>
+<div class="tei-opt"><a class="g-lnk is-wa" href="https://wa.me/447843868245?text=Hi%2C%20I%20came%20across%20The%20Everyday%20Investor%20and%20I%27d%20love%20to%20find%20out%20more%20about%20how%20coaching%20could%20help%20me.%20Could%20we%20book%20in%20a%20quick%20call%3F" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1.3-3.8A8 8 0 1 1 8 19z"></path></svg>Chat on WhatsApp first</a><p class="tei-opt-cap">Not ready for a call? Send us a question first. No charge, no obligation.</p></div>
 </div>
 </div>
 </section>
 
+<div class="g-grain" aria-hidden="true"></div>
 </main>
 
 <!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
