@@ -1,0 +1,233 @@
+/* TEI public site type (V3 foundation, Nov 2026).
+
+   The homepage's type, as the default for every public page except the
+   homepage itself (which keeps its own copy in /assets/home.css):
+     words    Schibsted Grotesk, 400 to 700
+     figures  Inter, 300 to 500, tabular
+     axes     Geist Mono, chart axes only
+   Load it after the page's own stylesheets. The Client Hub and Wealth OS
+   never load it, so they keep Geist. The shared header, footer and phone bar
+   keep Geist (--tei-font in /style.css), as they do on the homepage.
+
+   Google Fonts link for pages that load this file:
+   family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500
+   &family=Schibsted+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500
+   The fallback stacks keep the layout if the fonts do not arrive. */
+
+:root {
+  --tei-word: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --tei-num: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --tei-axis: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  /* The content tokens: one word font, so the old mono labels (eyebrows,
+     meta lines, Summary labels) set in Schibsted Grotesk too. */
+  --tc-font: var(--tei-word);
+  --tc-mono: var(--tei-word);
+}
+body { font-family: var(--tei-word); }
+.tei-article { --ar-font: var(--tei-word); --ar-mono: var(--tei-word); }
+.tnum { font-family: var(--tei-num); font-variant-numeric: tabular-nums; }
+
+/* Chart axes keep Geist Mono, the only place it is used. */
+.m-yaxis span, .m-xaxis span, .m-scale, .m-cols-x, .m-dots-ends { font-family: var(--tei-axis); }
+
+/* Generated from the shared stylesheets (content, article, motion, tool,
+   guides-tools) on 10 Nov 2026: the same selectors, so each wins only by
+   coming later. Rerun if those files gain new small or tabular rules. */
+/* Figures: every value set in tabular figures takes Inter. */
+.tc-figs dd,
+.tc-figrows dd,
+.tc-ticks,
+.tc-pool-in,
+.tc-slices i,
+.m-v,
+.m-callout b,
+.m-verdict b,
+.m-facts dd,
+.m-breakdown b,
+.ar-seg.m-steps button,
+.m-ends b,
+.m-pin-v,
+.m-pairs .m-dn,
+.m-pairs .m-up,
+.m-hundred-h b,
+.m-feature b,
+.m-fromto dd,
+.tl-num input,
+.tl-num select,
+.tl-choice button b,
+.tl-head .tl-head-v,
+.tl-pill b { font-family: var(--tei-num); }
+
+/* Nothing under 12px except chart axes. */
+.tc-rail a span,
+.tc-tag,
+.tc-scale-ends,
+.tc-bar-k,
+.tc-flow-ico b,
+.tc-matrix-x,
+.tc-matrix-y,
+.tc-pill,
+.tc-meter-ends,
+.tc-badge,
+.tc-pcard-tag,
+.tc-pcard-more h5,
+.tc-table th,
+.tc-related small,
+.tc-inline-link small,
+.tc-stats small,
+.tc-members-head small,
+.tc-table.is-cards td[data-label]::before,
+.tc-figbox-h span,
+.tc-wcard .tc-pcard-tag,
+.tc-wcard .tc-badge,
+.tc-wrows dt,
+.tc-ticks thead th,
+.tc-ticks sup,
+.tc-ticks-foot sup,
+.tc-person,
+.tc-main .tc-body p.tc-cast-note,
+.tc-who-name .tc-person,
+.tc-hist small,
+.tc-journey-p em,
+.tc-cycle li span,
+.tc-pool-in small,
+.tc-slices i b,
+.tc-path li small,
+.tc-edu-h small,
+.tc-edu-k,
+.visual-sub,
+.ar-figure-meta,
+.ar-related-cat,
+.ar-related-time,
+.m-k small,
+.m-verdict small,
+.m-win,
+.m-facts dt,
+.m-facts dd small,
+.m-ends small,
+.m-pin-v,
+.m-strip-h small,
+.m-gapl,
+.m-pairs small,
+.m-note,
+.m-lab,
+.m-path li.m-path-h,
+.m-zone b,
+.m-peg > span,
+.m-hundred-h small,
+.m-chain-fast span,
+.m-par span,
+.tl-mark,
+.tl-pill small,
+.tl-tag,
+.tl-lock small,
+.tl-lock small a,
+.tl-lock small .tl-link,
+.tl-card > small,
+a.tl-card .tl-card-time,
+.gt-bar b,
+.gt-tag,
+.gt-time,
+.gt-soon-k,
+.gt-sc-k { font-size: 12px; }
+@media (max-width: 1100px) {
+.tc-toc-m a span { font-size: 12px; }
+}
+@media (max-width: 860px) {
+.tc-table.is-stack td::before,
+.tc-table.is-cards td,
+.tc-table.is-cards td[data-label]::before,
+.tc-cap-btn,
+.tc-main.ar-wide .tc-part-no,
+.tc-figbox-h span,
+.tc-figrows dt small,
+.tc-main.ar-wide .tc-body p.tc-figbox-note,
+.tc-wpanel .tc-pcard-more h5,
+.tc-wpair .tc-key,
+.tc-wpair .m-callout span,
+.tc-wpair .visual-caption,
+.tc-main.ar-wide .tc-x-no,
+.tc-main.ar-wide .tc-x-when,
+.tc-ticks thead th,
+.tc-ticks-lim,
+.tc-ticks td,
+.tc-partial,
+.tc-main.ar-wide .tc-body p.tc-ticks-foot,
+.tc-main.ar-wide .ar-takeaways-label,
+.tc-main.ar-wide .principle .num,
+.tc-main.ar-wide .tc-body .principle p,
+.tc-src > summary,
+.tc-main.ar-wide .tc-body .tc-src p.tc-na,
+.tl-next.is-lead > .tl-card:not(:first-child) > small,
+.tc-cast-p .tc-person,
+.tc-habits .tc-tag,
+.tc-journey-k,
+.tc-slices i,
+.tc-slices i b,
+.tc-edu-n,
+body.tc-page .tei-article .principle .num,
+body.tc-page .ar-related-cat,
+body.tc-page .ar-related-time,
+body.tc-page .m-scene-no,
+body.tc-page .visual-sub,
+body.tc-page .visual-caption,
+body.tc-page .tc-key,
+body.tc-page .m-k small,
+body.tc-page .m-ends small,
+body.tc-page .m-win,
+body.tc-page .m-pin-v,
+body.tc-page .m-pairs li,
+body.tc-page .m-pairs small,
+body.tc-page .visual-block .tc-field label,
+body.tc-page .m-feature span,
+.m-lanes-h,
+.m-note,
+.m-stages b,
+.m-stages small,
+.m-lab,
+.m-zone b,
+.m-hundred-h small,
+.tl-field > label,
+.tl-row-label,
+.tl-tool[data-stage="gate"] .tl-bar-k,
+.tl-tool[data-stage="full"] .tl-bar-k,
+.tl-pill small,
+.gt-bar b,
+.gt-tag,
+.gt-time,
+.gt-stage-k { font-size: 12px; }
+}
+@media (min-width: 861px) {
+.tc-main.ar-wide .tc-part-no { font-size: 12px; }
+}
+@media (min-width: 1101px) {
+.tc-main.ar-wide .tc-toc-m a span { font-size: 12px; }
+}
+@media (min-width: 1100px) {
+.ar-end .principle .num { font-size: 12px; }
+}
+@media (max-width: 1099px) {
+.m-chain-sm > div > b { font-size: 12px; }
+}
+@media (max-width: 860px) {
+.tc-wcard.is-small > p.tc-wcard-lim,
+.tc-main.ar-wide .tc-hint,
+body.tc-page .m-verdict p,
+body.tc-page .m-ends p,
+.tl-box .tl-risk,
+.tl-tool[data-stage="full"] .tl-head .tl-head-k,
+.tl-tool[data-stage="full"] .tl-head .tl-head-sub,
+.tl-tool[data-stage="full"] .tl-box .tl-risk { font-size: 12px !important; }
+}
+.tc-main .tc-body .tc-topics .tc-x-body p.tc-terms,
+.m-chain-slow,
+.tl-open-note { font-size: 12px !important; }
+@media (max-width: 1099px) {
+.m-chain-skip { font-size: 12px !important; }
+}
+
+/* The Book a call and WhatsApp captions (style.css sets them in Geist). */
+.tei-opt-cap { font-family: var(--tei-word); }
+@media (max-width: 860px) {
+  .tei-opt-cap, .res p.tei-opt-cap, .tl-next .tl-card .tl-card-go p.tei-opt-cap { font-size: 12px; }
+}
