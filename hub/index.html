@@ -130,6 +130,7 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
 :root[data-theme="light"] .cover { box-shadow:var(--w-shadow-2); }
 .art-head .cover { flex:1 1 300px; min-height:220px; }
 .cover-img { background:#070F1D; }
+.t-sr { position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
 .cover-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center; }
 .cover-video { background:#14376E; background-size:cover; background-position:center; }
 .cover-video .vglow { position:absolute; inset:0; background:radial-gradient(closest-side, rgba(232,214,168,0.22), rgba(232,214,168,0)); }
@@ -675,7 +676,8 @@ a:focus-visible, button:focus-visible, input:focus-visible { outline:2px solid v
       : esc(head.readTime) + ' min read' + (isRecent(head) ? ' · New' : '');
     html += '<a class="art-head press" href="' + esc(artHref(head)) + '">' + cover(head, 'large', false) +
       '<span class="art-text"><span class="art-meta"><span class="pill">' + (video ? 'Video · Members only' : esc(head.category)) + '</span><span class="m">' + meta + '</span></span>' +
-      '<span class="art-title">' + esc(head.short || head.title) + '</span><span class="art-teaser">' + esc(head.teaser) + '</span>' +
+      // With a thumbnail the title is already in the image: kept for screen readers only.
+      '<span class="art-title' + (head.images && head.images.card ? ' t-sr' : '') + '">' + esc(head.short || head.title) + '</span><span class="art-teaser">' + esc(head.teaser) + '</span>' +
       '<span class="art-cta">' + (video ? 'Watch now' : 'Read the article') + IC.chev + '</span></span></a>';
     var more = list.slice(1, 3);
     if (more.length) {

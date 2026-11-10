@@ -199,7 +199,9 @@
     return '<a class="dd-c press ' + (lead ? 'lead' : 'side') + '" href="' + deepUrl(a) + '">' +
       '<span class="dd-cov' + (img ? ' is-img' : '') + '" aria-hidden="true">' + fig + '</span>' +
       '<span class="dd-txt"><span class="dd-k">' + (a.ticker ? '<span class="dd-tag">' + esc(a.ticker) + '</span>' : '') + esc(a.readTime ? a.readTime + ' min read' : a.category) + '</span>' +
-      '<span class="dd-h">' + esc(a.short || a.title) + '</span>' +
+      // With a thumbnail the title is already in the image, so from 861px it is
+      // kept for screen readers only. Phones keep it: the image is too small to read.
+      '<span class="dd-h' + (img ? ' t-sr-d' : '') + '">' + esc(a.short || a.title) + '</span>' +
       '<span class="dd-s">' + esc(firstLine(a.teaser)) + '</span>' +
       '<span class="dd-go">' + (phone ? 'Read' : 'Read the deep dive') + CHEV + '</span></span></a>';
   }
