@@ -428,8 +428,6 @@ body{overflow-x:clip}
   .watch,.gloss{grid-template-columns:1fr}
   .two{grid-template-columns:1fr;gap:40px}
   .watch>div,.watch>div:nth-child(even){padding:12px 0;border-left:0}
-  .chart-img{overflow-x:auto}
-  .chart-img img{min-width:600px}
   .not{padding:20px;border-radius:12px}
   .stack thead{display:none}
   .stack tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;padding-block:14px;border-bottom:1px solid var(--line-soft)}
@@ -447,6 +445,122 @@ html{scroll-padding-top:calc(var(--hh-h,64px) + 60px)}
 .jump{top:var(--hh-h,64px)}
 body::before{display:none}
 #theme{display:none}
+/* Up to 1099px (phones and the single-column range): the section links sit
+   behind a Contents button instead of a row that scrolls sideways (Paddy,
+   10 Nov 2026). It opens them two a row. */
+.jump .jump-toggle{display:none}
+@media (max-width:1099px){
+  .jump .wrap{flex-wrap:wrap;overflow:visible;gap:0 16px;min-height:52px}
+  .jump .wrap > a{display:none;order:2}
+  .jump.open .wrap > a{display:flex;flex:0 0 calc(50% - 8px);min-height:44px;padding-block:10px;border-top:1px solid var(--line-soft)}
+  .jump.open .wrap{padding-bottom:6px}
+  .jump .jump-toggle{display:inline-flex;align-items:center;gap:6px;color:var(--ink);min-height:44px}
+  .jump-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s ease}
+  .jump.open .jump-toggle svg{transform:rotate(180deg)}
+  #toggle-all{min-height:44px}
+}
+@media (prefers-reduced-motion:reduce){.jump-toggle svg{transition:none}}
+/* Phones: nothing scrolls sideways (Paddy, 10 Nov 2026).
+   Numbers tables: each row a compact card. The measure on the left, the Q3
+   figure and change lined up on the right, what it tells us underneath.
+   Charts: fitted to the screen; a tap opens the chart full screen. */
+.chart-zoom{display:none}
+@media (max-width:860px){
+  .tbl{overflow:visible}
+  /* One grid for the whole table, so the figure and change columns share a
+     width across rows and never wrap. */
+  table.nums{display:grid;grid-template-columns:minmax(0,1fr) max-content max-content}
+  table.nums thead,table.nums tbody,table.nums tr{display:contents}
+  table.nums th,table.nums td{display:block;padding:14px 0 0;border:0;border-top:1px solid var(--line-soft)}
+  table.nums td.n,table.nums th.n{padding-left:14px;text-align:right;white-space:nowrap}
+  table.nums thead th{padding-top:0;padding-bottom:10px;border-top:0}
+  table.nums th:nth-child(4){display:none}
+  table.nums tbody tr:first-child td{border-top-color:var(--line)}
+  table.nums td:nth-child(4){grid-column:1/-1;border-top:0;padding:4px 0 14px;color:var(--muted);font-size:14.5px;line-height:1.5}
+  .chart-img{position:relative;cursor:zoom-in}
+  .chart-img img{min-width:0}
+  .chart-zoom{display:inline-flex;align-items:center;gap:6px;position:absolute;right:8px;top:8px;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink);font-size:13px;font-weight:500;pointer-events:none}
+}
+/* Phones, screen budget (Paddy, 10 Nov 2026): hero and the two-minute
+   version within about two screens, the company list within one, and no
+   section that runs for screen after screen. */
+@media (max-width:860px){
+  main .wrap{gap:28px;padding-block:20px 40px}
+  .band{padding-block:28px}
+  .sec-h{gap:6px}
+  .sec-h h2{font-size:21px;line-height:1.25}
+  .sec-h p{font-size:15px;line-height:1.5}
+  .kicker{font-size:13px}
+  /* hero */
+  .hero .wrap{padding-block:16px 22px;gap:10px}
+  .hero .back{margin:0 0 -4px;min-height:36px;font-size:14px}
+  .meta{font-size:12.5px;gap:0 12px;line-height:1.5}
+  .hero h1{font-size:26px;line-height:1.15}
+  .dek{font-size:15px;line-height:1.5}
+  .hq{margin-top:8px}
+  .hq-head{font-size:11.5px;padding-bottom:4px}
+  .hq-list li{padding-block:8px;gap:4px 16px}
+  .hq-tk span{display:none}
+  .hq-tk b{font-size:14px}
+  .hq-q{font-size:14px;line-height:1.35}
+  /* the two-minute version */
+  .sum{gap:16px}
+  .srow{gap:8px 16px;padding-block:14px}
+  .s-tk b{font-size:15px}.s-tk span{font-size:13px}
+  .s-num{gap:2px}
+  .s-num b{font-size:22px}
+  .s-num span{font-size:12.5px;line-height:1.4}
+  .res{font-size:13.5px;gap:2px;line-height:1.4}
+  .s-why{font-size:15px;line-height:1.5}
+  .s-why a{margin-top:4px;font-size:13.5px}
+  .lesson{font-size:16px;line-height:1.5}
+  /* the company list */
+  .co>summary{padding-block:14px;gap:12px}
+  .co-tk{font-size:12.5px;margin-bottom:4px}
+  .co-t{gap:2px}
+  .co-t h2{font-size:18px;line-height:1.25}
+  .co-t p{font-size:14px;line-height:1.45}
+  .co-body{gap:24px;padding-bottom:28px}
+  .lead{font-size:16px;line-height:1.6}
+  /* side by side, the matrix, the closing box */
+  .cmp{gap:24px}
+  .two{gap:24px}
+  /* Side by side repeats the hero's stage track and questions: on phones
+     the table is one line per company (growth and cash flow) and the
+     track is left to the hero. */
+  #compare .track,#compare .track-l{display:none}
+  #compare table.stack{display:grid;grid-template-columns:minmax(0,1fr) max-content max-content}
+  #compare table.stack thead,#compare table.stack tbody,#compare table.stack tr{display:contents}
+  #compare table.stack th,#compare table.stack td{display:block;padding:10px 0;border:0;border-top:1px solid var(--line-soft)}
+  #compare table.stack thead th{display:block;padding-top:0;border-top:0;font-size:12.5px}
+  #compare table.stack th:nth-child(2),#compare table.stack td:nth-child(2){display:none}
+  #compare table.stack td.n,#compare table.stack th.n{padding-left:16px;text-align:right;white-space:nowrap}
+  #compare table.stack td[data-label]::before{content:none}
+  #compare table.stack tbody tr:first-child td{border-top-color:var(--line)}
+  .pc-ph .nm{font-size:15px}
+  .chart-h{gap:4px}
+  .chart-h b{font-size:16px}
+  .chart-h span{font-size:14px;line-height:1.5}
+  .cap{font-size:12.5px;line-height:1.45}
+  .pc-ctl button{min-height:36px;padding:5px 12px;font-size:13px}
+  .pc-lg{gap:4px 14px;font-size:13px;margin-bottom:4px}
+  table.nums td:nth-child(4){font-size:14px;line-height:1.45}
+  table.nums td:first-child{-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word}
+  .thesis p{font-size:16px}
+  .not{padding:16px 18px;gap:10px}
+  .not h2{font-size:17px}
+  .not ul{font-size:14.5px;gap:6px;line-height:1.5}
+  .plain>summary{padding-block:12px;min-height:52px}
+  .plain>summary h2{font-size:17px}
+}
+.cz{position:fixed;inset:0;z-index:200;background:var(--page);overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.cz[hidden]{display:none}
+.cz-bar{position:sticky;top:0;left:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:calc(8px + env(safe-area-inset-top,0px)) 16px 8px;background:var(--page);border-bottom:1px solid var(--line)}
+.cz-bar b{font-size:15px;font-weight:600;min-width:0}
+.cz-close{flex:none;min-width:44px;min-height:44px;border:0;background:none;color:var(--ink);font-size:15px;font-weight:500;cursor:pointer}
+.cz-hint{padding:10px 16px 0;font-size:13px;color:var(--muted)}
+.cz img{display:block;width:max(100%,900px);height:auto;margin:12px 16px 24px;border:1px solid var(--line);border-radius:12px}
+html.cz-open,html.cz-open body{overflow:hidden}
 .hero .back{display:inline-flex;align-items:center;min-height:44px;margin:-14px 0 -6px;color:var(--frame-muted);text-decoration:none;font-size:15px}
 .hero .back:hover{color:var(--frame-ink)}
 </style>
@@ -455,7 +569,7 @@ body::before{display:none}
 <script src="/hub/js/supabase-config.js"></script>
 <script src="/hub/js/supabase-client.js"></script>
 <script src="/hub/js/hub-gate.js"></script>
-<div data-hub-header data-current="research"></div>
+<div data-hub-header data-current="research" data-back="/hub/suite/index.html?cat=Deep%20dives" data-back-label="Back to Research"></div>
 <script src="/hub/js/hub-header.js"></script>
 
 <header class="hero hero-a" id="hero">
@@ -474,6 +588,7 @@ body::before{display:none}
 
 <nav class="jump" aria-label="Jump to a section">
   <div class="wrap">
+    <button type="button" class="jump-toggle" aria-expanded="false">Contents<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6.5 9.5 12 15l5.5-5.5"/></svg></button>
     <a href="#summary">Summary</a>
     <a href="#zeta" data-open="zeta"><span class="tk">ZETA</span></a>
     <a href="#rklb" data-open="rklb"><span class="tk">RKLB</span></a>
@@ -564,7 +679,7 @@ body::before{display:none}
       <details class="sub">
         <summary><h3>The numbers</h3><small>Results against forecasts, and the long-run trend</small><span class="pm" aria-hidden="true"></span></summary>
         <div class="sub-body">
-          <div class="tbl"><table>
+          <div class="tbl"><table class="nums">
             <thead><tr><th>Measure</th><th class="n">Q3 2026</th><th class="n">Change</th><th>What it tells us</th></tr></thead>
             <tbody>
               <tr><td>Revenue</td><td class="n">$492.7m</td><td class="n">+46%</td><td>Beat the forecast by about $22m. Underlying growth sped up to 30%.</td></tr>
@@ -709,7 +824,7 @@ body::before{display:none}
       <details class="sub">
         <summary><h3>The numbers</h3><small>Results, segments and backlog</small><span class="pm" aria-hidden="true"></span></summary>
         <div class="sub-body">
-          <div class="tbl"><table>
+          <div class="tbl"><table class="nums">
             <thead><tr><th>Measure</th><th class="n">Q3 2026</th><th class="n">Change</th><th>What it tells us</th></tr></thead>
             <tbody>
               <tr><td>Revenue</td><td class="n">$267.8m</td><td class="n">+73%</td><td>Above the company's own range of $250m to $265m.</td></tr>
@@ -834,7 +949,7 @@ body::before{display:none}
       <details class="sub">
         <summary><h3>The numbers</h3><small>Revenue, spending and cash</small><span class="pm" aria-hidden="true"></span></summary>
         <div class="sub-body">
-          <div class="tbl"><table>
+          <div class="tbl"><table class="nums">
             <thead><tr><th>Measure</th><th class="n">Q3 2026</th><th class="n">Change</th><th>What it tells us</th></tr></thead>
             <tbody>
               <tr><td>Revenue</td><td class="n">$42.3m</td><td class="n">nearly 3x</td><td>Ground equipment sales and US government milestones. No meaningful recurring phone service revenue yet.</td></tr>
@@ -963,7 +1078,7 @@ body::before{display:none}
       <details class="sub">
         <summary><h3>The numbers</h3><small>Results, regions and subscribers</small><span class="pm" aria-hidden="true"></span></summary>
         <div class="sub-body">
-          <div class="tbl"><table>
+          <div class="tbl"><table class="nums">
             <thead><tr><th>Measure</th><th class="n">Q3 2026</th><th class="n">Change</th><th>What it tells us</th></tr></thead>
             <tbody>
               <tr><td>US revenue</td><td class="n">$657.1m</td><td class="n">+21%</td><td>Faster than Q2's 16%, even with less marketing.</td></tr>
@@ -1240,6 +1355,45 @@ body::before{display:none}
   window.addEventListener('hashchange', openFromHash);
   openFromHash();
 
+  // Phones: Contents opens the section links; picking one closes them.
+  var jump = document.querySelector('.jump'), jt = jump && jump.querySelector('.jump-toggle');
+  if (jt) {
+    var setJump = function(open){ jump.classList.toggle('open', open); jt.setAttribute('aria-expanded', open ? 'true' : 'false'); };
+    jt.addEventListener('click', function(){ setJump(!jump.classList.contains('open')); });
+    jump.querySelectorAll('.wrap > a').forEach(function(a){ a.addEventListener('click', function(){ setJump(false); }); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && jump.classList.contains('open')) { setJump(false); jt.focus(); } });
+  }
+  // Phones: a chart fits the screen; a tap opens it full screen at a readable
+  // size, scrolled in its own viewer. Close with the button or Escape.
+  var cz = null, czLast = null;
+  var phone = window.matchMedia('(max-width:860px)');
+  function czClose(){ if (!cz || cz.hidden) return; cz.hidden = true; document.documentElement.classList.remove('cz-open'); if (czLast) czLast.focus(); }
+  function czOpen(box){
+    var img = Array.prototype.filter.call(box.querySelectorAll('img'), function(i){ return getComputedStyle(i).display !== 'none'; })[0];
+    if (!img) return;
+    if (!cz){
+      cz = document.createElement('div'); cz.className = 'cz'; cz.hidden = true;
+      cz.setAttribute('role', 'dialog'); cz.setAttribute('aria-modal', 'true');
+      cz.innerHTML = '<div class="cz-bar"><b></b><button type="button" class="cz-close">Close</button></div><p class="cz-hint">Scroll across to see the whole chart.</p><img alt="">';
+      cz.querySelector('.cz-close').addEventListener('click', czClose);
+      document.body.appendChild(cz);
+    }
+    var t = box.closest('.chart'), h = t && t.querySelector('.chart-h b');
+    cz.querySelector('b').textContent = h ? h.textContent : 'Chart';
+    cz.setAttribute('aria-label', h ? h.textContent : 'Chart');
+    cz.querySelector('img').src = img.src; cz.querySelector('img').alt = img.alt || '';
+    czLast = box; cz.hidden = false; cz.scrollTop = 0; cz.scrollLeft = 0;
+    document.documentElement.classList.add('cz-open');
+    cz.querySelector('.cz-close').focus();
+  }
+  document.querySelectorAll('.chart-img').forEach(function(box){
+    box.insertAdjacentHTML('beforeend', '<span class="chart-zoom" aria-hidden="true">Tap to enlarge</span>');
+    box.addEventListener('click', function(){ if (phone.matches) czOpen(box); });
+    box.addEventListener('keydown', function(e){ if (phone.matches && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); czOpen(box); } });
+    var sync = function(){ if (phone.matches){ box.setAttribute('tabindex','0'); box.setAttribute('role','button'); box.setAttribute('aria-label','Enlarge this chart'); } else { box.removeAttribute('tabindex'); box.removeAttribute('role'); box.removeAttribute('aria-label'); } };
+    sync(); if (phone.addEventListener) phone.addEventListener('change', sync);
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') czClose(); });
   var btn = document.getElementById('toggle-all');
   btn.addEventListener('click', function(){
     var all = document.querySelectorAll('details.co, details.sub, details.plain');
@@ -1335,7 +1489,7 @@ function fmtD(s){var a=s.split("-");return +a[2]+" "+MON[a[1]-1]+" "+a[0]}
 function fmtP(v){return (v>0?"+":v<0?"-":"")+Math.abs(v).toFixed(1)+"%"}
 function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
 var monthIdx=[];D.dates.forEach(function(s,i){if(i&&s.slice(5,7)!==D.dates[i-1].slice(5,7))monthIdx.push(i)});
-var fig=document.getElementById('prices'),tip=document.getElementById('pc-tip'),hidden={},view='multi',played=reduce||!('IntersectionObserver' in window);
+var fig=document.getElementById('prices'),tip=document.getElementById('pc-tip'),hidden={},view=window.matchMedia('(max-width:860px)').matches?'together':'multi',played=reduce||!('IntersectionObserver' in window);
 var NS="http://www.w3.org/2000/svg";
 function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
 function frame(svg,W,H,m){
@@ -1371,7 +1525,7 @@ function drawMulti(){var box=fig.querySelector('.pc-multi');box.innerHTML='';cro
   })}
 function drawTogether(){var box=fig.querySelector('.pc-together');box.innerHTML='';var lg=document.createElement('div');lg.className='pc-lg';
   CO.forEach(function(c){var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',!hidden[c[0]]);b.innerHTML='<i style="background:var(--c-'+c[0]+')"></i>'+c[1].replace('&','&amp;');b.onclick=function(){hidden[c[0]]=!hidden[c[0]];drawTogether()};lg.appendChild(b)});
-  box.appendChild(lg);var W=box.clientWidth||1000,H=Math.round(Math.min(440,Math.max(300,W*.42))),m={t:10,r:W<520?60:140,b:26,l:46};
+  box.appendChild(lg);var W=box.clientWidth||1000,H=W<520?240:Math.round(Math.min(440,Math.max(300,W*.42))),m={t:10,r:W<520?60:140,b:26,l:46};
   var svg=el("svg",{viewBox:"0 0 "+W+" "+H,role:"img","aria-label":"The four share prices in 2026 on one scale"},box),f=frame(svg,W,H,m);
   var shown=CO.filter(function(c){return !hidden[c[0]]});
   shown.forEach(function(c){el("path",{d:path(c[0],f.x,f.y),fill:"none",stroke:css("--c-"+c[0]),"stroke-width":2,"stroke-linejoin":"round"},svg)});
@@ -1387,6 +1541,8 @@ function drawTogether(){var box=fig.querySelector('.pc-together');box.innerHTML=
 function drawTable(){var me=[];D.dates.forEach(function(s,i){if(i===N-1||s.slice(5,7)!==D.dates[i+1].slice(5,7))me.push(i)});
   fig.querySelector('.pc-table').innerHTML='<div class="tbl"><table><thead><tr><th>Date</th>'+CO.map(function(c){return '<th class="n">'+c[1].replace('&','&amp;')+'</th>'}).join('')+'</tr></thead><tbody>'+[0].concat(me).map(function(i){return '<tr><td>'+fmtD(D.dates[i])+'</td>'+CO.map(function(c){return '<td class="n">'+(i?fmtP(pct[c[0]][i]):'0.0%')+'</td>'}).join('')+'</tr>'}).join('')+'</tbody></table></div>'}
 function render(){['multi','together','table'].forEach(function(v){fig.querySelector('.pc-'+v).hidden=v!==view});if(view==='multi')drawMulti();else if(view==='together')drawTogether();else drawTable()}
+fig.querySelectorAll('[data-v]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===view)});
+// Phones open on the four lines together: one chart instead of four stacked.
 fig.querySelectorAll('[data-v]').forEach(function(b){b.onclick=function(){view=b.dataset.v;played=true;fig.querySelectorAll('[data-v]').forEach(function(x){x.setAttribute('aria-pressed',x===b)});render()}});
 render();
 var rt,lw=innerWidth;addEventListener('resize',function(){if(innerWidth===lw)return;lw=innerWidth;clearTimeout(rt);rt=setTimeout(function(){played=true;render()},150)});
