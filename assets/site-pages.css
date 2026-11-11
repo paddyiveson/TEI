@@ -207,18 +207,18 @@
 /* =========================================================
    3. Articles
    ========================================================= */
-/* The featured article: the page's one navy lead card (spec 1.7) */
+/* The featured article, in the shared feature glow (.g-feature) */
 .al-feat { display: flex; flex-wrap: wrap; text-decoration: none; }
 .al-feat-body { flex: 1 1 420px; min-width: 0; padding: 36px; display: flex; flex-direction: column; gap: 14px; }
 .al-feat-tag { align-self: flex-start; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--g-champ); color: var(--g-champ-ink); }
-.al-feat h2 { margin: 0; font-size: clamp(28px, 2.6vw, 38px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; color: var(--c-on-feat, #F7F4ED); }
-.al-feat-teaser { margin: 0; max-width: 52ch; font-size: 17px; line-height: 1.6; color: var(--c-on-feat-muted, #C9D3E3); }
-.al-feat-meta { margin: auto 0 0; padding-top: 10px; font-size: 13px; color: var(--c-on-feat-muted, #C9D3E3); }
-.al-feat-art { position: relative; flex: 1 1 380px; min-width: 0; min-height: 280px; background: rgba(7, 15, 29, .35); }
+.al-feat h2 { margin: 0; font-size: clamp(28px, 2.6vw, 38px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; color: var(--g-ink); text-wrap: balance; }
+.al-feat-teaser { margin: 0; max-width: 52ch; font-size: 17px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
+.al-feat-meta { margin: auto 0 0; padding-top: 10px; font-size: 13px; color: var(--g-muted); }
+.al-feat-art { position: relative; flex: 1 1 380px; min-width: 0; min-height: 280px; }
 .al-feat-art svg { position: absolute; inset: 24px; width: calc(100% - 48px); height: calc(100% - 48px); }
 @media (hover: hover) { .al-feat:hover h2 { color: var(--g-champ); } }
 
-/* Filters, then the cards on the band, divided by hairlines */
+/* Filters, then the cards on the band (hairlines, or space on g-airy pages) */
 .al-list { margin-top: 48px; }
 .al-filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
 .al-cats { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -304,10 +304,10 @@
 .tei-ground .gt-card:not(.is-feat) .gt-art { border-radius: 12px; }
 .tei-ground .gt-card:not(.is-feat) .gt-body { padding: 16px 0 4px; }
 .tei-ground .gt-h { font-weight: 600; letter-spacing: -.015em; }
-.tei-ground .gt-card.is-feat { background: var(--c-feat, #14376E); border-color: var(--c-feat-line, rgba(232, 214, 168, .45)); border-radius: 16px; }
-.tei-ground .gt-card.is-feat .gt-art { background: rgba(7, 15, 29, .3); }
-.tei-ground .gt-card.is-feat .gt-h { font-weight: 700; letter-spacing: -.02em; }
-.tei-ground .gt-card.is-feat .gt-p { color: var(--c-on-feat-muted, #C9D3E3); }
+/* The feature card takes the shared feature glow (/assets/site-ground.css). */
+.tei-ground .gt-card.is-feat .gt-art { background: transparent; }
+.tei-ground .gt-card.is-feat .gt-h { font-weight: 700; letter-spacing: -.02em; color: var(--g-ink); }
+.tei-ground .gt-card.is-feat .gt-p { color: var(--g-sub); }
 @media (hover: hover) {
   .tei-ground .gt .lift:hover { transform: none; }
   .tei-ground .gt-card:hover .gt-h { color: var(--g-champ); }
@@ -319,8 +319,49 @@
   .tei-ground .gt-card:not(.is-feat) { padding-top: 10px; }
   .tei-ground .gt-card:not(.is-feat) .gt-art { border-radius: 10px; }
   .tei-ground .gt-card:not(.is-feat) .gt-body { padding: 10px 0 2px; }
-  .tei-ground .gt-card.is-feat { border-radius: 12px; }
   .tei-ground [data-gt-mode="public"] { --gt-sec-gap: 40px; }
 }
 @media (min-width: 1100px) { .al-card:last-child:nth-child(3n + 1) { grid-column: 1 / -1; } }
 .tei-ground .gt-stage h3 { font-weight: 600; }
+
+/* =========================================================
+   5. Airy pages (<body class="g-airy">): no hairline dividers
+   Space and grouping instead. See /assets/site-ground.css, section 7.
+   ========================================================= */
+/* About: where we sit, the four steps, the notes */
+body.g-airy .ab-sp { border-top: 0; }
+body.g-airy .ab-tabs { margin-top: 28px; }
+body.g-airy .ab-step { margin-top: 32px; padding-top: 0; border-top: 0; gap: 20px 56px; }
+body.g-airy .ab-step h3 { margin-top: 0; }
+body.g-airy .ab-dots { border-top: 0; }
+body.g-airy .ab-dots li { border-bottom: 0; padding: 7px 0 7px 24px; }
+body.g-airy .ab-dots li::before { top: 15px; }
+body.g-airy .ab-note { border-top: 0; padding-top: 0; }
+body.g-airy .ab-notes { margin-top: 48px; gap: 32px 40px; align-items: start; }
+@media (max-width: 860px) {
+  body.g-airy .ab-sp:not(.g-feat) { padding: 12px 0; }
+  body.g-airy .ab-tabs { margin-top: 20px; }
+  body.g-airy .ab-step { margin-top: 20px; gap: 10px; }
+  body.g-airy .ab-dots li { padding: 5px 0 5px 22px; }
+  body.g-airy .ab-dots li::before { top: 13px; }
+  body.g-airy .ab-notes { margin-top: 28px; gap: 20px; }
+  body.g-airy .ab-note { padding: 0; }
+}
+
+/* Articles: the cards separated by space, no dead space inside them */
+body.g-airy .al-grid { border-top: 0; margin-top: 36px; column-gap: 56px; row-gap: 44px; }
+body.g-airy .al-card, body.g-airy .al-card:nth-child(n) { min-height: 0; padding: 0; border: 0; }
+body.g-airy .al-card p.al-card-meta { padding-top: 4px; }
+@media (max-width: 860px) {
+  body.g-airy .al-grid { margin-top: 20px; column-gap: 16px; row-gap: 24px; }
+}
+
+/* Guides & Tools: cards separated by space; the members strip above the close */
+body.g-airy .gt-card:not(.is-feat) { border-top: 0; padding-top: 0; }
+.gt-members-strip { margin-top: var(--gt-sec-gap, 64px); display: flex; flex-wrap: wrap; gap: 12px 40px; align-items: center; justify-content: space-between; padding: 22px 28px; border-radius: 16px; background: var(--g-tile); }
+.gt-members-strip p { flex: 1 1 520px; margin: 0; max-width: 88ch; font-size: 16px; line-height: 1.55; color: var(--g-sub); text-wrap: pretty; }
+.gt-members-strip b { font-weight: 600; color: var(--g-ink); }
+@media (max-width: 860px) {
+  .gt-members-strip { padding: 16px; border-radius: 12px; gap: 6px; }
+  .gt-members-strip p { flex-basis: 100%; font-size: 14px; }
+}

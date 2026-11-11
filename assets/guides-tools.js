@@ -102,8 +102,10 @@
   }
 
   /* ---------- Which items show where ---------- */
+  // "public": false keeps an item off the public page only (Pension vs LISA
+  // is an article, listed on /articles.html; the Hub still shows it).
   GT.items = function (data, mode) {
-    return data.items.filter(function (it) { return mode === 'hub' || !it.members; });
+    return data.items.filter(function (it) { return mode === 'hub' || (!it.members && it.public !== false); });
   };
   GT.parts = function (data, mode) {
     var list = GT.items(data, mode);

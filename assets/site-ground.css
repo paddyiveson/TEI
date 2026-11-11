@@ -8,9 +8,10 @@
      1. the deep ground (#070F1D), the grain and still glows
      2. stepped bands (#0B1729, #11213D) with long OKLab fades, no dividers
      3. type on the ground: eyebrow, headings, lede, links, buttons
-     4. content on the band: hairline columns and rows; one framed box per
-        section for emphasis (.g-feat), plus the one navy lead card a listing
-        page may have (.g-lead, spec 1.7)
+     4. content on the band: hairline columns and rows; one framed, glowing
+        box per section for emphasis (.g-feat / .g-feature). Pages with
+        <body class="tei-ground g-airy"> drop the hairlines for space
+        (section 7)
      5. the compact hero (.g-hero) and the compact close (.g-close)
      6. the shared header, footer and phone bar on the deep ground
    The homepage keeps its own copy of these values in /assets/home.css, with
@@ -181,24 +182,25 @@ body.tei-ground {
 
 /* A neutral card (tier cards and the like): the same for every card. */
 .g-card { position: relative; box-sizing: border-box; background: var(--g-tile); border: 1px solid var(--g-tile-line); border-radius: 16px; padding: 24px; }
-/* The one framed box a section may have, for emphasis (the homepage's Best
-   Days feature). */
-.g-feat {
-  position: relative; box-sizing: border-box; border-radius: 16px; padding: 32px 34px;
+/* The feature glow: the one framed, glowing card a section may have. One
+   treatment for the whole site, matching the homepage's Best Days feature
+   (/assets/home.css, .gw>.a-feat). Two ways in:
+     .g-feat     the box with its own padding (About, Membership)
+     .g-feature  the surface only, for a card that lays out its own parts
+                 (the Articles featured card, the Guides & Tools feature,
+                 which is generated markup and so is named here) */
+.g-feat, .g-feature, .tei-ground .gt-card.is-feat {
+  position: relative; box-sizing: border-box; border-radius: 16px;
   background: radial-gradient(520px 260px at 92% 0%, rgba(232, 214, 168, .10), transparent 70%), linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .02));
   border: 1px solid rgba(232, 214, 168, .26);
   box-shadow: 0 0 0 1px rgba(232, 214, 168, .04), 0 0 80px rgba(232, 214, 168, .07);
 }
-/* The navy lead card of a listing page (spec 1.7): one per page. */
-.g-lead {
-  position: relative; box-sizing: border-box; overflow: hidden; border-radius: 16px;
-  background: var(--c-feat, #14376E); color: var(--c-on-feat, #F7F4ED);
-  border: 1px solid var(--c-feat-line, rgba(232, 214, 168, .45));
-}
+.g-feat { padding: 32px 34px; }
+.g-feature { overflow: hidden; color: var(--g-ink); }
 @media (max-width: 860px) {
   .g-card { padding: 16px; border-radius: 12px; }
-  .g-feat { padding: 20px 18px; border-radius: 12px; }
-  .g-lead { border-radius: 12px; }
+  .g-feat, .g-feature, .tei-ground .gt-card.is-feat { border-radius: 12px; }
+  .g-feat { padding: 20px 18px; }
 }
 
 /* FAQ as hairline rows (About, Membership). */
@@ -344,6 +346,32 @@ body.tei-ground .tei-ftr + footer .footer-logo-mark { color: var(--g-champ) !imp
   html.tei-site body.tei-ground .tei-mbar-item[aria-current="page"] { color: #F7F4ED; }
   html.tei-site body.tei-ground .tei-mbar-item[aria-current="page"] .tei-mbar-pill { background: #E8D6A8; color: #0F1E36; }
   html.tei-site body.tei-ground .tei-mbar-item:focus-visible { outline-color: #E8D6A8; }
+}
+
+/* -- 7. Airy pages: no hairline dividers (Paddy, Nov 2026) --
+   <body class="tei-ground g-airy">: About, Articles, Guides & Tools.
+   Columns, lists, FAQ rows and the close drop their hairlines; space and
+   grouping separate them instead, and the FAQ rows become quiet tiles.
+   Membership opts in later by adding the class. The header and footer keep
+   their one edge line: that is the site frame, not a page divider. */
+body.g-airy .g-cols { border-top: 0; column-gap: 48px; row-gap: 36px; margin-top: 40px; }
+body.g-airy .g-cols > :nth-child(n) { border: 0; padding: 0; }
+body.g-airy .g-list { border-top: 0; margin-top: 16px; }
+body.g-airy .g-list li { border-bottom: 0; padding: 7px 0; }
+body.g-airy .tei-faq-item, body.g-airy .tei-faq-item:first-child { border: 0; border-radius: 12px; background: var(--g-tile); padding: 0 20px; }
+body.g-airy .tei-faq-item + .tei-faq-item { margin-top: 8px; }
+body.g-airy .g-nl { border-top: 0; padding-top: 0; margin-top: 40px; }
+@media (min-width: 1100px) {
+  body.g-airy .g-close .g-w > .g-close-act { border-left: 0; padding-left: 0; }
+}
+@media (max-width: 860px) {
+  body.g-airy .g-cols { column-gap: 16px; row-gap: 24px; margin-top: 24px; }
+  body.g-airy .g-list li { padding: 6px 0; }
+  body.g-airy .tei-faq-item, body.g-airy .tei-faq-item:first-child { padding: 0 16px; }
+  body.g-airy .g-nl { margin-top: 28px; }
+  /* The actions column fills the gutter, never its content width (360px phones). */
+  body.g-airy .g-close .g-close-act { width: 100%; min-width: 0; }
+  body.g-airy .tei-ftr-copy { border-bottom: 0; padding-bottom: 4px; }
 }
 
 /* Screen-reader-only text */
