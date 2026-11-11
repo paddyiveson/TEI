@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="/assets/site-pages.css">
 <link rel="stylesheet" href="/assets/site-type.css">
 </head>
-<body class="tei-ground">
+<body class="tei-ground g-airy">
 <!-- Site header (shared). Styles: /style.css. Phone bar and Menu: /assets/mobile-nav.js -->
 <div class="tei-hdr" role="banner">
   <div class="tei-hdr-in">
@@ -40,16 +40,15 @@
 <section class="g-band g-hero">
 <div class="g-glow g-glow-hero" aria-hidden="true"></div>
 <div class="g-w g-in">
-<p class="g-eye">Articles</p>
 <h1>How money actually <span class="g-accent">behaves.</span></h1>
 </div>
 </section>
 
-<!-- THE LIST: the featured article is the page's navy lead card (spec 1.7), then the filters and the cards on the band -->
+<!-- THE LIST: the featured article in the shared feature glow (.g-feature), then the filters and the cards on the band -->
 <section class="g-band g-b1 g-from0 is-long" aria-label="All articles">
 <div class="g-w is-tight">
 <!-- The featured article, from /articles.json -->
-<a id="al-featured" class="g-lead al-feat" hidden href="/articles.html">
+<a id="al-featured" class="g-feature al-feat" hidden href="/articles.html">
 <div class="al-feat-body">
 <span class="al-feat-tag" data-al="tag"></span>
 <h2 data-al="title"></h2>
@@ -63,7 +62,7 @@
 <div class="al-list">
 <div class="al-filter-bar">
 <div id="al-cats" class="al-cats" role="group" aria-label="Category"></div>
-<p id="al-shown" aria-live="polite"></p>
+<p id="al-shown" class="g-sr" aria-live="polite"></p>
 </div>
 <p id="al-series" hidden></p>
 <div id="al-grid" class="al-grid"></div>
@@ -97,7 +96,7 @@
 <div class="g-grain" aria-hidden="true"></div>
 </main>
 
-<!-- Footer links (shared). Styles: /style.css. The footer below keeps this page's legal wording. -->
+<!-- Footer links (shared). Styles: /style.css. Then the one compliance block (/assets/compliance.css). -->
 <div class="tei-ftr" role="navigation" aria-label="Footer">
   <div class="tei-ftr-in">
     <a class="tei-ftr-brand" href="/index.html"><svg width="22" height="22" viewBox="0 0 26 26" aria-hidden="true" focusable="false"><circle cx="13" cy="13" r="11.5" fill="none" stroke="#83661C" stroke-width="1.4"/><circle cx="13" cy="13" r="6" fill="none" stroke="#83661C" stroke-opacity=".5" stroke-width="1.2"/><circle cx="13" cy="13" r="2.4" fill="#83661C"/></svg><span>The Everyday Investor</span></a>
@@ -111,15 +110,10 @@
     <p class="tei-ftr-copy">&copy; 2026 The Everyday Investor</p>
   </div>
 </div>
-<footer class="tei-footer-stack">
-  <div class="footer-logo">
-    <div class="footer-logo-mark">&#10022;</div>
-    <span class="footer-logo-text">The Everyday<br>Investor</span>
-  </div>
-  <div class="footer-disc">For educational purposes only. Nothing here constitutes financial advice or a personal recommendation. The Everyday Investor is a financial coaching and education service, not a regulated financial adviser. &copy; 2026 The Everyday Investor.</div>
-  <div class="tei-compliance tei-compliance--after">
-    <p class="tei-compliance-line">Financial coaching and education, not regulated financial advice. The Everyday Investor is not authorised or regulated by the FCA. <a href="/how-we-work">How we work</a></p>
-    <p class="tei-compliance-warning">Education, not advice. The Everyday Investor is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
+<footer class="tei-footer-min tei-legal">
+  <div class="tei-compliance">
+    <p class="tei-compliance-line">Financial coaching and education, not regulated financial advice. <a href="/how-we-work">How we work</a></p>
+    <p class="tei-compliance-warning">The Everyday Investor is an independent business. It is not authorised or regulated by the FCA, and nothing here is a personal recommendation. Investments can fall as well as rise and you may get back less than you put in. Forecasts and examples are illustrations based on stated assumptions, not guarantees.</p>
   </div>
 </footer>
 <script src="/assets/article.js"></script>
@@ -153,9 +147,9 @@
   function draw() {
     var visible = list.filter(function (a) { return category === 'All' || a.category === category; });
     grid.innerHTML = visible.map(card).join('');
-    shown.textContent = seriesSlug
-      ? visible.length + (visible.length === 1 ? ' article' : ' articles') + ' in this series'
-      : visible.length + ' of ' + list.length + ' articles, plus the featured one';
+    // Read out by screen readers only: the chips already show the counts.
+    var n = visible.length + (visible.length === 1 ? ' article' : ' articles');
+    shown.textContent = seriesSlug ? n + ' in this series' : category === 'All' ? n : n + ' in ' + category;
     Array.prototype.forEach.call(chips.querySelectorAll('button'), function (b) {
       b.setAttribute('aria-pressed', b.getAttribute('data-cat') === category ? 'true' : 'false');
     });
