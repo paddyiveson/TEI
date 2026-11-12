@@ -163,7 +163,7 @@ window.TEI = window.TEI || {};
     if(!c){
       return `<div class="ep-broker" data-broker-acct="${acc.id}">
         <div class="ep-broker-head">Trading 212 sync <span class="tag-pill" style="opacity:0.7;">Pilot</span></div>
-        <div class="ep-broker-note">In Trading 212, switch to this account, then Settings &gt; API &gt; Generate key. Tick Account data and Portfolio only, not Orders. The key is stored encrypted and is never shown again.</div>
+        <div class="ep-broker-note">In Trading 212, switch to this account, then Settings &gt; API &gt; Generate key. Wealth OS only reads from it (Account data and Portfolio). The key is stored encrypted and is never shown again.</div>
         <input type="password" autocomplete="off" spellcheck="false" placeholder="API key" data-broker-key>
         <input type="password" autocomplete="off" spellcheck="false" placeholder="API secret" data-broker-secret>
         <button type="button" class="btn-ghost" data-broker-connect="${acc.id}" ${busy?'disabled':''}>${busy?'Connecting…':'Connect and sync'}</button>
