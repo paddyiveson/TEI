@@ -229,6 +229,22 @@ begin
          and upper(trim(name)) = upper(v_pos->>'base')
        order by created_at limit 1;
     end if;
+    -- 4) Trading 212's own codes can differ from the real ticker (Nebius is
+    --    YNDX, AST SpaceMobile is NPA, Sivers is 2DG), so finally match the
+    --    Wealth OS name/ticker as a prefix of Trading 212's company name:
+    --    NEBIUS -> "Nebius Group", ASTS -> "AST SpaceMobile", SIVE -> "Sivers
+    --    Semiconductors". Letters/digits only, at least 3 characters.
+    if v_hid is null then
+      select id into v_hid from wealth_os.holdings h
+       where h.account_id = v_account and h.broker_ref is null and h.id <> all(v_touched)
+         and exists (
+           select 1 from unnest(array[h.name, h.ticker]) k(v)
+            where length(regexp_replace(upper(coalesce(k.v, '')), '[^A-Z0-9]', '', 'g')) >= 3
+              and regexp_replace(upper(coalesce(v_pos->>'name', '')), '[^A-Z0-9]', '', 'g')
+                  like regexp_replace(upper(k.v), '[^A-Z0-9]', '', 'g') || '%'
+         )
+       order by h.created_at limit 1;
+    end if;
 
     if v_hid is not null then
       update wealth_os.holdings
