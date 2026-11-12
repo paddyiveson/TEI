@@ -54,8 +54,14 @@ async function syncOne(db: SupabaseClient, t: { connection_id: string; credentia
     const positions = await t212Get("/equity/positions", t.credentials);
     if (!Array.isArray(positions)) throw new SyncError("Unexpected positions response from Trading 212.");
 
+    // Cash = Trading 212's own account total minus its investments, so the
+    // Wealth OS figure matches the app exactly. Adding the cash buckets up
+    // ourselves came out ~£8 high on the first live test (12 Nov 2026).
     const cash = summary?.cash || {};
-    const cashTotal = (num(cash.availableToTrade) || 0) + (num(cash.inPies) || 0) + (num(cash.reservedForOrders) || 0);
+    const total = num(summary?.totalValue), invested = num(summary?.investments?.currentValue);
+    const cashTotal = total != null && invested != null
+      ? total - invested
+      : (num(cash.availableToTrade) || 0) + (num(cash.inPies) || 0) + (num(cash.reservedForOrders) || 0);
 
     const rows = positions
       .filter((p: any) => p?.instrument?.ticker && num(p.quantity) && p.quantity > 0)
