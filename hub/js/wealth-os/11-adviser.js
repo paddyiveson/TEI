@@ -133,7 +133,7 @@ window.TEI = window.TEI || {};
   }
   function loadBrokerState(){
     if(broker.loading || broker.clientId === clientId) return;
-    if(!isAdviserView() || !client.accounts.some(isT212Account) || !TEI.wealthOS || !TEI.wealthOS.brokers) return;
+    if(!client || !client.accounts.some(isT212Account) || !TEI.wealthOS || !TEI.wealthOS.brokers) return;
     broker.loading = true;
     const forClient = clientId;
     (async ()=>{
@@ -144,7 +144,7 @@ window.TEI = window.TEI || {};
         broker.own = own; broker.conns = {};
         rows.forEach(r=>{ broker.conns[r.account_id] = r; });
         broker.clientId = forClient;
-        renderAccounts();
+        refreshBrokerViews();
       } catch(err){
         console.error('Wealth OS: failed to load Trading 212 connections', err);
       } finally { broker.loading = false; }
@@ -155,7 +155,7 @@ window.TEI = window.TEI || {};
     return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
   }
   function brokerPanelHtml(acc){
-    if(!isT212Account(acc) || !isAdviserView()) return '';
+    if(!isT212Account(acc)) return '';
     if(broker.clientId !== clientId){ loadBrokerState(); return ''; }
     if(!broker.own) return '';
     const c = broker.conns[acc.id];
@@ -187,7 +187,7 @@ window.TEI = window.TEI || {};
     </div>`;
   }
   async function brokerRun(accountId, work, okMsg){
-    broker.busy[accountId] = true; renderAccounts();
+    broker.busy[accountId] = true; refreshBrokerViews();
     try{
       await work();
       const rows = await TEI.wealthOS.brokers.list([accountId]);
@@ -201,7 +201,7 @@ window.TEI = window.TEI || {};
       return false;
     } finally {
       delete broker.busy[accountId];
-      renderAccounts();
+      refreshBrokerViews();
     }
   }
   function reloadAfterBrokerSync(){
@@ -209,6 +209,22 @@ window.TEI = window.TEI || {};
     // (the ?client= URL brings the same client back) rather than patching
     // every derived view field by field.
     setTimeout(()=> location.reload(), 900);
+  }
+  function drawBrokerHost(host){
+    const acc = client && client.accounts.find(a=>a.id===host.dataset.acct);
+    host.innerHTML = acc ? brokerPanelHtml(acc) : '';
+    host.hidden = !host.innerHTML.trim();
+    wireBrokerPanels(host);
+  }
+  function refreshBrokerViews(){
+    renderAccounts();
+    const h = document.getElementById('slBroker');
+    if(h && h.dataset.acct) drawBrokerHost(h);
+  }
+  // Settings > Accounts > <account> drawer mounts the same panel here.
+  function brokerPanel(host, accountId){
+    host.dataset.acct = accountId;
+    drawBrokerHost(host);
   }
   function wireBrokerPanels(list){
     list.querySelectorAll('[data-broker-connect]').forEach(btn=> btn.addEventListener('click', async ()=>{
@@ -3628,6 +3644,6 @@ window.TEI = window.TEI || {};
     cancel: { account: cancelAcctEdit, holding: cancelHoldingEdit, asset: cancelAssetEdit, liability: cancelLiabEdit,
       income: cancelAdvIncomeEdit, expense: cancelAdvExpenseEdit }
   };
-  TEI.adviser = { init, refresh, refreshLivePrices, forms };
+  TEI.adviser = { init, refresh, refreshLivePrices, forms, brokerPanel };
 })();
 
