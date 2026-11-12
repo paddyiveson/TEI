@@ -313,6 +313,7 @@ window.TEI = window.TEI || {};
         avgOpen: h.avg_open, costBasis: h.cost_basis, sector: h.sector, theme: h.theme || [], value: h.value,
         lastPrice: h.last_price, lastPricedAt: h.last_priced_at, priceSource: h.price_source || 'manual',
         valueCheckedAt: h.value_checked_at || null, assetClass: h.asset_class || null,
+        brokerRef: h.broker_ref || null,
         lastEditedBy: h.last_edited_by, lastEditedAt: h.last_edited_at
       })),
 
@@ -808,6 +809,43 @@ window.TEI = window.TEI || {};
     return { prices: body.prices||{}, errors: body.errors||{}, usdGbpRate: body.usdGbpRate!=null ? body.usdGbpRate : null };
   }
 
+  /* Trading 212 broker sync (PILOT, migration 023 + Edge Function
+     broker-sync). Adviser-only and own-accounts-only, enforced in SQL.
+     The API key/secret go straight into Vault via save_broker_connection
+     and can never be read back to the browser. */
+  const brokers = {
+    // Pilot: only the signed-in adviser's own client record can connect.
+    isOwnClient: async (clientId)=>{
+      const { data:{user} } = await window.teiSupabase.auth.getUser();
+      if(!user) return false;
+      const { data, error } = await wo(window.teiSupabase).from('clients').select('user_id').eq('id', clientId).maybeSingle();
+      if(error) throw error;
+      return !!(data && data.user_id === user.id);
+    },
+    list: async (accountIds)=>{
+      if(!accountIds || !accountIds.length) return [];
+      const { data, error } = await wo(window.teiSupabase).from('broker_connections')
+        .select('id, account_id, broker, key_hint, auto_sync, last_synced_at, last_status, last_error, last_result')
+        .in('account_id', accountIds);
+      if(error) throw error;
+      return data || [];
+    },
+    connect: (accountId, apiKey, apiSecret)=> rpc('save_broker_connection', { p_account_id: accountId, p_api_key: apiKey, p_api_secret: apiSecret }),
+    disconnect: (accountId)=> rpc('delete_broker_connection', { p_account_id: accountId }),
+    sync: async (accountId)=>{
+      const { data, error } = await window.teiSupabase.functions.invoke('broker-sync', { body: { accountId } });
+      if(error){
+        let msg = error.message;
+        try{ const b = await error.context.json(); if(b && b.error) msg = b.error; }catch(e){}
+        throw new Error(msg);
+      }
+      const r = data && data.results && data.results[0];
+      if(!r) throw new Error('No Trading 212 connection on this account');
+      if(!r.ok) throw new Error(r.error || 'Sync failed');
+      return r.result;
+    }
+  };
+
   async function saveGoal(clientId, existingId, local){
     const row = goalToRow(clientId, local);
     const saved = existingId ? await updateRow('goals','id',existingId,row) : await insertRow('goals', row);
@@ -1224,7 +1262,7 @@ window.TEI = window.TEI || {};
     saveDividendHolding, deleteDividendHolding, saveCashflowSettings, saveDividendHistory, saveMonthlyWins,
     saveClientPersonal, setOnboardingComplete, importHoldingsRows, replaceHoldingsForAccount,
     saveClientSettings, setDocumentReviewStatus,
-    saveFeedback, updateFeedbackStatus, fetchLivePrices, contributionRules,
+    saveFeedback, updateFeedbackStatus, fetchLivePrices, contributionRules, brokers,
     listScenarios, saveScenario, deleteScenario
   };
 })();

@@ -122,6 +122,117 @@ window.TEI = window.TEI || {};
     }
   }
 
+  /* ================= TRADING 212 SYNC (PILOT) =================
+     Adviser view, own client record only (Trading 212 API Terms 6.2/6.3,
+     enforced again in SQL -- migration 023). The key and secret are sent
+     once to save_broker_connection, which puts them in Vault; nothing here
+     ever reads them back. */
+  const broker = { clientId: null, own: false, conns: {}, loading: false, busy: {} };
+  function isT212Account(acc){
+    return /trading\s*212/i.test(acc.provider || '') && (acc.type === 'isa' || acc.type === 'gia');
+  }
+  function loadBrokerState(){
+    if(broker.loading || broker.clientId === clientId) return;
+    if(!isAdviserView() || !client.accounts.some(isT212Account) || !TEI.wealthOS || !TEI.wealthOS.brokers) return;
+    broker.loading = true;
+    const forClient = clientId;
+    (async ()=>{
+      try{
+        const own = await TEI.wealthOS.brokers.isOwnClient(forClient);
+        const rows = own ? await TEI.wealthOS.brokers.list(client.accounts.map(a=>a.id)) : [];
+        if(forClient !== clientId) return;
+        broker.own = own; broker.conns = {};
+        rows.forEach(r=>{ broker.conns[r.account_id] = r; });
+        broker.clientId = forClient;
+        renderAccounts();
+      } catch(err){
+        console.error('Wealth OS: failed to load Trading 212 connections', err);
+      } finally { broker.loading = false; }
+    })();
+  }
+  function fmtSyncTime(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ' ' + d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  }
+  function brokerPanelHtml(acc){
+    if(!isT212Account(acc) || !isAdviserView()) return '';
+    if(broker.clientId !== clientId){ loadBrokerState(); return ''; }
+    if(!broker.own) return '';
+    const c = broker.conns[acc.id];
+    const busy = broker.busy[acc.id];
+    if(!c){
+      return `<div class="ep-broker" data-broker-acct="${acc.id}">
+        <div class="ep-broker-head">Trading 212 sync <span class="tag-pill" style="opacity:0.7;">Pilot</span></div>
+        <div class="ep-broker-note">In Trading 212, switch to this account, then Settings &gt; API &gt; Generate key. Tick Account data and Portfolio only, not Orders. The key is stored encrypted and is never shown again.</div>
+        <input type="password" autocomplete="off" spellcheck="false" placeholder="API key" data-broker-key>
+        <input type="password" autocomplete="off" spellcheck="false" placeholder="API secret" data-broker-secret>
+        <button type="button" class="btn-ghost" data-broker-connect="${acc.id}" ${busy?'disabled':''}>${busy?'Connecting…':'Connect and sync'}</button>
+      </div>`;
+    }
+    const r = c.last_result || {};
+    let status;
+    if(!c.last_synced_at) status = 'Connected, not synced yet.';
+    else if(c.last_status === 'error') status = `<span class="ep-broker-err">Last sync failed ${fmtSyncTime(c.last_synced_at)}: ${String(c.last_error||'').replace(/</g,'&lt;')}</span>`;
+    else status = `Synced ${fmtSyncTime(c.last_synced_at)} · ${r.updated||0} updated${r.added?`, ${r.added} new`:''} · cash ${fmtGBP(r.cash||0)}`;
+    const missing = (c.last_status === 'ok' && r.missing && r.missing.length)
+      ? `<div class="ep-broker-err">Not held at Trading 212 any more: ${r.missing.map(n=>String(n).replace(/</g,'&lt;')).join(', ')}. Remove ${r.missing.length>1?'them':'it'} in Holdings if sold.</div>` : '';
+    return `<div class="ep-broker" data-broker-acct="${acc.id}">
+      <div class="ep-broker-head">Trading 212 sync <span class="tag-pill" style="opacity:0.7;">Pilot</span></div>
+      <div class="ep-broker-note">${status}${c.auto_sync?' Syncs hourly on weekdays.':''} Key ending ${String(c.key_hint||'').replace(/</g,'&lt;')}.</div>
+      ${missing}
+      <div class="ep-broker-actions">
+        <button type="button" class="btn-ghost" data-broker-sync="${acc.id}" ${busy?'disabled':''}>${busy?'Syncing…':'Sync now'}</button>
+        <button type="button" class="btn-ghost" data-broker-disconnect="${acc.id}" ${busy?'disabled':''}>Disconnect</button>
+      </div>
+    </div>`;
+  }
+  async function brokerRun(accountId, work, okMsg){
+    broker.busy[accountId] = true; renderAccounts();
+    try{
+      await work();
+      const rows = await TEI.wealthOS.brokers.list([accountId]);
+      if(rows[0]) broker.conns[accountId] = rows[0]; else delete broker.conns[accountId];
+      if(okMsg) showToast(okMsg);
+      return true;
+    } catch(err){
+      console.error('Wealth OS: Trading 212 action failed', err);
+      showToast(err.message || 'That did not work, please try again.');
+      try{ const rows = await TEI.wealthOS.brokers.list([accountId]); if(rows[0]) broker.conns[accountId] = rows[0]; }catch(e){}
+      return false;
+    } finally {
+      delete broker.busy[accountId];
+      renderAccounts();
+    }
+  }
+  function reloadAfterBrokerSync(){
+    // A sync can add holdings as well as change values, so reload the page
+    // (the ?client= URL brings the same client back) rather than patching
+    // every derived view field by field.
+    setTimeout(()=> location.reload(), 900);
+  }
+  function wireBrokerPanels(list){
+    list.querySelectorAll('[data-broker-connect]').forEach(btn=> btn.addEventListener('click', async ()=>{
+      const id = btn.dataset.brokerConnect;
+      const box = btn.closest('[data-broker-acct]');
+      const key = box.querySelector('[data-broker-key]').value.trim();
+      const secret = box.querySelector('[data-broker-secret]').value.trim();
+      if(!key || !secret){ showToast('Enter both the API key and the API secret'); return; }
+      const ok = await brokerRun(id, async ()=>{
+        await TEI.wealthOS.brokers.connect(id, key, secret);
+        await TEI.wealthOS.brokers.sync(id);
+      }, 'Trading 212 connected and synced');
+      if(ok) reloadAfterBrokerSync();
+    }));
+    list.querySelectorAll('[data-broker-sync]').forEach(btn=> btn.addEventListener('click', async ()=>{
+      const ok = await brokerRun(btn.dataset.brokerSync, ()=> TEI.wealthOS.brokers.sync(btn.dataset.brokerSync), 'Synced from Trading 212');
+      if(ok) reloadAfterBrokerSync();
+    }));
+    list.querySelectorAll('[data-broker-disconnect]').forEach(btn=> btn.addEventListener('click', ()=>{
+      if(!confirm('Disconnect Trading 212 from this account?\n\nThe stored key is deleted. Holdings stay as they are and go back to manual updates. Revoke the key in the Trading 212 app as well.')) return;
+      brokerRun(btn.dataset.brokerDisconnect, ()=> TEI.wealthOS.brokers.disconnect(btn.dataset.brokerDisconnect), 'Trading 212 disconnected');
+    }));
+  }
+
   /* ================= ACCOUNTS ================= */
   function renderAccounts(){
     const list = document.getElementById('accountsList');
@@ -187,6 +298,7 @@ window.TEI = window.TEI || {};
         ${acctTags}
         ${discRow}
         ${contribTogglesHtml(acc)}
+        ${brokerPanelHtml(acc)}
         <div class="ep-actions">
           <button type="button" class="btn-ghost" data-edit-acct="${acc.id}">Edit</button>
           <button type="button" class="btn-ghost" data-del-acct="${acc.id}">Remove</button>
@@ -213,6 +325,7 @@ window.TEI = window.TEI || {};
       });
     });
     wireContribAccountControls(list);
+    wireBrokerPanels(list);
     list.querySelectorAll('[data-mark-reviewed]').forEach(btn=>{
       btn.addEventListener('click', ()=> setDiscrepancyReviewed(btn.dataset.markReviewed, true));
     });
@@ -1114,7 +1227,7 @@ window.TEI = window.TEI || {};
         </div>
         ${holdingPriceRowHtml(h)}
         <div class="ep-value">${fmtGBP(h.value)}</div>
-        <div class="ep-meta">${h.units!=null?h.units+' units'+(h.priceSource==='auto_us'?' (auto-priced, US)':''):''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
+        <div class="ep-meta">${h.units!=null?h.units+' units'+(h.priceSource==='auto_us'?' (auto-priced, US)':''):''}${h.brokerRef?' · synced from Trading 212':''}${h.sector?' · '+h.sector:''}${h.costBasis?' · cost '+fmtGBP(h.costBasis):''}</div>
         ${acctForHolding && acctForHolding.isManualPriced ? holdingCheckedHtml(h) : ''}
         ${(h.theme&&h.theme.length)?`<div class="ep-tags">${h.theme.map(t=>`<span class="tag-pill" style="opacity:0.85;">${t}</span>`).join('')}</div>`:''}
         <div class="ep-actions">
