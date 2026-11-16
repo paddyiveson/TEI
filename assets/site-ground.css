@@ -306,11 +306,16 @@ body.tei-ground .tei-hdr { background: var(--g-deep); box-shadow: 0 1px 0 rgba(2
     body.tei-ground .tei-hdr { background: rgba(7, 15, 29, .78); }
   }
   body.tei-ground .tei-mhead { background: var(--g-deep); }
+  /* No line under the copyright on phones: the footer reads as one block. */
+  body.tei-ground .tei-ftr-copy { border-bottom: 0; padding-bottom: 4px; }
 }
 body.tei-ground .tei-ftr { background: var(--g-deep); border-top: 1px solid rgba(232, 214, 168, .10); color: var(--g-muted); }
 body.tei-ground .tei-ftr a, body.tei-ground .tei-ftr-copy { color: var(--g-muted); }
 body.tei-ground .tei-ftr-links a:hover { color: var(--g-ink); }
 body.tei-ground .tei-ftr + footer { background: var(--g-deep) !important; color: var(--g-muted) !important; border-top: 0 !important; }
+/* Pages that also load content.css (Guides & Tools) get its dark-theme footer
+   colour with !important; keep the deep ground under the email row. */
+:root[data-theme="dark"] body.tei-ground .tei-ftr, :root[data-theme="dark"] body.tei-ground .tei-ftr + footer { background: var(--g-deep) !important; }
 body.tei-ground .tei-ftr + footer p, body.tei-ground .tei-ftr + footer .footer-disc, body.tei-ground .tei-ftr + footer .footer-logo-text { color: var(--g-muted) !important; }
 body.tei-ground .tei-ftr + footer a { color: var(--g-sub) !important; }
 body.tei-ground .tei-ftr + footer .footer-logo-mark { color: var(--g-champ) !important; }
@@ -331,8 +336,9 @@ body.tei-ground .tei-ftr + footer .footer-logo-mark { color: var(--g-champ) !imp
    Tools, Membership). Market updates; one outline Sign up on phones so Book a
    call stays the only filled pill near the end of the page. -- */
 body.tei-ground .tei-ftr-nl { box-sizing: border-box; width: 100%; max-width: 1760px; margin: 0 auto; padding: 28px clamp(32px, 4vw, 72px); display: flex; align-items: center; justify-content: space-between; gap: 32px; background: var(--g-deep); border-bottom: 1px solid rgba(232, 214, 168, .10); }
-.tei-ftr-nl > div p { margin: 0; font-size: 15px; line-height: 1.5; color: var(--g-muted); }
-.tei-ftr-nl > div p b { display: block; margin-bottom: 4px; font-size: 17px; font-weight: 600; color: var(--g-ink); }
+.tei-ftr-nl > div p { margin: 0; }
+.tei-ftr-nl .tei-ftr-nl-soon { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: .02em; color: var(--g-champ); }
+.tei-ftr-nl > div p b { display: block; font-size: 17px; font-weight: 600; color: var(--g-ink); }
 .tei-ftr-nl form { flex: 0 1 480px; display: flex; align-items: center; gap: 6px; height: 56px; box-sizing: border-box; padding: 5px 5px 5px 22px; border-radius: 999px; border: 1px solid rgba(232, 214, 168, .22); background: rgba(255, 255, 255, .03); }
 .tei-ftr-nl form:focus-within { border-color: rgba(232, 214, 168, .6); }
 .tei-ftr-nl input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; padding: 0; font-family: inherit; font-size: 16px; color: var(--g-ink); outline: none; }
@@ -343,7 +349,7 @@ body.tei-ground .tei-ftr-nl { box-sizing: border-box; width: 100%; max-width: 17
 .tei-ftr-nl .g-msg.is-error { color: var(--g-warm); }
 @media (max-width: 860px) {
   body.tei-ground .tei-ftr-nl { display: block; padding: 24px 16px 20px; border-top: 1px solid rgba(232, 214, 168, .08); border-bottom: 0; }
-  .tei-ftr-nl .g-dt { display: none; }
+  .tei-ftr-nl .tei-ftr-nl-soon { font-size: 12.5px; margin-bottom: 2px; }
   .tei-ftr-nl > div p b { margin: 0; font-size: 15px; font-weight: 500; }
   .tei-ftr-nl form { height: 52px; margin-top: 12px; padding: 3px 3px 3px 18px; border-color: rgba(232, 214, 168, .18); background: rgba(255, 255, 255, .02); }
   .tei-ftr-nl .g-btn { padding: 0 18px; font-size: 14.5px; background: transparent; color: var(--g-champ); border: 1px solid rgba(232, 214, 168, .35); }
@@ -366,7 +372,6 @@ body.g-airy .tei-faq-item + .tei-faq-item { margin-top: 8px; }
   body.g-airy .g-cols { column-gap: 16px; row-gap: 24px; margin-top: 24px; }
   body.g-airy .g-list li { padding: 6px 0; }
   body.g-airy .tei-faq-item, body.g-airy .tei-faq-item:first-child { padding: 0 16px; }
-  body.g-airy .tei-ftr-copy { border-bottom: 0; padding-bottom: 4px; }
 }
 
 /* Screen-reader-only text */
