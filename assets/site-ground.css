@@ -12,7 +12,7 @@
         box per section for emphasis (.g-feat / .g-feature). Pages with
         <body class="tei-ground g-airy"> drop the hairlines for space
         (section 7)
-     5. the compact hero (.g-hero) and the close (.g-close.is-tiles)
+     5. the compact hero (.g-hero) and the close (.g-close.is-centre)
      6. the shared header, footer and phone bar on the deep ground
    The homepage keeps its own copy of these values in /assets/home.css, with
    the drifting glows and the star field, which stay homepage-only.
@@ -264,95 +264,84 @@ body.tei-ground {
 
 /* -- 5b. The close --
    Two layouts on one class:
-   .g-close.is-tiles  the shared close (About, Articles, Guides & Tools; Nov
-                      2026). The headline and one line across the top, then
-                      three equal tiles: Book a call (the one champagne
-                      button), WhatsApp, and the monthly email with a ghost
-                      Sign up. Three columns from 1100px; call and WhatsApp
-                      side by side over a full-width email tile from 861px;
-                      stacked on phones. No dividers inside; the glow stays.
-   .g-close           the earlier layout, kept for Membership, whose close has
-                      an eyebrow, two actions and no monthly email. */
-.g-close.is-tiles .g-w { padding-top: 80px; padding-bottom: 80px; }
-.g-close.is-tiles .g-h2 { max-width: 24ch; font-size: clamp(36px, 3vw, 52px); letter-spacing: -.025em; line-height: 1.08; }
-.g-close.is-tiles .g-lede { margin-top: 16px; max-width: 72ch; font-size: 18px; }
-/* Each tile runs on the same three rows (words, action, note), so the
-   button, the WhatsApp link and the email field line up across the row. */
-.g-close-tiles { margin-top: 40px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto auto auto; column-gap: 16px; }
-.g-close-tile { grid-row: span 3; display: grid; grid-template-rows: subgrid; row-gap: 0; align-items: start; box-sizing: border-box; min-width: 0; padding: 24px; border-radius: 16px; background: var(--g-tile); }
-.g-close-tile > p:first-child { margin: 0 0 20px; max-width: 44ch; font-size: 15px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
-.g-close-tile > p:first-child b { font-weight: 600; color: var(--g-ink); }
-.g-close-tile > .g-btn, .g-close-tile > .g-lnk { justify-self: start; min-height: 48px; }
-.g-close-tile > .g-btn { padding: 0 28px; font-size: 16px; }
-.g-close-tile > .g-lnk { font-size: 16px; }
-.g-close-tile form { display: flex; gap: 8px; min-width: 0; }
-.g-close-tile input { flex: 1; min-width: 0; min-height: 48px; box-sizing: border-box; border-radius: 999px; border: 1px solid rgba(232, 214, 168, .45); background: rgba(255, 255, 255, .04); padding: 0 20px; font-family: inherit; font-size: 16px; color: var(--g-ink); }
-.g-close-tile input::placeholder { color: var(--g-muted); }
-.g-close-tile form .g-btn.is-ghost { min-height: 48px; padding: 0 20px; font-size: 15px; border-color: rgba(232, 214, 168, .55); }
-@media (hover: hover) { .g-close-tile form .g-btn.is-ghost:hover { border-color: var(--g-champ); } }
-.g-close-tile > .g-msg { margin: 12px 0 0; font-size: 13px; line-height: 1.5; color: var(--g-muted); }
-.g-close-tile > .g-msg.is-error { color: var(--g-warm); }
-@media (min-width: 1100px) {
-  .g-close.is-tiles .g-glow-close { background: radial-gradient(560px 260px at 28% 250px, rgba(232, 214, 168, .09), transparent 70%), radial-gradient(520px 240px at 74% 260px, rgba(38, 66, 112, .30), transparent 70%); }
-}
-/* 861 to 1099px: call and WhatsApp side by side, the email tile across the
-   row under them, its words beside the field. */
-@media (min-width: 861px) and (max-width: 1099px) {
-  .g-close-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto auto auto; row-gap: 16px; }
-  .g-close-tile { grid-row: 1 / span 2; }
-  .g-close-tile.g-nl { grid-column: 1 / -1; grid-row: 3 / span 2; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 32px; }
-  .g-close-tile.g-nl > p:first-child { grid-column: 1; grid-row: 1 / span 2; margin: 0; }
-  .g-close-tile.g-nl > form { grid-column: 2; grid-row: 1; }
-  .g-close-tile.g-nl > .g-msg { grid-column: 2; grid-row: 2; }
-}
-/* Phones: stacked, call first with a full-width button. */
+   .g-close.is-centre  the shared close (About, Articles, Guides & Tools; Nov
+                       2026), centred like the homepage close: the headline
+                       and one line, Book a call (the one champagne button)
+                       beside WhatsApp as an outlined pill, three short
+                       points, then the monthly email with a ghost Sign up.
+                       Space separates the parts; no dividers. On phones the
+                       two actions stack at full width.
+   .g-close            the earlier layout, kept for Membership, whose close
+                       has an eyebrow, two actions and no monthly email. */
+.g-close.is-centre { text-align: center; }
+.g-close.is-centre .g-w { display: flex; flex-direction: column; align-items: center; padding-top: 88px; padding-bottom: 88px; }
+.g-close.is-centre .g-h2 { max-width: 24ch; margin-inline: auto; font-size: clamp(40px, 3.4vw, 56px); letter-spacing: -.03em; line-height: 1.05; }
+.g-close.is-centre .g-lede { margin: 16px auto 0; max-width: 56ch; font-size: 18px; }
+.g-close-acts { margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.g-close-acts .g-btn { min-height: 52px; padding: 0 28px; font-size: 16px; }
+.g-close-acts .g-btn.is-ghost { border-color: rgba(232, 214, 168, .55); }
+.g-close-acts .g-btn svg { width: 18px; height: 18px; fill: none; stroke: var(--g-champ); stroke-width: 1.7; stroke-linejoin: round; }
+@media (hover: hover) { .g-close .g-btn.is-ghost:hover { border-color: var(--g-champ); } }
+.g-close-ticks { list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 28px; font-size: 14.5px; line-height: 1.5; color: var(--g-sub); }
+.g-close-ticks li { display: flex; align-items: center; gap: 8px; }
+.g-close-ticks li::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--g-champ); }
+/* The monthly email: centred under the actions, set apart by space. */
+.g-close .g-nl { width: 100%; max-width: 520px; margin-top: 56px; display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.g-close .g-nl > p:first-child { margin: 0; font-size: 15px; line-height: 1.55; color: var(--g-sub); text-wrap: balance; }
+.g-close .g-nl > p:first-child b { font-weight: 600; color: var(--g-ink); }
+.g-close .g-nl form { display: flex; gap: 8px; min-width: 0; }
+.g-close .g-nl input { flex: 1; min-width: 0; min-height: 48px; box-sizing: border-box; border-radius: 999px; border: 1px solid rgba(232, 214, 168, .45); background: rgba(255, 255, 255, .04); padding: 0 20px; font-family: inherit; font-size: 16px; color: var(--g-ink); }
+.g-close .g-nl input::placeholder { color: var(--g-muted); }
+.g-close .g-nl .g-btn.is-ghost { min-height: 48px; padding: 0 22px; font-size: 15px; border-color: rgba(232, 214, 168, .55); }
+.g-close .g-nl > .g-msg { margin: 0; font-size: 13px; line-height: 1.5; color: var(--g-muted); }
+.g-close .g-nl > .g-msg.is-error { color: var(--g-warm); }
 @media (max-width: 860px) {
-  .g-close.is-tiles .g-w { padding-top: 40px; padding-bottom: 40px; }
-  .g-close.is-tiles .g-h2 { font-size: 26px; }
-  .g-close.is-tiles .g-lede { margin-top: 8px; font-size: 15px; }
-  .g-close-tiles { margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
-  .g-close-tile { display: flex; flex-direction: column; align-items: stretch; padding: 16px; border-radius: 12px; }
-  .g-close-tile > p:first-child { margin-bottom: 12px; font-size: 14px; line-height: 1.5; }
-  .g-close-tile > .g-btn { justify-self: auto; box-sizing: border-box; width: 100%; }
-  .g-close-tile > .g-lnk { align-self: flex-start; min-height: 44px; font-size: 15px; }
-  .g-close-tile > .g-msg { margin-top: 8px; font-size: 12px; }
-  .g-close-tile form .g-btn.is-ghost { padding: 0 16px; }
+  .g-close.is-centre .g-w { padding-top: 48px; padding-bottom: 48px; }
+  .g-close.is-centre .g-h2 { font-size: 28px; }
+  .g-close.is-centre .g-lede { margin-top: 12px; font-size: 15px; }
+  .g-close-acts { width: 100%; margin-top: 24px; flex-direction: column; gap: 12px; }
+  .g-close-acts .g-btn { box-sizing: border-box; width: 100%; min-height: 52px; font-size: 16px; }
+  .g-close-ticks { margin-top: 24px; flex-direction: column; align-items: center; gap: 8px; font-size: 14px; }
+  .g-close .g-nl { max-width: none; margin-top: 40px; gap: 12px; }
+  .g-close .g-nl > p:first-child { font-size: 14px; }
+  .g-close .g-nl .g-btn.is-ghost { padding: 0 18px; }
+  .g-close .g-nl > .g-msg { font-size: 12px; }
 }
 
 /* The earlier close (Membership): heading, one line, Book a call and
    WhatsApp side by side, each with its caption. */
-.g-close:not(.is-tiles) { text-align: center; }
-.g-close:not(.is-tiles) .g-w { display: flex; flex-direction: column; align-items: center; padding-top: 64px; padding-bottom: 56px; }
-.g-close:not(.is-tiles) .g-h2 { max-width: 22ch; font-size: 36px; letter-spacing: -.025em; }
-.g-close:not(.is-tiles) .g-lede { margin: 10px auto 0; max-width: 72ch; }
+.g-close:not(.is-centre) { text-align: center; }
+.g-close:not(.is-centre) .g-w { display: flex; flex-direction: column; align-items: center; padding-top: 64px; padding-bottom: 56px; }
+.g-close:not(.is-centre) .g-h2 { max-width: 22ch; font-size: 36px; letter-spacing: -.025em; }
+.g-close:not(.is-centre) .g-lede { margin: 10px auto 0; max-width: 72ch; }
 .g-close .tei-opts { justify-content: center; gap: 14px 40px; margin-top: 26px; }
 .g-close .tei-opt { align-items: center; }
 .g-close .tei-opt-cap { max-width: 36ch; text-align: center; color: var(--g-muted); font-family: var(--tei-word); font-size: 12.5px; }
 .g-close .tei-opt .g-lnk.is-wa { min-height: 46px; }
 @media (min-width: 861px) {
-  .g-close:not(.is-tiles) .g-w { padding-top: 80px; padding-bottom: 72px; }
-  .g-close:not(.is-tiles) .g-h2 { font-size: 44px; }
-  .g-close:not(.is-tiles) .g-lede { margin-top: 16px; font-size: 18px; }
+  .g-close:not(.is-centre) .g-w { padding-top: 80px; padding-bottom: 72px; }
+  .g-close:not(.is-centre) .g-h2 { font-size: 44px; }
+  .g-close:not(.is-centre) .g-lede { margin-top: 16px; font-size: 18px; }
   .g-close .tei-opts { gap: 18px 64px; margin-top: 36px; }
   .g-close .tei-opt .g-btn { min-height: 52px; padding: 0 28px; font-size: 16px; }
   .g-close .tei-opt .g-lnk.is-wa { min-height: 52px; font-size: 16px; }
   .g-close .tei-opt-cap { font-size: 13px; }
 }
 @media (min-width: 1100px) {
-  .g-close:not(.is-tiles) { text-align: left; }
-  .g-close:not(.is-tiles) .g-w { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: clamp(48px, 6vw, 112px); align-items: center; }
-  .g-close:not(.is-tiles) .g-h2 { max-width: 16ch; font-size: clamp(44px, 3.4vw, 56px); line-height: 1.05; }
-  .g-close:not(.is-tiles) .g-lede { margin: 18px 0 0; max-width: 42ch; }
-  .g-close:not(.is-tiles) .g-w > .g-close-act { grid-column: 2; grid-row: 1; align-self: center; padding: 8px 0 8px clamp(40px, 4vw, 72px); border-left: 1px solid var(--g-line); }
+  .g-close:not(.is-centre) { text-align: left; }
+  .g-close:not(.is-centre) .g-w { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); column-gap: clamp(48px, 6vw, 112px); align-items: center; }
+  .g-close:not(.is-centre) .g-h2 { max-width: 16ch; font-size: clamp(44px, 3.4vw, 56px); line-height: 1.05; }
+  .g-close:not(.is-centre) .g-lede { margin: 18px 0 0; max-width: 42ch; }
+  .g-close:not(.is-centre) .g-w > .g-close-act { grid-column: 2; grid-row: 1; align-self: center; padding: 8px 0 8px clamp(40px, 4vw, 72px); border-left: 1px solid var(--g-line); }
   .g-close .tei-opts { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, max-content)); justify-content: start; gap: 24px clamp(40px, 4vw, 72px); }
   .g-close .tei-opt { align-items: flex-start; gap: 10px; }
   .g-close .tei-opt-cap { max-width: 30ch; text-align: left; font-size: 13.5px; line-height: 1.5; }
-  .g-close:not(.is-tiles) .g-close-txt { grid-column: 1; grid-row: 1; }
-  .g-close:not(.is-tiles) .g-glow-close { background: radial-gradient(560px 260px at 28% 250px, rgba(232, 214, 168, .09), transparent 70%), radial-gradient(520px 240px at 74% 260px, rgba(38, 66, 112, .30), transparent 70%); }
+  .g-close:not(.is-centre) .g-close-txt { grid-column: 1; grid-row: 1; }
+  .g-close:not(.is-centre) .g-glow-close { background: radial-gradient(560px 260px at 28% 250px, rgba(232, 214, 168, .09), transparent 70%), radial-gradient(520px 240px at 74% 260px, rgba(38, 66, 112, .30), transparent 70%); }
 }
 @media (max-width: 860px) {
-  .g-close:not(.is-tiles) .g-w { padding-top: 40px; padding-bottom: 36px; }
-  .g-close:not(.is-tiles) .g-h2 { font-size: 26px; }
+  .g-close:not(.is-centre) .g-w { padding-top: 40px; padding-bottom: 36px; }
+  .g-close:not(.is-centre) .g-h2 { font-size: 26px; }
   .g-close .tei-opts { width: 100%; margin-top: 20px; gap: 14px; }
   .g-close .tei-opt { align-items: stretch; }
   .g-close .tei-opts--dark .tei-opt > a { align-self: stretch; justify-content: center; }
