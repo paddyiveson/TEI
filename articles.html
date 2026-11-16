@@ -52,7 +52,7 @@
 <span class="al-feat-tag" data-al="tag"></span>
 <h2 data-al="title"></h2>
 <p class="al-feat-teaser" data-al="teaser"></p>
-<div class="al-ri is-tile"><span class="al-k is-champ">Read this if</span><p data-al="readif"></p></div>
+<div class="al-ri is-tile"><svg class="al-i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 7.6v.2"></path></svg><span class="al-k is-champ al-ri-k">Read this if</span><p data-al="readif"></p></div>
 <p class="al-feat-meta al-k" data-al="meta"></p>
 </div>
 <div class="al-feat-art al-art is-bare" aria-hidden="true" data-al="art"></div>
@@ -141,15 +141,22 @@
   var esc = T.escapeHtml;
 
   function mins(a) { return a.readTime + ' min'; }
-  function meta(a) { return esc(a.stage) + ' &middot; <span class="al-nw">' + esc(mins(a)) + '</span>'; }
+  // The stage drops on phones (.al-st); the read time stays.
+  function meta(a) { return '<span class="al-st">' + esc(a.stage) + ' &middot; </span><span class="al-nw">' + esc(mins(a)) + '</span>'; }
+  // The short title shows on phones; the full title stays for screen readers.
+  function title(a) {
+    if (!a.shortTitle) return esc(a.title);
+    return '<span class="al-tf">' + esc(a.title) + '</span><span class="al-ts" aria-hidden="true">' + esc(a.shortTitle) + '</span>';
+  }
   function readIf(a) { return esc(String(a.readIf || '').replace(/^Read this if\s+/i, '')); }
-  function ri(a) { return a.readIf ? '<div class="al-ri"><span class="al-k is-champ">Read this if</span><p>' + readIf(a) + '</p></div>' : ''; }
+  // "Read this if": a label on desktop, an outline i on phones.
+  var INFO = '<svg class="al-i" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 7.6v.2"></path></svg>';
+  function ri(a) { return a.readIf ? '<div class="al-ri">' + INFO + '<span class="al-k is-champ al-ri-k">Read this if</span><p>' + readIf(a) + '</p></div>' : ''; }
   function art(a, big) {
     if (!A) return '';
-    if (a.art === 'bars') return A.stack(false);
+    if (a.art === 'bars') return A.stack();
     return A.ART[a.art] ? A.ART[a.art](big) : '';
   }
-  function strip(a) { return A && a.art === 'bars' ? A.stack(true) : art(a, true); }
 
   /* Widths. From 1100px: the lead at 8 beside one card at 4, then rows of
      three; a remainder of two closes on 6 + 6, a remainder of one on two
@@ -177,16 +184,16 @@
     var at = ' data-w="' + w + '" data-n="' + n + '" href="' + T.urlFor(a) + '"';
     if (i === 0) {
       return '<a class="al-card is-lead"' + at + '><div class="al-lead-body">' +
-        '<p class="al-k">' + meta(a) + ' &middot; ' + esc(a.category) + '</p>' +
-        '<h3>' + esc(a.title) + '</h3><p class="al-teaser">' + esc(a.teaser) + '</p>' + ri(a) + '</div>' +
+        '<p class="al-k">' + meta(a) + '<span class="al-st"> &middot; ' + esc(a.category) + '</span></p>' +
+        '<h3>' + title(a) + '</h3><p class="al-teaser">' + esc(a.teaser) + '</p>' + ri(a) + '</div>' +
         '<div class="al-art" aria-hidden="true">' + art(a, true) + '</div></a>';
     }
     if (i === 1 && w === 4) {
       return '<a class="al-card is-side"' + at + '><div class="al-art" aria-hidden="true">' + art(a, false) + '</div>' +
-        '<h3>' + esc(a.title) + '</h3>' + ri(a) + '<p class="al-k al-meta">' + meta(a) + '</p></a>';
+        '<h3>' + title(a) + '</h3>' + ri(a) + '<p class="al-k al-meta">' + meta(a) + '</p></a>';
     }
     return '<a class="al-card"' + at + '><p class="al-k is-champ al-tag">' + esc(a.category) + '</p>' +
-      '<h3>' + esc(a.title) + '</h3><p class="al-teaser">' + esc(a.teaser) + '</p>' +
+      '<h3>' + title(a) + '</h3><p class="al-teaser">' + esc(a.teaser) + '</p>' +
       '<p class="al-k al-meta">' + meta(a) + '</p></a>';
   }
 
@@ -226,12 +233,12 @@
 
   function drawFeatured() {
     feat.href = T.urlFor(featured);
-    feat.querySelector('[data-al="tag"]').innerHTML = 'Featured &middot; ' + esc(featured.stage);
-    feat.querySelector('[data-al="title"]').textContent = featured.title;
+    feat.querySelector('[data-al="tag"]').innerHTML = 'Featured<span class="al-st"> &middot; ' + esc(featured.stage) + '</span><span class="al-ph"> &middot; ' + esc(mins(featured)) + '</span>';
+    feat.querySelector('[data-al="title"]').innerHTML = title(featured);
     feat.querySelector('[data-al="teaser"]').textContent = featured.teaser;
     feat.querySelector('[data-al="readif"]').innerHTML = readIf(featured);
     feat.querySelector('[data-al="meta"]').innerHTML = meta(featured);
-    feat.querySelector('[data-al="art"]').innerHTML = '<span class="al-art-big">' + art(featured, true) + '</span><span class="al-art-strip">' + strip(featured) + '</span>';
+    feat.querySelector('[data-al="art"]').innerHTML = art(featured, true);
   }
 
   function drawStart(list) {
@@ -240,7 +247,7 @@
         '<span class="al-num" aria-hidden="true">' + a.startHere + '</span>' +
         '<div class="al-art" aria-hidden="true">' + art(a, false) + '</div>' +
         '<p class="al-k al-start-meta">' + meta(a) + '</p>' +
-        '<h3>' + esc(a.title) + '</h3>' + ri(a) +
+        '<h3>' + title(a) + '</h3>' + ri(a) +
         '<p class="al-k al-start-time">' + meta(a) + '</p>' + ARROW + '</a></li>';
     }).join('');
   }

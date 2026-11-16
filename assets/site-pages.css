@@ -218,6 +218,8 @@
 .al-k { margin: 0; font-family: var(--tei-num); font-size: 11px; font-weight: 500; line-height: 1.45; letter-spacing: .05em; text-transform: uppercase; font-variant-numeric: tabular-nums; color: var(--g-muted); }
 .al-k.is-champ { color: var(--g-champ); }
 .al-nw { white-space: nowrap; }
+/* Phone-only parts: the short title, the read time in the featured chip, the i */
+.al-ts, .al-ph, .al-i { display: none; }
 
 /* Pictures */
 .al-art {
@@ -256,7 +258,6 @@
 .al-feat-meta { margin-top: auto; padding-top: 4px; }
 .al-feat-art { min-height: 300px; }
 .al-feat-art .gt-svg { left: 32px; bottom: 32px; width: calc(100% - 64px); height: calc(100% - 64px); }
-.al-art-strip { display: none; }
 @media (hover: hover) { .al-feat:hover h2 { color: var(--g-champ); } }
 
 /* L2: Start here */
@@ -320,47 +321,57 @@
   .al-card.is-side > .al-art { display: none; }
 }
 
-/* Phones */
+/* Phones: quieter. Short titles, the read time only (no stage), "Read this
+   if" as an outline i, Start here as one tile of three rows, tighter gaps. */
 @media (max-width: 860px) {
-  .al-feat-body { padding: 20px; gap: 12px; }
-  .al-feat h2 { font-size: 22px; line-height: 1.2; }
-  .al-feat-teaser { font-size: 15px; line-height: 1.55; }
-  .al-ri p { font-size: 14px; }
-  .al-ri.is-tile { padding: 12px 16px; }
-  .al-feat-meta { padding-top: 0; }
-  /* The picture recomposed as a short strip under the text, not shrunk */
-  .al-feat-art { height: 56px; margin: 0 20px 20px; }
-  .al-art-big { display: none; }
-  .al-art-strip { display: block; }
-  .al-feat-art .gt-svg { left: 0; bottom: 0; width: 100%; height: 100%; }
+  .al-st { display: none; }
+  .al-ph, .al-ts { display: inline; }
+  .al-tf, .al-ri-k { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .al-ri { display: grid; grid-template-columns: 16px minmax(0, 1fr); column-gap: 8px; align-items: start; }
+  .al-i { display: block; width: 16px; height: 16px; margin-top: 2px; fill: none; stroke: var(--g-champ); stroke-width: 1.8; stroke-linecap: round; }
+  .al-ri p { margin: 0; font-size: 14px; line-height: 1.5; }
 
-  /* Start here: a numbered list */
-  .al-start { margin-top: 32px; }
-  .al-h { font-size: 19px; }
-  .al-start-list { margin-top: 12px; grid-template-columns: minmax(0, 1fr); gap: 8px; }
-  .al-start-card { display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: 12px; row-gap: 4px; padding: 16px; border-radius: 12px; }
-  .al-start-card > * { grid-column: 2; }
-  .al-num { grid-column: 1; grid-row: 1 / span 3; font-size: 13px; line-height: 1.4; }
+  /* Featured: chip, title, the picture with room, then Read this if */
+  .al-feat { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+  .al-feat-body { display: contents; }
+  .al-feat-tag { order: 1; align-self: flex-start; }
+  .al-feat h2 { order: 2; font-size: 22px; line-height: 1.2; }
+  .al-feat-teaser, .al-feat-meta { display: none; }
+  .al-feat-art { order: 3; height: 120px; min-height: 0; }
+  .al-feat-art .gt-svg { left: 8px; bottom: 0; width: calc(100% - 16px); height: 100%; }
+  .al-feat .al-ri { order: 4; max-width: none; }
+  .al-ri.is-tile { padding: 12px; }
+
+  /* Start here: one tile, three numbered rows */
+  .al-start { margin-top: 24px; }
+  .al-h { font-size: 17px; }
+  .al-start-list { margin-top: 8px; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 16px; border-radius: 12px; background: var(--g-tile); }
+  .al-start-card { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 4px; min-height: 44px; padding: 0; border-radius: 0; background: none; }
+  .al-num { grid-column: 1; grid-row: 1; font-size: 13px; line-height: 1.6; }
+  .al-start-card h3 { grid-column: 2; grid-row: 1; font-size: 16px; line-height: 1.35; }
+  .al-start-time { display: block; grid-column: 3; grid-row: 1; line-height: 2; }
+  .al-start-card .al-ri { grid-column: 2 / span 2; grid-row: 2; }
   .al-start-card .al-art, .al-start-meta, .al-arrow { display: none; }
-  .al-start-card h3 { font-size: 16px; line-height: 1.3; }
-  .al-start-time { display: block; margin-top: 4px; }
 
-  .al-list { margin-top: 32px; }
+  .al-list { margin-top: 24px; }
   /* One swipeable row of chips (the page itself never scrolls sideways) */
   .al-cats { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .al-cats::-webkit-scrollbar { display: none; }
   .al-cat { flex: 0 0 auto; padding: 0 16px; font-size: 13px; }
   .al-filter-bar { display: block; }
-  .al-grid { margin-top: 16px; gap: 8px; }
-  .al-card { padding: 16px; gap: 8px; border-radius: 12px; min-height: 44px; }
+
+  /* Grid: two a row, the short title and the read time */
+  .al-grid { margin-top: 12px; gap: 8px; }
+  .al-card { padding: 12px 16px; gap: 4px; border-radius: 12px; min-height: 44px; }
   .al-card h3, .al-card.is-side h3 { font-size: 15px; line-height: 1.3; }
   .al-card .al-tag, .al-card .al-teaser, .al-card .al-ri, .al-card.is-side > .al-art { display: none; }
-  .al-card .al-meta { margin-top: auto; }
-  /* The lead: a thin picture strip, then the title and its line */
+  .al-card .al-meta { margin-top: auto; padding-top: 4px; }
+  /* The lead: a picture strip, the title, the read time */
   .al-card.is-lead { flex-direction: column; gap: 8px; }
-  .al-card.is-lead > .al-art { order: -1; flex: none; min-height: 0; height: 56px; }
-  .al-card.is-lead h3 { font-size: 19px; }
-  .al-lead-body { gap: 8px; }
+  .al-card.is-lead > .al-art { order: -1; flex: none; min-height: 0; height: 64px; }
+  .al-card.is-lead h3 { font-size: 17px; }
+  .al-lead-body { gap: 4px; }
+  .al-lead-body > .al-k { order: 2; }
 }
 
 /* =========================================================

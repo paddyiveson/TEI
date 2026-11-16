@@ -9,9 +9,8 @@
 
      TeiArt.ART[name](big)  the picture's markup; big is the wider version
                             for a featured card (lines only)
-     TeiArt.stack(strip)    the stacked bars of "Why your first £10,000 is so
-                            difficult"; strip is the same picture recomposed
-                            for a short, wide strip on phones */
+     TeiArt.stack()         the stacked bars of "Why your first £10,000 is so
+                            difficult" */
 (function (root) {
   'use strict';
 
@@ -70,18 +69,9 @@
     }
   };
 
-  function stack(strip) {
+  function stack() {
     // Four bars, each growing taller, with a champagne cap that grows faster:
     // the saver's money, then the growth on top.
-    if (strip) {
-      var out = '<svg class="gt-svg" viewBox="0 0 400 56" preserveAspectRatio="xMidYMax meet" focusable="false">';
-      [[10, 18], [18, 26], [26, 38], [32, 52]].forEach(function (h, i) {
-        var x = 24 + i * 96, base = 56 - h[0], cap = h[1] - h[0];
-        out += '<rect class="f-main o85" x="' + x + '" y="' + base + '" width="64" height="' + h[0] + '" rx="4"/>' +
-          '<rect class="f-acc" x="' + x + '" y="' + (base - cap) + '" width="64" height="' + cap + '" rx="3"/>';
-      });
-      return out + '</svg>';
-    }
     return '<svg class="gt-svg" viewBox="0 0 400 260" preserveAspectRatio="xMidYMax meet" focusable="false">' +
       '<line class="s-pale" x1="20" y1="240" x2="380" y2="240"/>' +
       '<rect class="f-main o85" x="40" y="168" width="60" height="72" rx="8"/><rect class="f-acc" x="40" y="156" width="60" height="12" rx="4"/>' +
