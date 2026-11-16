@@ -41,24 +41,27 @@
 <div class="g-glow g-glow-hero" aria-hidden="true"></div>
 <div class="g-w g-in">
 <h1>How money actually <span class="g-accent">behaves.</span></h1>
+<p class="g-dek">Short reads on how saving, markets and our own habits work. Start with the basics, or pick a topic.</p>
 </div>
 </section>
 
-<!-- THE LIST: the featured article in the shared feature glow (.g-feature), then the filters and the cards on the band -->
+<!-- THE LIST, all from /articles.json: the featured article in the lifted feature card (.g-feature.is-lift), Start here (three numbered cards), the filters, then one grid of the rest. A filter or a ?series= view hides the first two and shows every match in the grid. -->
 <section class="g-band g-b1 g-from0 is-long" aria-label="All articles">
 <div class="g-w is-tight">
-<!-- The featured article, from /articles.json -->
-<a id="al-featured" class="g-feature al-feat" hidden href="/articles.html">
+<div id="al-featured" class="g-feature is-lift al-feat" hidden>
 <div class="al-feat-body">
 <span class="al-feat-tag" data-al="tag"></span>
-<h2 data-al="title"></h2>
+<h2 class="al-h3" data-al="title"></h2>
 <p class="al-feat-teaser" data-al="teaser"></p>
-<p class="al-feat-meta" data-al="meta"></p>
+<div class="al-ri is-tile"><span class="al-k is-champ">Read this if</span><p data-al="readif"></p></div>
+<p class="al-feat-meta al-k" data-al="meta"></p>
 </div>
-<div class="al-feat-art" aria-hidden="true">
-<svg viewBox="0 0 400 260"><line x1="20" y1="240" x2="380" y2="240" stroke="rgba(255,255,255,0.12)"></line><rect x="40" y="168" width="60" height="72" rx="8" fill="#B9CAE6" fill-opacity=".85"></rect><rect x="40" y="156" width="60" height="12" rx="4" fill="#E8D6A8"></rect><rect x="130" y="128" width="60" height="112" rx="8" fill="#B9CAE6" fill-opacity=".85"></rect><rect x="130" y="98" width="60" height="30" rx="4" fill="#E8D6A8"></rect><rect x="220" y="96" width="60" height="144" rx="8" fill="#B9CAE6" fill-opacity=".85"></rect><rect x="220" y="44" width="60" height="52" rx="4" fill="#E8D6A8"></rect><rect x="310" y="118" width="60" height="122" rx="8" fill="#B9CAE6" fill-opacity=".85"></rect><rect x="310" y="20" width="60" height="98" rx="4" fill="#E8D6A8"></rect></svg>
+<div class="al-feat-art al-art is-bare" aria-hidden="true" data-al="art"></div>
 </div>
-</a>
+<section id="al-start" class="al-start" aria-labelledby="al-start-h" hidden>
+<h2 class="al-h" id="al-start-h">Start here</h2>
+<ol id="al-start-list" class="al-start-list"></ol>
+</section>
 <div class="al-list">
 <div class="al-filter-bar">
 <div id="al-cats" class="al-cats" role="group" aria-label="Category"></div>
@@ -117,78 +120,210 @@
   </div>
 </footer>
 <script src="/assets/article.js"></script>
+<script src="/assets/tei-art.js"></script>
 <script src="/assets/newsletter.js" defer></script>
 <script>
 /* Articles list: everything on this page is drawn from /articles.json.
-   ?series=<slug> shows one series (the link in an article's header). */
+   Unfiltered: the featured article, Start here (startHere 1 to 3), then the
+   grid of the rest in file order, so every article shows once. A category
+   chip or ?series=<slug> (the link in an article's header) hides the first
+   two parts and lists every match in the grid. Grid widths sit in data-w
+   (from 1100px, 12 columns) and data-n (below 1100px, 2 columns). */
 (function () {
-  var T = window.TeiArticles;
-  var CATEGORIES = ['All', 'Basics', 'Behaviour', 'ISAs & pensions', 'Markets'];
-  var ARROW = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"></path></svg>';
-  var grid = document.getElementById('al-grid');
-  var chips = document.getElementById('al-cats');
-  var shown = document.getElementById('al-shown');
-  var seriesLine = document.getElementById('al-series');
-  var featuredCard = document.getElementById('al-featured');
+  var T = window.TeiArticles, A = window.TeiArt;
+  var CHIP_ORDER = ['Basics', 'Behaviour', 'ISAs & pensions', 'Markets'];
+  var ARROW = '<svg class="al-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M7 17L17 7M9 7h8v8"></path></svg>';
+  function $(id) { return document.getElementById(id); }
+  var grid = $('al-grid'), chips = $('al-cats'), shown = $('al-shown'), seriesLine = $('al-series');
+  var feat = $('al-featured'), start = $('al-start'), startList = $('al-start-list');
   var seriesSlug = new URLSearchParams(location.search).get('series');
   var category = 'All';
-  var all = [], list = [];
+  var all = [], rest = [], featured = null;
+  var esc = T.escapeHtml;
 
-  function meta(a) { return T.escapeHtml(T.formatDate(a.date)) + '<span class="al-rt"> &middot; ' + T.escapeHtml(T.readTime(a.readTime)) + '</span>'; }
+  function mins(a) { return a.readTime + ' min'; }
+  // The stage drops on phones (.al-st); the read time stays.
+  function meta(a) { return '<span class="al-st">' + esc(a.stage) + ' &middot; </span><span class="al-nw">' + esc(mins(a)) + '</span>'; }
+  // The short title shows on phones; the full title stays for screen readers.
+  function title(a) {
+    if (!a.shortTitle) return esc(a.title);
+    return '<span class="al-tf">' + esc(a.title) + '</span><span class="al-ts" aria-hidden="true">' + esc(a.shortTitle) + '</span>';
+  }
+  function readIf(a) { return esc(String(a.readIf || '').replace(/^Read this if\s+/i, '')); }
+  // "Read this if" shows in full on desktop; on phones it sits behind an i
+  // after the title, opened by hover where there is one, and by a tap.
+  var INFO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 7.6v.2"></path></svg>';
+  var uid = 0;
+  function ri(a) { return a.readIf ? '<div class="al-ri"><span class="al-k is-champ">Read this if</span><p>' + readIf(a) + '</p></div>' : ''; }
+  function info(a) {
+    if (!a.readIf) return '';
+    var id = 'al-pop-' + (++uid);
+    return '<button type="button" class="al-info" aria-expanded="false" aria-controls="' + id + '" aria-label="Read this if">' + INFO + '</button>' +
+      '<span class="al-pop" id="' + id + '" hidden><span class="al-k is-champ">Read this if</span> ' + readIf(a) + '</span>';
+  }
+  // The title is the card's link (stretched over the card); the i sits beside it.
+  function head(a, tag) {
+    return '<' + tag + ' class="al-h3"><a class="al-a" href="' + T.urlFor(a) + '">' + title(a) + '</a>' + info(a) + '</' + tag + '>';
+  }
+  function art(a, big) {
+    if (!A) return '';
+    if (a.art === 'bars') return A.stack();
+    return A.ART[a.art] ? A.ART[a.art](big) : '';
+  }
 
-  function card(a) {
-    return '<a class="al-card" data-cat="' + T.escapeHtml(a.category) + '" href="' + T.urlFor(a) + '">' +
-      '<div class="al-card-top"><span class="al-tag">' + T.escapeHtml(a.category) + '</span>' + ARROW + '</div>' +
-      '<h3>' + T.escapeHtml(a.title) + '</h3>' +
-      '<p>' + T.escapeHtml(a.teaser) + '</p>' +
-      '<p class="al-card-meta">' + meta(a) + '</p></a>';
+  /* Widths. From 1100px: the lead at 8 beside one card at 4, then rows of
+     three; a remainder of two closes on 6 + 6, a remainder of one on two
+     rows of 6 + 6. Never a row with one card. 1 card: full; 2: 8 + 4;
+     3: the lead full, then 6 + 6. Below 1100px: the lead across, then two a
+     row, an odd last card across. */
+  function wide(n) {
+    if (!n) return [];
+    if (n === 1) return [12];
+    if (n === 2) return [8, 4];
+    if (n === 3) return [12, 6, 6];
+    var r = n - 2, m = r % 3, out = [8, 4], k = m === 0 ? r : m === 2 ? r - 2 : r - 4, i;
+    for (i = 0; i < k; i++) out.push(4);
+    if (m === 2) out.push(6, 6);
+    if (m === 1) out.push(6, 6, 6, 6);
+    return out;
+  }
+  function narrow(n) {
+    var out = [], i;
+    for (i = 0; i < n; i++) out.push(i === 0 || (i === n - 1 && (n - 1) % 2 === 1) ? 2 : 1);
+    return out;
+  }
+
+  function card(a, i, w, n) {
+    var at = ' data-w="' + w + '" data-n="' + n + '"';
+    if (i === 0) {
+      return '<div class="al-card is-lead"' + at + '><div class="al-lead-body">' +
+        '<p class="al-k">' + meta(a) + '<span class="al-st"> &middot; ' + esc(a.category) + '</span></p>' +
+        head(a, 'h3') + '<p class="al-teaser">' + esc(a.teaser) + '</p>' + ri(a) + '</div>' +
+        '<div class="al-art" aria-hidden="true">' + art(a, true) + '</div></div>';
+    }
+    if (i === 1 && w === 4) {
+      return '<div class="al-card is-side"' + at + '><div class="al-art" aria-hidden="true">' + art(a, false) + '</div>' +
+        head(a, 'h3') + ri(a) + '<p class="al-k al-meta">' + meta(a) + '</p></div>';
+    }
+    // The picture shows on phones only (every card has one there).
+    return '<div class="al-card"' + at + '><div class="al-art is-phone" aria-hidden="true">' + art(a, false) + '</div>' +
+      '<p class="al-k is-champ al-tag">' + esc(a.category) + '</p>' +
+      head(a, 'h3') + '<p class="al-teaser">' + esc(a.teaser) + '</p>' +
+      '<p class="al-k al-meta">' + meta(a) + '</p></div>';
+  }
+
+  // The lead goes first: the article marked lead, else the first in the list.
+  function withLead(list) {
+    var lead = list.filter(function (a) { return a.lead; })[0];
+    return lead ? [lead].concat(list.filter(function (a) { return a !== lead; })) : list;
   }
 
   function draw() {
-    var visible = list.filter(function (a) { return category === 'All' || a.category === category; });
-    grid.innerHTML = visible.map(card).join('');
-    // Read out by screen readers only: the chips already show the counts.
-    var n = visible.length + (visible.length === 1 ? ' article' : ' articles');
-    shown.textContent = seriesSlug ? n + ' in this series' : category === 'All' ? n : n + ' in ' + category;
+    var filtered = !!seriesSlug || category !== 'All';
+    var base = seriesSlug ? all.filter(function (a) { return a.series && a.series.slug === seriesSlug; }) :
+      category === 'All' ? rest : all.filter(function (a) { return a.category === category; });
+    var list = withLead(base), w = wide(list.length), n = narrow(list.length);
+    closeInfo();
+    grid.innerHTML = list.map(function (a, i) { return card(a, i, w[i], n[i]); }).join('');
+    feat.hidden = filtered || !featured;
+    start.hidden = filtered || !startList.children.length;
+    var count = filtered ? list.length : all.length;
+    var words = count + (count === 1 ? ' article' : ' articles');
+    shown.textContent = seriesSlug ? words + ' in this series' : category === 'All' ? words : words + ' in ' + category;
     Array.prototype.forEach.call(chips.querySelectorAll('button'), function (b) {
       b.setAttribute('aria-pressed', b.getAttribute('data-cat') === category ? 'true' : 'false');
     });
   }
 
+  // A category gets a chip only with two or more articles (all of them counted).
   function drawChips() {
-    chips.innerHTML = CATEGORIES.map(function (c) {
-      var n = c === 'All' ? list.length : list.filter(function (a) { return a.category === c; }).length;
-      return '<button type="button" class="al-cat" data-cat="' + T.escapeHtml(c) + '" aria-pressed="false">' +
-        T.escapeHtml(c) + ' <span>' + n + '</span></button>';
+    var cats = CHIP_ORDER.filter(function (c) { return all.filter(function (a) { return a.category === c; }).length >= 2; });
+    chips.innerHTML = ['All'].concat(cats).map(function (c) {
+      return '<button type="button" class="al-cat" data-cat="' + esc(c) + '" aria-pressed="false">' + esc(c) + '</button>';
     }).join('');
-    Array.prototype.forEach.call(chips.querySelectorAll('button'), function (b) {
-      b.addEventListener('click', function () { category = b.getAttribute('data-cat'); draw(); });
+    chips.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      category = b.getAttribute('data-cat'); draw();
+    });
+  }
+
+  function drawFeatured() {
+    feat.querySelector('[data-al="tag"]').innerHTML = 'Featured<span class="al-st"> &middot; ' + esc(featured.stage) + '</span><span class="al-ph"> &middot; ' + esc(mins(featured)) + '</span>';
+    feat.querySelector('[data-al="title"]').innerHTML = '<a class="al-a" href="' + T.urlFor(featured) + '">' + title(featured) + '</a>' + info(featured);
+    // A shorter teaser on phones where there is one; the full one stays for screen readers.
+    feat.querySelector('[data-al="teaser"]').innerHTML = featured.shortTeaser ?
+      '<span class="al-tf">' + esc(featured.teaser) + '</span><span class="al-ts" aria-hidden="true">' + esc(featured.shortTeaser) + '</span>' : esc(featured.teaser);
+    feat.querySelector('[data-al="readif"]').innerHTML = readIf(featured);
+    feat.querySelector('[data-al="meta"]').innerHTML = meta(featured);
+    feat.querySelector('[data-al="art"]').innerHTML = art(featured, true);
+  }
+
+  function drawStart(list) {
+    startList.innerHTML = list.map(function (a) {
+      return '<li><div class="al-start-card">' +
+        '<span class="al-num" aria-hidden="true">' + a.startHere + '</span>' +
+        '<div class="al-art" aria-hidden="true">' + art(a, false) + '</div>' +
+        '<p class="al-k al-start-meta">' + meta(a) + '</p>' +
+        head(a, 'h3') + ri(a) +
+        '<p class="al-k al-start-time">' + meta(a) + '</p>' + ARROW + '</div></li>';
+    }).join('');
+  }
+
+  /* The i: a tap or click opens and closes it; hover opens it where there is
+     hover; a click elsewhere or Escape closes it. One open at a time. */
+  var openBtn = null;
+  function setInfo(b, open) {
+    var pop = $(b.getAttribute('aria-controls'));
+    if (!pop) return;
+    if (open && openBtn && openBtn !== b) setInfo(openBtn, false);
+    pop.hidden = !open;
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    openBtn = open ? b : openBtn === b ? null : openBtn;
+    if (!open) delete b.dataset.hov;
+  }
+  function closeInfo() { if (openBtn) setInfo(openBtn, false); openBtn = null; }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.al-info');
+    if (b) {
+      e.preventDefault();
+      if (b.dataset.hov) { delete b.dataset.hov; return; }
+      setInfo(b, b.getAttribute('aria-expanded') !== 'true');
+      return;
+    }
+    if (openBtn && !e.target.closest('.al-pop')) closeInfo();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && openBtn) { var b = openBtn; closeInfo(); b.focus(); }
+  });
+  if (window.matchMedia && matchMedia('(hover: hover)').matches) {
+    document.addEventListener('mouseover', function (e) {
+      var b = e.target.closest && e.target.closest('.al-info');
+      if (b && b.getAttribute('aria-expanded') !== 'true') { setInfo(b, true); b.dataset.hov = '1'; }
+    });
+    document.addEventListener('mouseout', function (e) {
+      var b = e.target.closest && e.target.closest('.al-info');
+      if (b && b.dataset.hov && !b.contains(e.relatedTarget)) setInfo(b, false);
     });
   }
 
   T.load().then(function (articles) {
     all = articles;
-    var featured = all.filter(function (a) { return a.featured; })[0];
+    featured = all.filter(function (a) { return a.featured; })[0] || null;
+    var starts = all.filter(function (a) { return a.startHere && a !== featured; })
+      .sort(function (x, y) { return x.startHere - y.startHere; }).slice(0, 3);
+    rest = all.filter(function (a) { return a !== featured && starts.indexOf(a) < 0; });
     if (seriesSlug) {
-      // A series view lists every article in the series, the featured one included.
-      list = all.filter(function (a) { return a.series && a.series.slug === seriesSlug; });
-      var name = list.length ? list[0].series.name : seriesSlug;
-      seriesLine.innerHTML = 'Showing the ' + T.escapeHtml(name) + ' series. <a href="/articles.html">See all articles</a>';
+      var inSeries = all.filter(function (a) { return a.series && a.series.slug === seriesSlug; });
+      var name = inSeries.length ? inSeries[0].series.name : seriesSlug;
+      seriesLine.innerHTML = 'Showing the ' + esc(name) + ' series. <a href="/articles.html">See all articles</a>';
       seriesLine.hidden = false;
-    } else {
-      list = all.filter(function (a) { return a !== featured; });
-    }
-    if (featured) {
-      featuredCard.href = T.urlFor(featured);
-      featuredCard.querySelector('[data-al="tag"]').innerHTML = 'Featured &middot; ' + T.escapeHtml(featured.category);
-      featuredCard.querySelector('[data-al="title"]').textContent = featured.title;
-      featuredCard.querySelector('[data-al="teaser"]').textContent = featured.teaser;
-      featuredCard.querySelector('[data-al="meta"]').innerHTML = meta(featured);
-      featuredCard.hidden = false;
-    }
-    drawChips();
+      chips.hidden = true;
+    } else drawChips();
+    if (featured) drawFeatured();
+    drawStart(starts);
     draw();
   }).catch(function () {
+    shown.classList.remove('g-sr');
     shown.textContent = 'The articles could not be loaded. Please try again.';
   });
 })();
