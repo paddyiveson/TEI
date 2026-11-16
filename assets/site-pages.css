@@ -219,7 +219,24 @@
 .al-k.is-champ { color: var(--g-champ); }
 .al-nw { white-space: nowrap; }
 /* Phone-only parts: the short title, the read time in the featured chip, the i */
-.al-ts, .al-ph, .al-i { display: none; }
+.al-ts, .al-ph, .al-info, .al-art.is-phone { display: none; }
+
+/* Each card's link is its title, stretched over the card; the i (phones)
+   sits above it. */
+.al-h3 { margin: 0; }
+.al-a { color: inherit; text-decoration: none; }
+.al-a::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 16px; }
+.al-a:focus-visible { outline: none; }
+.al-a:focus-visible::after { outline: 2px solid var(--g-champ); outline-offset: 2px; }
+.al-pop { position: absolute; z-index: 3; left: 12px; right: 12px; display: block; margin-top: 8px; padding: 12px; border-radius: 12px; background: #1A2C4A; border: 1px solid rgba(232, 214, 168, .35); font-family: var(--tei-word); font-size: 13px; font-weight: 400; line-height: 1.5; letter-spacing: 0; color: var(--g-ink); text-wrap: pretty; }
+.al-pop .al-k { display: block; margin-bottom: 4px; }
+
+/* Hero: the line and a picture on the right */
+.al-hero-in { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-rows: 1fr auto; column-gap: 48px; align-items: end; }
+.al-hero-in > h1, .al-hero-in > .g-dek { grid-column: 1; }
+.al-hero-art { grid-column: 2; grid-row: 1 / span 2; height: 168px; }
+.al-hero-art .gt-svg { left: 0; bottom: 0; width: 100%; height: 100%; }
+.al-hero-strip { display: none; }
 
 /* Pictures */
 .al-art {
@@ -288,7 +305,7 @@
 
 /* The grid: 12 columns from 1100px, widths from data-w */
 .al-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
-.al-card { grid-column: span 4; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 16px; background: var(--g-tile); text-decoration: none; color: var(--g-ink); }
+.al-card { position: relative; grid-column: span 4; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 16px; background: var(--g-tile); text-decoration: none; color: var(--g-ink); }
 .al-card[data-w="6"] { grid-column: span 6; }
 .al-card[data-w="8"] { grid-column: span 8; }
 .al-card[data-w="12"] { grid-column: span 12; }
@@ -327,9 +344,17 @@
   .al-st { display: none; }
   .al-ph, .al-ts { display: inline; }
   .al-tf, .al-ri-k { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-  .al-ri { display: grid; grid-template-columns: 16px minmax(0, 1fr); column-gap: 8px; align-items: start; }
-  .al-i { display: block; width: 16px; height: 16px; margin-top: 2px; fill: none; stroke: var(--g-champ); stroke-width: 1.8; stroke-linecap: round; }
-  .al-ri p { margin: 0; font-size: 14px; line-height: 1.5; }
+  /* "Read this if" behind the i after each title */
+  .al-ri { display: none; }
+  .al-info { -webkit-tap-highlight-color: transparent; display: inline-flex; position: relative; z-index: 2; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -14px -14px -14px -8px; padding: 0; border: 0; background: none; color: var(--g-champ); cursor: pointer; vertical-align: middle; }
+  .al-info svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+  .al-info[aria-expanded="true"] svg { fill: rgba(232, 214, 168, .18); }
+
+  /* Hero: the title, the line, then the picture as a wide strip */
+  .al-hero-in { display: block; }
+  .al-hero-art { height: auto; margin-top: 20px; }
+  .al-hero-big { display: none; }
+  .al-hero-art .al-hero-strip { display: block; position: static; width: 100%; height: auto; }
 
   /* Featured: chip, title, the picture with room, then Read this if */
   .al-feat { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
@@ -339,18 +364,15 @@
   .al-feat-teaser, .al-feat-meta { display: none; }
   .al-feat-art { order: 3; height: 120px; min-height: 0; }
   .al-feat-art .gt-svg { left: 8px; bottom: 0; width: calc(100% - 16px); height: 100%; }
-  .al-feat .al-ri { order: 4; max-width: none; }
-  .al-ri.is-tile { padding: 12px; }
 
   /* Start here: one tile, three numbered rows */
   .al-start { margin-top: 24px; }
   .al-h { font-size: 17px; }
-  .al-start-list { margin-top: 8px; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 16px; border-radius: 12px; background: var(--g-tile); }
+  .al-start-list { margin-top: 8px; grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 16px; border-radius: 12px; background: var(--g-tile); }
   .al-start-card { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; column-gap: 12px; row-gap: 4px; min-height: 44px; padding: 0; border-radius: 0; background: none; }
   .al-num { grid-column: 1; grid-row: 1; font-size: 13px; line-height: 1.6; }
   .al-start-card h3 { grid-column: 2; grid-row: 1; font-size: 16px; line-height: 1.35; }
   .al-start-time { display: block; grid-column: 3; grid-row: 1; line-height: 2; }
-  .al-start-card .al-ri { grid-column: 2 / span 2; grid-row: 2; }
   .al-start-card .al-art, .al-start-meta, .al-arrow { display: none; }
 
   .al-list { margin-top: 24px; }
@@ -364,11 +386,13 @@
   .al-grid { margin-top: 12px; gap: 8px; }
   .al-card { padding: 12px 16px; gap: 4px; border-radius: 12px; min-height: 44px; }
   .al-card h3, .al-card.is-side h3 { font-size: 15px; line-height: 1.3; }
-  .al-card .al-tag, .al-card .al-teaser, .al-card .al-ri, .al-card.is-side > .al-art { display: none; }
+  .al-card .al-tag, .al-card .al-teaser { display: none; }
+  /* Every card has a picture on phones */
+  .al-card > .al-art, .al-card.is-side > .al-art, .al-art.is-phone { display: block; flex: none; height: 56px; }
   .al-card .al-meta { margin-top: auto; padding-top: 4px; }
   /* The lead: a picture strip, the title, the read time */
   .al-card.is-lead { flex-direction: column; gap: 8px; }
-  .al-card.is-lead > .al-art { order: -1; flex: none; min-height: 0; height: 64px; }
+  .al-card.is-lead > .al-art { order: -1; flex: none; min-height: 0; height: 112px; }
   .al-card.is-lead h3 { font-size: 17px; }
   .al-lead-body { gap: 4px; }
   .al-lead-body > .al-k { order: 2; }
