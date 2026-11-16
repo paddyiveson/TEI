@@ -206,64 +206,161 @@
 
 /* =========================================================
    3. Articles
+   The page answers "what should I read, and how will it help me?":
+     L1  the featured article in the lifted feature card (.g-feature.is-lift)
+     L2  Start here: three numbered cards, flat
+         then the chips (filter the grid only) and one hierarchy grid:
+         the lead at 8 columns beside a card at 4, then rows of three.
+   Cards are flat tiles (--g-tile, 16px, 24px padding, no dividers); only the
+   featured card glows. Small labels: Inter 11px, capitals, +0.05em.
+   Pictures: /assets/tei-art.js, coloured here in powder blue and champagne.
    ========================================================= */
-/* The featured article, in the shared feature glow (.g-feature) */
-.al-feat { display: flex; flex-wrap: wrap; text-decoration: none; }
-.al-feat-body { flex: 1 1 420px; min-width: 0; padding: 36px; display: flex; flex-direction: column; gap: 14px; }
-.al-feat-tag { align-self: flex-start; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--g-champ); color: var(--g-champ-ink); }
-.al-feat h2 { margin: 0; font-size: clamp(28px, 2.6vw, 38px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; color: var(--g-ink); text-wrap: balance; }
-.al-feat-teaser { margin: 0; max-width: 52ch; font-size: 17px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
-.al-feat-meta { margin: auto 0 0; padding-top: 10px; font-size: 13px; color: var(--g-muted); }
-.al-feat-art { position: relative; flex: 1 1 380px; min-width: 0; min-height: 280px; }
-.al-feat-art svg { position: absolute; inset: 24px; width: calc(100% - 48px); height: calc(100% - 48px); }
+.al-k { margin: 0; font-family: var(--tei-num); font-size: 11px; font-weight: 500; line-height: 1.45; letter-spacing: .05em; text-transform: uppercase; font-variant-numeric: tabular-nums; color: var(--g-muted); }
+.al-k.is-champ { color: var(--g-champ); }
+.al-nw { white-space: nowrap; }
+
+/* Pictures */
+.al-art {
+  position: relative; overflow: hidden; border-radius: 12px; background: rgba(255, 255, 255, .04);
+  --gt-ill-main: #B9CAE6; --gt-ill-pale: rgba(185, 202, 230, .32); --gt-ill-acc: var(--g-champ); --gt-ill-tile: rgba(185, 202, 230, .16);
+}
+.al-art.is-bare { background: none; border-radius: 0; }
+.al-art .gt-svg { position: absolute; left: 16px; bottom: 12px; width: calc(100% - 32px); height: calc(100% - 24px); overflow: visible; }
+.al-art .gt-svg * { stroke-linecap: round; stroke-linejoin: round; }
+.al-art .s-main { fill: none; stroke: var(--gt-ill-main); }
+.al-art .s-pale { fill: none; stroke: var(--gt-ill-pale); }
+.al-art .s-acc { fill: none; stroke: var(--gt-ill-acc); }
+.al-art .f-main { fill: var(--gt-ill-main); }
+.al-art .f-acc { fill: var(--gt-ill-acc); }
+.al-art .f-tile { fill: var(--gt-ill-tile); }
+.al-art .f-soft { fill: var(--gt-ill-pale); }
+.al-art .f-pale { fill: rgba(185, 202, 230, .14); }
+.al-art .w2 { stroke-width: 2.2; }
+.al-art .w3 { stroke-width: 2.6; }
+.al-art .o5 { opacity: .5; }
+.al-art .o85 { opacity: .85; }
+.al-art .dash { stroke-dasharray: 5 6; }
+
+/* "Read this if": a label, then the sentence */
+.al-ri p { margin: 4px 0 0; font-size: 15px; line-height: 1.55; color: var(--g-sub); text-wrap: pretty; }
+.al-ri.is-tile { padding: 16px 20px; border-radius: 12px; background: rgba(255, 255, 255, .06); }
+.al-ri.is-tile p { color: var(--g-ink); }
+
+/* L1: the featured article */
+.al-feat { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); text-decoration: none; }
+.al-feat-body { min-width: 0; padding: 40px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+.al-feat-tag { padding: 6px 12px; border-radius: 999px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .05em; text-transform: uppercase; background: var(--g-champ); color: var(--g-champ-ink); }
+.al-feat h2 { margin: 0; max-width: 24ch; font-size: clamp(28px, 2.8vw, 40px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; color: var(--g-ink); text-wrap: balance; }
+.al-feat-teaser { margin: 0; max-width: 56ch; font-size: 17px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
+.al-feat .al-ri { align-self: stretch; max-width: 60ch; }
+.al-feat-meta { margin-top: auto; padding-top: 4px; }
+.al-feat-art { min-height: 300px; }
+.al-feat-art .gt-svg { left: 32px; bottom: 32px; width: calc(100% - 64px); height: calc(100% - 64px); }
+.al-art-strip { display: none; }
 @media (hover: hover) { .al-feat:hover h2 { color: var(--g-champ); } }
 
-/* Filters, then the cards on the band (hairlines, or space on g-airy pages) */
+/* L2: Start here */
+.al-start { margin-top: 48px; }
+.al-h { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; color: var(--g-ink); }
+.al-start-list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: none; }
+.al-start-list > li { display: flex; min-width: 0; }
+.al-start-card { position: relative; flex: 1; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 16px; background: var(--g-tile); text-decoration: none; color: var(--g-ink); }
+.al-num { font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .05em; font-variant-numeric: tabular-nums; color: var(--g-champ); }
+.al-start-card .al-art { height: 96px; flex: none; }
+.al-start-card h3 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.015em; line-height: 1.25; text-wrap: balance; }
+.al-start-card .al-ri { flex: 1; }
+.al-start-time { display: none; }
+.al-arrow { align-self: flex-end; width: 20px; height: 20px; fill: none; stroke: var(--g-champ); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) { .al-start-card:hover h3 { color: var(--g-champ); } }
+
+/* Chips: All and each category with two or more articles. No counts. */
 .al-list { margin-top: 48px; }
-.al-filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.al-filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .al-cats { display: flex; flex-wrap: wrap; gap: 8px; }
-.al-cat { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(232, 214, 168, .22); background: transparent; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500; color: var(--g-ink); }
-.al-cat span { font-family: var(--tei-num); font-size: 12px; opacity: .75; }
+.al-cat { min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(232, 214, 168, .45); background: transparent; cursor: pointer; font-family: inherit; font-size: 14px; font-weight: 500; color: var(--g-ink); }
 .al-cat[aria-pressed="true"] { background: var(--g-champ); border-color: var(--g-champ); color: var(--g-champ-ink); }
+@media (hover: hover) { .al-cat[aria-pressed="false"]:hover { border-color: rgba(232, 214, 168, .6); } }
 #al-shown { margin: 0; font-size: 14px; color: var(--g-muted); }
-#al-series { margin: 20px 0 0; font-size: 15px; color: var(--g-sub); }
+#al-series { margin: 0 0 4px; font-size: 15px; color: var(--g-sub); }
 #al-series a { color: var(--g-champ); }
-.al-grid { margin-top: 28px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--g-line); }
-.al-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 210px; padding: 24px 28px; border-bottom: 1px solid var(--g-line); border-left: 1px solid var(--g-line); text-decoration: none; }
-.al-card:nth-child(3n + 1) { border-left: 0; padding-left: 0; }
-.al-card-top { display: flex; justify-content: space-between; align-items: center; color: var(--g-champ); }
-.al-tag { font-size: 13px; font-weight: 500; color: var(--g-champ); }
-.al-card h3 { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -.015em; line-height: 1.25; color: var(--g-ink); }
-.al-card p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--g-muted); }
-.al-card p.al-card-meta { margin-top: auto; font-size: 13px; }
+.al-cats[hidden] + #al-shown { margin: 0; }
+
+/* The grid: 12 columns from 1100px, widths from data-w */
+.al-grid { margin-top: 24px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+.al-card { grid-column: span 4; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 16px; background: var(--g-tile); text-decoration: none; color: var(--g-ink); }
+.al-card[data-w="6"] { grid-column: span 6; }
+.al-card[data-w="8"] { grid-column: span 8; }
+.al-card[data-w="12"] { grid-column: span 12; }
+.al-card h3 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; text-wrap: balance; }
+.al-teaser { margin: 0; font-size: 15px; line-height: 1.55; color: var(--g-muted); text-wrap: pretty; }
+.al-meta { margin-top: auto; }
+/* The lead: text beside its picture */
+.al-card.is-lead { flex-direction: row; gap: 24px; }
+.al-lead-body { flex: 1 1 58%; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.al-card.is-lead h3 { font-size: 24px; letter-spacing: -.015em; line-height: 1.2; }
+.al-card.is-lead .al-ri { padding-top: 4px; }
+.al-card.is-lead > .al-art { flex: 0 0 38%; min-height: 200px; }
+/* The card beside the lead: a picture strip on top */
+.al-card.is-side > .al-art { height: 88px; flex: none; }
+.al-card.is-side h3 { font-size: 19px; }
 @media (hover: hover) { .al-card:hover h3 { color: var(--g-champ); } }
-@media (min-width: 861px) and (max-width: 1099px) {
+
+/* 861 to 1099px: one reading column; the lead across, then two a row */
+@media (max-width: 1099px) {
+  .al-feat { grid-template-columns: minmax(0, 1fr); }
+  .al-feat-art { min-height: 0; height: 200px; }
+  .al-feat-art .gt-svg { left: 40px; bottom: 24px; width: calc(100% - 80px); height: calc(100% - 24px); }
+  .al-start-card { padding: 20px; }
+  .al-start-card .al-art { height: 72px; }
+  .al-start-card h3 { font-size: 19px; }
   .al-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .al-card:nth-child(3n + 1) { border-left: 1px solid var(--g-line); padding-left: 28px; }
-  .al-card:nth-child(2n + 1) { border-left: 0; padding-left: 0; }
+  .al-card, .al-card[data-w] { grid-column: span 1; }
+  .al-card[data-n="2"] { grid-column: 1 / -1; }
+  /* Two a row: the card beside the lead drops its picture to match its pair */
+  .al-card.is-side > .al-art { display: none; }
 }
+
+/* Phones */
 @media (max-width: 860px) {
-  .al-feat-body { padding: 20px; gap: 10px; }
+  .al-feat-body { padding: 20px; gap: 12px; }
   .al-feat h2 { font-size: 22px; line-height: 1.2; }
-  .al-feat-teaser, .al-feat-art { display: none; }
-  .al-list { margin-top: 28px; }
-  /* One swipeable row of filters (the page itself never scrolls sideways) */
+  .al-feat-teaser { font-size: 15px; line-height: 1.55; }
+  .al-ri p { font-size: 14px; }
+  .al-ri.is-tile { padding: 12px 16px; }
+  .al-feat-meta { padding-top: 0; }
+  /* The picture recomposed as a short strip under the text, not shrunk */
+  .al-feat-art { height: 56px; margin: 0 20px 20px; }
+  .al-art-big { display: none; }
+  .al-art-strip { display: block; }
+  .al-feat-art .gt-svg { left: 0; bottom: 0; width: 100%; height: 100%; }
+
+  /* Start here: a numbered list */
+  .al-start { margin-top: 32px; }
+  .al-h { font-size: 19px; }
+  .al-start-list { margin-top: 12px; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .al-start-card { display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: 12px; row-gap: 4px; padding: 16px; border-radius: 12px; }
+  .al-start-card > * { grid-column: 2; }
+  .al-num { grid-column: 1; grid-row: 1 / span 3; font-size: 13px; line-height: 1.4; }
+  .al-start-card .al-art, .al-start-meta, .al-arrow { display: none; }
+  .al-start-card h3 { font-size: 16px; line-height: 1.3; }
+  .al-start-time { display: block; margin-top: 4px; }
+
+  .al-list { margin-top: 32px; }
+  /* One swipeable row of chips (the page itself never scrolls sideways) */
   .al-cats { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .al-cats::-webkit-scrollbar { display: none; }
-  .al-cat { flex: 0 0 auto; padding: 0 14px; font-size: 13px; }
+  .al-cat { flex: 0 0 auto; padding: 0 16px; font-size: 13px; }
   .al-filter-bar { display: block; }
-  #al-shown { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .al-grid { margin-top: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .al-card { min-height: 0; padding: 14px 12px; gap: 6px; }
-  .al-card:nth-child(3n + 1) { border-left: 1px solid var(--g-line); padding-left: 12px; }
-  .al-card:nth-child(2n + 1) { border-left: 0; padding-left: 0; }
-  .al-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
-  .al-card-top svg { width: 14px; height: 14px; }
-  .al-tag { font-size: 12px; }
-  .al-card h3 { font-size: 15px; line-height: 1.3; letter-spacing: -.01em; }
-  .al-card p { display: none; }
-  .al-card p.al-card-meta { display: block; font-size: 12px; }
-  .al-rt { display: none; }
+  .al-grid { margin-top: 16px; gap: 8px; }
+  .al-card { padding: 16px; gap: 8px; border-radius: 12px; min-height: 44px; }
+  .al-card h3, .al-card.is-side h3 { font-size: 15px; line-height: 1.3; }
+  .al-card .al-tag, .al-card .al-teaser, .al-card .al-ri, .al-card.is-side > .al-art { display: none; }
+  .al-card .al-meta { margin-top: auto; }
+  /* The lead: a thin picture strip, then the title and its line */
+  .al-card.is-lead { flex-direction: column; gap: 8px; }
+  .al-card.is-lead > .al-art { order: -1; flex: none; min-height: 0; height: 56px; }
+  .al-card.is-lead h3 { font-size: 19px; }
+  .al-lead-body { gap: 8px; }
 }
 
 /* =========================================================
@@ -321,7 +418,6 @@
   .tei-ground .gt-card:not(.is-feat) .gt-body { padding: 10px 0 2px; }
   .tei-ground [data-gt-mode="public"] { --gt-sec-gap: 40px; }
 }
-@media (min-width: 1100px) { .al-card:last-child:nth-child(3n + 1) { grid-column: 1 / -1; } }
 .tei-ground .gt-stage h3 { font-weight: 600; }
 
 /* =========================================================
@@ -346,14 +442,6 @@ body.g-airy .ab-notes { margin-top: 48px; gap: 32px 40px; align-items: start; }
   body.g-airy .ab-dots li::before { top: 13px; }
   body.g-airy .ab-notes { margin-top: 28px; gap: 20px; }
   body.g-airy .ab-note { padding: 0; }
-}
-
-/* Articles: the cards separated by space, no dead space inside them */
-body.g-airy .al-grid { border-top: 0; margin-top: 36px; column-gap: 56px; row-gap: 44px; }
-body.g-airy .al-card, body.g-airy .al-card:nth-child(n) { min-height: 0; padding: 0; border: 0; }
-body.g-airy .al-card p.al-card-meta { padding-top: 4px; }
-@media (max-width: 860px) {
-  body.g-airy .al-grid { margin-top: 20px; column-gap: 16px; row-gap: 24px; }
 }
 
 /* Guides & Tools: cards separated by space; the members strip above the close */
