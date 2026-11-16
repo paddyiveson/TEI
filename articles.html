@@ -250,7 +250,9 @@
   function drawFeatured() {
     feat.querySelector('[data-al="tag"]').innerHTML = 'Featured<span class="al-st"> &middot; ' + esc(featured.stage) + '</span><span class="al-ph"> &middot; ' + esc(mins(featured)) + '</span>';
     feat.querySelector('[data-al="title"]').innerHTML = '<a class="al-a" href="' + T.urlFor(featured) + '">' + title(featured) + '</a>' + info(featured);
-    feat.querySelector('[data-al="teaser"]').textContent = featured.teaser;
+    // A shorter teaser on phones where there is one; the full one stays for screen readers.
+    feat.querySelector('[data-al="teaser"]').innerHTML = featured.shortTeaser ?
+      '<span class="al-tf">' + esc(featured.teaser) + '</span><span class="al-ts" aria-hidden="true">' + esc(featured.shortTeaser) + '</span>' : esc(featured.teaser);
     feat.querySelector('[data-al="readif"]').innerHTML = readIf(featured);
     feat.querySelector('[data-al="meta"]').innerHTML = meta(featured);
     feat.querySelector('[data-al="art"]').innerHTML = art(featured, true);
