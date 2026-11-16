@@ -10,7 +10,7 @@
   var LEADS_URL = 'https://ztyqijiiayrengvxsqkw.supabase.co/rest/v1/leads';
   var LEADS_KEY = 'sb_publishable_-ufG5z9acIv49A_TSU0YiQ_D2XNDl92';
 
-  // TODO(copy sheet): approve these three messages.
+  // Messages approved by Paddy, Nov 2026.
   var INVALID = 'Enter a valid email address.';
   var DONE = 'Thank you. You are on the list.';
   var FAILED = 'That did not go through. Please try again.';
