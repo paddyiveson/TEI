@@ -3133,6 +3133,32 @@ window.TEI = window.TEI || {};
     const basis = rule.basis === 'salary_derived' ? `salary-derived (${fmtGBP(rule.gross_annual_salary)} gross)` : 'fixed';
     return `<div class="ep-rule">Recurring contribution <strong>${fmtGBP2(monthly)}/mo</strong> on day ${rule.day_of_month} · ${basis}${Number(rule.annual_uplift_pct)>0 ? ' · uplift '+fmtPct(rule.annual_uplift_pct)+'/yr' : ''}${flags.length ? ` <span class="flag-badge" title="Income changed, review the contribution">${flags.length} pending flag${flags.length>1?'s':''}</span>` : ''}</div>`;
   }
+  /* Settings > Accounts > <account> drawer: the same rule summary and
+     switches the Manual Entry account card shows, adviser view only (the
+     client keeps the plain line in the drawer). Mounted like the Trading
+     212 panel; onEditor runs when a control opens the rule editor, so the
+     drawer can close and show the editor card behind it. */
+  function contribPanel(host, accountId, onEditor){
+    host.dataset.acct = accountId;
+    host._onEditor = onEditor || null;
+    drawContribHost(host);
+  }
+  function drawContribHost(host){
+    const acc = client && client.accounts.find(a=>a.id===host.dataset.acct);
+    host.innerHTML = (acc && isAdviserView())
+      ? contribRuleSummaryHtml(acc) + (acc.isManualPriced ? accountCheckedHtml(acc) : '') + contribTogglesHtml(acc) : '';
+    host.hidden = !host.innerHTML.trim();
+    wireContribAccountControls(host);
+    const opened = ()=>{ if(host._onEditor) host._onEditor(); };
+    host.querySelectorAll('[data-cr-open]').forEach(b=> b.addEventListener('click', opened));
+    // Switching the rule on opens the editor (toggleContributionRule runs
+    // first, as it was wired first); switching it off stays in the drawer.
+    host.querySelectorAll('[data-cr-rule]').forEach(cb=>{
+      let turningOn = false;
+      cb.addEventListener('click', ()=>{ turningOn = cb.checked; });
+      cb.addEventListener('change', ()=>{ if(turningOn) opened(); });
+    });
+  }
   function contribTogglesHtml(acc){
     if(!isAdviserView()) return '';
     const hasHistory = contribState().rules.some(r=>r.account_id===acc.id);
@@ -3221,6 +3247,7 @@ window.TEI = window.TEI || {};
     });
     renderAccounts(); renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields();
     updateHoldingFormForManualPriced();
+    const ch = document.getElementById('slRule'); if(ch && ch.dataset.acct) drawContribHost(ch);
     if(crAccountId) renderRuleEditorAux();
     renderIncomeFlagPrompt();
     if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
@@ -3365,6 +3392,7 @@ window.TEI = window.TEI || {};
       return;
     }
     if(seq !== crPreviewSeq || !crAccountId) return;
+    if(!res){ crEl('crBreakdown').textContent = 'Could not calculate, try again'; return; }
     renderBreakdown(res, p);
   }
   function renderBreakdown(res, p){
@@ -3644,6 +3672,6 @@ window.TEI = window.TEI || {};
     cancel: { account: cancelAcctEdit, holding: cancelHoldingEdit, asset: cancelAssetEdit, liability: cancelLiabEdit,
       income: cancelAdvIncomeEdit, expense: cancelAdvExpenseEdit }
   };
-  TEI.adviser = { init, refresh, refreshLivePrices, forms, brokerPanel };
+  TEI.adviser = { init, refresh, refreshLivePrices, forms, brokerPanel, contribPanel };
 })();
 

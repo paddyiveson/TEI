@@ -9,6 +9,8 @@
      nosession no Cal.com session booked
      stale     the plan and this month were changed after the notes were written
      light     light theme
+     newacct   an account added this month (Wealth shows "–" for its return)
+     coach     the coach's view, with a pension contribution rule and manual pricing
    Today is taken from the browser clock. */
 (function(){
   'use strict';
@@ -70,6 +72,29 @@
     }
   });
 
+  // newacct: an account added this month (one balance, nothing paid in yet),
+  // so the Wealth page shows its "not enough history yet" return.
+  if(has('newacct')){
+    var fresh = acc({provider: 'Freetrade', type: 'gia', value: 1500});
+    accounts.push(fresh);
+    account_months.push({id: id(), account_id: fresh.id, month_key: mk(0), value: 1500, carried_forward: false, last_edited_at: iso(2)});
+  }
+  // coach: the coach's view, with a salary-derived pension rule and manual
+  // pricing on the pension (Settings > Accounts > Aviva).
+  var rules = [], ruleAllocs = [], ruleState = [], ruleRuns = [];
+  if(has('coach')){
+    var penHolding = holdings.filter(function(h){ return h.account_id === pension.id; })[0];
+    Object.assign(pension, {has_contribution_rule: true, is_manual_priced: true, contribution: 0, contribution_personal: 0, contribution_sacrifice: 350});
+    if(penHolding) penHolding.value_checked_at = iso(40).slice(0, 10);
+    var ruleId = id();
+    rules.push({id: ruleId, account_id: pension.id, version: 1, effective_from: dateIn(-6), effective_to: null, basis: 'salary_derived',
+      allocation_method: 'percentage', total_amount: null, day_of_month: 28, annual_uplift_pct: 3, linked_income_id: null,
+      gross_annual_salary: 42000, pensionable_basis: 'full_salary', employee_pct: 5, employer_pct: 5, employer_match_cap_pct: 5,
+      contribution_method: 'salary_sacrifice', employer_ni_passon_pct: 0, change_reason: 'created', created_at: iso(180), created_by: UID});
+    if(penHolding) ruleAllocs.push({id: id(), rule_id: ruleId, holding_id: penHolding.id, weight_pct: 100, amount: null, sort_order: 0});
+    ruleState.push({account_id: pension.id, start_date: dateIn(-6), next_uplift_date: dateIn(6), last_reviewed_at: dateIn(-6), last_review_source: 'created'});
+  }
+
   // Cashflow: twelve logged months of take-home, essentials, lifestyle and wealth building.
   var cashflow_months = [];
   for(var c = 11; c >= 0; c--){
@@ -122,7 +147,7 @@
   window.WOS_DEMO = {
     user: {id: UID, email: 'demo@example.invalid'},
     tables: {
-      profiles: [{user_id: UID, role: 'client', first_name: 'Sam'}],
+      profiles: [{user_id: UID, role: has('coach') ? 'adviser' : 'client', first_name: 'Sam'}],
       clients: [client],
       accounts: accounts, holdings: holdings, account_months: account_months, account_deposits: account_deposits, holding_months: [],
       goals: [{id: id(), client_id: CID, name: 'House deposit', type: 'savings', target_value: 30000, target_date: dateIn(30), status: 'active',
@@ -135,7 +160,7 @@
         {id: id(), client_id: CID, category: 'variable', label: 'Lifestyle', amount: behind ? 950 : 600, owner: 'client', spend_category: 'lifestyle'}],
       cashflow_settings: [{client_id: CID, monthly_savings: 0, monthly_investing: 0, emergency_fund_target: null, emergency_fund_current: null,
         emergency_fund_account_id: cash.id, wealth_conversion_target: behind ? 20 : 25, retirement_age: 60, yearly_spending: behind ? 30000 : 21600,
-        safety_net_months: 6, fi_multiple: null, fi_override: null, one_offs: null, savings_goals: null, monte_carlo: null,
+        safety_net_months: 6, fi_multiple: null, fi_override: null, one_offs: null, savings_goals: null,
         plan_saved_at: has('stale') ? iso(2) : null}],
       cashflow_months: cashflow_months,
       dividend_holdings: behind ? [] : [
@@ -156,7 +181,7 @@
       wealth_liabilities: liabilities,
       insurance: [], documents: [], feedback: feedback, households: [],
       boundary_acknowledgements: [{user_id: UID, acknowledged_at: '2023-06-01T09:00:00Z'}],
-      contribution_rules: [], contribution_rule_state: [], contribution_runs: [], contribution_flags: [],
+      contribution_rules: rules, contribution_rule_allocations: ruleAllocs, contribution_rule_state: ruleState, contribution_runs: ruleRuns, contribution_flags: [],
       forecast_state: [], portfolio_scenarios: [], members_content: [], price_cache: [], education_progress: []
     }
   };

@@ -39,11 +39,31 @@ TEI.render = TEI.render || {};
     if(a[accId] == null || b[accId] == null) return 0;
     return (Number(a[accId])||0) - (Number(b[accId])||0);
   }
-  /* Return on money paid in: value less what went in (bonuses and relief count as growth on the pension, as on the old page). */
-  function accReturn(client, a, value){
-    const cb = TEI.calc.acctContributionBreakdown(client, a.id);
-    const dep = cb.opening + cb.paidIn + cb.sacrifice;
-    return dep > 0 ? (value - dep)/dep*100 : null;
+  /* Return across the tracked months, money-weighted (TEI.calc.accountsReturnPct):
+     the first tracked balance is the starting point, not profit, and money
+     paid in after it is not growth. Cash shows no return (money there is
+     meant to be spent). Two cases show "–" instead of a figure: not enough
+     history, or an unreviewed gap between the balance and money paid in
+     (the figure would rest on records that do not add up). */
+  const NA_HISTORY = {na: 'Not enough history yet'};
+  const NA_MISMATCH = {na: 'Balance and money paid in do not match yet'};
+  const NA_PARTIAL = {na: 'Most of this group has no return figure yet'};
+  const isNA = r=> !!(r && r.na);
+  function mismatched(client, a){
+    const d = TEI.calc.contributionDiscrepancy(client, [a.id]);
+    return TEI.calc.isDiscrepancyFlaggable(d) && !TEI.calc.isDiscrepancyDismissed(a, d.diff);
+  }
+  function accReturn(client, a){
+    if(CASH_TYPES.includes(a.type)) return null;
+    if(mismatched(client, a)) return NA_MISMATCH;
+    const r = TEI.calc.accountsReturnPct(client, [a.id], months(client));
+    return r == null ? NA_HISTORY : r;
+  }
+  /* A return cell: the figure, or "–" with its reason (title for pointers,
+     aria-label for screen readers; the open panel says it in words too). */
+  function retHtml(r){
+    if(isNA(r)) return '<span class="na" title="' + r.na + '" aria-label="Return: ' + r.na.toLowerCase() + '">–</span>';
+    return '<span class="' + cls(r) + '">' + pc(r) + '</span>';
   }
   function holdingsOf(client, a){
     return (client.holdings||[]).filter(h=> h.accountId === a.id).sort((x, y)=> (Number(y.value)||0) - (Number(x.value)||0)).map(h=>{
@@ -68,7 +88,7 @@ TEI.render = TEI.render || {};
           const hs = holdingsOf(client, a);
           const cash = Number(a.cashBalance)||0;
           if(hs.length && cash > 0) hs.push({t:'Cash', d:'Uninvested', v:cash, r:null});
-          return {id:a.id, n:a.provider || acctLabel(a), w:TYPE_WORD[a.type] || 'Account', v, c:monthChange(client, a.id), r:accReturn(client, a, v),
+          return {id:a.id, n:a.provider || acctLabel(a), w:TYPE_WORD[a.type] || 'Account', v, c:monthChange(client, a.id), r:accReturn(client, a),
             f: a.setAndForget ? 'sf' : a.earmarked ? 'em' : null, h: hs.length ? hs : null};
         }).filter(a=> a.v > 0);
       } else {
@@ -77,10 +97,14 @@ TEI.render = TEI.render || {};
       }
       const v = accs.reduce((s, a)=> s + a.v, 0), c = accs.reduce((s, a)=> s + a.c, 0);
       let ret = null;
-      if(g.types){
-        let dep = 0, val = 0;
-        (client.accounts||[]).filter(a=> g.types.includes(a.type)).forEach(a=>{ const cb = TEI.calc.acctContributionBreakdown(client, a.id); const d = cb.opening + cb.paidIn + cb.sacrifice; if(d > 0){ dep += d; val += Number(b[a.id])||0; } });
-        ret = dep > 0 && g.id !== 'cash' ? (val - dep)/dep*100 : null;
+      if(g.types && g.id !== 'cash'){
+        // The group figure uses the accounts that have one of their own, and
+        // only when they hold at least half the group's value; otherwise a
+        // small account would speak for the whole group.
+        const fair = accs.filter(a=> a.r != null && !isNA(a.r));
+        const cover = fair.reduce((s, a)=> s + a.v, 0);
+        const r = fair.length && cover >= v/2 ? TEI.calc.accountsReturnPct(client, fair.map(a=> a.id), months(client)) : null;
+        ret = r != null ? r : fair.length ? NA_PARTIAL : (accs.length && accs.every(a=> a.r === NA_MISMATCH) ? NA_MISMATCH : NA_HISTORY);
       }
       return Object.assign({}, g, {accs, v, c, ret});
     }).filter(g=> g.v > 0).sort((a, b)=> b.v - a.v);
@@ -209,7 +233,7 @@ TEI.render = TEI.render || {};
         '<span class="gn"><i></i>' + esc(g.name) + (fl ? '<span class="fls">' + fl + '</span>' : '') + '</span>' +
         '<span class="gv num fig" data-v="' + g.v + '">' + fmt(g.v) + '</span>' +
         '<span class="gs num"><span class="' + cls(g.c) + ' fig" title="Change this month">' + (g.c ? sgn(g.c) : 'No change') + '</span>' +
-        (g.ret != null ? '<span class="gr"><span class="' + cls(g.ret) + '">' + pc(g.ret) + '</span> return</span>' : '') + '</span>' + CHEV + '</button>';
+        (g.ret != null ? '<span class="gr">' + retHtml(g.ret) + ' return</span>' : '') + '</span>' + CHEV + '</button>';
     }).join('') +
       (ds.length
         ? '<button type="button" class="grow debt" data-debts><span class="gn"><i></i>Debts</span><span class="gv num fig">' + fmt(-owed) + '</span><span class="gs"><span>' + esc(ds.map(d=> d.name).join(', ')) + ' · details in Cashflow</span></span>' + CHEV + '</button>'
@@ -233,19 +257,26 @@ TEI.render = TEI.render || {};
         '<span class="an"><b>' + esc(a.n) + (a.f && flags ? ICON[a.f] : '') + '</b><small>' + esc(a.w) + (can ? ' · ' + a.h.length + ' holding' + (a.h.length > 1 ? 's' : '') : '') + '</small></span>' +
         '<span class="c num fig">' + fmt(a.v) + '</span>' +
         '<span class="c num"><span class="' + cls(a.c) + ' fig">' + (a.c ? sgn(a.c) : 'No change') + '</span><small>this month</small></span>' +
-        '<span class="c num">' + (a.r != null ? '<span class="' + cls(a.r) + '">' + pc(a.r) + '</span><small>return</small>' : '') + '</span>' +
-        '<span class="c m num"><span class="fig">' + fmt(a.v) + '</span><small><span class="' + cls(a.c) + ' fig">' + (a.c ? sgn(a.c) : 'No change') + '</span>' + (a.r != null ? ' · <span class="' + cls(a.r) + '">' + pc(a.r) + '</span>' : '') + '</small></span>' +
+        '<span class="c num">' + (a.r != null ? retHtml(a.r) + '<small>return</small>' : '') + '</span>' +
+        '<span class="c m num"><span class="fig">' + fmt(a.v) + '</span><small><span class="' + cls(a.c) + ' fig">' + (a.c ? sgn(a.c) : 'No change') + '</span>' + (a.r != null ? ' · ' + retHtml(a.r) : '') + '</small></span>' +
         (can ? CHEV + '</button>' : '<i></i></div>');
       if(ex) h += '<div class="hold">' + a.h.map(x=> '<div class="hrow"><span class="hn">' + esc(x.t) + (x.d ? '<small>' + esc(x.d) + '</small>' : '') + '</span>' +
         '<span class="c num fig">' + fmt(x.v) + '</span><span class="c num" style="color:var(--soft)">' + Math.round(x.v/(a.v||1)*100) + '%<small>of account</small></span>' +
         '<span class="c num">' + (x.r != null ? '<span class="' + cls(x.r) + '">' + pc(x.r) + '</span><small>return</small>' : '') + '</span>' +
         '<span class="c m num"><span class="fig">' + fmt(x.v) + '</span><small>' + (x.r != null ? '<span class="' + cls(x.r) + '">' + pc(x.r) + '</span>' : Math.round(x.v/(a.v||1)*100) + '% of account') + '</small></span><i></i></div>').join('') + '</div>';
     });
-    if(hasH) h += '<div class="pfoot"><span>Return is growth on money paid in.</span></div>';
+    const why = [];
+    if(g.ret === NA_HISTORY || g.accs.some(a=> a.r === NA_HISTORY)) why.push('not enough history yet');
+    if(g.accs.some(a=> a.r === NA_MISMATCH)) why.push('balance and money paid in do not match yet');
+    if(g.ret === NA_PARTIAL) why.push('too little of the group has a figure yet');
+    const paidLink = g.types ? '<button type="button" class="plink x-paidin">Money paid in</button>' : '';
+    const note = (hasH || g.accs.some(a=> a.r != null)) ? 'Return is growth over the months tracked, after money paid in.' + (why.length ? ' A dash: ' + why.join(', or ') + '.' : '') : '';
+    if(note || paidLink) h += '<div class="pfoot"><span class="pnote">' + note + '</span>' + paidLink + '</div>';
     h += '</div>';
     slot.innerHTML = h;
     if(PHONE()){ const row = box.querySelector('.grow[data-g="' + g.id + '"]'), pn = slot.firstElementChild; if(row && pn) row.after(pn); }
     root().querySelectorAll('.x-panel button.arow').forEach(b=> b.onclick = ()=>{ openA[b.dataset.a] = !openA[b.dataset.a]; drawAccounts(client); });
+    const pl = root().querySelector('.x-paidin'); if(pl) pl.onclick = ()=> TEI.settings && TEI.settings.openPaidIn();
   }
 
   /* ---------- what it holds ---------- */

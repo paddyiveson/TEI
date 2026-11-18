@@ -3,7 +3,7 @@ window.TEI = window.TEI || {};
 (function(){
   const PAGES = ['home','progress','lab','goals','planning','cashflow','mydetails','menu','library'];
   // Old page names that showPage sends to their new homes (below).
-  const MOVED = ['portfolio','update','documents'];
+  const MOVED = ['portfolio','update','documents','learning','libplan'];
   const state = { client:null, currentPage:'home', mode:'client' };
 
   function showToast(msg){
@@ -25,11 +25,15 @@ window.TEI = window.TEI || {};
      B5.4), Update opens Wealth's Update balances panel, and Documents is
      Settings > Documents on desktop (B12.11). */
   // On phones the old Library pages open the Library (spec B10) on the matching view.
-  const LIB_OLD = {libplan:'lplan', learning:'llearn', documents:'lnotes'};
+  const LIB_OLD = {learning:'llearn', documents:'lnotes'};
   function showPage(pageId, opts){
     let after = null;
+    // The old investment plan page is gone; the Forecast replaces it.
+    if(pageId === 'libplan') pageId = 'planning';
     if(LIB_OLD[pageId] && window.matchMedia('(max-width:860px)').matches){ mPendingView = LIB_OLD[pageId]; pageId = 'library'; }
     if(pageId === 'documents' && TEI.settings){ TEI.settings.open('documents'); return; }
+    // The old Learn page: guides and lessons sit in Settings > Help and learning on desktop.
+    if(pageId === 'learning' && TEI.settings){ TEI.settings.open('help'); return; }
     if(pageId === 'portfolio'){ pageId = 'progress'; after = 'pf'; }
     else if(pageId === 'update'){ pageId = 'progress'; after = 'update'; }
     // Wealth's Debts row opens Cashflow at its Debts tile (TEI Launch v2).
@@ -57,7 +61,7 @@ window.TEI = window.TEI || {};
      is visible on desktop. Pages, renderers and showPage() are unchanged:
      a tab just opens one of the existing pages. Stage 1 = one page per tab;
      later stages add the segmented switches inside Wealth / Plan / Library. */
-  const M_TAB_OF = {home:'home', progress:'wealth', lab:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', libplan:'library', library:'library', update:'menu', mydetails:'menu', menu:'menu'};
+  const M_TAB_OF = {home:'home', progress:'wealth', lab:'wealth', portfolio:'wealth', goals:'plan', planning:'plan', cashflow:'plan', learning:'library', documents:'library', library:'library', update:'menu', mydetails:'menu', menu:'menu'};
   const M_TAB_TARGET = {home:'home', wealth:'progress', plan:'goals', library:'library', menu:'menu'};
 
   /* Merged tabs: a segmented switch over views of the EXISTING pages (no data
@@ -170,7 +174,7 @@ window.TEI = window.TEI || {};
     wireMobileHome(mq);
     // Widening past the breakpoint while on the mobile-only Menu page: back to Home.
     const onChange = ()=>{
-      if(!mq.matches && (state.currentPage === 'menu' || state.currentPage === 'libplan' || state.currentPage === 'library')) showPage('home');
+      if(!mq.matches && (state.currentPage === 'menu' || state.currentPage === 'library')) showPage('home');
       applyMobileA11y(mq);
     };
     if(mq.addEventListener) mq.addEventListener('change', onChange); else if(mq.addListener) mq.addListener(onChange);

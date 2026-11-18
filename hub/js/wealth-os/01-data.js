@@ -50,12 +50,11 @@ window.TEI = window.TEI || {};
         expenses:{ fixed:[], variable:[] },  // each: [{id, label, amount}] (£/month)
         saving:{ monthlySavings:0, monthlyInvesting:0 },
         emergencyFund:{ target:0, current:0, accountId:null },
-        scenario:'base', bestMult:0.85, worstMult:1.20, oneOffs:[], savingsGoals:[]
+        oneOffs:[], savingsGoals:[]
       },
       /* --- Client-adjustable settings, not facts and not derived, these are
          stored choices (e.g. the client dragging FI multiple from 25x to 30x). */
       preferences:{ fiMultiple:25, fiOverride:null, wealthConversionTarget:20 },
-      monteCarlo:{ conservative:true, base:true, optimistic:false },
       /* --- Client Foundation: WEALTH ------------------------------------------
          Single source of truth for what the client owns/owes. Property is an
          asset (type:'property'), no separate property key, to avoid a second
@@ -128,17 +127,12 @@ window.TEI = window.TEI || {};
     // brand-new onboarding) -- the Object.assign above copies a present-but-
     // undefined key over d.cashflow's default rather than skipping it, so
     // each needs its own null-coalesce back to the default here, same as
-    // saving/emergencyFund above. Left unfixed, `scenario` in particular
-    // reached saveCashflowSettings() as `null`, which the DB's NOT NULL
-    // constraint on cashflow_settings.scenario rejects -- surfacing as the
-    // onboarding wizard being stuck unable to leave Step 2.
-    merged.cashflow.scenario = merged.cashflow.scenario != null ? merged.cashflow.scenario : d.cashflow.scenario;
-    merged.cashflow.bestMult = merged.cashflow.bestMult != null ? merged.cashflow.bestMult : d.cashflow.bestMult;
-    merged.cashflow.worstMult = merged.cashflow.worstMult != null ? merged.cashflow.worstMult : d.cashflow.worstMult;
+    // saving/emergencyFund above. (The Best/Base/Worst scenario and the
+    // Monte Carlo line choices were cut in the V2 revamp; nothing loads or
+    // saves them any more -- see migration 024.)
     merged.cashflow.oneOffs = Array.isArray(merged.cashflow.oneOffs) ? merged.cashflow.oneOffs : d.cashflow.oneOffs;
     merged.cashflow.savingsGoals = Array.isArray(merged.cashflow.savingsGoals) ? merged.cashflow.savingsGoals : d.cashflow.savingsGoals;
 
-    merged.monteCarlo = Object.assign({conservative:true,base:true,optimistic:false}, (loaded||{}).monteCarlo||{});
     merged.wealth = Object.assign({assets:[], liabilities:[]}, (loaded||{}).wealth||{});
     merged.wealth.assets = Array.isArray(merged.wealth.assets) ? merged.wealth.assets : [];
     merged.wealth.liabilities = Array.isArray(merged.wealth.liabilities) ? merged.wealth.liabilities : [];
@@ -199,10 +193,9 @@ window.TEI = window.TEI || {};
     holdings:[], dividendHoldings:[], goals:[],
     cashflow:{
       income:[], expenses:{ fixed:[], variable:[] }, saving:{ monthlySavings:0, monthlyInvesting:0 },
-      scenario:'base', bestMult:0.85, worstMult:1.20, oneOffs:[], savingsGoals:[], emergencyFund:{target:0,current:0,accountId:null}
+      oneOffs:[], savingsGoals:[], emergencyFund:{target:0,current:0,accountId:null}
     },
     preferences:{ fiMultiple:25, fiOverride:null, wealthConversionTarget:20 },
-    monteCarlo:{ conservative:true, base:true, optimistic:false },
     wealth:{ assets:[], liabilities:[] },
     documents:[], insights:{ nextBestAction:null, milestones:[] },
     insurance:[], estatePlanning:{}
@@ -728,7 +721,6 @@ window.TEI = window.TEI || {};
   function computeBudgetAndFI(client){
     const cf = client.cashflow;
     const prefs = client.preferences || {};
-    const mult = cf.scenario === 'best' ? cf.bestMult : (cf.scenario === 'worst' ? cf.worstMult : 1.0);
     const oneOffTotal = (cf.oneOffs||[]).filter(o=>o.enabled).reduce((s,o)=>s+Number(o.amount||0),0);
     const pensionPersonalTotal = client.accounts.filter(a=>a.type==='pension').reduce((s,a)=>s+(Number(a.contributionPersonal)||0),0);
     const fixedTotal = totalFixedExpenses(client);
@@ -738,7 +730,7 @@ window.TEI = window.TEI || {};
        25x-annual-spend FI target either (that target should reflect what you'd
        need replaced in retirement, and you stop contributing to a pension once
        retired). */
-    const totalSpend = fixedTotal + variableTotal*mult + oneOffTotal;
+    const totalSpend = fixedTotal + variableTotal + oneOffTotal;
     const income = totalMonthlyIncome(client);
     /* Pay-yourself-first: actual saving/investing (from account contribution
        fields, see actualTotalSavingInvesting) is treated as a committed
@@ -758,7 +750,7 @@ window.TEI = window.TEI || {};
        my plan, B7.2 / B9.4), otherwise today's spending from Cashflow. */
     const fiSpend = prefs.yearlySpending != null ? Number(prefs.yearlySpending) : annualSpend;
     const fiTarget = prefs.fiOverride != null ? prefs.fiOverride : fiSpend*(prefs.fiMultiple||25);
-    return {totalSpend, savings, committedSaving, annualSpend, fiTarget, mult, oneOffTotal, pensionPersonalTotal, income};
+    return {totalSpend, savings, committedSaving, annualSpend, fiTarget, oneOffTotal, pensionPersonalTotal, income};
   }
 
   function computeEoyProjection(client){
@@ -1753,6 +1745,37 @@ window.TEI = window.TEI || {};
     }
     return { start, end, paidIn, growth, periodPct, annualPct, months: span };
   }
+  /* Return on one account, or a group of accounts, across its tracked
+     months (Wealth's account and group rows). Money-weighted, as above:
+     the first tracked balance counts as money already invested, not as
+     profit, and deposits after it are new money, not growth. A starting
+     balance with no contribution history therefore no longer reads as a
+     gain (the old "money paid in" basis showed +667% on a pension).
+     An account only counts when a fair figure is possible: at least two
+     tracked months, and some record of money paid in (deposits or a
+     "before tracking" lump sum). null when no account in scope qualifies;
+     the page shows "–" (not enough history yet). */
+  function hasPaidInRecord(client, accountId){
+    const cb = acctContributionBreakdown(client, accountId);
+    return cb.opening > 0 || (cb.paidIn + cb.sacrifice + cb.relief) > 0;
+  }
+  function accountsReturnPct(client, accountIds, months){
+    months = months || buildMergedMonths(client);
+    const keys = Object.keys(months).sort();
+    const ok = (accountIds||[]).filter(id=>
+      keys.filter(k=> months[k][id]!=null).length >= 2 && hasPaidInRecord(client, id));
+    if(!ok.length) return null;
+    const series = {};
+    keys.forEach(k=>{
+      let sum = 0, any = false;
+      ok.forEach(id=>{ const v = months[k][id]; if(v!=null){ sum += Number(v)||0; any = true; } });
+      if(any) series[k] = sum;
+    });
+    const sk = Object.keys(series).sort();
+    const r = moneyWeightedReturn(series, moneyInByMonth(client, months, ok), sk[0], sk[sk.length-1]);
+    return (r && r.periodPct != null && isFinite(r.periodPct)) ? r.periodPct : null;
+  }
+
   /* Months to measure a calendar year over: from the last logged month of
      the previous December (so January's movement counts) -- or the year's
      first logged month if history starts mid-year -- to the year's last
@@ -2006,7 +2029,7 @@ window.TEI = window.TEI || {};
     /* New money vs growth (accounts added mid-history, annualised minimums) */
     accountStartingBalances, joinedByMonth, netChange, annualisedPendingText, MIN_ANNUALISED_MONTHS,
     /* Money-weighted returns */
-    moneyInByMonth, moneyWeightedReturn, annualisedReturnPct, monthsBetween, calendarYearWindow,
+    moneyInByMonth, moneyWeightedReturn, accountsReturnPct, hasPaidInRecord, annualisedReturnPct, monthsBetween, calendarYearWindow,
     isDiscrepancyFlaggable, isDiscrepancyDismissed,
     /* Projection and goal status (Goals redesign, B12.6) */
     projectSeries, GOAL_GROWTH, monthsUntil, goalLinkedMonthly, goalMonthlyNeeded, goalMonthsToTarget, goalStatus, goalCompletedDate,
