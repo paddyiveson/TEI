@@ -49,7 +49,9 @@ async function membersStub(url, slug) {
   const title = a ? a.title : "Members' article";
   const desc = a ? a.teaser : "A members' article from The Everyday Investor.";
   const img = a && a.images && a.images.og ? SITE + a.images.og : "";
-  const alt = a && a.images ? a.images.alt : "";
+  // ogAlt when the card's own alt carries members-only figures (the card image
+  // is members only; the og image is the public, blurred one).
+  const alt = a && a.images ? (a.images.ogAlt || a.images.alt) : "";
   const meta = [
     '<meta property="og:type" content="article">',
     '<meta property="og:site_name" content="The Everyday Investor">',
