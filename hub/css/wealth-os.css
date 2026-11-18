@@ -3395,3 +3395,34 @@ button.hm-cover:disabled{ cursor:default; }
 .sl-rule .ep-toggles label{display:inline-flex; align-items:center; gap:8px; min-height:44px; cursor:pointer;}
 .sl-rule .ep-toggles input{width:18px; height:18px; margin:0; accent-color:var(--gold);}
 #stRoot .sl-rule .ep-toggles .btn-ghost{min-height:44px; padding:0 16px !important; font-size:13px !important;}
+
+/* Quick wins Q3 (18 Nov 2026): Home's Total wealth tile about 15% smaller on
+   desktop: number 60 to 50px, change line 15 to 14px, padding 28 to 24px,
+   sparkline minimum 110 to 88px. The tile still takes the height of Next step
+   and Headline goal beside it, so the sparkline fills what is left and no gap
+   opens. Phone (860px and below) is unchanged. */
+@media (min-width:861px){
+  .hm-feat.hm-t-wealth{ padding:24px; }
+  .hm-t-wealth .hm-big{ font-size:50px; }
+  .hm-t-wealth .hm-sub{ font-size:14px; }
+  .hm-t-wealth .hm-sparkwrap, .hm-t-wealth .hm-spark{ min-height:88px; }
+}
+
+/* Quick wins Q5 (18 Nov 2026): Home's Cashflow tile adds savings rate and
+   surplus as two more tiles (2 by 2). Savings rate is the same figure as
+   wealth conversion, so that line is dropped on desktop. Desktop only for
+   now: on phones the tile is unchanged. */
+.hm-cfx{ display:none; }
+.hm-cfx p{ display:flex; align-items:center; gap:6px; }
+.hm-cfd{ display:block; margin-top:4px; font-size:12.5px; color:var(--w-muted); font-variant-numeric:tabular-nums; }
+.hm-cfd.is-up{ color:var(--w-pos); }
+.hm-cfd.is-down{ color:var(--w-warn); }
+.hm-info{ position:relative; display:inline-grid; place-items:center; width:16px; height:16px; padding:0; border-radius:50%; border:1px solid var(--w-line); background:none; color:var(--w-muted); font-family:inherit; font-size:10.5px; font-weight:600; line-height:1; cursor:help; flex:none; }
+.hm-info::after{ content:''; position:absolute; inset:-14px; }
+.hm-info:hover, .hm-info:focus-visible{ color:var(--w-text); border-color:var(--w-muted); }
+.hm-bub{ display:none; position:absolute; z-index:20; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%); width:220px; padding:10px 12px; border-radius:10px; background:var(--w-tile); border:1px solid var(--w-line); box-shadow:var(--w-shadow-1); color:var(--w-text); font-family:inherit; font-size:12.5px; font-weight:400; line-height:1.5; text-align:left; white-space:normal; }
+.hm-info:hover .hm-bub, .hm-info:focus-visible .hm-bub, .hm-info:focus .hm-bub{ display:block; }
+@media (min-width:861px){
+  .hm-cfx{ display:block; }
+  .hm-t-cashflow .hm-cf-conv{ display:none; }
+}

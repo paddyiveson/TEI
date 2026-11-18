@@ -401,11 +401,46 @@ TEI.render = TEI.render || {};
     const tick = document.getElementById('whCfTick');
     tick.style.left = Math.max(0, Math.min(100, target)).toFixed(0) + '%';
     tick.hidden = false;
+    renderCfExtra(client, m);
     // The health chip is the Cashflow page's own rule (B8), so both agree.
     const chip = document.getElementById('whCfHealth');
     const h = income > 0 && TEI.cashflowPage ? TEI.cashflowPage.health(client, m) : null;
     chip.hidden = !h;
     if(h){ chip.textContent = h.label; chip.className = 'cf-health cf-health--' + h.key; }
+  }
+
+  /* Savings rate and surplus (quick wins Q5). Both read the same month as
+     the figures above (TEI.calc.cashflowMonth). Savings rate is saving and
+     investing over take-home; surplus is take-home less essentials,
+     lifestyle and planned saving and investing (the standing monthly
+     amounts, TEI.calc.actualTotalSavingInvesting). Each compares with last
+     month only when last month was logged too. */
+  function cfFigures(client, m){
+    const rate = m.takeHome > 0 ? m.wealthBuilding/m.takeHome*100 : null;
+    const surplus = m.takeHome - m.essentials - m.lifestyle - TEI.calc.actualTotalSavingInvesting(client);
+    return {rate, surplus};
+  }
+  function renderCfExtra(client, m){
+    const [y, mo] = String(m.key).split('-').map(Number);
+    const pd = new Date(y, mo - 2, 1), prevKey = pd.getFullYear() + '-' + String(pd.getMonth() + 1).padStart(2, '0');
+    const p = TEI.calc.cashflowMonth(client, prevKey);
+    const now = cfFigures(client, m), was = p.logged ? cfFigures(client, p) : null;
+    const prevName = MONTHS_LONG[pd.getMonth()].slice(0, 3);
+    const gbp = v=> (v < 0 ? '\u2212' : '') + fmtGBP(Math.abs(v));
+    const show = (id, value, diff, unit)=>{
+      setText(id, value);
+      const d = document.getElementById(id + 'D');
+      d.className = 'hm-cfd'; d.hidden = false;
+      if(!m.logged){ d.textContent = 'Log this month to see it'; return; }
+      if(diff == null){ d.hidden = true; d.textContent = ''; return; }
+      if(diff === 0){ d.textContent = 'Same as ' + prevName; return; }
+      d.textContent = (diff > 0 ? '+' : '\u2212') + (unit === 'pts' ? Math.abs(diff) + ' pts' : fmtGBP(Math.abs(diff))) + ' vs ' + prevName;
+      d.classList.add(diff > 0 ? 'is-up' : 'is-down');
+    };
+    const rNow = now.rate == null ? null : Math.round(now.rate), rWas = was && was.rate != null ? Math.round(was.rate) : null;
+    show('whCfSave', m.logged && rNow != null ? rNow + '%' : '–', rNow != null && rWas != null ? rNow - rWas : null, 'pts');
+    const sNow = Math.round(now.surplus), sWas = was ? Math.round(was.surplus) : null;
+    show('whCfSurplus', m.logged ? gbp(sNow) : '–', sWas != null ? sNow - sWas : null, 'gbp');
   }
 
   /* ---------------- Continue learning (a shortcut to the Hub) ----------------
