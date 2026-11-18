@@ -135,7 +135,7 @@
         {id: id(), client_id: CID, category: 'variable', label: 'Lifestyle', amount: behind ? 950 : 600, owner: 'client', spend_category: 'lifestyle'}],
       cashflow_settings: [{client_id: CID, monthly_savings: 0, monthly_investing: 0, emergency_fund_target: null, emergency_fund_current: null,
         emergency_fund_account_id: cash.id, wealth_conversion_target: behind ? 20 : 25, retirement_age: 60, yearly_spending: behind ? 30000 : 21600,
-        safety_net_months: 6, fi_multiple: null, fi_override: null, one_offs: null, savings_goals: null, monte_carlo: null,
+        safety_net_months: 6, fi_multiple: null, fi_override: null, one_offs: null, savings_goals: null,
         plan_saved_at: has('stale') ? iso(2) : null}],
       cashflow_months: cashflow_months,
       dividend_holdings: behind ? [] : [

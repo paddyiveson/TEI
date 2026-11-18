@@ -340,7 +340,6 @@ window.TEI = window.TEI || {};
         },
         saving:{ monthlySavings: cf.monthly_savings, monthlyInvesting: cf.monthly_investing },
         emergencyFund:{ target: cf.emergency_fund_target, current: cf.emergency_fund_current, accountId: cf.emergency_fund_account_id },
-        scenario: cf.scenario, bestMult: cf.best_mult, worstMult: cf.worst_mult,
         oneOffs: cf.one_offs, savingsGoals: cf.savings_goals
       },
       preferences:{
@@ -357,7 +356,6 @@ window.TEI = window.TEI || {};
         planReal: cf.plan_real != null ? !!cf.plan_real : undefined,
         planSavedAt: cf.plan_saved_at || undefined
       },
-      monteCarlo: cf.monte_carlo,
 
       dividendHoldings: (bundle.dividendHoldings||[]).map(h=>({id:h.id, name:h.name, yield:h.yield, growth:h.growth, amount:h.amount, frequency:h.frequency||'annual',
         payMonths: Array.isArray(h.pay_months) ? h.pay_months.map(Number).filter(m=> m >= 1 && m <= 12) : []})),
@@ -725,15 +723,14 @@ window.TEI = window.TEI || {};
       emergency_fund_target: cf.emergencyFund ? cf.emergencyFund.target : null,
       emergency_fund_current: cf.emergencyFund ? cf.emergencyFund.current : null,
       emergency_fund_account_id: cf.emergencyFund ? cf.emergencyFund.accountId : null,
-      scenario: cf.scenario != null ? cf.scenario : null,
-      best_mult: cf.bestMult != null ? cf.bestMult : null,
-      worst_mult: cf.worstMult != null ? cf.worstMult : null,
+      // scenario, best_mult, worst_mult and monte_carlo are no longer sent:
+      // they were cut in the V2 revamp and have column defaults until
+      // migration 024 drops them.
       one_offs: cf.oneOffs || null,
       savings_goals: cf.savingsGoals || null,
       fi_multiple: pref.fiMultiple != null ? pref.fiMultiple : null,
       fi_override: pref.fiOverride != null ? pref.fiOverride : null,
       wealth_conversion_target: pref.wealthConversionTarget != null ? pref.wealthConversionTarget : null,
-      monte_carlo: client.monteCarlo || null,
       // Plan settings (migration 009): only sent once set, so saving the rest
       // of this row keeps working on a database without those columns yet.
       ...(pref.retirementAge != null ? {retirement_age: pref.retirementAge} : {}),
