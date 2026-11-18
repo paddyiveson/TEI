@@ -23,20 +23,13 @@ insert into wealth_os.accounts (id, client_id, type, value) values ('a0000000-00
 do $t$
 declare r jsonb; ok boolean;
 begin
-  -- 1. Validation.
-  begin
-    perform wealth_os.save_contribution_rule('a0000000-0000-4000-8000-00000000000f',
-      '{"basis":"fixed","allocation_method":"percentage","total_amount":100,"day_of_month":28,"allocations":[]}');
-    raise exception 'FAIL 1a: an account with funds accepted a rule with no funds';
-  exception when others then
-    if sqlerrm not like 'Choose at least one fund%' then raise exception 'FAIL 1a: %', sqlerrm; end if;
-  end;
+  -- 1. Validation: without funds the rule is one monthly total.
   begin
     perform wealth_os.save_contribution_rule('a0000000-0000-4000-8000-00000000000a',
       '{"basis":"fixed","allocation_method":"manual","day_of_month":28,"allocations":[]}');
     raise exception 'FAIL 1b: manual split accepted with no funds';
   exception when others then
-    if sqlerrm not like 'With no funds%' then raise exception 'FAIL 1b: %', sqlerrm; end if;
+    if sqlerrm not like 'Without funds, the rule pays one monthly total%' then raise exception 'FAIL 1b: %', sqlerrm; end if;
   end;
   raise notice 'PASS 1 validation';
 
@@ -145,19 +138,19 @@ begin
 end
 $t$;
 
--- 7. Funds added later to a balance-rule account: that account errors, others carry on.
+-- 7. Funds added later to a balance-rule account: payments go into its cash.
 do $t$
 declare r jsonb;
 begin
   insert into wealth_os.holdings (account_id, name, value) values ('a0000000-0000-4000-8000-00000000000c', 'Cash fund', 2450);
   update wealth_os.contribution_rules set day_of_month = 18 where effective_to is null;
   r := wealth_os.run_contribution_engine(current_date);
-  if jsonb_array_length(r->'errors') <> 1 or r->'errors'->0->>'account_id' <> 'a0000000-0000-4000-8000-00000000000c'
-     or r->'errors'->0->>'error' not like 'This account now holds funds%' then raise exception 'FAIL 7 %', r; end if;
+  if jsonb_array_length(r->'errors') <> 0 then raise exception 'FAIL 7 errors %', r; end if;
+  if (select cash_balance from wealth_os.accounts where id = 'a0000000-0000-4000-8000-00000000000c') <> 150
+     or (select value from wealth_os.accounts where id = 'a0000000-0000-4000-8000-00000000000c') <> 2600 then raise exception 'FAIL 7 cash/value'; end if;
+  if (select sum(amount) from wealth_os.account_deposits where account_id = 'a0000000-0000-4000-8000-00000000000c') <> 600 then raise exception 'FAIL 7 deposits'; end if;
   if not exists (select 1 from wealth_os.contribution_runs where account_id = 'a0000000-0000-4000-8000-00000000000f' and month_key = to_char(current_date, 'YYYY-MM')) then raise exception 'FAIL 7 fund account did not run'; end if;
-  if exists (select 1 from wealth_os.contribution_runs where account_id = 'a0000000-0000-4000-8000-00000000000c' and month_key = to_char(current_date, 'YYYY-MM')) then raise exception 'FAIL 7 run recorded'; end if;
-  if (select sum(amount) from wealth_os.account_deposits where account_id = 'a0000000-0000-4000-8000-00000000000c') <> 450 then raise exception 'FAIL 7 deposits changed'; end if;
-  raise notice 'PASS 7 funds added later: that account stops with a clear error, nothing half-applied, others run';
+  raise notice 'PASS 7 funds added later: payments go into the account''s cash, others run';
 end
 $t$;
 
@@ -177,5 +170,45 @@ begin
   r := wealth_os.preview_contribution('{"account_id":"a0000000-0000-4000-8000-00000000000a","basis":"fixed","allocation_method":"percentage","total_amount":250,"day_of_month":28,"allocations":[]}');
   if (r->>'total')::numeric <> 250 or jsonb_array_length(r->'allocations') <> 0 then raise exception 'FAIL 9 %', r; end if;
   raise notice 'PASS 9 preview';
+end
+$t$;
+
+-- 10. An account holding only auto-priced shares (like a S&S LISA of US shares):
+--     a rule with no funds pays into the account's cash; the shares are untouched.
+insert into wealth_os.accounts (id, client_id, type, value, cash_balance, is_manual_priced) values ('a0000000-0000-4000-8000-0000000000ab', 'cccccccc-0000-4000-8000-000000000001', 'lisa', 3000, 0, false);
+insert into wealth_os.holdings (id, account_id, name, ticker, value, cost_basis, price_source) values
+  ('b0000000-0000-4000-8000-0000000000a1', 'a0000000-0000-4000-8000-0000000000ab', 'Tesla', 'TSLA', 2000, 1800, 'auto_us'),
+  ('b0000000-0000-4000-8000-0000000000a2', 'a0000000-0000-4000-8000-0000000000ab', 'Microsoft', 'MSFT', 1000, 900, 'auto_us');
+do $t$
+declare r jsonb; v_run uuid;
+begin
+  -- Funds that are auto-priced still cannot be chosen.
+  begin
+    perform wealth_os.save_contribution_rule('a0000000-0000-4000-8000-0000000000ab',
+      '{"basis":"fixed","allocation_method":"percentage","total_amount":100,"day_of_month":18,"allocations":[{"holding_id":"b0000000-0000-4000-8000-0000000000a1","weight_pct":100}]}');
+    raise exception 'FAIL 10a: an auto-priced fund was accepted';
+  exception when others then
+    if sqlerrm not like 'Funds must belong to this account and be manually priced%' then raise exception 'FAIL 10a: %', sqlerrm; end if;
+  end;
+  -- No funds chosen: accepted, pays into cash.
+  perform wealth_os.save_contribution_rule('a0000000-0000-4000-8000-0000000000ab',
+    '{"basis":"fixed","allocation_method":"percentage","total_amount":100,"day_of_month":18,"allocations":[]}');
+  r := wealth_os.run_contribution_engine(current_date);
+  if jsonb_array_length(r->'errors') <> 0 then raise exception 'FAIL 10 errors %', r; end if;
+  if (select cash_balance from wealth_os.accounts where id = 'a0000000-0000-4000-8000-0000000000ab') <> 100
+     or (select value from wealth_os.accounts where id = 'a0000000-0000-4000-8000-0000000000ab') <> 3100 then raise exception 'FAIL 10 cash/value'; end if;
+  if (select sum(value) from wealth_os.holdings where account_id = 'a0000000-0000-4000-8000-0000000000ab') <> 3000
+     or (select sum(cost_basis) from wealth_os.holdings where account_id = 'a0000000-0000-4000-8000-0000000000ab') <> 2700 then raise exception 'FAIL 10 shares touched'; end if;
+  if (select amount from wealth_os.account_deposits where account_id = 'a0000000-0000-4000-8000-0000000000ab') <> 100 then raise exception 'FAIL 10 deposits'; end if;
+  -- Adjust to £80, then reverse: cash follows.
+  select id into v_run from wealth_os.contribution_runs where account_id = 'a0000000-0000-4000-8000-0000000000ab';
+  r := wealth_os.adjust_contribution_run(v_run, '[{"amount": 80}]', 'statement said 80');
+  if (select cash_balance from wealth_os.accounts where id = 'a0000000-0000-4000-8000-0000000000ab') <> 80 then raise exception 'FAIL 10 adjust %', r; end if;
+  -- The client saves the account (their own cash figure) after the run: a reverse leaves it.
+  update wealth_os.accounts set cash_balance = 75, last_edited_by = 'client', last_edited_at = now() where id = 'a0000000-0000-4000-8000-0000000000ab';
+  r := wealth_os.reverse_contribution_run(v_run, 'test');
+  if (r->>'balance_kept')::boolean is not true or (select cash_balance from wealth_os.accounts where id = 'a0000000-0000-4000-8000-0000000000ab') <> 75 then raise exception 'FAIL 10 reverse kept %', r; end if;
+  if coalesce((select amount from wealth_os.account_deposits where account_id = 'a0000000-0000-4000-8000-0000000000ab'), 0) <> 0 then raise exception 'FAIL 10 reverse deposits'; end if;
+  raise notice 'PASS 10 auto-priced shares: the rule pays into the account''s cash, shares untouched, adjust and reverse follow';
 end
 $t$;

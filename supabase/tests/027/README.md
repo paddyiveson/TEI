@@ -10,4 +10,4 @@ psql -d wos027 -v ON_ERROR_STOP=1 -1 -f ../../migrations/027_contribution_rule_b
 psql -d wos027 -v ON_ERROR_STOP=1 -f 10_tests.sql
 ```
 
-`00_schema.sql` is a copy of the live `wealth_os` tables the engine touches, and `01_…sql` holds the live engine functions as they were before 027. Every block in `10_tests.sql` prints `PASS …` or stops with `FAIL …`. Without 027 applied, the tests stop at `FAIL 1b` (a rule with no funds is refused), which shows they exercise the change.
+`00_schema.sql` is a copy of the live `wealth_os` tables the engine touches, and `01_…sql` holds the live engine functions as they were before 027. Every block in `10_tests.sql` prints `PASS …` or stops with `FAIL …`. Without 027 applied, the tests stop at `FAIL 1b` (a rule with no funds is refused), which shows they exercise the change. Check 10 covers an account holding only auto-priced shares (pays into its cash).

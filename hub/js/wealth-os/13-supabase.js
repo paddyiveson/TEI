@@ -1058,7 +1058,7 @@ window.TEI = window.TEI || {};
       const contrib = await fetchContributionBundle(w, accountIds);
       const none = Promise.resolve({data:[]});
       const [accRes, holdRes, monthsRes, depRes] = await Promise.all([
-        accountIds.length ? w.from('accounts').select('id,value,last_updated,contribution,contribution_personal,contribution_sacrifice,is_manual_priced,has_contribution_rule').in('id', accountIds) : none,
+        accountIds.length ? w.from('accounts').select('id,value,last_updated,contribution,contribution_personal,contribution_sacrifice,is_manual_priced,has_contribution_rule,cash_balance').in('id', accountIds) : none,
         accountIds.length ? w.from('holdings').select('id,account_id,value,cost_basis,price_source,value_checked_at').in('account_id', accountIds) : none,
         // A rule on an account with no funds pays into the balance
         // (migration 027), so a reverse or adjust moves these too.

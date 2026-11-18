@@ -113,6 +113,14 @@
       contribution_method: 'salary_sacrifice', employer_ni_passon_pct: 0, change_reason: 'created', created_at: iso(120), created_by: UID,
       contribution_rule_allocations: []});
     ruleState.push({account_id: wp.id, start_date: dateIn(-4), next_uplift_date: dateIn(8), last_reviewed_at: dateIn(-4), last_review_source: 'created'});
+    // A S&S LISA holding only auto-priced US shares: a rule with no funds
+    // pays into its cash (migration 027).
+    var aj = acc({provider: 'AJ Bell', type: 'lisa', value: 4200, cash_balance: 0});
+    accounts.push(aj);
+    holdings.push(hold(aj, {name: 'Tesla', ticker: 'TSLA', value: 2100, cost_basis: 1900, price_source: 'auto_us'}),
+      hold(aj, {name: 'Alphabet', ticker: 'GOOG', value: 1300, cost_basis: 1100, price_source: 'auto_us'}),
+      hold(aj, {name: 'Microsoft', ticker: 'MSFT', value: 800, cost_basis: 700, price_source: 'auto_us'}));
+    for(var ab = 11; ab >= 0; ab--) account_months.push({id: id(), account_id: aj.id, month_key: mk(ab), value: Math.round(4200*(0.7 + 0.3*(11 - ab)/11)), carried_forward: false, last_edited_at: iso(ab*30)});
     [3, 2, 1].forEach(function(b){
       var d = new Date(now.getFullYear(), now.getMonth() - b, 15).toISOString().slice(0, 10);
       ruleRuns.push({id: id(), account_id: wp.id, rule_id: wpRule, run_date: d, month_key: mk(b), total_amount: 300, employee_amount: 300,

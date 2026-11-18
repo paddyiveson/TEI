@@ -1,31 +1,32 @@
--- 027: recurring contribution rules for accounts with no holdings.
+-- 027: recurring contribution rules that do not go into a fund.
 --
 -- NOT APPLIED. For Paddy to apply after sign-off.
 --
 -- Until now a rule had to pay into one or more manually priced funds, so an
--- account held as a single balance (a pension or cash ISA with no funds
--- entered) could not grow automatically. With this migration a rule on an
--- account with no holdings pays its monthly total into the account balance:
+-- account held as a single balance, or one holding only auto-priced shares,
+-- could not grow automatically. With this migration a rule can choose no
+-- funds, and its monthly total then goes:
 --
---   * accounts.value goes up by the total on the run day, and so do that
---     month's and any later months' balances in account_months (the history
---     the Wealth chart reads). If the run month has no balance yet and it is
---     the current month, one is added, marked as carried forward so the
---     client is still asked to confirm it.
---   * Money paid in is logged exactly as for fund rules (account_deposits).
---   * A balance a person entered on or after the run day is the statement
---     figure and stands: the run still logs the money paid in, but the
---     balance is not changed. Same rule as value_checked_at on funds.
---     "Entered by a person" = account_months.last_edited_by is not a
---     system:* value (client and adviser saves both set it).
---   * Reverse and Adjust work on these runs too: the balance moves back by
---     the difference, unless a statement has been entered since.
---   * An account that has funds keeps the current behaviour: the rule must
---     choose funds. If funds are added later to an account whose rule pays
---     into the balance, its runs stop with an error in the engine result
---     until the rule is edited to choose funds (the editor says so).
+--   * into the account balance, on an account with no holdings:
+--     accounts.value goes up on the run day, and so do that month's and any
+--     later months' balances in account_months (the history the Wealth chart
+--     reads). If the run month has no balance yet and it is the current
+--     month, one is added, marked as carried forward so the client is still
+--     asked to confirm it. A balance a person entered on or after the run day
+--     is the statement figure and stands (the run does not change it).
+--     "Entered by a person" = account_months.last_edited_by is not system:*.
+--   * into the account's cash ("Cash not yet invested"), on an account with
+--     holdings: accounts.cash_balance goes up, and the existing trigger sets
+--     the account value to holdings plus cash. The holdings are untouched,
+--     so live prices keep working. If a person saved the account on or after
+--     the run day (accounts.last_edited_by not system:*), their cash figure
+--     stands for a reverse or adjust.
 --
--- Accounts with holdings are untouched by this change.
+--   Either way the money is logged as paid in (account_deposits), exactly as
+--   for fund rules, and Reverse and Adjust move the balance or cash back by
+--   the difference. Cash never goes below zero on a reverse.
+--
+-- Rules that choose funds are untouched by this change.
 --
 -- Rewrites four live functions (validate_contribution_payload,
 -- contribution_apply_run, reverse_contribution_run, adjust_contribution_run)
@@ -42,7 +43,7 @@ declare
     "adjust_contribution_run": "491abfe6dea2f5de1a8c623e0c51f912"}';
   k text; h text;
 begin
-  if to_regprocedure('wealth_os.contribution_apply_balance_delta(uuid,date,numeric)') is not null then
+  if to_regprocedure('wealth_os.contribution_apply_balance_delta(uuid,date,numeric,boolean)') is not null then
     raise notice '027: already applied';
     return;
   end if;
@@ -71,21 +72,37 @@ as $function$
      and coalesce(m.last_edited_by, '') not like 'system:%';
 $function$;
 
--- Add (or, for a reversal, take away) p_amount on the account balance for a
--- run on p_run_date. Returns true when a balance entered by a person on or
--- after the run day stands instead (nothing changed).
-create or replace function wealth_os.contribution_apply_balance_delta(p_account_id uuid, p_run_date date, p_amount numeric)
+-- Add (or, for a reversal, take away) p_amount for a run on p_run_date that
+-- chose no funds: into the account's cash when it holds funds, otherwise
+-- into its balance. p_correction is true for Reverse and Adjust. Returns
+-- true when a figure a person entered on or after the run day stands
+-- instead (nothing changed). For cash that only applies to corrections, so
+-- a client saving the account on a payment day never blocks the payment.
+create or replace function wealth_os.contribution_apply_balance_delta(p_account_id uuid, p_run_date date, p_amount numeric, p_correction boolean default false)
 returns boolean
 language plpgsql
 set search_path to 'wealth_os', 'public'
 as $function$
 declare
   v_checked date; v_mk text := to_char(p_run_date, 'YYYY-MM'); v_value numeric;
+  v_by text; v_at timestamptz;
 begin
   if coalesce(p_amount, 0) = 0 then return false; end if;
+
   if exists (select 1 from wealth_os.holdings where account_id = p_account_id) then
-    raise exception 'This account now holds funds. Edit its contribution rule to choose which funds receive the money.';
+    -- Holds funds: the money is cash in the account until it is invested.
+    select last_edited_by, last_edited_at into v_by, v_at from wealth_os.accounts where id = p_account_id;
+    if p_correction and v_at is not null and coalesce(v_by, '') not like 'system:%' and v_at::date >= p_run_date then
+      return true;
+    end if;
+    -- The accounts_recalc_on_cash_change trigger sets value = holdings + cash.
+    update wealth_os.accounts
+       set cash_balance = greatest(round(coalesce(cash_balance, 0) + p_amount, 2), 0),
+           last_edited_by = 'system:contribution-engine', last_edited_at = now()
+     where id = p_account_id;
+    return false;
   end if;
+
   v_checked := wealth_os.contribution_balance_checked_at(p_account_id);
   if v_checked is not null and v_checked >= p_run_date then
     return true;
@@ -124,7 +141,6 @@ declare
   v_basis text := p->>'basis';
   v_method text := p->>'allocation_method';
   v_n int; v_bad int; v_sum numeric; v_dupes int; v_client uuid; v_day int; v_passon numeric;
-  v_has_funds boolean;
 begin
   select client_id into v_client from wealth_os.accounts where id = p_account_id;
   if v_client is null then raise exception 'Account not found'; end if;
@@ -137,13 +153,11 @@ begin
   v_passon := coalesce(nullif(p->>'employer_ni_passon_pct','')::numeric, 0);
   if v_passon < 0 or v_passon > 100 then raise exception 'Employer NI pass-on must be between 0 and 100%%'; end if;
 
-  v_has_funds := exists (select 1 from wealth_os.holdings where account_id = p_account_id);
   select count(*), count(distinct a->>'holding_id') into v_n, v_dupes from jsonb_array_elements(coalesce(p->'allocations','[]'::jsonb)) a;
   if v_n = 0 then
-    -- No funds chosen: allowed only on an account with no holdings, where the
-    -- rule pays one monthly total into the balance (migration 027).
-    if v_has_funds then raise exception 'Choose at least one fund'; end if;
-    if v_method <> 'percentage' then raise exception 'With no funds, the rule pays one monthly total into the balance'; end if;
+    -- No funds chosen: one monthly total into the account's cash, or its
+    -- balance when it has no holdings (migration 027).
+    if v_method <> 'percentage' then raise exception 'Without funds, the rule pays one monthly total'; end if;
   else
     if v_dupes <> v_n then raise exception 'Each fund can appear only once'; end if;
     select count(*) into v_bad
@@ -192,7 +206,8 @@ begin
   if coalesce((c->>'total')::numeric, 0) <= 0 then return null; end if;
 
   if jsonb_array_length(coalesce(c->'allocations', '[]'::jsonb)) = 0 then
-    -- No funds: the total goes into the account balance (migration 027).
+    -- No funds: the total goes into the account's cash, or its balance
+    -- when it has no holdings (migration 027).
     perform wealth_os.contribution_apply_balance_delta(p_account_id, p_run_date, (c->>'total')::numeric);
   else
     for a in select * from jsonb_array_elements(c->'allocations') loop
@@ -227,7 +242,7 @@ set search_path to 'wealth_os', 'public'
 as $function$
 declare
   r wealth_os.contribution_runs; v_neg jsonb; v_kept jsonb;
-  v_dep_sacr numeric; v_dep_relief numeric; v_balance boolean; v_bal_kept boolean := false;
+  v_dep_sacr numeric; v_dep_relief numeric; v_balance boolean; v_bal_kept boolean := false; v_where text;
 begin
   perform wealth_os.require_adviser();
   select * into r from wealth_os.contribution_runs where id = p_run_id for update;
@@ -235,9 +250,10 @@ begin
   if r.status = 'reversed' then raise exception 'Run already reversed'; end if;
 
   v_balance := jsonb_array_length(coalesce(r.allocations, '[]'::jsonb)) = 0;
+  v_where := case when exists (select 1 from wealth_os.holdings where account_id = r.account_id) then 'cash' else 'balance' end;
   if v_balance then
     v_kept := '[]'::jsonb;
-    v_bal_kept := wealth_os.contribution_apply_balance_delta(r.account_id, r.run_date, -r.total_amount);
+    v_bal_kept := wealth_os.contribution_apply_balance_delta(r.account_id, r.run_date, -r.total_amount, true);
   else
     select jsonb_agg(jsonb_build_object('holding_id', a->>'holding_id', 'amount', -(a->>'amount')::numeric))
       into v_neg from jsonb_array_elements(r.allocations) a;
@@ -255,16 +271,16 @@ begin
 
   return jsonb_build_object('status', 'reversed', 'value_kept', v_kept, 'balance_kept', v_bal_kept,
     'message', case
-      when v_balance and v_bal_kept then 'Money paid in restored. Balance left as the figure entered on or after ' || to_char(r.run_date, 'DD Mon YYYY') || '.'
-      when v_balance then 'Money paid in and balance restored.'
+      when v_balance and v_bal_kept then 'Money paid in restored. ' || initcap(v_where) || ' left as the figure entered on or after ' || to_char(r.run_date, 'DD Mon YYYY') || '.'
+      when v_balance then 'Money paid in and ' || v_where || ' restored.'
       when jsonb_array_length(v_kept) > 0
         then 'Cost basis restored. Value left as the statement figure for funds checked on or after ' || to_char(r.run_date, 'DD Mon YYYY') || '.'
       else 'Cost basis and value restored.' end);
 end;
 $function$;
 
--- p_allocations: per-fund amounts as before, or for a run paid into the
--- balance a single [{"amount": n}] with no holding_id.
+-- p_allocations: per-fund amounts as before, or for a run that chose no
+-- funds a single [{"amount": n}] with no holding_id.
 create or replace function wealth_os.adjust_contribution_run(p_run_id uuid, p_allocations jsonb, p_note text)
 returns jsonb
 language plpgsql
@@ -275,7 +291,7 @@ declare
   r wealth_os.contribution_runs; v_new_total numeric; v_deltas jsonb; v_kept jsonb; v_f numeric;
   v_old_sacr numeric; v_old_relief numeric; v_old_amt numeric;
   v_new_emp numeric; v_new_er numeric; v_new_sacr numeric; v_new_relief numeric; v_bad int;
-  v_balance boolean; v_bal_kept boolean := false;
+  v_balance boolean; v_bal_kept boolean := false; v_where text;
 begin
   perform wealth_os.require_adviser();
   select * into r from wealth_os.contribution_runs where id = p_run_id for update;
@@ -284,11 +300,12 @@ begin
   if coalesce(trim(p_note), '') = '' then raise exception 'Add a note explaining the adjustment'; end if;
 
   v_balance := jsonb_array_length(coalesce(r.allocations, '[]'::jsonb)) = 0;
+  v_where := case when exists (select 1 from wealth_os.holdings where account_id = r.account_id) then 'cash' else 'balance' end;
   if v_balance then
     if jsonb_array_length(coalesce(p_allocations,'[]'::jsonb)) <> 1
        or coalesce(nullif(p_allocations->0->>'holding_id',''), '') <> ''
        or coalesce((p_allocations->0->>'amount')::numeric, -1) < 0 then
-      raise exception 'Enter the corrected amount paid into the balance';
+      raise exception 'Enter the corrected amount';
     end if;
     v_new_total := round((p_allocations->0->>'amount')::numeric, 2);
   else
@@ -304,7 +321,7 @@ begin
 
   if v_balance then
     v_kept := '[]'::jsonb;
-    v_bal_kept := wealth_os.contribution_apply_balance_delta(r.account_id, r.run_date, v_new_total - r.total_amount);
+    v_bal_kept := wealth_os.contribution_apply_balance_delta(r.account_id, r.run_date, v_new_total - r.total_amount, true);
   else
     select jsonb_agg(jsonb_build_object('holding_id', hid, 'amount', coalesce(n, 0) - coalesce(o, 0)))
       into v_deltas
@@ -342,8 +359,8 @@ begin
 
   return jsonb_build_object('status', 'adjusted', 'total', v_new_total, 'value_kept', v_kept, 'balance_kept', v_bal_kept,
     'message', case
-      when v_balance and v_bal_kept then 'Money paid in adjusted. Balance left as the figure entered on or after ' || to_char(r.run_date, 'DD Mon YYYY') || '.'
-      when v_balance then 'Money paid in and balance adjusted.'
+      when v_balance and v_bal_kept then 'Money paid in adjusted. ' || initcap(v_where) || ' left as the figure entered on or after ' || to_char(r.run_date, 'DD Mon YYYY') || '.'
+      when v_balance then 'Money paid in and ' || v_where || ' adjusted.'
       when jsonb_array_length(v_kept) > 0
         then 'Cost basis adjusted. Value left as the statement figure for funds checked on or after ' || to_char(r.run_date, 'DD Mon YYYY') || '.'
       else 'Cost basis and value adjusted.' end);
