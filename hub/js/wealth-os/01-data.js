@@ -1753,6 +1753,37 @@ window.TEI = window.TEI || {};
     }
     return { start, end, paidIn, growth, periodPct, annualPct, months: span };
   }
+  /* Return on one account, or a group of accounts, across its tracked
+     months (Wealth's account and group rows). Money-weighted, as above:
+     the first tracked balance counts as money already invested, not as
+     profit, and deposits after it are new money, not growth. A starting
+     balance with no contribution history therefore no longer reads as a
+     gain (the old "money paid in" basis showed +667% on a pension).
+     An account only counts when a fair figure is possible: at least two
+     tracked months, and some record of money paid in (deposits or a
+     "before tracking" lump sum). null when no account in scope qualifies;
+     the page shows "–" (not enough history yet). */
+  function hasPaidInRecord(client, accountId){
+    const cb = acctContributionBreakdown(client, accountId);
+    return cb.opening > 0 || (cb.paidIn + cb.sacrifice + cb.relief) > 0;
+  }
+  function accountsReturnPct(client, accountIds, months){
+    months = months || buildMergedMonths(client);
+    const keys = Object.keys(months).sort();
+    const ok = (accountIds||[]).filter(id=>
+      keys.filter(k=> months[k][id]!=null).length >= 2 && hasPaidInRecord(client, id));
+    if(!ok.length) return null;
+    const series = {};
+    keys.forEach(k=>{
+      let sum = 0, any = false;
+      ok.forEach(id=>{ const v = months[k][id]; if(v!=null){ sum += Number(v)||0; any = true; } });
+      if(any) series[k] = sum;
+    });
+    const sk = Object.keys(series).sort();
+    const r = moneyWeightedReturn(series, moneyInByMonth(client, months, ok), sk[0], sk[sk.length-1]);
+    return (r && r.periodPct != null && isFinite(r.periodPct)) ? r.periodPct : null;
+  }
+
   /* Months to measure a calendar year over: from the last logged month of
      the previous December (so January's movement counts) -- or the year's
      first logged month if history starts mid-year -- to the year's last
@@ -2006,7 +2037,7 @@ window.TEI = window.TEI || {};
     /* New money vs growth (accounts added mid-history, annualised minimums) */
     accountStartingBalances, joinedByMonth, netChange, annualisedPendingText, MIN_ANNUALISED_MONTHS,
     /* Money-weighted returns */
-    moneyInByMonth, moneyWeightedReturn, annualisedReturnPct, monthsBetween, calendarYearWindow,
+    moneyInByMonth, moneyWeightedReturn, accountsReturnPct, hasPaidInRecord, annualisedReturnPct, monthsBetween, calendarYearWindow,
     isDiscrepancyFlaggable, isDiscrepancyDismissed,
     /* Projection and goal status (Goals redesign, B12.6) */
     projectSeries, GOAL_GROWTH, monthsUntil, goalLinkedMonthly, goalMonthlyNeeded, goalMonthsToTarget, goalStatus, goalCompletedDate,
