@@ -266,11 +266,12 @@ TEI.render = TEI.render || {};
         '<span class="c m num"><span class="fig">' + fmt(x.v) + '</span><small>' + (x.r != null ? '<span class="' + cls(x.r) + '">' + pc(x.r) + '</span>' : Math.round(x.v/(a.v||1)*100) + '% of account') + '</small></span><i></i></div>').join('') + '</div>';
     });
     const why = [];
-    if(g.ret === NA_PARTIAL) why.push('the group figure needs a return for accounts holding at least half its value');
-    if(g.ret === NA_HISTORY || g.accs.some(a=> a.r === NA_HISTORY)) why.push('not enough history yet (it needs two months of balances and a record of money paid in)');
-    if(g.accs.some(a=> a.r === NA_MISMATCH)) why.push('the balance and money paid in do not match yet; worth a check in Settings, under Accounts');
+    if(g.ret === NA_HISTORY || g.accs.some(a=> a.r === NA_HISTORY)) why.push('not enough history yet');
+    if(g.accs.some(a=> a.r === NA_MISMATCH)) why.push('balance and money paid in do not match yet');
+    if(g.ret === NA_PARTIAL) why.push('too little of the group has a figure yet');
     const paidLink = g.types ? '<button type="button" class="plink x-paidin">Money paid in</button>' : '';
-    if(hasH || g.accs.some(a=> a.r != null) || paidLink) h += '<div class="pfoot"><span>' + (hasH || g.accs.some(a=> a.r != null) ? 'Return is growth across the months you have tracked, after money paid in.' + (why.length ? ' – means ' + why.join(', or ') + '.' : '') : '') + '</span>' + paidLink + '</div>';
+    const note = (hasH || g.accs.some(a=> a.r != null)) ? 'Return is growth over the months tracked, after money paid in.' + (why.length ? ' A dash: ' + why.join(', or ') + '.' : '') : '';
+    if(note || paidLink) h += '<div class="pfoot"><span class="pnote">' + note + '</span>' + paidLink + '</div>';
     h += '</div>';
     slot.innerHTML = h;
     if(PHONE()){ const row = box.querySelector('.grow[data-g="' + g.id + '"]'), pn = slot.firstElementChild; if(row && pn) row.after(pn); }
