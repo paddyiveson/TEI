@@ -1056,13 +1056,18 @@ window.TEI = window.TEI || {};
     reload: async (accountIds)=>{
       const w = wo(window.teiSupabase);
       const contrib = await fetchContributionBundle(w, accountIds);
-      const [accRes, holdRes] = await Promise.all([
-        accountIds.length ? w.from('accounts').select('id,value,last_updated,contribution,contribution_personal,contribution_sacrifice,is_manual_priced,has_contribution_rule').in('id', accountIds) : Promise.resolve({data:[]}),
-        accountIds.length ? w.from('holdings').select('id,account_id,value,cost_basis,price_source,value_checked_at').in('account_id', accountIds) : Promise.resolve({data:[]}),
+      const none = Promise.resolve({data:[]});
+      const [accRes, holdRes, monthsRes, depRes] = await Promise.all([
+        accountIds.length ? w.from('accounts').select('id,value,last_updated,contribution,contribution_personal,contribution_sacrifice,is_manual_priced,has_contribution_rule').in('id', accountIds) : none,
+        accountIds.length ? w.from('holdings').select('id,account_id,value,cost_basis,price_source,value_checked_at').in('account_id', accountIds) : none,
+        // A rule on an account with no funds pays into the balance
+        // (migration 027), so a reverse or adjust moves these too.
+        accountIds.length ? w.from('account_months').select('account_id,month_key,value,carried_forward').in('account_id', accountIds) : none,
+        accountIds.length ? w.from('account_deposits').select('account_id,month_key,amount,sacrifice_amount,relief_amount').in('account_id', accountIds) : none,
       ]);
-      if(accRes.error) throw accRes.error;
-      if(holdRes.error) throw holdRes.error;
-      return { contrib: normaliseContrib(contrib), accounts: accRes.data||[], holdings: holdRes.data||[] };
+      [accRes, holdRes, monthsRes, depRes].forEach(r=>{ if(r.error) throw r.error; });
+      return { contrib: normaliseContrib(contrib), accounts: accRes.data||[], holdings: holdRes.data||[],
+        accountMonths: monthsRes.data||[], deposits: depRes.data||[] };
     },
     // Adviser-level list: every pending flag across all clients (RLS lets
     // only an adviser see other clients' rows).
