@@ -320,6 +320,7 @@ TEI.render = TEI.render || {};
     tog.innerHTML = (sfOn ? '<button type="button" class="tchip" data-t="sf" aria-pressed="' + incSF + '">' + CK + 'Set and forget</button>' : '') + (emOn ? '<button type="button" class="tchip" data-t="em" aria-pressed="' + incEM + '">' + CK + 'Earmarked</button>' : '');
     tog.querySelectorAll('.tchip').forEach(b=> b.onclick = ()=>{ if(b.dataset.t === 'sf') incSF = !incSF; else incEM = !incEM; pin = hl = null; drawHold(client); const again = tog.querySelector('[data-t="' + b.dataset.t + '"]'); if(again) again.focus(); });
     const tree = q('.tree2'), list = q('.x-hlist');
+    const lg = q('.labgo'); if(lg) lg.hidden = !a.length;
     if(!a.length){ tree.innerHTML = ''; list.innerHTML = ''; q('.hmore').hidden = true; tree.hidden = true; return; }
     tree.hidden = false;
     const small = a.filter(x=> x.s < 3), big = a.filter(x=> x.s >= 3);
@@ -343,6 +344,10 @@ TEI.render = TEI.render || {};
       el.addEventListener('keydown', e=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); pin = pin === el.dataset.h ? null : el.dataset.h; mark(); } });
     });
     bindInfo(q('.hlh'));
+    // Opens the Lab on the money this treemap shows: set and forget and
+    // earmarked stay out unless their chips are on here.
+    const go = q('.x-labgo');
+    if(go) go.onclick = e=>{ e.preventDefault(); if(TEI.lab && TEI.lab.setIncluded) TEI.lab.setIncluded({setAndForget: incSF, earmarked: incEM}); TEI.app.showPage('lab'); };
     mark();
   }
   function mark(){ const on = hl || pin; root().querySelectorAll('.x-holds [data-h]').forEach(el=> el.classList.toggle('hl', el.dataset.h === on)); }
