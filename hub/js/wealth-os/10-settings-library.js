@@ -590,6 +590,40 @@ TEI.render = TEI.render || {};
         return `<button type="button" class="sl-fold" data-sl-fold="${f[1]}" aria-expanded="${on}"><span><b>${f[2]}</b><small>${f[3]}</small></span>${CHEV}</button>`; }).join('');
   }
 
+  /* Total contributions to date for one account, split the way the old
+     account card showed it (audit fix F3): what the client paid in
+     (including any lump sum before tracking began), employer or salary
+     sacrifice, and tax relief or the LISA bonus. With nothing recorded it
+     says so and points to where to add it. */
+  function paidInHTML(c, a){
+    const cb = TEI.calc.acctContributionBreakdown(c, a.id);
+    const link = '<button type="button" class="sl-paid-link" data-sl-paidin>Money paid in</button>';
+    if(!cb.recorded) return '<div class="sl-paid"><p>Total contributions to date: <b>not recorded yet</b>.</p>' +
+      '<p class="sl-paid-note">Log what went in each month under ' + link + ', or add what was paid in before Wealth OS started (More detail).</p></div>';
+    const lisa = a.type === 'lisa' || a.type === 'cash_lisa';
+    const rows = [
+      ['Paid in by you', cb.opening + cb.paidIn],
+      ['Employer or salary sacrifice', cb.sacrifice],
+      [lisa ? 'Government bonus' : 'Tax relief', cb.relief]
+    ].filter(r=> r[1]);
+    const pending = TEI.calc.fmtPendingRelief(a, cb.reliefPending);
+    const before = cb.opening ? money(cb.opening) + ' of it before Wealth OS started' + (cb.monthsLogged ? '' : ', no monthly history yet') + '.' : '';
+    return '<div class="sl-paid"><p class="sl-paid-t"><span>Total contributions to date</span><b>' + (cb.total < 0 ? '−' : '') + money(Math.abs(cb.total)) + '</b></p>' +
+      (rows.length && !(rows.length === 1 && rows[0][0] === 'Paid in by you') ? '<ul>' + rows.map(r=> '<li><span>' + r[0] + '</span><b>' + money(r[1]) + '</b></li>').join('') + '</ul>' : '') +
+      ((before || pending) ? '<p class="sl-paid-note">' + esc([before, pending ? pending.charAt(0).toUpperCase() + pending.slice(1) + '.' : ''].filter(Boolean).join(' ')) + '</p>' : '') +
+      '<p class="sl-paid-note">Month by month in ' + link + '.</p></div>';
+  }
+  /* Settings > Accounts with the Money paid in log unfolded and in view. */
+  function openPaidIn(){
+    openSettings('accounts');
+    requestAnimationFrame(()=>{
+      const root = $s('stRoot'); if(!root) return;
+      root.classList.add('sl-show-deposits');
+      const b = root.querySelector('[data-sl-fold="deposits"]');
+      if(b){ b.setAttribute('aria-expanded', 'true'); b.scrollIntoView({block:'start'}); }
+    });
+  }
+
   let slState = null;
   function slCancel(g){
     const f = (TEI.adviser && TEI.adviser.forms && TEI.adviser.forms.cancel) || {};
@@ -650,15 +684,15 @@ TEI.render = TEI.render || {};
     $s('slRemove').hidden = !item;
     $s('slSeg').hidden = gid !== 'spend';
     if(gid === 'spend') slSegState(item ? item.category === 'lifestyle' ? 'lifestyle' : 'essential' : 'essential');
-    let sum = '';
+    let sum = '', paid = '';
     if(gid === 'acct' && item){
-      const cb = TEI.calc.acctContributionBreakdown(c, item.id);
-      sum = cb.recorded ? 'Paid in to date: ' + money(cb.total) + '.' : '';
+      paid = paidInHTML(c, item);
       if(TEI.calc.accountHasHoldings(c, item.id)) sum += ' The value comes from your holdings; change it in Holdings.';
       if(item.hasContributionRule) sum += ' Your coach set the monthly amount with a contribution rule.';
     }
-    $s('slSum').textContent = sum.trim();
-    $s('slSum').hidden = !sum;
+    sum = sum.trim();
+    $s('slSum').innerHTML = paid + (sum ? '<p>' + esc(sum) + '</p>' : '');
+    $s('slSum').hidden = !(paid || sum);
     // Contribution rule and Manual-priced switches -- adviser view only;
     // the adviser module decides and wires them. Opening the rule editor
     // closes the drawer and brings the editor card (Accounts) into view.
@@ -736,6 +770,7 @@ TEI.render = TEI.render || {};
     if((b = t.closest('[data-sl-spend]'))) return slToggleSpend(b.dataset.slSpend);
     if((b = t.closest('[data-sl-ok]'))){ const m = document.querySelector('[data-mark-reviewed="'+b.dataset.slOk+'"]'); if(m) m.click(); return; }
     if(t.closest('[data-sl-update]')) return TEI.app.showPage('update');
+    if(t.closest('[data-sl-paidin]')){ slClose(); return openPaidIn(); }
     if((b = t.closest('[data-sl-fold]'))){
       const on = $s('stRoot').classList.toggle('sl-show-' + b.dataset.slFold);
       b.setAttribute('aria-expanded', on ? 'true' : 'false');
@@ -802,7 +837,7 @@ TEI.render = TEI.render || {};
   });
   function setTextIn(id, t){ const el = $s(id); if(el) el.textContent = t; }
 
-  TEI.settings = { open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); },
+  TEI.settings = { openPaidIn, open: openSettings, renderMe, wireMe, wire: wireSettings, select: sec=>{ const c = client(); if(c) selectSection(c, sec); },
     fold: f=> $s('stRoot').classList.add('sl-show-' + f) };
 
   /* ================= LIBRARY (phones, spec B10) =================

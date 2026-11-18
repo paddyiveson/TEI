@@ -269,11 +269,13 @@ TEI.render = TEI.render || {};
     if(g.ret === NA_PARTIAL) why.push('the group figure needs a return for accounts holding at least half its value');
     if(g.ret === NA_HISTORY || g.accs.some(a=> a.r === NA_HISTORY)) why.push('not enough history yet (it needs two months of balances and a record of money paid in)');
     if(g.accs.some(a=> a.r === NA_MISMATCH)) why.push('the balance and money paid in do not match yet; worth a check in Settings, under Accounts');
-    if(hasH || g.accs.some(a=> a.r != null)) h += '<div class="pfoot"><span>Return is growth across the months you have tracked, after money paid in.' + (why.length ? ' – means ' + why.join(', or ') + '.' : '') + '</span></div>';
+    const paidLink = g.types ? '<button type="button" class="plink x-paidin">Money paid in</button>' : '';
+    if(hasH || g.accs.some(a=> a.r != null) || paidLink) h += '<div class="pfoot"><span>' + (hasH || g.accs.some(a=> a.r != null) ? 'Return is growth across the months you have tracked, after money paid in.' + (why.length ? ' – means ' + why.join(', or ') + '.' : '') : '') + '</span>' + paidLink + '</div>';
     h += '</div>';
     slot.innerHTML = h;
     if(PHONE()){ const row = box.querySelector('.grow[data-g="' + g.id + '"]'), pn = slot.firstElementChild; if(row && pn) row.after(pn); }
     root().querySelectorAll('.x-panel button.arow').forEach(b=> b.onclick = ()=>{ openA[b.dataset.a] = !openA[b.dataset.a]; drawAccounts(client); });
+    const pl = root().querySelector('.x-paidin'); if(pl) pl.onclick = ()=> TEI.settings && TEI.settings.openPaidIn();
   }
 
   /* ---------- what it holds ---------- */
