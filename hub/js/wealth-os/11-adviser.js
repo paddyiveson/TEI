@@ -3132,7 +3132,7 @@ window.TEI = window.TEI || {};
     const flags = pendingFlags(acc.id);
     const basis = rule.basis === 'salary_derived' ? `salary-derived (${fmtGBP(rule.gross_annual_salary)} gross)` : 'fixed';
     const toBalance = paysIntoBalance(rule);
-    return `<div class="ep-rule">Recurring contribution <strong>${fmtGBP2(monthly)}/mo</strong> on day ${rule.day_of_month} · ${basis}${toBalance ? (hasFunds(acc.id) ? ' · into cash' : ' · into the balance') : ''}${Number(rule.annual_uplift_pct)>0 ? ' · uplift '+fmtPct(rule.annual_uplift_pct)+'/yr' : ''}${flags.length ? ` <span class="flag-badge" title="Income changed, review the contribution">${flags.length} pending flag${flags.length>1?'s':''}</span>` : ''}</div>`;
+    return `<div class="ep-rule">Recurring contribution <strong>${fmtGBP2(monthly)}/mo</strong> on day ${rule.day_of_month} · ${basis}${toBalance ? (hasFunds(acc.id) ? ' · into cash' : ' · into the balance') : ''}${isLisa(acc.id) ? ' · + 25% bonus' : ''}${Number(rule.annual_uplift_pct)>0 ? ' · uplift '+fmtPct(rule.annual_uplift_pct)+'/yr' : ''}${flags.length ? ` <span class="flag-badge" title="Income changed, review the contribution">${flags.length} pending flag${flags.length>1?'s':''}</span>` : ''}</div>`;
   }
   /* Settings > Accounts > <account> drawer: the same rule summary and
      switches the Manual Entry account card shows, adviser view only (the
@@ -3278,6 +3278,9 @@ window.TEI = window.TEI || {};
   function hasFunds(accountId){ return client.holdings.some(h=>h.accountId===accountId); }
   function paysIntoBalance(rule){ return !!rule && !(rule.allocations||[]).length; }
   function isBalanceRun(run){ return !(run.allocations||[]).length; }
+  // LISA government bonus (migration 027): 25%, arrives about six weeks after each payment.
+  function isLisa(accountId){ const a = client.accounts.find(x=>x.id===accountId); return !!a && (a.type === 'lisa' || a.type === 'cash_lisa'); }
+  const BONUS_DAYS = 42;
   /* Where a rule with no funds pays (migration 027): the account's cash
      when it holds funds, otherwise its balance. */
   function noFundsTarget(accountId){ return hasFunds(accountId) ? "the account's cash" : 'the account balance'; }
@@ -3472,6 +3475,7 @@ window.TEI = window.TEI || {};
     crEl('crBreakdown').innerHTML = `<table>
       ${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
       <tr class="total"><td>Total into ${oneTotal() ? noFundsTarget(crAccountId) : 'funds'} each month</td><td>${fmtGBP2(res.total)}</td></tr>
+      ${isLisa(crAccountId) && Number(res.total) > 0 ? `<tr><td>+ Government bonus, 25%, arrives about six weeks later${hasFunds(crAccountId) ? " into the account's cash" : ''}<br><span style="font-size:11.5px; opacity:.75;">Up to £1,000 a tax year: 25% of the first £4,000 paid in.</span></td><td>${fmtGBP2(Math.round(Number(res.total)*25)/100)}</td></tr>` : ''}
       ${split.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
       ${info.map(r=>`<tr style="opacity:.75; font-size:12px;"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
     </table>`;
@@ -3520,10 +3524,12 @@ window.TEI = window.TEI || {};
       if(Number(run.employer_amount) > 0) parts.push('employer ' + fmtGBP2(run.employer_amount));
       if(Number(run.sacrifice_amount) > 0) parts.push('salary sacrifice ' + fmtGBP2(run.sacrifice_amount));
       if(Number(run.relief_amount) > 0) parts.push('tax relief ' + fmtGBP2(run.relief_amount));
+      const bonus = Number(run.bonus_amount) > 0 && run.status !== 'reversed'
+        ? `<div class="small" style="margin-top:3px;">+ ${fmtGBP2(run.bonus_amount)} government bonus, ${run.bonus_applied_at ? 'added ' + fmtDateShort(run.bonus_applied_at) : 'due about ' + fmtDateShort(new Date(new Date(run.run_date).getTime() + BONUS_DAYS*864e5).toISOString().slice(0, 10))}</div>` : '';
       const split = isBalanceRun(run) ? 'Into ' + noFundsTarget(run.account_id) : (run.allocations||[]).map(a=>`${esc(holdingName(a.holding_id))} ${fmtGBP2(a.amount)}`).join(' · ');
       return `<div class="cr-run ${run.status}">
         <div class="cr-run-head"><span>${fmtDateShort(run.run_date)}${run.status !== 'applied' ? ` <span class="tag-pill">${run.status}</span>` : ''}</span><strong>${fmtGBP2(run.total_amount)}</strong></div>
-        <div>${split}${parts.length ? ', incl. ' + parts.join(', ') : ''}</div>
+        <div>${split}${parts.length ? ', incl. ' + parts.join(', ') : ''}</div>${bonus}
         ${run.correction_note ? `<div class="small" style="margin-top:3px;">Note: ${esc(run.correction_note)}${run.corrected_at ? ' (' + fmtDateShort(run.corrected_at) + ')' : ''}</div>` : ''}
         ${run.status !== 'reversed' ? `<div class="cr-run-actions"><button type="button" class="btn-ghost" data-run-reverse="${run.id}">Reverse</button><button type="button" class="btn-ghost" data-run-adjust="${run.id}">Adjust</button></div>` : ''}
         <div data-run-adjust-box="${run.id}"></div>
@@ -3562,6 +3568,7 @@ window.TEI = window.TEI || {};
       ${isBalanceRun(run)
         ? `<div class="cr-fund"><span>Into ${noFundsTarget(run.account_id)}</span><input type="number" step="0.01" min="0" data-adj-balance value="${Number(run.total_amount)}"></div>`
         : (run.allocations||[]).map(a=>`<div class="cr-fund"><span>${esc(holdingName(a.holding_id))}</span><input type="number" step="0.01" min="0" data-adj-fund="${a.holding_id}" value="${Number(a.amount)}"></div>`).join('')}
+      ${Number(run.bonus_amount) > 0 ? `<div class="small">The ${fmtGBP2(run.bonus_amount)} government bonus changes in proportion.</div>` : ''}
       <label class="form-field"><span>Note (required)</span><input type="text" data-adj-note placeholder="e.g. payslip showed £280"></label>
       <div class="cr-run-actions"><button type="button" class="btn-primary" data-adj-apply>Apply adjustment</button><button type="button" class="btn-ghost" data-adj-cancel>Cancel</button></div>
     </div>`;

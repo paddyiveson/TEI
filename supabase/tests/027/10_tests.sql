@@ -212,3 +212,46 @@ begin
   raise notice 'PASS 10 auto-priced shares: the rule pays into the account''s cash, shares untouched, adjust and reverse follow';
 end
 $t$;
+
+-- 11. LISA government bonus: logged with each payment, lands about six weeks
+--     later, capped at 25% of the first £4,000 paid in each tax year.
+insert into wealth_os.accounts (id, client_id, type, value, last_updated) values
+  ('a0000000-0000-4000-8000-0000000000b1', 'cccccccc-0000-4000-8000-000000000001', 'lisa', 5000, current_date - 40),
+  ('a0000000-0000-4000-8000-0000000000b2', 'cccccccc-0000-4000-8000-000000000001', 'lisa', 9000, current_date - 40);
+-- b2 already has £3,900 paid in this tax year.
+insert into wealth_os.account_deposits (account_id, month_key, amount, relief_amount, last_edited_by)
+  values ('a0000000-0000-4000-8000-0000000000b2', to_char(current_date - 31, 'YYYY-MM'), 3900, 975, 'adviser');
+do $t$
+declare r jsonb; v_run uuid; v numeric;
+begin
+  perform wealth_os.save_contribution_rule('a0000000-0000-4000-8000-0000000000b1',
+    format('{"basis":"fixed","allocation_method":"percentage","total_amount":300,"day_of_month":%s,"allocations":[]}', extract(day from current_date)::int)::jsonb);
+  perform wealth_os.save_contribution_rule('a0000000-0000-4000-8000-0000000000b2',
+    format('{"basis":"fixed","allocation_method":"percentage","total_amount":300,"day_of_month":%s,"allocations":[]}', extract(day from current_date)::int)::jsonb);
+  r := wealth_os.run_contribution_engine(current_date);
+  -- Payment day: £300 in, £75 bonus logged as paid in but not yet in the balance.
+  select id into v_run from wealth_os.contribution_runs where account_id = 'a0000000-0000-4000-8000-0000000000b1';
+  if (select bonus_amount from wealth_os.contribution_runs where id = v_run) <> 75 then raise exception 'FAIL 11 bonus %', r; end if;
+  if (select relief_amount from wealth_os.account_deposits where account_id = 'a0000000-0000-4000-8000-0000000000b1') <> 75 then raise exception 'FAIL 11 deposit relief'; end if;
+  if (select value from wealth_os.accounts where id = 'a0000000-0000-4000-8000-0000000000b1') <> 5300 then raise exception 'FAIL 11 value before landing'; end if;
+  -- Cap: only £100 of b2's £300 is within £4,000, so the bonus is £25.
+  if (select bonus_amount from wealth_os.contribution_runs where account_id = 'a0000000-0000-4000-8000-0000000000b2') <> 25 then raise exception 'FAIL 11 cap'; end if;
+  -- 30 days on: not landed yet.
+  r := wealth_os.run_contribution_engine(current_date + 30);
+  if (select bonus_applied_at from wealth_os.contribution_runs where id = v_run) is not null then raise exception 'FAIL 11 landed too early'; end if;
+  -- 43 days on: landed (the next month's £300 has also been paid by then).
+  r := wealth_os.run_contribution_engine(current_date + 43);
+  if (select bonus_applied_at from wealth_os.contribution_runs where id = v_run) is null then raise exception 'FAIL 11 not landed %', r; end if;
+  select value into v from wealth_os.accounts where id = 'a0000000-0000-4000-8000-0000000000b1';
+  if v <> 5675 then raise exception 'FAIL 11 value after landing %', v; end if;
+  -- Reverse the landed run: £300 and its £75 bonus come out of the balance and money paid in.
+  r := wealth_os.reverse_contribution_run(v_run, 'test');
+  select value into v from wealth_os.accounts where id = 'a0000000-0000-4000-8000-0000000000b1';
+  if v <> 5300 then raise exception 'FAIL 11 reverse value %', v; end if;
+  if (select coalesce(relief_amount, 0) from wealth_os.account_deposits where account_id = 'a0000000-0000-4000-8000-0000000000b1' and month_key = to_char(current_date, 'YYYY-MM')) <> 0 then raise exception 'FAIL 11 reverse relief'; end if;
+  -- A reversed run's bonus never lands.
+  r := wealth_os.run_contribution_engine(current_date + 90);
+  if (select bonus_applied_at from wealth_os.contribution_runs where id = v_run) is null and (select status from wealth_os.contribution_runs where id = v_run) <> 'reversed' then raise exception 'FAIL 11 status'; end if;
+  raise notice 'PASS 11 LISA bonus: logged with the payment, lands about six weeks later, capped at £4,000 a tax year, reversed with the payment';
+end
+$t$;

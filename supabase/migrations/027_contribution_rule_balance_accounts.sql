@@ -26,13 +26,25 @@
 --   for fund rules, and Reverse and Adjust move the balance or cash back by
 --   the difference. Cash never goes below zero on a reverse.
 --
--- Rules that choose funds are untouched by this change.
+-- LISA government bonus (both kinds of rule, on 'lisa' and 'cash_lisa'):
+--   * each payment logs the 25% bonus as money paid in (relief), so it shows
+--     as "Government bonus", pending for 4-8 weeks, as hand-logged ones do;
+--   * the bonus reaches the account about six weeks later (42 days after the
+--     payment, on the engine's next run): into the account's cash when it
+--     holds funds, otherwise its balance;
+--   * capped as HMRC does: 25% of the first £4,000 paid in each tax year
+--     (April to March by month), counting money logged by hand too;
+--   * Reverse and Adjust take the bonus with them.
+--   New columns: contribution_runs.bonus_amount, bonus_applied_at.
 --
--- Rewrites four live functions (validate_contribution_payload,
--- contribution_apply_run, reverse_contribution_run, adjust_contribution_run)
--- from their definitions as read on 18 Nov 2026, and adds two helpers. The
--- guard below refuses to run if any of the four has changed since, so a
--- later edit is never overwritten. Safe to re-run once applied.
+-- Rules that choose funds are otherwise untouched by this change.
+--
+-- Rewrites five live functions (validate_contribution_payload,
+-- contribution_apply_run, reverse_contribution_run, adjust_contribution_run,
+-- run_contribution_engine) from their definitions as read on 18 Nov 2026,
+-- and adds four helpers. The guard below refuses to run if any of the five
+-- has changed since, so a later edit is never overwritten. Safe to re-run
+-- once applied.
 
 do $guard$
 declare
@@ -40,7 +52,8 @@ declare
     "validate_contribution_payload": "dfaa897d59f2f2f5a087000431a4dd86",
     "contribution_apply_run": "cfa2d57d96f257049c2c93676180a48f",
     "reverse_contribution_run": "e150ab0e5053e90ec256a44941f60314",
-    "adjust_contribution_run": "491abfe6dea2f5de1a8c623e0c51f912"}';
+    "adjust_contribution_run": "491abfe6dea2f5de1a8c623e0c51f912",
+    "run_contribution_engine": "7ef5bf5039accdf2245b224a74dcdad1"}';
   k text; h text;
 begin
   if to_regprocedure('wealth_os.contribution_apply_balance_delta(uuid,date,numeric,boolean)') is not null then
@@ -131,6 +144,62 @@ begin
 end;
 $function$;
 
+-- LISA government bonus on each run (paid in the month, lands later).
+alter table wealth_os.contribution_runs
+  add column if not exists bonus_amount numeric(12,2),
+  add column if not exists bonus_applied_at date;
+
+-- The 25% bonus on p_amount paid into a LISA on p_run_date, capped at 25% of
+-- the first £4,000 paid in that tax year (April to March, by month), counting
+-- everything already logged as paid in. 0 for any other account type.
+create or replace function wealth_os.contribution_lisa_bonus(p_account_id uuid, p_run_date date, p_amount numeric)
+returns numeric
+language plpgsql
+stable
+set search_path to 'wealth_os', 'public'
+as $function$
+declare
+  v_type text; v_year int; v_paid numeric;
+begin
+  select type into v_type from wealth_os.accounts where id = p_account_id;
+  if v_type not in ('lisa', 'cash_lisa') or coalesce(p_amount, 0) <= 0 then return 0; end if;
+  v_year := extract(year from p_run_date)::int - case when extract(month from p_run_date) < 4 then 1 else 0 end;
+  select coalesce(sum(amount), 0) into v_paid
+    from wealth_os.account_deposits
+   where account_id = p_account_id
+     and month_key between v_year || '-04' and (v_year + 1) || '-03';
+  return round(greatest(least(p_amount, 4000 - v_paid), 0) * 0.25, 2);
+end;
+$function$;
+
+-- Bonuses that have had about six weeks to arrive go into the account: its
+-- cash when it holds funds, otherwise its balance. Returns how many landed.
+create or replace function wealth_os.contribution_land_bonuses(p_today date default current_date)
+returns int
+language plpgsql
+set search_path to 'wealth_os', 'public'
+as $function$
+declare
+  r wealth_os.contribution_runs; n int := 0;
+begin
+  for r in
+    select * from wealth_os.contribution_runs
+     where coalesce(bonus_amount, 0) > 0 and bonus_applied_at is null
+       and status <> 'reversed' and run_date <= p_today - 42
+     order by run_date
+  loop
+    begin
+      perform wealth_os.contribution_apply_balance_delta(r.account_id, p_today, r.bonus_amount);
+      update wealth_os.contribution_runs set bonus_applied_at = p_today where id = r.id;
+      n := n + 1;
+    exception when others then
+      raise warning 'contribution engine: LISA bonus for run % failed: %', r.id, sqlerrm;
+    end;
+  end loop;
+  return n;
+end;
+$function$;
+
 create or replace function wealth_os.validate_contribution_payload(p_account_id uuid, p jsonb)
 returns void
 language plpgsql
@@ -200,10 +269,12 @@ language plpgsql
 set search_path to 'wealth_os', 'public'
 as $function$
 declare
-  c jsonb; a jsonb; v_run uuid; v_mk text := to_char(p_run_date, 'YYYY-MM');
+  c jsonb; a jsonb; v_run uuid; v_mk text := to_char(p_run_date, 'YYYY-MM'); v_bonus numeric;
 begin
   c := wealth_os.calc_contribution(p_rule_id);
   if coalesce((c->>'total')::numeric, 0) <= 0 then return null; end if;
+  -- LISA: the 25% bonus on what was paid in, before this run is logged.
+  v_bonus := wealth_os.contribution_lisa_bonus(p_account_id, p_run_date, (c->>'deposit_amount')::numeric);
 
   if jsonb_array_length(coalesce(c->'allocations', '[]'::jsonb)) = 0 then
     -- No funds: the total goes into the account's cash, or its balance
@@ -221,15 +292,16 @@ begin
   end if;
 
   insert into wealth_os.contribution_runs (account_id, rule_id, run_date, month_key, total_amount,
-                                           employee_amount, employer_amount, sacrifice_amount, relief_amount, allocations)
+                                           employee_amount, employer_amount, sacrifice_amount, relief_amount, allocations, bonus_amount)
   values (p_account_id, p_rule_id, p_run_date, v_mk, (c->>'total')::numeric,
           (c->>'employee_gross')::numeric,
           (c->>'employer')::numeric + coalesce((c->>'employer_ni_passon')::numeric, 0),
-          (c->>'sacrifice_amount')::numeric, (c->>'relief_amount')::numeric, c->'allocations')
+          (c->>'sacrifice_amount')::numeric, (c->>'relief_amount')::numeric, c->'allocations', nullif(v_bonus, 0))
   returning id into v_run;
 
   perform wealth_os.contribution_adjust_deposits(p_account_id, v_mk,
-            (c->>'deposit_amount')::numeric, (c->>'deposit_sacrifice')::numeric, (c->>'deposit_relief')::numeric);
+            (c->>'deposit_amount')::numeric, (c->>'deposit_sacrifice')::numeric,
+            (c->>'deposit_relief')::numeric + v_bonus);
   return v_run;
 end;
 $function$;
@@ -264,6 +336,13 @@ begin
   v_dep_relief := coalesce(r.relief_amount, 0);
   perform wealth_os.contribution_adjust_deposits(r.account_id, r.month_key,
             -(r.total_amount - v_dep_sacr - v_dep_relief), -v_dep_sacr, -v_dep_relief);
+  -- LISA bonus: out of money paid in, and out of the account if it has landed.
+  if coalesce(r.bonus_amount, 0) > 0 then
+    perform wealth_os.contribution_adjust_deposits(r.account_id, r.month_key, 0, 0, -r.bonus_amount);
+    if r.bonus_applied_at is not null then
+      perform wealth_os.contribution_apply_balance_delta(r.account_id, r.bonus_applied_at, -r.bonus_amount, true);
+    end if;
+  end if;
 
   update wealth_os.contribution_runs
      set status = 'reversed', correction_note = p_note, corrected_by = coalesce(auth.uid()::text, 'adviser'), corrected_at = now()
@@ -291,7 +370,7 @@ declare
   r wealth_os.contribution_runs; v_new_total numeric; v_deltas jsonb; v_kept jsonb; v_f numeric;
   v_old_sacr numeric; v_old_relief numeric; v_old_amt numeric;
   v_new_emp numeric; v_new_er numeric; v_new_sacr numeric; v_new_relief numeric; v_bad int;
-  v_balance boolean; v_bal_kept boolean := false; v_where text;
+  v_balance boolean; v_bal_kept boolean := false; v_where text; v_new_bonus numeric;
 begin
   perform wealth_os.require_adviser();
   select * into r from wealth_os.contribution_runs where id = p_run_id for update;
@@ -344,9 +423,17 @@ begin
             (v_new_total - v_new_er - v_new_sacr - v_new_relief) - v_old_amt,
             (v_new_er + v_new_sacr) - v_old_sacr,
             v_new_relief - v_old_relief);
+  -- LISA bonus scales with the payment.
+  v_new_bonus := round(coalesce(r.bonus_amount, 0) * v_f, 2);
+  if v_new_bonus <> coalesce(r.bonus_amount, 0) then
+    perform wealth_os.contribution_adjust_deposits(r.account_id, r.month_key, 0, 0, v_new_bonus - coalesce(r.bonus_amount, 0));
+    if r.bonus_applied_at is not null then
+      perform wealth_os.contribution_apply_balance_delta(r.account_id, r.bonus_applied_at, v_new_bonus - coalesce(r.bonus_amount, 0), true);
+    end if;
+  end if;
 
   update wealth_os.contribution_runs
-     set status = 'adjusted', total_amount = v_new_total,
+     set status = 'adjusted', total_amount = v_new_total, bonus_amount = nullif(v_new_bonus, 0),
          employee_amount = case when r.employee_amount is null then null else v_new_emp end,
          employer_amount = case when r.employer_amount is null then null else v_new_er end,
          sacrifice_amount = case when r.sacrifice_amount is null then null else v_new_sacr end,
@@ -364,5 +451,102 @@ begin
       when jsonb_array_length(v_kept) > 0
         then 'Cost basis adjusted. Value left as the statement figure for funds checked on or after ' || to_char(r.run_date, 'DD Mon YYYY') || '.'
       else 'Cost basis and value adjusted.' end);
+end;
+$function$;
+
+-- Runs every day (cron wealth_os_contribution_engine). Unchanged except step C.
+CREATE OR REPLACE FUNCTION wealth_os.run_contribution_engine(p_today date DEFAULT CURRENT_DATE)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'wealth_os', 'public'
+AS $function$
+declare
+  acc record; st wealth_os.contribution_rule_state; cur wealth_os.contribution_rules;
+  v_runs int := 0; v_uplifts int := 0; v_rolled int := 0; v_held int := 0; v_bonuses int := 0; v_errors jsonb := '[]'::jsonb;
+  m date; d date; v_rule uuid; v_factor numeric; v_patch jsonb; v_allocs jsonb;
+begin
+  perform pg_advisory_xact_lock(hashtext('wealth_os.run_contribution_engine'));
+
+  for acc in
+    select a.id from wealth_os.accounts a
+    where a.has_contribution_rule
+      and exists (select 1 from wealth_os.contribution_rules r where r.account_id = a.id and r.effective_to is null)
+  loop
+    begin
+      select * into st from wealth_os.contribution_rule_state where account_id = acc.id for update;
+      if st.account_id is null then continue; end if;
+      select * into cur from wealth_os.contribution_rules where account_id = acc.id and effective_to is null;
+
+      -- A. Uplift check -- one per cycle, income-driven review wins.
+      if st.next_uplift_date is not null and st.next_uplift_date <= p_today then
+        if exists (select 1 from wealth_os.contribution_flags f where f.account_id = acc.id and f.status = 'pending') then
+          v_held := v_held + 1;
+        elsif st.last_reviewed_at > (st.next_uplift_date - interval '1 year')::date
+              and st.last_review_source in ('income_change','manual_edit') then
+          update wealth_os.contribution_rule_state
+             set next_uplift_date = (next_uplift_date + interval '1 year')::date
+           where account_id = acc.id;
+          v_rolled := v_rolled + 1;
+        elsif cur.annual_uplift_pct > 0 then
+          v_factor := 1 + cur.annual_uplift_pct / 100;
+          v_allocs := null;
+          if cur.basis = 'salary_derived' then
+            v_patch := jsonb_build_object('gross_annual_salary', round(cur.gross_annual_salary * v_factor, 2));
+          elsif cur.allocation_method = 'percentage' then
+            v_patch := jsonb_build_object('total_amount', round(cur.total_amount * v_factor, 2));
+          else
+            v_patch := '{}'::jsonb;
+            select jsonb_agg(jsonb_build_object('holding_id', holding_id, 'weight_pct', weight_pct,
+                                                'amount', round(amount * v_factor, 2), 'sort_order', sort_order)
+                             order by sort_order)
+              into v_allocs
+              from wealth_os.contribution_rule_allocations where rule_id = cur.id;
+          end if;
+          perform wealth_os.contribution_new_version(acc.id, v_patch, v_allocs, 'annual_uplift', 'system:contribution-engine', p_today);
+          update wealth_os.contribution_rule_state
+             set next_uplift_date = (next_uplift_date + interval '1 year')::date,
+                 last_reviewed_at = p_today, last_review_source = 'annual_uplift'
+           where account_id = acc.id;
+          v_uplifts := v_uplifts + 1;
+        else
+          update wealth_os.contribution_rule_state
+             set next_uplift_date = (next_uplift_date + interval '1 year')::date
+           where account_id = acc.id;
+          v_rolled := v_rolled + 1;
+        end if;
+      end if;
+
+      -- B. Contributions, with catch-up for missed days. One run per
+      -- account per month, on the day set by the version active that day.
+      for m in select generate_series(date_trunc('month', st.start_date), date_trunc('month', p_today), interval '1 month')::date loop
+        continue when exists (select 1 from wealth_os.contribution_runs x
+                              where x.account_id = acc.id and x.month_key = to_char(m, 'YYYY-MM'));
+        v_rule := null;
+        select r.id, m + (r.day_of_month - 1) into v_rule, d
+          from wealth_os.contribution_rules r
+         where r.account_id = acc.id
+           and m + (r.day_of_month - 1) >= r.effective_from
+           and (r.effective_to is null or m + (r.day_of_month - 1) <= r.effective_to)
+           and m + (r.day_of_month - 1) >= st.start_date
+           and m + (r.day_of_month - 1) <= p_today
+         order by r.version desc
+         limit 1;
+        if v_rule is not null then
+          if wealth_os.contribution_apply_run(acc.id, v_rule, d) is not null then
+            v_runs := v_runs + 1;
+          end if;
+        end if;
+      end loop;
+    exception when others then
+      v_errors := v_errors || jsonb_build_object('account_id', acc.id, 'error', sqlerrm);
+      raise warning 'contribution engine: account % failed: %', acc.id, sqlerrm;
+    end;
+  end loop;
+
+  -- C. LISA government bonuses that have had about six weeks to arrive (migration 027).
+  v_bonuses := wealth_os.contribution_land_bonuses(p_today);
+
+  return jsonb_build_object('runs', v_runs, 'uplifts', v_uplifts, 'rolled', v_rolled, 'held', v_held, 'bonuses', v_bonuses, 'errors', v_errors);
 end;
 $function$;
