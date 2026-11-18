@@ -1,6 +1,6 @@
 -- 027: recurring contribution rules that do not go into a fund.
 --
--- NOT APPLIED. For Paddy to apply after sign-off.
+-- APPLIED to the live project on 18 Nov 2026 (at Paddy's request, ahead of merging PR #40).
 --
 -- Until now a rule had to pay into one or more manually priced funds, so an
 -- account held as a single balance, or one holding only auto-priced shares,
