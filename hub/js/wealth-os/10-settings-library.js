@@ -496,6 +496,7 @@ TEI.render = TEI.render || {};
           <button type="button" class="wl-x" id="slClose" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6l-12 12"/><path d="M6 6l12 12"/></svg></button></div>
         <div class="hb-seg-me sl-seg" id="slSeg" role="group" aria-label="Essential or lifestyle" hidden><button type="button" data-sl-seg="essential">Essential</button><button type="button" data-sl-seg="lifestyle">Lifestyle</button></div>
         <div class="sl-sum hm-muted hm-small" id="slSum"></div>
+        <div class="sl-rule" id="slRule" hidden></div>
         <div class="sl-broker" id="slBroker" hidden></div>
         <div class="sl-body" id="slBody"></div>
         <button type="button" class="hm-btn sl-remove" id="slRemove" hidden>Remove</button>
@@ -658,6 +659,15 @@ TEI.render = TEI.render || {};
     }
     $s('slSum').textContent = sum.trim();
     $s('slSum').hidden = !sum;
+    // Contribution rule and Manual-priced switches -- adviser view only;
+    // the adviser module decides and wires them. Opening the rule editor
+    // closes the drawer and brings the editor card (Accounts) into view.
+    const rh = $s('slRule');
+    if(rh){ rh.hidden = true; rh.innerHTML = ''; delete rh.dataset.acct;
+      if(gid === 'acct' && item && TEI.adviser && TEI.adviser.contribPanel) TEI.adviser.contribPanel(rh, item.id, ()=>{
+        slClose();
+        requestAnimationFrame(()=>{ const card = $s('contribRuleCard'); if(card && !card.hidden) card.scrollIntoView({block:'start'}); });
+      }); }
     // Trading 212 sync panel (pilot) -- only shows on the adviser's own
     // Trading 212 ISA/GIA; the adviser module decides and wires it.
     const bh = $s('slBroker');
