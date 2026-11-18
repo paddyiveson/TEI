@@ -3131,7 +3131,8 @@ window.TEI = window.TEI || {};
     const monthly = TEI.calc.acctContribTotal(acc);
     const flags = pendingFlags(acc.id);
     const basis = rule.basis === 'salary_derived' ? `salary-derived (${fmtGBP(rule.gross_annual_salary)} gross)` : 'fixed';
-    return `<div class="ep-rule">Recurring contribution <strong>${fmtGBP2(monthly)}/mo</strong> on day ${rule.day_of_month} · ${basis}${Number(rule.annual_uplift_pct)>0 ? ' · uplift '+fmtPct(rule.annual_uplift_pct)+'/yr' : ''}${flags.length ? ` <span class="flag-badge" title="Income changed, review the contribution">${flags.length} pending flag${flags.length>1?'s':''}</span>` : ''}</div>`;
+    const toBalance = paysIntoBalance(rule);
+    return `<div class="ep-rule">Recurring contribution <strong>${fmtGBP2(monthly)}/mo</strong> on day ${rule.day_of_month} · ${basis}${toBalance ? (hasFunds(acc.id) ? ' · into cash' : ' · into the balance') : ''}${isLisa(acc.id) ? ' · + 25% bonus' : ''}${Number(rule.annual_uplift_pct)>0 ? ' · uplift '+fmtPct(rule.annual_uplift_pct)+'/yr' : ''}${flags.length ? ` <span class="flag-badge" title="Income changed, review the contribution">${flags.length} pending flag${flags.length>1?'s':''}</span>` : ''}</div>`;
   }
   /* Settings > Accounts > <account> drawer: the same rule summary and
      switches the Manual Entry account card shows, adviser view only (the
@@ -3238,13 +3239,30 @@ window.TEI = window.TEI || {};
         value: row.value, lastUpdated: row.last_updated,
         contribution: row.contribution, contributionPersonal: row.contribution_personal, contributionSacrifice: row.contribution_sacrifice,
         isManualPriced: !!row.is_manual_priced, hasContributionRule: !!row.has_contribution_rule
-      });
+      }, row.cash_balance !== undefined ? { cashBalance: row.cash_balance } : {});
     });
     res.holdings.forEach(row=>{
       const h = client.holdings.find(x=>x.id===row.id);
       if(!h) return;
       Object.assign(h, { value: row.value, costBasis: row.cost_basis, priceSource: row.price_source || 'manual', valueCheckedAt: row.value_checked_at || null });
     });
+    // Balance rules (migration 027) change the monthly balances and money
+    // paid in, so those are refreshed for this client's accounts too.
+    if(res.accountMonths && res.deposits){
+      const ids = new Set(client.accounts.map(a=>a.id));
+      const clear = obj=> Object.keys(obj||{}).forEach(k=>{ ids.forEach(id=> delete obj[k][id]); });
+      client.months = client.months || {}; client.monthsMeta = client.monthsMeta || {}; client.contribLog = client.contribLog || {};
+      clear(client.months); clear(client.monthsMeta); clear(client.contribLog);
+      res.accountMonths.forEach(r=>{
+        (client.months[r.month_key] = client.months[r.month_key] || {})[r.account_id] = r.value;
+        (client.monthsMeta[r.month_key] = client.monthsMeta[r.month_key] || {})[r.account_id] = r.carried_forward;
+      });
+      res.deposits.forEach(r=>{
+        (client.contribLog[r.month_key] = client.contribLog[r.month_key] || {})[r.account_id] = { amount: r.amount, sacrificeAmount: r.sacrifice_amount, reliefAmount: r.relief_amount };
+      });
+      // Accounts with funds: this month is their holdings plus cash, as on load.
+      client.accounts.forEach(a=> TEI.calc.syncAccountValueFromHoldings(client, a.id));
+    }
     renderAccounts(); renderHoldings(); renderMonthlyHoldingFields(); renderMonthlyBalanceFields();
     updateHoldingFormForManualPriced();
     const ch = document.getElementById('slRule'); if(ch && ch.dataset.acct) drawContribHost(ch);
@@ -3255,6 +3273,25 @@ window.TEI = window.TEI || {};
 
   /* ---------- rule editor ---------- */
   function crEl(id){ return document.getElementById(id); }
+  /* An account with no holdings: its rule pays one monthly total into the
+     account balance (migration 027) rather than splitting between funds. */
+  function hasFunds(accountId){ return client.holdings.some(h=>h.accountId===accountId); }
+  function paysIntoBalance(rule){ return !!rule && !(rule.allocations||[]).length; }
+  function isBalanceRun(run){ return !(run.allocations||[]).length; }
+  // LISA government bonus (migration 027): 25%, arrives about six weeks after each payment.
+  function isLisa(accountId){ const a = client.accounts.find(x=>x.id===accountId); return !!a && (a.type === 'lisa' || a.type === 'cash_lisa'); }
+  const BONUS_DAYS = 42;
+  /* Where a rule with no funds pays (migration 027): the account's cash
+     when it holds funds, otherwise its balance. */
+  function noFundsTarget(accountId){ return hasFunds(accountId) ? "the account's cash" : 'the account balance'; }
+  // "Pay into" is offered only when the account holds funds.
+  function paysToCash(){ return hasFunds(crAccountId) && crEl('crDest').value === 'cash'; }
+  function oneTotal(){ return !hasFunds(crAccountId) || paysToCash(); }
+  const CR_INTRO = {
+    funds: "Applied automatically on the day each month: each fund's value and cost basis rise by its share. Statement values entered later replace the value. No back-dating, a change applies from the next run date.",
+    cash: "Applied automatically on the day each month: the total is added to the account's cash (Cash not yet invested) and logged as money paid in. The shares keep their own prices. No back-dating, a change applies from the next run date.",
+    balance: 'Applied automatically on the day each month: the total is added to the account balance and logged as money paid in. A balance entered on or after the day stands instead. No back-dating, a change applies from the next run date.'
+  };
   function closeRuleEditor(){
     crAccountId = null;
     crEl('contribRuleCard').hidden = true;
@@ -3287,6 +3324,10 @@ window.TEI = window.TEI || {};
     incSel.innerHTML = '<option value="">Not linked</option>' + client.cashflow.income.map(i=>
       `<option value="${i.id}">${esc(i.type||'Income')} (${i.owner==='partner'?'partner':'client'}), ${fmtGBP(i.amount)} ${esc(i.frequency||'')}</option>`).join('');
     incSel.value = salary && rule.linked_income_id ? rule.linked_income_id : '';
+    // Pay into: an existing rule keeps its choice; a new one goes to cash
+    // unless the account has a fund that can take contributions.
+    const canFund = client.holdings.some(h=> h.accountId === accountId && h.priceSource !== 'auto_us');
+    crEl('crDest').value = rule ? (paysIntoBalance(rule) ? 'cash' : 'funds') : (canFund ? 'funds' : 'cash');
     renderRuleFunds(rule);
     crEl('crEndBtn').hidden = !rule;
     crEl('crSaveBtn').textContent = rule ? 'Save as new version' : 'Save rule';
@@ -3297,9 +3338,15 @@ window.TEI = window.TEI || {};
   }
   function syncRuleEditorChrome(){
     const salary = crEl('crBasis').value === 'salary_derived';
-    if(salary) crEl('crMethod').value = 'percentage';
+    const noFunds = !hasFunds(crAccountId), total1 = oneTotal();
+    crEl('crDestField').hidden = noFunds;
+    if(salary || total1) crEl('crMethod').value = 'percentage';
     crEl('crMethod').disabled = salary;
     crEl('crMethod').title = salary ? 'Salary-derived rules always split by percentage' : '';
+    // One monthly total into cash or the balance: nothing to split, no funds to list.
+    crEl('crMethod').closest('.form-field').hidden = total1;
+    crEl('crFunds').closest('.form-field').hidden = paysToCash();
+    crEl('crIntro').textContent = CR_INTRO[noFunds ? 'balance' : paysToCash() ? 'cash' : 'funds'];
     crEl('crSalaryFields').hidden = !salary;
     crEl('crTotalField').hidden = salary || crEl('crMethod').value !== 'percentage';
     const acc = client.accounts.find(a=>a.id===crAccountId);
@@ -3317,7 +3364,7 @@ window.TEI = window.TEI || {};
     const allocs = {};
     (rule ? rule.allocations : []).forEach(a=>{ allocs[a.holding_id] = a; });
     if(!hs.length){
-      wrap.innerHTML = `<div class="small" style="color:var(--cream-soft2);">No funds in this account yet, add them under Holdings first.</div>`;
+      wrap.innerHTML = `<div class="small" style="color:var(--cream-soft2);">None in this account, so the rule pays into the balance. Once funds are added it pays into the account's cash, or you can split it between manually priced funds.</div>`;
       return;
     }
     wrap.innerHTML = hs.map(h=>{
@@ -3346,7 +3393,7 @@ window.TEI = window.TEI || {};
     const num = id=>{ const x = crEl(id).value; return x === '' ? null : parseFloat(x); };
     const salary = crEl('crBasis').value === 'salary_derived';
     const method = salary ? 'percentage' : crEl('crMethod').value;
-    const allocations = Array.from(crEl('crFunds').querySelectorAll('[data-cr-fund]:not([disabled])'))
+    const allocations = oneTotal() ? [] : Array.from(crEl('crFunds').querySelectorAll('[data-cr-fund]:not([disabled])'))
       .map(inp=>({ holding_id: inp.dataset.crFund, w: parseFloat(inp.dataset.w), amt: parseFloat(inp.dataset.amt) }))
       .filter(x=> method === 'percentage' ? x.w > 0 : x.amt > 0)
       .map(x=> method === 'percentage' ? { holding_id: x.holding_id, weight_pct: x.w } : { holding_id: x.holding_id, amount: x.amt });
@@ -3378,7 +3425,9 @@ window.TEI = window.TEI || {};
     const p = rulePayload();
     // Entry feedback only (not a contribution figure): do the weights add up?
     const help = crEl('crFundsTotal');
-    if(p.allocation_method === 'percentage'){
+    if(oneTotal()){
+      help.textContent = '';
+    } else if(p.allocation_method === 'percentage'){
       const w = p.allocations.reduce((s,a)=>s+a.weight_pct, 0);
       help.textContent = `Weights total ${fmtPct(w)}${Math.abs(w-100) > 0.0005 ? ', must add up to 100%' : ''}`;
     } else {
@@ -3425,7 +3474,8 @@ window.TEI = window.TEI || {};
     const split = (res.allocations||[]).map(a=>[`→ ${esc(holdingName(a.holding_id))}`, fmtGBP2(a.amount)]);
     crEl('crBreakdown').innerHTML = `<table>
       ${rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
-      <tr class="total"><td>Total into funds each month</td><td>${fmtGBP2(res.total)}</td></tr>
+      <tr class="total"><td>Total into ${oneTotal() ? noFundsTarget(crAccountId) : 'funds'} each month</td><td>${fmtGBP2(res.total)}</td></tr>
+      ${isLisa(crAccountId) && Number(res.total) > 0 ? `<tr><td>+ Government bonus, 25%, arrives about six weeks later${hasFunds(crAccountId) ? " into the account's cash" : ''}<br><span style="font-size:11.5px; opacity:.75;">Up to £1,000 a tax year: 25% of the first £4,000 paid in.</span></td><td>${fmtGBP2(Math.round(Number(res.total)*25)/100)}</td></tr>` : ''}
       ${split.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
       ${info.map(r=>`<tr style="opacity:.75; font-size:12px;"><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}
     </table>`;
@@ -3474,10 +3524,12 @@ window.TEI = window.TEI || {};
       if(Number(run.employer_amount) > 0) parts.push('employer ' + fmtGBP2(run.employer_amount));
       if(Number(run.sacrifice_amount) > 0) parts.push('salary sacrifice ' + fmtGBP2(run.sacrifice_amount));
       if(Number(run.relief_amount) > 0) parts.push('tax relief ' + fmtGBP2(run.relief_amount));
-      const split = (run.allocations||[]).map(a=>`${esc(holdingName(a.holding_id))} ${fmtGBP2(a.amount)}`).join(' · ');
+      const bonus = Number(run.bonus_amount) > 0 && run.status !== 'reversed'
+        ? `<div class="small" style="margin-top:3px;">+ ${fmtGBP2(run.bonus_amount)} government bonus, ${run.bonus_applied_at ? 'added ' + fmtDateShort(run.bonus_applied_at) : 'due about ' + fmtDateShort(new Date(new Date(run.run_date).getTime() + BONUS_DAYS*864e5).toISOString().slice(0, 10))}</div>` : '';
+      const split = isBalanceRun(run) ? 'Into ' + noFundsTarget(run.account_id) : (run.allocations||[]).map(a=>`${esc(holdingName(a.holding_id))} ${fmtGBP2(a.amount)}`).join(' · ');
       return `<div class="cr-run ${run.status}">
         <div class="cr-run-head"><span>${fmtDateShort(run.run_date)}${run.status !== 'applied' ? ` <span class="tag-pill">${run.status}</span>` : ''}</span><strong>${fmtGBP2(run.total_amount)}</strong></div>
-        <div>${split}${parts.length ? ', incl. ' + parts.join(', ') : ''}</div>
+        <div>${split}${parts.length ? ', incl. ' + parts.join(', ') : ''}</div>${bonus}
         ${run.correction_note ? `<div class="small" style="margin-top:3px;">Note: ${esc(run.correction_note)}${run.corrected_at ? ' (' + fmtDateShort(run.corrected_at) + ')' : ''}</div>` : ''}
         ${run.status !== 'reversed' ? `<div class="cr-run-actions"><button type="button" class="btn-ghost" data-run-reverse="${run.id}">Reverse</button><button type="button" class="btn-ghost" data-run-adjust="${run.id}">Adjust</button></div>` : ''}
         <div data-run-adjust-box="${run.id}"></div>
@@ -3494,7 +3546,9 @@ window.TEI = window.TEI || {};
   async function reverseRun(runId){
     const run = contribState().runs.find(r=>r.id===runId);
     if(!run) return;
-    const note = prompt(`Reverse the ${fmtGBP2(run.total_amount)} contribution of ${fmtDateShort(run.run_date)}?\n\nCost basis and that month's deposits are reduced. Fund values are reduced too, unless a statement value has been entered since (then the statement stands).\n\nReason (saved with the run):`);
+    const note = prompt(isBalanceRun(run)
+      ? `Reverse the ${fmtGBP2(run.total_amount)} contribution of ${fmtDateShort(run.run_date)}?\n\nThat month's money paid in is reduced. ${hasFunds(run.account_id) ? "The account's cash is reduced too, unless the account has been saved since (then its cash figure stands)." : 'The account balance is reduced too, unless a balance has been entered since (then that figure stands).'}\n\nReason (saved with the run):`
+      : `Reverse the ${fmtGBP2(run.total_amount)} contribution of ${fmtDateShort(run.run_date)}?\n\nCost basis and that month's deposits are reduced. Fund values are reduced too, unless a statement value has been entered since (then the statement stands).\n\nReason (saved with the run):`);
     if(note === null) return;
     try{
       const res = await TEI.wealthOS.contributionRules.reverseRun(runId, note.trim() || 'Reversed');
@@ -3511,13 +3565,18 @@ window.TEI = window.TEI || {};
     const box = document.querySelector(`[data-run-adjust-box="${runId}"]`);
     if(!run || !box) return;
     box.innerHTML = `<div class="cr-funds" style="margin-top:8px;">
-      ${(run.allocations||[]).map(a=>`<div class="cr-fund"><span>${esc(holdingName(a.holding_id))}</span><input type="number" step="0.01" min="0" data-adj-fund="${a.holding_id}" value="${Number(a.amount)}"></div>`).join('')}
+      ${isBalanceRun(run)
+        ? `<div class="cr-fund"><span>Into ${noFundsTarget(run.account_id)}</span><input type="number" step="0.01" min="0" data-adj-balance value="${Number(run.total_amount)}"></div>`
+        : (run.allocations||[]).map(a=>`<div class="cr-fund"><span>${esc(holdingName(a.holding_id))}</span><input type="number" step="0.01" min="0" data-adj-fund="${a.holding_id}" value="${Number(a.amount)}"></div>`).join('')}
+      ${Number(run.bonus_amount) > 0 ? `<div class="small">The ${fmtGBP2(run.bonus_amount)} government bonus changes in proportion.</div>` : ''}
       <label class="form-field"><span>Note (required)</span><input type="text" data-adj-note placeholder="e.g. payslip showed £280"></label>
       <div class="cr-run-actions"><button type="button" class="btn-primary" data-adj-apply>Apply adjustment</button><button type="button" class="btn-ghost" data-adj-cancel>Cancel</button></div>
     </div>`;
     box.querySelector('[data-adj-cancel]').addEventListener('click', ()=>{ box.innerHTML = ''; });
     box.querySelector('[data-adj-apply]').addEventListener('click', async ()=>{
-      const allocations = Array.from(box.querySelectorAll('[data-adj-fund]')).map(inp=>({ holding_id: inp.dataset.adjFund, amount: parseFloat(inp.value)||0 }));
+      const bal = box.querySelector('[data-adj-balance]');
+      const allocations = bal ? [{ amount: parseFloat(bal.value)||0 }]
+        : Array.from(box.querySelectorAll('[data-adj-fund]')).map(inp=>({ holding_id: inp.dataset.adjFund, amount: parseFloat(inp.value)||0 }));
       const note = box.querySelector('[data-adj-note]').value.trim();
       if(!note){ showToast('Add a note explaining the adjustment'); return; }
       try{
@@ -3617,7 +3676,7 @@ window.TEI = window.TEI || {};
     list.querySelectorAll('[data-cr-open]').forEach(b=> b.addEventListener('click', ()=> openRuleEditor(b.dataset.crOpen)));
   }
   function wireContribEditor(){
-    ['crBasis','crMethod'].forEach(id=> crEl(id).addEventListener('change', ()=>{ syncRuleEditorChrome(); schedulePreview(); }));
+    ['crBasis','crMethod','crDest'].forEach(id=> crEl(id).addEventListener('change', ()=>{ syncRuleEditorChrome(); schedulePreview(); }));
     ['crTotal','crDay','crUplift','crGross','crEmployeePct','crEmployerPct','crMatchCap'].forEach(id=> crEl(id).addEventListener('input', ()=> schedulePreview()));
     ['crPersonalMethod','crPensionable','crLinkedIncome'].forEach(id=> crEl(id).addEventListener('change', ()=> schedulePreview()));
     crEl('crSalaryMethod').addEventListener('change', ()=>{ syncRuleEditorChrome(); schedulePreview(); });

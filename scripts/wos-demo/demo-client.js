@@ -93,6 +93,55 @@
       contribution_method: 'salary_sacrifice', employer_ni_passon_pct: 0, change_reason: 'created', created_at: iso(180), created_by: UID});
     if(penHolding) ruleAllocs.push({id: id(), rule_id: ruleId, holding_id: penHolding.id, weight_pct: 100, amount: null, sort_order: 0});
     ruleState.push({account_id: pension.id, start_date: dateIn(-6), next_uplift_date: dateIn(6), last_reviewed_at: dateIn(-6), last_review_source: 'created'});
+    // The page reads a rule's funds through a nested select, which the fake
+    // database does not do, so they ride on the rule row as the real one returns them.
+    rules[0].contribution_rule_allocations = ruleAllocs.slice();
+
+    // A workplace pension held as a balance only (no funds), with a rule
+    // that pays into the balance (migration 027) and three months of runs.
+    var wp = acc({provider: 'Scottish Widows', type: 'pension', value: 22400, contribution: 0, contribution_personal: 0, contribution_sacrifice: 300, has_contribution_rule: true});
+    accounts.push(wp);
+    for(var wb = 35; wb >= 0; wb--){
+      account_months.push({id: id(), account_id: wp.id, month_key: mk(wb), value: Math.round(22400*(0.5 + 0.5*(35 - wb)/35)), carried_forward: false,
+        last_edited_by: wb > 3 ? 'client' : 'system:contribution-engine', last_edited_at: iso(wb*30)});
+      if(wb < 35) account_deposits.push({id: id(), account_id: wp.id, month_key: mk(wb), amount: 0, sacrifice_amount: 300, relief_amount: 0});
+    }
+    var wpRule = id();
+    rules.push({id: wpRule, account_id: wp.id, version: 1, effective_from: dateIn(-4), effective_to: null, basis: 'fixed',
+      allocation_method: 'percentage', total_amount: 300, day_of_month: 15, annual_uplift_pct: 0, linked_income_id: null,
+      gross_annual_salary: null, pensionable_basis: null, employee_pct: null, employer_pct: null, employer_match_cap_pct: null,
+      contribution_method: 'salary_sacrifice', employer_ni_passon_pct: 0, change_reason: 'created', created_at: iso(120), created_by: UID,
+      contribution_rule_allocations: []});
+    ruleState.push({account_id: wp.id, start_date: dateIn(-4), next_uplift_date: dateIn(8), last_reviewed_at: dateIn(-4), last_review_source: 'created'});
+    // A S&S LISA holding only auto-priced US shares: a rule with no funds
+    // pays into its cash (migration 027).
+    var aj = acc({provider: 'AJ Bell', type: 'lisa', value: 4200, cash_balance: 0});
+    accounts.push(aj);
+    holdings.push(hold(aj, {name: 'Tesla', ticker: 'TSLA', value: 2100, cost_basis: 1900, price_source: 'auto_us'}),
+      hold(aj, {name: 'Alphabet', ticker: 'GOOG', value: 1300, cost_basis: 1100, price_source: 'auto_us'}),
+      hold(aj, {name: 'Microsoft', ticker: 'MSFT', value: 800, cost_basis: 700, price_source: 'auto_us'}));
+    for(var ab = 11; ab >= 0; ab--) account_months.push({id: id(), account_id: aj.id, month_key: mk(ab), value: Math.round(4200*(0.7 + 0.3*(11 - ab)/11)), carried_forward: false, last_edited_at: iso(ab*30)});
+    // Its rule pays £200 a month into cash; the 25% bonus lands about six weeks later.
+    Object.assign(aj, {has_contribution_rule: true, contribution: 200, cash_balance: 450});
+    var ajRule = id();
+    rules.push({id: ajRule, account_id: aj.id, version: 1, effective_from: dateIn(-3), effective_to: null, basis: 'fixed',
+      allocation_method: 'percentage', total_amount: 200, day_of_month: 18, annual_uplift_pct: 0, linked_income_id: null,
+      gross_annual_salary: null, pensionable_basis: null, employee_pct: null, employer_pct: null, employer_match_cap_pct: null,
+      contribution_method: null, employer_ni_passon_pct: 0, change_reason: 'created', created_at: iso(90), created_by: UID,
+      contribution_rule_allocations: []});
+    ruleState.push({account_id: aj.id, start_date: dateIn(-3), next_uplift_date: dateIn(9), last_reviewed_at: dateIn(-3), last_review_source: 'created'});
+    [2, 1].forEach(function(b){
+      var d = new Date(now.getFullYear(), now.getMonth() - b, 18), landed = new Date(d.getTime() + 42*864e5);
+      ruleRuns.push({id: id(), account_id: aj.id, rule_id: ajRule, run_date: d.toISOString().slice(0, 10), month_key: mk(b), total_amount: 200,
+        employee_amount: null, employer_amount: 0, sacrifice_amount: 0, relief_amount: 0, allocations: [], status: 'applied',
+        bonus_amount: 50, bonus_applied_at: landed <= now ? landed.toISOString().slice(0, 10) : null, applied_at: iso(b*30)});
+      account_deposits.push({id: id(), account_id: aj.id, month_key: mk(b), amount: 200, sacrifice_amount: 0, relief_amount: 50});
+    });
+    [3, 2, 1].forEach(function(b){
+      var d = new Date(now.getFullYear(), now.getMonth() - b, 15).toISOString().slice(0, 10);
+      ruleRuns.push({id: id(), account_id: wp.id, rule_id: wpRule, run_date: d, month_key: mk(b), total_amount: 300, employee_amount: 300,
+        employer_amount: 0, sacrifice_amount: 300, relief_amount: 0, allocations: [], status: 'applied', applied_at: iso(b*30)});
+    });
   }
 
   // Cashflow: twelve logged months of take-home, essentials, lifestyle and wealth building.
