@@ -108,7 +108,7 @@ TEI.render = TEI.render || {};
   function renderSideSetup(client){
     const btn = document.getElementById('sideSetupBtn');
     if(!btn) return;
-    const n = TEI.setup ? TEI.setup.leftToDo(client) : 0;
+    const n = TEI.setup ? (TEI.setup.nudgeCount ? TEI.setup.nudgeCount(client) : TEI.setup.leftToDo(client)) : 0;
     btn.hidden = !n;
     if(n){
       document.getElementById('sideSetupSub').textContent = n + (n === 1 ? ' thing left' : ' things left');

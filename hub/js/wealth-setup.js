@@ -423,11 +423,18 @@ window.TEI = window.TEI || {};
   /* Without a coach request the client can still run it themselves from
      "Continue setup" (Home), Me or Settings > Help: every empty field, no
      coach questions. It is saved as a request of their own as they go. */
-  /* Shown until there is nothing left: any empty field, or the You and
-     investing answers not given yet. Not tied to the old onboarding flag,
-     which most existing clients already have set. */
+  /* The self-serve nudge (Home tile, sidebar button) shows while something
+     is left: any empty field, or the You and investing answers not given
+     yet. Once onboarding is marked complete it stops nudging, even with
+     questions skipped (audit fix F4: a finished client was still told "6
+     things left"). The flow stays open from Settings > Help, and a coach's
+     own setup request still shows on Home while it is open. */
   function canSelfServe(c) {
-    return !!(c && !isActive(c) && leftToDo(c) > 0);
+    return !!(c && !isActive(c) && !(c.settings && c.settings.onboardingComplete) && leftToDo(c) > 0);
+  }
+  function nudgeCount(c) {
+    if (!c) return 0;
+    return (isActive(c) || canSelfServe(c)) ? leftToDo(c) : 0;
   }
   function leftToDo(c) {
     if (!c) return 0;
@@ -920,6 +927,6 @@ window.TEI = window.TEI || {};
 
   TEI.setup = {
     open: open, close: close, gapsFor: gapsFor, itemsFor: itemsFor, leftCount: leftCount, isActive: isActive,
-    homeTile: homeTile, canSelfServe: canSelfServe, leftToDo: leftToDo, maybeAutoOpen: maybeAutoOpen, coachRender: coachRender, settingsRender: settingsRender
+    homeTile: homeTile, canSelfServe: canSelfServe, nudgeCount: nudgeCount, leftToDo: leftToDo, maybeAutoOpen: maybeAutoOpen, coachRender: coachRender, settingsRender: settingsRender
   };
 })();
