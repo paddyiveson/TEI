@@ -24,6 +24,12 @@ TEI.render = TEI.render || {};
   const DCOL = ['var(--d1)', 'var(--d2)', 'var(--d3)'];
   const keyParts = key=>{ const [y, m] = key.split('-').map(Number); return {y, m}; };
   const monLong = key=> MON_LONG[keyParts(key).m - 1] + ' ' + keyParts(key).y;
+  /* Debts on Cashflow is back to coming soon (Paddy, 18 Nov 2026): set
+     TEI.flags.cashflowDebts = true (before this file loads, or in the
+     console then reopen Cashflow) to bring the live tile back. Nothing is
+     deleted: drawDebts and the debts data are untouched. */
+  TEI.flags = Object.assign({cashflowDebts: false}, TEI.flags);
+  const debtsLive = ()=> !!TEI.flags.cashflowDebts;
   function target(client){ const t = Number((client.preferences||{}).wealthConversionTarget); return t > 0 ? t : 20; }
 
   /* Home's health chip (thresholds decided 13 Oct 2026): unchanged. */
@@ -271,7 +277,11 @@ TEI.render = TEI.render || {};
   function renderAll(client){
     const H = hist(client), m = H[H.length - 1].v;
     q('.x-dirty').hidden = !(SAVED && JSON.stringify(SAVED) !== JSON.stringify(current(client)));
-    drawHero(client, H, m); drawSN(client, m); drawScn(client, m); drawHab(client, H, m); drawDebts(client, m); drawNote(client);
+    drawHero(client, H, m); drawSN(client, m); drawScn(client, m); drawHab(client, H, m); drawNote(client);
+    const live = debtsLive();
+    root().classList.toggle('debts-off', !live);
+    q('.x-debts').hidden = !live; q('.x-debtsoon').hidden = live;
+    if(live) drawDebts(client, m);
   }
   let wired = false;
   function wireOnce(){
@@ -292,6 +302,7 @@ TEI.render = TEI.render || {};
   }
   /* From Wealth's Debts row: open the Debts tile and bring it into view. */
   function focusDebts(){
+    if(!debtsLive()){ const s = q('.x-debtsoon'); if(s) s.scrollIntoView({behavior: V.RM() ? 'auto' : 'smooth', block:'start'}); return; }
     FOLD.add('debts');
     const el = q('.x-debts'); if(!el) return;
     el.classList.add('open'); const h = el.querySelector('.fhead'); if(h) h.setAttribute('aria-expanded', 'true');

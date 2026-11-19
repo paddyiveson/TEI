@@ -2162,7 +2162,12 @@ TEI.render = TEI.render || {};
   }
 
   // The read-only "Your portfolio" treemap on Wealth (B5.1) uses the same layout.
-  TEI.lab = { layoutTreemap, treemapOrder, moveNeededFor1Pct };
+  /* Wealth's "Model changes in Portfolio Lab" link opens the Lab with the
+     treemap's own switches: include = true keeps that money in (its chip on). */
+  function setIncluded(include){
+    FILTERS.forEach(f=>{ if(include && typeof include[f.key] === 'boolean') state.hide[f.key] = !include[f.key]; });
+  }
+  TEI.lab = { layoutTreemap, treemapOrder, moveNeededFor1Pct, setIncluded };
 
   /* ---------------------------- mount ---------------------------- */
   // Called from applyAnalysisScope on every full render and every scope-pill switch.
