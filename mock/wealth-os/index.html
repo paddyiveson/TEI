@@ -581,6 +581,49 @@ body.pg-wealth .dk .dkp-other,body.pg-goals .dk .dkp-other,body.pg-fc .dk .dkp-o
 .dko{color:var(--softer);font-size:15px;padding:120px 0;text-align:center}
 .dkimp b{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-right:8px;font-weight:500}
 
+/* desktop Forecast: the phone Forecast moves in here (one DOM, one model) */
+.dkp-fc{display:none}
+body.pg-fc .dk .dkp-fc{display:block}
+body.pg-fc .dk .dkp-other{display:none}
+.dk .fq{padding:0;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:32px;align-items:start}
+.dk .fq>*{grid-column:1/13;min-width:0}
+.dk .fq>.q-tabs{grid-row:1}
+.dk .fq>.f-fig{grid-column:1/9;grid-row:2;margin-top:28px}
+.dk .fq>#fAbove{grid-column:1/9;grid-row:3}
+.dk .fq>.f-ch{grid-column:1/9;grid-row:4;height:280px;margin:32px 0 0}
+.dk .fq>.f-ax{grid-column:1/9;grid-row:5;margin:8px 0 0}
+.dk .fq>.f-in{grid-column:9/13;grid-row:2/6;align-self:end;margin:0}
+.dk .f-nl{right:0}
+.dk .fq>.q-sec{margin-top:64px}
+.dk .fq>.q-sec:nth-of-type(1){grid-row:6;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:32px}
+.dk .fq>.q-sec:nth-of-type(1)>h2{grid-column:1/-1}
+.dk .fq .ftog{display:none}
+.dk .fq .f-rg,.dk .fq.ord .f-rg{display:block;grid-column:1/7}
+.dk .fq .f-or,.dk .fq.ord .f-or{display:block;grid-column:7/13}
+.dk .fq .f-h{margin-top:0}
+.dk .fq .f-dist{margin:28px 0 0;height:150px}
+.dk .fq .f-och{height:150px;margin-top:28px!important}
+.dk .fq>.q-sec:nth-of-type(2){grid-row:7;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:32px}
+.dk .fq>.q-sec:nth-of-type(2)>h2{grid-column:1/-1}
+.dk .fq .f-lv{border-top:1px solid rgba(232,211,162,.08);min-height:64px}
+.dk .fq>.q-sec:nth-of-type(3){grid-column:1/9;grid-row:8}
+.dk .fq>.q-sec.col{grid-column:9/13;grid-row:8;margin-top:64px!important;border-bottom:0}
+.dk .fq .col .sh{pointer-events:none;border-top:0;min-height:0;padding:0;margin-bottom:10px}
+.dk .fq .col .sh .sm,.dk .fq .col .sh .cv{display:none}
+.dk .fq .col .sb{display:block;padding:0}
+.dk .fq .col .q-row{padding:8px 0}
+.dk .fq .col .q-row .l{font-size:14px}
+.dk .fq .col .q-row .r{font-size:14px!important}
+.dk .fq>.f-disc{grid-column:1/9;grid-row:9;margin-top:40px}
+.dk .fq h2 .hs{display:inline;margin-left:10px}
+.dk .fq .col .sh>span:first-child{font-size:12.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#8494AC}
+.dk .fq>.q-sec:nth-of-type(3) .q-link{justify-content:flex-start;gap:8px}
+/* desktop: bottom sheets become a right-hand panel */
+.dkf{position:relative}
+.dk .scrim2{position:absolute;z-index:40}
+body .dk .sheet{position:absolute;top:0;right:0;left:auto;bottom:0!important;width:440px;border-radius:0;padding:28px 32px;overflow-y:auto;box-shadow:-30px 0 60px -30px rgba(0,0,0,.9),inset 1px 0 0 rgba(255,255,255,.06)}
+.dk .sheet .grab{display:none}
+
 /* ===== Motion ===== */
 
 </style>
@@ -814,7 +857,8 @@ body.pg-wealth .dk .dkp-other,body.pg-goals .dk .dkp-other,body.pg-fc .dk .dkp-o
      </aside>
     </div>
    </div>
-   <div class="dkp-other"><p class="dko">Desktop for this page comes once Home is signed off.</p></div>
+   <div class="dkp-fc" id="dkFc"></div>
+   <div class="dkp-other"><p class="dko">Desktop for this page comes in a later stage.</p></div>
    <p class="dkimp"><b>Important</b>The Everyday Investor provides financial coaching and education, not regulated financial advice. We are not authorised or regulated by the Financial Conduct Authority and do not make personal recommendations. Everything here is educational. The decisions you make are yours.</p>
   </div></main>
  </div>
@@ -844,7 +888,7 @@ const go=k=>{pg=k;applyPg()};
 document.querySelectorAll('#sPg button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 [['#tHome','home'],['#tWealth','wealth'],['#tCash','cash'],['#tPlan','goals'],['#tMore','more']].forEach(([id,k])=>$(id).onclick=e=>{e.preventDefault();go(k)});
 document.querySelectorAll('.dkn [data-pg]').forEach(a=>a.onclick=e=>{e.preventDefault();$('.dkmenu').hidden=true;go(a.dataset.pg)});
-document.querySelectorAll('#sDev button').forEach(b=>b.onclick=()=>{st.dev=b.dataset.v;apply();fitDk()});
+document.querySelectorAll('#sDev button').forEach(b=>b.onclick=()=>{st.dev=b.dataset.v;place();apply();fitDk()});
 document.querySelectorAll('.ctog button').forEach(b=>b.onclick=()=>{st.cp=b.dataset.p;B.classList.toggle('cp-m',st.cp==='m');B.classList.toggle('cp-y',st.cp==='y');document.querySelectorAll('.ctog button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.p===st.cp))});
 /* ---------- Home: hero sparkline (last 13 months) ---------- */
 let s=7;const r=()=>{s=(s*16807)%2147483647;return s/2147483647};
@@ -934,6 +978,10 @@ if(MOTION)setTimeout(countAll,300);
  $('#sh2X').onclick=()=>{sh.hidden=true;sc.hidden=true};sc.addEventListener('click',()=>{sh.hidden=true})})();
 function fitDk(){const w=Math.min(1,(innerWidth-24)/1280),k=$('#dkw');k.style.transform='scale('+w+')';k.style.marginLeft=Math.max(12,(innerWidth-1280*w)/2)+'px';$('#dk').style.height=(820*w+56)+'px'}
 addEventListener('resize',fitDk);fitDk();
+/* one Forecast and one set of sheets: moved into the desktop frame on Desktop, back on Phone */
+const fcHome=$('.pg-fc-only'),phoneEl=$('#scroll');
+function place(){const d=st.dev==='d';(d?$('#dkFc'):fcHome).appendChild($('.fq'));
+  ['#scrim2','#sheet2','#sheet'].forEach(id=>{const e=$(id);e.hidden=true;(d?$('.dkf'):phoneEl).appendChild(e)})}
 $('.dkr .mo').onclick=e=>{e.stopPropagation();$('.dkmenu').hidden=!$('.dkmenu').hidden};
 document.addEventListener('click',e=>{if(!e.target.closest('.dkmenu'))$('.dkmenu').hidden=true});
 document.querySelectorAll('.dk .dn').forEach(b=>b.onclick=()=>{const d=b.closest('.nsr').classList.toggle('done');b.textContent=d?'Undo':'Mark as done'});
