@@ -397,9 +397,24 @@ TEI.render = TEI.render || {};
     return {payers, YRS, NOWI: YRS.indexOf(y0), rec, byPayer, extra, next, paidMonths, mNow, hasSchedule, recNow: paidIn(y0), yr: yr || (hist.length ? hist[hist.length-1].amount : 0), invested, growth, y0,
       cash4: payers.reduce((s, p)=> s + est(p, 3), 0), reinv4: payers.reduce((s, p)=> s + reinvAt(p, 3), 0)};
   }
+  /* Quick wins Q6 (18 Nov 2026), desktop only for now (phones keep the card
+     as it was): estimates are the payer's colour faded, not hatched; the
+     reinvested extra is flat green; price labels only on this year and the
+     last year (hover or tap any bar for the split); a payer name that is one
+     word is a ticker and shows in capitals. */
+  const tick = n=> /\s/.test(String(n).trim()) ? n : String(n).toUpperCase();
+  function divSpark(D){
+    // No per-share history is stored: the line runs back three years from
+    // today at the payers' recorded yearly increase (weighted by holding).
+    const g = (D.growth || 0)/100, pts = [0, 1, 2, 3].map(k=> Math.pow(1 + g, k - 3));
+    const lo = Math.min(...pts), hi = Math.max(...pts), span = hi - lo || 1;
+    const xy = pts.map((v, k)=> (k*200/3).toFixed(1) + ' ' + (34 - (v - lo)/span*26).toFixed(1));
+    return '<svg class="dspark" viewBox="0 0 200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M' + xy.join(' L') + ' L200 40 L0 40Z" fill="rgba(159,208,168,.15)"/><path d="M' + xy.join(' L') + '" fill="none" stroke="#9FD0A8" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
+  }
   function drawDiv(client){
     const slot = q('.x-divslot'), D = divModel(client);
     if(!D){ slot.innerHTML = ''; return; }
+    const desk = !PHONE(), nm = n=> desk ? tick(n) : n;
     const tot = i=> D.rec[i] + D.byPayer.reduce((s, a)=> s + a[i], 0);
     const mmx = Math.max(1, ...D.YRS.map((_, i)=> tot(i)));
     const mini = D.YRS.map((_, i)=>{ const r = D.rec[i], e = tot(i) - r;
@@ -412,7 +427,7 @@ TEI.render = TEI.render || {};
       '<span class="dv d1"></span><span class="dv d2"></span>' +
       '<span class="v v2 num fig">' + fmt(D.yr/12) + '<small class="u">p/m</small></span>' +
       (D.hasSchedule ? '<span class="x2"><span class="mdots" title="Months that have paid this year">' + V.MON.map((m, i)=> '<i class="' + (D.paidMonths.has(i + 1) ? 'on' : D.next && D.next.month === i + 1 ? 'nx' : '') + '" title="' + m + '"></i>').join('') + '</span></span>' : '') +
-      (D.next ? '<span class="k k3">Next payment</span><span class="v v3 num fig">c. ' + fmt(D.next.amount) + '</span><span class="x3"><span class="chip"><i style="background:' + D.next.col + '"></i>' + V.MON[D.next.month - 1] + ' · ' + esc(D.next.name) + '</span></span>'
+      (D.next ? '<span class="k k3">Next payment</span><span class="v v3 num fig">c. ' + fmt(D.next.amount) + '</span><span class="x3"><span class="chip"><i style="background:' + D.next.col + '"></i>' + V.MON[D.next.month - 1] + ' · ' + esc(nm(D.next.name)) + '</span></span>'
         : D.invested ? '<span class="k k3">Yield</span><span class="v v3 num">' + (D.yr/D.invested*100).toFixed(1) + '%</span>' : '') +
       '<span class="mini2' + (divArm && !RM() ? ' arm' : '') + '" aria-hidden="true">' + mini + '</span></div>' +
       (D.payers.length ? '<button type="button" class="dmore" aria-expanded="' + divOpen + '">' + (divOpen ? 'Hide details' : 'Show details') + CHEV + '</button>' : '');
@@ -423,25 +438,27 @@ TEI.render = TEI.render || {};
         '<div class="dl-card lead"><span class="k">By ' + yAt + ', if you reinvest' + INFO('Putting each payment back in buys more of what pays you, so the income grows on itself. Based on today\'s holdings and each payer\'s own growth.') + '</span><p class="big num fig">' + fmt(D.reinv4) + '<small>a year</small></p>' +
           '<div class="cmp num"><div><span>Reinvested</span><em><i style="width:100%;background:var(--gain)"></i></em><span class="fig">' + fmt(D.reinv4) + '</span></div>' +
           '<div><span>Taken as cash</span><em><i style="width:' + (D.cash4/(D.reinv4||1)*100) + '%;background:var(--champ)"></i></em><span class="fig">' + fmt(D.cash4) + '</span></div></div></div>' +
-        (D.invested ? '<div class="dl-card"><span class="k">How it compares' + INFO('Yearly dividends divided by the value of the holdings that pay them. Easy-access savings shown for context only. Dividends can be cut or paused; savings interest is not at risk in the same way.') + '</span><p class="big num">' + (D.yr/D.invested*100).toFixed(1) + '%</p>' +
+        (D.invested ? '<div class="dl-card"><span class="k">How it compares' + INFO('Yearly dividends divided by the value of the holdings that pay them. Easy-access savings shown for context only. Dividends can be cut or paused; savings interest is not at risk in the same way.') + '</span>' + (desk ? '' : '<p class="big num">' + (D.yr/D.invested*100).toFixed(1) + '%</p>') +
           '<div class="cmp num"><div><span>Dividend yield</span><em><i style="width:' + Math.min(100, D.yr/D.invested*100/12*100) + '%;background:var(--champ)"></i></em><span>' + (D.yr/D.invested*100).toFixed(1) + '%</span></div>' +
           '<div><span>Easy-access saving</span><em><i style="width:33%;background:var(--soft)"></i></em><span>4%</span></div></div>' +
           '<p>On <span class="fig">' + fmt(D.invested) + '</span> that pays. Dividends can be cut.</p></div>' : '') +
-        (D.growth != null ? '<div class="dl-card"><span class="k">Dividend increases' + INFO('How much your payers raise what they pay each year, as your coach has recorded it. This is separate from income you add by buying more.') + '</span><p class="big num">' + (D.growth >= 0 ? '+' : '') + D.growth.toFixed(1) + '% a year</p><p>Per payer, as recorded.</p></div>' : '') +
+        (D.growth != null ? '<div class="dl-card"><span class="k">Dividend increases' + INFO('How much your payers raise what they pay each year, as your coach has recorded it. This is separate from income you add by buying more.') + '</span><p class="big num">' + (D.growth >= 0 ? '+' : '') + D.growth.toFixed(1) + '% a year</p>' + (desk ? divSpark(D) + '<p>Per share, over 3 years.</p>' : '<p>Per payer, as recorded.</p>') + '</div>' : '') +
         '</div>';
-      h += '<div class="dchart-top"><div class="dkey">' + D.payers.map(p=> '<span><i style="background:' + p.col + '"></i>' + esc(p.n) + '</span>').join('') +
-        '<span class="sep kx"></span><span class="kx"><i style="background:var(--soft)"></i>Received</span><span class="kx"><i style="border:1.3px dashed var(--soft)"></i>Estimate</span>' + (reinv ? '<span><i style="background:rgba(159,208,168,.7)"></i>Extra if reinvested</span>' : '') + '</div>' +
+      h += '<div class="dchart-top"><div class="dkey">' + D.payers.map(p=> '<span><i style="background:' + p.col + '"></i>' + esc(nm(p.n)) + '</span>').join('') +
+        '<span class="sep kx"></span><span class="kx"><i style="background:var(--soft)"></i>Received</span><span class="kx"><i class="kest"' + (desk ? '' : ' style="border:1.3px dashed var(--soft)"') + '></i>Estimate</span>' + (reinv ? '<span><i style="background:rgba(159,208,168,.7)"></i>Extra if reinvested</span>' : '') + '</div>' +
         '<button type="button" class="sw x-reinv" aria-pressed="' + reinv + '"><i></i>Show if reinvested</button></div>';
       h += '<div class="bars2 x-bars2">' + D.YRS.map((y, i)=>{
         const r = D.rec[i], x = reinv ? D.extra[i] : 0, t = tot(i) + x; let segs = '';
         if(x) segs += '<div class="x" style="height:' + (x/mx*Hh) + 'px"></div>';
-        D.payers.slice().reverse().forEach((p, j)=>{ const e = D.byPayer[D.payers.length - 1 - j][i]; if(e) segs += '<div class="e" style="height:' + (e/mx*Hh) + 'px;background:repeating-linear-gradient(135deg,' + p.col + '88 0 3px,' + p.col + '22 3px 7px)"></div>'; });
+        D.payers.slice().reverse().forEach((p, j)=>{ const e = D.byPayer[D.payers.length - 1 - j][i]; if(e) segs += '<div class="e" style="height:' + (e/mx*Hh) + 'px;background:' + (desk ? p.col : 'repeating-linear-gradient(135deg,' + p.col + '88 0 3px,' + p.col + '22 3px 7px)') + '"></div>'; });
         if(r) segs += '<div class="r" style="height:' + (r/mx*Hh) + 'px;background:linear-gradient(to top,#E8D3A2aa,#E8D3A2)"></div>';
-        return '<div class="b2' + (i === D.NOWI ? ' now' : '') + '" data-i="' + i + '"><span class="val num fig" style="bottom:' + (t/mx*Hh) + 'px">' + fmt(t) + '</span><div class="stk" style="animation-delay:' + (i*40) + 'ms">' + segs + '</div></div>';
+        const lab = !desk || i === D.NOWI || i === D.YRS.length - 1;
+        return '<div class="b2' + (i === D.NOWI ? ' now' : '') + '" data-i="' + i + '"' + (desk ? ' tabindex="0" aria-label="' + y + ', ' + fmt(t) + '"' : '') + '><span class="val num fig' + (lab ? '' : ' vh') + '" style="bottom:' + (t/mx*Hh) + 'px">' + fmt(t) + '</span><div class="stk" style="animation-delay:' + (i*40) + 'ms">' + segs + '</div></div>';
       }).join('') + '<div class="btip x-btip"></div></div>';
       h += '<div class="yrs num">' + D.YRS.map((y, i)=> '<span' + (i === D.NOWI ? ' class="now"' : '') + '>' + y + '</span>').join('') + '</div>';
-      h += '<p class="dnote"><span class="kxp">Solid bars are received, hatched are estimates. </span>Received is what your coach has logged for each year. Estimates assume today\'s holdings and each payer raising its payout at its own rate. Illustrative, not a guarantee.</p>';
-      h += '<div class="payers"><h3>Your payers</h3>' + D.payers.map(p=>{ const v = p.amt*p.yld; return '<div class="prow num"><span class="pn"><i style="background:' + p.col + '"></i>' + esc(p.n) + '</span><span class="bar2"><i style="width:' + (v/(D.yr||1)*100) + '%;background:' + p.col + '"></i></span><span class="c f" style="color:var(--soft)">' + esc(p.f) + '</span><span class="c fig">' + fmt(v) + '</span></div>'; }).join('') + '</div>';
+      h += desk ? '<p class="dnote dnote-q">Faded bars are estimates. Illustrative, not a guarantee.' + INFO('Received is what your coach has logged for each year. This year shows what has arrived so far and what is still due. Estimates assume today\'s holdings and each payer raising its payout at its own rate.') + '</p>'
+        : '<p class="dnote"><span class="kxp">Solid bars are received, hatched are estimates. </span>Received is what your coach has logged for each year. Estimates assume today\'s holdings and each payer raising its payout at its own rate. Illustrative, not a guarantee.</p>';
+      h += '<div class="payers"><h3>Your payers</h3>' + D.payers.map(p=>{ const v = p.amt*p.yld; return '<div class="prow num"><span class="pn"><i style="background:' + p.col + '"></i>' + esc(nm(p.n)) + '</span><span class="bar2"><i style="width:' + (v/(D.yr||1)*100) + '%;background:' + p.col + '"></i></span><span class="c f" style="color:var(--soft)">' + esc(p.f) + '</span><span class="c fig">' + fmt(v) + '</span></div>'; }).join('') + '</div>';
       h += '</div>';
     }
     h += '</div>';
@@ -458,13 +475,19 @@ TEI.render = TEI.render || {};
     bindInfo(slot);
     const tipEl = slot.querySelector('.x-btip');
     slot.querySelectorAll('.b2').forEach(b=>{
-      b.addEventListener('mouseenter', ()=>{ const i = +b.dataset.i, box = bz.getBoundingClientRect(), r = b.getBoundingClientRect();
+      const showTip = ()=>{ const i = +b.dataset.i, box = bz.getBoundingClientRect(), r = b.getBoundingClientRect();
         const rows = (D.rec[i] ? '<div><span><i style="background:#E8D3A2"></i>Received</span><span class="fig num">' + fmt(D.rec[i]) + '</span></div>' : '') +
-          D.payers.map((p, j)=> D.byPayer[j][i] ? '<div><span><i style="background:' + p.col + '"></i>' + esc(p.n) + '</span><span class="fig num">' + fmt(D.byPayer[j][i]) + '</span></div>' : '').join('') +
+          D.payers.map((p, j)=> D.byPayer[j][i] ? '<div><span><i style="background:' + p.col + '"></i>' + esc(nm(p.n)) + '</span><span class="fig num">' + fmt(D.byPayer[j][i]) + '</span></div>' : '').join('') +
           (reinv && D.extra[i] ? '<div><span><i style="background:rgba(159,208,168,.7)"></i>Reinvested</span><span class="fig num">' + fmt(D.extra[i]) + '</span></div>' : '');
         tipEl.innerHTML = '<b>' + D.YRS[i] + (i === D.NOWI ? ' · this year' : i > D.NOWI ? ' · estimate' : '') + '</b>' + rows;
-        tipEl.style.display = 'block'; tipEl.style.left = Math.min(Math.max(r.left - box.left + r.width/2, 80), box.width - 80) + 'px'; tipEl.style.top = '18px'; });
+        tipEl.style.display = 'block'; tipEl.style.left = Math.min(Math.max(r.left - box.left + r.width/2, 80), box.width - 80) + 'px'; tipEl.style.top = '18px'; tipEl.dataset.i = i; };
+      b.addEventListener('mouseenter', showTip);
       b.addEventListener('mouseleave', ()=>{ tipEl.style.display = 'none'; });
+      if(desk){
+        b.addEventListener('focus', showTip); b.addEventListener('blur', ()=>{ tipEl.style.display = 'none'; });
+        // Tap: show the split; tap the same bar again to close it.
+        b.addEventListener('click', ()=>{ if(tipEl.style.display === 'block' && tipEl.dataset.i === b.dataset.i) tipEl.style.display = 'none'; else showTip(); });
+      }
     });
   }
 
