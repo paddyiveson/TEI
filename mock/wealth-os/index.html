@@ -967,6 +967,10 @@ body .lg2 i.g{background:var(--gain)}
 .dk .mz-s.mz-on svg{--sw:360deg;transition:--sw 1s cubic-bezier(.3,.7,.2,1)}
 
 body .g-st b{color:var(--gain)}
+/* adviser options live in More (Account group) and the desktop More menu */
+.adv{display:none!important}
+body.adv-on .mr.adv,body.adv-on .dkmenu a.adv{display:flex!important}
+.dkmenu a.adv-l{margin-bottom:8px;border-bottom:1px solid rgba(232,211,162,.08);border-radius:8px 8px 0 0}
 /* ===== Motion ===== */
 
 </style>
@@ -975,6 +979,7 @@ body .g-st b{color:var(--gain)}
 <div class="rv" role="region" aria-label="Review controls">
   <div class="t"><b>Wealth OS</b> · phone and desktop · example figures (John Doe)</div>
   <div class="seg" id="sPg"><button type="button" data-v="home" aria-pressed="true">Home</button><button type="button" data-v="wealth" aria-pressed="false">Wealth</button><button type="button" data-v="goals" aria-pressed="false">Goals</button><button type="button" data-v="fc" aria-pressed="false">Forecast</button><button type="button" data-v="cash" aria-pressed="false">Cashflow</button><button type="button" data-v="more" aria-pressed="false">More</button></div>
+  <div class="seg" id="sWho" aria-label="Who is signed in"><button type="button" data-v="c" aria-pressed="true">Client</button><button type="button" data-v="a" aria-pressed="false">Adviser</button></div>
   <div class="seg" id="sDev"><button type="button" data-v="p" aria-pressed="true">Phone</button><button type="button" data-v="d" aria-pressed="false">Desktop</button></div>
 
 </div>
@@ -1223,7 +1228,7 @@ body .g-st b{color:var(--gain)}
 <div class="dk" id="dk"><div class="dkw" id="dkw"><div class="dkf">
  <div class="dkt"><span class="dots"><i></i><i></i><i></i></span><span class="url">theeverydayinvestor.uk/hub/wealth</span></div>
  <div class="dkb">
-  <nav class="dkn" aria-label="Wealth OS"><span class="lg">The Everyday Investor<small>Wealth OS</small></span><span class="dkl"><a data-pg="home" class="on">Home</a><a data-pg="wealth">Wealth</a><a data-pg="cash">Cashflow</a><a data-pg="goals">Goals</a><a data-pg="fc">Forecast</a></span><span class="dkr"><button type="button" class="mo" aria-haspopup="true">More<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></button><span class="av" aria-label="John Doe">JD</span><span class="dkmenu" hidden><a data-pg="more">Documents</a><a data-pg="more">Learning</a><a data-pg="more">Help</a><a data-pg="more">Settings</a><a data-pg="more" class="so">Sign out</a></span></span></nav>
+  <nav class="dkn" aria-label="Wealth OS"><span class="lg">The Everyday Investor<small>Wealth OS</small></span><span class="dkl"><a data-pg="home" class="on">Home</a><a data-pg="wealth">Wealth</a><a data-pg="cash">Cashflow</a><a data-pg="goals">Goals</a><a data-pg="fc">Forecast</a></span><span class="dkr"><button type="button" class="mo" aria-haspopup="true">More<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></button><span class="av" aria-label="John Doe">JD</span><span class="dkmenu" hidden><a data-pg="more" class="adv">All clients</a><a data-pg="more" class="adv adv-l">Manage this client</a><a data-pg="more">Documents</a><a data-pg="more">Learning</a><a data-pg="more">Help</a><a data-pg="more">Settings</a><a data-pg="more" class="so">Sign out</a></span></span></nav>
   <main class="dkm"><div class="dkc">
    <div class="dkp-home">
     <p class="q-greet"><b>Hi, John</b> · Wednesday 18 November</p>
@@ -1275,7 +1280,7 @@ body .g-st b{color:var(--gain)}
 (function(){
 const $=s=>document.querySelector(s),B=document.body,MOTION=!matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------- state: page, device, Cashflow period ---------- */
-let st={cp:'m',dev:'p'},pg='home';
+let st={cp:'m',dev:'p',who:'c'},pg='home';
 function applyPg(){
   ['wealth','goals','cash','fc','more'].forEach(k=>B.classList.toggle('pg-'+k,pg===k));
   document.querySelectorAll('#sPg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===pg));
@@ -1287,7 +1292,8 @@ function applyPg(){
   $('.dkr .mo').classList.toggle('on',pg==='more');
   $('#scroll').scrollTop=0;window.scrollTo(0,0);
   if(MOTION)requestAnimationFrame(()=>{countAll();armMotion()})}
-function apply(){B.className='cp-'+st.cp+' dev-'+st.dev;
+function apply(){B.className='cp-'+st.cp+' dev-'+st.dev+(st.who==='a'?' adv-on':'');
+  document.querySelectorAll('#sWho button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===st.who));
   document.querySelectorAll('#sDev button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===st.dev));
   document.querySelectorAll('.ctog button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===st.cp));
   applyPg()}
@@ -1295,6 +1301,7 @@ const go=k=>{pg=k;applyPg()};
 document.querySelectorAll('#sPg button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 [['#tHome','home'],['#tWealth','wealth'],['#tCash','cash'],['#tPlan','goals'],['#tMore','more']].forEach(([id,k])=>$(id).onclick=e=>{e.preventDefault();go(k)});
 document.querySelectorAll('.dkn [data-pg]').forEach(a=>a.onclick=e=>{e.preventDefault();$('.dkmenu').hidden=true;go(a.dataset.pg)});
+document.querySelectorAll('#sWho button').forEach(b=>b.onclick=()=>{st.who=b.dataset.v;apply()});
 document.querySelectorAll('#sDev button').forEach(b=>b.onclick=()=>{st.dev=b.dataset.v;place();apply();fitDk()});
 document.querySelectorAll('.ctog button').forEach(b=>b.onclick=()=>{st.cp=b.dataset.p;B.classList.toggle('cp-m',st.cp==='m');B.classList.toggle('cp-y',st.cp==='y');document.querySelectorAll('.ctog button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.p===st.cp))});
 /* ---------- Home: hero sparkline (last 13 months) ---------- */
@@ -1394,11 +1401,11 @@ $('.dkr .mo').onclick=e=>{e.stopPropagation();$('.dkmenu').hidden=!$('.dkmenu').
 document.addEventListener('click',e=>{if(!e.target.closest('.dkmenu'))$('.dkmenu').hidden=true});
 document.querySelectorAll('.dk .dn').forEach(b=>b.onclick=()=>{const d=b.closest('.nsr').classList.toggle('done');b.textContent=d?'Undo':'Mark as done'});
 /* ---------- More page, Next steps sheet ---------- */
-(function(){const I={doc:'<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',book:'<path d="M12 6c-2-1.5-5-2-8-1.5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-13c-3-.5-6 0-8 1.5zM12 6v13"/>',guide:'<circle cx="12" cy="12" r="8"/><path d="M15 9l-2 4-4 2 2-4z"/>',tool:'<path d="M5 19h14M7 15V9M12 15V5M17 15v-3"/>',chat:'<path d="M5 6h14v9H9l-4 4z"/>',info:'<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8v.01"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',person:'<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5"/>',exit:'<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/>'};
+(function(){const I={users:'<circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3 2.9-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="16.5" cy="8" r="2.6"/><path d="M16 13.6c2.4 0 4.2 1.4 4.6 4"/>',sliders:'<path d="M5 7h14M5 12h14M5 17h14"/><circle cx="9" cy="7" r="1.8"/><circle cx="15" cy="12" r="1.8"/><circle cx="8" cy="17" r="1.8"/>',doc:'<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',book:'<path d="M12 6c-2-1.5-5-2-8-1.5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-13c-3-.5-6 0-8 1.5zM12 6v13"/>',guide:'<circle cx="12" cy="12" r="8"/><path d="M15 9l-2 4-4 2 2-4z"/>',tool:'<path d="M5 19h14M7 15V9M12 15V5M17 15v-3"/>',chat:'<path d="M5 6h14v9H9l-4 4z"/>',info:'<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8v.01"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>',person:'<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c1-3.6 3.8-5.5 7-5.5s6 1.9 7 5.5"/>',exit:'<path d="M14 4h5v16h-5M10 8l-4 4 4 4M6 12h10"/>'};
  const C='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3.5L10.5 8 6 12.5"/></svg>',X='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3h7v7M13 3L5 11"/></svg>';
  const row=(ic,t,s,ext,cls)=>'<a class="mr'+(cls?' '+cls:'')+'" href="#"><span class="ico'+(ic==='doc'?' d':'')+'"><svg viewBox="0 0 24 24">'+I[ic]+'</svg></span><span class="tx"><span><b>'+t+'</b>'+(s?'<small>'+s+'</small>':'')+'</span>'+(ext?X:C)+'</span></a>';
  const sec=(h,r)=>'<section class="q-sec"><h2>'+h+'</h2>'+r.join('')+'</section>';
- $('#moreP').innerHTML=sec('Documents',[row('doc','Wealth Plan','Updated 3 Oct 2026'),row('doc','Test 2','Meeting note · 14 Oct 2026'),row('doc','All documents','2 meeting notes, 1 plan')])+sec('Learning',[row('book','Pick up where you left off','Lessons in the Client Hub',1),row('guide','Guides','Tax Wrapper Guide, Five Stages and more',1),row('tool','Tools','Cost of Waiting and more',1)])+sec('Help',[row('chat','Ask Paddy','Add a question for your next session'),row('info','How we work','Coaching and education, not advice')])+sec('Account',[row('gear','Settings',''),row('person','Profile',''),row('exit','Sign out','',0,'out')])+'<div class="m-imp"><b>Important</b>The Everyday Investor provides financial coaching and education, not regulated financial advice. We are not authorised or regulated by the Financial Conduct Authority and do not make personal recommendations. Everything here is educational. The decisions you make are yours.</div>';
+ $('#moreP').innerHTML=sec('Documents',[row('doc','Wealth Plan','Updated 3 Oct 2026'),row('doc','Test 2','Meeting note · 14 Oct 2026'),row('doc','All documents','2 meeting notes, 1 plan')])+sec('Learning',[row('book','Pick up where you left off','Lessons in the Client Hub',1),row('guide','Guides','Tax Wrapper Guide, Five Stages and more',1),row('tool','Tools','Cost of Waiting and more',1)])+sec('Help',[row('chat','Ask Paddy','Add a question for your next session'),row('info','How we work','Coaching and education, not advice')])+sec('Account',[row('users','All clients','Adviser view',0,'adv'),row('sliders','Manage this client','John Doe · plan, accounts, notes',0,'adv'),row('gear','Settings',''),row('person','Profile',''),row('exit','Sign out','',0,'out')])+'<div class="m-imp"><b>Important</b>The Everyday Investor provides financial coaching and education, not regulated financial advice. We are not authorised or regulated by the Financial Conduct Authority and do not make personal recommendations. Everything here is educational. The decisions you make are yours.</div>';
  const nx=$('.q-next');if(nx)nx.onclick=e=>{e.preventDefault();$('#sh2T').textContent='Next steps';$('#sh2B').innerHTML=[['1','Log this month\'s cashflow','Keeps your wealth conversion up to date','Update this month'],['2','Build your safety net','£6,286 more covers 6 months of spending','See your safety net'],['3','Look at your Thailand goal','It\'s behind for Dec 2026','See Goals']].map(n=>'<div class="nsr"><span class="nn">'+n[0]+'</span><span class="nsb"><b>'+n[1]+'</b><small>'+n[2]+'</small><span class="nsa"><a href="#" class="go">'+n[3]+' ›</a><button type="button" class="dn">Mark as done</button></span></span></div>').join('');document.querySelectorAll('#sh2B .dn').forEach(b=>b.onclick=()=>{const d=b.closest('.nsr').classList.toggle('done');b.textContent=d?'Undo':'Mark as done'});$('#sheet2').hidden=false;$('#scrim2').hidden=false}})();
 /* ---------- Plan tabs; Forecast model, chart, inputs ---------- */
 document.querySelectorAll('.q-tabs span').forEach(s=>s.onclick=()=>{const t=s.textContent.trim();pg=t==='Goals'?'goals':t==='Forecast'?'fc':'cash';applyPg()});
