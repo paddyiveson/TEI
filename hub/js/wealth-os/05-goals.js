@@ -198,7 +198,7 @@ TEI.render = TEI.render || {};
       const when = st.key === 'complete' ? 'Done' : (g.targetDate ? dateLabel(g.targetDate) : 'No date set');
       const accts = (g.linkedAccountIds||[]).map(id=> client.accounts.find(a=> a.id === id)).filter(Boolean)
         .map(a=> `<span class="gl-acct">${esc(TEI.data.acctLabel(a))}</span>`).join('');
-      return `<section class="hm-tile gl-card gl-card--${st.key}" style="animation-delay:${(0.12 + i*0.06).toFixed(2)}s">
+      return `<section class="hm-tile gl-card gl-card--${st.key}" id="goal-${esc(g.id)}" style="animation-delay:${(0.12 + i*0.06).toFixed(2)}s">
         <div class="hm-row"><span class="gl-when">${esc(when)}</span><span class="gl-chip gl-chip--${st.key}">${st.label}</span></div>
         <h3 class="gl-card-name">${esc(g.name)}</h3>
         <p class="gl-card-fig">${fig}</p>

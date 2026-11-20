@@ -3426,3 +3426,16 @@ button.hm-cover:disabled{ cursor:default; }
   .hm-cfx{ display:block; }
   .hm-t-cashflow .hm-cf-conv{ display:none; }
 }
+
+/* Next step links (21-step-links.js, master list item 9): the step's gold
+   link, and the soft glow on the section it lands on (none with reduced motion). */
+.hm-step-go-wrap{ display:inline-flex; align-items:center; }
+.hm-step-go-wrap[hidden]{ display:none; }
+.hm-step-go{ font-size:14px; font-weight:500; white-space:nowrap; padding:0 4px; }
+.lib-steps .hm-step-go{ flex:none; }
+@keyframes wos-focus-glow{
+  0%{ box-shadow:0 0 0 2px color-mix(in srgb, var(--w-gold) 55%, transparent), 0 0 24px 4px color-mix(in srgb, var(--w-gold) 28%, transparent); }
+  100%{ box-shadow:0 0 0 2px transparent, 0 0 24px 4px transparent; }
+}
+.wos-focus-glow{ animation:wos-focus-glow 1.2s ease-out both; }
+@media (prefers-reduced-motion: reduce){ .wos-focus-glow{ animation:none; } }

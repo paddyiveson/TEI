@@ -310,7 +310,15 @@ TEI.render = TEI.render || {};
   }
 
   // Home's Cashflow tile reads the same target and health rule.
-  TEI.cashflowPage = { openUpdate: ()=>{ TEI.app.showPage('cashflow'); openUpd(true); }, target, health, focusDebts };
+  /* Next step links (21-step-links.js): open or close the month sheet,
+     and unfold a phone-folded tile, on a page already shown. */
+  function sheet(o){ wireOnce(); openUpd(!!o); }
+  function unfold(id){
+    FOLD.add(id);
+    const h = root() && root().querySelector('.fhead[data-f="' + id + '"]');
+    if(h){ h.parentElement.classList.add('open'); h.setAttribute('aria-expanded', 'true'); }
+  }
+  TEI.cashflowPage = { openUpdate: ()=>{ TEI.app.showPage('cashflow'); openUpd(true); }, target, health, focusDebts, sheet, unfold };
   TEI.render.cashflow = function(client){
     wireOnce();
     V.syncEye();

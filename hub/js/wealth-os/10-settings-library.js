@@ -858,9 +858,8 @@ TEI.render = TEI.render || {};
       <p class="lib-plan-s">${latest ? 'Updated ' + esc(libDate(latest)) : 'Your coach adds your Wealth Plan here after your plan session.'}</p>
       <div class="hm-actions">${latest ? `<button type="button" class="hm-btn lib-plan-open" data-forecast-open="${esc(latest.id)}">Open plan</button>` : ''}<button type="button" class="hm-btn lib-plan-fc" data-lib-page="planning">View forecast</button></div>`;
     const steps = TEI.homeSteps ? TEI.homeSteps(client) : [];
-    $s('libSteps').innerHTML = steps.length ? steps.map((s, i)=> `<li><span><b>${esc(s.text)}</b><small>${s.coach ? 'Agreed with your coach' + (s.agreedAt ? ' · ' + esc(stDate(s.agreedAt)) : '') : esc(s.why || '')}</small></span>${s.act ? `<button type="button" class="hm-link hm-linkbtn" data-lib-step="${i}">${esc(s.act[0])}</button>` : ''}</li>`).join('')
+    $s('libSteps').innerHTML = steps.length ? steps.map((s, i)=> `<li><span><b>${esc(s.text)}</b><small>${s.coach ? 'Agreed with your coach' + (s.agreedAt ? ' · ' + esc(stDate(s.agreedAt)) : '') : esc(s.why || '')}</small></span>${TEI.stepLinks ? TEI.stepLinks.linkHTML(TEI.stepLinks.resolve(s.target, client)) : ''}</li>`).join('')
       : '<li class="st-empty">Nothing to do right now.</li>';
-    $s('libSteps').onclick = e=>{ const b = e.target.closest('[data-lib-step]'); if(b && steps[b.dataset.libStep]) steps[b.dataset.libStep].act[1](); };
     $s('libEarlierWrap').hidden = plans.length < 2;
     $s('libEarlier').innerHTML = plans.slice(1).map(d=> `<li><span><b>${esc(d.name || 'Wealth Plan')}</b><small>${esc(libDate(d))}</small></span>${docOpenHTML(d)}</li>`).join('');
     const meta = $s('whLearnMeta');
