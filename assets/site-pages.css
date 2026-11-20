@@ -7,135 +7,131 @@
      4. Guides & Tools on the ground (.gt-*, public page only) */
 
 /* =========================================================
-   1. About: the story layout (Stage 2, Nov 2026)
-   One reading line. A narrow rail names each part of the story
-   (.ab-rail): from 1100px it sits in columns 1 to 2 and sticks under the
-   header; below that it is a small heading above its content, never a
-   second navigation. The content (.ab-body) runs down columns 4 to 12:
-   prose in columns 4 to 10, the wide rows (.ab-wide: beliefs, spectrum,
-   the two trust lists) across all of it. Rows are separated by one soft
-   rule and 48px of space. The one lifted card is TEI in Position.
+   1. About (Stage 2, Nov 2026)
+   Stepped bands, one section after another, no rail. Each section opens
+   with a small champagne kicker (.ab-k) and a regular-weight heading
+   (.ab-h); sub-titles are champagne at regular weight (.ab-sub). Colour
+   comes from the bands, two side glows and the champagne accents; the
+   one lifted card is TEI in Where we sit. The founder section is set in
+   Newsreader, as one quote.
    ========================================================= */
-.ab-line .g-w { padding-top: 0; padding-bottom: 32px; }
-.ab-row { position: relative; padding: 48px 0; border-top: 1px solid var(--g-line-soft); }
-.ab-row:first-child { border-top: 0; padding-top: 64px; }
-.ab-rail { margin: 0 0 14px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .05em; line-height: 1.4; text-transform: uppercase; color: var(--g-champ); }
-.ab-body { min-width: 0; }
-.ab-body > * { max-width: 600px; } /* about 60 to 70 characters a line */
-.ab-body > .ab-wide { max-width: none; }
-.ab-body p { margin: 0; }
+.ab-k { margin: 0 0 16px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .06em; line-height: 1.4; text-transform: uppercase; color: var(--g-champ); }
+.ab-h { margin: 0; max-width: 30ch; font-size: 34px; font-weight: 400; letter-spacing: -.02em; line-height: 1.18; text-wrap: balance; color: var(--g-ink); }
+.ab-h > span { color: var(--g-muted); }
+.ab-sub { margin: 0; font-size: 18px; font-weight: 400; letter-spacing: -.005em; line-height: 1.35; color: var(--g-champ); text-wrap: balance; }
 
-/* Start: the hero. The one animated moment on the page. */
-.ab-start h1 { margin: 0; max-width: 22ch; font-size: clamp(38px, 3.4vw, 56px); font-weight: 600; letter-spacing: -.025em; line-height: 1.06; text-wrap: balance; color: var(--g-ink); }
-.ab-start .ab-dek { margin-top: 20px; max-width: 58ch; font-size: clamp(17px, 1.2vw, 19px); line-height: 1.55; color: var(--g-sub); text-wrap: pretty; }
-.ab-start .ab-body > * { animation: g-up .9s cubic-bezier(.2, .8, .2, 1) both; }
-.ab-start .ab-body > :nth-child(2) { animation-delay: .1s; }
+/* Hero: bigger and wider, regular weight, the one accented heading */
+.ab-hero .g-w { padding-top: 88px; padding-bottom: 72px; }
+.ab-hero h1 { max-width: 20ch; font-size: clamp(44px, 4.6vw, 72px); font-weight: 400; letter-spacing: -.03em; line-height: 1.04; }
+.ab-hero .g-dek { margin-top: 24px; max-width: 58ch; }
 
-/* Section titles and prose */
-.ab-title { margin: 0; font-size: 30px; font-weight: 600; letter-spacing: -.02em; line-height: 1.18; text-wrap: balance; color: var(--g-ink); }
-.ab-title > span { display: block; }
-.ab-title .ab-title-2 { color: var(--g-sub); }
-.ab-prose { font-size: 18px; line-height: 1.7; color: var(--g-sub); text-wrap: pretty; }
+/* What we believe: four beliefs under a hairline */
+.ab-beliefs { list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 40px; }
+.ab-beliefs li { padding-top: 18px; border-top: 1px solid var(--g-line); }
+.ab-beliefs p { margin: 8px 0 0; font-size: 16px; line-height: 1.6; color: var(--g-muted); text-wrap: pretty; }
 
-/* Why: the four beliefs, one row of short text items, no boxes */
-.ab-beliefs { list-style: none; margin: 36px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px 32px; }
-.ab-beliefs h4 { text-wrap: balance; }
-.ab-beliefs .g-p { margin-top: 8px; text-wrap: pretty; }
-
-/* Position: free content / TEI / regulated advice */
-.ab-spectrum { margin-top: 36px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 32px; align-items: stretch; }
+/* Where we sit: free content / TEI / regulated advice */
+.ab-spectrum { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 40px; align-items: stretch; }
 .ab-sp { min-width: 0; padding-top: 28px; }
 .ab-sp.g-feature { padding: 28px 30px 30px; }
+.ab-sp p { margin: 0; }
 .ab-sp-k { font-size: 13px; font-weight: 500; color: var(--g-muted); }
 .ab-sp-k.is-us { color: var(--g-champ); }
-.ab-body .ab-sp-t { margin-top: 10px; font-size: 19px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; color: var(--g-ink); text-wrap: balance; }
-.ab-sp.g-feature .ab-sp-t { font-size: 22px; }
+.ab-sp .ab-sp-t { margin-top: 10px; font-size: 20px; font-weight: 400; letter-spacing: -.01em; line-height: 1.3; color: var(--g-ink); text-wrap: balance; }
+.ab-sp.g-feature .ab-sp-t { font-size: 23px; }
+.ab-sp .g-p { margin-top: 8px; font-size: 16px; }
 .ab-sp.g-feature .g-p { color: var(--g-sub); }
-.ab-body .ab-sp .g-p { margin-top: 8px; }
 
-/* Method: the four steps, a numbered list, all visible */
-.ab-steps { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 32px; }
-.ab-step { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 0 16px; }
-.ab-step-n { padding-top: 4px; font-family: var(--tei-num); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: .04em; color: var(--g-champ); }
-.ab-step p { margin-top: 8px; font-size: 16px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
-.ab-step p.ab-step-f { margin-top: 6px; font-size: 15px; color: var(--g-muted); }
+/* How we work: a timeline. A line joins four points; a tile under each. */
+.ab-steps { position: relative; list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.ab-steps::before { content: ""; position: absolute; left: 6px; right: 0; top: 6px; height: 1px; background: rgba(232, 214, 168, .32); }
+.ab-step { display: flex; flex-direction: column; min-width: 0; }
+.ab-dot { position: relative; width: 13px; height: 13px; box-sizing: border-box; border-radius: 50%; background: var(--g-b2); border: 2px solid var(--g-champ); }
+.ab-tile { flex: 1; margin-top: 20px; padding: 22px 22px 24px; border-radius: 16px; background: var(--g-tile); border: 1px solid var(--g-tile-line); }
+.ab-tile p { margin: 8px 0 0; font-size: 15.5px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
+.ab-tile .ab-step-n { margin: 0 0 10px; font-family: var(--tei-num); font-size: 12px; font-weight: 500; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--g-muted); }
+.ab-tile .ab-step-f { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--g-line-soft); font-size: 14.5px; color: var(--g-muted); }
 
-/* Founder: a short first-person intro; the full story opens in place */
-.ab-founder { font-size: 19px; line-height: 1.65; color: var(--g-ink); }
-.ab-story-act { margin-top: 12px; }
+/* The founder: one quote in Newsreader, with drawn marks */
+.ab-quote { margin: 8px 0 0; padding: 0; max-width: 960px; font-family: "Newsreader", Georgia, "Times New Roman", serif; }
+.ab-qm { display: block; width: 40px; height: 30px; fill: var(--g-champ); }
+.ab-qm-open { margin-bottom: 18px; }
+.ab-qm-close { display: inline-block; margin-left: 10px; vertical-align: -2px; }
+.ab-qm-close .ab-qm { width: 24px; height: 18px; }
+.ab-quote p { margin: 0; text-wrap: pretty; }
+.ab-quote-intro { font-size: 30px; line-height: 1.4; letter-spacing: -.005em; color: var(--g-ink); }
+.ab-story { margin-top: 32px; max-width: 680px; }
+.ab-story p { margin: 0 0 20px; font-size: 20px; line-height: 1.65; color: var(--g-sub); }
+.ab-story p.ab-story-quote { margin: 28px 0; font-size: 25px; line-height: 1.45; font-style: italic; color: var(--g-ink); }
+.ab-story p:last-child { margin-bottom: 0; }
+.ab-story-act { margin: 20px 0 0; }
 .ab-story-btn {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
   font-family: inherit; font-size: 15.5px; font-weight: 500; color: var(--g-champ);
   text-decoration: underline; text-decoration-color: rgba(232, 214, 168, .4); text-underline-offset: 4px;
 }
 @media (hover: hover) { .ab-story-btn:hover { text-decoration-color: currentColor; } }
-.ab-story { margin-top: 24px; }
-.ab-story-h { margin: 0 0 20px; font-size: 22px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; color: var(--g-ink); }
-.ab-story p { margin: 0 0 20px; font-size: 18px; line-height: 1.7; color: var(--g-sub); text-wrap: pretty; }
-.ab-story p.ab-story-quote { margin: 28px 0; padding-left: 22px; border-left: 2px solid var(--g-champ); font-size: 21px; line-height: 1.5; color: var(--g-ink); }
-.ab-story p:last-child { margin-bottom: 0; }
 
-/* Trust: one sentence, the two lists, the regulatory wording folded, the FAQ */
-.ab-body .ab-trust-line { font-size: 24px; font-weight: 500; line-height: 1.4; letter-spacing: -.01em; }
-.ab-lists { margin-top: 36px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 48px; }
-.ab-acc { margin-top: 40px; box-sizing: border-box; }
-.ab-line .tei-faq-item { display: flow-root; }
+/* Coaching, not advice: split rows; the left side stays in view */
+.ab-split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px 64px; align-items: start; }
+.ab-split-l { position: sticky; top: calc(var(--tei-hdr-h, 64px) + 32px); }
+.ab-h.ab-h-s { font-size: 26px; line-height: 1.3; }
+.ab-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
+.ab-lists .g-list { margin-top: 12px; }
+.ab-acc { margin-top: 36px; box-sizing: border-box; }
+.ab-qs { margin-top: 72px; }
+.ab-split .tei-faq-item { display: flow-root; }
 .tei-ground .ab-reg p { margin: 0 0 14px; max-width: none; }
-.ab-reg h4 { margin: 22px 0 6px; font-size: 15px; font-weight: 600; color: var(--g-champ); }
 .tei-ground .ab-reg p:last-child { margin-bottom: 22px; }
+.ab-reg h4.ab-sub { margin: 22px 0 6px; font-size: 16px; }
 .ab-reg a { color: var(--g-champ); text-decoration: underline; text-underline-offset: 3px; }
-.ab-body .ab-faq-h { margin-top: 56px; font-size: 26px; }
-.ab-faq { margin-top: 20px; }
-.tei-ground .ab-faq .tei-faq-item h4 { margin: 0; font: inherit; }
 
-@media (min-width: 1100px) {
-  .ab-row { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 32px; }
-  .ab-rail { grid-column: 1 / 3; align-self: start; position: sticky; top: calc(var(--tei-hdr-h, 64px) + 32px); margin: 0; padding-top: 4px; }
-  .ab-body { grid-column: 4 / 13; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); column-gap: 32px; align-content: start; }
-  .ab-body > * { grid-column: 1 / 8; }
-  .ab-body > .ab-wide { grid-column: 1 / -1; }
-  .ab-start .ab-rail { padding-top: 14px; }
-  .g-close .ab-rail-close { position: absolute; left: clamp(32px, 4vw, 72px); top: clamp(48px, 8.5vh, 80px); padding-top: 4px; }
-}
 @media (max-width: 1099px) {
   .ab-beliefs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ab-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
+  .ab-split { grid-template-columns: minmax(0, 1fr); }
+  .ab-split-l { position: static; }
+  .ab-h.ab-h-s { max-width: 40ch; }
 }
 @media (max-width: 860px) {
-  .ab-line .g-w { padding-bottom: 8px; }
-  .ab-body > * { max-width: 34em; }
-  .ab-row { padding: 28px 0; }
-  .ab-row:first-child { padding-top: 28px; }
-  .ab-rail { margin-bottom: 10px; }
-  .ab-start h1 { font-size: 30px; letter-spacing: -.02em; line-height: 1.1; }
-  .ab-start .ab-dek { margin-top: 12px; font-size: 15px; line-height: 1.5; }
-  .ab-title { font-size: 22px; line-height: 1.22; }
-  .ab-body .ab-trust-line { font-size: 18px; line-height: 1.45; }
-  .ab-prose, .ab-founder { font-size: 16px; line-height: 1.6; }
-  .ab-beliefs { margin-top: 20px; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .ab-beliefs .g-p { margin-top: 4px; }
-  .ab-spectrum { margin-top: 20px; grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .ab-sp { padding: 16px 0 0; }
+  .ab-k { margin-bottom: 10px; }
+  .ab-beliefs, .ab-spectrum, .ab-steps, .ab-split-r { max-width: 600px; }
+  .ab-h { font-size: 24px; line-height: 1.22; }
+  .ab-h.ab-h-s { font-size: 19px; line-height: 1.4; }
+  .ab-sub { font-size: 16.5px; }
+  .ab-hero .g-w { padding-top: 32px; padding-bottom: 32px; }
+  .ab-hero h1 { font-size: 34px; line-height: 1.08; }
+  .ab-hero .g-dek { margin-top: 14px; }
+  .ab-beliefs { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .ab-beliefs li { padding-top: 14px; }
+  .ab-beliefs p { margin-top: 4px; font-size: 15px; }
+  .ab-spectrum { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .ab-sp { padding-top: 18px; }
   .ab-sp.g-feature { order: -1; padding: 18px; }
-  .ab-body .ab-sp-t, .ab-sp.g-feature .ab-sp-t { margin-top: 4px; font-size: 17px; }
-  .ab-steps { margin-top: 20px; gap: 20px; }
-  .ab-step { grid-template-columns: 28px minmax(0, 1fr); gap: 0 8px; }
-  .ab-step-n { padding-top: 3px; font-size: 12px; }
-  .ab-step p { margin-top: 4px; font-size: 15px; line-height: 1.55; }
-  .ab-step p.ab-step-f { font-size: 14px; }
-  .ab-story { margin-top: 16px; }
-  .ab-story-h { font-size: 19px; margin-bottom: 14px; }
-  .ab-story p { margin-bottom: 16px; font-size: 16px; line-height: 1.65; }
-  .ab-story p.ab-story-quote { margin: 20px 0; padding-left: 16px; font-size: 18px; }
-  .ab-lists { margin-top: 20px; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .ab-sp .ab-sp-t, .ab-sp.g-feature .ab-sp-t { margin-top: 4px; font-size: 17.5px; }
+  .ab-sp .g-p { font-size: 14.5px; }
+  /* The timeline runs down the left */
+  .ab-steps { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .ab-steps::before { left: 6px; right: auto; top: 20px; bottom: 20px; width: 1px; height: auto; }
+  .ab-step { flex-direction: row; align-items: flex-start; gap: 14px; }
+  .ab-dot { flex: none; margin-top: 20px; }
+  .ab-tile { margin-top: 0; padding: 16px; border-radius: 12px; }
+  .ab-tile p { font-size: 14.5px; line-height: 1.55; }
+  .ab-tile .ab-step-n { margin-bottom: 6px; }
+  .ab-tile .ab-step-f { margin-top: 10px; padding-top: 10px; font-size: 13.5px; }
+  .ab-qm { width: 30px; height: 22px; }
+  .ab-qm-open { margin-bottom: 12px; }
+  .ab-qm-close .ab-qm { width: 18px; height: 14px; }
+  .ab-quote-intro { font-size: 21px; line-height: 1.45; }
+  .ab-story { margin-top: 22px; }
+  .ab-story p { margin-bottom: 16px; font-size: 17.5px; line-height: 1.6; }
+  .ab-story p.ab-story-quote { margin: 20px 0; font-size: 20px; }
+  .ab-story-act { margin-top: 12px; }
+  .ab-lists { grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .ab-acc { margin-top: 24px; }
-  .ab-reg h4 { margin-top: 16px; font-size: 14px; }
+  .ab-qs { margin-top: 48px; }
+  .ab-reg h4.ab-sub { margin-top: 16px; font-size: 15px; }
   .tei-ground .ab-reg p { font-size: 14px; }
-  .ab-body .ab-faq-h { margin-top: 36px; font-size: 22px; }
-  .ab-faq { margin-top: 14px; }
-  .g-close .ab-rail-close { margin-bottom: 10px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ab-start .ab-body > * { animation: none; }
 }
 
 /* =========================================================
@@ -488,7 +484,7 @@
    5. Airy pages (<body class="g-airy">): no hairline dividers
    Space and grouping instead. See /assets/site-ground.css, section 7.
    ========================================================= */
-/* About: the story layout sets its own spacing (section 1). */
+/* About: sets its own spacing (section 1). */
 
 /* Guides & Tools: cards separated by space; the members strip above the close */
 body.g-airy .gt-card:not(.is-feat) { border-top: 0; padding-top: 0; }
