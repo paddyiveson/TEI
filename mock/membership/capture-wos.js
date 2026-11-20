@@ -5,11 +5,11 @@
    and saves one desktop and one phone capture for Home, Wealth, Goals,
    Forecast and Cashflow, Client view only.
 
-   Phone captures are the app screen alone (status bar, page, Wealth OS tab
-   bar and home indicator): the mockup's Safari address bar and toolbar are
-   left out, and the page draws its own hardware phone frame around them.
-   Desktop captures are the app window alone (Wealth OS nav and page); the
-   page draws the laptop frame.
+   Each screen is captured in parts so it scrolls inside its frame on the
+   page: phone = status bar, the whole page, and the Wealth OS tab bar with
+   the home indicator (the mockup's Safari bars are left out); desktop = the
+   Wealth OS nav and the whole page. The page draws the hardware phone and
+   the laptop around them.
 
    Run from the repo root:  node mock/membership/capture-wos.js
    Needs: git fetch origin mock/wealth-os-quiet */
@@ -47,11 +47,13 @@ const PHONE_CSS = `
   .phone{box-shadow:none!important;border-radius:0!important}
   .tabbar{bottom:0!important;height:84px!important;padding-bottom:28px!important}
   .tabbar::after{content:"";position:absolute;left:50%;bottom:8px;width:134px;height:5px;margin-left:-67px;border-radius:3px;background:#F7F4ED}
-  .scroll{padding-bottom:110px!important}
+  .scroll{padding-bottom:96px!important}
+  .phone{height:auto!important}
+  .scroll{flex:none!important;overflow:visible!important;min-height:0!important}
   .rv{display:none!important}
   .stage{padding:0!important}
 `;
-const DESK_CSS = `.rv{display:none!important} .mv1{display:none!important} .dk{padding:0!important} .dkf{border:0!important;border-radius:0!important;box-shadow:none!important}`;
+const DESK_CSS = `.rv{display:none!important} .mv1{display:none!important} .dk{padding:0!important} .dkf{border:0!important;border-radius:0!important;box-shadow:none!important;height:auto!important} .dkm{overflow:visible!important;flex:none!important} .dk,.dkw,.dkb{overflow:visible!important;height:auto!important;max-height:none!important}`;
 
 function swap(html) {
   for (const [a, b] of SWAP) html = html.split(a).join(b);
@@ -74,7 +76,7 @@ async function check(page, label) {
   const browser = await chromium.launch();
   for (const dev of ['p', 'd']) {
     const ctx = await browser.newContext({
-      viewport: dev === 'p' ? { width: 800, height: 900 } : { width: 1440, height: 900 },
+      viewport: dev === 'p' ? { width: 800, height: 3000 } : { width: 1440, height: 3000 },
       deviceScaleFactor: 2,
     });
     const page = await ctx.newPage();
@@ -100,9 +102,22 @@ async function check(page, label) {
       // Let the page's own entrances (donut, rings, lines) finish.
       await page.waitForTimeout(1800);
       await check(page, NAME[pg] + '-' + dev);
-      const el = await page.$(dev === 'p' ? '.phone' : '.dkb');
-      const file = path.join(OUT, 'wos-' + NAME[pg] + (dev === 'p' ? '-phone' : '-desk') + '.jpg');
-      await el.screenshot({ path: file, type: 'jpeg', quality: 86, animations: 'disabled' });
+      const base = path.join(OUT, 'wos-' + NAME[pg] + (dev === 'p' ? '-phone' : '-desk'));
+      const shot = async (sel, file, jpg) => {
+        const el = await page.$(sel);
+        await el.screenshot(jpg ? { path: file, type: 'jpeg', quality: 82, animations: 'disabled' } : { path: file, animations: 'disabled' });
+      };
+      if (dev === 'p') {
+        await shot('.sbar', path.join(OUT, 'wos-phone-status.png'));
+        await shot('.tabbar', base + '-bar.png');
+        await page.evaluate(() => { const t = document.querySelector('.tabbar'); t.style.visibility = 'hidden'; });
+        await shot('.scroll', base + '.jpg', true);
+        await page.evaluate(() => { const t = document.querySelector('.tabbar'); t.style.visibility = ''; });
+      } else {
+        await shot('.dkn', base + '-nav.png');
+        await shot('.dkm', base + '.jpg', true);
+      }
+      const file = base;
       console.log('saved', path.relative(process.cwd(), file));
     }
     await ctx.close();
