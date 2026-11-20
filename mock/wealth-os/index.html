@@ -286,6 +286,16 @@ body .q-sec h2 .hs{text-transform:none;letter-spacing:0;font-size:12px;color:var
 .qt{position:absolute;padding:1.5px}
 .qt>div{position:absolute;inset:1.5px;border-radius:6px;padding:8px 9px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;font-size:12px;font-weight:500}
 .qt em{font-style:normal;font-family:var(--figs);font-weight:300;font-size:16px;line-height:1}
+.qt.one>div{flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;padding:0 9px}
+.qt.one em{font-size:13px}
+.qt.tiny em{display:none}
+.qt.tiny>div{padding:6px 7px}
+.qt.min>div span{display:none}
+.qt{cursor:pointer}
+@media (hover:hover){.qt:hover>div{filter:brightness(1.12)}}
+.qtip{position:absolute;z-index:3;pointer-events:none;background:#0B1830;border:1px solid var(--line-2);border-radius:10px;padding:8px 11px;font-size:12.5px;line-height:1.45;color:var(--soft);white-space:nowrap;transform:translate(-50%,calc(-100% - 8px));box-shadow:0 12px 30px -12px rgba(0,0,0,.8)}
+.qtip b{display:block;color:var(--fg);font-weight:500}
+.qtip[hidden]{display:none}
 .dv-v{font-family:var(--figs);font-size:30px;font-weight:400;letter-spacing:-.03em}
 .dv-v small{font-family:var(--sans);font-size:13px;color:var(--softer);letter-spacing:0;margin-left:6px}
 .dv-s{font-size:13px;color:var(--soft);margin-top:4px}
@@ -811,7 +821,7 @@ body .dk .gr .hv{font-size:38px!important;line-height:160px}
 .dvd-ch .c b{display:block;border-radius:0}
 .dvd-ch .c b:first-child{border-radius:6px 6px 0 0}
 .dvd-ch .c .rv{background:rgba(156,189,166,.4)}
-.dvd-ch .c em{position:absolute;left:0;right:0;text-align:center;font-style:normal;font-family:var(--figs);font-size:12.5px;color:var(--fg);transform:translateY(-140%)}
+.dvd-ch .c em{position:absolute;left:0;right:0;text-align:center;font-style:normal;font-family:var(--figs);font-size:12.5px;color:var(--champ);transform:translateY(-140%)}
 .dvd-ch .c span{position:absolute;bottom:-24px;left:0;right:0;text-align:center;font-family:var(--figs);font-size:12px;color:var(--softer)}
 .dvd-ch .c.n span{color:var(--champ)}
 .dvd-ch+.dvx-n{margin-top:36px}
@@ -966,15 +976,14 @@ body .g-st b{color:var(--gain)}
 body.adv-on .mr.adv,body.adv-on .dkmenu a.adv{display:flex!important}
 .dkmenu a.adv-l{margin-bottom:8px;border-bottom:1px solid rgba(232,211,162,.08);border-radius:8px 8px 0 0}
 /* dividends: white and grey, gold only for this year, sage only for reinvesting */
-.dvd-ch .c b.rc{background:#B9C4D6}
-.dvd-ch .c b.nw,.dvd-lg i.nw{background:var(--champ)}
 .dvd-lg i.rc{background:#C3CDDC}
 .dvd-ln .l{stroke:var(--gain)}
 /* Forecast: What would move it stretches to the height of How it could go */
 .dk .fq>.q-sec:nth-of-type(2){align-self:stretch;display:flex;flex-direction:column}
 .dk .fq>.q-sec:nth-of-type(2)>h2{margin-bottom:0}
-.dk .fq>.q-sec:nth-of-type(2) .f-lv{flex:1 1 0;min-height:52px;border-top:1px solid rgba(232,211,162,.08)}
-.dk .fq>.q-sec:nth-of-type(2) .f-lv:first-of-type{border-top:0}
+.dk .fq>.q-sec:nth-of-type(2){justify-content:space-between;padding-bottom:4px}
+.dk .fq>.q-sec:nth-of-type(2)>h2{margin-bottom:-23px!important}
+.dk .fq>.q-sec:nth-of-type(2) .f-lv{flex:0 0 52px;min-height:52px}
 .nv-lab .w em.cv{margin:4px 0 0;display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12.5px;color:var(--soft)}
 .nv-lab .w em.cv svg{width:50px;height:14px;overflow:visible}
 .nv-lab .w em.cv path{fill:none;stroke:var(--champ);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -1084,7 +1093,7 @@ body.adv-on .mr.adv,body.adv-on .dkmenu a.adv{display:flex!important}
           <div><span class="dvx-k">Dividend increases</span><span class="dvx-v num">+5.8%<small>a year</small></span>
             <svg class="dvd-ln" viewBox="0 0 400 40" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="M0 34L400 4V40H0Z"/><path class="l" d="M0 34L400 4"/></svg><p class="dvx-n">Per share, over 3 years.</p></div>
         </div>
-        <div class="dvd-lg"><span><i class="rc"></i>Received</span><span><i class="nw"></i>This year</span><span><i class="es"></i>Estimate</span>
+        <div class="dvd-lg"><span><i class="py1"></i>JEQP</span><span><i class="py2"></i>AVIVA</span><span><i class="py3"></i>HSBC</span><span class="sep"></span><span><i class="rc"></i>Received</span><span><i class="es"></i>Estimate</span>
           <button type="button" class="dvd-sw" id="dvdSw" aria-pressed="false"><i></i>Show if reinvested</button></div>
         <div class="dvd-ch" id="dvdCh" aria-hidden="true"></div>
         <p class="dvx-n">Faded bars are estimates. Illustrative, not a guarantee.</p>
@@ -1298,6 +1307,7 @@ function applyPg(){
   document.querySelectorAll('.dkl [data-pg]').forEach(a=>a.classList.toggle('on',a.dataset.pg===pg));
   $('.dkr .mo').classList.toggle('on',pg==='more');
   $('#scroll').scrollTop=0;window.scrollTo(0,0);
+  requestAnimationFrame(()=>{if(window.fitTree)fitTree()});
   if(MOTION)requestAnimationFrame(()=>{countAll();armMotion()})}
 function apply(){B.className='cp-'+st.cp+' dev-'+st.dev+(st.who==='a'?' adv-on':'');
   document.querySelectorAll('#sWho button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===st.who));
@@ -1338,7 +1348,19 @@ document.querySelectorAll('.grp .gh').forEach(b=>b.onclick=()=>{const g=b.parent
   for(let i=0;i<it.length-1;i++){acc+=it[i].v;const d=Math.abs(acc-tot/2);if(d<best){best=d;k=i+1}}const a=it.slice(0,k),b=it.slice(k),f=a.reduce((q,i)=>q+i.v,0)/tot;
   if(w*0.5>=h*0.5*1.2){split(a,x,y,w*f,h,out);split(b,x+w*f,y,w*(1-f),h,out)}else{split(a,x,y,w,h*f,out);split(b,x,y+h*f,w,h*(1-f),out)}}
  const out=[];split(items,0,0,100,100,out);
- $('#qtree').innerHTML=out.map(t=>'<div class="qt" style="left:'+t.x+'%;top:'+t.y+'%;width:'+t.w+'%;height:'+t.h+'%"><div style="background:'+TM[t.i]+';color:'+(t.i>2?'#12301F':'#F2F5FA')+'"><span>'+t.id+'</span><em>'+t.s.toFixed(1)+'%</em></div></div>').join('')})();
+ $('#qtree').innerHTML=out.map(t=>'<div class="qt" data-t="'+t.i+'" style="left:'+t.x+'%;top:'+t.y+'%;width:'+t.w+'%;height:'+t.h+'%"><div style="background:'+TM[t.i]+';color:'+(t.i>2?'#12301F':'#F2F5FA')+'"><span>'+t.id+'</span><em>'+t.s.toFixed(1)+'%</em></div></div>').join('')})();
+/* treemap labels: name above %, or on one line, or % hidden when a tile is small; tap or hover shows the detail */
+(function(){const N={BTC:['Bitcoin','Trading 212 · eToro'],VWRP:['Vanguard FTSE All-World','Hargreaves Lansdown'],TSLA:['Tesla','Trading 212'],ETH:['Ethereum','eToro'],ONDS:['Ondas','Trading 212']};
+ const V={BTC:12503,VWRP:4747,TSLA:2937,ETH:2806,ONDS:1284},tot=24277,box=$('#qtree'),tip=document.createElement('div');tip.className='qtip';tip.hidden=true;box.appendChild(tip);
+ window.fitTree=function(){box.querySelectorAll('.qt').forEach(t=>{const r={width:t.offsetWidth,height:t.offsetHeight};t.classList.toggle('one',r.height<52);t.classList.toggle('tiny',r.height<52&&r.width<96);t.classList.toggle('min',r.width<44||r.height<20)})};
+ let pin=null;
+ function show(t){const id=t.querySelector('span').textContent,n=N[id]||[id,''],q=box.getBoundingClientRect(),r=t.getBoundingClientRect(),k=q.width/box.offsetWidth||1;
+  tip.innerHTML='<b>'+id+' · '+n[0]+'</b>£'+V[id].toLocaleString('en-GB')+' · '+(V[id]/tot*100).toFixed(1)+'%'+(n[1]?'<br>'+n[1]:'');
+  tip.style.left=((r.left+r.width/2-q.left)/k)+'px';tip.style.top=((r.top-q.top)/k+4)+'px';tip.hidden=false}
+ box.querySelectorAll('.qt').forEach(t=>{t.addEventListener('mouseenter',()=>{if(!pin)show(t)});t.addEventListener('mouseleave',()=>{if(!pin)tip.hidden=true});
+  t.addEventListener('click',e=>{e.stopPropagation();if(pin===t){pin=null;tip.hidden=true}else{pin=t;show(t)}})});
+ document.addEventListener('click',()=>{pin=null;tip.hidden=true});
+ addEventListener('resize',fitTree);fitTree()})();
 (function(){const R=[20,46,47,122,388,590,412,0,0,0],E=[0,0,0,0,0,0,81,521,550,580],M=600;
  $('#dvbars').innerHTML=R.map((r,i)=>'<i>'+(E[i]?'<b style="height:'+(E[i]/M*100)+'%;background:rgba(232,211,162,.28)"></b>':'')+(r?'<b style="height:'+(r/M*100)+'%;background:'+(i===6?'#E8D3A2':'rgba(232,211,162,.7)')+';border-radius:'+(E[i]?'0':'2px 2px 0 0')+'"></b>':'')+'</i>').join('')})();
 (function(){const v=[18,21,19,24,22,20,26,23,21,25,24,25],mx=28;
@@ -1487,9 +1509,9 @@ document.querySelectorAll('.wcomp-l [data-g]').forEach(b=>b.onclick=()=>{const c
  /* dividends: year chart, details, reinvest toggle */
  const Y=[2020,2021,2022,2023,2024,2025,2026,2027,2028,2029],C=[20,46,47,122,388,560,590,610,640,680],RI=[0,0,0,0,0,0,0,660,720,783],SPL=[.62,.24,.14],M=800;
  function chart(re){$('#dvdCh').innerHTML=Y.map((y,i)=>{const v=re&&RI[i]?RI[i]:C[i],h=v/M*100,lab=(y===2026||y===2029)?'<em style="bottom:'+h.toFixed(2)+'%">£'+v+'</em>':'';let bars='';
-  if(y>2026){bars=(re&&RI[i]?'<b class="rv" style="height:'+((RI[i]-C[i])/M*100).toFixed(2)+'%"></b>':'')+'<b style="height:'+(C[i]/M*100).toFixed(2)+'%;background:rgba(190,208,236,.16)"></b>'}
+  if(y>2026){bars=(re&&RI[i]?'<b class="rv" style="height:'+((RI[i]-C[i])/M*100).toFixed(2)+'%"></b>':'')+'<b style="height:'+(C[i]/M*100).toFixed(2)+'%;background:rgba(190,208,236,.3)"></b>'}
   else{const rec=y===2026?493/590:1;if(y===2026)bars+='<b style="height:'+(h*(1-rec)).toFixed(2)+'%;background:rgba(190,208,236,.3)"></b>';
-   bars+='<b class="'+(y===2026?'nw':'rc')+'" style="height:'+(h*rec).toFixed(2)+'%"></b>'}
+   bars+=[2,1,0].map(j=>'<b class="py'+(j+1)+'" style="height:'+(h*rec*SPL[j]).toFixed(2)+'%"></b>').join('')}
   return '<div class="c'+(y>2026?' e':'')+(y===2026?' n':'')+'">'+lab+bars+'<span>'+y+'</span></div>'}).join('')}
  chart(false);
 
