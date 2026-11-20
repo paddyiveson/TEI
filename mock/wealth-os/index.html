@@ -132,7 +132,7 @@ body.pg-more .pg-more-only{display:block}
 body .q{padding:22px 22px 0}
 body .q-sec{margin-top:44px}
 body .q-sec h2,body .col .sh{font-size:10.5px!important;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:#8494AC}
-body .hv{font-weight:300!important;letter-spacing:-.05em!important;font-size:54px!important;color:var(--champ);font-variant-numeric:proportional-nums!important;font-feature-settings:"pnum","ss01"!important}
+body .hv{font-weight:300!important;letter-spacing:-.05em!important;font-size:54px!important;color:#F2F5FA;font-variant-numeric:proportional-nums!important;font-feature-settings:"pnum","ss01"!important}
 body .hv .cur{font-size:.44em;vertical-align:baseline;margin-right:.06em;color:var(--soft);letter-spacing:0}
 body .hv .pc{font-size:.44em;vertical-align:baseline;margin-left:.05em;color:var(--soft);letter-spacing:0}
 body .q-row .r{font-weight:300;font-size:18px;letter-spacing:-.01em}
@@ -148,7 +148,7 @@ body .col .sh .sm{margin-left:auto;font-family:var(--figs);font-size:13px;font-w
 .sc-r::-webkit-slider-thumb{width:16px!important;height:16px!important;margin-top:-7px!important}
 .sc-r::-webkit-slider-thumb,#wiR::-webkit-slider-thumb{width:26px!important;height:26px!important;margin-top:-7px!important;background:#F4F6FA!important;box-shadow:0 0 0 6px rgba(232,211,162,.16),0 2px 6px rgba(0,0,0,.45)}
 .q-link small{font-size:12px;color:var(--softer);margin-left:auto;margin-right:8px}
-body .hv .cur,body .hv .pc{color:rgba(232,211,162,.7)}
+body .hv .cur,body .hv .pc{color:var(--softer)}
 .cv-bar{position:relative;height:6px;border-radius:3px;background:rgba(190,208,236,.12);margin-top:18px}
 .cv-bar i{display:block;height:100%;border-radius:3px;background:var(--champ)}
 .cv-bar em{position:absolute;top:-5px;bottom:-5px;width:1.5px;background:rgba(238,242,248,.75)}
@@ -971,9 +971,6 @@ body .g-st b{color:var(--gain)}
 .adv{display:none!important}
 body.adv-on .mr.adv,body.adv-on .dkmenu a.adv{display:flex!important}
 .dkmenu a.adv-l{margin-bottom:8px;border-bottom:1px solid rgba(232,211,162,.08);border-radius:8px 8px 0 0}
-/* review: hero figures in white (compare with gold) */
-body.hero-w .hv{color:#F2F5FA}
-body.hero-w .hv .cur,body.hero-w .hv .pc{color:var(--softer)}
 /* ===== Motion ===== */
 
 </style>
@@ -982,7 +979,6 @@ body.hero-w .hv .cur,body.hero-w .hv .pc{color:var(--softer)}
 <div class="rv" role="region" aria-label="Review controls">
   <div class="t"><b>Wealth OS</b> · phone and desktop · example figures (John Doe)</div>
   <div class="seg" id="sPg"><button type="button" data-v="home" aria-pressed="true">Home</button><button type="button" data-v="wealth" aria-pressed="false">Wealth</button><button type="button" data-v="goals" aria-pressed="false">Goals</button><button type="button" data-v="fc" aria-pressed="false">Forecast</button><button type="button" data-v="cash" aria-pressed="false">Cashflow</button><button type="button" data-v="more" aria-pressed="false">More</button></div>
-  <div class="seg" id="sHero" aria-label="Hero figures"><button type="button" data-v="g" aria-pressed="true">Gold</button><button type="button" data-v="w" aria-pressed="false">White</button></div>
   <div class="seg" id="sWho" aria-label="Who is signed in"><button type="button" data-v="c" aria-pressed="true">Client</button><button type="button" data-v="a" aria-pressed="false">Adviser</button></div>
   <div class="seg" id="sDev"><button type="button" data-v="p" aria-pressed="true">Phone</button><button type="button" data-v="d" aria-pressed="false">Desktop</button></div>
 
@@ -1284,7 +1280,7 @@ body.hero-w .hv .cur,body.hero-w .hv .pc{color:var(--softer)}
 (function(){
 const $=s=>document.querySelector(s),B=document.body,MOTION=!matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------- state: page, device, Cashflow period ---------- */
-let st={cp:'m',dev:'p',who:'c',hero:'g'},pg='home';
+let st={cp:'m',dev:'p',who:'c'},pg='home';
 function applyPg(){
   ['wealth','goals','cash','fc','more'].forEach(k=>B.classList.toggle('pg-'+k,pg===k));
   document.querySelectorAll('#sPg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===pg));
@@ -1296,8 +1292,7 @@ function applyPg(){
   $('.dkr .mo').classList.toggle('on',pg==='more');
   $('#scroll').scrollTop=0;window.scrollTo(0,0);
   if(MOTION)requestAnimationFrame(()=>{countAll();armMotion()})}
-function apply(){B.className='cp-'+st.cp+' dev-'+st.dev+(st.who==='a'?' adv-on':'')+(st.hero==='w'?' hero-w':'');
-  document.querySelectorAll('#sHero button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===st.hero));
+function apply(){B.className='cp-'+st.cp+' dev-'+st.dev+(st.who==='a'?' adv-on':'');
   document.querySelectorAll('#sWho button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===st.who));
   document.querySelectorAll('#sDev button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===st.dev));
   document.querySelectorAll('.ctog button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===st.cp));
@@ -1306,7 +1301,6 @@ const go=k=>{pg=k;applyPg()};
 document.querySelectorAll('#sPg button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 [['#tHome','home'],['#tWealth','wealth'],['#tCash','cash'],['#tPlan','goals'],['#tMore','more']].forEach(([id,k])=>$(id).onclick=e=>{e.preventDefault();go(k)});
 document.querySelectorAll('.dkn [data-pg]').forEach(a=>a.onclick=e=>{e.preventDefault();$('.dkmenu').hidden=true;go(a.dataset.pg)});
-document.querySelectorAll('#sHero button').forEach(b=>b.onclick=()=>{st.hero=b.dataset.v;apply()});
 document.querySelectorAll('#sWho button').forEach(b=>b.onclick=()=>{st.who=b.dataset.v;apply()});
 document.querySelectorAll('#sDev button').forEach(b=>b.onclick=()=>{st.dev=b.dataset.v;place();apply();fitDk()});
 document.querySelectorAll('.ctog button').forEach(b=>b.onclick=()=>{st.cp=b.dataset.p;B.classList.toggle('cp-m',st.cp==='m');B.classList.toggle('cp-y',st.cp==='y');document.querySelectorAll('.ctog button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.p===st.cp))});
