@@ -209,8 +209,8 @@ TEI.render = TEI.render || {};
 
   /* The steps for this month, in order (Paddy, 20 Oct 2026: "Mark as done
      needs to actually do something"). The coach's own step comes first,
-     then what the record shows is still to do. Each has a button that does
-     it; Mark as done records it (clients.monthly_wins) and moves on to the
+     then what the record shows is still to do. Each has a target
+     {page, section, open} that its link opens (21-step-links.js); Mark as done records it (clients.monthly_wins) and moves on to the
      next. A month carried forward by the auto-snapshot does not count as
      updated. */
   function homeSteps(client){
@@ -220,33 +220,33 @@ TEI.render = TEI.render || {};
     const accts = client.accounts || [];
     if(!accts.length){
       out.push({id:'step:first-account', text:'Add your first account', why:'Start with the account you check most often.',
-        act:['Add an account', ()=> TEI.settings.open('accounts')]});
+        target:{page:'mydetails', section:'settings', open:'settings-accounts'}});
     } else {
       const m = (client.months||{})[key] || {}, meta = (client.monthsMeta||{})[key] || {};
       const stale = accts.filter(a=> m[a.id] == null || meta[a.id] === true);
       if(stale.length) out.push({id:'step:balances:' + key, text:"Update this month's balances",
         why: stale.length === accts.length ? 'Keeping the numbers current is what makes your projections worth trusting.'
           : stale.length + (stale.length === 1 ? ' account has' : ' accounts have') + ' not been updated this month.',
-        act:['Update balances', ()=> TEI.app.showPage('update')]});
+        target:{page:'progress', section:'accounts', open:'update-balances'}});
     }
     if(!(client.cashflowMonths||{})[key]) out.push({id:'step:cashflow:' + key, text:"Log this month's cashflow",
       why:'Take-home, essentials, lifestyle and what went into wealth. It keeps your wealth conversion rate up to date.',
-      act:['Update this month', ()=>{ TEI.app.showPage('cashflow'); if(TEI.cashflowPage) TEI.cashflowPage.openUpdate(); }]});
+      target:{page:'cashflow', section:'month-update', open:'month-update'}});
     const sn = TEI.calc.safetyNet(client);
     if(!sn.linked && accts.some(a=> a.type === 'cash' || a.type === 'cash_isa')){
       out.push({id:'step:safety-account', text:'Choose where your safety net is kept',
-        why:'Pick the cash account that holds it, so Home and Cashflow can track it.', act:['Choose the account', ()=> TEI.settings.open('plan')]});
+        why:'Pick the cash account that holds it, so Home and Cashflow can track it.', target:{page:'mydetails', section:'settings', open:'settings-plan'}});
     } else if(sn.linked && sn.stage !== 'full' && sn.monthlySpend > 0){
       const gap = Math.max(0, sn.fullMonths * sn.monthlySpend - sn.current);
       out.push({id:'step:safety:' + key, text:'Build your safety net',
-        why: fmtGBP(gap) + ' more would cover ' + sn.fullMonths + ' months of spending.', act:['See your safety net', ()=> TEI.app.showPage('cashflow')]});
+        why: fmtGBP(gap) + ' more would cover ' + sn.fullMonths + ' months of spending.', target:{page:'cashflow', section:'safety-net'}});
     }
     // Setting up is not repeated here: Home has its own Finish setting up tile.
     const behind = (client.goals||[]).filter(g=> g.status !== 'completed').find(g=> TEI.calc.goalStatus(client, g).key === 'behind');
     if(behind) out.push({id:'step:goal:' + behind.id + ':' + key, text:'Look at your ' + behind.name + ' goal',
-      why:'It is behind for its target date. Goals shows what a month would close the gap.', act:['See Goals', ()=> TEI.app.showPage('goals')]});
+      why:'It is behind for its target date. Goals shows what a month would close the gap.', target:{page:'goals', section:'goals', open:'goal:' + behind.id}});
     if(TEI.calc.computeBudgetAndFI(client).savings < 0) out.push({id:'step:budget:' + key, text:'Review your spending',
-      why:'Spending and saving commitments are more than your take-home pay.', act:['Open Cashflow', ()=> TEI.app.showPage('cashflow')]});
+      why:'Spending and saving commitments are more than your take-home pay.', target:{page:'cashflow', section:'month-update'}});
     const doneIds = new Set((client.monthlyWins||[]).filter(w=> w && w.month === key).map(w=> w.id));
     return out.filter(s=> !doneIds.has(s.id));
   }
@@ -263,9 +263,11 @@ TEI.render = TEI.render || {};
     const agreed = nba.agreedAt ? ' Agreed ' + fmtDate(nba.agreedAt, {day:'numeric', month:'long', year:'numeric'}) + '.' : '';
     setText('whStepWhy', steps.length ? (nba.why || '') + agreed
       : wins ? wins + (wins === 1 ? ' step' : ' steps') + ' done this month. Nothing else needs doing right now.' : 'Nothing needs doing right now.');
-    const act = document.getElementById('whStepAct');
-    if(nba.act){ act.textContent = nba.act[0]; act.onclick = nba.act[1]; act.hidden = false; }
-    else { act.hidden = true; act.onclick = null; }
+    // The step's link (21-step-links.js): only when its target still exists.
+    const go = document.getElementById('whStepGo');
+    const target = TEI.stepLinks ? TEI.stepLinks.resolve(nba.target, client) : null;
+    go.innerHTML = target ? TEI.stepLinks.linkHTML(target) : '';
+    go.hidden = !target;
 
     const lesson = document.getElementById('whStepLesson');
     if(nba.lesson && nba.lesson.title){
@@ -289,7 +291,7 @@ TEI.render = TEI.render || {};
     btn.hidden = !nba.text;
     btn.disabled = false;
     btn.textContent = 'Mark as done';
-    btn.classList.toggle('hm-btn-primary', !nba.act);
+    btn.classList.toggle('hm-btn-primary', !target);
     btn.onclick = async ()=>{
       btn.disabled = true;
       const win = {id, label: nba.text, source: client.meta.role === 'adviser' ? 'adviser' : 'client', month: monthKey, doneAt: new Date().toISOString()};

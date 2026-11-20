@@ -843,5 +843,5 @@ TEI.render = TEI.render || {};
   TEI.render.lab = function(client){
     if(typeof TEI.render.portfolio === 'function') TEI.render.portfolio(client);
   };
-  TEI.wealthPage = { openUpdate, closeUpdate };
+  TEI.wealthPage = { openUpdate, closeUpdate, openWhere: o=> setWhere(!!o) };
 })();

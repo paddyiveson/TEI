@@ -708,6 +708,7 @@ window.TEI = window.TEI || {};
     if(TEI.feedback && TEI.feedback.init) TEI.feedback.init(state.client);
     setMode('client');
     if(TEI.forecastView) TEI.forecastView.restoreFromHash();
+    if(TEI.stepLinks) TEI.stepLinks.fromUrl();
   }
 
   /* ================= THEME ================= */
@@ -797,9 +798,11 @@ window.TEI = window.TEI || {};
      Forward (a full-page reload instead lands back in init() above, which
      handles ?client= the same way). Adviser-only: client-role sessions have
      no list to navigate between, so there is nothing to reconcile for them. */
-  function onWealthOSPopState(){
+  function onWealthOSPopState(e){
     // Opening/closing the full-screen document viewer only changes the #forecast/ or #doc/ hash; that is not a client switch.
     if(TEI.forecastView && TEI.forecastView.onPopState()) return;
+    // Back from a next step link returns to Home (21-step-links.js).
+    if(TEI.stepLinks && TEI.stepLinks.onPopState(e)) return;
     if(state.role !== 'adviser') return;
     const urlClientId = new URLSearchParams(location.search).get('client');
     if(urlClientId){
