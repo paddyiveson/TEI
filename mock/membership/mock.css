@@ -1,0 +1,278 @@
+/* Membership mock-up (mock/membership), mock-only styles on top of the real
+   site CSS. Never merged. Prefix: mm-. Phone is up to 860px; wide from 1100px. */
+
+/* =========== Review bar (mock only, hidden with ?shot) =========== */
+:root { --mm-rv: 48px; }
+html.mm-shot { --mm-rv: 0px; }
+html.mm-shot .mm-rv { display: none; }
+/* Screenshots: the phone header and bar stay put, so a full-page capture
+   does not show them mid-page. */
+html.mm-shot .tei-mbar { display: none !important; }
+html.mm-shot .tei-mhead { position: absolute; }
+body.tei-ground { padding-top: var(--mm-rv); }
+body.tei-ground .tei-hdr { top: var(--mm-rv); }
+.mm-rv {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 2000; box-sizing: border-box; height: var(--mm-rv);
+  display: flex; align-items: center; gap: 12px; padding: 0 16px;
+  background: #03070F; border-bottom: 1px solid rgba(232, 214, 168, .12);
+  font-family: var(--tei-num); font-size: 12.5px; color: var(--g-muted);
+}
+.mm-rv-t { margin-right: auto; white-space: nowrap; }
+.mm-rv-t b { color: var(--g-ink); font-weight: 500; }
+.mm-seg { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; border: 1px solid rgba(232, 214, 168, .16); }
+.mm-seg > span { padding: 0 6px 0 8px; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+.mm-seg button { min-height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: none; color: var(--g-sub); font: inherit; cursor: pointer; }
+.mm-seg button[aria-pressed="true"] { background: var(--g-champ); color: var(--g-champ-ink); }
+.mm-seg button:disabled { opacity: .45; cursor: default; }
+.mm-rv-open { display: none; }
+@media (max-width: 1099px) { .mm-rv-t { display: none; } .mm-rv { justify-content: center; } }
+@media (max-width: 860px) {
+  .mm-rv { height: var(--mm-rv); padding: 0 12px; justify-content: flex-start; flex-wrap: wrap; align-content: flex-start; gap: 6px 8px; }
+  .mm-rv-open { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--g-ink); font: inherit; font-size: 13px; cursor: pointer; }
+  .mm-rv-open i { font-style: normal; color: var(--g-muted); }
+  .mm-rv .mm-seg { display: none; }
+  .mm-rv.is-open { height: auto; padding-bottom: 12px; box-shadow: 0 20px 40px rgba(0, 0, 0, .5); }
+  .mm-rv.is-open .mm-seg { display: flex; }
+  .mm-seg button { min-height: 44px; padding: 0 14px; }
+  html.tei-mnav body.tei-ground { padding-top: calc(var(--tei-mhead-h) + var(--mm-rv)); }
+  .tei-mhead { top: var(--mm-rv); }
+}
+
+/* Section notes (Notes on): each section's job, from the sketch. */
+.mm-note { display: none; }
+body.mm-notes .mm-note {
+  display: table; margin: 0 auto 28px; max-width: 70ch; padding: 7px 12px; border-radius: 8px;
+  background: #3B2F12; color: #F2E2B8; font-family: var(--tei-num); font-size: 12px; line-height: 1.45; text-align: left;
+}
+.mm-note b { margin-right: 6px; color: #FFF3D1; font-weight: 600; }
+.mm-member-show { display: none; }
+body.mm-member .mm-member-show { display: block; }
+body.mm-member .mm-member-hide { display: none; }
+
+/* =========== Sections: centred heading, room above =========== */
+.mm-sec > .g-w { padding-top: 120px; padding-bottom: 112px; }
+.mm-head { max-width: 760px; margin: 0 auto 64px; text-align: center; }
+.mm-head .ab-h { margin: 0 auto; max-width: 22ch; font-size: clamp(34px, 2.9vw, 44px); letter-spacing: -.025em; line-height: 1.1; }
+.mm-head .g-lede { margin: 16px auto 0; font-size: 18px; text-wrap: balance; }
+@media (max-width: 860px) {
+  .mm-sec > .g-w { padding-top: 56px; padding-bottom: 56px; }
+  .mm-head { margin-bottom: 32px; }
+  .mm-head .ab-h { font-size: 28px; }
+  .mm-head .g-lede { font-size: 15.5px; margin-top: 10px; }
+}
+
+/* =========== 01 Hero =========== */
+.mm-hero .g-w { padding-top: 104px; padding-bottom: 48px; text-align: center; }
+.mm-hero h1 .g-accent { display: block; }
+.mm-c { text-align: center; }
+.mm-hero h1 { max-width: 20ch; margin: 0 auto; font-size: clamp(44px, 4.6vw, 72px); font-weight: 400; letter-spacing: -.03em; line-height: 1.04; }
+.mm-hero .g-dek { max-width: 60ch; margin: 28px auto 0; text-wrap: balance; }
+.mm-six { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; max-width: 960px; margin: 56px auto 0; }
+.mm-tile {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  min-height: 96px; padding: 16px 8px 14px; box-sizing: border-box; border-radius: 16px;
+  background: rgba(255, 255, 255, .035); border: 1px solid rgba(232, 214, 168, .10);
+  box-shadow: inset 0 1px 0 rgba(232, 214, 168, .10);
+  color: var(--g-ink); text-decoration: none; font-size: 15px; font-weight: 500; letter-spacing: -.005em;
+  transition: border-color .2s ease, transform .2s ease, background-color .2s ease;
+}
+.mm-tile svg { width: 24px; height: 24px; fill: none; stroke: var(--g-champ); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+@media (hover: hover) { .mm-tile:hover { border-color: rgba(232, 214, 168, .42); background-color: rgba(255, 255, 255, .055); transform: translateY(-2px); } }
+.mm-tile:active { transform: scale(.98); }
+.mm-hero-more { margin: 22px 0 0; font-size: 15px; }
+.mm-hero-more a { display: inline-flex; align-items: center; min-height: 44px; color: var(--g-champ); text-decoration: underline; text-decoration-color: rgba(232, 214, 168, .4); text-underline-offset: 4px; }
+.mm-path { display: none; }
+@media (max-width: 860px) {
+  .mm-hero .g-w { padding-top: 40px; padding-bottom: 24px; }
+  .mm-hero h1 { font-size: 34px; max-width: 13ch; letter-spacing: -.025em; line-height: 1.08; }
+  .mm-hero .g-dek { margin-top: 16px; font-size: 15.5px; }
+  .mm-six { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 32px; }
+  .mm-tile { min-height: 76px; gap: 7px; padding: 12px 4px 10px; border-radius: 12px; font-size: 13.5px; }
+  .mm-tile svg { width: 22px; height: 22px; }
+  .mm-hero-more { margin-top: 12px; font-size: 14px; }
+}
+
+/* Hero motion: the page's one animated moment at the top. Armed only with
+   JS and without reduced motion; the static end state is the row above.
+   About 2 seconds, once, ease-out, no overshoot. Replays when the review
+   bar switches direction. */
+.mm-six > a:nth-of-type(1) { --gx: -220px; --gy: -280px; --d: .15s; --ld: 0s; }
+.mm-six > a:nth-of-type(2) { --gx: -412px; --gy: -170px; --d: .45s; --ld: .25s; }
+.mm-six > a:nth-of-type(3) { --gx: -524px; --gy: -60px;  --d: .75s; --ld: .5s; }
+.mm-six > a:nth-of-type(4) { --gx: 524px;  --gy: -60px;  --d: .9s;  --ld: .75s; }
+.mm-six > a:nth-of-type(5) { --gx: 412px;  --gy: -170px; --d: .6s;  --ld: 1s; }
+.mm-six > a:nth-of-type(6) { --gx: 220px;  --gy: -280px; --d: .3s;  --ld: 1.25s; }
+.mm-six { --gs: 1; }
+@media (max-width: 1439px) { .mm-six { --gs: .85; } }
+@media (max-width: 1099px) { .mm-six { --gs: .6; } }
+@media (max-width: 860px) {
+  /* Phone: the tiles gather inside their own block, two rows of three. */
+  .mm-six { --gs: 1; }
+  .mm-six > a:nth-of-type(1) { --gx: -26px; --gy: -26px; }
+  .mm-six > a:nth-of-type(2) { --gx: 0px;   --gy: -34px; }
+  .mm-six > a:nth-of-type(3) { --gx: 26px;  --gy: -26px; }
+  .mm-six > a:nth-of-type(4) { --gx: -26px; --gy: 26px; }
+  .mm-six > a:nth-of-type(5) { --gx: 0px;   --gy: 34px; }
+  .mm-six > a:nth-of-type(6) { --gx: 26px;  --gy: 26px; }
+}
+@keyframes mm-gather {
+  from { opacity: 0; transform: translate(calc(var(--gx) * var(--gs)), calc(var(--gy) * var(--gs))) scale(.86); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mm-pass {
+  0% { opacity: .3; border-color: rgba(232, 214, 168, .06); }
+  40% { opacity: 1; border-color: rgba(232, 214, 168, .55); background-color: rgba(232, 214, 168, .07); }
+  100% { opacity: 1; border-color: rgba(232, 214, 168, .10); background-color: rgba(255, 255, 255, .035); }
+}
+@keyframes mm-icon { from { stroke: var(--g-muted); } to { stroke: var(--g-champ); } }
+@keyframes mm-draw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes mm-out { to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  html.mm-js body.mm-hero-a .mm-six.mm-go > a { animation: mm-gather 1.1s cubic-bezier(.16, 1, .3, 1) var(--d) both; }
+  html.mm-js body.mm-hero-b .mm-six.mm-go > a { animation: mm-pass .7s cubic-bezier(.16, 1, .3, 1) calc(var(--ld) + .28s) both; }
+  html.mm-js body.mm-hero-b .mm-six.mm-go > a svg { animation: mm-icon .3s ease-out calc(var(--ld) + .32s) both; }
+  html.mm-js body.mm-hero-b .mm-six.mm-go .mm-path {
+    display: block; position: absolute; left: 0; right: 0; top: -20px; height: 1px; transform-origin: 0 50%;
+    background: linear-gradient(90deg, rgba(232, 214, 168, 0), var(--g-champ) 6%, var(--g-champ) 94%, rgba(232, 214, 168, 0));
+    animation: mm-draw 1.5s linear .2s both, mm-out .4s cubic-bezier(.4, 0, 1, 1) 1.9s forwards;
+  }
+  html.mm-js body.mm-hero-b .mm-six.mm-go .mm-p2 { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) and (max-width: 860px) {
+  /* Phone: the line draws across the first row, then the second. */
+  html.mm-js body.mm-hero-b .mm-six.mm-go .mm-path { top: -10px; animation: mm-draw .75s linear .2s both, mm-out .4s cubic-bezier(.4, 0, 1, 1) 1.9s forwards; }
+  html.mm-js body.mm-hero-b .mm-six.mm-go .mm-p2 { display: block; top: 50%; animation: mm-draw .75s linear .95s both, mm-out .4s cubic-bezier(.4, 0, 1, 1) 1.9s forwards; }
+}
+
+/* =========== 02 Coaching =========== */
+.mm-coach { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 72px; align-items: center; max-width: 1280px; margin: 0 auto; }
+.mm-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 32px; }
+.mm-steps li { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 8px; }
+.mm-n { font-family: var(--tei-num); font-size: 13px; font-weight: 500; line-height: 26px; color: var(--g-champ); font-variant-numeric: tabular-nums; }
+.mm-steps .g-p { margin-top: 6px; font-size: 16px; max-width: 46ch; color: var(--g-muted); text-wrap: pretty; }
+.mm-plan { padding: 32px 34px 28px; margin: 0; }
+.mm-plan-k { margin: 0 0 18px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--g-champ); }
+.mm-plan-k span { color: var(--g-muted); }
+.mm-plan-who { margin: 0; font-size: 15px; color: var(--g-sub); }
+.mm-plan-v { margin: 6px 0 0; font-size: 46px; font-weight: 300; letter-spacing: -.035em; line-height: 1; color: var(--g-ink); }
+.mm-plan-s { margin: 8px 0 0; font-size: 13px; color: var(--g-muted); }
+.mm-chart { position: relative; height: 180px; margin: 24px 0 0; }
+.mm-chart svg { position: absolute; left: 0; right: 0; top: 0; width: 100%; height: calc(100% - 26px); overflow: visible; }
+.mm-area { fill: rgba(185, 202, 230, .08); }
+.mm-line { fill: none; stroke: #B9CAE6; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.mm-end { position: absolute; right: -5px; top: calc((100% - 26px) * .0933 - 5px); width: 10px; height: 10px; border-radius: 50%; background: var(--g-champ); box-shadow: 0 0 0 4px rgba(232, 214, 168, .16); }
+.mm-ax { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; font-family: var(--tei-num); font-size: 11px; letter-spacing: .04em; color: var(--g-muted); }
+.mm-plan-list { list-style: none; margin: 24px 0 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.mm-plan-list li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: start; padding: 14px; border-radius: 12px; background: rgba(7, 15, 29, .32); }
+.mm-plan-list .g-num { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: rgba(232, 214, 168, .12); color: var(--g-champ); font-size: 12px; font-weight: 500; }
+.mm-plan-list p { margin: 2px 0 0; font-size: 14px; line-height: 1.5; color: var(--g-sub); }
+.mm-plan-list b { font-weight: 500; color: var(--g-ink); }
+.mm-cap { margin: 16px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--g-muted); }
+/* The plan's one scene: the line draws once when the card is in view. */
+@keyframes mm-line { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes mm-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mm-pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  html.mm-js .mm-chart.mm-arm .mm-line { stroke-dasharray: 1; stroke-dashoffset: 1; }
+  html.mm-js .mm-chart.mm-arm .mm-area, html.mm-js .mm-chart.mm-arm .mm-end { opacity: 0; }
+  html.mm-js .mm-chart.mm-arm.mm-in .mm-line { animation: mm-line 1.7s cubic-bezier(.33, 0, .2, 1) .1s forwards; }
+  html.mm-js .mm-chart.mm-arm.mm-in .mm-area { animation: mm-fade .9s ease-out .9s forwards; }
+  html.mm-js .mm-chart.mm-arm.mm-in .mm-end { animation: mm-pop .35s cubic-bezier(.16, 1, .3, 1) 1.75s forwards; }
+}
+.mm-after { max-width: 1280px; margin: 96px auto 0; }
+.mm-after-k { margin: 0 0 24px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--g-champ); text-align: center; }
+.mm-after ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px; }
+.mm-after li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 14px; }
+.mm-after svg { width: 22px; height: 22px; margin-top: 1px; fill: none; stroke: var(--g-champ); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.mm-after b { display: block; font-size: 16px; font-weight: 500; color: var(--g-ink); }
+.mm-after span { display: block; margin-top: 4px; font-size: 14.5px; line-height: 1.5; color: var(--g-muted); }
+@media (max-width: 1099px) {
+  .mm-coach { grid-template-columns: minmax(0, 1fr); gap: 48px; max-width: 720px; }
+  .mm-after { max-width: 720px; }
+  .mm-after ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 32px; }
+}
+@media (max-width: 860px) {
+  .mm-coach { gap: 32px; }
+  .mm-steps { gap: 18px; }
+  .mm-steps li { grid-template-columns: 32px minmax(0, 1fr); gap: 4px; }
+  .mm-steps .ab-sub { font-size: 17px; }
+  .mm-steps .g-p { font-size: 14.5px; margin-top: 3px; }
+  .mm-plan { padding: 20px 16px 18px; }
+  .mm-plan-v { font-size: 36px; }
+  .mm-chart { height: 140px; margin-top: 16px; }
+  .mm-plan-list { gap: 6px; margin-top: 16px; }
+  .mm-plan-list li { grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding: 10px; }
+  .mm-plan-list .g-num { width: 22px; height: 22px; font-size: 11px; }
+  .mm-plan-list p { font-size: 13px; margin-top: 1px; }
+  .mm-cap { font-size: 11.5px; }
+  .mm-after { margin-top: 44px; }
+  .mm-after-k { margin-bottom: 16px; }
+  .mm-after ul { gap: 20px 16px; }
+  .mm-after li { display: block; }
+  .mm-after svg { display: block; margin: 0 0 8px; }
+  .mm-after b { font-size: 15px; }
+  .mm-after span { font-size: 13.5px; margin-top: 2px; }
+}
+
+/* =========== 03 Wealth OS =========== */
+.mm-wos { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: 56px; align-items: center; max-width: 1400px; margin: 0 auto; }
+.mm-tabs { display: grid; gap: 4px; }
+.mm-tabs button {
+  display: block; width: 100%; min-height: 64px; padding: 14px 18px; border: 0; border-radius: 12px; background: transparent;
+  text-align: left; font: inherit; color: var(--g-muted); cursor: pointer; transition: background-color .15s ease;
+}
+.mm-tabs b { display: block; font-size: 17px; font-weight: 500; color: var(--g-sub); }
+.mm-tabs span { display: block; margin-top: 3px; font-size: 14.5px; line-height: 1.45; }
+@media (hover: hover) { .mm-tabs button:hover { background: rgba(255, 255, 255, .03); } }
+.mm-tabs button[aria-selected="true"] { background: rgba(232, 214, 168, .07); }
+.mm-tabs button[aria-selected="true"] b { color: var(--g-champ); }
+.mm-tabs button[aria-selected="true"] span { color: var(--g-sub); }
+
+.mm-devs { --pw: 15vw; position: relative; padding: 0 calc(var(--pw) * .42) calc(var(--pw) * .18) 0; }
+/* Laptop: a dark lid with a thin bezel and camera, then the base. */
+.mm-lid { position: relative; padding: 2.2% 2.2% 2.6%; border-radius: 18px 18px 4px 4px; background: #0A0D13; box-shadow: inset 0 0 0 1px #2A3240, 0 40px 80px -40px rgba(0, 0, 0, .9); }
+.mm-cam { position: absolute; left: 50%; top: 0.9%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #1D2532; }
+.mm-scr { position: relative; aspect-ratio: 2560 / 1560; overflow: hidden; border-radius: 4px; background: #0C1A30; }
+.mm-scr img, .mm-phone-scr img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.mm-base { position: relative; height: 16px; margin: 0 -6%; border-radius: 2px 2px 14px 14px; background: linear-gradient(180deg, #3A4250 0, #232934 35%, #151A22 100%); box-shadow: 0 30px 50px -24px rgba(0, 0, 0, .9); }
+.mm-base span { position: absolute; left: 50%; top: 0; width: 15%; height: 6px; transform: translateX(-50%); border-radius: 0 0 8px 8px; background: #10141B; }
+/* Phone: a hardware frame. Metal band, black bezel, side buttons; the
+   capture carries its own status bar, dynamic island and tab bar. */
+.mm-phone {
+  position: absolute; right: 0; bottom: 0; width: var(--pw); box-sizing: border-box;
+  padding: calc(var(--pw) * .035); border-radius: calc(var(--pw) * .17); background: #04060A;
+  box-shadow: 0 0 0 calc(var(--pw) * .012) #4A5363, 0 0 0 calc(var(--pw) * .02) #1A1F28, 0 0 0 calc(var(--pw) * .024) rgba(232, 214, 168, .08), 0 40px 70px -24px rgba(0, 0, 0, .95);
+}
+.mm-phone-scr { position: relative; aspect-ratio: 390 / 844; overflow: hidden; border-radius: calc(var(--pw) * .135); background: #0C1A30; }
+.mm-btn { position: absolute; width: calc(var(--pw) * .016); border-radius: 2px; background: #3A4250; }
+.mm-btn-a { left: calc(var(--pw) * -.032); top: 17%; height: 5%; }
+.mm-btn-b { left: calc(var(--pw) * -.032); top: 25%; height: 9%; }
+.mm-btn-c { left: calc(var(--pw) * -.032); top: 36%; height: 9%; }
+.mm-btn-p { right: calc(var(--pw) * -.032); top: 28%; height: 13%; }
+.mm-wos-line { margin: 40px 0 0; text-align: center; font-size: 13px; color: var(--g-muted); }
+.mm-wos-cur { display: none; }
+@media (max-width: 1099px) {
+  .mm-wos { grid-template-columns: minmax(0, 1fr); gap: 40px; max-width: 860px; }
+  .mm-tabs { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .mm-tabs button { min-height: 48px; padding: 0 8px; text-align: center; }
+  .mm-tabs span { display: none; }
+  .mm-tabs b { font-size: 15px; }
+  .mm-devs { --pw: 22vw; }
+  .mm-wos-cur { display: inline; color: var(--g-sub); }
+}
+@media (max-width: 860px) {
+  .mm-wos { gap: 24px; }
+  .mm-tabs { gap: 2px; padding: 3px; border-radius: 14px; background: rgba(255, 255, 255, .03); }
+  .mm-tabs button { min-height: 44px; padding: 0 2px; border-radius: 11px; }
+  .mm-tabs b { font-size: 13px; }
+  .mm-tabs button[aria-selected="true"] { background: rgba(232, 214, 168, .12); }
+  .mm-laptop { display: none; }
+  .mm-devs { --pw: min(66vw, 270px); padding: 0; }
+  .mm-phone { position: relative; margin: 0 auto; }
+  .mm-wos-line { margin-top: 28px; font-size: 13px; text-wrap: balance; }
+}
+
+/* =========== Still to build (stage 1 only) =========== */
+.mm-later .g-w { padding-top: 48px; padding-bottom: 48px; }
+.mm-later-t { margin: 0 auto; max-width: 70ch; text-align: center; font-size: 14px; line-height: 1.6; color: var(--g-muted); }
+.mm-later-t b { color: var(--g-sub); font-weight: 500; }
