@@ -19,7 +19,6 @@ const PAGE = path.join(ROOT, 'guides.html');
 const data = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/guides-tools.json'), 'utf8'));
 
 const parts = {
-  topics: GT.renderTopics(data),
   count: GT.renderCount(data, 'public'),
   library: GT.renderLibrary(data, 'public'),
   soon: GT.renderSoon(data, 'public')
