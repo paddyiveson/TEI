@@ -336,7 +336,9 @@ body.tei-ground .tei-ftr + footer .footer-logo-mark { color: var(--g-champ) !imp
 /* -- 6b. The email row, first row of the footer (About, Articles, Guides &
    Tools, Membership). Market updates; one outline Sign up on phones so Book a
    call stays the only filled pill near the end of the page. -- */
-body.tei-ground .tei-ftr-nl { box-sizing: border-box; width: 100%; max-width: 1760px; margin: 0 auto; padding: 28px clamp(32px, 4vw, 72px); display: flex; align-items: center; justify-content: space-between; gap: 32px; background: var(--g-deep); border-bottom: 1px solid rgba(232, 214, 168, .10); }
+/* Full bleed, so the row's ground meets the screen edge on every page; the
+   content keeps the 1760px column through the side padding. */
+body.tei-ground .tei-ftr-nl { box-sizing: border-box; width: 100%; margin: 0; padding: 28px max(clamp(32px, 4vw, 72px), calc((100% - 1760px) / 2 + clamp(32px, 4vw, 72px))); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 32px; background: var(--g-deep); border-bottom: 1px solid rgba(232, 214, 168, .10); }
 .tei-ftr-nl > div p { margin: 0; }
 .tei-ftr-nl .tei-ftr-nl-soon { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 500; letter-spacing: .02em; color: var(--g-champ); }
 .tei-ftr-nl > div p b { display: block; font-size: 17px; font-weight: 600; color: var(--g-ink); }
@@ -344,13 +346,16 @@ body.tei-ground .tei-ftr-nl { box-sizing: border-box; width: 100%; max-width: 17
 .tei-ftr-nl form:focus-within { border-color: rgba(232, 214, 168, .6); }
 .tei-ftr-nl input { flex: 1; min-width: 0; height: 100%; border: 0; background: none; padding: 0; font-family: inherit; font-size: 16px; color: var(--g-ink); outline: none; }
 .tei-ftr-nl input::placeholder { color: var(--g-muted); }
+/* The pill shows focus (focus-within); no second box on the field itself. */
+.tei-ftr-nl input:focus-visible { outline: none; }
 .tei-ftr-nl .g-btn { height: 44px; min-height: 0; padding: 0 22px; font-size: 15px; box-shadow: none; }
-.tei-ftr-nl .g-msg { flex-basis: 100%; margin: 8px 0 0; font-size: 13px; color: var(--g-muted); }
+.tei-ftr-nl .g-msg { flex-basis: 100%; margin: 8px 0 0; font-size: 13px; text-align: right; color: var(--g-muted); }
 .tei-ftr-nl .g-msg:empty { display: none; }
 .tei-ftr-nl .g-msg.is-error { color: var(--g-warm); }
 @media (max-width: 860px) {
   body.tei-ground .tei-ftr-nl { display: block; padding: 24px 16px 20px; border-top: 1px solid rgba(232, 214, 168, .08); border-bottom: 0; }
   .tei-ftr-nl .tei-ftr-nl-soon { font-size: 12.5px; margin-bottom: 2px; }
+  .tei-ftr-nl .g-msg { text-align: left; }
   .tei-ftr-nl > div p b { margin: 0; font-size: 15px; font-weight: 500; }
   .tei-ftr-nl form { height: 52px; margin-top: 12px; padding: 3px 3px 3px 18px; border-color: rgba(232, 214, 168, .18); background: rgba(255, 255, 255, .02); }
   .tei-ftr-nl .g-btn { padding: 0 18px; font-size: 14.5px; background: transparent; color: var(--g-champ); border: 1px solid rgba(232, 214, 168, .35); }

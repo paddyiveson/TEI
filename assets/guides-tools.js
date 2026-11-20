@@ -100,8 +100,25 @@
   };
 
   /* ---------- Cards ---------- */
-  // "Use this when...": shown in full on every width, under the description.
-  function useWhen(it) { return it.useWhen ? '<span class="gt-use">' + esc(it.useWhen) + '</span>' : ''; }
+  // "Use this when...", as Articles' "Read this if": in full under the
+  // description from 861px (a small label, then the sentence); on phones it
+  // sits behind an i after the title, opened by a tap (or hover with a mouse).
+  // Cards are divs whose title link is stretched over the card, so the i can
+  // be a real button beside the title.
+  var INFO = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 7.6v.2"></path></svg>';
+  function useText(it) { return esc(String(it.useWhen || '').replace(/^Use this when\s+/i, '')); }
+  function useWhen(it) {
+    return it.useWhen ? '<span class="gt-use"><span class="gt-use-k">Use this when</span><span class="gt-use-p">' + useText(it) + '</span></span>' : '';
+  }
+  function info(it, mode) {
+    if (!it.useWhen) return '';
+    var id = 'gt-pop-' + it.id + (mode === 'hub' ? '-h' : '');
+    return '<button type="button" class="gt-info" aria-expanded="false" aria-controls="' + id + '" aria-label="Use this when">' + INFO + '</button>' +
+      '<span class="gt-pop" id="' + id + '" hidden><span class="gt-use-k">Use this when</span> ' + useText(it) + '</span>';
+  }
+  function head(it, mode, href) {
+    return '<h3 class="gt-h">' + (href ? '<a class="gt-a" href="' + esc(href) + '">' + esc(it.title) + '</a>' : esc(it.title)) + info(it, mode) + '</h3>';
+  }
   // The stage names as a step line (the Five Stages feature). A list inside
   // the card link is valid HTML; nothing in it is interactive.
   function steps(it) {
@@ -112,21 +129,20 @@
   // the section that glows).
   GT.lead = function (it, mode, w, d) {
     var live = it.status === 'live' && hrefFor(it, mode);
-    var tag = live ? 'a' : 'div';
-    return '<' + tag + ' class="gt-card is-feat g-feature is-lift ' + kindClass(it) + (it.steps ? ' has-steps' : '') + (it.members ? ' is-members' : '') + ' gt-up press' + (live ? ' lift" href="' + esc(hrefFor(it, mode)) + '"' : ' is-soon" aria-disabled="true"') +
+    return '<div class="gt-card is-feat g-feature is-lift ' + kindClass(it) + (it.steps ? ' has-steps' : '') + (it.members ? ' is-members' : '') + ' gt-up press' + (live ? ' lift"' : ' is-soon" aria-disabled="true"') +
       attrs(it) + ' data-w="' + w + '" data-n="12" data-d="' + d + '">' + art(it, true, mode) +
-      '<span class="gt-body">' + tags(it, mode) + '<h3 class="gt-h">' + esc(it.title) + '</h3><span class="gt-p">' + esc(it.desc) + '</span>' +
+      '<span class="gt-body">' + tags(it, mode) + head(it, mode, live ? hrefFor(it, mode) : null) + '<span class="gt-p">' + esc(it.desc) + '</span>' +
       useWhen(it) + steps(it) +
       '<span class="gt-foot"><span class="gt-btn">' + esc(it.cta) + (live ? CHEV : '') + '</span>' +
-      (live && it.time ? '<span class="gt-time">' + esc(it.time) + '</span>' : '') + '</span></span></' + tag + '>';
+      (live && it.time ? '<span class="gt-time">' + esc(it.time) + '</span>' : '') + '</span></span></div>';
   };
   // A live card: illustration panel on top, then the text.
   GT.tile = function (it, mode, lay, d) {
-    return '<a class="gt-card ' + kindClass(it) + ' gt-up lift press" href="' + esc(hrefFor(it, mode)) + '"' + attrs(it) +
+    return '<div class="gt-card ' + kindClass(it) + ' gt-up lift press"' + attrs(it) +
       ' data-w="' + lay.w + '" data-n="' + lay.n + '" data-d="' + d + '">' + art(it, false, mode) +
-      '<span class="gt-body">' + tags(it, mode) + '<h3 class="gt-h">' + esc(it.title) + '</h3><span class="gt-p">' + esc(it.desc) + '</span>' + useWhen(it) +
+      '<span class="gt-body">' + tags(it, mode) + head(it, mode, hrefFor(it, mode)) + '<span class="gt-p">' + esc(it.desc) + '</span>' + useWhen(it) +
       '<span class="gt-foot"><span class="gt-cta">' + esc(it.cta) + CHEV + '</span>' +
-      (it.time ? '<span class="gt-time">' + esc(it.time) + '</span>' : '') + '</span></span></a>';
+      (it.time ? '<span class="gt-time">' + esc(it.time) + '</span>' : '') + '</span></span></div>';
   };
   // A members' tool that is not live yet: the same card, quieter, not a link.
   GT.soonCard = function (it, mode, w, d) {
@@ -233,6 +249,44 @@
     try { show = new URLSearchParams(location.search).get('show'); } catch (e) {}
     if (show === 'Guides' || show === 'Tools') $('gt-kinds').querySelector('[data-v="' + show + '"]').click();
     page.classList.add('gt-ready');
+  }
+
+  /* The i ("Use this when" on phones), as on Articles: a tap or click opens
+     and closes it; hover opens it where there is hover; a click elsewhere or
+     Escape closes it. One open at a time. */
+  var openBtn = null;
+  function setInfo(b, open) {
+    var pop = $(b.getAttribute('aria-controls'));
+    if (!pop) return;
+    if (open && openBtn && openBtn !== b) setInfo(openBtn, false);
+    pop.hidden = !open;
+    b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    openBtn = open ? b : openBtn === b ? null : openBtn;
+    if (!open) delete b.dataset.hov;
+  }
+  function closeInfo() { if (openBtn) setInfo(openBtn, false); openBtn = null; }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('.gt-info');
+    if (b) {
+      e.preventDefault();
+      if (b.dataset.hov) { delete b.dataset.hov; return; }
+      setInfo(b, b.getAttribute('aria-expanded') !== 'true');
+      return;
+    }
+    if (openBtn && !e.target.closest('.gt-pop')) closeInfo();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && openBtn) { var b = openBtn; closeInfo(); b.focus(); }
+  });
+  if (window.matchMedia && matchMedia('(hover: hover)').matches) {
+    document.addEventListener('mouseover', function (e) {
+      var b = e.target.closest && e.target.closest('.gt-info');
+      if (b && b.getAttribute('aria-expanded') !== 'true') { setInfo(b, true); b.dataset.hov = '1'; }
+    });
+    document.addEventListener('mouseout', function (e) {
+      var b = e.target.closest && e.target.closest('.gt-info');
+      if (b && b.dataset.hov && !b.contains(e.relatedTarget)) setInfo(b, false);
+    });
   }
 
   if (mode === 'hub') {
