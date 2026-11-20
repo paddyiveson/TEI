@@ -7,93 +7,218 @@
      4. Guides & Tools on the ground (.gt-*, public page only) */
 
 /* =========================================================
-   1. About
+   1. About (Stage 2, Nov 2026)
+   Stepped bands, one section after another, no rail. Each section opens
+   with a small champagne kicker (.ab-k) and a regular-weight heading
+   (.ab-h); sub-titles are champagne at regular weight (.ab-sub). Colour
+   comes from the bands, two side glows and the champagne accents; the
+   one lifted card is TEI in Where we sit. The founder section is set in
+   Newsreader, as one quote.
    ========================================================= */
-.ab-spectrum { margin-top: 36px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 32px; align-items: stretch; }
-.ab-sp { min-width: 0; padding-top: 22px; border-top: 1px solid var(--g-line); }
-.ab-sp.g-feat { padding-top: 26px; }
-.ab-sp-k { margin: 0; font-size: 13px; font-weight: 500; color: var(--g-muted); }
+.ab-k { margin: 0 0 16px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .06em; line-height: 1.4; text-transform: uppercase; color: var(--g-champ); }
+.ab-h { margin: 0; max-width: 30ch; font-size: 34px; font-weight: 400; letter-spacing: -.02em; line-height: 1.18; text-wrap: balance; color: var(--g-ink); }
+.ab-h > span { color: var(--g-muted); }
+.ab-sub { margin: 0; font-size: 18px; font-weight: 400; letter-spacing: -.005em; line-height: 1.35; color: var(--g-champ); text-wrap: balance; }
+
+/* Hero: centred, regular weight, the one accented heading */
+.ab-hero .g-w { padding-top: 104px; padding-bottom: 88px; text-align: center; }
+.ab-hero h1 { max-width: 18ch; margin: 0 auto; font-size: clamp(44px, 4.6vw, 72px); font-weight: 400; letter-spacing: -.03em; line-height: 1.04; }
+.ab-hero .g-dek { max-width: 62ch; margin: 28px auto 0; text-wrap: balance; }
+/* Hero motion, played once on load: words rise and fade in on a short
+   stagger (ease-out, no overshoot); the champagne accent lands last and a
+   little slower; the dek follows; the glow fades up behind. About 1.6s in
+   all. Reduced motion: none, the end state shows at once. */
+.ab-w { display: inline-block; }
+@keyframes ab-word { from { opacity: 0; transform: translateY(.32em); } to { opacity: 1; transform: none; } }
+@keyframes ab-fade { from { opacity: 0; } to { opacity: 1; } }
+.ab-hero.g-hero .g-in > h1 { animation: none; }
+.ab-hero .ab-w { animation: ab-word .62s cubic-bezier(.16, 1, .3, 1) both; }
+.ab-hero h1 > .ab-w:nth-child(1) { animation-delay: .08s; }
+.ab-hero h1 > .ab-w:nth-child(2) { animation-delay: .15s; }
+.ab-hero h1 > .ab-w:nth-child(3) { animation-delay: .22s; }
+.ab-hero h1 > .ab-w:nth-child(4) { animation-delay: .29s; }
+.ab-hero h1 > .ab-w:nth-child(5) { animation-delay: .36s; }
+.ab-hero h1 .g-accent .ab-w { animation-duration: .8s; }
+.ab-hero h1 .g-accent .ab-w:nth-child(1) { animation-delay: .56s; }
+.ab-hero h1 .g-accent .ab-w:nth-child(2) { animation-delay: .66s; }
+.ab-hero h1 .g-accent .ab-w:nth-child(3) { animation-delay: .76s; }
+.ab-hero.g-hero .g-in > .g-dek { animation: g-up .8s cubic-bezier(.16, 1, .3, 1) .9s both; }
+.ab-hero-glow { animation: ab-fade 1.6s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .ab-hero .ab-w, .ab-hero.g-hero .g-in > .g-dek, .ab-hero-glow { animation: none; }
+}
+
+/* What we believe: four beliefs under a hairline */
+.ab-beliefs { list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 40px; }
+.ab-beliefs li { padding-top: 18px; border-top: 1px solid var(--g-line); }
+.ab-beliefs p { margin: 8px 0 0; font-size: 16px; line-height: 1.6; color: var(--g-muted); text-wrap: pretty; }
+
+/* Where we sit: a drawn scale runs from the heading into the cards. Its
+   champagne point sits over TEI's lifted card and drops into it; a soft
+   glow sits behind that card. */
+.ab-scale { position: relative; margin: 40px 0 0; padding-bottom: 14px; display: flex; justify-content: space-between; gap: 16px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .06em; line-height: 1.4; text-transform: uppercase; color: var(--g-muted); }
+.ab-scale::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--g-line), rgba(232, 214, 168, .5) 50%, var(--g-line)); }
+.ab-scale-pt { position: absolute; left: 50%; bottom: -6px; width: 13px; height: 13px; margin-left: -6.5px; border-radius: 50%; background: var(--g-champ); box-shadow: 0 0 0 5px rgba(232, 214, 168, .14); }
+.ab-scale-pt::after { content: ""; position: absolute; left: 6px; top: 13px; width: 1px; height: 22px; background: linear-gradient(rgba(232, 214, 168, .7), rgba(232, 214, 168, .2)); }
+.ab-spectrum { position: relative; margin-top: 34px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 40px; align-items: stretch; }
+.ab-spectrum::before { content: ""; position: absolute; left: 20%; right: 20%; top: -40px; bottom: -60px; z-index: 0; pointer-events: none; background: radial-gradient(closest-side, rgba(232, 214, 168, .09), rgba(38, 66, 112, .22) 55%, transparent); }
+.ab-sp { position: relative; z-index: 1; min-width: 0; padding-top: 28px; }
+.ab-sp.g-feat { padding: 28px 30px 30px; box-shadow: 0 0 0 1px rgba(232, 214, 168, .04), 0 0 110px rgba(232, 214, 168, .12); }
+.ab-sp p { margin: 0; }
+.ab-sp-k { font-size: 13px; font-weight: 500; color: var(--g-muted); }
 .ab-sp-k.is-us { color: var(--g-champ); }
-.ab-sp-t { margin: 10px 0 0; font-size: 19px; font-weight: 600; letter-spacing: -.01em; line-height: 1.3; color: var(--g-ink); }
-.ab-sp.g-feat .ab-sp-t { font-size: 22px; }
-@media (max-width: 860px) {
-  .ab-spectrum { margin-top: 22px; grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .ab-sp { padding: 16px 0; }
-  .ab-sp.g-feat { margin: 4px 0; padding: 18px; }
-  .ab-sp.g-feat + .ab-sp { border-top: 0; }
-  .ab-sp-t, .ab-sp.g-feat .ab-sp-t { font-size: 17px; margin-top: 6px; }
-}
+.ab-sp .ab-sp-t { margin-top: 10px; font-size: 20px; font-weight: 400; letter-spacing: -.01em; line-height: 1.3; color: var(--g-ink); text-wrap: balance; }
+.ab-sp.g-feat .ab-sp-t { font-size: 23px; }
+.ab-sp .g-p { margin-top: 8px; font-size: 16px; }
+.ab-sp.g-feat .g-p { color: var(--g-sub); }
 
-/* The four steps: tabs, then the step on the band */
-.ab-tabs { margin-top: 36px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
-.ab-tabs button {
-  min-height: 80px; padding: 14px 18px; border-radius: 14px; border: 1px solid rgba(232, 214, 168, .2); background: transparent;
-  display: flex; flex-direction: column; gap: 6px; text-align: left; cursor: pointer; font-family: inherit; color: var(--g-ink);
-}
-.ab-tabs button[aria-selected="true"] { background: var(--g-champ); border-color: var(--g-champ); color: var(--g-champ-ink); }
-@media (hover: hover) { .ab-tabs button[aria-selected="false"]:hover { border-color: rgba(232, 214, 168, .5); } }
-.ab-tab-n { font-family: var(--tei-num); font-size: 13px; font-weight: 500; opacity: .8; }
-.ab-tab-t { font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
-.ab-step { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--g-line); display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 24px 56px; align-items: start; }
-.ab-step[hidden] { display: none; }
-.ab-step-k { margin: 0; font-size: 13px; font-weight: 500; color: var(--g-champ); }
-.ab-step h3 { margin: 8px 0 0; font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; color: var(--g-ink); }
-.ab-step .g-lede { max-width: 60ch; }
-.ab-dots { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--g-line-soft); }
-.ab-dots li { position: relative; padding: 12px 0 12px 24px; border-bottom: 1px solid var(--g-line-soft); font-size: 15px; line-height: 1.5; color: var(--g-sub); }
-.ab-dots li::before { content: ""; position: absolute; left: 2px; top: 19px; width: 7px; height: 7px; border-radius: 50%; background: var(--g-champ); }
-@media (max-width: 860px) {
-  .ab-tabs { margin-top: 22px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .ab-tabs button { min-height: 64px; padding: 10px 12px; gap: 4px; }
-  .ab-tab-n { font-size: 12px; }
-  .ab-tab-t { font-size: 15px; }
-  .ab-step { margin-top: 18px; padding-top: 18px; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-  .ab-step h3 { font-size: 22px; }
-  .ab-dots li { font-size: 14px; padding: 10px 0 10px 22px; }
-  .ab-dots li::before { top: 17px; }
-}
+/* How we work: a timeline. A line joins four points; a tile under each.
+   With JS (.is-live) one step is selected: its tile takes the shared lift
+   (.g-feature.is-lift) and the line fills to its point (--ab-fill). The
+   other tiles stay flat and fully readable. */
+.ab-steps { position: relative; list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.ab-steps::before, .ab-steps::after { content: ""; position: absolute; left: 6px; top: 6px; height: 1px; }
+.ab-steps::before { right: 0; background: rgba(232, 214, 168, .26); }
+.ab-steps::after { width: var(--ab-fill, 0); background: var(--g-champ); transition: width .25s ease-out, height .25s ease-out; }
+.ab-step { display: flex; flex-direction: column; min-width: 0; outline: none; }
+.ab-steps.is-live .ab-step { cursor: pointer; }
+.ab-dot { position: relative; z-index: 1; width: 13px; height: 13px; box-sizing: border-box; border-radius: 50%; background: var(--g-b1); border: 2px solid var(--g-champ); transition: background .2s ease-out, box-shadow .2s ease-out; }
+.ab-step.is-past .ab-dot, .ab-step.is-on .ab-dot { background: var(--g-champ); }
+.ab-step.is-on .ab-dot { box-shadow: 0 0 0 5px rgba(232, 214, 168, .16); }
+.ab-tile { flex: 1; margin-top: 20px; padding: 22px 22px 24px; border-radius: 16px; background: var(--g-tile); border: 1px solid var(--g-tile-line); transition: background .2s ease-out, border-color .2s ease-out, box-shadow .2s ease-out; }
+.ab-steps.is-live .ab-tile:not(.g-feature) { background: transparent; }
+.ab-step:focus-visible .ab-tile { outline: 2px solid var(--g-champ); outline-offset: 3px; }
+@media (hover: hover) { .ab-steps.is-live .ab-step:not(.is-on):hover .ab-tile { border-color: rgba(232, 214, 168, .3); } }
+.ab-tile p { margin: 8px 0 0; font-size: 15.5px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
+.ab-tile .ab-step-n { margin: 0 0 10px; font-family: var(--tei-num); font-size: 12px; font-weight: 500; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--g-muted); }
+.ab-step.is-on .ab-step-n { color: var(--g-champ); }
+.ab-tile .ab-step-f { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--g-line-soft); font-size: 14.5px; color: var(--g-muted); }
+.ab-tile.g-feature .ab-step-f { color: var(--g-sub); }
+.ab-tile.g-feature { box-shadow: 0 0 0 1px rgba(232, 214, 168, .06), 0 0 90px rgba(232, 214, 168, .12); }
 
-/* Coaching, not advice */
-.ab-legal-intro { margin-top: 20px; max-width: 72ch; }
-.ab-legal-intro p { margin: 0 0 14px; font-size: 17px; line-height: 1.6; color: var(--g-muted); }
-.ab-legal-intro p:first-child { color: var(--g-ink); }
-.ab-notes { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0 32px; align-items: start; }
-.ab-note { padding-top: 22px; border-top: 1px solid var(--g-line); }
-.ab-note-k { margin: 0; font-size: 15px; font-weight: 600; color: var(--g-champ); }
-.ab-notes p { margin: 10px 0 0; font-size: 15px; line-height: 1.6; color: var(--g-sub); }
-.ab-notes .g-feat p { color: var(--g-ink); font-size: 16px; }
-.ab-notes a { color: var(--g-champ); text-decoration: underline; text-underline-offset: 3px; }
-@media (max-width: 1099px) {
-  .ab-notes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px 24px; }
-  .ab-notes .g-feat { grid-column: 1 / -1; }
+/* The founder: centred. One quote in Newsreader with drawn marks; the full
+   story opens across the width in two columns, the italic line spanning
+   both as a pull quote. */
+.ab-founder .g-w { text-align: center; padding-top: 160px; padding-bottom: 160px; }
+.ab-glow-founder { top: 0; bottom: 0; background: radial-gradient(640px 300px at 50% 46%, rgba(232, 214, 168, .09), transparent 70%), radial-gradient(1000px 420px at 50% 50%, rgba(38, 66, 112, .30), transparent 72%); }
+@media (min-width: 861px) {
+  .ab-founder .g-w { min-height: calc(100dvh - var(--tei-hdr-h, 64px)); display: flex; flex-direction: column; justify-content: center; }
 }
-@media (max-width: 860px) {
-  .ab-legal-intro p { font-size: 15px; }
-  .ab-notes { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .ab-note { padding: 16px 0; }
-  .ab-notes .g-feat { margin-bottom: 8px; }
-  .ab-notes p, .ab-notes .g-feat p { font-size: 14px; }
-}
-
-/* Who is behind TEI, and the FAQ */
-.ab-who { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px 64px; align-items: start; }
-.ab-who-q { margin: 0; font-size: 24px; line-height: 1.35; font-weight: 600; letter-spacing: -.015em; color: var(--g-ink); text-wrap: balance; }
-.ab-who .g-p { margin-top: 14px; }
-.ab-story-btn { margin-top: 10px; }
-@media (max-width: 860px) {
-  .ab-who { grid-template-columns: minmax(0, 1fr); gap: 24px; }
-  .ab-who-q { font-size: 19px; }
-}
-
-/* The founder story */
-.ab-story { max-width: 760px; }
-.ab-story .g-h2 { margin-bottom: 24px; }
-.ab-story p:not(.g-eye) { margin: 0 0 20px; font-size: 18px; line-height: 1.7; color: var(--g-sub); }
-.ab-story p.ab-story-quote { margin: 28px 0; padding-left: 22px; border-left: 2px solid var(--g-champ); font-size: 22px; line-height: 1.5; color: var(--g-ink); }
+.ab-quote { margin: 8px auto 0; padding: 0; font-family: "Newsreader", Georgia, "Times New Roman", serif; }
+.ab-qm { display: block; width: 40px; height: 30px; fill: var(--g-champ); }
+.ab-qm-open { margin: 0 auto 18px; }
+.ab-qm-close { display: inline-block; margin-left: 10px; vertical-align: -2px; }
+.ab-qm-close .ab-qm { width: 24px; height: 18px; }
+.ab-quote p { margin: 0; text-wrap: pretty; }
+.ab-quote .ab-quote-intro { max-width: 900px; margin: 0 auto; font-size: 30px; line-height: 1.4; letter-spacing: -.005em; color: var(--g-ink); text-wrap: balance; }
+.ab-story { margin-top: 56px; columns: 2; column-gap: 64px; text-align: left; }
+.ab-story p { margin: 0 0 20px; font-size: 19px; line-height: 1.65; color: var(--g-sub); break-inside: avoid-column; }
+.ab-story p.ab-story-quote { font-style: italic; color: var(--g-ink); }
 .ab-story p:last-child { margin-bottom: 0; }
+.ab-story-act { margin: 24px 0 0; }
+.ab-story-btn, .ab-reg-btn {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
+  font-family: var(--tei-word); font-size: 15.5px; font-weight: 500; color: var(--g-champ);
+  text-decoration: underline; text-decoration-color: rgba(232, 214, 168, .4); text-underline-offset: 4px;
+}
+@media (hover: hover) { .ab-story-btn:hover, .ab-reg-btn:hover { text-decoration-color: currentColor; } }
+
+/* Coaching, not advice, and the questions: one centred section */
+.ab-trust .g-w > .ab-k, .ab-trust .ab-h { text-align: center; }
+.ab-trust .ab-h { margin-left: auto; margin-right: auto; }
+.ab-h.ab-h-s { max-width: 40ch; font-size: 26px; line-height: 1.32; }
+.ab-lists { margin-top: 40px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ab-lists > div { padding: 26px 28px 20px; border-radius: 16px; background: var(--g-tile); border: 1px solid var(--g-tile-line); }
+.ab-lists .g-list { margin-top: 12px; }
+.ab-reg-act { margin: 16px 0 0; text-align: center; }
+.ab-reg-btn { font-size: 14.5px; }
+.ab-reg { margin-top: 16px; padding-top: 28px; border-top: 1px solid var(--g-line-soft); }
+.ab-reg p { margin: 0 0 0; font-size: 14px; line-height: 1.6; color: var(--g-muted); text-wrap: pretty; }
+.ab-reg { columns: 3; column-gap: 48px; }
+.ab-reg > p, .ab-reg-note { break-inside: avoid; margin-bottom: 18px; }
+.ab-reg-note { padding-top: 6px; }
+.ab-reg h4.ab-sub { margin: 0 0 6px; font-size: 15px; }
+.ab-reg a { color: var(--g-champ); text-decoration: underline; text-underline-offset: 3px; }
+.ab-trust .ab-qs-h { margin-top: 72px; font-size: 30px; }
+.ab-trust .g-w { padding-bottom: 144px; }
+.ab-faq { max-width: 760px; margin: 24px auto 0; }
+/* From 861px the questions are open cards, two a row, sharing a height */
+@media (min-width: 861px) {
+  .ab-faq { max-width: none; margin-top: 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  body.g-airy .ab-faq .tei-faq-item, body.g-airy .ab-faq .tei-faq-item:first-child { margin: 0; padding: 24px 28px 22px; border-radius: 16px; border: 1px solid var(--g-tile-line); }
+  .tei-ground .ab-faq .tei-faq-item button { min-height: 0; cursor: default; font-size: 18px; font-weight: 400; color: var(--g-champ); opacity: 1; }
+  .tei-ground .ab-faq .tei-faq-item button svg { display: none; }
+  .tei-ground .ab-faq .tei-faq-item button:hover span { color: inherit; }
+  .tei-ground .ab-faq .tei-faq-item p { margin: 10px 0 0; max-width: none; font-size: 15.5px; }
+}
+.tei-ground .ab-faq .tei-faq-item h4 { margin: 0; font: inherit; }
+.ab-faq .tei-faq-item { display: flow-root; }
+
+@media (max-width: 1099px) {
+  .ab-beliefs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ab-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
+  .ab-steps::before { display: none; }
+  .ab-steps::after { display: none; }
+  .ab-reg { columns: 2; }
+}
 @media (max-width: 860px) {
-  .ab-story p:not(.g-eye) { font-size: 16px; line-height: 1.65; }
-  .ab-story p.ab-story-quote { font-size: 18px; }
+  .ab-k { margin-bottom: 10px; }
+  .ab-beliefs, .ab-spectrum, .ab-steps, .ab-lists, .ab-reg { max-width: 600px; }
+  .ab-h { font-size: 24px; line-height: 1.22; }
+  .ab-h.ab-h-s { font-size: 19px; line-height: 1.4; }
+  .ab-sub { font-size: 16.5px; }
+  /* The hero takes most of the first screen, the next section peeking in */
+  .ab-hero .g-w { padding-top: 32px; padding-bottom: 32px; min-height: calc(86vh - var(--tei-hdr-h, 60px) - var(--tei-mbar-total, 0px)); min-height: calc(86svh - var(--tei-hdr-h, 60px) - var(--tei-mbar-total, 0px)); display: flex; flex-direction: column; justify-content: center; }
+  .ab-hero h1 { font-size: 40px; line-height: 1.06; }
+  .ab-hero .g-dek { margin-top: 18px; font-size: 17px; text-wrap: balance; }
+  .ab-beliefs { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .ab-beliefs li { padding-top: 14px; }
+  .ab-beliefs p { margin-top: 4px; font-size: 15px; }
+  /* Where we sit: the scale, then TEI's card first, then the other two */
+  .ab-scale { margin-top: 24px; max-width: 600px; font-size: 10px; }
+  .ab-scale-pt::after { height: 14px; }
+  .ab-spectrum { margin-top: 26px; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .ab-spectrum::before { left: 0; right: 0; top: -20px; bottom: auto; height: 260px; }
+  .ab-sp { padding-top: 18px; }
+  .ab-sp.g-feat { order: -1; padding: 18px; }
+  .ab-sp .ab-sp-t, .ab-sp.g-feat .ab-sp-t { margin-top: 4px; font-size: 17.5px; }
+  .ab-sp .g-p { font-size: 14.5px; }
+  /* How we work: the timeline runs down the left */
+  .ab-steps { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .ab-steps::before, .ab-steps::after { display: block; top: 26px; left: 6px; width: 1px; }
+  .ab-steps::before { right: auto; bottom: 26px; height: auto; }
+  .ab-steps::after { height: var(--ab-fill, 0); }
+  .ab-step { flex-direction: row; align-items: flex-start; gap: 14px; }
+  .ab-dot { flex: none; margin-top: 20px; }
+  .ab-tile { margin-top: 0; padding: 16px; border-radius: 12px; }
+  .ab-tile p { font-size: 14.5px; line-height: 1.55; }
+  .ab-tile .ab-step-n { margin-bottom: 6px; }
+  .ab-tile .ab-step-f { margin-top: 10px; padding-top: 10px; font-size: 13.5px; }
+  /* The founder: one column */
+  .ab-qm { width: 30px; height: 22px; }
+  .ab-qm-open { margin-bottom: 12px; }
+  .ab-qm-close .ab-qm { width: 18px; height: 14px; }
+  .ab-quote .ab-quote-intro { font-size: 18px; line-height: 1.5; }
+  .ab-story { margin-top: 24px; columns: 1; }
+  .ab-story p { margin-bottom: 16px; font-size: 17.5px; line-height: 1.6; }
+  .ab-story-act { margin-top: 12px; }
+  /* Coaching, not advice, and the questions */
+  .ab-lists { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ab-lists > div { padding: 18px 16px 14px; border-radius: 12px; }
+  .ab-reg-act { margin-top: 8px; }
+  .ab-reg { padding-top: 20px; }
+  .ab-reg { columns: 1; }
+  .ab-reg > p, .ab-reg-note { margin-bottom: 14px; }
+  .ab-founder .g-w { padding-top: 72px; padding-bottom: 72px; }
+  .ab-trust .ab-qs-h { margin-top: 44px; font-size: 22px; }
+  .ab-faq { margin-top: 16px; }
+  .ab-trust .g-w { padding-bottom: 72px; }
+}
+@media (max-width: 1099px) and (min-width: 861px) {
+  .ab-steps.is-live .ab-tile:not(.g-feature) { background: var(--g-tile); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-steps::after, .ab-dot, .ab-tile { transition: none; }
 }
 
 /* =========================================================
@@ -455,25 +580,7 @@
    5. Airy pages (<body class="g-airy">): no hairline dividers
    Space and grouping instead. See /assets/site-ground.css, section 7.
    ========================================================= */
-/* About: where we sit, the four steps, the notes */
-body.g-airy .ab-sp { border-top: 0; }
-body.g-airy .ab-tabs { margin-top: 28px; }
-body.g-airy .ab-step { margin-top: 32px; padding-top: 0; border-top: 0; gap: 20px 56px; }
-body.g-airy .ab-step h3 { margin-top: 0; }
-body.g-airy .ab-dots { border-top: 0; }
-body.g-airy .ab-dots li { border-bottom: 0; padding: 7px 0 7px 24px; }
-body.g-airy .ab-dots li::before { top: 15px; }
-body.g-airy .ab-note { border-top: 0; padding-top: 0; }
-body.g-airy .ab-notes { margin-top: 48px; gap: 32px 40px; align-items: start; }
-@media (max-width: 860px) {
-  body.g-airy .ab-sp:not(.g-feat) { padding: 12px 0; }
-  body.g-airy .ab-tabs { margin-top: 20px; }
-  body.g-airy .ab-step { margin-top: 20px; gap: 10px; }
-  body.g-airy .ab-dots li { padding: 5px 0 5px 22px; }
-  body.g-airy .ab-dots li::before { top: 13px; }
-  body.g-airy .ab-notes { margin-top: 28px; gap: 20px; }
-  body.g-airy .ab-note { padding: 0; }
-}
+/* About: sets its own spacing (section 1). */
 
 /* Guides & Tools: cards separated by space; the members strip above the close */
 body.g-airy .gt-card:not(.is-feat) { border-top: 0; padding-top: 0; }
