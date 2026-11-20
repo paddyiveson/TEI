@@ -11,9 +11,12 @@
    then filters the same way.
 
    The page is the Guides & Tools look (illustrated cards). The flow:
-     the featured card (the same card, larger, with its illustration beside
-     the text), then the live cards, the five stages and a quieter Coming soon
-     row. In the Hub, a Members band sits above the library.
+     the featured card (Five Stages since Stage 2, 20 Nov 2026: the same card,
+     larger, its illustration beside the text and the five stage names as a
+     step line), then the live cards and a quieter Coming soon row. In the
+     Hub, a Members band sits above the library. Filters: the Guides / Tools
+     toggle and the search (topics stay in the JSON for the search).
+   Every live card carries a "Use this when..." line (useWhen in the JSON).
    Card widths sit in data-w (from 1100px) and data-n (below 1100px), so the
    page needs no inline styles; every row fills and an odd last card spans
    its row. */
@@ -76,26 +79,44 @@
   }
   GT.spans = spans;
   // From 1100px: the featured card takes two thirds of the first row beside
-  // one card; the rest run three a row when they fill it, else two. Without a
+  // one card; the rest run three a row when they fill it, else two. With
+  // exactly two other cards, the featured card takes the whole row and the
+  // two share the next (else one would sit alone under it). Without a
   // featured card: three a row. Below 1100px: featured across, cards two a row.
   GT.layout = function (hasLead, n) {
     var wide;
+    if (hasLead && n === 2) {
+      return { lead: { w: 12 }, tiles: [{ w: 6, n: 6 }, { w: 6, n: 6 }] };
+    }
     if (hasLead) {
       var rest = Math.max(n - 1, 0);
       wide = n ? [4].concat(spans(rest, rest % 3 === 0 ? 3 : 2)) : [];
     } else wide = spans(n, 3);
-    var narrow = spans(n, 2);
+    // Below 1100px, two a row. With a featured card and an odd number of
+    // cards, the first (the one beside the featured card on desktop) spans
+    // the row under it, so the rest pair up as they do on desktop.
+    var narrow = hasLead && n % 2 ? [12].concat(spans(n - 1, 2)) : spans(n, 2);
     return { lead: { w: n ? 8 : 12 }, tiles: wide.map(function (w, i) { return { w: w, n: narrow[i] }; }) };
   };
 
   /* ---------- Cards ---------- */
-  // The featured card: the same card, larger, its illustration beside the text.
+  // "Use this when...": shown in full on every width, under the description.
+  function useWhen(it) { return it.useWhen ? '<span class="gt-use">' + esc(it.useWhen) + '</span>' : ''; }
+  // The stage names as a step line (the Five Stages feature). A list inside
+  // the card link is valid HTML; nothing in it is interactive.
+  function steps(it) {
+    return it.steps && it.steps.length ? '<ol class="gt-steps">' + it.steps.map(function (s) { return '<li><i aria-hidden="true"></i>' + esc(s) + '</li>'; }).join('') + '</ol>' : '';
+  }
+  // The featured card: the same card, larger, its illustration beside the
+  // text, on the shared feature surface (g-feature is-lift: the one card in
+  // the section that glows).
   GT.lead = function (it, mode, w, d) {
     var live = it.status === 'live' && hrefFor(it, mode);
     var tag = live ? 'a' : 'div';
-    return '<' + tag + ' class="gt-card is-feat ' + kindClass(it) + (it.members ? ' is-members' : '') + ' gt-up press' + (live ? ' lift" href="' + esc(hrefFor(it, mode)) + '"' : ' is-soon" aria-disabled="true"') +
+    return '<' + tag + ' class="gt-card is-feat g-feature is-lift ' + kindClass(it) + (it.steps ? ' has-steps' : '') + (it.members ? ' is-members' : '') + ' gt-up press' + (live ? ' lift" href="' + esc(hrefFor(it, mode)) + '"' : ' is-soon" aria-disabled="true"') +
       attrs(it) + ' data-w="' + w + '" data-n="12" data-d="' + d + '">' + art(it, true, mode) +
       '<span class="gt-body">' + tags(it, mode) + '<h3 class="gt-h">' + esc(it.title) + '</h3><span class="gt-p">' + esc(it.desc) + '</span>' +
+      useWhen(it) + steps(it) +
       '<span class="gt-foot"><span class="gt-btn">' + esc(it.cta) + (live ? CHEV : '') + '</span>' +
       (live && it.time ? '<span class="gt-time">' + esc(it.time) + '</span>' : '') + '</span></span></' + tag + '>';
   };
@@ -103,7 +124,7 @@
   GT.tile = function (it, mode, lay, d) {
     return '<a class="gt-card ' + kindClass(it) + ' gt-up lift press" href="' + esc(hrefFor(it, mode)) + '"' + attrs(it) +
       ' data-w="' + lay.w + '" data-n="' + lay.n + '" data-d="' + d + '">' + art(it, false, mode) +
-      '<span class="gt-body">' + tags(it, mode) + '<h3 class="gt-h">' + esc(it.title) + '</h3><span class="gt-p">' + esc(it.desc) + '</span>' +
+      '<span class="gt-body">' + tags(it, mode) + '<h3 class="gt-h">' + esc(it.title) + '</h3><span class="gt-p">' + esc(it.desc) + '</span>' + useWhen(it) +
       '<span class="gt-foot"><span class="gt-cta">' + esc(it.cta) + CHEV + '</span>' +
       (it.time ? '<span class="gt-time">' + esc(it.time) + '</span>' : '') + '</span></span></a>';
   };
@@ -144,11 +165,6 @@
   GT.renderSoon = function (data, mode) {
     return GT.parts(data, mode).soon.map(function (it) { return GT.soonChip(it, mode); }).join('');
   };
-  GT.renderTopics = function (data) {
-    return ['All topics'].concat(data.topics).map(function (t, i) {
-      return '<button type="button" class="gt-topic press" aria-pressed="' + (i ? 'false' : 'true') + '">' + esc(t) + '</button>';
-    }).join('');
-  };
   GT.countText = function (n) { return n + (n === 1 ? ' guide or tool' : ' guides and tools'); };
   GT.renderCount = function (data, mode) {
     var p = GT.parts(data, mode);
@@ -169,7 +185,7 @@
     var search = $('gt-search'), count = $('gt-count'), empty = $('gt-empty');
     var lib = $('gt-lib'), soon = $('gt-soon'), mem = $('gt-members');
     var items = page.querySelectorAll('[data-kind][data-topics]');
-    var topic = 'All topics', kind = 'All';
+    var kind = 'All';
     // What the search looks at: title, description, kind and topics.
     each(items, function (el) {
       el.gtText = (el.textContent + ' ' + el.getAttribute('data-kind') + ' ' + el.getAttribute('data-topics').split('|').join(' ')).toLowerCase();
@@ -193,9 +209,7 @@
     function apply() {
       var q = search ? search.value.trim().toLowerCase() : '', shown = 0;
       each(items, function (el) {
-        var ok = (kind === 'All' || el.getAttribute('data-kind') === kind) &&
-          (topic === 'All topics' || el.getAttribute('data-topics').split('|').indexOf(topic) > -1) &&
-          (!q || el.gtText.indexOf(q) > -1);
+        var ok = (kind === 'All' || el.getAttribute('data-kind') === kind) && (!q || el.gtText.indexOf(q) > -1);
         el.hidden = !ok;
         // The library count covers the library and Coming soon; the Members band has its own heading.
         if (ok && !(mem && mem.contains(el))) shown++;
@@ -209,10 +223,6 @@
     function press(group, chosen) {
       each(group.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', b === chosen ? 'true' : 'false'); });
     }
-    $('gt-topics').addEventListener('click', function (e) {
-      var b = e.target.closest('button'); if (!b) return;
-      topic = b.textContent; press(this, b); apply();
-    });
     $('gt-kinds').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
       kind = b.getAttribute('data-v'); press(this, b); apply();
@@ -229,7 +239,6 @@
     fetch('/assets/guides-tools.json', { credentials: 'same-origin' })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (data) {
-        $('gt-topics').innerHTML = GT.renderTopics(data);
         $('gt-members').innerHTML = GT.renderMembers(data);
         $('gt-lib').innerHTML = GT.renderLibrary(data, 'hub');
         $('gt-soon-l').innerHTML = GT.renderSoon(data, 'hub');
