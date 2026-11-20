@@ -30,10 +30,17 @@
 .ab-beliefs li { padding-top: 18px; border-top: 1px solid var(--g-line); }
 .ab-beliefs p { margin: 8px 0 0; font-size: 16px; line-height: 1.6; color: var(--g-muted); text-wrap: pretty; }
 
-/* Where we sit: free content / TEI / regulated advice */
-.ab-spectrum { margin-top: 40px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 40px; align-items: stretch; }
-.ab-sp { min-width: 0; padding-top: 28px; }
-.ab-sp.g-feature { padding: 28px 30px 30px; }
+/* Where we sit: a drawn scale runs from the heading into the cards. Its
+   champagne point sits over TEI's lifted card and drops into it; a soft
+   glow sits behind that card. */
+.ab-scale { position: relative; margin: 40px 0 0; padding-bottom: 14px; display: flex; justify-content: space-between; gap: 16px; font-family: var(--tei-num); font-size: 11px; font-weight: 500; letter-spacing: .06em; line-height: 1.4; text-transform: uppercase; color: var(--g-muted); }
+.ab-scale::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, var(--g-line), rgba(232, 214, 168, .5) 50%, var(--g-line)); }
+.ab-scale-pt { position: absolute; left: 50%; bottom: -6px; width: 13px; height: 13px; margin-left: -6.5px; border-radius: 50%; background: var(--g-champ); box-shadow: 0 0 0 5px rgba(232, 214, 168, .14); }
+.ab-scale-pt::after { content: ""; position: absolute; left: 6px; top: 13px; width: 1px; height: 22px; background: linear-gradient(rgba(232, 214, 168, .7), rgba(232, 214, 168, .2)); }
+.ab-spectrum { position: relative; margin-top: 34px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 40px; align-items: stretch; }
+.ab-spectrum::before { content: ""; position: absolute; left: 20%; right: 20%; top: -40px; bottom: -60px; z-index: 0; pointer-events: none; background: radial-gradient(closest-side, rgba(232, 214, 168, .09), rgba(38, 66, 112, .22) 55%, transparent); }
+.ab-sp { position: relative; z-index: 1; min-width: 0; padding-top: 28px; }
+.ab-sp.g-feature { padding: 28px 30px 30px; box-shadow: 0 0 0 1px rgba(232, 214, 168, .06), 0 0 110px rgba(232, 214, 168, .12); }
 .ab-sp p { margin: 0; }
 .ab-sp-k { font-size: 13px; font-weight: 500; color: var(--g-muted); }
 .ab-sp-k.is-us { color: var(--g-champ); }
@@ -42,60 +49,83 @@
 .ab-sp .g-p { margin-top: 8px; font-size: 16px; }
 .ab-sp.g-feature .g-p { color: var(--g-sub); }
 
-/* How we work: a timeline. A line joins four points; a tile under each. */
+/* How we work: a timeline. A line joins four points; a tile under each.
+   With JS (.is-live) one step is selected: its tile takes the shared lift
+   (.g-feature.is-lift) and the line fills to its point (--ab-fill). The
+   other tiles stay flat and fully readable. */
 .ab-steps { position: relative; list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.ab-steps::before { content: ""; position: absolute; left: 6px; right: 0; top: 6px; height: 1px; background: rgba(232, 214, 168, .32); }
-.ab-step { display: flex; flex-direction: column; min-width: 0; }
-.ab-dot { position: relative; width: 13px; height: 13px; box-sizing: border-box; border-radius: 50%; background: var(--g-b2); border: 2px solid var(--g-champ); }
-.ab-tile { flex: 1; margin-top: 20px; padding: 22px 22px 24px; border-radius: 16px; background: var(--g-tile); border: 1px solid var(--g-tile-line); }
+.ab-steps::before, .ab-steps::after { content: ""; position: absolute; left: 6px; top: 6px; height: 1px; }
+.ab-steps::before { right: 0; background: rgba(232, 214, 168, .26); }
+.ab-steps::after { width: var(--ab-fill, 0); background: var(--g-champ); transition: width .25s ease-out, height .25s ease-out; }
+.ab-step { display: flex; flex-direction: column; min-width: 0; outline: none; }
+.ab-steps.is-live .ab-step { cursor: pointer; }
+.ab-dot { position: relative; z-index: 1; width: 13px; height: 13px; box-sizing: border-box; border-radius: 50%; background: var(--g-b1); border: 2px solid var(--g-champ); transition: background .2s ease-out, box-shadow .2s ease-out; }
+.ab-step.is-past .ab-dot, .ab-step.is-on .ab-dot { background: var(--g-champ); }
+.ab-step.is-on .ab-dot { box-shadow: 0 0 0 5px rgba(232, 214, 168, .16); }
+.ab-tile { flex: 1; margin-top: 20px; padding: 22px 22px 24px; border-radius: 16px; background: var(--g-tile); border: 1px solid var(--g-tile-line); transition: background .2s ease-out, border-color .2s ease-out, box-shadow .2s ease-out; }
+.ab-steps.is-live .ab-tile:not(.g-feature) { background: transparent; }
+.ab-step:focus-visible .ab-tile { outline: 2px solid var(--g-champ); outline-offset: 3px; }
+@media (hover: hover) { .ab-steps.is-live .ab-step:not(.is-on):hover .ab-tile { border-color: rgba(232, 214, 168, .3); } }
 .ab-tile p { margin: 8px 0 0; font-size: 15.5px; line-height: 1.6; color: var(--g-sub); text-wrap: pretty; }
 .ab-tile .ab-step-n { margin: 0 0 10px; font-family: var(--tei-num); font-size: 12px; font-weight: 500; letter-spacing: .06em; font-variant-numeric: tabular-nums; color: var(--g-muted); }
+.ab-step.is-on .ab-step-n { color: var(--g-champ); }
 .ab-tile .ab-step-f { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--g-line-soft); font-size: 14.5px; color: var(--g-muted); }
+.ab-tile.g-feature .ab-step-f { color: var(--g-sub); }
+.ab-tile.g-feature { box-shadow: 0 0 0 1px rgba(232, 214, 168, .06), 0 0 90px rgba(232, 214, 168, .12); }
 
-/* The founder: one quote in Newsreader, with drawn marks */
-.ab-quote { margin: 8px 0 0; padding: 0; max-width: 960px; font-family: "Newsreader", Georgia, "Times New Roman", serif; }
+/* The founder: centred. One quote in Newsreader with drawn marks; the full
+   story opens across the width in two columns, the italic line spanning
+   both as a pull quote. */
+.ab-founder .g-w { text-align: center; }
+.ab-quote { margin: 8px auto 0; padding: 0; font-family: "Newsreader", Georgia, "Times New Roman", serif; }
 .ab-qm { display: block; width: 40px; height: 30px; fill: var(--g-champ); }
-.ab-qm-open { margin-bottom: 18px; }
+.ab-qm-open { margin: 0 auto 18px; }
 .ab-qm-close { display: inline-block; margin-left: 10px; vertical-align: -2px; }
 .ab-qm-close .ab-qm { width: 24px; height: 18px; }
 .ab-quote p { margin: 0; text-wrap: pretty; }
-.ab-quote-intro { font-size: 30px; line-height: 1.4; letter-spacing: -.005em; color: var(--g-ink); }
-.ab-story { margin-top: 32px; max-width: 680px; }
-.ab-story p { margin: 0 0 20px; font-size: 20px; line-height: 1.65; color: var(--g-sub); }
-.ab-story p.ab-story-quote { margin: 28px 0; font-size: 25px; line-height: 1.45; font-style: italic; color: var(--g-ink); }
+.ab-quote .ab-quote-intro { max-width: 900px; margin: 0 auto; font-size: 30px; line-height: 1.4; letter-spacing: -.005em; color: var(--g-ink); text-wrap: balance; }
+.ab-story { margin-top: 48px; columns: 2; column-gap: 64px; text-align: left; }
+.ab-story p { margin: 0 0 20px; font-size: 19px; line-height: 1.65; color: var(--g-sub); break-inside: avoid-column; }
+.ab-story p.ab-story-quote { column-span: all; max-width: 900px; margin: 16px auto 36px; font-size: 26px; line-height: 1.45; font-style: italic; text-align: center; text-wrap: balance; color: var(--g-ink); }
 .ab-story p:last-child { margin-bottom: 0; }
-.ab-story-act { margin: 20px 0 0; }
-.ab-story-btn {
+.ab-story-act { margin: 24px 0 0; }
+.ab-story-btn, .ab-reg-btn {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; cursor: pointer;
-  font-family: inherit; font-size: 15.5px; font-weight: 500; color: var(--g-champ);
+  font-family: var(--tei-word); font-size: 15.5px; font-weight: 500; color: var(--g-champ);
   text-decoration: underline; text-decoration-color: rgba(232, 214, 168, .4); text-underline-offset: 4px;
 }
-@media (hover: hover) { .ab-story-btn:hover { text-decoration-color: currentColor; } }
+@media (hover: hover) { .ab-story-btn:hover, .ab-reg-btn:hover { text-decoration-color: currentColor; } }
 
-/* Coaching, not advice: split rows; the left side stays in view */
-.ab-split { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 32px 64px; align-items: start; }
-.ab-split-l { position: sticky; top: calc(var(--tei-hdr-h, 64px) + 32px); }
-.ab-h.ab-h-s { font-size: 26px; line-height: 1.3; }
-.ab-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
+/* Coaching, not advice, and the questions: one centred section */
+.ab-trust .g-w > .ab-k, .ab-trust .ab-h { text-align: center; }
+.ab-trust .ab-h { margin-left: auto; margin-right: auto; }
+.ab-h.ab-h-s { max-width: 40ch; font-size: 26px; line-height: 1.32; }
+.ab-lists { margin-top: 40px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.ab-lists > div { padding: 26px 28px 20px; border-radius: 16px; background: var(--g-tile); border: 1px solid var(--g-tile-line); }
 .ab-lists .g-list { margin-top: 12px; }
-.ab-acc { margin-top: 36px; box-sizing: border-box; }
-.ab-qs { margin-top: 72px; }
-.ab-split .tei-faq-item { display: flow-root; }
-.tei-ground .ab-reg p { margin: 0 0 14px; max-width: none; }
-.tei-ground .ab-reg p:last-child { margin-bottom: 22px; }
-.ab-reg h4.ab-sub { margin: 22px 0 6px; font-size: 16px; }
+.ab-reg-act { margin: 16px 0 0; text-align: center; }
+.ab-reg-btn { font-size: 14.5px; }
+.ab-reg { margin-top: 16px; padding-top: 28px; border-top: 1px solid var(--g-line-soft); }
+.ab-reg p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--g-muted); text-wrap: pretty; }
+.ab-reg-intro, .ab-reg-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 40px; }
+.ab-reg-notes { margin-top: 28px; }
+.ab-reg h4.ab-sub { margin: 0 0 6px; font-size: 15px; }
 .ab-reg a { color: var(--g-champ); text-decoration: underline; text-underline-offset: 3px; }
+.ab-trust .ab-qs-h { margin-top: 72px; font-size: 30px; }
+.ab-faq { max-width: 760px; margin: 24px auto 0; }
+.tei-ground .ab-faq .tei-faq-item h4 { margin: 0; font: inherit; }
+.ab-faq .tei-faq-item { display: flow-root; }
 
 @media (max-width: 1099px) {
   .ab-beliefs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ab-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
-  .ab-split { grid-template-columns: minmax(0, 1fr); }
-  .ab-split-l { position: static; }
-  .ab-h.ab-h-s { max-width: 40ch; }
+  .ab-steps::before { display: none; }
+  .ab-steps::after { display: none; }
+  .ab-reg-intro, .ab-reg-notes { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 860px) {
   .ab-k { margin-bottom: 10px; }
-  .ab-beliefs, .ab-spectrum, .ab-steps, .ab-split-r { max-width: 600px; }
+  .ab-beliefs, .ab-spectrum, .ab-steps, .ab-lists, .ab-reg { max-width: 600px; }
   .ab-h { font-size: 24px; line-height: 1.22; }
   .ab-h.ab-h-s { font-size: 19px; line-height: 1.4; }
   .ab-sub { font-size: 16.5px; }
@@ -105,33 +135,50 @@
   .ab-beliefs { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 20px; }
   .ab-beliefs li { padding-top: 14px; }
   .ab-beliefs p { margin-top: 4px; font-size: 15px; }
-  .ab-spectrum { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  /* Where we sit: the scale, then TEI's card first, then the other two */
+  .ab-scale { margin-top: 24px; max-width: 600px; font-size: 10px; }
+  .ab-scale-pt::after { height: 14px; }
+  .ab-spectrum { margin-top: 26px; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .ab-spectrum::before { left: 0; right: 0; top: -20px; bottom: auto; height: 260px; }
   .ab-sp { padding-top: 18px; }
   .ab-sp.g-feature { order: -1; padding: 18px; }
   .ab-sp .ab-sp-t, .ab-sp.g-feature .ab-sp-t { margin-top: 4px; font-size: 17.5px; }
   .ab-sp .g-p { font-size: 14.5px; }
-  /* The timeline runs down the left */
+  /* How we work: the timeline runs down the left */
   .ab-steps { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 14px; }
-  .ab-steps::before { left: 6px; right: auto; top: 20px; bottom: 20px; width: 1px; height: auto; }
+  .ab-steps::before, .ab-steps::after { display: block; top: 26px; left: 6px; width: 1px; }
+  .ab-steps::before { right: auto; bottom: 26px; height: auto; }
+  .ab-steps::after { height: var(--ab-fill, 0); }
   .ab-step { flex-direction: row; align-items: flex-start; gap: 14px; }
   .ab-dot { flex: none; margin-top: 20px; }
   .ab-tile { margin-top: 0; padding: 16px; border-radius: 12px; }
   .ab-tile p { font-size: 14.5px; line-height: 1.55; }
   .ab-tile .ab-step-n { margin-bottom: 6px; }
   .ab-tile .ab-step-f { margin-top: 10px; padding-top: 10px; font-size: 13.5px; }
+  /* The founder: one column */
   .ab-qm { width: 30px; height: 22px; }
   .ab-qm-open { margin-bottom: 12px; }
   .ab-qm-close .ab-qm { width: 18px; height: 14px; }
   .ab-quote-intro { font-size: 21px; line-height: 1.45; }
-  .ab-story { margin-top: 22px; }
+  .ab-story { margin-top: 24px; columns: 1; }
   .ab-story p { margin-bottom: 16px; font-size: 17.5px; line-height: 1.6; }
-  .ab-story p.ab-story-quote { margin: 20px 0; font-size: 20px; }
+  .ab-story p.ab-story-quote { margin: 20px 0 24px; font-size: 20px; }
   .ab-story-act { margin-top: 12px; }
-  .ab-lists { grid-template-columns: minmax(0, 1fr); gap: 20px; }
-  .ab-acc { margin-top: 24px; }
-  .ab-qs { margin-top: 48px; }
-  .ab-reg h4.ab-sub { margin-top: 16px; font-size: 15px; }
-  .tei-ground .ab-reg p { font-size: 14px; }
+  /* Coaching, not advice, and the questions */
+  .ab-lists { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .ab-lists > div { padding: 18px 16px 14px; border-radius: 12px; }
+  .ab-reg-act { margin-top: 8px; }
+  .ab-reg { padding-top: 20px; }
+  .ab-reg-intro, .ab-reg-notes { gap: 14px; }
+  .ab-reg-notes { margin-top: 18px; }
+  .ab-trust .ab-qs-h { margin-top: 44px; font-size: 22px; }
+  .ab-faq { margin-top: 16px; }
+}
+@media (max-width: 1099px) and (min-width: 861px) {
+  .ab-steps.is-live .ab-tile:not(.g-feature) { background: var(--g-tile); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab-steps::after, .ab-dot, .ab-tile { transition: none; }
 }
 
 /* =========================================================
