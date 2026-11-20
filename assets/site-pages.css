@@ -40,14 +40,14 @@
 .ab-spectrum { position: relative; margin-top: 34px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr); gap: 0 40px; align-items: stretch; }
 .ab-spectrum::before { content: ""; position: absolute; left: 20%; right: 20%; top: -40px; bottom: -60px; z-index: 0; pointer-events: none; background: radial-gradient(closest-side, rgba(232, 214, 168, .09), rgba(38, 66, 112, .22) 55%, transparent); }
 .ab-sp { position: relative; z-index: 1; min-width: 0; padding-top: 28px; }
-.ab-sp.g-feature { padding: 28px 30px 30px; box-shadow: 0 0 0 1px rgba(232, 214, 168, .06), 0 0 110px rgba(232, 214, 168, .12); }
+.ab-sp.g-feat { padding: 28px 30px 30px; box-shadow: 0 0 0 1px rgba(232, 214, 168, .04), 0 0 110px rgba(232, 214, 168, .12); }
 .ab-sp p { margin: 0; }
 .ab-sp-k { font-size: 13px; font-weight: 500; color: var(--g-muted); }
 .ab-sp-k.is-us { color: var(--g-champ); }
 .ab-sp .ab-sp-t { margin-top: 10px; font-size: 20px; font-weight: 400; letter-spacing: -.01em; line-height: 1.3; color: var(--g-ink); text-wrap: balance; }
-.ab-sp.g-feature .ab-sp-t { font-size: 23px; }
+.ab-sp.g-feat .ab-sp-t { font-size: 23px; }
 .ab-sp .g-p { margin-top: 8px; font-size: 16px; }
-.ab-sp.g-feature .g-p { color: var(--g-sub); }
+.ab-sp.g-feat .g-p { color: var(--g-sub); }
 
 /* How we work: a timeline. A line joins four points; a tile under each.
    With JS (.is-live) one step is selected: its tile takes the shared lift
@@ -76,7 +76,11 @@
 /* The founder: centred. One quote in Newsreader with drawn marks; the full
    story opens across the width in two columns, the italic line spanning
    both as a pull quote. */
-.ab-founder .g-w { text-align: center; }
+.ab-founder .g-w { text-align: center; padding-top: 160px; padding-bottom: 160px; }
+.ab-glow-founder { top: 0; bottom: 0; background: radial-gradient(640px 300px at 50% 46%, rgba(232, 214, 168, .09), transparent 70%), radial-gradient(1000px 420px at 50% 50%, rgba(38, 66, 112, .30), transparent 72%); }
+@media (min-width: 861px) {
+  .ab-founder .g-w { min-height: calc(100dvh - var(--tei-hdr-h, 64px)); display: flex; flex-direction: column; justify-content: center; }
+}
 .ab-quote { margin: 8px auto 0; padding: 0; font-family: "Newsreader", Georgia, "Times New Roman", serif; }
 .ab-qm { display: block; width: 40px; height: 30px; fill: var(--g-champ); }
 .ab-qm-open { margin: 0 auto 18px; }
@@ -84,9 +88,9 @@
 .ab-qm-close .ab-qm { width: 24px; height: 18px; }
 .ab-quote p { margin: 0; text-wrap: pretty; }
 .ab-quote .ab-quote-intro { max-width: 900px; margin: 0 auto; font-size: 30px; line-height: 1.4; letter-spacing: -.005em; color: var(--g-ink); text-wrap: balance; }
-.ab-story { margin-top: 48px; columns: 2; column-gap: 64px; text-align: left; }
+.ab-story { margin-top: 56px; columns: 2; column-gap: 64px; text-align: left; }
 .ab-story p { margin: 0 0 20px; font-size: 19px; line-height: 1.65; color: var(--g-sub); break-inside: avoid-column; }
-.ab-story p.ab-story-quote { column-span: all; max-width: 900px; margin: 16px auto 36px; font-size: 26px; line-height: 1.45; font-style: italic; text-align: center; text-wrap: balance; color: var(--g-ink); }
+.ab-story p.ab-story-quote { font-style: italic; color: var(--g-ink); }
 .ab-story p:last-child { margin-bottom: 0; }
 .ab-story-act { margin: 24px 0 0; }
 .ab-story-btn, .ab-reg-btn {
@@ -106,9 +110,10 @@
 .ab-reg-act { margin: 16px 0 0; text-align: center; }
 .ab-reg-btn { font-size: 14.5px; }
 .ab-reg { margin-top: 16px; padding-top: 28px; border-top: 1px solid var(--g-line-soft); }
-.ab-reg p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--g-muted); text-wrap: pretty; }
-.ab-reg-intro, .ab-reg-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px 40px; }
-.ab-reg-notes { margin-top: 28px; }
+.ab-reg p { margin: 0 0 0; font-size: 14px; line-height: 1.6; color: var(--g-muted); text-wrap: pretty; }
+.ab-reg { columns: 3; column-gap: 48px; }
+.ab-reg > p, .ab-reg-note { break-inside: avoid; margin-bottom: 18px; }
+.ab-reg-note { padding-top: 6px; }
 .ab-reg h4.ab-sub { margin: 0 0 6px; font-size: 15px; }
 .ab-reg a { color: var(--g-champ); text-decoration: underline; text-underline-offset: 3px; }
 .ab-trust .ab-qs-h { margin-top: 72px; font-size: 30px; }
@@ -121,7 +126,7 @@
   .ab-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
   .ab-steps::before { display: none; }
   .ab-steps::after { display: none; }
-  .ab-reg-intro, .ab-reg-notes { grid-template-columns: minmax(0, 1fr); }
+  .ab-reg { columns: 2; }
 }
 @media (max-width: 860px) {
   .ab-k { margin-bottom: 10px; }
@@ -141,8 +146,8 @@
   .ab-spectrum { margin-top: 26px; grid-template-columns: minmax(0, 1fr); gap: 0; }
   .ab-spectrum::before { left: 0; right: 0; top: -20px; bottom: auto; height: 260px; }
   .ab-sp { padding-top: 18px; }
-  .ab-sp.g-feature { order: -1; padding: 18px; }
-  .ab-sp .ab-sp-t, .ab-sp.g-feature .ab-sp-t { margin-top: 4px; font-size: 17.5px; }
+  .ab-sp.g-feat { order: -1; padding: 18px; }
+  .ab-sp .ab-sp-t, .ab-sp.g-feat .ab-sp-t { margin-top: 4px; font-size: 17.5px; }
   .ab-sp .g-p { font-size: 14.5px; }
   /* How we work: the timeline runs down the left */
   .ab-steps { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 14px; }
@@ -162,15 +167,15 @@
   .ab-quote-intro { font-size: 21px; line-height: 1.45; }
   .ab-story { margin-top: 24px; columns: 1; }
   .ab-story p { margin-bottom: 16px; font-size: 17.5px; line-height: 1.6; }
-  .ab-story p.ab-story-quote { margin: 20px 0 24px; font-size: 20px; }
   .ab-story-act { margin-top: 12px; }
   /* Coaching, not advice, and the questions */
   .ab-lists { margin-top: 24px; grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .ab-lists > div { padding: 18px 16px 14px; border-radius: 12px; }
   .ab-reg-act { margin-top: 8px; }
   .ab-reg { padding-top: 20px; }
-  .ab-reg-intro, .ab-reg-notes { gap: 14px; }
-  .ab-reg-notes { margin-top: 18px; }
+  .ab-reg { columns: 1; }
+  .ab-reg > p, .ab-reg-note { margin-bottom: 14px; }
+  .ab-founder .g-w { padding-top: 72px; padding-bottom: 72px; }
   .ab-trust .ab-qs-h { margin-top: 44px; font-size: 22px; }
   .ab-faq { margin-top: 16px; }
 }
