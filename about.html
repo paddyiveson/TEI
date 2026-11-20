@@ -129,7 +129,6 @@
 <div class="ab-reg-note"><h4 class="ab-sub">Your decisions are yours</h4>
 <p>All sessions, communications and written materials, including Wealth Plans, Forecasts and tools, are educational and informational. You remain fully responsible for every financial decision you make, including any decision made after a coaching session.</p></div>
 </div>
-</div>
 <h3 class="ab-h ab-qs-h" id="ab-faq-h">Questions</h3>
 <div class="ab-faq">
 <div class="tei-faq-item"><h4><button type="button" id="ab-faq-b0" aria-expanded="true" aria-controls="ab-faq-p0"><span>Is this financial advice?</span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></h4><p id="ab-faq-p0" role="region" aria-labelledby="ab-faq-b0">No. TEI provides coaching and education. We explain how things work and show how choices could play out. We never tell you which product to buy or hold, and every decision stays yours.</p></div>
@@ -194,15 +193,23 @@
     document.getElementById(button.getAttribute('aria-controls')).hidden = !open;
   }
 
+  /* Questions: open cards in a 2x2 grid from 861px (every answer shown);
+     accordion rows on phones, one answer open at a time. */
   var faqButtons = document.querySelectorAll('.ab-faq .tei-faq-item button');
-  each(faqButtons, function (b, i) {
-    setOpen(b, i === 0);
+  var phone = window.matchMedia('(max-width: 860px)');
+  function faqMode() {
+    each(faqButtons, function (b, i) { setOpen(b, phone.matches ? i === 0 : true); b.disabled = !phone.matches; });
+  }
+  each(faqButtons, function (b) {
     b.addEventListener('click', function () {
+      if (!phone.matches) return;
       var wasOpen = b.getAttribute('aria-expanded') === 'true';
       each(faqButtons, function (other) { setOpen(other, false); });
       setOpen(b, !wasOpen);
     });
   });
+  faqMode();
+  if (phone.addEventListener) phone.addEventListener('change', faqMode);
 
   var reg = document.getElementById('ab-reg-b');
   function showReg(open) {
