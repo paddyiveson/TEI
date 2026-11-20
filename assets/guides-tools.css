@@ -240,10 +240,15 @@
   .gt-card.is-feat .gt-h { font-size: 23px; }
   .gt-card.is-feat .gt-p { font-size: 14px; }
   .gt-card.is-feat .gt-foot { margin-top: 4px; }
-  /* The step line runs down the card: one 44px row a stage */
-  .gt-card.is-feat.has-steps .gt-art { flex-basis: auto; }
-  .gt-steps { margin-top: 6px; grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .gt-steps li { display: flex; align-items: center; min-height: 44px; padding: 0 0 0 24px; font-size: 15px; }
+  /* The Five Stages feature fits the first screen with the hero, search
+     and toggle (Paddy, 20 Nov 2026): no picture panel (its rising bars
+     repeat the step line), the tag in the text, and the step line running
+     down the card in compact rows (they are not tap targets). */
+  .gt-card.is-feat.has-steps .gt-art { display: none; }
+  .gt-card.is-feat.has-steps .gt-tags { position: static; margin: 0 0 2px; }
+  .gt-card.is-feat.has-steps .gt-body { padding: 16px 16px 16px; }
+  .gt-steps { margin-top: 4px; grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .gt-steps li { display: flex; align-items: center; min-height: 28px; padding: 0 0 0 24px; font-size: 15px; }
   .gt-steps li::before { left: 4px; right: auto; top: 0; bottom: 0; width: 1px; height: auto; }
   .gt-steps li:first-child::before { top: 50%; }
   .gt-steps li:last-child::before { width: 1px; bottom: 50%; }
@@ -275,6 +280,19 @@
   .gt-ready .gt-pop:not([hidden]) { position: absolute; z-index: 3; left: 10px; right: 10px; display: block; margin-top: 8px; padding: 12px; border-radius: 12px; background: var(--gt-pop-bg, var(--gt-tile)); border: 1px solid color-mix(in srgb, var(--gt-accent) 35%, transparent); font-family: inherit; font-size: 13px; font-weight: 400; line-height: 1.5; letter-spacing: 0; color: var(--gt-ink); text-wrap: pretty; box-shadow: 0 12px 32px rgba(0, 0, 0, .28); }
   .gt-pop .gt-use-k { display: block; margin-bottom: 4px; }
   .gt-card.is-feat .gt-pop .gt-use-k { font-size: 11px; }
+  /* Quieter cards, as Articles on phones: picture, title (with its i) and
+     read time. The description and the link words come off; the whole card
+     is still the link. Coming soon chips: kind and name only. */
+  .gt-card:not(.is-feat) .gt-p, .gt-card:not(.is-feat) .gt-cta { display: none; }
+  .gt-card:not(.is-feat) .gt-foot { justify-content: flex-start; }
+  .gt-sc-p { display: none; }
+  /* The public page: search and the Guides / Tools toggle share one row */
+  .tei-ground [data-gt-mode="public"] .gt-find { flex-wrap: nowrap; gap: 8px; margin: 0 0 14px; }
+  [data-gt-mode="public"] .gt-find .gt-search-wrap { flex: 1 1 auto; }
+  [data-gt-mode="public"] .gt-search { padding: 0 12px 0 40px; font-size: 16px; text-overflow: ellipsis; }
+  [data-gt-mode="public"] .gt-search-wrap svg { left: 14px; }
+  [data-gt-mode="public"] .gt-find .gt-kinds { flex: none; padding: 3px; }
+  [data-gt-mode="public"] .gt-find .gt-kind { padding: 0 11px; font-size: 13.5px; }
   .gt-g > [data-n="12"]:not(.is-feat) .gt-art { height: 110px; }
   .gt-g > [data-n="12"]:not(.is-feat) .gt-p { -webkit-line-clamp: 2; }
   /* Coming soon: two a row, wrapping; nothing scrolls sideways */

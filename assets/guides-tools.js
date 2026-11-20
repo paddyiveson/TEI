@@ -244,6 +244,14 @@
       kind = b.getAttribute('data-v'); press(this, b); apply();
     });
     if (search) search.addEventListener('input', apply);
+    // On phones the public search shares its row with the toggle, so the
+    // placeholder drops its examples rather than being cut off.
+    if (search && mode === 'public' && window.matchMedia) {
+      var full = search.getAttribute('placeholder'), phone = matchMedia('(max-width: 860px)');
+      var setPh = function () { search.setAttribute('placeholder', phone.matches ? 'Search' : full); };
+      setPh();
+      if (phone.addEventListener) phone.addEventListener('change', setPh);
+    }
     // ?show=Guides or ?show=Tools (the Client Hub home's "All guides" and "All tools").
     var show = null;
     try { show = new URLSearchParams(location.search).get('show'); } catch (e) {}
