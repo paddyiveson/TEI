@@ -1,12 +1,13 @@
 /* Tools captures for the Membership mock-up: the Portfolio Lab's five
-   stages and the full Forecast page, from the live Wealth OS code run on
+   stages, from the live Wealth OS code run on
    the test-only demo client (scripts/wos-demo: Sam Taylor, sample figures,
    never a real record). No login and no live database.
 
    Run from the repo root, with the repo served on :8080:
      node mock/membership/capture-tools.js
-   Writes mock/membership/img/lab-<stage>-{desk,phone}.jpg and
-   fc-{desk,phone}.jpg. Reduced motion, so every chart is at its end state.
+   Writes mock/membership/img/lab-<stage>-{desk,phone}.jpg. Desktop is
+   captured in a 1920px window, so the Lab spreads out and more of each
+   stage fits the page's frame (Paddy, 22 Nov 2026). Reduced motion, so every chart is at its end state.
    The Lab works through the Equal weight preset so Compare, Implement and
    Results show a real scenario. */
 const fs = require('fs');
@@ -44,19 +45,13 @@ async function shot(el, file) {
 
 async function run(browser, dev) {
   const desk = dev === 'desk';
-  const ctx = await browser.newContext({ viewport: desk ? { width: 1440, height: 900 } : { width: 390, height: 844 },
-    deviceScaleFactor: desk ? 1.5 : 2, reducedMotion: 'reduce', colorScheme: 'dark' });
+  const ctx = await browser.newContext({ viewport: desk ? { width: 1920, height: 1200 } : { width: 390, height: 844 },
+    deviceScaleFactor: desk ? 1.25 : 2, reducedMotion: 'reduce', colorScheme: 'dark' });
   await ctx.route(/\/hub\/js\/supabase-config\.js/, (r) => r.fulfill({ contentType: 'text/javascript', body: DEMO }));
   const page = await ctx.newPage();
   await page.goto(BASE + '/hub/wealth-os.html', { waitUntil: 'networkidle' });
   await page.addStyleTag({ content: HIDE });
   await page.evaluate(() => document.fonts && document.fonts.ready);
-
-  // Full Forecast page (the page body only, no sidebar).
-  await page.evaluate(() => TEI.app.showPage('planning'));
-  await page.waitForTimeout(1200);
-  await swapNames(page);
-  await shot(await page.$('#page-planning'), path.join(OUT, 'fc-' + dev + '.jpg'));
 
   // The Lab, stage by stage. Desktop: Analyse shows the whole tile (treemap
   // first) and the others start at the row of stage tabs. Phone: the Lab
