@@ -17,12 +17,12 @@ const SLUG = 'ondas-q3-2026-earnings-review';
 // local page render. No login and no live database.
 const DEMO = fs.readFileSync(path.join(__dirname, '../../scripts/wos-demo/demo-client.js'), 'utf8') + '\n' +
   fs.readFileSync(path.join(__dirname, '../../scripts/wos-demo/fake-supabase.js'), 'utf8');
-const STOPS = ['top', '#s1', '#s2', '#s3', '#s4', '#s5', '#s6', '#s7'];
+const STOPS = ['top', '#s1', '#s3', '#s5'];
 
-// Blur: every word in the article except the title's first line, the
-// section headings and the category pills. Charts keep their shapes; their
-// labels and figures blur with everything else. Verdicts, labels and
-// conclusions stay unreadable.
+// Blur: every figure (any text with a digit in it), the paragraphs of
+// analysis, the headline's verdict and the scenario controls. Headings,
+// labels and chart labels stay readable, so the structure shows without the
+// findings. (Paddy, 21 Nov 2026: shorter, and less blurred.)
 const BLUR_CSS = `
   .mm-bl{filter:blur(6px)!important}
   h1 span:last-child, h1 em{filter:blur(8px)!important}
@@ -45,15 +45,16 @@ const BLUR_CSS = `
     // Keep the title, section headings, and the hub bar and section nav (the
     // top 110px at load); everything else blurs.
     window.scrollTo(0, 0);
-    const keep = (el) => el.closest('h1, h2, script, style') || el.getBoundingClientRect().top < 110;
+    const keep = (el) => el.closest('script, style') || el.getBoundingClientRect().top < 110;
+    const prose = (el) => { const b = el.closest('p, li, blockquote, dd'); return b && b.textContent.trim().length > 40 && !b.closest('h1, h2, h3, h4'); };
     const w = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
     const hits = [];
     let n;
     while ((n = w.nextNode())) {
-      if (!n.nodeValue.trim() || !n.parentElement || keep(n.parentElement)) continue;
-      // The category pills at the top stay (Earnings review, ONDS).
-      if (n.parentElement.getBoundingClientRect().top < 200 && /^(Earnings review|ONDS)$/.test(n.nodeValue.trim())) continue;
-      hits.push(n);
+      const el = n.parentElement;
+      if (!n.nodeValue.trim() || !el || keep(el)) continue;
+      if (el.closest('h1, h2, h3')) continue; // headings stay; the h1 verdict line blurs by CSS
+      if (/\d/.test(n.nodeValue) || prose(el)) hits.push(n);
     }
     hits.forEach((t) => { const s = document.createElement('span'); s.className = 'mm-bl'; t.parentNode.insertBefore(s, t); s.appendChild(t); });
     document.documentElement.style.scrollBehavior = 'auto';

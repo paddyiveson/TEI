@@ -41,8 +41,8 @@
      set the state from the link. ?rec is the chat recording. ---- */
   if (q.has('shot')) doc.classList.add('mm-shot');
   if (q.has('rec')) doc.classList.add('mm-rec', 'mm-shot');
-  var state = { hero: 'a', view: 'visitor', notes: 'on' };
-  ['hero', 'view', 'notes'].forEach(function (k) { if (q.get(k)) state[k] = q.get(k); });
+  var state = { hero: 'a', coach: 'out', view: 'visitor', notes: 'on' };
+  ['hero', 'coach', 'view', 'notes'].forEach(function (k) { if (q.get(k)) state[k] = q.get(k); });
   var six = $('.mm-six');
   function playHero() {
     if (!six) return;
@@ -54,6 +54,7 @@
   function apply(replay) {
     body.classList.toggle('mm-hero-a', state.hero === 'a');
     body.classList.toggle('mm-hero-b', state.hero === 'b');
+    body.classList.toggle('mm-coach-year', state.coach === 'year');
     body.classList.toggle('mm-member', state.view === 'member');
     body.classList.toggle('mm-notes', state.notes === 'on');
     each($$('.mm-seg'), function (seg) {
@@ -71,6 +72,7 @@
       state[k] = b.getAttribute('data-v');
       apply(k === 'hero');
       if (k === 'hero') window.scrollTo({ top: 0 });
+      if (k === 'coach') { var c = $('#coaching'); if (c) c.scrollIntoView({ block: 'start' }); }
     });
   });
   if (opener) opener.addEventListener('click', function () {
@@ -90,29 +92,6 @@
       a.href = state.view === 'member' ? '/hub/members/' + a.getAttribute('data-slug') + '.html' : '/membership.html#tiers';
     });
   }
-  var notes = $('#mm-notes');
-  if (notes && window.fetch) {
-    fetch('/hub/members-articles.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (list) {
-      if (!Array.isArray(list)) return;
-      var ok = list.filter(function (a) { return a && a.slug && a.date && a.images && a.images.tease; })
-        .sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-      var groups = [['Earnings reviews', ok.filter(function (a) { return a.category === 'Earnings review'; }).slice(0, 3)],
-        ['Deep dives', ok.filter(function (a) { return a.category === 'Companies'; }).slice(0, 2)]];
-      if (!groups[0][1].length && !groups[1][1].length) return;
-      var html = groups.filter(function (g) { return g[1].length; }).map(function (g) {
-        return '<div class="mm-ng"><h3>' + g[0] + '</h3><ul>' + g[1].map(function (a) {
-          var tag = a.ticker || (a.tickers ? a.tickers.length + ' companies' : '');
-          return '<li><a href="/membership.html#tiers" data-slug="' + esc(a.slug) + '"><img src="' + esc(a.images.tease) + '" width="1600" height="900" alt="" loading="lazy">' +
-            '<span><b>' + (tag ? '<i>' + esc(tag) + '</i>' : '') + esc(a.short || a.title) + '</b><small>' + ukDate(a.date) + (a.readTime ? ' · ' + Number(a.readTime) + ' min read' : '') + '</small></span></a></li>';
-        }).join('') + '</ul></div>';
-      }).join('');
-      var more = $('.mm-more-soon', notes);
-      notes.innerHTML = html;
-      if (more) notes.appendChild(more);
-      setNoteLinks();
-    }).catch(function () {});
-  }
-
   apply(false);
 
   /* ---- 01 Hero. ---- */
@@ -121,6 +100,9 @@
   /* ---- 02 Coaching: the three outputs arrive in turn. ---- */
   var arts = $('.mm-arts');
   if (arts && !still) { arts.classList.add('mm-arm'); onView(arts, function () { arts.classList.add('mm-in'); }, 0.35); }
+
+  var year = $('.mm-year');
+  if (year && !still) { year.classList.add('mm-arm'); onView(year, function () { year.classList.add('mm-in'); }, 0.35); }
 
   /* ---- 03 Research walkthrough: plays while on screen. Reduced motion,
      or a browser that refuses: a Play button instead. ---- */
@@ -216,6 +198,42 @@
     b.addEventListener('keydown', function (e) { arrows(steps, i, e, pickStage); });
   });
 
+  var fcPanel = $('#tp-fc'), fcVid = $('#tp-fc video'), fcPlay = $('#tp-fc .mm-vid-play');
+  var chs = $$('#tp-fc .mm-fc-ch [role="tab"]');
+  function pickCh(i, focus) {
+    each(chs, function (b, j) { var on = j === i; b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1; });
+    fcPanel.classList.add('is-tried');
+    if (fcVid) {
+      var to = Number(chs[i].getAttribute('data-t'));
+      var go = function () { fcVid.currentTime = to; if (!still) { var pp = fcVid.play(); if (pp && pp.catch) pp.catch(function () {}); } };
+      // Seek only once the video knows its length; before that a seek is lost.
+      if (fcVid.readyState >= 1) go();
+      else { fcVid.preload = 'auto'; fcVid.addEventListener('loadedmetadata', go, { once: true }); fcVid.load(); }
+    }
+    if (focus) chs[i].focus();
+  }
+  each(chs, function (b, i) {
+    b.addEventListener('click', function () { pickCh(i, false); });
+    b.addEventListener('keydown', function (e) { arrows(chs, i, e, pickCh); });
+  });
+  if (fcVid) {
+    // The chapter follows the video as it plays.
+    fcVid.addEventListener('timeupdate', function () {
+      var t = fcVid.currentTime, k = 0;
+      each(chs, function (b, j) { if (t >= Number(b.getAttribute('data-t'))) k = j; });
+      each(chs, function (b, j) { b.setAttribute('aria-selected', j === k ? 'true' : 'false'); b.tabIndex = j === k ? 0 : -1; });
+    });
+    if (fcPlay) fcPlay.addEventListener('click', function () { fcPlay.hidden = true; fcVid.play().catch(function () { fcPlay.hidden = false; }); });
+    var fcOn = false;
+    var fcSync = function () {
+      var show = fcOn && !fcPanel.hidden;
+      if (still) { if (fcPlay) fcPlay.hidden = false; return; }
+      if (show) { fcVid.preload = 'auto'; var pp = fcVid.play(); if (pp && pp.catch) pp.catch(function () { if (fcPlay) fcPlay.hidden = false; }); } else fcVid.pause();
+    };
+    watch($('#tools'), function (on) { fcOn = on; fcSync(); }, 0.3);
+    each(tt, function (b) { b.addEventListener('click', fcSync); });
+  }
+
   /* ---- 06 Community: the chat plays in view and loops, about 30 seconds
      a pass: typing dots, then each message growing in at the bottom. ---- */
   var wa = $('.mm-wa');
@@ -261,8 +279,10 @@
     watch(wa, function (on) { chat.visible = on; if (on && !chat.running) playChat(true); }, 0.4);
   }
 
-  /* ---- 07 Tiers: year strips; the strip scene; the lit column. ---- */
-  var grid = $('.mm-grid');
+  /* ---- 07 Tiers: year strips, the strip scene, and the lit column. Hover,
+     focus or tap a tier and its whole column lights; nothing is lit by
+     default. Phones: the switch picks the column. ---- */
+  var cmp = $('.mm-cmp');
   each($$('.mm-strip'), function (s) {
     var r = (s.getAttribute('data-r') || '').split(',').filter(Boolean).map(Number);
     var c = (s.getAttribute('data-c') || '').split(',').filter(Boolean).map(Number);
@@ -270,33 +290,29 @@
     for (var m = 0; m < 12; m++) html += '<i class="' + (r.indexOf(m) > -1 ? 'r' : (c.indexOf(m) > -1 ? 'c' : '')) + '" style="--m:' + m + '"></i>';
     $('.mm-strip-row', s).innerHTML = html;
   });
-  if (grid) {
-    if (!still) { grid.classList.add('mm-arm'); onView(grid, function () { grid.classList.add('mm-in'); }, 0.3); }
-    var pinned = '0';
-    var tsw = $$('.mm-tsw [role="tab"]');
-    var setOn = function (c) { grid.setAttribute('data-on', c); };
-    var phoneTier = '1';
+  if (cmp) {
+    if (!still) { cmp.classList.add('mm-arm'); onView(cmp, function () { cmp.classList.add('mm-in'); }, 0.3); }
+    var pinned = '0', phoneTier = '1';
+    var setOn = function (c) { cmp.setAttribute('data-on', c); };
     var tierMode = function () { setOn(phone.matches ? phoneTier : pinned); };
-    each($$('.mm-tier', grid), function (card) {
-      var c = card.getAttribute('data-c');
-      card.addEventListener('mouseenter', function () { if (!phone.matches) setOn(c); });
-      card.addEventListener('focus', function () { if (!phone.matches) setOn(c); });
-      card.addEventListener('click', function (e) { if (phone.matches || e.target.closest('a')) return; pinned = c; setOn(c); });
-      card.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); pinned = c; setOn(c); } });
+    var colOf = function (el) { var cell = el.closest('th, td'); return cell && cell.cellIndex > 0 ? String(cell.cellIndex) : null; };
+    cmp.addEventListener('mouseover', function (e) { if (phone.matches) return; var c = colOf(e.target); if (c) setOn(c); });
+    cmp.addEventListener('mouseleave', function () { if (!phone.matches) setOn(pinned); });
+    cmp.addEventListener('focusin', function (e) { if (phone.matches) return; var c = colOf(e.target); if (c) setOn(c); });
+    cmp.addEventListener('focusout', function () { setTimeout(function () { if (!phone.matches && !cmp.contains(document.activeElement)) setOn(pinned); }, 0); });
+    each($$('.mm-ct thead th', cmp), function (th) {
+      th.tabIndex = 0;
+      var pin = function () { if (phone.matches) return; pinned = th.getAttribute('data-c'); setOn(pinned); };
+      th.addEventListener('click', pin);
+      th.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pin(); } });
     });
-    grid.addEventListener('mouseover', function (e) {
-      if (phone.matches) return;
-      var td = e.target.closest('td');
-      if (td) setOn(String(td.cellIndex));
-    });
-    grid.addEventListener('mouseleave', function () { if (!phone.matches) setOn(pinned); });
-    grid.addEventListener('focusout', function () { setTimeout(function () { if (!phone.matches && !grid.contains(document.activeElement)) setOn(pinned); }, 0); });
+    var tsw = $$('.mm-tsw [role="tab"]');
     var pickTier = function (i, focus) {
       phoneTier = String(i + 1);
       each(tsw, function (b, j) { b.setAttribute('aria-selected', j === i ? 'true' : 'false'); b.tabIndex = j === i ? 0 : -1; });
       setOn(phoneTier);
-      var strip = $('.mm-tier[data-c="' + phoneTier + '"] .mm-strip', grid);
-      if (!still && grid.classList.contains('mm-in')) { strip.classList.remove('is-quick'); void strip.offsetWidth; strip.classList.add('is-quick'); }
+      var strip = $('th[data-c="' + phoneTier + '"] .mm-strip', cmp);
+      if (!still && cmp.classList.contains('mm-in')) { strip.classList.remove('is-quick'); void strip.offsetWidth; strip.classList.add('is-quick'); }
       if (focus) tsw[i].focus();
     };
     each(tsw, function (b, i) {
